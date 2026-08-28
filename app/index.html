@@ -1,0 +1,782 @@
+<meta charset="utf-8">
+<title>Upstream</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Upstream UI — token-driven, three-state theming per the artifact contract. */
+:root {
+  --bg: #FAFAFB; --surface: #FFFFFF; --surface-2: #F4F4F7;
+  --border: #E6E6EE; --border-strong: #D5D5E0;
+  --ink: #17171E; --ink-2: #5D5D6B; --ink-3: #8A8A99;
+  --accent: #5B5BD6; --accent-ink: #4747C2; --accent-soft: #EEEEFB;
+  --und: #1F9D5B; --und-ink: #146B3E; --und-bg: #E4F5EC;
+  --emg: #C08A0B; --emg-ink: #7D5A05; --emg-bg: #FAF1D8;
+  --crd: #D2622B; --crd-ink: #93401A; --crd-bg: #FBE9DE;
+  --ovr: #C13A52; --ovr-ink: #8C2038; --ovr-bg: #F9E3E8;
+  --good: #1F9D5B; --warn: #C08A0B; --bad: #C13A52;
+  --band-good: rgba(31, 157, 91, 0.10); --band-bad: rgba(193, 58, 82, 0.08);
+  --chart-grid: #ECECF2; --shadow: 0 1px 2px rgba(23, 23, 30, 0.05), 0 4px 16px rgba(23, 23, 30, 0.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D0D12; --surface: #15151C; --surface-2: #1B1B24;
+    --border: #262630; --border-strong: #34343F;
+    --ink: #EDEDF3; --ink-2: #A3A3B2; --ink-3: #6F6F80;
+    --accent: #8687F0; --accent-ink: #A5A6F5; --accent-soft: #1E1E33;
+    --und: #34C77E; --und-ink: #7FE0AE; --und-bg: rgba(52, 199, 126, 0.13);
+    --emg: #E3B23C; --emg-ink: #F0CD7E; --emg-bg: rgba(227, 178, 60, 0.13);
+    --crd: #E97F4E; --crd-ink: #F3A983; --crd-bg: rgba(233, 127, 78, 0.13);
+    --ovr: #E25C78; --ovr-ink: #F095A8; --ovr-bg: rgba(226, 92, 120, 0.14);
+    --good: #34C77E; --warn: #E3B23C; --bad: #E25C78;
+    --band-good: rgba(52, 199, 126, 0.10); --band-bad: rgba(226, 92, 120, 0.09);
+    --chart-grid: #23232D; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D0D12; --surface: #15151C; --surface-2: #1B1B24;
+  --border: #262630; --border-strong: #34343F;
+  --ink: #EDEDF3; --ink-2: #A3A3B2; --ink-3: #6F6F80;
+  --accent: #8687F0; --accent-ink: #A5A6F5; --accent-soft: #1E1E33;
+  --und: #34C77E; --und-ink: #7FE0AE; --und-bg: rgba(52, 199, 126, 0.13);
+  --emg: #E3B23C; --emg-ink: #F0CD7E; --emg-bg: rgba(227, 178, 60, 0.13);
+  --crd: #E97F4E; --crd-ink: #F3A983; --crd-bg: rgba(233, 127, 78, 0.13);
+  --ovr: #E25C78; --ovr-ink: #F095A8; --ovr-bg: rgba(226, 92, 120, 0.14);
+  --good: #34C77E; --warn: #E3B23C; --bad: #E25C78;
+  --band-good: rgba(52, 199, 126, 0.10); --band-bad: rgba(226, 92, 120, 0.09);
+  --chart-grid: #23232D; --shadow: none;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 14px/1.55 Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv11";
+}
+.mono, code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+a { color: var(--accent-ink); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- shell ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px;
+  padding: 10px 22px; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+}
+.wordmark { display: flex; align-items: baseline; gap: 8px; font-weight: 700; letter-spacing: -0.02em; font-size: 15px; color: var(--ink); }
+.wordmark .tick { color: var(--accent); }
+.builtat { font-size: 11.5px; color: var(--ink-3); }
+.topbar .spacer { flex: 1; }
+.healthdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.tb-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; background: var(--surface); }
+.tb-btn { cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--ink-2);
+  border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; }
+.tb-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 22px 0; font-size: 12.5px; color: var(--ink-3); }
+.crumbs a, .crumbs .here { padding: 2px 8px; border-radius: 6px; }
+.crumbs .here { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.crumbs .sep { color: var(--ink-3); }
+
+main { max-width: 1240px; margin: 0 auto; padding: 18px 22px 80px; }
+h1 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; margin: 14px 0 6px; text-wrap: balance; }
+h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; margin: 26px 0 10px; }
+h3 { font-size: 13px; font-weight: 600; margin: 0 0 6px; }
+p.lead { color: var(--ink-2); max-width: 72ch; margin: 0 0 8px; }
+.section-note { font-size: 12px; color: var(--ink-3); max-width: 80ch; }
+
+/* ---------- primitives ---------- */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+.grid { display: grid; gap: 12px; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  border-radius: 999px; padding: 2px 9px; border: 1px solid transparent; white-space: nowrap; }
+.chip.neutral { background: var(--surface-2); color: var(--ink-2); border-color: var(--border); }
+.chip.accent { background: var(--accent-soft); color: var(--accent-ink); }
+.chip.UNDISCOVERED, .chip.INVESTABLE, .chip.DARK, .chip.RIGHT { background: var(--und-bg); color: var(--und-ink); }
+.chip.EMERGING, .chip.WATCH, .chip.MIXED { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.CROWDED { background: var(--crd-bg); color: var(--crd-ink); }
+.chip.OVER_CROWDED, .chip.TOO_LATE, .chip.WRONG { background: var(--ovr-bg); color: var(--ovr-ink); }
+.chip.stale { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.verystale { background: var(--ovr-bg); color: var(--ovr-ink); }
+.chip.tier { background: var(--surface-2); color: var(--ink-2); border-color: var(--border); font-family: "JetBrains Mono", monospace; }
+.num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); font-size: 12px; }
+.small { font-size: 12px; color: var(--ink-2); }
+
+.cmd { display: inline-flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px dashed var(--border-strong);
+  border-radius: 8px; padding: 5px 10px; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink); }
+.cmd button { cursor: pointer; border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+  font-size: 11px; padding: 2px 8px; color: var(--ink-2); font-family: Inter, sans-serif; }
+.cmd button:hover { color: var(--ink); border-color: var(--border-strong); }
+.cmd-caption { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); font-weight: 600;
+  padding: 6px 10px; border-bottom: 1px solid var(--border); }
+td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+
+/* ---------- home ---------- */
+.brief { border-left: 3px solid var(--accent); }
+.brief ul { margin: 6px 0 0; padding-left: 18px; }
+.brief li { margin: 3px 0; }
+.lanes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.lane-h { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-3); font-weight: 600; }
+.sigcard { display: block; color: inherit; margin-bottom: 10px; transition: border-color 0.15s; }
+.sigcard:hover { text-decoration: none; border-color: var(--accent); }
+.sigcard h3 { font-size: 13.5px; }
+.sigcard .thesis { font-size: 12.5px; color: var(--ink-2); margin: 4px 0 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- chain flow ---------- */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 14px 0 16px; }
+.tabs button { cursor: pointer; border: none; background: none; font: 600 13px Inter, sans-serif; color: var(--ink-3);
+  padding: 8px 12px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button.on { color: var(--ink); border-bottom-color: var(--accent); }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.fnode { position: relative; cursor: pointer; border: 1.5px solid var(--border-strong); background: var(--surface);
+  border-radius: 10px; padding: 8px 12px; min-width: 130px; max-width: 176px; flex: 1 1 140px; }
+.fnode:hover { border-color: var(--accent); }
+.fnode.v-UNDISCOVERED { border-color: var(--und); background: var(--und-bg); }
+.fnode.v-EMERGING { border-color: var(--emg); background: var(--emg-bg); }
+.fnode.v-CROWDED { border-color: var(--crd); background: var(--crd-bg); }
+.fnode.v-OVER_CROWDED { border-color: var(--ovr); background: var(--ovr-bg); }
+.fnode .pos { font-size: 10px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
+.fnode .nm { font-size: 12.5px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+.fnode .sc { margin-top: 5px; font-size: 10.5px; color: var(--ink-2); font-family: "JetBrains Mono", monospace; }
+.fnode .star { position: absolute; top: -8px; right: -6px; font-size: 14px; }
+.fnode .choke { position: absolute; top: -6px; left: -6px; width: 12px; height: 12px; border-radius: 50%;
+  border: 2.5px solid var(--ovr); background: var(--surface); }
+.farrow { align-self: center; color: var(--ink-3); font-size: 15px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 11.5px; color: var(--ink-2); }
+.legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+/* drawer */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 92vw); z-index: 50; background: var(--surface);
+  border-left: 1px solid var(--border); box-shadow: -12px 0 40px rgba(0,0,0,0.14); padding: 18px 20px; overflow-y: auto; }
+.drawer .x { position: absolute; top: 12px; right: 14px; cursor: pointer; border: none; background: var(--surface-2);
+  border-radius: 6px; width: 26px; height: 26px; color: var(--ink-2); font-size: 14px; }
+.scorebar { display: grid; grid-template-columns: 96px 1fr 42px; align-items: center; gap: 10px; margin: 6px 0; }
+.scorebar .tk { height: 7px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.scorebar .tk i { display: block; height: 100%; border-radius: 4px; }
+.evli { font-size: 12px; color: var(--ink-2); margin: 4px 0; padding-left: 10px; border-left: 2px solid var(--border); }
+
+/* scenarios */
+.scen { margin-bottom: 12px; }
+.pbar { height: 6px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin: 6px 0 8px; }
+.pbar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.mv { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; border: 1px solid var(--border);
+  border-radius: 999px; padding: 2px 8px; margin: 2px 3px 2px 0; background: var(--surface-2); color: var(--ink-2); }
+.mv .up { color: var(--good); font-weight: 700; } .mv .down { color: var(--bad); font-weight: 700; }
+
+/* ---------- charts ---------- */
+.chartwrap { overflow-x: auto; }
+svg text { font-family: Inter, sans-serif; fill: var(--ink-2); }
+svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+.tooltip { position: fixed; z-index: 80; pointer-events: none; background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: var(--shadow); color: var(--ink); }
+
+/* ---------- stock page ---------- */
+.verdictbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-radius: 10px; padding: 12px 16px; border: 1px solid; }
+.verdictbar.INVESTABLE { background: var(--und-bg); border-color: var(--und); }
+.verdictbar.WATCH { background: var(--emg-bg); border-color: var(--emg); }
+.verdictbar.TOO_LATE { background: var(--ovr-bg); border-color: var(--ovr); }
+.verdictbar .v { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 760px) { .twocol { grid-template-columns: 1fr; } }
+.bullets { margin: 0; padding-left: 18px; font-size: 13px; }
+.bullets li { margin: 4px 0; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 12.5px; }
+.kv dt { color: var(--ink-3); } .kv dd { margin: 0; }
+.redteam { border-left: 3px solid var(--ovr); }
+.note { background: var(--surface-2); border-radius: 8px; padding: 8px 12px; font-size: 12.5px; margin: 6px 0; }
+.note .who { font-weight: 600; color: var(--ink-2); font-size: 11px; }
+.timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 14px; }
+.timeline .t { margin-bottom: 8px; font-size: 12.5px; }
+.timeline .t .when { color: var(--ink-3); font-size: 11px; font-family: "JetBrains Mono", monospace; }
+details { border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; margin: 6px 0; background: var(--surface); }
+summary { cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+blockquote { margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--surface-2);
+  border-radius: 0 8px 8px 0; font-size: 12.5px; }
+.fixturebanner { background: var(--emg-bg); color: var(--emg-ink); border: 1px solid var(--emg);
+  border-radius: 8px; padding: 8px 12px; font-size: 12.5px; font-weight: 600; }
+.emptystate { text-align: center; padding: 34px 20px; color: var(--ink-3); border: 1.5px dashed var(--border-strong); border-radius: 10px; }
+.healthline { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--ink-3); margin-top: 10px; }
+.footer { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--ink-3); }
+
+</style>
+<div id="app" aria-live="polite"></div>
+<script>
+window.UPSTREAM_DATA = {"built_at":"2026-08-28 20:21Z","signals":[{"id":"SIG-20260828-01","created_at":"2026-08-28","updated_at":"2026-08-28","lane":"INDUSTRY","title":"AI infrastructure buildout: the un-crowded links","thesis":"Hyperscaler AI capex is a multi-year physical buildout whose downstream links (chips, memory) are fully discovered while upstream links (power equipment, grid, cooling, generation) remain under-owned relative to their exposure. The chain, not the headline, is the opportunity.","why_now":"2025-2026 hyperscaler capex guidance kept rising while power availability, not chip supply, became the stated binding constraint in multiple earnings calls and utility interconnection queues.","retail_gap":"Retail owns the story at the GPU/memory layer. Transformer lead times, switchgear backlogs, and grid capex inflection are visible in primary sources but barely present in retail attention data.","unmappedness":{"score":62,"rationale":"The first 4-5 links are saturated narrative; links 9-12 (cooling, power, grid, generation) are mapped by sell-side but thinly held and rarely discussed as a chain."},"suggested_clock":"COMPOUNDER","horizon_years":[2,5],"evidence":[{"claim":"Hyperscalers guided aggregate 2026 AI/data-center capex further up in mid-2026 earnings calls; buildout demand is anchored by disclosed plans, not sentiment.","source_name":"hyperscaler earnings calls (MSFT/GOOGL/AMZN/META), FY2026 guidance","source_date":"2026-07","tag":"INFERRED"},{"claim":"Power availability and interconnection timelines are repeatedly named by operators as the binding constraint on new data-center capacity.","source_name":"utility and data-center operator commentary, interconnection queue reporting","source_date":"2026-06","tag":"INFERRED"}],"status":"CHAINED","chain_id":"ai-infrastructure","review_by":"2026-11-28","notes":[],"confidence_audit":{"verified":0,"inferred":2,"speculative":0,"null":0},"changelog":[{"ts":"2026-08-28T00:00:00Z","by":"ron","change":"seed card authored at repo creation; evidence to be re-verified by first radar refresh","prior":null}]},{"id":"SIG-20260828-02","created_at":"2026-08-28","updated_at":"2026-08-28","lane":"MACRO","title":"Tibet mega-dam: the largest infrastructure project on earth, unmapped","thesis":"China's Yarlung Tsangpo (Motuo) hydropower complex, launched July 2025 at a stated ~$167B scale, is a decade-long buildout with second-order chains in heavy construction, tunneling, HV transmission, and downstream water geopolitics (India/Bangladesh) that Western markets have barely priced anywhere.","why_now":"Construction formally launched mid-2025; procurement and transmission-corridor decisions land over 2026-2028, exactly the window where suppliers get contracted before earnings show it.","retail_gap":"Coverage treated it as a one-day China-politics headline. Almost no mapping of the supplier chain (tunnel boring, HV DC transmission, cement/steel logistics at altitude) or of the riparian-risk angle for Indian utilities and agriculture.","unmappedness":{"score":88,"rationale":"Event is known; its chain is essentially unmapped in Western coverage. Investability is the open question (largely Chinese SOEs), which is exactly what a chain build should establish."},"suggested_clock":"COMPOUNDER","horizon_years":[3,5],"evidence":[{"claim":"Groundbreaking of the Motuo hydropower project on the Yarlung Tsangpo was announced by Premier Li Qiang, with reported investment around 1.2 trillion yuan (~$167B) and five cascade stations.","source_name":"Reuters / Xinhua reporting on the July 2025 launch","source_date":"2025-07-19","tag":"INFERRED"},{"claim":"India publicly raised downstream-flow concerns; Arunachal/Assam riparian exposure is a live bilateral issue, creating a parallel Indian buffer-dam and monitoring response.","source_name":"Indian government statements and press coverage post-announcement","source_date":"2025-07","tag":"INFERRED"}],"status":"NEW","chain_id":null,"review_by":"2026-10-15","notes":[],"confidence_audit":{"verified":0,"inferred":2,"speculative":0,"null":0},"changelog":[{"ts":"2026-08-28T00:00:00Z","by":"ron","change":"seed card authored at repo creation; evidence to be re-verified by first radar refresh","prior":null}]}],"chains":[{"id":"ai-infrastructure","signal_id":"SIG-20260828-01","title":"AI infrastructure value chain","clock":"COMPOUNDER","status":"BUILT","created_at":"2026-08-28","updated_at":"2026-08-28","heat_as_of":"2026-08-28","scenarios_as_of":"2026-08-28","map_limitation":"Supplier-side search cannot surface diversified suppliers that name no customer; such names enter via research and the repricing-lag lane. Seed heat scores are analyst-authored [INFERRED]; first `run heat` refresh replaces them with fetched PCS data.","links":[{"id":"ai-applications","position":1,"name":"AI applications & agents","role":"Consumer- and enterprise-facing software where AI demand originates; monetization layer that justifies everything upstream.","upstream_of":[],"downstream_of":["frontier-models"],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"LOW","note":"Abundant supply of applications; the constraint is distribution, not capacity."},"example_tickers":["MSFT","GOOGL","META","CRM"],"heat":{"impact":{"score":55,"rationale":"Demand origin, but value spread across thousands of players; the occurrence lifts the category more than any single name.","evidence":[{"claim":"App-layer AI revenue is growing but fragmented across incumbents' suites rather than concentrated.","source_name":"megacap earnings commentary 2025-26","tag":"INFERRED"}]},"crowdedness":{"score":75,"rationale":"The default retail AI exposure alongside chips; heavily narrated.","evidence":[{"claim":"App-layer AI names are staples of retail AI coverage and thematic ETFs.","source_name":"thematic ETF holdings, mainstream coverage","tag":"INFERRED"}]},"capture":{"score":45,"rationale":"Moats unclear at the app layer; model commoditization pressures pricing.","evidence":[{"claim":"Fast follower dynamics and open-weight models compress app-layer differentiation.","source_name":"industry analysis 2025-26","tag":"INFERRED"}]},"verdict":"CROWDED","money_corner":false,"repricing_check":{"legs_met":null,"note":"Not run; heterogeneous layer, run per-name at screen stage."},"as_of":"2026-08-28"}},{"id":"frontier-models","position":2,"name":"Frontier model labs","role":"Train and serve the frontier models the application layer consumes; the largest single buyers of compute.","upstream_of":["ai-applications"],"downstream_of":["hyperscale-datacenters"],"investability":"MOSTLY_PRIVATE","bottleneck":{"criticality":"MEDIUM","note":"A handful of labs set the compute demand curve; private (OpenAI, Anthropic) or embedded in megacaps."},"example_tickers":["MSFT","GOOGL"],"heat":{"impact":{"score":70,"rationale":"Their scaling decisions are the demand signal for the entire chain.","evidence":[{"claim":"Frontier lab compute commitments anchor hyperscaler capex plans.","source_name":"capex guidance and disclosed compute deals","tag":"INFERRED"}]},"crowdedness":{"score":85,"rationale":"Maximum narrative saturation; every valuation and funding round is front-page.","evidence":[{"claim":"Frontier lab funding rounds receive blanket mainstream coverage.","source_name":"mainstream financial press","tag":"INFERRED"}]},"capture":{"score":55,"rationale":"Enormous value creation, contested capture: training costs, price competition, and open-weight pressure.","evidence":[{"claim":"Inference price declines through 2025-26 despite capability gains.","source_name":"published API pricing trends","tag":"INFERRED"}]},"verdict":"OVER_CROWDED","money_corner":false,"repricing_check":{"legs_met":null,"note":"Mostly private; not screenable."},"as_of":"2026-08-28"}},{"id":"hyperscale-datacenters","position":3,"name":"AI data centers","role":"The physical buildout: hyperscaler and neocloud campuses that house accelerators; where capex turns into orders for every upstream link.","upstream_of":["frontier-models"],"downstream_of":["ai-accelerators","networking-optics","liquid-cooling","power-equipment","grid-interconnect"],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"HIGH","note":"Powered-shell capacity is scarce; time-to-power now gates deployments more than chip supply."},"example_tickers":["EQIX","DLR","GDS","NBIS"],"heat":{"impact":{"score":80,"rationale":"Direct recipient of the capex wave; backlog visibility in REIT/neocloud disclosures.","evidence":[{"claim":"Record data-center leasing and pre-leasing disclosed through 2025-26.","source_name":"DC REIT and neocloud filings","tag":"INFERRED"}]},"crowdedness":{"score":70,"rationale":"Well-covered by both institutions and retail since 2024; neoclouds heavily narrated.","evidence":[{"claim":"Data-center trade is a named retail theme with dedicated ETFs.","source_name":"ETF flows and coverage volume","tag":"INFERRED"}]},"capture":{"score":50,"rationale":"Capital-intensive, tenant concentration, financing sensitivity; spreads competed.","evidence":[{"claim":"Development yields compressed as capital chased the theme.","source_name":"REIT commentary","tag":"INFERRED"}]},"verdict":"CROWDED","money_corner":false,"repricing_check":{"legs_met":null,"note":"Not yet run."},"as_of":"2026-08-28"}},{"id":"ai-accelerators","position":4,"name":"AI accelerators (GPUs/XPUs)","role":"The compute engines; the most visible link in the chain and its largest dollar pool.","upstream_of":["hyperscale-datacenters"],"downstream_of":["hbm-memory","advanced-packaging","foundry"],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"HIGH","note":"Single-vendor concentration at the top; supply improving but allocation still strategic."},"example_tickers":["NVDA","AMD","AVGO","MRVL"],"heat":{"impact":{"score":90,"rationale":"The chain's revenue epicenter; every buildout dollar passes through this link first.","evidence":[{"claim":"Accelerator revenue is the largest and fastest-growing line of the buildout.","source_name":"vendor data-center segment disclosures","tag":"INFERRED"}]},"crowdedness":{"score":92,"rationale":"The single most-owned and most-discussed trade in retail markets; Ron's own reference case for CROWDED.","evidence":[{"claim":"Top of retail attention rankings continuously since 2023.","source_name":"retail attention trackers (WSB rank, trends)","tag":"INFERRED"}]},"capture":{"score":90,"rationale":"Extraordinary pricing power and ecosystem lock-in at the leader.","evidence":[{"claim":"Sustained premium margins through the cycle at the category leader.","source_name":"reported gross margins","tag":"INFERRED"}]},"verdict":"OVER_CROWDED","money_corner":false,"repricing_check":{"legs_met":1,"note":"The 'is it really there' test: consensus estimates rose in step with price through 2024-26, so the move is numbers-backed, not story-only. Crowded AND repriced; not a repricing-lag candidate. Residual question is durability of the capex cycle (see scenarios), not discovery."},"as_of":"2026-08-28"}},{"id":"hbm-memory","position":5,"name":"High-bandwidth memory","role":"HBM stacks co-packaged with accelerators; capacity contracted years ahead by a three-player oligopoly.","upstream_of":["ai-accelerators"],"downstream_of":[],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"HIGH","note":"HBM supply sold out into forward years; qualification cycles lock sockets."},"example_tickers":["MU","000660.KS","005930.KS"],"heat":{"impact":{"score":85,"rationale":"Content per accelerator rising generation over generation; direct beneficiary of every unit shipped.","evidence":[{"claim":"HBM bit demand growth outpaces overall DRAM as AI content per package rises.","source_name":"memory maker disclosures","tag":"INFERRED"}]},"crowdedness":{"score":78,"rationale":"Fully discovered as 'the other AI trade' since 2024; Ron's second reference case.","evidence":[{"claim":"Memory names feature persistently in retail AI coverage.","source_name":"attention trackers","tag":"INFERRED"}]},"capture":{"score":70,"rationale":"Oligopoly with qualification lock-in, but memory remains cyclical with capex-driven busts.","evidence":[{"claim":"Three suppliers control HBM; pricing strong in upcycle, historically mean-reverting.","source_name":"industry structure","tag":"INFERRED"}]},"verdict":"CROWDED","money_corner":false,"repricing_check":{"legs_met":2,"note":"Partially repriced: estimates up strongly but valuation vs own history mid-range; watch for cycle-peak signals rather than discovery gap."},"as_of":"2026-08-28"}},{"id":"advanced-packaging","position":6,"name":"Advanced packaging","role":"CoWoS-class 2.5D/3D packaging that marries logic dies to HBM; a genuine physical chokepoint of the buildout.","upstream_of":["ai-accelerators"],"downstream_of":[],"investability":"PARTIAL","bottleneck":{"criticality":"CHOKE_POINT","note":"Packaging capacity, not wafer starts, has repeatedly gated accelerator output."},"example_tickers":["TSM","AMKR","ASX","BESI.AS"],"heat":{"impact":{"score":82,"rationale":"Named repeatedly as the gating step for accelerator shipments; capacity expansions pre-sold.","evidence":[{"claim":"Packaging capacity called the binding constraint on AI chip output in multiple periods.","source_name":"foundry and OSAT commentary","tag":"INFERRED"}]},"crowdedness":{"score":55,"rationale":"Known to semis specialists, thin in retail attention; mostly wrapped inside TSMC exposure.","evidence":[{"claim":"OSAT names carry a fraction of the attention of the chip designers they package.","source_name":"relative attention comparison","tag":"INFERRED"}]},"capture":{"score":60,"rationale":"Leader captures well; merchant OSATs more competed; equipment niche (hybrid bonding) concentrated.","evidence":[{"claim":"Packaging equipment for hybrid bonding is a near-duopoly niche.","source_name":"equipment market structure","tag":"INFERRED"}]},"verdict":"EMERGING","money_corner":false,"repricing_check":null,"as_of":"2026-08-28"}},{"id":"foundry","position":7,"name":"Leading-edge foundry","role":"Fabricates every accelerator die; the deepest moat in the chain.","upstream_of":["ai-accelerators"],"downstream_of":[],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"CHOKE_POINT","note":"Effectively one supplier at the leading edge; geopolitical single point of failure."},"example_tickers":["TSM","2330.TW","INTC","GFS"],"heat":{"impact":{"score":85,"rationale":"Every AI die passes through; pricing power rising with each node.","evidence":[{"claim":"Leading-edge wafer pricing and AI revenue share climbing.","source_name":"foundry disclosures","tag":"INFERRED"}]},"crowdedness":{"score":72,"rationale":"Institutionally a consensus holding and retail-visible, though less feverish than designers.","evidence":[{"claim":"Foundry leader is a top holding across global funds and a frequent retail mention.","source_name":"ownership data, attention trackers","tag":"INFERRED"}]},"capture":{"score":85,"rationale":"Near-monopoly at the edge with proven pricing power.","evidence":[{"claim":"Sustained structural margin premium at the leading-edge leader.","source_name":"reported margins","tag":"INFERRED"}]},"verdict":"CROWDED","money_corner":false,"repricing_check":{"legs_met":null,"note":"Not yet run; valuation vs own history is the interesting leg here."},"as_of":"2026-08-28"}},{"id":"networking-optics","position":8,"name":"Networking & optics","role":"Scale-out and scale-up fabric: switches, optical transceivers, co-packaged optics, and the fiber plant between AI pods and campuses.","upstream_of":["hyperscale-datacenters"],"downstream_of":[],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"MEDIUM","note":"800G/1.6T transitions strain transceiver and cable supply in bursts."},"example_tickers":["ANET","COHR","CIEN","5803.T"],"heat":{"impact":{"score":78,"rationale":"Networking content per GPU rising; optics upgrade cycle attached to every cluster generation.","evidence":[{"claim":"Networking share of AI cluster BOM increases with cluster scale.","source_name":"vendor and hyperscaler disclosures","tag":"INFERRED"}]},"crowdedness":{"score":62,"rationale":"Optics discovered hard in 2025-26 (large re-ratings); no longer dark, not yet GPU-level.","evidence":[{"claim":"Optical transceiver names re-rated sharply on AI orders through 2025-26.","source_name":"price action and coverage","tag":"INFERRED"}]},"capture":{"score":55,"rationale":"Fast innovation cycles and customer concentration; periodic price-downs between generations.","evidence":[{"claim":"Transceiver ASPs decline within generations; share shifts between cycles.","source_name":"industry pricing history","tag":"INFERRED"}]},"verdict":"CROWDED","money_corner":false,"repricing_check":{"legs_met":null,"note":"Run per-name; several optics names may be crowded AND repriced already."},"as_of":"2026-08-28"}},{"id":"liquid-cooling","position":9,"name":"Thermal & liquid cooling","role":"Direct-to-chip and immersion cooling plus thermal management; mandatory at modern rack densities, attached to every new AI hall.","upstream_of":["hyperscale-datacenters"],"downstream_of":[],"investability":"PARTIAL","bottleneck":{"criticality":"MEDIUM","note":"Not scarce, but spec'd-in early; water availability is the quieter constraint alongside it."},"example_tickers":["VRT","MOD","NVT"],"heat":{"impact":{"score":75,"rationale":"Rack densities force liquid cooling adoption; content per MW rising.","evidence":[{"claim":"Liquid cooling moved from optional to required at current accelerator TDPs.","source_name":"rack architecture disclosures","tag":"INFERRED"}]},"crowdedness":{"score":58,"rationale":"Lead names discovered in 2024-25; second-tier and component suppliers much less so.","evidence":[{"claim":"Category leader widely covered; component chain thinly followed.","source_name":"coverage comparison","tag":"INFERRED"}]},"capture":{"score":50,"rationale":"Real engineering content but rising competition from industrial incumbents; risk of commoditization at the component layer.","evidence":[{"claim":"Multiple industrial entrants announced cooling lines 2025-26.","source_name":"competitor announcements","tag":"INFERRED"}]},"verdict":"EMERGING","money_corner":false,"repricing_check":null,"as_of":"2026-08-28"}},{"id":"power-equipment","position":10,"name":"Power equipment","role":"Transformers, switchgear, UPS, busway, and backup generation that electrify data centers and the grid segments feeding them.","upstream_of":["hyperscale-datacenters","grid-interconnect"],"downstream_of":[],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"HIGH","note":"Large power transformer lead times stretched to multiple years; installed base replacement compounds AI demand."},"example_tickers":["ETN","GEV","POWL","HUBB","ENR.DE","SU.PA","HPS-A.TO"],"heat":{"impact":{"score":80,"rationale":"Every MW of AI capacity buys transformers, switchgear, and backup; demand also stacked on grid replacement and electrification.","evidence":[{"claim":"Multi-year backlogs and record orders reported across electrical equipment makers.","source_name":"electrical equipment maker order disclosures 2025-26","tag":"INFERRED"}]},"crowdedness":{"score":38,"rationale":"Institutionally recognized, but retail attention remains a fraction of chip-layer links; rarely narrated as an AI trade.","evidence":[{"claim":"Electrical equipment names near-absent from retail AI discussions relative to semis.","source_name":"attention trackers","tag":"INFERRED"}]},"capture":{"score":72,"rationale":"Concentrated supply, long qualification, price escalators in backlog; genuine pricing power this cycle.","evidence":[{"claim":"Price/mix cited as a margin driver across the group; lead times support pricing.","source_name":"earnings commentary","tag":"INFERRED"}]},"verdict":"UNDISCOVERED","money_corner":true,"repricing_check":null,"as_of":"2026-08-28"}},{"id":"grid-interconnect","position":11,"name":"Grid & interconnection","role":"Transmission buildout, substations, and the interconnection process itself; the queue that decides when data centers get power.","upstream_of":["hyperscale-datacenters"],"downstream_of":["power-equipment","energy-generation"],"investability":"PARTIAL","bottleneck":{"criticality":"HIGH","note":"Interconnection queues and transmission siting are the slowest step in the entire chain."},"example_tickers":["PWR","MYRG","MTZ","SO"],"heat":{"impact":{"score":70,"rationale":"Time-to-power is the stated gating factor for new capacity; grid capex inflecting.","evidence":[{"claim":"Utility capex plans raised repeatedly citing data-center load growth.","source_name":"utility IRPs and earnings","tag":"INFERRED"}]},"crowdedness":{"score":30,"rationale":"Quietest corner of the chain in retail terms; EPC names get episodic attention, utilities almost none as AI plays.","evidence":[{"claim":"Grid EPC and utility names rank far below semis in every attention metric.","source_name":"attention trackers","tag":"INFERRED"}]},"capture":{"score":40,"rationale":"THE TRAP EXAMPLE: much of this link is regulated-return or competitively bid EPC \u2014 volume without proportional profit capture. Un-crowded partly because capture is capped.","evidence":[{"claim":"Regulated utilities earn allowed ROEs regardless of demand strength; EPC margins are bid-competed.","source_name":"sector economics","tag":"INFERRED"}]},"verdict":"UNDISCOVERED","money_corner":false,"repricing_check":null,"as_of":"2026-08-28"}},{"id":"energy-generation","position":12,"name":"Energy generation","role":"The electrons: gas turbines, nuclear (existing fleet + SMR), and firmed renewables contracted to power AI campuses.","upstream_of":["grid-interconnect"],"downstream_of":[],"investability":"PURE_PLAYS_EXIST","bottleneck":{"criticality":"HIGH","note":"Gas turbine slots reported sold out years forward; firm power is the scarcest input after land."},"example_tickers":["GEV","ENR.DE","7011.T","CEG","VST","BWXT","OKLO"],"heat":{"impact":{"score":75,"rationale":"Data-center load growth is the first structural demand increase for US power in two decades; turbine and PPA economics repricing.","evidence":[{"claim":"Turbine makers report sold-out delivery slots into the late 2020s; premium PPAs signed by hyperscalers.","source_name":"turbine maker and IPP disclosures","tag":"INFERRED"}]},"crowdedness":{"score":50,"rationale":"Merchant power and turbine names discovered in 2024-26 waves (IPPs re-rated hard); SMR names episodically feverish; the industrial core less so.","evidence":[{"claim":"IPP re-ratings drew coverage; turbine industrials still framed as boring industrials.","source_name":"coverage and price action","tag":"INFERRED"}]},"capture":{"score":65,"rationale":"Turbines: concentrated three-player supply with service annuities. Merchant power: capture depends on market structure; SMRs speculative.","evidence":[{"claim":"Heavy-duty gas turbine supply is effectively three vendors globally, each with decades-long service tails.","source_name":"industry structure","tag":"INFERRED"}]},"verdict":"EMERGING","money_corner":false,"repricing_check":null,"as_of":"2026-08-28"}}],"scenarios":[{"id":"S1","title":"Capex supercycle persists through 2028","narrative":"Hyperscaler and sovereign AI capex keeps compounding; the buildout stays supply-constrained upstream. The quiet links (power, generation, cooling) re-rate as their backlogs extend while the chip layer grows into its multiple.","probability_pct":45,"clock":"COMPOUNDER","links_moved":[{"link_id":"power-equipment","direction":"UP","magnitude":"LARGE","why":"Backlog extension plus pricing power; the least-owned link with the most direct order flow."},{"link_id":"energy-generation","direction":"UP","magnitude":"LARGE","why":"Firm power scarcity monetizes turbine slots and existing fleets."},{"link_id":"liquid-cooling","direction":"UP","magnitude":"MEDIUM","why":"Density transition sustains attach rates."},{"link_id":"grid-interconnect","direction":"UP","magnitude":"MEDIUM","why":"Transmission capex inflects, though capture stays mixed."},{"link_id":"networking-optics","direction":"UP","magnitude":"MEDIUM","why":"Each cluster generation refreshes the fabric."}],"leading_indicators":[{"indicator":"Quarterly hyperscaler capex guidance direction","where_to_watch":"MSFT/GOOGL/AMZN/META earnings calls","check":null,"armed":false,"tripped_at":null},{"indicator":"Large power transformer lead times","where_to_watch":"electrical equipment maker calls; industry lead-time surveys","check":null,"armed":false,"tripped_at":null}],"invalidation_signs":["Two consecutive quarters of hyperscaler capex guide-downs","Transformer lead times normalizing below 12 months"],"status":"OPEN","screen_ref":null,"as_of":"2026-08-28"},{"id":"S2","title":"Power becomes the binding constraint","narrative":"Chip supply normalizes but electrons do not: interconnection queues, transformer shortages, and turbine slots gate AI deployment. Value migrates from the compute layer to whoever controls time-to-power.","probability_pct":25,"clock":"COMPOUNDER","links_moved":[{"link_id":"grid-interconnect","direction":"UP","magnitude":"LARGE","why":"Queue position becomes the scarce asset."},{"link_id":"power-equipment","direction":"UP","magnitude":"LARGE","why":"Shortage pricing on transformers and switchgear."},{"link_id":"energy-generation","direction":"UP","magnitude":"LARGE","why":"Behind-the-meter and firm-PPA premiums blow out."},{"link_id":"ai-accelerators","direction":"DOWN","magnitude":"SMALL","why":"Shipments gated by powered capacity, not demand."},{"link_id":"hyperscale-datacenters","direction":"DOWN","magnitude":"SMALL","why":"Unpowered shells; slower monetization of pipelines."}],"leading_indicators":[{"indicator":"Interconnection queue wait times and reform progress","where_to_watch":"LBNL queue studies; FERC dockets; utility IRPs","check":null,"armed":false,"tripped_at":null},{"indicator":"Gas turbine and behind-the-meter order books","where_to_watch":"GEV / Siemens Energy / MHI earnings calls","check":null,"armed":false,"tripped_at":null},{"indicator":"WIRING TEST \u2014 verifies the automated indicator pipeline; replace with a real level after first trip","where_to_watch":"data/market via weekday cron","check":{"type":"price","ticker":"SPY","op":">=","level":1},"armed":true,"tripped_at":null}],"invalidation_signs":["Interconnection reform materially shortens queues","On-site generation (gas bridge, SMR) scales faster than expected"],"status":"SCREENED","screen_ref":"screens/ai-infrastructure__S2.json","as_of":"2026-08-28"},{"id":"S3","title":"Digestion: capex pause in 2027","narrative":"Model efficiency plus investor pressure produce a hyperscaler capex plateau. Order momentum stalls across the chain; the crowded links de-rate hardest, backlog-rich industrials hold best.","probability_pct":20,"clock":"COMPOUNDER","links_moved":[{"link_id":"ai-accelerators","direction":"DOWN","magnitude":"LARGE","why":"Highest multiple on the most cyclical line."},{"link_id":"hbm-memory","direction":"DOWN","magnitude":"LARGE","why":"Memory cyclicality reasserts."},{"link_id":"liquid-cooling","direction":"DOWN","magnitude":"LARGE","why":"Attach-rate growth stalls with new halls."},{"link_id":"power-equipment","direction":"DOWN","magnitude":"MEDIUM","why":"Backlogs cushion but orders slow."},{"link_id":"energy-generation","direction":"DOWN","magnitude":"MEDIUM","why":"PPA urgency fades; merchant premiums compress."}],"leading_indicators":[{"indicator":"Hyperscaler language shift from growth to efficiency/FCF","where_to_watch":"earnings calls, investor days","check":null,"armed":false,"tripped_at":null},{"indicator":"GPU lead times and cloud instance spot pricing normalizing","where_to_watch":"supply-chain checks, cloud pricing pages","check":null,"armed":false,"tripped_at":null}],"invalidation_signs":["Capex guidance keeps rising for two more quarters across the group"],"status":"OPEN","screen_ref":null,"as_of":"2026-08-28"},{"id":"S4","title":"Efficiency shock","narrative":"An algorithmic or inference breakthrough cuts compute intensity per unit of capability by an order of magnitude. Application economics improve; hardware demand growth resets lower before Jevons effects rebuild it.","probability_pct":10,"clock":"EVENT","links_moved":[{"link_id":"ai-accelerators","direction":"DOWN","magnitude":"LARGE","why":"Direct compute-intensity hit at the highest expectations."},{"link_id":"hbm-memory","direction":"DOWN","magnitude":"MEDIUM","why":"Attached to accelerator units."},{"link_id":"power-equipment","direction":"DOWN","magnitude":"SMALL","why":"Grid and replacement demand cushion the AI component."},{"link_id":"ai-applications","direction":"UP","magnitude":"MEDIUM","why":"Cost curve collapse expands app-layer margins and use cases."},{"link_id":"frontier-models","direction":"DOWN","magnitude":"MEDIUM","why":"Training-scale moat thins."}],"leading_indicators":[{"indicator":"Inference cost per unit capability trajectory","where_to_watch":"published API pricing, open-weight benchmarks","check":null,"armed":false,"tripped_at":null},{"indicator":"Open-weight model capability jumps vs frontier","where_to_watch":"benchmark releases","check":null,"armed":false,"tripped_at":null}],"invalidation_signs":["Efficiency gains absorbed by demand elasticity with capex unchanged (Jevons confirmation)"],"status":"OPEN","screen_ref":null,"as_of":"2026-08-28"}],"notes":[],"confidence_audit":{"verified":0,"inferred":36,"speculative":4,"null":0},"changelog":[{"ts":"2026-08-28T00:00:00Z","by":"ron","change":"seed chain authored at repo creation (Adam); heat scores are analyst-priors [INFERRED] pending first fetched refresh","prior":null}]}],"screens":[{"id":"ai-infrastructure__S2","chain_id":"ai-infrastructure","scenario_id":"S2","created_at":"2026-08-28","as_of":"2026-08-28","universe_note":"Seed screen, origin: chain-map research. Names drawn from the S2-moved links (power-equipment, grid-interconnect, energy-generation). Global by construction with data tiers printed. Fundamentals, PCS, and earnings nuggets intentionally PENDING_DATA until the first fetch cycle and screen refresh run against live data \u2014 no numbers are invented here.","queries_run":[{"query":"seed: chain-map link membership (no EDGAR FTS run yet)","forms":null,"hits_examined":0,"names_extracted":8}],"buckets":{"pure_play":[{"ticker":"VRT","name":"Vertiv Holdings","exchange":"NYSE","tier":"T1","cik":"1674910","thesis_1line":"Data-center power and cooling pure play; direct beneficiary of both S2 shortage pricing and the density transition.","theme_revenue_exposure":{"pct":null,"basis":"not yet extracted from filings","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"},{"ticker":"POWL","name":"Powell Industries","exchange":"NASDAQ","tier":"T1","cik":"80420","thesis_1line":"Custom switchgear and electrical distribution; small cap with direct data-center and electrification order exposure.","theme_revenue_exposure":{"pct":null,"basis":"not yet extracted from filings","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"}],"picks_and_shovels":[{"ticker":"ETN","name":"Eaton","exchange":"NYSE","tier":"T1","cik":"1551182","thesis_1line":"Broad electrical equipment leader; diversified, but data-center segment is the growth engine and pricing is strong.","theme_revenue_exposure":{"pct":null,"basis":"not yet extracted from filings","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"},{"ticker":"HPS-A.TO","name":"Hammond Power Solutions","exchange":"TSX","tier":"T3","cik":null,"thesis_1line":"Dry-type transformers for data centers; the kind of small non-US name the attention gap actually hides.","theme_revenue_exposure":{"pct":null,"basis":"not disclosed at segment level; to be cited from filings/IR via web","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"}],"second_order":[{"ticker":"GEV","name":"GE Vernova","exchange":"NYSE","tier":"T1","cik":"1996810","thesis_1line":"Gas turbines + grid equipment in one ticker; S2 monetizes both sides (generation scarcity and grid buildout).","theme_revenue_exposure":{"pct":null,"basis":"not yet extracted from filings","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"},{"ticker":"ENR.DE","name":"Siemens Energy","exchange":"XETRA","tier":"T3","cik":null,"thesis_1line":"Grid Technologies + gas services backlog; the European mirror of GEV with historically cheaper multiple and thin US retail attention.","theme_revenue_exposure":{"pct":null,"basis":"not disclosed in SEC filings (no US registration); cite from annual report via web","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"},{"ticker":"MYRG","name":"MYR Group","exchange":"NASDAQ","tier":"T1","cik":"700923","thesis_1line":"Transmission and distribution EPC; volume winner in S2, capture to be tested (bid-competed margins \u2014 the grid-link trap applies).","theme_revenue_exposure":{"pct":null,"basis":"not yet extracted from filings","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"}],"hedge":[{"ticker":"CEG","name":"Constellation Energy","exchange":"NASDAQ","tier":"T1","cik":"1868275","thesis_1line":"Existing nuclear fleet with hyperscaler PPAs; earns in S2 (power scarcity) yet defensive if equipment orders disappoint \u2014 cushions the basket.","theme_revenue_exposure":{"pct":null,"basis":"not yet extracted from filings","quote":null,"accession":null,"url":null,"tag":"NULL"},"fundamentals":"PENDING_DATA","earnings_nuggets":[],"crowdedness":"PENDING_DATA","status":"CANDIDATE"}]},"data_gaps":["VRT","POWL","ETN","HPS-A.TO","GEV","ENR.DE","MYRG","CEG"],"taste_filtered":[],"health":{"tickers_examined":8,"fully_scored":0,"pending":8,"errors":0},"notes":[],"confidence_audit":{"verified":0,"inferred":0,"speculative":8,"null":8},"changelog":[{"ts":"2026-08-28T00:00:00Z","by":"ron","change":"seed screen authored at repo creation; every row awaits fetched data \u2014 thesis lines are hypotheses, not verdicts","prior":null}]}],"stocks":[{"ticker":"DEMO","name":"Demo Industrial Co (UI fixture)","fixture":true,"chain_id":"ai-infrastructure","scenario_ids":["S2"],"tier":"T1","clock":"COMPOUNDER","status":"FINAL","created_at":"2026-08-28","updated_at":"2026-08-28","review_by":"2026-11-26","verdict":"INVESTABLE","entry_zone":{"low":84,"high":96,"basis":"FIXTURE: illustrates a valuation-band entry (own 3y 30th-50th percentile EV/S mapped to price) \u2014 every number on this page is synthetic demo data"},"no_entry_above":118,"watch_triggers":[],"what_is_priced_in":[{"expectation":"FIXTURE: mid-teens revenue growth for 2 years is in the price","evidence":"synthetic","tag":"SPECULATIVE"},{"expectation":"FIXTURE: no shortage-pricing scenario (S2) is priced","evidence":"synthetic","tag":"SPECULATIVE"}],"priced_in_summary":"FIXTURE PAGE \u2014 this deep dive exists so the UI can be seen fully populated before the first real runs. It is deleted when the first real deep dive lands.","bull":["FIXTURE: backlog covers 2 years of revenue with price escalators","FIXTURE: capacity expansion pre-sold to two hyperscale customers","FIXTURE: attention score still in the dark band while orders inflect"],"bear":["FIXTURE: customer concentration, top-2 = 45% of revenue","FIXTURE: capacity addition industry-wide could normalize pricing by 2028","FIXTURE: a capex pause (S3) hits orders with a 2-quarter lag"],"events":[{"date":"2025-11-06","label":"Capacity expansion announced","kind":"GUIDANCE","note":"synthetic"},{"date":"2026-02-12","label":"Q4 beat, backlog record","kind":"EARNINGS","note":"synthetic"},{"date":"2026-06-19","label":"S2 chain signal: queue reform stalls","kind":"CHAIN","note":"synthetic"}],"valuation_snapshot":{"price":{"value":84.52,"source":"fixture","as_of":"2026-08-27"},"market_cap":{"value":"4.1B","source":"fixture","as_of":"2026-08-27"},"lines":[{"name":"EV/S vs own 3y percentile","value":"58th","tag":"SPECULATIVE","as_of":"2026-08-27"},{"name":"Revenue growth YoY","value":"22%","tag":"SPECULATIVE","as_of":"2026-08-27"},{"name":"Net debt / EBITDA","value":"0.8x","tag":"SPECULATIVE","as_of":"2026-08-27"}]},"crowdedness":{"pcs_score":71,"state":"DARK","non_null_fields":3,"as_of":"2026-08-27","note":"fixture"},"repricing_lag":null,"red_team":{"attacked_at":"2026-08-28","challenges":[{"dimension":"CROWDEDNESS REALITY","attack":"FIXTURE: is the dark attention score just US-listing obscurity rather than genuine undiscovery?","outcome":"survived \u2014 institutional ownership also low; not an index effect"},{"dimension":"PRICED-IN CHECK","attack":"FIXTURE: consensus already embeds capacity expansion","outcome":"amended \u2014 entry zone lowered by 8% to compensate"},{"dimension":"CAPTURE REALITY","attack":"FIXTURE: price escalators expire with current backlog","outcome":"survived with caveat \u2014 added to bear case"}],"verdict_survived":true,"amendments":"Entry zone lowered from 91-104 to 84-96 after the priced-in challenge.","surviving_bear_case":"FIXTURE: the strongest surviving bear case is capacity normalization by 2028 meeting a decelerating order book, compressing both multiple and estimates simultaneously."},"price_ref":"data/market/DEMO.json","shadow_ref":null,"notes":[{"ts":"2026-08-28T00:00:00Z","by":"ron","text":"Fixture page for UI review \u2014 delete after the first real deep dive (build step 7)."}],"confidence_audit":{"verified":0,"inferred":0,"speculative":7,"null":0},"changelog":[{"ts":"2026-08-28T00:00:00Z","by":"ron","change":"fixture deep dive authored so every UI surface renders before real data exists","prior":null}]}],"market":{"DEMO":{"ticker":"DEMO","fixture":true,"fetched_at":"2026-08-28T00:00:00Z","tier":"T1","price_status":"SINGLE_SOURCE","prints":[{"close":84.52,"date":"2026-08-27","source":"fixture"}],"series":{"interval":"1d","rows":[["2024-08-28",52.1],["2024-08-29",52.21],["2024-08-30",52.32],["2024-09-02",52.42],["2024-09-03",52.53],["2024-09-04",52.63],["2024-09-05",52.73],["2024-09-06",52.83],["2024-09-09",52.91],["2024-09-10",52.99],["2024-09-11",53.07],["2024-09-12",53.14],["2024-09-13",53.21],["2024-09-16",53.27],["2024-09-17",53.34],["2024-09-18",53.4],["2024-09-19",53.47],["2024-09-20",53.54],["2024-09-23",53.63],["2024-09-24",53.72],["2024-09-25",53.82],["2024-09-26",53.92],["2024-09-27",54.04],["2024-09-30",54.18],["2024-10-01",54.33],["2024-10-02",54.49],["2024-10-03",54.66],["2024-10-04",54.83],["2024-10-07",55.03],["2024-10-08",55.22],["2024-10-09",55.43],["2024-10-10",55.63],["2024-10-11",55.83],["2024-10-14",56.03],["2024-10-15",56.23],["2024-10-16",56.42],["2024-10-17",56.6],["2024-10-18",56.77],["2024-10-21",56.92],["2024-10-22",57.05],["2024-10-23",57.17],["2024-10-24",57.28],["2024-10-25",57.38],["2024-10-28",57.44],["2024-10-29",57.49],["2024-10-30",57.54],["2024-10-31",57.57],["2024-11-01",57.6],["2024-11-04",57.6],["2024-11-05",57.61],["2024-11-06",57.61],["2024-11-07",57.61],["2024-11-08",57.61],["2024-11-11",57.61],["2024-11-12",57.62],["2024-11-13",57.63],["2024-11-14",57.64],["2024-11-15",57.66],["2024-11-18",57.7],["2024-11-19",57.73],["2024-11-20",57.77],["2024-11-21",57.81],["2024-11-22",57.86],["2024-11-25",57.9],["2024-11-26",57.94],["2024-11-27",57.98],["2024-11-28",58.02],["2024-11-29",58.05],["2024-12-02",58.06],["2024-12-03",58.06],["2024-12-04",58.06],["2024-12-05",58.04],["2024-12-06",58.02],["2024-12-09",57.96],["2024-12-10",57.89],["2024-12-11",57.82],["2024-12-12",57.74],["2024-12-13",57.65],["2024-12-16",57.54],["2024-12-17",57.43],["2024-12-18",57.32],["2024-12-19",57.21],["2024-12-20",57.09],["2024-12-23",56.99],["2024-12-24",56.9],["2024-12-25",56.81],["2024-12-26",56.73],["2024-12-27",56.66],["2024-12-30",56.62],["2024-12-31",56.6],["2025-01-01",56.58],["2025-01-02",56.58],["2025-01-03",56.58],["2025-01-06",56.62],["2025-01-07",56.67],["2025-01-08",56.73],["2025-01-09",56.79],["2025-01-10",56.86],["2025-01-13",56.95],["2025-01-14",57.03],["2025-01-15",57.12],["2025-01-16",57.21],["2025-01-17",57.3],["2025-01-20",57.38],["2025-01-21",57.45],["2025-01-22",57.53],["2025-01-23",57.59],["2025-01-24",57.66],["2025-01-27",57.71],["2025-01-28",57.76],["2025-01-29",57.81],["2025-01-30",57.86],["2025-01-31",57.9],["2025-02-03",57.95],["2025-02-04",58.01],["2025-02-05",58.06],["2025-02-06",58.13],["2025-02-07",58.2],["2025-02-10",58.29],["2025-02-11",58.4],["2025-02-12",58.52],["2025-02-13",58.64],["2025-02-14",58.78],["2025-02-17",58.95],["2025-02-18",59.13],["2025-02-19",59.32],["2025-02-20",59.52],["2025-02-21",59.73],["2025-02-24",59.95],["2025-02-25",60.18],["2025-02-26",60.4],["2025-02-27",60.63],["2025-02-28",60.86],["2025-03-03",61.07],["2025-03-04",61.28],["2025-03-05",61.48],["2025-03-06",61.68],["2025-03-07",61.86],["2025-03-10",62.01],["2025-03-11",62.14],["2025-03-12",62.27],["2025-03-13",62.38],["2025-03-14",62.49],["2025-03-17",62.56],["2025-03-18",62.62],["2025-03-19",62.67],["2025-03-20",62.72],["2025-03-21",62.77],["2025-03-24",62.8],["2025-03-25",62.83],["2025-03-26",62.86],["2025-03-27",62.9],["2025-03-28",62.94],["2025-03-31",62.98],["2025-04-01",63.04],["2025-04-02",63.09],["2025-04-03",63.15],["2025-04-04",63.22],["2025-04-07",60.76],["2025-04-08",60.84],["2025-04-09",60.92],["2025-04-10",60.99],["2025-04-11",61.07],["2025-04-14",61.13],["2025-04-15",61.19],["2025-04-16",61.25],["2025-04-17",61.3],["2025-04-18",61.33],["2025-04-21",61.34],["2025-04-22",61.34],["2025-04-23",61.32],["2025-04-24",61.29],["2025-04-25",61.25],["2025-04-28",61.18],["2025-04-29",61.1],["2025-04-30",61.01],["2025-05-01",60.91],["2025-05-02",60.8],["2025-05-05",60.68],["2025-05-06",60.56],["2025-05-07",60.44],["2025-05-08",60.32],["2025-05-09",60.2],["2025-05-12",60.1],["2025-05-13",60.01],["2025-05-14",59.93],["2025-05-15",59.85],["2025-05-16",59.79],["2025-05-19",59.76],["2025-05-20",59.74],["2025-05-21",59.73],["2025-05-22",59.73],["2025-05-23",59.74],["2025-05-26",59.78],["2025-05-27",59.83],["2025-05-28",59.88],["2025-05-29",59.93],["2025-05-30",59.99],["2025-06-02",60.05],["2025-06-03",60.11],["2025-06-04",60.17],["2025-06-05",60.23],["2025-06-06",60.28],["2025-06-09",60.32],["2025-06-10",60.36],["2025-06-11",60.39],["2025-06-12",60.42],["2025-06-13",60.45],["2025-06-16",60.47],["2025-06-17",60.48],["2025-06-18",60.5],["2025-06-19",60.52],["2025-06-20",60.54],["2025-06-23",60.58],["2025-06-24",60.62],["2025-06-25",60.67],["2025-06-26",60.73],["2025-06-27",60.8],["2025-06-30",60.91],["2025-07-01",61.02],["2025-07-02",61.15],["2025-07-03",61.29],["2025-07-04",61.45],["2025-07-07",61.64],["2025-07-08",61.84],["2025-07-09",62.04],["2025-07-10",62.26],["2025-07-11",62.48],["2025-07-14",62.72],["2025-07-15",62.95],["2025-07-16",63.19],["2025-07-17",63.42],["2025-07-18",63.66],["2025-07-21",63.87],["2025-07-22",64.07],["2025-07-23",64.27],["2025-07-24",64.46],["2025-07-25",64.63],["2025-07-28",64.77],["2025-07-29",64.91],["2025-07-30",65.03],["2025-07-31",65.14],["2025-08-01",65.24],["2025-08-04",65.32],["2025-08-05",65.4],["2025-08-06",65.47],["2025-08-07",65.54],["2025-08-08",65.6],["2025-08-11",65.67],["2025-08-12",65.74],["2025-08-13",65.81],["2025-08-14",65.89],["2025-08-15",65.97],["2025-08-18",66.07],["2025-08-19",66.17],["2025-08-20",66.28],["2025-08-21",66.39],["2025-08-22",66.5],["2025-08-25",66.62],["2025-08-26",66.74],["2025-08-27",66.85],["2025-08-28",66.97],["2025-08-29",67.08],["2025-09-01",67.16],["2025-09-02",67.24],["2025-09-03",67.31],["2025-09-04",67.37],["2025-09-05",67.41],["2025-09-08",67.41],["2025-09-09",67.4],["2025-09-10",67.38],["2025-09-11",67.34],["2025-09-12",67.29],["2025-09-15",67.2],["2025-09-16",67.1],["2025-09-17",66.99],["2025-09-18",66.88],["2025-09-19",66.76],["2025-09-22",66.63],["2025-09-23",66.51],["2025-09-24",66.38],["2025-09-25",66.26],["2025-09-26",66.15],["2025-09-29",66.06],["2025-09-30",65.98],["2025-10-01",65.9],["2025-10-02",65.84],["2025-10-03",65.79],["2025-10-06",65.77],["2025-10-07",65.76],["2025-10-08",65.76],["2025-10-09",65.77],["2025-10-10",65.78],["2025-10-13",65.81],["2025-10-14",65.85],["2025-10-15",65.89],["2025-10-16",65.93],["2025-10-17",65.97],["2025-10-20",66.0],["2025-10-21",66.03],["2025-10-22",66.06],["2025-10-23",66.08],["2025-10-24",66.09],["2025-10-27",66.09],["2025-10-28",66.09],["2025-10-29",66.08],["2025-10-30",66.07],["2025-10-31",66.05],["2025-11-03",66.04],["2025-11-04",66.02],["2025-11-05",66.01],["2025-11-06",66.01],["2025-11-07",66.01],["2025-11-10",66.03],["2025-11-11",66.07],["2025-11-12",66.12],["2025-11-13",66.18],["2025-11-14",66.26],["2025-11-17",66.38],["2025-11-18",66.51],["2025-11-19",66.66],["2025-11-20",66.82],["2025-11-21",66.99],["2025-11-24",67.2],["2025-11-25",67.42],["2025-11-26",67.65],["2025-11-27",67.88],["2025-11-28",68.12],["2025-12-01",68.37],["2025-12-02",68.61],["2025-12-03",68.85],["2025-12-04",69.09],["2025-12-05",69.32],["2025-12-08",69.53],["2025-12-09",69.73],["2025-12-10",69.92],["2025-12-11",70.1],["2025-12-12",70.27],["2025-12-15",70.41],["2025-12-16",70.54],["2025-12-17",70.67],["2025-12-18",70.78],["2025-12-19",70.89],["2025-12-22",70.99],["2025-12-23",71.09],["2025-12-24",71.18],["2025-12-25",71.28],["2025-12-26",71.38],["2025-12-29",71.49],["2025-12-30",71.61],["2025-12-31",71.74],["2026-01-01",71.87],["2026-01-02",72.0],["2026-01-05",72.16],["2026-01-06",72.31],["2026-01-07",72.48],["2026-01-08",72.64],["2026-01-09",72.81],["2026-01-12",72.98],["2026-01-13",73.14],["2026-01-14",73.29],["2026-01-15",73.44],["2026-01-16",73.59],["2026-01-19",73.69],["2026-01-20",73.79],["2026-01-21",73.87],["2026-01-22",73.93],["2026-01-23",73.98],["2026-01-26",73.98],["2026-01-27",73.96],["2026-01-28",73.93],["2026-01-29",73.88],["2026-01-30",73.82],["2026-02-02",73.72],["2026-02-03",73.62],["2026-02-04",73.51],["2026-02-05",73.39],["2026-02-06",73.27],["2026-02-09",73.15],["2026-02-10",73.03],["2026-02-11",72.92],["2026-02-12",77.19],["2026-02-13",77.09],["2026-02-16",77.01],["2026-02-17",76.94],["2026-02-18",76.88],["2026-02-19",76.84],["2026-02-20",76.8],["2026-02-23",76.8],["2026-02-24",76.8],["2026-02-25",76.81],["2026-02-26",76.82],["2026-02-27",76.84],["2026-03-02",76.86],["2026-03-03",76.89],["2026-03-04",76.91],["2026-03-05",76.92],["2026-03-06",76.94],["2026-03-09",76.94],["2026-03-10",76.92],["2026-03-11",76.91],["2026-03-12",76.88],["2026-03-13",76.85],["2026-03-16",76.8],["2026-03-17",76.75],["2026-03-18",76.69],["2026-03-19",76.63],["2026-03-20",76.57],["2026-03-23",76.52],["2026-03-24",76.47],["2026-03-25",76.44],["2026-03-26",76.41],["2026-03-27",76.39],["2026-03-30",76.41],["2026-03-31",76.45],["2026-04-01",76.51],["2026-04-02",76.58],["2026-04-03",76.66],["2026-04-06",76.81],["2026-04-07",76.96],["2026-04-08",77.13],["2026-04-09",77.32],["2026-04-10",77.52],["2026-04-13",77.76],["2026-04-14",78.0],["2026-04-15",78.25],["2026-04-16",78.51],["2026-04-17",78.77],["2026-04-20",79.02],["2026-04-21",79.28],["2026-04-22",79.52],["2026-04-23",79.77],["2026-04-24",80.0],["2026-04-27",80.21],["2026-04-28",80.4],["2026-04-29",80.59],["2026-04-30",80.77],["2026-05-01",80.94],["2026-05-04",81.08],["2026-05-05",81.22],["2026-05-06",81.35],["2026-05-07",81.48],["2026-05-08",81.61],["2026-05-11",81.74],["2026-05-12",81.88],["2026-05-13",82.01],["2026-05-14",82.16],["2026-05-15",82.31],["2026-05-18",82.48],["2026-05-19",82.67],["2026-05-20",82.86],["2026-05-21",83.06],["2026-05-22",83.27],["2026-05-25",83.5],["2026-05-26",83.73],["2026-05-27",83.97],["2026-05-28",84.2],["2026-05-29",84.44],["2026-06-01",84.66],["2026-06-02",84.88],["2026-06-03",85.08],["2026-06-04",85.27],["2026-06-05",85.45],["2026-06-08",85.58],["2026-06-09",85.7],["2026-06-10",85.79],["2026-06-11",85.86],["2026-06-12",85.92],["2026-06-15",85.92],["2026-06-16",85.9],["2026-06-17",85.86],["2026-06-18",85.81],["2026-06-19",85.74],["2026-06-22",85.65],["2026-06-23",85.54],["2026-06-24",85.43],["2026-06-25",85.32],["2026-06-26",85.21],["2026-06-29",85.11],["2026-06-30",85.01],["2026-07-01",84.92],["2026-07-02",84.83],["2026-07-03",84.76],["2026-07-06",84.71],["2026-07-07",84.68],["2026-07-08",84.65],["2026-07-09",84.63],["2026-07-10",84.62],["2026-07-13",84.63],["2026-07-14",84.65],["2026-07-15",84.66],["2026-07-16",84.68],["2026-07-17",84.7],["2026-07-20",84.7],["2026-07-21",84.7],["2026-07-22",84.7],["2026-07-23",84.68],["2026-07-24",84.66],["2026-07-27",84.61],["2026-07-28",84.55],["2026-07-29",84.48],["2026-07-30",84.41],["2026-07-31",84.32],["2026-08-03",84.22],["2026-08-04",84.12],["2026-08-05",84.01],["2026-08-06",83.91],["2026-08-07",83.81],["2026-08-10",83.73],["2026-08-11",83.66],["2026-08-12",83.6],["2026-08-13",83.56],["2026-08-14",83.53],["2026-08-17",83.55],["2026-08-18",83.59],["2026-08-19",83.65],["2026-08-20",83.73],["2026-08-21",83.82],["2026-08-24",83.97],["2026-08-25",84.14],["2026-08-26",84.33],["2026-08-27",84.52]],"source":"fixture","as_of":"2026-08-27"},"week52":{"low":65.76,"high":85.92},"fundamentals":{"status":"fixture"},"pcs":null},"SPY":{"ticker":"SPY","fetched_at":"2026-08-28T20:16:01.728626+00:00","tier":"T1","cik":884394,"price_status":"SINGLE_SOURCE","prints":[{"close":769.3499755859375,"date":"2026-08-28","source":"yfinance"}],"series":{"interval":"1d(24mo)+1w(prior)","rows":[["2023-08-29",449.16],["2023-09-06",446.22],["2023-09-13",446.51],["2023-09-20",438.64],["2023-09-27",426.05],["2023-10-04",424.66],["2023-10-11",436.32],["2023-10-18",430.21],["2023-10-25",417.55],["2023-11-01",422.66],["2023-11-08",437.25],["2023-11-15",449.68],["2023-11-22",455.02],["2023-11-30",456.4],["2023-12-07",458.23],["2023-12-14",472.01],["2023-12-21",472.7],["2023-12-29",475.31],["2024-01-08",474.6],["2024-01-16",474.93],["2024-01-23",484.86],["2024-01-30",490.89],["2024-02-06",493.98],["2024-02-13",494.08],["2024-02-21",497.21],["2024-02-28",506.26],["2024-03-06",509.75],["2024-03-13",515.97],["2024-03-20",520.48],["2024-03-27",523.17],["2024-04-04",513.07],["2024-04-11",518.0],["2024-04-18",499.52],["2024-04-25",503.49],["2024-05-02",505.03],["2024-05-09",520.17],["2024-05-16",528.69],["2024-05-23",525.96],["2024-05-31",527.37],["2024-06-07",534.01],["2024-06-14",542.78],["2024-06-24",542.74],["2024-07-01",545.34],["2024-07-09",555.82],["2024-07-16",564.86],["2024-07-23",553.78],["2024-07-30",542.0],["2024-08-06",522.15],["2024-08-13",542.04],["2024-08-20",558.7],["2024-08-27",561.56],["2024-08-28",558.3],["2024-08-29",558.35],["2024-08-30",563.68],["2024-09-03",552.08],["2024-09-04",550.95],["2024-09-05",549.61],["2024-09-06",540.36],["2024-09-09",546.41],["2024-09-10",548.79],["2024-09-11",554.42],["2024-09-12",559.09],["2024-09-13",562.01],["2024-09-16",562.84],["2024-09-17",563.07],["2024-09-18",561.4],["2024-09-19",570.98],["2024-09-20",568.25],["2024-09-23",569.67],["2024-09-24",571.3],["2024-09-25",570.04],["2024-09-26",572.3],["2024-09-27",571.47],["2024-09-30",573.76],["2024-10-01",568.62],["2024-10-02",568.86],["2024-10-03",567.82],["2024-10-04",572.98],["2024-10-07",567.8],["2024-10-08",573.17],["2024-10-09",577.14],["2024-10-10",576.13],["2024-10-11",579.58],["2024-10-14",584.32],["2024-10-15",579.78],["2024-10-16",582.3],["2024-10-17",582.35],["2024-10-18",584.59],["2024-10-21",583.63],["2024-10-22",583.32],["2024-10-23",577.99],["2024-10-24",579.24],["2024-10-25",579.04],["2024-10-28",580.83],["2024-10-29",581.77],["2024-10-30",580.01],["2024-10-31",568.64],["2024-11-01",571.04],["2024-11-04",569.81],["2024-11-05",576.7],["2024-11-06",591.04],["2024-11-07",595.61],["2024-11-08",598.19],["2024-11-11",598.76],["2024-11-12",596.9],["2024-11-13",597.19],["2024-11-14",593.35],["2024-11-15",585.75],["2024-11-18",588.15],["2024-11-19",590.3],["2024-11-20",590.5],["2024-11-21",593.67],["2024-11-22",595.51],["2024-11-25",597.53],["2024-11-26",600.65],["2024-11-27",598.83],["2024-11-29",602.55],["2024-12-02",603.63],["2024-12-03",603.91],["2024-12-04",607.66],["2024-12-05",606.66],["2024-12-06",607.81],["2024-12-09",604.68],["2024-12-10",602.8],["2024-12-11",607.46],["2024-12-12",604.33],["2024-12-13",604.21],["2024-12-16",606.79],["2024-12-17",604.29],["2024-12-18",586.28],["2024-12-19",586.1],["2024-12-20",591.15],["2024-12-23",594.69],["2024-12-24",601.3],["2024-12-26",601.34],["2024-12-27",595.01],["2024-12-30",588.22],["2024-12-31",586.08],["2025-01-02",584.64],["2025-01-03",591.95],["2025-01-06",595.36],["2025-01-07",588.63],["2025-01-08",589.49],["2025-01-10",580.49],["2025-01-13",581.39],["2025-01-14",582.19],["2025-01-15",592.78],["2025-01-16",591.64],["2025-01-17",597.58],["2025-01-21",603.05],["2025-01-22",606.44],["2025-01-23",609.75],["2025-01-24",607.97],["2025-01-27",599.37],["2025-01-28",604.52],["2025-01-29",601.81],["2025-01-30",605.04],["2025-01-31",601.82],["2025-02-03",597.77],["2025-02-04",601.78],["2025-02-05",604.22],["2025-02-06",606.32],["2025-02-07",600.77],["2025-02-10",604.85],["2025-02-11",605.31],["2025-02-12",603.36],["2025-02-13",609.73],["2025-02-14",609.7],["2025-02-18",611.49],["2025-02-19",612.93],["2025-02-20",610.38],["2025-02-21",599.94],["2025-02-24",597.21],["2025-02-25",594.24],["2025-02-26",594.54],["2025-02-27",585.05],["2025-02-28",594.18],["2025-03-03",583.77],["2025-03-04",576.86],["2025-03-05",583.06],["2025-03-06",572.71],["2025-03-07",575.92],["2025-03-10",560.58],["2025-03-11",555.92],["2025-03-12",558.87],["2025-03-13",551.42],["2025-03-14",562.81],["2025-03-17",567.15],["2025-03-18",561.02],["2025-03-19",567.13],["2025-03-20",565.49],["2025-03-21",563.98],["2025-03-24",574.08],["2025-03-25",575.46],["2025-03-26",568.59],["2025-03-27",567.08],["2025-03-28",555.66],["2025-03-31",559.39],["2025-04-01",560.97],["2025-04-02",564.52],["2025-04-03",536.7],["2025-04-04",505.28],["2025-04-07",504.38],["2025-04-08",496.48],["2025-04-09",548.62],["2025-04-10",524.58],["2025-04-11",533.94],["2025-04-14",539.12],["2025-04-15",537.61],["2025-04-16",525.66],["2025-04-17",526.41],["2025-04-21",513.88],["2025-04-22",527.25],["2025-04-23",535.42],["2025-04-24",546.69],["2025-04-25",550.64],["2025-04-28",550.85],["2025-04-29",554.32],["2025-04-30",554.54],["2025-05-01",558.47],["2025-05-02",566.76],["2025-05-05",563.51],["2025-05-06",558.8],["2025-05-07",561.15],["2025-05-08",565.06],["2025-05-09",564.34],["2025-05-12",582.99],["2025-05-13",586.84],["2025-05-14",587.59],["2025-05-15",590.46],["2025-05-16",594.2],["2025-05-19",594.85],["2025-05-20",592.85],["2025-05-21",582.86],["2025-05-22",583.09],["2025-05-23",579.11],["2025-05-27",591.15],["2025-05-28",587.73],["2025-05-29",590.05],["2025-05-30",589.39],["2025-06-02",592.71],["2025-06-03",596.09],["2025-06-04",595.93],["2025-06-05",593.05],["2025-06-06",599.14],["2025-06-09",599.68],["2025-06-10",603.08],["2025-06-11",601.36],["2025-06-12",603.75],["2025-06-13",597.0],["2025-06-16",602.68],["2025-06-17",597.53],["2025-06-18",597.44],["2025-06-20",594.28],["2025-06-23",600.15],["2025-06-24",606.78],["2025-06-25",607.12],["2025-06-26",611.87],["2025-06-27",614.91],["2025-06-30",617.85],["2025-07-01",617.65],["2025-07-02",620.45],["2025-07-03",625.34],["2025-07-07",620.68],["2025-07-08",620.34],["2025-07-09",624.06],["2025-07-10",625.82],["2025-07-11",623.62],["2025-07-14",624.81],["2025-07-15",622.14],["2025-07-16",624.22],["2025-07-17",628.04],["2025-07-18",627.58],["2025-07-21",628.77],["2025-07-22",628.86],["2025-07-23",634.21],["2025-07-24",634.42],["2025-07-25",637.1],["2025-07-28",636.94],["2025-07-29",635.26],["2025-07-30",634.46],["2025-07-31",632.08],["2025-08-01",621.72],["2025-08-04",631.17],["2025-08-05",627.97],["2025-08-06",632.78],["2025-08-07",632.25],["2025-08-08",637.18],["2025-08-11",635.92],["2025-08-12",642.69],["2025-08-13",644.89],["2025-08-14",644.95],["2025-08-15",643.44],["2025-08-18",643.3],["2025-08-19",639.81],["2025-08-20",638.11],["2025-08-21",635.55],["2025-08-22",645.31],["2025-08-25",642.47],["2025-08-26",645.16],["2025-08-27",646.63],["2025-08-28",648.92],["2025-08-29",645.05],["2025-09-02",640.27],["2025-09-03",643.74],["2025-09-04",649.12],["2025-09-05",647.24],["2025-09-08",648.83],["2025-09-09",650.33],["2025-09-10",652.21],["2025-09-11",657.63],["2025-09-12",657.41],["2025-09-15",660.91],["2025-09-16",660.0],["2025-09-17",659.18],["2025-09-18",662.26],["2025-09-19",663.7],["2025-09-22",666.84],["2025-09-23",663.21],["2025-09-24",661.1],["2025-09-25",658.05],["2025-09-26",661.82],["2025-09-29",663.68],["2025-09-30",666.18],["2025-10-01",668.45],["2025-10-02",669.22],["2025-10-03",669.21],["2025-10-06",671.61],["2025-10-07",669.12],["2025-10-08",673.11],["2025-10-09",671.16],["2025-10-10",653.02],["2025-10-13",663.04],["2025-10-14",662.23],["2025-10-15",665.17],["2025-10-16",660.64],["2025-10-17",664.39],["2025-10-20",671.3],["2025-10-21",671.29],["2025-10-22",667.8],["2025-10-23",671.76],["2025-10-24",677.25],["2025-10-27",685.24],["2025-10-28",687.06],["2025-10-29",687.39],["2025-10-30",679.83],["2025-10-31",682.06],["2025-11-03",683.34],["2025-11-04",675.24],["2025-11-05",677.58],["2025-11-06",670.31],["2025-11-07",670.97],["2025-11-10",681.44],["2025-11-11",683.0],["2025-11-12",683.38],["2025-11-13",672.04],["2025-11-14",671.93],["2025-11-17",665.67],["2025-11-18",660.08],["2025-11-19",662.63],["2025-11-20",652.53],["2025-11-21",659.03],["2025-11-24",668.73],["2025-11-25",675.02],["2025-11-26",679.68],["2025-11-28",683.39],["2025-12-01",680.27],["2025-12-02",681.53],["2025-12-03",683.89],["2025-12-04",684.39],["2025-12-05",685.69],["2025-12-08",683.63],["2025-12-09",683.04],["2025-12-10",687.57],["2025-12-11",689.17],["2025-12-12",681.76],["2025-12-15",680.73],["2025-12-16",678.87],["2025-12-17",671.4],["2025-12-18",676.47],["2025-12-19",680.59],["2025-12-22",684.83],["2025-12-23",687.96],["2025-12-24",690.38],["2025-12-26",690.31],["2025-12-29",687.85],["2025-12-30",687.01],["2025-12-31",681.92],["2026-01-02",683.17],["2026-01-05",687.72],["2026-01-06",691.81],["2026-01-07",689.58],["2026-01-08",689.51],["2026-01-09",694.07],["2026-01-12",695.16],["2026-01-13",693.77],["2026-01-14",690.36],["2026-01-15",692.24],["2026-01-16",691.66],["2026-01-20",677.58],["2026-01-21",685.4],["2026-01-22",688.98],["2026-01-23",689.23],["2026-01-26",692.73],["2026-01-27",695.49],["2026-01-28",695.42],["2026-01-29",694.04],["2026-01-30",691.97],["2026-02-02",695.41],["2026-02-03",689.53],["2026-02-04",686.19],["2026-02-05",677.62],["2026-02-06",690.62],["2026-02-09",693.95],["2026-02-10",692.12],["2026-02-11",691.96],["2026-02-12",681.27],["2026-02-13",681.75],["2026-02-17",682.85],["2026-02-18",686.29],["2026-02-19",684.48],["2026-02-20",689.43],["2026-02-23",682.39],["2026-02-24",687.35],["2026-02-25",693.15],["2026-02-26",689.3],["2026-02-27",685.99],["2026-03-02",686.38],["2026-03-03",680.33],["2026-03-04",685.13],["2026-03-05",681.31],["2026-03-06",672.38],["2026-03-09",678.27],["2026-03-10",677.18],["2026-03-11",676.33],["2026-03-12",666.06],["2026-03-13",662.29],["2026-03-16",669.03],["2026-03-17",670.79],["2026-03-18",661.43],["2026-03-19",659.8],["2026-03-20",648.57],["2026-03-23",655.38],["2026-03-24",653.18],["2026-03-25",656.82],["2026-03-26",645.09],["2026-03-27",634.09],["2026-03-30",631.97],["2026-03-31",650.34],["2026-04-01",655.24],["2026-04-02",655.83],["2026-04-06",658.93],["2026-04-07",659.22],["2026-04-08",676.01],["2026-04-09",679.91],["2026-04-10",679.46],["2026-04-13",686.1],["2026-04-14",694.46],["2026-04-15",699.94],["2026-04-16",701.66],["2026-04-17",710.14],["2026-04-20",708.72],["2026-04-21",704.08],["2026-04-22",711.21],["2026-04-23",708.45],["2026-04-24",713.94],["2026-04-27",715.17],["2026-04-28",711.69],["2026-04-29",711.58],["2026-04-30",718.66],["2026-05-01",720.65],["2026-05-04",718.01],["2026-05-05",723.77],["2026-05-06",733.83],["2026-05-07",731.58],["2026-05-08",737.62],["2026-05-11",739.3],["2026-05-12",738.18],["2026-05-13",742.31],["2026-05-14",748.17],["2026-05-15",739.17],["2026-05-18",738.65],["2026-05-19",733.73],["2026-05-20",741.25],["2026-05-21",742.72],["2026-05-22",745.64],["2026-05-26",750.59],["2026-05-27",750.46],["2026-05-28",754.6],["2026-05-29",756.48],["2026-06-01",758.54],["2026-06-02",759.57],["2026-06-03",754.24],["2026-06-04",757.09],["2026-06-05",737.55],["2026-06-08",739.22],["2026-06-09",737.05],["2026-06-10",725.43],["2026-06-11",737.76],["2026-06-12",741.75],["2026-06-15",754.83],["2026-06-16",750.33],["2026-06-17",740.96],["2026-06-18",746.74],["2026-06-22",744.39],["2026-06-23",733.58],["2026-06-24",733.24],["2026-06-25",734.3],["2026-06-26",728.99],["2026-06-29",741.0],["2026-06-30",746.77],["2026-07-01",745.76],["2026-07-02",744.78],["2026-07-06",751.28],["2026-07-07",747.71],["2026-07-08",745.4],["2026-07-09",751.71],["2026-07-10",754.95],["2026-07-13",749.17],["2026-07-14",751.83],["2026-07-15",754.81],["2026-07-16",750.72],["2026-07-17",743.29],["2026-07-20",742.09],["2026-07-21",748.28],["2026-07-22",747.41],["2026-07-23",738.18],["2026-07-24",738.93],["2026-07-27",739.09],["2026-07-28",740.86],["2026-07-29",729.46],["2026-07-30",741.69],["2026-07-31",747.03],["2026-08-03",757.67],["2026-08-04",771.33],["2026-08-05",769.79],["2026-08-06",768.56],["2026-08-07",773.26],["2026-08-10",773.03],["2026-08-11",770.56],["2026-08-12",772.49],["2026-08-13",777.88],["2026-08-14",776.34],["2026-08-17",772.67],["2026-08-18",767.45],["2026-08-19",769.06],["2026-08-20",762.6],["2026-08-21",765.72],["2026-08-24",763.47],["2026-08-25",765.91],["2026-08-26",766.08],["2026-08-27",771.1],["2026-08-28",769.35]],"source":"yfinance","as_of":"2026-08-28"},"week52":{"low":631.97,"high":777.88},"fundamentals":null,"pcs":null},"VRT":{"ticker":"VRT","fetched_at":"2026-08-28T20:16:01.728626+00:00","tier":"T1","cik":1674101,"price_status":"SINGLE_SOURCE","prints":[{"close":257.0799865722656,"date":"2026-08-28","source":"yfinance"}],"series":{"interval":"1d(24mo)+1w(prior)","rows":[["2023-08-29",38.72],["2023-09-06",38.44],["2023-09-13",37.03],["2023-09-20",37.12],["2023-09-27",36.18],["2023-10-04",38.19],["2023-10-11",41.73],["2023-10-18",38.75],["2023-10-25",37.39],["2023-11-01",40.23],["2023-11-08",40.07],["2023-11-15",43.5],["2023-11-22",43.52],["2023-11-30",43.66],["2023-12-07",45.14],["2023-12-14",47.24],["2023-12-21",48.58],["2023-12-29",48.03],["2024-01-08",48.54],["2024-01-16",49.96],["2024-01-23",53.67],["2024-01-30",56.66],["2024-02-06",59.12],["2024-02-13",62.53],["2024-02-21",58.55],["2024-02-28",66.1],["2024-03-06",71.99],["2024-03-13",73.37],["2024-03-20",77.84],["2024-03-27",81.01],["2024-04-04",80.69],["2024-04-11",86.34],["2024-04-18",81.01],["2024-04-25",90.35],["2024-05-02",92.17],["2024-05-09",97.94],["2024-05-16",97.29],["2024-05-23",101.24],["2024-05-31",98.07],["2024-06-07",87.68],["2024-06-14",91.48],["2024-06-24",89.14],["2024-07-01",86.66],["2024-07-09",92.76],["2024-07-16",89.72],["2024-07-23",91.0],["2024-07-30",73.03],["2024-08-06",69.27],["2024-08-13",76.24],["2024-08-20",76.51],["2024-08-27",80.21],["2024-08-28",80.52],["2024-08-29",79.92],["2024-08-30",83.03],["2024-09-03",75.2],["2024-09-04",75.06],["2024-09-05",75.15],["2024-09-06",71.77],["2024-09-09",74.48],["2024-09-10",75.47],["2024-09-11",82.39],["2024-09-12",86.76],["2024-09-13",85.76],["2024-09-16",86.99],["2024-09-17",87.29],["2024-09-18",87.66],["2024-09-19",92.06],["2024-09-20",94.54],["2024-09-23",96.07],["2024-09-24",97.39],["2024-09-25",100.74],["2024-09-26",100.62],["2024-09-27",98.41],["2024-09-30",99.49],["2024-10-01",97.62],["2024-10-02",102.28],["2024-10-03",102.69],["2024-10-04",105.2],["2024-10-07",106.73],["2024-10-08",106.82],["2024-10-09",108.12],["2024-10-10",107.47],["2024-10-11",111.84],["2024-10-14",112.41],["2024-10-15",107.47],["2024-10-16",111.69],["2024-10-17",114.28],["2024-10-18",112.25],["2024-10-21",112.11],["2024-10-22",112.47],["2024-10-23",108.36],["2024-10-24",110.03],["2024-10-25",112.17],["2024-10-28",113.61],["2024-10-29",113.83],["2024-10-30",112.45],["2024-10-31",109.29],["2024-11-01",106.9],["2024-11-04",106.21],["2024-11-05",112.44],["2024-11-06",120.43],["2024-11-07",122.17],["2024-11-08",125.75],["2024-11-11",126.8],["2024-11-12",123.81],["2024-11-13",124.53],["2024-11-14",121.03],["2024-11-15",120.87],["2024-11-18",123.02],["2024-11-19",140.94],["2024-11-20",137.54],["2024-11-21",141.49],["2024-11-22",140.15],["2024-11-25",132.03],["2024-11-26",131.74],["2024-11-27",126.94],["2024-11-29",127.6],["2024-12-02",127.05],["2024-12-03",128.16],["2024-12-04",130.88],["2024-12-05",134.58],["2024-12-06",133.85],["2024-12-09",126.17],["2024-12-10",121.7],["2024-12-11",125.84],["2024-12-12",125.04],["2024-12-13",125.78],["2024-12-16",125.97],["2024-12-17",120.69],["2024-12-18",114.12],["2024-12-19",115.44],["2024-12-20",120.04],["2024-12-23",117.74],["2024-12-24",118.74],["2024-12-26",118.88],["2024-12-27",115.11],["2024-12-30",116.16],["2024-12-31",113.61],["2025-01-02",118.3],["2025-01-03",125.67],["2025-01-06",134.08],["2025-01-07",130.64],["2025-01-08",129.27],["2025-01-10",128.93],["2025-01-13",124.01],["2025-01-14",128.95],["2025-01-15",132.0],["2025-01-16",132.59],["2025-01-17",135.88],["2025-01-21",143.13],["2025-01-22",148.59],["2025-01-23",153.49],["2025-01-24",146.32],["2025-01-27",102.6],["2025-01-28",106.55],["2025-01-29",110.46],["2025-01-30",114.6],["2025-01-31",117.02],["2025-02-03",112.6],["2025-02-04",111.25],["2025-02-05",119.04],["2025-02-06",119.56],["2025-02-07",121.38],["2025-02-10",125.76],["2025-02-11",123.25],["2025-02-12",111.24],["2025-02-13",109.28],["2025-02-14",108.05],["2025-02-18",109.96],["2025-02-19",107.84],["2025-02-20",104.83],["2025-02-21",95.99],["2025-02-24",91.02],["2025-02-25",91.9],["2025-02-26",98.61],["2025-02-27",92.41],["2025-02-28",95.17],["2025-03-03",85.41],["2025-03-04",86.39],["2025-03-05",87.89],["2025-03-06",82.04],["2025-03-07",85.04],["2025-03-10",78.02],["2025-03-11",83.12],["2025-03-12",85.38],["2025-03-13",83.09],["2025-03-14",87.45],["2025-03-17",89.08],["2025-03-18",84.66],["2025-03-19",89.17],["2025-03-20",89.08],["2025-03-21",88.63],["2025-03-24",93.69],["2025-03-25",91.58],["2025-03-26",81.62],["2025-03-27",76.32],["2025-03-28",74.25],["2025-03-31",72.2],["2025-04-01",75.27],["2025-04-02",77.11],["2025-04-03",67.47],["2025-04-04",59.41],["2025-04-07",63.82],["2025-04-08",62.9],["2025-04-09",72.82],["2025-04-10",67.73],["2025-04-11",69.61],["2025-04-14",71.57],["2025-04-15",72.71],["2025-04-16",71.65],["2025-04-17",73.21],["2025-04-21",67.57],["2025-04-22",71.82],["2025-04-23",78.0],["2025-04-24",83.88],["2025-04-25",86.95],["2025-04-28",86.15],["2025-04-29",86.19],["2025-04-30",85.38],["2025-05-01",92.55],["2025-05-02",95.0],["2025-05-05",94.83],["2025-05-06",93.48],["2025-05-07",95.52],["2025-05-08",95.74],["2025-05-09",94.06],["2025-05-12",101.05],["2025-05-13",105.58],["2025-05-14",109.48],["2025-05-15",105.38],["2025-05-16",106.04],["2025-05-19",106.4],["2025-05-20",106.39],["2025-05-21",103.61],["2025-05-22",104.2],["2025-05-23",104.14],["2025-05-27",109.79],["2025-05-28",109.22],["2025-05-29",108.47],["2025-05-30",107.93],["2025-06-02",109.23],["2025-06-03",112.34],["2025-06-04",112.85],["2025-06-05",112.22],["2025-06-06",115.36],["2025-06-09",112.0],["2025-06-10",108.47],["2025-06-11",110.59],["2025-06-12",114.5],["2025-06-13",110.97],["2025-06-16",116.45],["2025-06-17",116.61],["2025-06-18",119.08],["2025-06-20",118.54],["2025-06-23",116.54],["2025-06-24",122.32],["2025-06-25",121.64],["2025-06-26",123.8],["2025-06-27",127.16],["2025-06-30",128.41],["2025-07-01",122.54],["2025-07-02",124.33],["2025-07-03",127.84],["2025-07-07",126.26],["2025-07-08",125.89],["2025-07-09",128.37],["2025-07-10",120.72],["2025-07-11",123.3],["2025-07-14",124.72],["2025-07-15",127.37],["2025-07-16",125.4],["2025-07-17",131.12],["2025-07-18",129.06],["2025-07-21",126.21],["2025-07-22",125.29],["2025-07-23",130.19],["2025-07-24",130.87],["2025-07-25",137.47],["2025-07-28",142.55],["2025-07-29",142.7],["2025-07-30",144.17],["2025-07-31",145.6],["2025-08-01",141.59],["2025-08-04",140.2],["2025-08-05",138.76],["2025-08-06",139.75],["2025-08-07",139.39],["2025-08-08",139.93],["2025-08-11",139.83],["2025-08-12",143.72],["2025-08-13",137.4],["2025-08-14",132.52],["2025-08-15",133.07],["2025-08-18",135.69],["2025-08-19",129.05],["2025-08-20",127.54],["2025-08-21",126.58],["2025-08-22",125.97],["2025-08-25",125.02],["2025-08-26",127.93],["2025-08-27",129.31],["2025-08-28",134.23],["2025-08-29",127.55],["2025-09-02",124.01],["2025-09-03",125.59],["2025-09-04",125.7],["2025-09-05",124.0],["2025-09-08",121.82],["2025-09-09",125.58],["2025-09-10",136.74],["2025-09-11",135.71],["2025-09-12",134.84],["2025-09-15",138.26],["2025-09-16",136.65],["2025-09-17",136.83],["2025-09-18",141.96],["2025-09-19",143.6],["2025-09-22",151.96],["2025-09-23",142.61],["2025-09-24",141.62],["2025-09-25",139.77],["2025-09-26",138.62],["2025-09-29",143.31],["2025-09-30",150.86],["2025-10-01",161.59],["2025-10-02",161.64],["2025-10-03",160.2],["2025-10-06",162.8],["2025-10-07",158.87],["2025-10-08",167.38],["2025-10-09",168.88],["2025-10-10",169.01],["2025-10-13",179.0],["2025-10-14",175.15],["2025-10-15",180.51],["2025-10-16",177.82],["2025-10-17",174.0],["2025-10-20",175.73],["2025-10-21",174.8],["2025-10-22",171.59],["2025-10-23",183.2],["2025-10-24",186.06],["2025-10-27",192.9],["2025-10-28",190.57],["2025-10-29",199.27],["2025-10-30",193.76],["2025-10-31",192.86],["2025-11-03",191.4],["2025-11-04",180.82],["2025-11-05",190.71],["2025-11-06",183.02],["2025-11-07",179.8],["2025-11-10",187.84],["2025-11-11",179.05],["2025-11-12",173.37],["2025-11-13",163.64],["2025-11-14",170.97],["2025-11-17",166.65],["2025-11-18",164.86],["2025-11-19",170.65],["2025-11-20",159.61],["2025-11-21",159.83],["2025-11-24",168.91],["2025-11-25",169.57],["2025-11-26",172.02],["2025-11-28",179.73],["2025-12-01",179.22],["2025-12-02",180.91],["2025-12-03",178.88],["2025-12-04",182.54],["2025-12-05",189.02],["2025-12-08",185.61],["2025-12-09",178.38],["2025-12-10",181.82],["2025-12-11",178.66],["2025-12-12",161.27],["2025-12-15",161.74],["2025-12-16",160.66],["2025-12-17",149.83],["2025-12-18",154.39],["2025-12-19",159.82],["2025-12-22",166.25],["2025-12-23",166.26],["2025-12-24",166.87],["2025-12-26",167.58],["2025-12-29",165.62],["2025-12-30",164.34],["2025-12-31",162.01],["2026-01-02",175.61],["2026-01-05",173.95],["2026-01-06",174.95],["2026-01-07",171.54],["2026-01-08",160.78],["2026-01-09",163.58],["2026-01-12",170.03],["2026-01-13",172.72],["2026-01-14",170.86],["2026-01-15",172.54],["2026-01-16",176.93],["2026-01-20",175.18],["2026-01-21",181.47],["2026-01-22",181.12],["2026-01-23",182.49],["2026-01-26",181.23],["2026-01-27",189.21],["2026-01-28",193.76],["2026-01-29",195.1],["2026-01-30",186.18],["2026-02-02",190.01],["2026-02-03",190.15],["2026-02-04",182.56],["2026-02-05",177.75],["2026-02-06",195.58],["2026-02-09",202.0],["2026-02-10",199.62],["2026-02-11",248.51],["2026-02-12",236.51],["2026-02-13",234.53],["2026-02-17",243.53],["2026-02-18",243.21],["2026-02-19",243.06],["2026-02-20",243.75],["2026-02-23",245.42],["2026-02-24",253.15],["2026-02-25",262.19],["2026-02-26",259.23],["2026-02-27",254.89],["2026-03-02",257.75],["2026-03-03",244.44],["2026-03-04",251.28],["2026-03-05",249.75],["2026-03-06",241.78],["2026-03-09",264.35],["2026-03-10",270.06],["2026-03-11",268.26],["2026-03-12",265.38],["2026-03-13",258.88],["2026-03-16",264.74],["2026-03-17",268.41],["2026-03-18",264.71],["2026-03-19",269.17],["2026-03-20",255.88],["2026-03-23",256.0],["2026-03-24",270.89],["2026-03-25",276.16],["2026-03-26",252.4],["2026-03-27",251.07],["2026-03-30",234.22],["2026-03-31",250.58],["2026-04-01",259.37],["2026-04-02",261.29],["2026-04-06",258.73],["2026-04-07",262.3],["2026-04-08",281.03],["2026-04-09",287.64],["2026-04-10",295.11],["2026-04-13",299.96],["2026-04-14",310.51],["2026-04-15",301.16],["2026-04-16",294.13],["2026-04-17",307.34],["2026-04-20",314.41],["2026-04-21",312.44],["2026-04-22",305.14],["2026-04-23",321.75],["2026-04-24",323.46],["2026-04-27",322.43],["2026-04-28",305.03],["2026-04-29",306.18],["2026-04-30",328.49],["2026-05-01",328.31],["2026-05-04",330.97],["2026-05-05",341.02],["2026-05-06",358.92],["2026-05-07",340.01],["2026-05-08",339.97],["2026-05-11",367.92],["2026-05-12",367.13],["2026-05-13",369.99],["2026-05-14",376.23],["2026-05-15",370.94],["2026-05-18",339.73],["2026-05-19",322.63],["2026-05-20",315.67],["2026-05-21",323.4],["2026-05-22",327.46],["2026-05-26",323.91],["2026-05-27",319.78],["2026-05-28",314.18],["2026-05-29",315.71],["2026-06-01",323.39],["2026-06-02",334.49],["2026-06-03",331.44],["2026-06-04",323.92],["2026-06-05",300.51],["2026-06-08",300.57],["2026-06-09",289.52],["2026-06-10",280.98],["2026-06-11",297.88],["2026-06-12",302.87],["2026-06-15",311.93],["2026-06-16",299.6],["2026-06-17",317.58],["2026-06-18",333.05],["2026-06-22",357.96],["2026-06-23",318.32],["2026-06-24",316.43],["2026-06-25",325.57],["2026-06-26",303.95],["2026-06-29",306.97],["2026-06-30",334.82],["2026-07-01",311.42],["2026-07-02",300.53],["2026-07-06",318.47],["2026-07-07",305.58],["2026-07-08",317.81],["2026-07-09",323.92],["2026-07-10",318.86],["2026-07-13",305.87],["2026-07-14",303.58],["2026-07-15",304.57],["2026-07-16",294.11],["2026-07-17",289.56],["2026-07-20",291.67],["2026-07-21",304.5],["2026-07-22",301.16],["2026-07-23",304.04],["2026-07-24",290.36],["2026-07-27",287.6],["2026-07-28",269.56],["2026-07-29",223.04],["2026-07-30",227.5],["2026-07-31",241.57],["2026-08-03",263.05],["2026-08-04",269.93],["2026-08-05",277.94],["2026-08-06",275.17],["2026-08-07",272.4],["2026-08-10",270.1],["2026-08-11",281.81],["2026-08-12",288.36],["2026-08-13",287.07],["2026-08-14",293.84],["2026-08-17",292.43],["2026-08-18",272.54],["2026-08-19",261.0],["2026-08-20",264.63],["2026-08-21",261.95],["2026-08-24",254.97],["2026-08-25",255.75],["2026-08-26",263.81],["2026-08-27",269.28],["2026-08-28",257.08]],"source":"yfinance","as_of":"2026-08-28"},"week52":{"low":121.82,"high":376.23},"fundamentals":{"source":"sec-companyfacts","cik":1674101,"as_of":"2026-08-28","revenue_fy":[["2018-12-31",4285600000],["2019-12-31",4431200000],["2020-12-31",4370600000],["2021-12-31",4998100000],["2022-12-31",5691500000],["2023-12-31",6863200000],["2024-12-31",8011800000],["2025-12-31",10229900000]],"revenue_q":[["2024-03-31",1639100000],["2024-06-30",1952800000],["2024-09-30",2073500000],["2025-03-31",2036000000],["2025-06-30",2638100000],["2025-09-30",2675800000],["2026-03-31",2649500000],["2026-06-30",3274300000]],"net_income_fy":[["2018-12-31",-314000000],["2019-12-31",-140800000],["2020-12-31",-327300000],["2021-12-31",119600000],["2022-12-31",76600000],["2023-12-31",460200000],["2024-12-31",495800000],["2025-12-31",1332800000]],"cash":[["2026-06-30",2810600000]],"total_debt":[["2026-06-30",2939800000]]},"pcs":null}},"shadow":{"book":{"rows":[]},"results":{}},"trades":[],"requests":{"version":1,"requests":[{"id":"REQ-20260828-01","kind":"prices","ticker":"VRT","query":null,"forms":null,"lookback_days":null,"requested_by":"build step 5 smoke","requested_at":"2026-08-28T20:20:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/market/VRT.json"],"fulfilled_at":"2026-08-28T20:16:01.728626+00:00"},{"id":"REQ-20260828-02","kind":"prices","ticker":"SPY","query":null,"forms":null,"lookback_days":null,"requested_by":"build step 5 smoke","requested_at":"2026-08-28T20:20:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/market/SPY.json"],"fulfilled_at":"2026-08-28T20:16:01.728626+00:00"},{"id":"REQ-20260828-03","kind":"fundamentals","ticker":"VRT","query":null,"forms":null,"lookback_days":null,"requested_by":"build step 5 smoke","requested_at":"2026-08-28T20:20:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/market/VRT.json"],"fulfilled_at":"2026-08-28T20:16:01.728626+00:00"},{"id":"REQ-20260828-04","kind":"edgar_doc","ticker":"VRT","query":null,"forms":null,"lookback_days":null,"requested_by":"build step 5 smoke","requested_at":"2026-08-28T20:20:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/edgar/docs/VRT.json"],"fulfilled_at":"2026-08-28T20:16:01.728626+00:00"},{"id":"REQ-20260828-05","kind":"edgar_fts","ticker":null,"query":"\"co-packaged optics\"","forms":"10-K,10-Q,8-K","lookback_days":365,"requested_by":"build step 5 smoke","requested_at":"2026-08-28T20:20:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/edgar/fts/co-packaged-optics.json"],"fulfilled_at":"2026-08-28T20:16:01.728626+00:00"},{"id":"REQ-20260828-06","kind":"edgar_doc","ticker":"VRT","query":null,"forms":null,"lookback_days":200,"requested_by":"retest exhibit upgrade","requested_at":"2026-08-28T20:30:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/edgar/docs/VRT.json"],"fulfilled_at":"2026-08-28T20:17:17.271125+00:00"},{"id":"REQ-20260828-07","kind":"edgar_doc","ticker":"VRT","query":null,"forms":null,"lookback_days":200,"requested_by":"retest 2","requested_at":"2026-08-28T20:35:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/edgar/docs/VRT.json"],"fulfilled_at":"2026-08-28T20:17:43.721607+00:00"},{"id":"REQ-20260828-08","kind":"edgar_doc","ticker":"VRT","query":null,"forms":null,"lookback_days":200,"requested_by":"retest 3","requested_at":"2026-08-28T20:40:00Z","by":"ron","status":"FULFILLED","note":null,"wrote":["data/edgar/docs/VRT.json"],"fulfilled_at":"2026-08-28T20:18:38.868481+00:00"}]},"health":{"sessions":{"routine_status":{"radar":"UNREGISTERED","digest":"UNREGISTERED"},"last_commands":{}},"actions":{"fetch":{"last_run":"2026-08-28T20:18:38.868481+00:00","runs":[{"ts":"2026-08-28T20:16:01.728626+00:00","event":"manual","processed":5,"fulfilled":5,"failed":0,"refreshed":0,"errors":0,"trips":0},{"ts":"2026-08-28T20:17:17.271125+00:00","event":"manual","processed":1,"fulfilled":1,"failed":0,"refreshed":0,"errors":0,"trips":0},{"ts":"2026-08-28T20:17:43.721607+00:00","event":"manual","processed":1,"fulfilled":1,"failed":0,"refreshed":0,"errors":0,"trips":0},{"ts":"2026-08-28T20:18:38.868481+00:00","event":"manual","processed":1,"fulfilled":1,"failed":0,"refreshed":0,"errors":0,"trips":0}]},"smoke":{"last_run":null,"probes":{}}}},"ledger":["2026-08-28 00:00Z | NOTE | genesis | by: ron | wrote: seed data | result: repo created with AI-infrastructure seed chain, S2 screen, DEMO fixture dive | health: seed | artifact: pending-first-publish"],"digests":[],"indicators":{"trips":[]}};
+</script>
+<script>
+/* Upstream SPA — vanilla JS over window.UPSTREAM_DATA. Hash-routed, no external libs. */
+(function () {
+  "use strict";
+  var D = window.UPSTREAM_DATA || {};
+  var app = document.getElementById("app");
+  var TODAY = (D.built_at || new Date().toISOString()).slice(0, 10);
+
+  /* ---------------- helpers ---------------- */
+  function esc(s) {
+    if (s === null || s === undefined) return "";
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function byId(list, id) { for (var i = 0; i < (list || []).length; i++) if (list[i].id === id) return list[i]; return null; }
+  function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+  function staleChip(asOf) {
+    if (!asOf) return "";
+    var d = daysBetween(asOf, TODAY);
+    if (d > 90) return '<span class="chip verystale">stale · as of ' + esc(asOf) + "</span>";
+    if (d > 30) return '<span class="chip stale">stale · as of ' + esc(asOf) + "</span>";
+    if (d > 7) return '<span class="chip neutral">as of ' + esc(asOf) + "</span>";
+    return "";
+  }
+  function chip(text, cls) { return '<span class="chip ' + esc(cls || "neutral") + '">' + esc(text) + "</span>"; }
+  function tierChip(t) { return t ? '<span class="chip tier">' + esc(t) + "</span>" : ""; }
+  function cmdPill(cmd, caption) {
+    return '<div><span class="cmd"><span>' + esc(cmd) + '</span><button data-copy="' + esc(cmd) + '">copy</button></span>' +
+      '<div class="cmd-caption">' + esc(caption || "paste into a Claude session on Ronkimhi/upstream") + "</div></div>";
+  }
+  function verdColor(v) { return { UNDISCOVERED: "var(--und)", EMERGING: "var(--emg)", CROWDED: "var(--crd)", OVER_CROWDED: "var(--ovr)" }[v] || "var(--border-strong)"; }
+  function marketFor(t) { return (D.market || {})[String(t).replace(/\./g, "-")] || (D.market || {})[t] || null; }
+  function fmtMoney(x) { return typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(x); }
+  function slug(s) { return String(s); }
+
+  /* ---------------- shell ---------------- */
+  function pendingCount() {
+    var r = (D.requests && D.requests.requests) || [];
+    return r.filter(function (x) { return x.status === "PENDING"; }).length;
+  }
+  function failedCount() {
+    var r = (D.requests && D.requests.requests) || [];
+    return r.filter(function (x) { return x.status === "FAILED"; }).length;
+  }
+  function healthState() {
+    if (failedCount() > 0) return ["var(--bad)", "data requests FAILED — check data/requests.json"];
+    var rs = ((D.health || {}).sessions || {}).routine_status || {};
+    if (rs.radar === "LIVE") {
+      var lastRadar = null;
+      (D.ledger || []).forEach(function (l) { if (l.indexOf("| RADAR") > -1) lastRadar = l.slice(0, 10); });
+      if (lastRadar && daysBetween(lastRadar, TODAY) > 4) return ["var(--bad)", "radar silent since " + lastRadar];
+    }
+    if (pendingCount() > 0) return ["var(--warn)", pendingCount() + " data request(s) pending"];
+    return ["var(--good)", "all quiet"];
+  }
+  function topbar() {
+    var hs = healthState();
+    var p = pendingCount();
+    return '<div class="topbar">' +
+      '<a href="#/" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>' +
+      '<span class="builtat">built ' + esc(D.built_at || "?") + "</span>" +
+      '<span class="spacer"></span>' +
+      (p ? '<span class="tb-chip"><span class="healthdot" style="background:var(--warn)"></span>' + p + " pending</span>" : "") +
+      '<span class="tb-chip" title="' + esc(hs[1]) + '"><span class="healthdot" style="background:' + hs[0] + '"></span>health</span>' +
+      '<button class="tb-btn" data-nav="#/shadow">shadow</button>' +
+      '<button class="tb-btn" data-nav="#/book">book</button>' +
+      '<button class="tb-btn" id="themeBtn">theme</button>' +
+      "</div>";
+  }
+  function crumbs(parts) {
+    var h = '<div class="crumbs"><a href="#/">Radar</a>';
+    parts.forEach(function (p, i) {
+      h += '<span class="sep">›</span>';
+      if (p.href && i < parts.length - 1) h += '<a href="' + p.href + '">' + esc(p.label) + "</a>";
+      else if (p.cmd) h += '<span class="cmd" style="padding:2px 8px;font-size:11px">' + esc(p.cmd) + '<button data-copy="' + esc(p.cmd) + '">copy</button></span>';
+      else h += '<span class="here">' + esc(p.label) + "</span>";
+    });
+    return h + "</div>";
+  }
+  function footer() {
+    return '<div class="footer">Upstream is a private research tool. Verdicts and zones are analytical outputs from public data with stated methods and gaps — not investment advice. Canonical copy: <span class="mono">app/index.html</span> in the repo; if this page looks stale, a newer build may not have been republished yet.</div>';
+  }
+
+  /* ---------------- what changed ---------------- */
+  function lastVisit() { try { return localStorage.getItem("upstream.lastVisit"); } catch (e) { return null; } }
+  function stampVisit() { try { localStorage.setItem("upstream.lastVisit", new Date().toISOString()); } catch (e) {} }
+  function whatChanged() {
+    var since = lastVisit();
+    var items = [];
+    (D.signals || []).forEach(function (s) {
+      if (!since || (s.created_at && s.created_at > since.slice(0, 10))) items.push("New signal: <a href='#/signal/" + s.id + "'>" + esc(s.title) + "</a>");
+    });
+    (D.stocks || []).forEach(function (st) {
+      (st.changelog || []).forEach(function (c) {
+        if (since && c.ts > since) items.push("Deep dive updated: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> — " + esc(c.change));
+      });
+      if (st.review_by && st.review_by <= TODAY && st.status !== "ARCHIVED") items.push("Review due: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> (review_by " + esc(st.review_by) + ")");
+    });
+    (D.chains || []).forEach(function (c) {
+      (c.scenarios || []).forEach(function (sc) {
+        (sc.leading_indicators || []).forEach(function (ind) {
+          if (ind.tripped_at) items.push("Indicator TRIPPED: " + esc(ind.indicator) + " → scenario <a href='#/chain/" + c.id + "'>" + esc(sc.id + " " + sc.title) + "</a>");
+        });
+      });
+    });
+    ((D.indicators || {}).trips || []).forEach(function (t) {
+      if (!since || t.tripped_at >= since.slice(0, 10)) items.push("Indicator TRIPPED " + esc(t.tripped_at) + ": " + esc(t.indicator) + " (" + esc(t.ticker) + " " + esc(t.op) + " " + esc(t.level) + ", seen " + esc(t.seen) + ") → <a href='#/chain/" + t.chain + "'>" + esc(t.chain + " " + t.scenario) + "</a>");
+    });
+    if (!since && !items.length) items.push("First visit on this device — everything below is new to you.");
+    if (since && !items.length) items.push("Nothing changed since your last visit (" + esc(since.slice(0, 10)) + ").");
+    return '<div class="card brief"><h3>What changed' + (since ? " since " + esc(since.slice(0, 10)) : "") + "</h3><ul>" +
+      items.slice(0, 12).map(function (i) { return "<li>" + i + "</li>"; }).join("") + "</ul></div>";
+  }
+
+  /* ---------------- home ---------------- */
+  function signalCard(s) {
+    var next = s.status === "NEW" ? cmdPill("run chain " + s.id, "build this signal's value chain") :
+      s.status === "CHAINED" ? '<a class="chip accent" href="#/chain/' + esc(s.chain_id) + '">open chain →</a>' : "";
+    return '<a class="card sigcard" href="#/signal/' + esc(s.id) + '">' +
+      '<div class="row">' + chip(s.status, s.status === "NEW" ? "accent" : "neutral") +
+      chip(s.suggested_clock) + '<span class="muted num">' + esc((s.horizon_years || []).join("-")) + "y</span>" +
+      staleChip(s.updated_at) + "</div>" +
+      "<h3>" + esc(s.title) + "</h3>" +
+      '<div class="thesis">' + esc(s.thesis) + "</div>" +
+      '<div class="row"><span class="muted">unmapped ' + '<span class="num">' + esc((s.unmappedness || {}).score) + "</span>/100</span>" +
+      '<span class="muted">' + (s.evidence || []).length + " evidence</span></div></a>" +
+      (next ? '<div style="margin:-2px 0 12px">' + next + "</div>" : "");
+  }
+  function homeView() {
+    var lanes = { MACRO: [], INDUSTRY: [], USE_CASE: [] };
+    (D.signals || []).forEach(function (s) { (lanes[s.lane] = lanes[s.lane] || []).push(s); });
+    var digest = (D.digests || [])[0];
+    var lh = { MACRO: "Macro & geopolitics", INDUSTRY: "Industry inflections", USE_CASE: "Emerging use cases" };
+    var ledgerTail = (D.ledger || []).slice(-6).reverse();
+    return topbar() + "<main>" +
+      "<h1>Radar</h1><p class='lead'>Known events whose chain consequences are still unmapped. Nothing below was analyzed until someone clicked it; everything analyzed is saved forever.</p>" +
+      whatChanged() +
+      (digest ? '<div class="card" style="margin-top:12px"><h3>Saturday digest · ' + esc(digest.week || "") + "</h3><div class='small'>" + esc(digest.summary || "") + "</div></div>" : "") +
+      "<h2>Signals</h2><div class='lanes'>" +
+      Object.keys(lanes).map(function (k) {
+        return "<div><div class='lane-h'>" + esc(lh[k]) + " · " + lanes[k].length + "</div>" +
+          (lanes[k].map(signalCard).join("") || '<div class="emptystate">nothing yet — the radar routine fills this lane</div>') + "</div>";
+      }).join("") + "</div>" +
+      "<h2>Recent activity</h2><div class='card'><div class='mono' style='font-size:11.5px;white-space:pre-wrap;color:var(--ink-2)'>" +
+      ledgerTail.map(esc).join("\n") + "</div></div>" +
+      footer() + "</main>";
+  }
+
+  /* ---------------- signal ---------------- */
+  function signalView(id) {
+    var s = byId(D.signals, id);
+    if (!s) return notFound("signal " + id);
+    var evid = (s.evidence || []).map(function (e) {
+      return '<div class="evli">' + chip(e.tag, "neutral") + " " + esc(e.claim) +
+        (e.source_name ? ' <span class="muted">[' + esc(e.source_name) + (e.source_date ? ", " + esc(e.source_date) : "") + "]</span>" : "") + "</div>";
+    }).join("");
+    return topbar() + crumbs([{ label: s.title }]) + "<main>" +
+      '<div class="row">' + chip(s.lane) + chip(s.status, s.status === "NEW" ? "accent" : "neutral") + chip(s.suggested_clock) + staleChip(s.updated_at) + "</div>" +
+      "<h1>" + esc(s.title) + "</h1><p class='lead'>" + esc(s.thesis) + "</p>" +
+      "<div class='grid' style='grid-template-columns:repeat(auto-fit,minmax(280px,1fr))'>" +
+      "<div class='card'><h3>Why now</h3><div class='small'>" + esc(s.why_now) + "</div></div>" +
+      "<div class='card'><h3>The retail gap</h3><div class='small'>" + esc(s.retail_gap) + "</div></div>" +
+      "<div class='card'><h3>Unmapped-ness · <span class='num'>" + esc((s.unmappedness || {}).score) + "</span>/100</h3><div class='small'>" + esc((s.unmappedness || {}).rationale) + "</div></div></div>" +
+      "<h2>Evidence</h2><div class='card'>" + (evid || "<div class='muted'>none</div>") + "</div>" +
+      "<h2>Next</h2>" + (s.chain_id ? "<a class='chip accent' href='#/chain/" + esc(s.chain_id) + "'>open the value chain →</a>" :
+        s.status === "NEW" ? cmdPill("run chain " + s.id, "builds the 8-15 link value chain for this signal") : "<span class='muted'>" + esc(s.status) + "</span>") +
+      notesBlock(s) + changelogBlock(s) + footer() + "</main>";
+  }
+
+  /* ---------------- chain ---------------- */
+  var chainTab = "flow";
+  function chainView(id, tab) {
+    var c = byId(D.chains, id);
+    if (!c) return notFound("chain " + id);
+    chainTab = tab || chainTab || "flow";
+    var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
+    var scored = links.filter(function (l) { return l.heat && l.heat.crowdedness && l.heat.crowdedness.score != null; });
+    var money = links.filter(function (l) { return l.heat && l.heat.money_corner; });
+    var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : flowTab(c, links);
+    return topbar() + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
+      '<div class="row">' + chip(c.clock) + chip(c.status) + staleChip(c.heat_as_of) +
+      (money.length ? chip("★ money corner: " + money.map(function (l) { return l.name; }).join(", "), "UNDISCOVERED") : "") + "</div>" +
+      "<h1>" + esc(c.title) + "</h1>" +
+      "<p class='lead section-note'>" + esc(c.map_limitation || "") + "</p>" +
+      '<div class="tabs">' +
+      ["flow:Flow", "heat:Heat 2x2", "scen:Scenarios"].map(function (t) {
+        var k = t.split(":");
+        return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
+      }).join("") + "</div>" + body +
+      "<div class='healthline'>heat coverage: " + scored.length + "/" + links.length + " links scored · as of " + esc(c.heat_as_of || "never") + "</div>" +
+      notesBlock(c) + changelogBlock(c) + footer() + "</main>";
+  }
+  function sigTitle(id) { var s = byId(D.signals, id); return s ? s.title : id; }
+  function flowTab(c, links) {
+    var h = '<div class="flow">';
+    links.forEach(function (l, i) {
+      var hv = l.heat && l.heat.verdict;
+      var cr = l.heat && l.heat.crowdedness && l.heat.crowdedness.score;
+      var im = l.heat && l.heat.impact && l.heat.impact.score;
+      var cp = l.heat && l.heat.capture && l.heat.capture.score;
+      h += '<div class="fnode ' + (hv ? "v-" + hv : "") + '" data-drawer="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.name) + '">' +
+        (l.heat && l.heat.money_corner ? '<span class="star" title="money corner">★</span>' : "") +
+        (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT" ? '<span class="choke" title="choke point"></span>' : "") +
+        '<div class="pos">' + (i + 1) + "</div><div class='nm'>" + esc(l.name) + "</div>" +
+        '<div class="sc">' + (hv ? "i" + im + " · c" + cr + " · v" + cp : "unscored") + "</div></div>";
+      if (i < links.length - 1) h += '<div class="farrow">→</div>';
+    });
+    h += "</div>";
+    h += '<div class="legend">' +
+      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
+      }).join("") +
+      "<span>★ money corner</span><span><span class='choke' style='position:static;display:inline-block;vertical-align:-1px'></span> choke point</span>" +
+      "<span class='mono'>i impact · c crowdedness · v value capture</span></div>";
+    h += "<div id='drawerHost'></div>";
+    return h;
+  }
+  function scoreBar(name, obj, colorVar) {
+    if (!obj || obj.score == null) return '<div class="scorebar"><span class="small">' + esc(name) + '</span><div class="tk"></div><span class="num muted">null</span></div>';
+    return '<div class="scorebar"><span class="small">' + esc(name) + '</span><div class="tk"><i style="width:' + obj.score + "%;background:var(" + colorVar + ')"></i></div><span class="num">' + obj.score + "</span></div>";
+  }
+  function drawer(c, l) {
+    var h = l.heat || {};
+    function ev(o) { return ((o || {}).evidence || []).map(function (e) { return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) + (e.source_name ? " <span class='muted'>[" + esc(e.source_name) + "]</span>" : "") + "</div>"; }).join(""); }
+    return '<div class="drawer" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
+      '<div class="row">' + (h.verdict ? chip(h.verdict, h.verdict) : chip("unscored")) + (h.money_corner ? chip("★ money corner", "UNDISCOVERED") : "") + chip(l.investability) + chip("bottleneck: " + (l.bottleneck || {}).criticality) + "</div>" +
+      "<h2 style='margin-top:10px'>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p>" +
+      scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
+      (h.impact ? "<h3 style='margin-top:12px'>Impact</h3><div class='small'>" + esc((h.impact || {}).rationale) + "</div>" + ev(h.impact) : "") +
+      (h.crowdedness ? "<h3 style='margin-top:10px'>Crowdedness</h3><div class='small'>" + esc((h.crowdedness || {}).rationale) + "</div>" + ev(h.crowdedness) : "") +
+      (h.capture ? "<h3 style='margin-top:10px'>Value capture</h3><div class='small'>" + esc((h.capture || {}).rationale) + "</div>" + ev(h.capture) : "") +
+      (h.repricing_check && h.repricing_check.note ? "<h3 style='margin-top:10px'>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) + "</div>" : "") +
+      "<h3 style='margin-top:12px'>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
+      "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
+      "<h3 style='margin-top:12px'>Example names</h3><div class='row'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div>" +
+      (h.verdict ? "" : "<div style='margin-top:14px'>" + cmdPill("run heat " + c.id, "scores every unscored link with fetched evidence") + "</div>") +
+      "</div>";
+  }
+  function linkName(c, id) { var l = byId(c.links, id); return l ? l.name : id; }
+  function heatTab(c, links, scored) {
+    if (!scored.length) return '<div class="emptystate">No links scored yet.<br><br>' + cmdPill("run heat " + c.id) + "</div>";
+    var W = 880, H = 520, P = { l: 60, r: 30, t: 26, b: 46 };
+    var iw = W - P.l - P.r, ih = H - P.t - P.b;
+    function X(v) { return P.l + (v / 100) * iw; }
+    function Y(cr) { return P.t + (cr / 100) * ih; } // crowd 0 at TOP (money corner top-right)
+    var s = '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="Impact vs crowdedness scatter">';
+    s += '<rect x="' + X(60) + '" y="' + Y(0) + '" width="' + (X(100) - X(60)) + '" height="' + (Y(40) - Y(0)) + '" fill="var(--band-good)" rx="8"/>';
+    s += '<text x="' + (X(80)) + '" y="' + (Y(8)) + '" text-anchor="middle" font-size="11" font-weight="600" fill="var(--und)">money corner</text>';
+    [0, 20, 40, 60, 80, 100].forEach(function (v) {
+      s += '<line x1="' + X(v) + '" y1="' + P.t + '" x2="' + X(v) + '" y2="' + (H - P.b) + '" stroke="var(--chart-grid)" stroke-width="1"/>';
+      s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)" stroke-width="1"/>';
+      s += '<text x="' + X(v) + '" y="' + (H - P.b + 18) + '" text-anchor="middle" font-size="10" class="mono-t">' + v + "</text>";
+      s += '<text x="' + (P.l - 10) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t">' + v + "</text>";
+    });
+    s += '<line x1="' + X(60) + '" y1="' + P.t + '" x2="' + X(60) + '" y2="' + (H - P.b) + '" stroke="var(--ink-3)" stroke-dasharray="4 4" stroke-width="1"/>';
+    s += '<line x1="' + P.l + '" y1="' + Y(40) + '" x2="' + (W - P.r) + '" y2="' + Y(40) + '" stroke="var(--ink-3)" stroke-dasharray="4 4" stroke-width="1"/>';
+    s += '<text x="' + (P.l + iw / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11">Impact →</text>';
+    s += '<text transform="rotate(-90)" x="' + (-(P.t + ih / 2)) + '" y="16" text-anchor="middle" font-size="11">Crowdedness (quieter is higher) →</text>';
+    scored.forEach(function (l) {
+      var im = l.heat.impact ? l.heat.impact.score : null, cr = l.heat.crowdedness.score, cp = l.heat.capture ? l.heat.capture.score : 40;
+      if (im == null) return;
+      var r = 5 + (cp || 0) / 11;
+      s += '<circle cx="' + X(im) + '" cy="' + Y(cr) + '" r="' + r.toFixed(1) + '" fill="' + verdColor(l.heat.verdict) + '" fill-opacity="0.82" stroke="var(--surface)" stroke-width="2" data-dot="' + esc(l.id) + '"><title>' + esc(l.name) + ": impact " + im + ", crowdedness " + cr + ", capture " + cp + "</title></circle>";
+      s += '<text x="' + X(im) + '" y="' + (Y(cr) - r - 5) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">' + esc(l.name.split(" ")[0] === "AI" ? l.name : l.name.split("(")[0].trim()) + "</text>";
+    });
+    s += "</svg></div>";
+    s += '<div class="legend"><span>dot size = value capture</span>' +
+      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
+      }).join("") + "</div>";
+    var un = links.filter(function (l) { return !l.heat || !l.heat.crowdedness || l.heat.crowdedness.score == null; });
+    if (un.length) s += '<div class="muted" style="margin-top:8px">not scored: ' + un.map(function (l) { return esc(l.name); }).join(", ") + "</div>";
+    s += "</div>";
+    var mc = links.filter(function (l) { return l.heat && l.heat.money_corner; });
+    s += "<h2>Reading it</h2><div class='card small'>" +
+      (mc.length ? "<b>Money corner:</b> " + mc.map(function (l) { return esc(l.name) + " (i" + l.heat.impact.score + " c" + l.heat.crowdedness.score + " v" + l.heat.capture.score + ")"; }).join(" · ") + ". " : "No link currently meets all three thresholds (impact ≥ 60, crowdedness ≤ 40, capture ≥ 60). ") +
+      "High-impact low-crowd links with small dots are the trap: un-crowded because capture is capped — see each link's capture rationale.</div>";
+    return s;
+  }
+  function scenTab(c) {
+    var scens = c.scenarios || [];
+    if (!scens.length) return '<div class="emptystate">No scenarios yet.<br><br>' + cmdPill("run scenarios " + c.id) + "</div>";
+    return scens.map(function (s) {
+      var mv = (s.links_moved || []).map(function (m) {
+        return '<span class="mv"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(linkName(c, m.link_id)) + " · " + esc(m.magnitude.toLowerCase()) + "</span>";
+      }).join("");
+      var inds = (s.leading_indicators || []).map(function (i) {
+        var trip = ((D.indicators || {}).trips || []).filter(function (t) {
+          return t.chain === c.id && t.scenario === s.id && t.indicator === i.indicator;
+        })[0];
+        var trippedAt = i.tripped_at || (trip && trip.tripped_at);
+        var badge = trippedAt ? chip("TRIPPED " + trippedAt, "OVER_CROWDED") : i.armed ? chip("armed", "accent") : "";
+        return "<li>" + esc(i.indicator) + " <span class='muted'>(" + esc(i.where_to_watch) + ")</span> " + badge + "</li>";
+      }).join("");
+      return '<div class="card scen"><div class="row"><b>' + esc(s.id) + " · " + esc(s.title) + "</b>" + chip(s.status, s.status === "SCREENED" ? "accent" : "neutral") + (s.clock ? chip(s.clock) : "") +
+        '<span class="num muted">p ' + esc(s.probability_pct) + "%</span></div>" +
+        '<div class="pbar"><i style="width:' + esc(s.probability_pct) + '%"></i></div>' +
+        "<div class='small'>" + esc(s.narrative) + "</div>" +
+        "<div style='margin:8px 0 4px'>" + mv + "</div>" +
+        "<details><summary>Leading indicators & invalidation</summary><ul class='bullets'>" + inds + "</ul>" +
+        "<div class='small' style='margin-top:6px'><b>Invalidation:</b> " + (s.invalidation_signs || []).map(esc).join(" · ") + "</div></details>" +
+        "<div style='margin-top:10px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">open stock screen →</a>' : cmdPill("run screen " + c.id + " " + s.id, "screens stocks for this scenario")) + "</div></div>";
+    }).join("");
+  }
+
+  /* ---------------- screen ---------------- */
+  function screenView(chainId, scenId) {
+    var sc = null;
+    (D.screens || []).forEach(function (s) { if (s.chain_id === chainId && s.scenario_id === scenId) sc = s; });
+    var c = byId(D.chains, chainId);
+    if (!sc) return notFound("screen " + chainId + " " + scenId);
+    var scen = c ? byId(c.scenarios, scenId) : null;
+    var names = { pure_play: "Pure play", picks_and_shovels: "Picks and shovels", second_order: "Second order", hedge: "Hedge" };
+    var body = Object.keys(names).map(function (k) {
+      var rows = (sc.buckets || {})[k] || [];
+      if (!rows.length) return "";
+      return "<h2>" + names[k] + " · " + rows.length + '</h2><div class="tablewrap"><table><thead><tr><th>Name</th><th>Tier</th><th>Thesis</th><th>Exposure</th><th>Fundamentals</th><th>Attention</th><th>Status</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+          var f = r.fundamentals === "PENDING_DATA" ? chip("pending data", "stale") :
+            (typeof r.fundamentals === "object" && r.fundamentals ? "<span class='num small'>" + esc(r.fundamentals.summary || JSON.stringify(r.fundamentals).slice(0, 60)) + "</span>" : "—");
+          var cw = r.crowdedness === "PENDING_DATA" ? chip("pending", "stale") :
+            (r.crowdedness && r.crowdedness.state ? chip(r.crowdedness.state + (r.crowdedness.pcs_score != null ? " " + r.crowdedness.pcs_score : ""), r.crowdedness.state === "DARK" ? "UNDISCOVERED" : r.crowdedness.state === "CROWDED" ? "CROWDED" : "neutral") : "—");
+          var ex = r.theme_revenue_exposure && r.theme_revenue_exposure.pct != null ? "<span class='num'>" + esc(r.theme_revenue_exposure.pct) + "%</span>" :
+            '<span class="chip neutral" title="' + esc((r.theme_revenue_exposure || {}).basis || "") + '">NULL</span>';
+          var nug = (r.earnings_nuggets || []).length ? "<details><summary>" + r.earnings_nuggets.length + " nugget(s)</summary>" +
+            r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + " · <a href='" + esc(n.url) + "'>" + esc(n.accession) + "</a></div></blockquote>"; }).join("") + "</details>" : "";
+          var dived = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">dive →</a>' : chip(r.status);
+          return "<tr><td><b>" + esc(r.ticker) + "</b><div class='muted'>" + esc(r.name || "") + " · " + esc(r.exchange || "") + "</div>" + nug + "</td><td>" + tierChip(r.tier) + "</td><td class='small' style='max-width:260px'>" + esc(r.thesis_1line) + "</td><td>" + ex + "</td><td>" + f + "</td><td>" + cw + "</td><td>" + dived + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }).join("");
+    var gaps = (sc.data_gaps || []);
+    return topbar() + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "Screen · " + scenId }]) + "<main>" +
+      "<h1>" + esc(scen ? scen.title : scenId) + " — stock screen</h1>" +
+      "<p class='lead section-note'>" + esc(sc.universe_note) + "</p>" + body +
+      ((sc.taste_filtered || []).length ? "<div class='card small' style='margin-top:12px'><b>Filtered by taste:</b> " + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
+      (gaps.length ? "<div style='margin-top:14px'>" + cmdPill("run screen " + chainId + " " + scenId, "re-run once fetched data lands (" + gaps.length + " names pending)") + "</div>" : "") +
+      "<div class='healthline'>examined " + esc((sc.health || {}).tickers_examined) + " · fully scored " + esc((sc.health || {}).fully_scored) + " · pending " + esc((sc.health || {}).pending) + " · errors " + esc((sc.health || {}).errors) + "</div>" +
+      notesBlock(sc) + changelogBlock(sc) + footer() + "</main>";
+  }
+
+  /* ---------------- stock ---------------- */
+  function stockView(ticker, chainId) {
+    var st = null;
+    (D.stocks || []).forEach(function (s) { if (s.ticker === ticker && s.chain_id === chainId) st = s; });
+    if (!st) return notFound("deep dive " + ticker + " / " + chainId);
+    var c = byId(D.chains, chainId);
+    var mk = marketFor(ticker);
+    var pos = (D.trades || []).filter(function (t) { return t.ticker === ticker; });
+    var vb = '<div class="verdictbar ' + esc(st.verdict) + '"><span class="v">' + esc(st.verdict.replace("_", " ")) + "</span>" +
+      chip(st.clock) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") + tierChip(st.tier) +
+      (pos.length ? chip("in book: " + pos.map(function (t) { return t.action + " @ " + t.price; }).join(", "), "accent") : "") +
+      '<span class="spacer" style="flex:1"></span><span class="muted">review by <span class="num">' + esc(st.review_by) + "</span></span></div>";
+    var zones = st.verdict === "INVESTABLE" && st.entry_zone ?
+      "<div class='card'><h3>Entry logic</h3><div class='kv'><dt>Entry zone</dt><dd class='num'>" + fmtMoney(st.entry_zone.low) + " – " + fmtMoney(st.entry_zone.high) + "</dd>" +
+      "<dt>No entry above</dt><dd class='num'>" + fmtMoney(st.no_entry_above) + "</dd><dt>Basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd></div></div>" :
+      st.verdict === "WATCH" ? "<div class='card'><h3>Watch triggers</h3><ul class='bullets'>" + (st.watch_triggers || []).map(function (t) { return "<li>" + esc(t.metric) + " " + esc(t.direction || "") + " <span class='num'>" + esc(t.level) + "</span></li>"; }).join("") + "</ul></div>" :
+      "<div class='card'><h3>Shadow tracking</h3><div class='small'>TOO LATE calls are graded: this name was added to the <a href='#/shadow'>shadow book</a> and is repriced at +90 days vs SPY.</div></div>";
+    var rt = st.red_team ? "<div class='card redteam'><h3>Red team · attacked " + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</h3>" +
+      (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:6px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
+      (st.red_team.amendments ? "<div class='small'><b>Amendments:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
+      "<div class='small' style='margin-top:8px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>" :
+      "<div class='card redteam'><h3>Red team</h3><div class='small'>This dive is DRAFT — it becomes FINAL only after a fresh-context attack.</div><div style='margin-top:8px'>" + cmdPill("run redteam " + ticker + " " + chainId) + "</div></div>";
+    var priced = "<div class='card'><h3>What is already priced in</h3>" +
+      (st.what_is_priced_in || []).map(function (p) { return "<div class='evli'>" + chip(p.tag) + " " + esc(p.expectation) + "</div>"; }).join("") +
+      "<div class='small' style='margin-top:8px'>" + esc(st.priced_in_summary || "") + "</div></div>";
+    var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
+      "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", as of " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
+      "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
+      (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + ", " + esc(l.as_of) + "]</span></dd>"; }).join("") + "</div></div>";
+    return topbar() + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
+      (st.fixture ? '<div class="fixturebanner">FIXTURE PAGE — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
+      "<h1 style='margin-top:10px'>" + esc(st.ticker) + " <span class='muted' style='font-weight:400;font-size:15px'>" + esc(st.name || "") + "</span></h1>" + vb +
+      "<h2>Price</h2><div class='card'>" + priceChart(mk, st) + "</div>" +
+      "<div class='twocol' style='margin-top:12px'>" + zones + val + "</div>" +
+      "<div class='twocol' style='margin-top:12px'><div class='card'><h3 style='color:var(--good)'>Bull</h3><ul class='bullets'>" + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
+      "<div class='card'><h3 style='color:var(--bad)'>Bear</h3><ul class='bullets'>" + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
+      "<div style='margin-top:12px'>" + priced + "</div>" +
+      "<div style='margin-top:12px'>" + rt + "</div>" +
+      notesBlock(st) + changelogBlock(st) + footer() + "</main>";
+  }
+  function priceChart(mk, st) {
+    if (!mk || !mk.series || !(mk.series.rows || []).length) {
+      return '<div class="emptystate">No price series yet.<br><br>' + cmdPill("request data " + st.ticker, "queues a fetch; the workflow fills data/market in ~5 minutes") + "</div>";
+    }
+    var rows = mk.series.rows;
+    var step = Math.max(1, Math.floor(rows.length / 420));
+    var pts = rows.filter(function (_, i) { return i % step === 0 || i === rows.length - 1; });
+    var W = 900, H = 380, P = { l: 56, r: 74, t: 18, b: 34 };
+    var iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var vals = pts.map(function (r) { return r[1]; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if (st.entry_zone) { lo = Math.min(lo, st.entry_zone.low); hi = Math.max(hi, st.no_entry_above || hi); }
+    var pad = (hi - lo) * 0.07; lo -= pad; hi += pad;
+    function X(i) { return P.l + (i / (pts.length - 1)) * iw; }
+    function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
+    var s = '<div class="chartwrap"><svg id="pxchart" viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="price chart">';
+    if (st.entry_zone) s += '<rect x="' + P.l + '" y="' + Y(st.entry_zone.high) + '" width="' + iw + '" height="' + (Y(st.entry_zone.low) - Y(st.entry_zone.high)) + '" fill="var(--band-good)"/><text x="' + (P.l + 6) + '" y="' + (Y(st.entry_zone.high) + 13) + '" font-size="10" fill="var(--und)">entry zone</text>';
+    if (st.no_entry_above) s += '<rect x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + Math.max(0, Y(st.no_entry_above) - P.t) + '" fill="var(--band-bad)"/><text x="' + (P.l + 6) + '" y="' + (P.t + 13) + '" font-size="10" fill="var(--ovr)">no entry</text>';
+    var ticks = 5;
+    for (var t = 0; t <= ticks; t++) {
+      var v = lo + ((hi - lo) * t) / ticks;
+      s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
+      s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t">' + v.toFixed(0) + "</text>";
+    }
+    var lbl = Math.max(1, Math.floor(pts.length / 6));
+    pts.forEach(function (r, i) { if (i % lbl === 0) s += '<text x="' + X(i) + '" y="' + (H - P.b + 16) + '" text-anchor="middle" font-size="9.5" class="mono-t">' + esc(r[0].slice(0, 7)) + "</text>"; });
+    (st.events || []).forEach(function (e) {
+      var idx = -1;
+      pts.forEach(function (r, i) { if (idx < 0 && r[0] >= e.date) idx = i; });
+      if (idx < 0) return;
+      s += '<line x1="' + X(idx) + '" y1="' + P.t + '" x2="' + X(idx) + '" y2="' + (H - P.b) + '" stroke="var(--ink-3)" stroke-dasharray="2 4"/>' +
+        '<text x="' + X(idx) + '" y="' + (P.t - 4 + (((st.events.indexOf(e)) % 2) * 0)) + '" text-anchor="middle" font-size="9" fill="var(--ink-3)">' + esc(e.label.length > 24 ? e.label.slice(0, 23) + "…" : e.label) + "</text>";
+    });
+    var path = pts.map(function (r, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(r[1]).toFixed(1); }).join("");
+    s += '<path d="' + path + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
+    var last = pts[pts.length - 1];
+    s += '<circle cx="' + X(pts.length - 1) + '" cy="' + Y(last[1]) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
+    s += '<text x="' + (X(pts.length - 1) + 8) + '" y="' + (Y(last[1]) + 4) + '" font-size="11" font-weight="600" class="mono-t" fill="var(--ink)">' + last[1] + "</text>";
+    s += '<rect id="pxhover" x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
+    s += "</svg></div>";
+    s += '<div class="muted num" style="margin-top:6px">prices [' + esc(mk.series.source) + ", as of " + esc(mk.series.as_of) + "] · " + esc(mk.price_status) +
+      (mk.price_status === "DISPUTED" ? " — both prints shown in data/market, never averaged" : "") + "</div>";
+    window.__px = { pts: pts, X: X, Y: Y, P: P, W: W };
+    return s;
+  }
+
+  /* ---------------- book & shadow ---------------- */
+  function bookView() {
+    var trades = D.trades || [];
+    var rows = trades.map(function (t) {
+      var st = null;
+      (D.stocks || []).forEach(function (s) { if (s.ticker === t.ticker) st = s; });
+      return "<tr><td class='num'>" + esc((t.ts || "").slice(0, 10)) + "</td><td><b>" + esc(t.ticker) + "</b></td><td>" + chip(t.action) + "</td><td class='num'>" + fmtMoney(t.price) + "</td><td>" + esc(t.by) + "</td><td>" +
+        (st ? '<a href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '">' + chip(st.verdict, st.verdict) + "</a>" : "<span class='muted'>no dive</span>") + "</td><td class='small'>" + esc(t.note || "") + "</td></tr>";
+    }).join("");
+    return topbar() + crumbs([{ label: "Book" }]) + "<main><h1>Book</h1><p class='lead'>Real positions, logged one line at a time. Calibration measures your money, not hypotheticals.</p>" +
+      (trades.length ? '<div class="tablewrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Action</th><th>Price</th><th>By</th><th>Machine call</th><th>Note</th></tr></thead><tbody>' + rows + "</tbody></table></div>" :
+        '<div class="emptystate">No trades logged.<br><br>' + cmdPill('log trade VRT bought 112 "starter position"') + "</div>") +
+      footer() + "</main>";
+  }
+  function shadowView() {
+    var rows = ((D.shadow || {}).book || {}).rows || [];
+    var res = ((D.shadow || {}).results) || {};
+    var right = 0, graded = 0;
+    var body = rows.map(function (r) {
+      var x = res[r.id];
+      if (x && x.call) { graded++; if (x.call === "RIGHT") right++; }
+      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td><b>" + esc(r.ticker) + "</b></td><td>" + chip(r.origin) + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
+        "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% vs SPY</span> " + chip(x.call, x.call) : chip("awaiting +90d", "neutral")) + "</td></tr>";
+    }).join("");
+    return topbar() + crumbs([{ label: "Shadow book" }]) + "<main><h1>Shadow book</h1><p class='lead'>Every TOO LATE verdict and dismissed signal, repriced at +90 days vs SPY. RIGHT means skipping was correct. The machine's \"no\" gets graded here.</p>" +
+      (graded ? "<div class='card' style='max-width:340px'><h3>TOO LATE hit rate</h3><div class='num' style='font-size:26px;font-weight:700'>" + Math.round((100 * right) / graded) + "%</div><div class='muted'>" + right + " of " + graded + " graded calls were right</div></div>" : "") +
+      (rows.length ? '<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
+        '<div class="emptystate" style="margin-top:12px">Empty — it fills automatically from TOO LATE verdicts and dismissed signals.</div>') +
+      footer() + "</main>";
+  }
+
+  /* ---------------- shared blocks ---------------- */
+  function notesBlock(obj) {
+    var n = obj.notes || [];
+    return "<h2>Notes</h2>" + (n.length ? n.map(function (x) {
+      return '<div class="note"><span class="who">' + esc(x.by) + " · " + esc((x.ts || "").slice(0, 10)) + "</span><br>" + esc(x.text) + "</div>";
+    }).join("") : "<div class='muted'>none — add one with <span class='mono'>note " + esc(obj.id || obj.ticker || "") + ' "..."</span></div>');
+  }
+  function changelogBlock(obj) {
+    var c = (obj.changelog || []).slice().reverse();
+    if (!c.length) return "";
+    return "<h2>History</h2><div class='timeline'>" + c.map(function (x) {
+      return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
+    }).join("") + "</div>";
+  }
+  function notFound(what) {
+    return topbar() + "<main><div class='emptystate'>Not found: " + esc(what) + '<br><br><a href="#/">back to radar</a></div>' + footer() + "</main>";
+  }
+
+  /* ---------------- router & events ---------------- */
+  function route() {
+    var h = location.hash || "#/";
+    var p = h.replace(/^#\//, "").split("/").map(decodeURIComponent);
+    var html;
+    if (!p[0]) html = homeView();
+    else if (p[0] === "signal") html = signalView(p[1]);
+    else if (p[0] === "chain") html = chainView(p[1], p[2]);
+    else if (p[0] === "screen") html = screenView(p[1], p[2]);
+    else if (p[0] === "stock") html = stockView(p[1], p[2]);
+    else if (p[0] === "book") html = bookView();
+    else if (p[0] === "shadow") html = shadowView();
+    else html = homeView();
+    app.innerHTML = html;
+    window.scrollTo(0, 0);
+    wire();
+  }
+  function wire() {
+    app.querySelectorAll("[data-copy]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        var txt = b.getAttribute("data-copy");
+        function done() { b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400); }
+        try { navigator.clipboard.writeText(txt).then(done, function () { fallbackCopy(txt); done(); }); }
+        catch (err) { fallbackCopy(txt); done(); }
+      });
+    });
+    app.querySelectorAll("[data-nav]").forEach(function (b) { b.addEventListener("click", function () { location.hash = b.getAttribute("data-nav"); }); });
+    app.querySelectorAll("[data-tab]").forEach(function (b) {
+      b.addEventListener("click", function () { chainTab = b.getAttribute("data-tab"); location.hash = "#/chain/" + b.getAttribute("data-chain") + "/" + chainTab; });
+    });
+    app.querySelectorAll("[data-drawer]").forEach(function (n) {
+      function open() {
+        var chainId = (location.hash.split("/")[2] || "");
+        var c = byId(D.chains, chainId);
+        var l = c && byId(c.links, n.getAttribute("data-drawer"));
+        if (!l) return;
+        var host = document.getElementById("drawerHost");
+        host.innerHTML = drawer(c, l);
+        host.querySelector("[data-closedrawer]").addEventListener("click", function () { host.innerHTML = ""; });
+        host.querySelectorAll("[data-copy]").forEach(function (b) {
+          b.addEventListener("click", function () { try { navigator.clipboard.writeText(b.getAttribute("data-copy")); b.textContent = "copied"; } catch (e) { fallbackCopy(b.getAttribute("data-copy")); } });
+        });
+      }
+      n.addEventListener("click", open);
+      n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+    var tb = document.getElementById("themeBtn");
+    if (tb) tb.addEventListener("click", cycleTheme);
+    var hov = document.getElementById("pxhover");
+    if (hov && window.__px) {
+      var tip = document.createElement("div"); tip.className = "tooltip"; tip.style.display = "none"; document.body.appendChild(tip);
+      var svg = document.getElementById("pxchart");
+      hov.addEventListener("mousemove", function (e) {
+        var r = svg.getBoundingClientRect();
+        var sx = ((e.clientX - r.left) / r.width) * window.__px.W;
+        var px = window.__px;
+        var i = Math.round(((sx - px.P.l) / (px.W - px.P.l - px.P.r)) * (px.pts.length - 1));
+        i = Math.max(0, Math.min(px.pts.length - 1, i));
+        var pt = px.pts[i];
+        tip.innerHTML = "<span class='num'>" + esc(pt[0]) + " · " + pt[1] + "</span>";
+        tip.style.display = "block"; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY - 10 + "px";
+      });
+      hov.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+    }
+  }
+  function fallbackCopy(txt) {
+    var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  function cycleTheme() {
+    var cur = document.documentElement.getAttribute("data-theme") || "auto";
+    var next = cur === "auto" ? "dark" : cur === "dark" ? "light" : "auto";
+    if (next === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("upstream.theme", next); } catch (e) {}
+  }
+  try {
+    var saved = localStorage.getItem("upstream.theme");
+    if (saved && saved !== "auto") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) {}
+
+  window.addEventListener("hashchange", route);
+  route();
+  setTimeout(stampVisit, 4000);
+})();
+
+</script>
