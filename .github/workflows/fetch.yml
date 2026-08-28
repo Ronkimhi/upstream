@@ -1,0 +1,69 @@
+# Upstream data plane. Deterministic Python only — Claude never runs here.
+# Triggers: session-committed data/requests.json (the bridge), weekday cron
+# (refresh + indicators + shadow sweep), manual dispatch.
+# Secrets: none beyond the ambient GITHUB_TOKEN.
+name: fetch
+on:
+  push:
+    paths: ["data/requests.json"]
+  schedule:
+    - cron: "30 21 * * 1-5"   # weekdays after US close (UTC)
+  workflow_dispatch: {}
+
+concurrency:
+  group: fetch
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install deps
+        run: pip install --quiet requests pandas yfinance pytrends
+      - name: fetch
+        run: python3 tools/fetch/fetch.py
+      - name: rebuild UI
+        run: python3 app/build.py
+      - name: commit (race-safe)
+        run: |
+          git config user.name upstream-bot
+          git config user.email actions@users.noreply.github.com
+          git add data app/index.html
+          if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
+          git commit -m "[fetch] $(date -u +%F) ${GITHUB_EVENT_NAME}"
+          for i in 1 2 3; do
+            git push && exit 0
+            echo "push attempt $i failed, rebasing"
+            git pull --rebase || { git checkout --theirs app/index.html && python3 app/build.py && git add app/index.html && GIT_EDITOR=true git rebase --continue; }
+            sleep $((i * 7))
+          done
+          exit 1
+      - name: indicator trip issue
+        if: ${{ hashFiles('trips.txt') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "INDICATOR TRIPPED $(date -u +%F)" \
+            --body "$(cat trips.txt)
+
+          A scenario leading indicator crossed its level. Open the chain in the Upstream UI and decide whether the scenario advances.
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      - name: loud failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "fetch FAILED $(date -u +%F)" \
+            --body "The fetch workflow failed; data may be stale and stages will show PENDING_DATA until it is fixed.
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

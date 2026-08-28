@@ -1,0 +1,22 @@
+# Data + UI integrity gate: any push that touches data/ or app/ must leave
+# valid JSON and a buildable page, whichever venue wrote it. No secrets.
+name: ci
+on:
+  push:
+    paths: ["data/**", "app/**", "tools/**"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: validate + build check
+        run: python3 app/build.py --check
