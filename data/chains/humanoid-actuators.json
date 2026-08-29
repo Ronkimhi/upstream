@@ -1,0 +1,322 @@
+{
+ "id": "humanoid-actuators",
+ "signal_id": "SIG-20260829-03",
+ "title": "Humanoid robots: the actuator and precision-component chain",
+ "clock": "COMPOUNDER",
+ "status": "BUILT",
+ "created_at": "2026-08-29",
+ "updated_at": "2026-08-29",
+ "heat_as_of": null,
+ "scenarios_as_of": null,
+ "map_limitation": "Supplier-side EDGAR full-text search cannot surface this chain: the gating suppliers are Japanese (6324.T, 6268.T, 6481.T), Chinese A-share (688017.SS, 002472.SZ, 002050.SZ) and German (SHA.DE) filers with no SEC filings, and the largest humanoid OEMs (Figure, Apptronik, Agility, Unitree, 1X) are private and name no suppliers publicly. The entire upstream therefore enters via research and the repricing-lag lane, not via disclosure. Two further gaps to state plainly: dexterous-hand and tactile-sensor supply is almost entirely private or pre-revenue, so that link is mapped from technical literature rather than order books; and Chinese reducer capacity announcements (Shuanghuan's 500k-unit Suzhou plant) are company statements, not audited output, so the 2026-2027 supply picture is directionally sourced and quantitatively soft.",
+ "links": [
+  {
+   "id": "ndfeb-magnets",
+   "position": 1,
+   "name": "NdFeB rare-earth magnets",
+   "role": "High-energy-density neodymium magnets go into every joint motor; no commercially viable substitute offers comparable energy density at acceptable size, and China dominates midstream processing and magnet manufacturing, giving it leverage over the pace and cost curve of the whole build-out [Adamas Intelligence / Oceanwall rare-earth supply-chain research, as of 2025-10].",
+   "upstream_of": [
+    "torque-motors"
+   ],
+   "downstream_of": [],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "Named repeatedly as the material bottleneck behind humanoid mass production; concentration is geopolitical, not merely industrial, so export policy can gate volumes independent of demand."
+   },
+   "example_tickers": [
+    "MP",
+    "LYC.AX",
+    "300748.SZ",
+    "4063.T"
+   ],
+   "heat": null
+  },
+  {
+   "id": "precision-machine-tools",
+   "position": 2,
+   "name": "Precision gear-grinding machine tools",
+   "role": "Planetary roller screws and harmonic reducers need high-precision grinding tools to mass-produce, and those tools are still dominated by a few European and Japanese makers; machine-tool availability can therefore cap component capacity expansion and the whole humanoid ramp trajectory [Roland Berger / 36Kr humanoid hardware analysis, as of 2026-05].",
+   "upstream_of": [
+    "harmonic-reducers",
+    "cycloidal-reducers",
+    "roller-screws"
+   ],
+   "downstream_of": [],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "The bottleneck behind the bottleneck: the largest specialists (Kapp Niles, Reishauer) are private, so exposure is only partially listed."
+   },
+   "example_tickers": [
+    "6141.T"
+   ],
+   "heat": null
+  },
+  {
+   "id": "harmonic-reducers",
+   "position": 3,
+   "name": "Harmonic / strain-wave reducers",
+   "role": "The compact high-ratio gearbox used at most humanoid rotary joints, and the link the signal names as the binding constraint: lead times run 26+ weeks and precision-manufacturing limits make it structurally harder to scale than electronics, with supply concentrated among Harmonic Drive Systems, Nabtesco and Chinese entrant Leaderdrive [Roland Berger / KraneShares humanoid research, as of 2026-05].",
+   "upstream_of": [
+    "actuator-modules"
+   ],
+   "downstream_of": [
+    "precision-machine-tools"
+   ],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "Tighter tolerances and a more concentrated supplier base than the cycloidal alternative; J.P. Morgan puts Leaderdrive at 30-40% of the Chinese harmonic market, and HDS guided FY2027/3 operating income up 141.5%."
+   },
+   "example_tickers": [
+    "6324.T",
+    "688017.SS",
+    "6268.T"
+   ],
+   "heat": null
+  },
+  {
+   "id": "cycloidal-reducers",
+   "position": 4,
+   "name": "Cycloidal / RV reducers",
+   "role": "The higher-load rotary alternative used in hips, knees and industrial arms, and the relief valve on harmonic supply: Nabtesco is the global number one in RV reducers and is doubling capacity by 2026 for anticipated humanoid demand, with Zhejiang Shuanghuan bringing on a Suzhou plant described as 500,000 units of annual reducer capacity [KraneShares / humanoid.guide capacity reporting, as of 2026-04].",
+   "upstream_of": [
+    "actuator-modules"
+   ],
+   "downstream_of": [
+    "precision-machine-tools"
+   ],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "Less concentrated and further along in capacity expansion than harmonic, which is exactly why it matters: it caps how much pricing power the harmonic link can hold."
+   },
+   "example_tickers": [
+    "6268.T",
+    "002472.SZ"
+   ],
+   "heat": null
+  },
+  {
+   "id": "roller-screws",
+   "position": 5,
+   "name": "Planetary roller screws & linear guides",
+   "role": "The linear actuation path used in legs and heavy-load joints; for linear motion the analogous choke points are roller screws and high-durability linear guides, where capacity and qualification cycles can be even more restrictive than in rotary reducers [McKinsey humanoid supply-chain analysis, as of 2026].",
+   "upstream_of": [
+    "actuator-modules"
+   ],
+   "downstream_of": [
+    "precision-machine-tools"
+   ],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "Qualification cycles, not raw capacity, are the stated constraint; a qualified line cannot be substituted quickly."
+   },
+   "example_tickers": [
+    "6481.T",
+    "6471.T",
+    "SKF-B.ST"
+   ],
+   "heat": null
+  },
+  {
+   "id": "torque-motors",
+   "position": 6,
+   "name": "Frameless torque & coreless motors",
+   "role": "Frameless brushless DC motors dominate humanoid joints on efficiency and availability, with permanent-magnet synchronous motors offering smoother commutation at higher cost; Chinese suppliers are described as already leading in coreless motors alongside harmonic reducers [Fraunhofer IPA humanoid hardware value chain / UBTECH cost commentary, as of 2026-02].",
+   "upstream_of": [
+    "actuator-modules"
+   ],
+   "downstream_of": [
+    "ndfeb-magnets"
+   ],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "MEDIUM",
+    "note": "Motor winding capacity is expandable; the constraint sits upstream in the magnet, not in the motor itself."
+   },
+   "example_tickers": [
+    "6594.T",
+    "002050.SZ"
+   ],
+   "heat": null
+  },
+  {
+   "id": "sensors-encoders",
+   "position": 7,
+   "name": "Encoders, force-torque & tactile sensors",
+   "role": "Joint encoders close the control loop, while force-torque and fingertip tactile sensors are what turn a gripper into manipulation; tactilely enhanced hands detecting forces as small as 3g are what enable dexterous handling across object types, and this cluster is named a major investment target [Fraunhofer IPA humanoid hardware value chain, as of 2026-02].",
+   "upstream_of": [
+    "actuator-modules",
+    "dexterous-hands"
+   ],
+   "downstream_of": [],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "MEDIUM",
+    "note": "Encoders are a mature supply base; high-resolution tactile skin is the immature part and is mostly private or pre-revenue."
+   },
+   "example_tickers": [
+    "RSW.L",
+    "6841.T",
+    "ST"
+   ],
+   "heat": null
+  },
+  {
+   "id": "actuator-modules",
+   "position": 8,
+   "name": "Integrated actuator modules",
+   "role": "Where reducer, motor, encoder and drive electronics are packaged into the joint the OEM actually buys, and the layer incumbents are racing to own: Schaeffler signed three humanoid actuator partnerships in five months (Neura, Humanoid, Leju) co-developing next-generation strain-wave gear actuators, while Sanhua is flagged as a likely Optimus actuator supplier off its Tesla thermal relationship [KraneShares humanoid research, as of 2026-04].",
+   "upstream_of": [
+    "dexterous-hands",
+    "humanoid-oem"
+   ],
+   "downstream_of": [
+    "harmonic-reducers",
+    "cycloidal-reducers",
+    "roller-screws",
+    "torque-motors",
+    "sensors-encoders"
+   ],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "The contested margin layer: whoever integrates the joint captures the reducer's scarcity rent or hands it to the OEM. Which way that resolves is the chain's central open question."
+   },
+   "example_tickers": [
+    "SHA.DE",
+    "002050.SZ",
+    "6324.T"
+   ],
+   "heat": null
+  },
+  {
+   "id": "dexterous-hands",
+   "position": 9,
+   "name": "Dexterous hands",
+   "role": "The single most cost-driving hardware element in a humanoid: the most sophisticated models offer roughly 24 degrees of freedom and cost more than $70,000 each, which is why hand cost reduction gates the economics of any high-volume deployment [Fraunhofer IPA humanoid hardware value chain, as of 2026-02].",
+   "upstream_of": [
+    "humanoid-oem"
+   ],
+   "downstream_of": [
+    "actuator-modules",
+    "sensors-encoders"
+   ],
+   "investability": "MOSTLY_PRIVATE",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "Cost, not supply, is the constraint here; almost all specialists are private, so listed exposure is via their actuator and sensor suppliers rather than the hand makers."
+   },
+   "example_tickers": [],
+   "heat": null
+  },
+  {
+   "id": "battery-thermal",
+   "position": 10,
+   "name": "Battery, power & thermal management",
+   "role": "Runtime and duty cycle gate the labour-substitution case; platforms are converging on certified swappable battery systems and inductive charging, with battery life still described as limiting and unit prices of $20,000-$150,000 keeping humanoids out of most workplaces [Vicon / DataM Intelligence humanoid market reviews, as of 2026-07].",
+   "upstream_of": [
+    "humanoid-oem"
+   ],
+   "downstream_of": [],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "MEDIUM",
+    "note": "Cell supply is abundant and shared with EV; the humanoid-specific work is packaging, swap architecture and thermal, which is engineering rather than scarcity."
+   },
+   "example_tickers": [
+    "300750.SZ",
+    "051910.KS",
+    "002050.SZ"
+   ],
+   "heat": null
+  },
+  {
+   "id": "compute-vla",
+   "position": 11,
+   "name": "Onboard compute & vision-language-action models",
+   "role": "The policy layer that turns hardware into a general-purpose worker; dexterous manipulation needs large volumes of examples and real-world feedback, creating demand for teleoperation, synthetic data, tactile datasets and VLA systems, with tighter humanoid-foundation-model integration expected [Fraunhofer IPA / arXiv VLA survey literature, as of 2026-02].",
+   "upstream_of": [
+    "humanoid-oem"
+   ],
+   "downstream_of": [],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "LOW",
+    "note": "Compute is purchasable and improving fast; this link is where the narrative sits but not where the physical constraint is."
+   },
+   "example_tickers": [
+    "NVDA",
+    "QCOM",
+    "GOOGL"
+   ],
+   "heat": null
+  },
+  {
+   "id": "humanoid-oem",
+   "position": 12,
+   "name": "Humanoid OEMs & platform integrators",
+   "role": "The layer retail already owns: Tesla runs 1,000+ Optimus Gen 3 units internally, Unitree shipped roughly 5,500 units in 2025 (the highest volume of any producer), and Figure, Apptronik and Agility are in paid industrial deployment; platforms lean on vertical integration and dedicated plants to cut unit cost [HumanoidApplications / Technology.org deployment tracking, as of 2026-07].",
+   "upstream_of": [
+    "deployment"
+   ],
+   "downstream_of": [
+    "actuator-modules",
+    "dexterous-hands",
+    "battery-thermal",
+    "compute-vla"
+   ],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "LOW",
+    "note": "Not a bottleneck and not un-crowded: this is the retail story the signal is deliberately looking past. Most credible volume producers (Figure, Unitree, Apptronik, Agility, 1X) are private."
+   },
+   "example_tickers": [
+    "TSLA",
+    "9868.HK",
+    "ABBNY"
+   ],
+   "heat": null
+  },
+  {
+   "id": "deployment",
+   "position": 13,
+   "name": "Deployment & end customers",
+   "role": "Where units are actually earning: Figure humanoids have contributed to production of 30,000+ vehicles at BMW Spartanburg on ten-hour shifts five days a week, with Agility's Digit at Amazon and Toyota and Apptronik's Apollo at Mercedes — the proof the pilot-to-volume crossing is real rather than promised [HumanoidApplications / Technology.org deployment tracking, as of 2026-07].",
+   "upstream_of": [],
+   "downstream_of": [
+    "humanoid-oem"
+   ],
+   "investability": "UNINVESTABLE",
+   "bottleneck": {
+    "criticality": "LOW",
+    "note": "Demand is the validation signal, not the constraint; exposure here is diluted inside very large industrial buyers and is not an investable expression of this chain."
+   },
+   "example_tickers": [
+    "BMW.DE",
+    "AMZN",
+    "MBG.DE"
+   ],
+   "heat": null
+  }
+ ],
+ "scenarios": [],
+ "notes": [],
+ "confidence_audit": {
+  "verified": 0,
+  "inferred": 13,
+  "speculative": 0,
+  "null": 0
+ },
+ "changelog": [
+  {
+   "ts": "2026-08-29T18:25:00Z",
+   "by": "click",
+   "change": "chain built from SIG-20260829-03 via Run-button click (queue id q-1788027370056): 13 links from NdFeB magnets through precision machine tools, the reducer/screw/motor tier, integrated actuators, hands, power and compute, to OEMs and deployment; every link role carries a cited dated source, heat unscored",
+   "prior": null
+  }
+ ]
+}

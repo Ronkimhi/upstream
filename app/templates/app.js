@@ -754,7 +754,7 @@
         arcs: links.map(function (l) { return (l.heat || {}).verdict || null; }),
         x0: hx + (Math.random() - 0.5) * 40, y0: hy + (Math.random() - 0.5) * 40
       });
-      if (host) join("chain:" + c.id, "sig:" + c.signal_id, "sig-chain");
+      if (host) { host.sigChain = c.id; join("chain:" + c.id, "sig:" + c.signal_id, "sig-chain"); }
       links.forEach(function (l, li) {
         var a = (-90 + li * (360 / Math.max(1, links.length))) * Math.PI / 180;
         var h = l.heat || {};
@@ -811,7 +811,10 @@
         var ln = byKey["link:" + c.id + "/" + l.id];
         (l.example_tickers || []).forEach(function (t) {
           var n = co(t, ln);
-          if (n) join("co:" + n.id, "link:" + c.id + "/" + l.id, "co-link");
+          if (!n) return;
+          join("co:" + n.id, "link:" + c.id + "/" + l.id, "co-link");
+          n.chainIds = n.chainIds || []; n.chains = n.chains || [];
+          if (n.chainIds.indexOf(c.id) < 0) { n.chainIds.push(c.id); n.chains.push(cxTrim(c.title, 26)); }
         });
       });
     });
@@ -833,7 +836,7 @@
       names.forEach(function (r) {
         var n = co(r.ticker, byKey["screen:" + sc.id]);
         if (!n) return;
-        n.tier = r.tier; n.screened = true;
+        n.tier = r.tier; n.screened = true; n.coName = r.name || n.coName;
         n.color = r.tier === "T1" ? CXP.ink : r.tier === "T2" ? CXP.ink2 : CXP.ink3;
         n.tip = r.ticker + (r.name ? " · " + r.name : "") + " — " + (r.tier || "") + " " + (r.status || "");
         join("screen:" + sc.id, "co:" + n.id, "screen-co");
@@ -976,10 +979,8 @@
         .distance(function (e) { return (CX_EDGE[e.type] || {}).d || 80; })
         .strength(function (e) { return (CX_EDGE[e.type] || {}).s || 0.2; }))
       .force("collide", d3.forceCollide(function (n) { return n.kind === "dust" ? 1.8 : n.r + 2; }).strength(0.65))
-      .force("x", d3.forceX(function (n) { return n.tx != null ? n.tx : CX_W / 2; })
-        .strength(function (n) { return n.kind === "dust" ? 0 : (n.txw != null ? n.txw : 0.0015); }))
-      .force("y", d3.forceY(function (n) { return n.ty != null ? n.ty : CX_H / 2; })
-        .strength(function (n) { return n.kind === "dust" ? 0 : (n.tyw != null ? n.tyw : 0.003); }))
+      .force("x", d3.forceX(CX_W / 2).strength(function (n) { return n.kind === "dust" ? 0 : 0.0022; }))
+      .force("y", d3.forceY(CX_H / 2).strength(function (n) { return n.kind === "dust" ? 0 : 0.0035; }))
       .force("ring", cxRingForce(g));
     sim.stop();
     var i;
@@ -1008,7 +1009,7 @@
     if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
     var gw = Math.max(maxX - minX, 300), gh = Math.max(maxY - minY, 240);
     var k = Math.max(0.25, Math.min(4, Math.min((w * 0.86) / gw, (h * 0.88) / gh)));
-    return { k: k, tx: w / 2 - k * (minX + maxX) / 2, ty: h / 2 - k * (minY + maxY) / 2 };
+    return { k: k, rot: 0, tx: w / 2 - k * (minX + maxX) / 2, ty: h / 2 - k * (minY + maxY) / 2 };
   }
 
   /* ---- instrument rails: every register is real data ---- */
@@ -1101,17 +1102,31 @@
         '<span class="s" style="color:' + (art.indexOf("skipped(") === 0 ? CXP.bad : "#3e4258") + '">' + esc(res.slice(0, 74)) + "</span></div>";
     }).join("");
   }
+  function cxFilterRail() {
+    var h = '<div class="cx-grp">FILTER <button id="cxFReset" class="cxfreset" title="clear all filters">reset</button></div>';
+    h += '<input id="cxSearch" class="cxsearch" type="text" placeholder="search the field…" aria-label="search the field">';
+    h += '<div class="cxchips">' + CX_KIND_CHIPS.map(function (kc) {
+      return '<button class="cxfchip' + (CX_FILTER.kinds[kc[0]] === false ? " off" : "") + '" data-cxk="' + kc[0] + '">' + kc[1] + "</button>";
+    }).join("") + "</div>";
+    h += '<div class="cxchips">' + (D.chains || []).map(function (c) {
+      return '<button class="cxfchip sel' + (CX_FILTER.chain === c.id ? " on" : "") + '" data-cxchain="' + esc(c.id) + '">' + esc(cxTrim(c.id.replace(/-/g, " "), 18)) + "</button>";
+    }).join("") + "</div>";
+    h += '<div class="cxchips">' + ["GEO", "CORPORATE", "TECH", "POLICY", "PHYSICAL"].map(function (f) {
+      return '<button class="cxfchip sel' + (CX_FILTER.fam === f ? " on" : "") + '" data-cxfam="' + f + '" style="border-bottom-color:' + (CXP.fam[f] || CXP.ink3) + '">' + f.toLowerCase() + "</button>";
+    }).join("") + "</div>";
+    return h;
+  }
   function cortexView() {
     return topbar("cortex") + "<main>" +
-      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The whole machine on one field. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, screened names and verdicts. The halo is the raw feed — every mote a real headline. Scroll to zoom, drag to pan, drag a node to move it, hover to isolate its neighbourhood.</p></div>' +
+      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Scroll to zoom — closer in, more detail appears. Hover any dot for its story, click to open it, drag the sky to pan, ⟲ ⟳ (or Q / E) to turn it. Dashed rings are known future events. Filters live on the left.</p></div>' +
       '<div class="card cxpanel"><div class="cxframe">' +
-      '<div class="cx-rail-l">' + cxRailLeft() + "</div>" +
+      '<div class="cx-rail-l">' + cxFilterRail() + cxRailLeft() + "</div>" +
       '<div class="cx-stage">' +
       '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
       '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
       "</div>" +
       '<div class="cx-rail-r"><div class="cx-grp">EVENT LOG</div>' + cxLedgerRows() + "</div>" +
-      '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
+      '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
       "</div></div>" +
       '<div class="card cx-mobile" style="margin-top:14px">' + cxRailLeft() + "</div>" +
       "<div id='drawerHost'></div>" + footer() + "</main>";
@@ -1214,11 +1229,117 @@
   }
 
   /* ---- renderer + interaction ---- */
+  /* ---- semantic info + rich hover card ---- */
+  function cxInfo(n) {
+    var o = n.ref || {};
+    if (n.kind === "sig") return "unmapped " + ((o.unmappedness || {}).score || "?") + " · " + (o.evidence || []).length + " ev · " + (o.horizon_years || []).join("–") + "y";
+    if (n.kind === "link") { var h = o.heat || {}; return h.verdict ? "i" + ((h.impact || {}).score || "–") + " · c" + ((h.crowdedness || {}).score || "–") + " · v" + ((h.capture || {}).score || "–") : "unscored"; }
+    if (n.kind === "scen") return (o.probability_pct || "?") + "% · " + (o.status || "").toLowerCase();
+    if (n.kind === "cand") return (o.family || "") + " · " + (o.date || "");
+    if (n.kind === "evt") return (o.kind || "") + " · " + (o.date || "");
+    if (n.kind === "dive") return (o.verdict || "").replace("_", " ").toLowerCase() + " · " + (o.clock || "").toLowerCase();
+    if (n.kind === "co") return n.tier || "";
+    return "";
+  }
+  function cxCardRow(k, v) { return "<div class='r'><span class='k'>" + esc(k) + "</span><span>" + esc(v) + "</span></div>"; }
+  function cxHoverCard(n) {
+    var o = n.ref || {}, h = "";
+    function head(kind, title, color) {
+      return "<div class='hd'><span class='pip' style='background:" + (color || n.color) + "'></span><span class='kind'>" + esc(kind) + "</span></div><div class='tt'>" + esc(title) + "</div>";
+    }
+    if (n.kind === "sig") {
+      var occ = o.occurrence || {};
+      h = head("signal · " + (occ.kind || "undated"), o.title) +
+        "<div class='bd'>" + esc(cxTrim(o.thesis, 200)) + "</div>" +
+        cxCardRow("occurrence", (occ.label ? cxTrim(occ.label, 34) + " · " : "") + (occ.anchor_date || "?")) +
+        cxCardRow("unmapped", ((o.unmappedness || {}).score || "?") + " / 100") +
+        cxCardRow("evidence", (o.evidence || []).length + " cited · horizon " + (o.horizon_years || []).join("–") + "y") +
+        cxCardRow("review by", o.review_by || "—");
+    } else if (n.kind === "chain") {
+      var money = (o.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
+      h = head("value chain", o.title) +
+        cxCardRow("links", (o.links || []).length + " · " + (o.scenarios || []).length + " scenarios") +
+        (money.length ? cxCardRow("★ money corner", money.map(function (l) { return l.name; }).join(", ")) : "") +
+        cxCardRow("heat as of", o.heat_as_of || "unscored");
+    } else if (n.kind === "link") {
+      var ht = o.heat || {};
+      h = head("chain link" + (ht.money_corner ? " · ★ money corner" : ""), o.name) +
+        "<div class='bd'>" + esc(cxTrim(o.role, 160)) + "</div>" +
+        (ht.verdict ? cxCardRow("verdict", ht.verdict.replace("_", " ")) +
+          cxCardRow("scores", "impact " + ((ht.impact || {}).score || "–") + " · crowded " + ((ht.crowdedness || {}).score || "–") + " · capture " + ((ht.capture || {}).score || "–"))
+          : cxCardRow("verdict", "unscored")) +
+        ((o.bottleneck || {}).criticality === "CHOKE_POINT" ? cxCardRow("bottleneck", "CHOKE POINT") : "") +
+        ((o.example_tickers || []).length ? cxCardRow("names", o.example_tickers.slice(0, 5).join(" · ")) : "");
+    } else if (n.kind === "scen") {
+      h = head("scenario " + o.id, o.title) +
+        "<div class='bd'>" + esc(cxTrim(o.narrative, 180)) + "</div>" +
+        cxCardRow("probability", (o.probability_pct || "?") + "% · " + (o.status || "")) +
+        cxCardRow("indicators", (o.leading_indicators || []).length + " (" + (o.leading_indicators || []).filter(function (x) { return x.armed; }).length + " armed)");
+    } else if (n.kind === "screen") {
+      h = head("stock screen", o.id) + cxCardRow("scenario", o.scenario_id || "") + cxCardRow("as of", o.as_of || "");
+    } else if (n.kind === "co") {
+      h = head("company", n.id + (n.coName ? " — " + n.coName : "")) +
+        (n.tier ? cxCardRow("tier", n.tier) : "") +
+        cxCardRow("market data", n.hollow ? "none yet" : "fetched") +
+        (n.chains && n.chains.length ? cxCardRow("named in", n.chains.join(", ")) : "");
+    } else if (n.kind === "dive") {
+      h = head("deep dive", o.ticker) +
+        cxCardRow("verdict", (o.verdict || "") + " · " + (o.clock || "") + (o.status === "DRAFT" ? " · draft" : "")) +
+        (o.entry_zone ? cxCardRow("entry zone", o.entry_zone.low + "–" + o.entry_zone.high) : "") +
+        cxCardRow("review by", o.review_by || "—");
+    } else if (n.kind === "shadow") {
+      h = head("shadow row", o.ticker) + cxCardRow("origin", (o.origin || "").replace(/_/g, " ")) + cxCardRow("reprice at", o.review_at || "");
+    } else if (n.kind === "cand") {
+      h = head("ambient candidate", o.title) +
+        "<div class='bd'>" + esc(cxTrim(o.why, 200)) + "</div>" +
+        cxCardRow("family", (o.family || "") + " · " + (o.date || "")) +
+        cxCardRow("source", cxTrim(o.source_name, 44));
+    } else if (n.kind === "evt") {
+      h = head("known future event", o.title) +
+        "<div class='bd'>" + esc(cxTrim(o.why_it_matters, 200)) + "</div>" +
+        cxCardRow("when", o.date + (o.window ? " · " + o.window : "")) +
+        cxCardRow("source", cxTrim(o.source_name, 44));
+    } else if (n.kind === "dust") {
+      h = head("raw feed", o.t) + cxCardRow("source", (o.s || "") + " · " + ((o.d || "").slice(0, 10))) + cxCardRow("family", o.f || "?") +
+        "<div class='bd dim'>untriaged — the radar sweep judges promotion</div>";
+    } else if (n.kind === "socket") {
+      h = head("empty stage", n.label) + "<div class='bd dim'>" + esc(n.tip || "") + "</div>";
+    }
+    return h + "<div class='ft'>click to open</div>";
+  }
+
+  /* ---- filters (visual only; layout never moves) ---- */
+  var CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
+  var CX_KIND_CHIPS = [["sig", "signals"], ["chain", "chains"], ["link", "links"], ["scen", "scenarios"], ["co", "names"], ["dive", "verdicts"], ["cand", "ambient"], ["evt", "future"], ["dust", "feed"]];
+  function cxChipKind(n) {
+    if (n.kind === "screen" || n.kind === "shadow") return "dive";
+    return n.kind;
+  }
+  function cxMatch(n) {
+    if (n.kind === "socket") return true;
+    var ck = cxChipKind(n);
+    if (CX_FILTER.kinds[ck] === false) return false;
+    if (CX_FILTER.chain) {
+      var ch = n.chainId || (n.kind === "chain" && n.id) || (n.kind === "sig" && n.sigChain) ||
+        (n.kind === "screen" && (n.ref || {}).chain_id) || (n.kind === "dive" && (n.ref || {}).chain_id) ||
+        (n.kind === "co" && n.chains && n.chains.length === 1 && n.chainIds && n.chainIds[0]);
+      if (n.kind === "co") { if (!(n.chainIds || []).length || n.chainIds.indexOf(CX_FILTER.chain) < 0) return false; }
+      else if (ch !== CX_FILTER.chain) return false;
+    }
+    if (CX_FILTER.fam) {
+      var f = n.kind === "dust" ? (n.ref || {}).f : n.kind === "cand" ? (n.ref || {}).family : n.kind === "evt" ? (n.ref || {}).kind : null;
+      if (f !== CX_FILTER.fam) return false;
+    }
+    if (CX_FILTER.q) {
+      var hay = ((n.label || "") + " " + (n.tip || "") + " " + (n.sub || "")).toLowerCase();
+      if (hay.indexOf(CX_FILTER.q) < 0) return false;
+    }
+    return true;
+  }
+
+  /* ---- renderer + interaction (v4: constellation — rotate, semantic zoom, hover cards, filters) ---- */
   function initCortex() {
     var canvas = document.getElementById("cortexCanvas");
-    // per-element guard, not global: navigating away and back within a frame would
-    // otherwise leave a fresh canvas with no loop, because the old loop self-cancels
-    // only on its next frame.
     if (!canvas || canvas.__cxRunning) return;
     canvas.__cxRunning = true;
     var ctx = canvas.getContext("2d");
@@ -1231,8 +1352,8 @@
     }
     var hover = null, focus = null, drag = null, pan = null, raf = 0, frames = 0;
     var userView = !!(CX_CACHE && CX_CACHE.userView), settled = !!(CX_CACHE && CX_CACHE.settled);
-    var tip = document.getElementById("cxtip");
-    if (!tip) { tip = document.createElement("div"); tip.className = "tooltip"; tip.id = "cxtip"; tip.style.display = "none"; document.body.appendChild(tip); }
+    var card = document.getElementById("cxcard");
+    if (!card) { card = document.createElement("div"); card.className = "cxcard"; card.id = "cxcard"; card.style.display = "none"; document.body.appendChild(card); }
     var readEl = document.getElementById("cxRead"), zoomEl = document.getElementById("cxZoom"), cntEl = document.getElementById("cxCounts");
     if (cntEl) {
       var nd = g.nodes.filter(function (n) { return n.kind !== "dust"; }).length;
@@ -1256,45 +1377,49 @@
       spriteN++; sprites[key] = { c: c, s: s };
       return sprites[key];
     }
-    function SX(x) { return x * view.k + view.tx; }
-    function SY(y) { return y * view.k + view.ty; }
-    function GX(px) { return (px - view.tx) / view.k; }
-    function GY(py) { return (py - view.ty) / view.k; }
+    // one transform for everything: rotate → scale → translate; labels stay upright
+    function SX(x, y) { return (x * view.cr - y * view.sr) * view.k + view.tx; }
+    function SY(x, y) { return (x * view.sr + y * view.cr) * view.k + view.ty; }
+    function G2(px, py) {
+      var dx = (px - view.tx) / view.k, dy = (py - view.ty) / view.k;
+      return { x: dx * view.cr + dy * view.sr, y: -dx * view.sr + dy * view.cr };
+    }
+    function setTrig() { view.cr = Math.cos(view.rot || 0); view.sr = Math.sin(view.rot || 0); }
+    function setRot(rot) {
+      var w2 = canvas.clientWidth / 2, h2 = canvas.clientHeight / 2;
+      var g0 = G2(w2, h2);
+      view.rot = rot; setTrig();
+      view.tx = w2 - (g0.x * view.cr - g0.y * view.sr) * view.k;
+      view.ty = h2 - (g0.x * view.sr + g0.y * view.cr) * view.k;
+      userView = true; CX_CACHE.userView = true;
+    }
     function pick(px, py) {
-      var gx = GX(px), gy = GY(py), best = null, bd = 1e9, slop = 6 / view.k;
+      var gp = G2(px, py), best = null, bd = 1e9, slop = 6 / view.k;
       for (var i = 0; i < g.nodes.length; i++) {
         var n = g.nodes[i];
-        var dx = n.x - gx, dy = n.y - gy, d = Math.sqrt(dx * dx + dy * dy);
-        var reach = n.r + slop;
-        if (d < reach && d < bd) { bd = d; best = n; }
+        var dx = n.x - gp.x, dy = n.y - gp.y, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < n.r + slop && d < bd) { bd = d; best = n; }
       }
       return best;
     }
-    function labelAlpha(n, ramp) {
-      if (n.kind === "sig" || n.kind === "chain" || n.kind === "dive" || n.kind === "socket") return Math.max(0.85, ramp);
-      if (n.kind === "scen" || n.kind === "screen") return ramp;
-      if (n.kind === "link" || n.kind === "evt") return Math.max(0, ramp - 0.15);
-      if (n.kind === "co") return Math.max(0, ramp - 0.35);
-      return 0;
-    }
     function draw() {
-      if (!canvas.isConnected) { canvas.__cxRunning = false; cancelAnimationFrame(raf); tip.style.display = "none"; return; }
+      if (!canvas.isConnected) { canvas.__cxRunning = false; cancelAnimationFrame(raf); card.style.display = "none"; return; }
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var w = canvas.clientWidth, h = canvas.clientHeight;
       if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
         canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-        if (!view) view = cxFit(g, w, h);
+        if (!view) { view = cxFit(g, w, h); setTrig(); }
       }
-      if (!view) view = cxFit(g, w, h);
+      if (!view) { view = cxFit(g, w, h); setTrig(); }
+      if (view.cr == null) setTrig();
       CX_CACHE.view = view;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       var t = Date.now() / 1000;
       var parked = sim.alpha() < sim.alphaMin();
       if (!parked) sim.tick();
       if (parked && !settled) {
-        // the layout kept expanding after the warm-up fit; frame it once it stops moving
         settled = true; CX_CACHE.settled = true;
-        if (!userView) { view = cxFit(g, w, h); CX_CACHE.view = view; }
+        if (!userView) { view = cxFit(g, w, h); setTrig(); CX_CACHE.view = view; }
       }
       if (parked && !hover && !drag && (frames++ & 1)) { raf = requestAnimationFrame(draw); return; }
 
@@ -1302,26 +1427,18 @@
       bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
       ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
-      // NOW seam
-      var nx = SX(CX_NOWX);
-      if (nx > -60 && nx < w + 60) {
-        var seam = ctx.createLinearGradient(nx - 50, 0, nx + 50, 0);
-        seam.addColorStop(0, "rgba(134,135,240,0)"); seam.addColorStop(0.5, "rgba(134,135,240,0.09)"); seam.addColorStop(1, "rgba(134,135,240,0)");
-        ctx.fillStyle = seam; ctx.fillRect(nx - 50, 0, 100, h);
-        ctx.strokeStyle = "rgba(134,135,240,0.28)"; ctx.setLineDash([4, 6]); ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(nx, 20); ctx.lineTo(nx, h - 12); ctx.stroke(); ctx.setLineDash([]);
-        ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
-        ctx.fillStyle = "rgba(134,135,240,0.7)"; ctx.fillText("N O W", nx, 14);
-        ctx.fillStyle = CXP.ink3; ctx.fillText("« PAST", nx - 58, 14); ctx.fillText("AHEAD »", nx + 60, 14);
-      }
-
-      var wob = 1.6 / view.k, ramp = Math.min(1, Math.max((view.k - 1) / 3.75, 0));
+      var wob = 1.0, ramp = Math.min(1, Math.max((view.k - 1) / 3.75, 0));
+      var ramp2 = Math.min(1, Math.max((view.k - 1.9) / 1.1, 0));   // detail lines
+      var ramp3 = Math.min(1, Math.max((view.k - 2.6) / 1.2, 0));   // dust headlines
       var hi = hover || focus;
       var hkey = hi ? hi.key : null, hadj = hi ? g.adj[hi.key] : null;
+      var anyFilter = CX_FILTER.q || CX_FILTER.chain || CX_FILTER.fam ||
+        CX_KIND_CHIPS.some(function (kc) { return CX_FILTER.kinds[kc[0]] === false; });
       function nodeAlpha(n) {
         var base = n.kind === "dust" ? 0.34 + 0.14 * Math.sin(t * 0.8 + n.seat * 1.7) : n.kind === "co" ? 0.72 : n.kind === "socket" ? 0.32 : 0.92;
+        if (anyFilter && !cxMatch(n)) base *= 0.07;
         if (!hi) return base;
-        return (n === hi || (hadj && hadj[n.key])) ? 1 : base * 0.2;
+        return (n === hi || (hadj && hadj[n.key])) ? Math.max(base, 1 * (anyFilter && !cxMatch(n) ? 0.3 : 1)) : base * 0.2;
       }
 
       // edges, bucketed by alpha
@@ -1329,6 +1446,7 @@
       g.edges.forEach(function (e) {
         var near = hi && (e.source === hi || e.target === hi);
         var a = !hi ? e.alpha : near ? Math.min(0.55, e.alpha * 5) : e.alpha * 0.2;
+        if (anyFilter && (!cxMatch(e.source) || !cxMatch(e.target))) a *= 0.12;
         var b = Math.max(1, Math.round(a * 40));
         (buckets[b] = buckets[b] || []).push(e);
       });
@@ -1337,18 +1455,18 @@
         ctx.lineWidth = b / 40 > 0.3 ? 1.15 : 0.7;
         ctx.beginPath();
         buckets[b].forEach(function (e) {
-          ctx.moveTo(SX(e.source.x), SY(e.source.y));
-          ctx.lineTo(SX(e.target.x), SY(e.target.y));
+          ctx.moveTo(SX(e.source.x, e.source.y), SY(e.source.x, e.source.y));
+          ctx.lineTo(SX(e.target.x, e.target.y), SY(e.target.x, e.target.y));
         });
         ctx.stroke();
       });
 
       // nodes
       g.nodes.forEach(function (n, ni) {
-        var x = SX(n.x) + (n.kind === "dust" ? 0 : wob * view.k * 0.6 * Math.sin(t * 0.4 + ni));
-        var y = SY(n.y) + (n.kind === "dust" ? 0 : wob * view.k * 0.5 * Math.cos(t * 0.33 + ni * 2));
-        if (x < -80 || x > w + 80 || y < -80 || y > h + 80) { n._sx = x; n._sy = y; return; }
-        n._sx = x; n._sy = y;
+        var x = SX(n.x, n.y) + (n.kind === "dust" ? 0 : wob * Math.sin(t * 0.4 + ni));
+        var y = SY(n.x, n.y) + (n.kind === "dust" ? 0 : wob * Math.cos(t * 0.33 + ni * 2));
+        n._px = x; n._py = y;
+        if (x < -80 || x > w + 80 || y < -80 || y > h + 80) return;
         var R = quant(Math.max(n.kind === "dust" ? 0.9 : 2.2, n.r * view.k));
         var a = nodeAlpha(n);
         ctx.globalAlpha = a;
@@ -1386,37 +1504,52 @@
               ctx.beginPath(); ctx.arc(x, y, R + 5, -Math.PI / 2 + ai * seg + 0.04, -Math.PI / 2 + (ai + 1) * seg - 0.04); ctx.stroke();
             });
           }
-          if (n.pinned) {
-            ctx.strokeStyle = CXP.ink3; ctx.lineWidth = 1;
-            ctx.strokeRect(x + R + 4, y - 2, 3, 3);
-          }
-          if (n === focus) {
-            ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.arc(x, y, R + 8, 0, 7); ctx.stroke();
-          }
+          if (n.pinned) { ctx.strokeStyle = CXP.ink3; ctx.lineWidth = 1; ctx.strokeRect(x + R + 4, y - 2, 3, 3); }
+          if (n === focus) { ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, R + 8, 0, 7); ctx.stroke(); }
         }
         n._R = R;
       });
 
-      // labels last
+      // labels last, on top; semantic detail grows with zoom
       ctx.textAlign = "center";
+      var dustLabels = 0;
       g.nodes.forEach(function (n) {
-        if (!n.label || n.kind === "dust" || n._sx == null) return;
-        if (n._sx < -60 || n._sx > w + 60 || n._sy < -40 || n._sy > h + 40) return;
-        var la = (n === hi) ? 1 : labelAlpha(n, ramp) * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1);
+        if (n._px == null || n._px < -60 || n._px > w + 60 || n._py < -40 || n._py > h + 40) return;
+        var matched = !anyFilter || cxMatch(n);
+        if (n.kind === "dust") {
+          if (ramp3 <= 0.03 || dustLabels > 70 || !matched) return;
+          if (hi && !(n === hi)) return;
+          dustLabels++;
+          ctx.globalAlpha = ramp3 * 0.55;
+          ctx.font = "9px 'JetBrains Mono', monospace";
+          ctx.fillStyle = CXP.ink3;
+          ctx.fillText(cxTrim((n.ref || {}).t, 30), n._px, n._py + 10);
+          return;
+        }
+        if (!n.label) return;
+        var big = n.kind === "sig" || n.kind === "chain";
+        var base = big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.85, ramp) : n.kind === "co" ? Math.max(0, ramp - 0.35) : Math.max(0, ramp - 0.1);
+        var la = (n === hi) ? 1 : base * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1) * (matched ? 1 : 0.07);
         if (la <= 0.03) return;
         ctx.globalAlpha = la;
-        var big = n.kind === "sig" || n.kind === "chain";
-        ctx.font = (big ? "600 11px" : "10px") + " 'JetBrains Mono', monospace";
+        ctx.font = (big ? "600 12.5px" : "500 10.5px") + " 'Baloo 2', 'JetBrains Mono', sans-serif";
         ctx.fillStyle = n === hi ? "#ffffff" : big ? CXP.ink : CXP.ink2;
-        ctx.fillText(n.label, n._sx, n._sy + n._R + (big ? 18 : 13));
-        if (n.sub && (big || n === hi)) {
+        ctx.fillText(n.label, n._px, n._py + n._R + (big ? 18 : 13));
+        if (n.sub && big) {
           ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-          ctx.fillText(n.sub, n._sx, n._sy + n._R + (big ? 31 : 25));
+          ctx.fillText(n.sub, n._px, n._py + n._R + 32);
+        }
+        if (ramp2 > 0.03 && (n === hi || ramp2 > 0.25)) {
+          var info = cxInfo(n);
+          if (info) {
+            ctx.globalAlpha = la * ramp2;
+            ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
+            ctx.fillText(info, n._px, n._py + n._R + (big ? 45 : 26));
+          }
         }
       });
       ctx.globalAlpha = 1;
-      if (zoomEl) zoomEl.textContent = "ZOOM " + view.k.toFixed(2) + "×";
+      if (zoomEl) zoomEl.textContent = "ZOOM " + view.k.toFixed(2) + "× · " + Math.round((view.rot || 0) * 180 / Math.PI) + "°";
       raf = requestAnimationFrame(draw);
     }
 
@@ -1424,21 +1557,30 @@
       if (!readEl) return;
       readEl.textContent = n ? (n.kind.toUpperCase() + " · " + (n.tip || n.label || "")) : "";
     }
+    function showCard(n, cx, cy) {
+      card.innerHTML = cxHoverCard(n);
+      card.style.display = "block";
+      var cw = card.offsetWidth || 300, chh = card.offsetHeight || 120;
+      var lx = cx + 16, ly = cy - 12;
+      if (lx + cw > innerWidth - 8) lx = cx - cw - 16;
+      if (ly + chh > innerHeight - 8) ly = innerHeight - chh - 8;
+      if (ly < 8) ly = 8;
+      card.style.left = lx + "px"; card.style.top = ly + "px";
+    }
     canvas.addEventListener("mousemove", function (e) {
       var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
       if (drag) {
         drag.moved += Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0);
-        drag.n.fx = GX(px); drag.n.fy = GY(py);
+        var gp = G2(px, py);
+        drag.n.fx = gp.x; drag.n.fy = gp.y;
         return;
       }
       if (pan) { view.tx = pan.tx0 + (e.clientX - pan.sx); view.ty = pan.ty0 + (e.clientY - pan.sy); userView = true; CX_CACHE.userView = true; return; }
       hover = pick(px, py);
       canvas.style.cursor = hover ? "pointer" : "grab";
       setRead(hover || focus);
-      if (hover) {
-        tip.innerHTML = "<span class='num'>" + esc(hover.tip || hover.label || "") + "</span>";
-        tip.style.display = "block"; tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY - 12) + "px";
-      } else tip.style.display = "none";
+      if (hover) showCard(hover, e.clientX, e.clientY);
+      else card.style.display = "none";
     });
     canvas.addEventListener("mousedown", function (e) {
       var r = canvas.getBoundingClientRect();
@@ -1462,7 +1604,7 @@
           sim.alphaTarget(0);
           if (drag.shift) { n.pinned = true; } else { n.fx = null; n.fy = null; n.pinned = false; }
         }
-        if (quick) { tip.style.display = "none"; cxShowDrawer(cxNodeDrawer(n)); }
+        if (quick) { card.style.display = "none"; cxShowDrawer(cxNodeDrawer(n)); }
         drag = null;
       }
       pan = null;
@@ -1470,7 +1612,7 @@
     }
     canvas.addEventListener("mouseup", endDrag);
     canvas.addEventListener("mouseleave", function (e) {
-      endDrag(e); hover = null; tip.style.display = "none"; setRead(focus);
+      endDrag(e); hover = null; card.style.display = "none"; setRead(focus);
     });
     canvas.addEventListener("wheel", function (e) {
       e.preventDefault();
@@ -1492,18 +1634,58 @@
         focus = order[idx]; setRead(focus);
       } else if (e.key === "Enter" || e.key === " ") {
         if (focus) { e.preventDefault(); cxShowDrawer(cxNodeDrawer(focus)); }
-      } else if (e.key === "+" || e.key === "=" || e.key === "-") {
+      } else if (e.key === "q" || e.key === "Q") { e.preventDefault(); setRot((view.rot || 0) - Math.PI / 30); }
+      else if (e.key === "e" || e.key === "E") { e.preventDefault(); setRot((view.rot || 0) + Math.PI / 30); }
+      else if (e.key === "+" || e.key === "=" || e.key === "-") {
         e.preventDefault();
         var kk = Math.max(0.25, Math.min(4, view.k * (e.key === "-" ? 0.8 : 1.25)));
-        var cw = canvas.clientWidth / 2, chh = canvas.clientHeight / 2;
+        var cw = canvas.clientWidth / 2, chh2 = canvas.clientHeight / 2;
         view.tx = cw - (cw - view.tx) * (kk / view.k);
-        view.ty = chh - (chh - view.ty) * (kk / view.k);
-        view.k = kk;
+        view.ty = chh2 - (chh2 - view.ty) * (kk / view.k);
+        view.k = kk; userView = true; CX_CACHE.userView = true;
       } else if (e.key === "0" || e.key === "r" || e.key === "R") {
         e.preventDefault();
-        view = cxFit(g, canvas.clientWidth, canvas.clientHeight);
+        view = cxFit(g, canvas.clientWidth, canvas.clientHeight); setTrig();
         userView = false; CX_CACHE.userView = false; sim.alpha(0.25);
       } else if (e.key === "Escape") { focus = null; setRead(null); }
+    });
+
+    // filter rail wiring (rail re-renders with the view; state lives in CX_FILTER)
+    document.querySelectorAll("[data-cxk]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var k = b.getAttribute("data-cxk");
+        CX_FILTER.kinds[k] = CX_FILTER.kinds[k] === false;
+        b.classList.toggle("off", CX_FILTER.kinds[k] === false);
+      });
+    });
+    document.querySelectorAll("[data-cxchain]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var c = b.getAttribute("data-cxchain");
+        CX_FILTER.chain = CX_FILTER.chain === c ? null : c;
+        document.querySelectorAll("[data-cxchain]").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-cxchain") === CX_FILTER.chain); });
+      });
+    });
+    document.querySelectorAll("[data-cxfam]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var f = b.getAttribute("data-cxfam");
+        CX_FILTER.fam = CX_FILTER.fam === f ? null : f;
+        document.querySelectorAll("[data-cxfam]").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-cxfam") === CX_FILTER.fam); });
+      });
+    });
+    var cxReset = document.getElementById("cxFReset");
+    if (cxReset) cxReset.addEventListener("click", function () {
+      CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
+      var si = document.getElementById("cxSearch"); if (si) si.value = "";
+      document.querySelectorAll("[data-cxk]").forEach(function (x) { x.classList.remove("off"); });
+      document.querySelectorAll("[data-cxchain],[data-cxfam]").forEach(function (x) { x.classList.remove("on"); });
+    });
+    var si = document.getElementById("cxSearch");
+    if (si) {
+      si.value = CX_FILTER.q;
+      si.addEventListener("input", function () { CX_FILTER.q = si.value.trim().toLowerCase(); });
+    }
+    document.querySelectorAll("[data-crot]").forEach(function (b) {
+      b.addEventListener("click", function () { setRot((view.rot || 0) + parseInt(b.getAttribute("data-crot"), 10) * Math.PI / 12); });
     });
     raf = requestAnimationFrame(draw);
   }
