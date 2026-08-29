@@ -31,7 +31,8 @@ TIERS = {"T1", "T2", "T3"}
 DIVE_STATUS = {"DRAFT", "FINAL"}
 VERDICTS = {"INVESTABLE", "WATCH", "TOO_LATE"}
 PRICE_STATUS = {"AGREED", "SINGLE_SOURCE", "DISPUTED", "NO_DATA", "VERIFIED_ZERO"}
-REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc"}
+REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc",
+             "quality", "insider"}   # quality/insider added 2026-08-29 (the analyst)
 REQ_STATUS = {"PENDING", "FULFILLED", "FAILED"}
 BUCKETS = ("pure_play", "picks_and_shovels", "second_order", "hedge")
 TRADE_ACTIONS = {"bought", "sold", "trimmed", "added"}
@@ -466,6 +467,35 @@ def v_stock(f: Path) -> None:
         if not (isinstance(rt, dict) and {"attacked_at", "challenges",
                                           "verdict_survived", "surviving_bear_case"} <= set(rt)):
             err(f, "status FINAL requires a complete red_team block")
+    # --- analyst blocks (added 2026-08-29, method section 7). Optional here so the UI
+    # fixture and pre-amendment dives still validate; `tools/check_analyst.py` is the
+    # gate that REQUIRES them on any dive written from now on. Shape and the veto are
+    # enforced here whenever the blocks are present, because a malformed grade that
+    # validates is worse than an absent one.
+    eq = d.get("earnings_quality")
+    if eq is not None:
+        if not isinstance(eq, dict) or "grade" not in eq:
+            err(f, "earnings_quality requires a grade (A-D or null)")
+        else:
+            if eq["grade"] not in {"A", "B", "C", "D", None}:
+                err(f, f"earnings_quality.grade {eq['grade']!r} not in A-D or null")
+            if eq["grade"] == "D" and d["verdict"] == "INVESTABLE":
+                err(f, "earnings grade D forbids INVESTABLE (method section 7)")
+            if eq["grade"] in {"C", None} and d["verdict"] == "INVESTABLE":
+                err(f, "earnings grade C (or an uncomputable grade) caps the verdict "
+                       "at WATCH, found INVESTABLE")
+    gap = d.get("expectations_gap")
+    if gap is not None:
+        if not isinstance(gap, dict) or not isinstance(gap.get("rows"), list):
+            err(f, "expectations_gap requires rows[]")
+        elif not str(gap.get("market_implied_source") or "").strip():
+            err(f, "expectations_gap.market_implied_source missing — the implied column "
+                   "is read from data/market/<T>.json quality.reverse_dcf, never authored")
+    it = d.get("independence_test")
+    if it is not None and not (isinstance(it, dict) and {
+            "largest_disagreement", "why_the_gap_exists", "falsification"} <= set(it)):
+        err(f, "independence_test requires largest_disagreement, why_the_gap_exists "
+               "and falsification")
     if not (DATA / "chains" / f"{d['chain_id']}.json").exists():
         err(f, f"chain_id {d['chain_id']} has no chain file")
     mk = DATA / "market" / f"{d['ticker'].replace('.', '-')}.json"
@@ -505,7 +535,8 @@ def v_requests(f: Path) -> None:
         ids.add(rid)
         check_enum(f, req.get("kind"), REQ_KINDS, f"{rid}.kind")
         check_enum(f, req.get("status"), REQ_STATUS, f"{rid}.status")
-        if req.get("kind") in {"prices", "fundamentals", "pcs", "edgar_doc"} and not req.get("ticker"):
+        if req.get("kind") in {"prices", "fundamentals", "pcs", "edgar_doc",
+                               "quality", "insider"} and not req.get("ticker"):
             err(f, f"{rid}: kind {req.get('kind')} needs a ticker")
         if req.get("kind") == "edgar_fts" and not req.get("query"):
             err(f, f"{rid}: edgar_fts needs a query")
@@ -687,6 +718,26 @@ def v_scout_log(f: Path) -> None:
                     f"it deterministically, do not re-teach it")
 
 
+def v_dive_log(f: Path) -> None:
+    """Stocky's log: his four calibration channels. Same point as Nell's and Atlas's,
+    aimed at the one thing only he produces: a verdict that can turn out to be wrong."""
+    d = load(f)
+    if d is None:
+        return
+    if not need(f, d, ["as_of", "calibration", "repairs", "changelog"]):
+        return
+    check_date(f, d["as_of"], "as_of")
+    cal = d.get("calibration")
+    if isinstance(cal, dict):
+        for ch in ("shadow_book", "entry_zones", "red_team_amendments", "implied_growth"):
+            if ch not in cal:
+                err(f, f"calibration is missing the {ch} channel (method section 8)")
+            elif not isinstance(cal[ch], dict) or "denominator" not in cal[ch]:
+                err(f, f"calibration.{ch} needs a denominator — a rate with no "
+                       "denominator is a report that cannot fail")
+    check_common(f, d)
+
+
 def v_map_log(f: Path) -> None:
     """Atlas's log: his calibration plus his judgment fields. Same split as v_scout_log,
     and the same point: a calibration with no denominators is a report that cannot fail."""
@@ -818,6 +869,9 @@ def main() -> int:
     if (DATA / "radar" / "candidates.json").exists():
         counts["candidates"] = 1
         v_candidates(DATA / "radar" / "candidates.json")
+    if (DATA / "stocks" / "_dive-log.json").exists():
+        counts["dive-log"] = 1
+        v_dive_log(DATA / "stocks" / "_dive-log.json")
     if (DATA / "chains" / "_map-log.json").exists():
         counts["map-log"] = 1
         v_map_log(DATA / "chains" / "_map-log.json")

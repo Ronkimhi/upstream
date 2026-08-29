@@ -27,8 +27,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # Pinned exactly: the data plane must not change behaviour because an upstream
+      # maintainer shipped a release. A version bump here is its own commit.
+      # edgartools    -> Form 4 / XBRL (docs/analyst-sources.md)
+      # financetoolkit-> Piotroski / Beneish / Altman formulas (tools/acis/quality.py)
       - name: install deps
-        run: pip install --quiet requests pandas yfinance pytrends
+        run: |
+          pip install --quiet requests pandas yfinance pytrends \
+            "edgartools==5.53.0" "financetoolkit==2.2.0"
+          python3 -c "import edgar, financetoolkit; from financetoolkit.models import piotroski_model, beneish_model, altman_model; print('analyst deps import OK')"
       - name: fetch
         run: python3 tools/fetch/fetch.py
       - name: rebuild UI

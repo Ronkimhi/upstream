@@ -115,6 +115,23 @@ Closed vocabulary: `INVESTABLE | WATCH | TOO_LATE`, clock-labeled.
 - A dive is **DRAFT until red-teamed**. `run redteam` is a fresh-context attack that reads ONLY the dive JSON + market data (never the chain narrative): is un-crowded actually true? is "not priced in" actually true? is capture real? does the entry basis survive? The dive becomes FINAL only with a `red_team` block recording challenges, amendments, and the surviving bear case — which prints on the stock page.
 - Re-runs amend in place and append to `changelog`; every prior verdict stays visible. Nothing is ever un-said.
 
+**The expectations gap (amended 2026-08-29).** `what_is_priced_in` was a list of assertions, which made "not priced in" an opinion that could not be checked. It is now a **table**: per driver, what the price implies, what the dive expects, where that expectation sits as a percentile against base rates, why, and the dated signal that would falsify it. Required rows: 5y revenue CAGR · steady-state operating margin · reinvestment return · terminal multiple or `g` · net gap direction. The market-implied column is the reverse-DCF solve in `data/market/<T>.json.quality.reverse_dcf`, carrying its assumptions (discount rate, terminal growth, horizon) — never solved in-session. An expectation above the 80th percentile of its base rate needs a structural reason and a leading indicator, both named; a bear case below the 30th percentile is not a bear case.
+
+**The independence test (amended 2026-08-29).** Before any verdict, the dive answers three questions: the single largest disagreement with consensus in one sentence; the category of market error that explains why the gap exists; the date and data trigger that would falsify it. **Cannot answer all three ⇒ the verdict caps at WATCH.** Not being able to say why the market is wrong is a finding, not a gap in the writeup.
+
+**The earnings-quality veto (amended 2026-08-29).** Every dive carries an `earnings_quality` grade A-D with its inputs, computed from `data/market/<T>.json.quality` (accruals against average assets, Beneish M with its `-1.78` review threshold, DSO and deferred-revenue drift, capex-to-depreciation) plus governance facts read from filings (auditor change, CFO turnover, related-party dealings).
+
+| Grade | Meaning | Effect on the verdict |
+|---|---|---|
+| A | no flags; cash conversion ≥ 90%; accruals < 5% of average assets | none |
+| B | 1-2 mild flags with defensible explanations | none; noted on the page |
+| C | Beneish breach, sustained DSO or deferred drift, recurring "one-time" items | **caps the verdict at WATCH** |
+| D | multiple severe flags, or an audit qualification | **forbids INVESTABLE**, and the dive says so in one line |
+
+The grade is written on the page whatever it is; an A is evidence too. A grade that cannot be computed because the data is thin is `NULL`, never a default A, and it caps the verdict at WATCH until the data arrives. Why this exists: a cheap valuation and a good gap table are exactly what a manipulated book looks like from the outside, and the funnel's whole job before this point is to find names nobody is checking.
+
+*Lineage: the gap table, the independence test and the A-D veto are adapted from `rollingSirius/equity-research-skill` (MIT), read and not installed. See `docs/analyst-sources.md`.*
+
 ## 8. Calibration surfaces
 
 - **Shadow book**: every TOO_LATE verdict and every DISMISSED signal writes a row (spot + date); Actions reprices at +90d vs SPY; `RIGHT` means skipping was correct (underperformed SPY). The machine's "no" gets graded.

@@ -181,13 +181,62 @@ def do_prices(ticker):
 
 
 # ---------------------------------------------------------------- fundamentals
+# Each field: (candidate us-gaap concepts in preference order, shape, unit).
+#   shape "duration" = income statement / cash flow, needs a start and an end
+#   shape "instant"  = balance sheet, a point in time
+# The shape used to be inferred by testing concept membership in two hardcoded lists,
+# which silently mis-filtered every balance-sheet concept added after those two. It is
+# now declared per field, because the analyst needs eighteen of these, not four.
 FACT_MAP = {
-    "revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues",
-                "SalesRevenueNet", "RevenueFromContractWithCustomerIncludingAssessedTax"],
-    "net_income": ["NetIncomeLoss"],
-    "cash": ["CashAndCashEquivalentsAtCarryingValue"],
-    "total_debt": ["LongTermDebtNoncurrent", "LongTermDebt"],
+    "revenue": (["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues",
+                 "SalesRevenueNet", "RevenueFromContractWithCustomerIncludingAssessedTax"],
+                "duration", "USD"),
+    "net_income": (["NetIncomeLoss"], "duration", "USD"),
+    "cash": (["CashAndCashEquivalentsAtCarryingValue"], "instant", "USD"),
+    "total_debt": (["LongTermDebtNoncurrent", "LongTermDebt"], "instant", "USD"),
+    # --- widened 2026-08-29 for the analyst (Piotroski / Beneish / Altman / reverse DCF)
+    "gross_profit": (["GrossProfit"], "duration", "USD"),
+    "cost_of_revenue": (["CostOfGoodsAndServicesSold", "CostOfRevenue", "CostOfGoodsSold",
+                         "CostOfServices"], "duration", "USD"),
+    "operating_income": (["OperatingIncomeLoss"], "duration", "USD"),
+    "operating_cashflow": (["NetCashProvidedByUsedInOperatingActivities",
+                            "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
+                           "duration", "USD"),
+    "capex": (["PaymentsToAcquirePropertyPlantAndEquipment",
+               "PaymentsToAcquireProductiveAssets"], "duration", "USD"),
+    "depreciation": (["DepreciationDepletionAndAmortization",
+                      "DepreciationAmortizationAndAccretionNet",
+                      "DepreciationAndAmortization", "Depreciation"], "duration", "USD"),
+    "sga": (["SellingGeneralAndAdministrativeExpense",
+             "GeneralAndAdministrativeExpense"], "duration", "USD"),
+    "total_assets": (["Assets"], "instant", "USD"),
+    "current_assets": (["AssetsCurrent"], "instant", "USD"),
+    "current_liabilities": (["LiabilitiesCurrent"], "instant", "USD"),
+    "total_liabilities": (["Liabilities"], "instant", "USD"),
+    "retained_earnings": (["RetainedEarningsAccumulatedDeficit"], "instant", "USD"),
+    "equity": (["StockholdersEquity",
+                "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
+               "instant", "USD"),
+    "receivables": (["AccountsReceivableNetCurrent",
+                     "ReceivablesNetCurrent"], "instant", "USD"),
+    "inventory": (["InventoryNet"], "instant", "USD"),
+    "ppe_net": (["PropertyPlantAndEquipmentNet"], "instant", "USD"),
+    "shares": (["CommonStockSharesOutstanding", "CommonStockSharesIssued",
+                "WeightedAverageNumberOfDilutedSharesOutstanding"], "instant", "shares"),
+    # Same concepts as total_debt, kept as its own field because Piotroski and Beneish
+    # both take a long-term-debt SERIES while total_debt is stored as a single latest row.
+    "long_term_debt": (["LongTermDebtNoncurrent", "LongTermDebt"], "instant", "USD"),
 }
+
+# The annual series the quality block consumes. Must stay in step with
+# `acis.quality.compute_quality`'s series_fields: a name here that quality does not read
+# is dead weight, and a name quality reads that is missing here silently downgrades every
+# score that needed it to PENDING_DATA. `tools/check_analyst.py` asserts the two agree.
+QUALITY_FIELDS = ("revenue", "net_income", "operating_income", "gross_profit",
+                  "cost_of_revenue", "operating_cashflow", "capex", "depreciation",
+                  "sga", "total_assets", "current_assets", "current_liabilities",
+                  "total_liabilities", "retained_earnings", "equity", "receivables",
+                  "inventory", "ppe_net", "shares", "long_term_debt")
 
 
 def do_fundamentals(ticker):
@@ -198,24 +247,32 @@ def do_fundamentals(ticker):
     r = requests.get(SEC_COMPANYFACTS_URL.format(cik=int(cik)), headers=SEC_HEADERS, timeout=60)
     if r.status_code != 200:
         raise RuntimeError(f"companyfacts HTTP {r.status_code} for {ticker}")
-    gaap = r.json().get("facts", {}).get("us-gaap", {})
+    facts = r.json().get("facts", {})
+    gaap = facts.get("us-gaap", {})
+    dei = facts.get("dei", {})
 
-    def pick(names, annual):
+    def pick(key, annual):
+        """Latest 8 periods for one field. Instant facts have no duration to test."""
+        names, shape, unit = FACT_MAP[key]
         for n in names:
-            units = gaap.get(n, {}).get("units", {})
-            vals = units.get("USD") or []
+            src = dei if (n == "EntityCommonStockSharesOutstanding") else gaap
+            vals = src.get(n, {}).get("units", {}).get(unit) or []
             keep = {}
             for v in vals:
                 form_ok = v.get("form") == "10-K" if annual else v.get("form") in ("10-Q", "10-K")
-                frame_days = None
+                if not form_ok:
+                    continue
+                if shape == "instant":
+                    keep[v["end"]] = v["val"]
+                    continue
                 try:
-                    frame_days = (datetime.fromisoformat(v["end"]) - datetime.fromisoformat(v["start"])).days if "start" in v else None
+                    frame_days = (datetime.fromisoformat(v["end"])
+                                  - datetime.fromisoformat(v["start"])).days if "start" in v else None
                 except Exception:
-                    pass
-                dur_ok = (frame_days and frame_days > 300) if annual else (frame_days and 60 < frame_days < 120)
-                if n in FACT_MAP["cash"] or n in FACT_MAP["total_debt"]:
-                    dur_ok = True  # instant facts
-                if form_ok and (dur_ok or "start" not in v):
+                    frame_days = None
+                dur_ok = (frame_days and frame_days > 300) if annual \
+                    else (frame_days and 60 < frame_days < 120)
+                if dur_ok:
                     keep[v["end"]] = v["val"]
             if keep:
                 return sorted(keep.items())[-8:]
@@ -223,12 +280,23 @@ def do_fundamentals(ticker):
 
     f = {
         "source": "sec-companyfacts", "cik": cik, "as_of": TODAY,
-        "revenue_fy": pick(FACT_MAP["revenue"], True),
-        "revenue_q": pick(FACT_MAP["revenue"], False),
-        "net_income_fy": pick(FACT_MAP["net_income"], True),
-        "cash": pick(FACT_MAP["cash"], False)[-1:] or None,
-        "total_debt": pick(FACT_MAP["total_debt"], False)[-1:] or None,
+        "revenue_fy": pick("revenue", True),
+        "revenue_q": pick("revenue", False),
+        "net_income_fy": pick("net_income", True),
+        "cash": pick("cash", False)[-1:] or None,
+        "total_debt": pick("total_debt", False)[-1:] or None,
     }
+    # Annual series for the quality block. A field with no rows stays absent rather than
+    # empty, so `quality` names it as missing instead of scoring it as zero (method §1).
+    found, attempted = [], []
+    for key in QUALITY_FIELDS:
+        attempted.append(key)
+        rows = pick(key, True)
+        if rows:
+            f[f"{key}_fy"] = rows
+            found.append(key)
+    f["coverage"] = {"annual_fields_found": len(found), "annual_fields_attempted": len(attempted),
+                     "missing": [k for k in attempted if k not in found]}
     if not f["revenue_fy"] and not f["revenue_q"]:
         if not control_ok():
             raise RuntimeError("empty companyfacts and control probe failed")
@@ -254,6 +322,133 @@ def do_pcs(ticker):
     m["fetched_at"] = NOW.isoformat()
     m.setdefault("tier", tier_for(ticker, cik_for(ticker)))
     jdump(path, m)
+    return [f"data/market/{safe_name(ticker)}.json"]
+
+
+# ---------------------------------------------------------------- quality
+def do_quality(ticker):
+    """Piotroski / Beneish / Altman / reverse-DCF implied growth for one name.
+
+    Pure computation over what is already on disk: it fetches nothing. It therefore
+    fails loudly rather than quietly when `fundamentals` has not been widened yet,
+    because a quality block computed from four line items would be confidently wrong.
+    """
+    from acis.quality import compute_quality
+    path = DATA / "market" / f"{safe_name(ticker)}.json"
+    m = jload(path, None)
+    if not m:
+        raise RuntimeError(f"no data/market/{safe_name(ticker)}.json — request prices and "
+                           "fundamentals first")
+    fund = m.get("fundamentals")
+    if not fund:
+        raise RuntimeError("no fundamentals block — request kind 'fundamentals' first")
+
+    def last_val(rows):
+        return rows[-1][1] if rows else None
+
+    shares = last_val(fund.get("shares_fy"))
+    price = None
+    if m.get("series") and m["series"].get("rows"):
+        price = m["series"]["rows"][-1][1]
+    elif m.get("prints"):
+        price = m["prints"][0].get("close")
+    market_cap = shares * price if (shares and price) else None
+    debt, cash = last_val(fund.get("total_debt")), last_val(fund.get("cash"))
+    ev = None
+    if market_cap is not None and debt is not None and cash is not None:
+        ev = market_cap + debt - cash
+
+    q = compute_quality(fund, market_cap=market_cap, enterprise_value=ev, as_of=TODAY)
+    q["price_used"] = {"value": price, "source": (m.get("series") or {}).get("source"),
+                       "as_of": (m.get("series") or {}).get("as_of")}
+    q["shares_used"] = {"value": shares,
+                        "as_of": fund.get("shares_fy", [[None]])[-1][0] if fund.get("shares_fy") else None}
+    scored = sum(1 for k in ("piotroski", "beneish", "altman")
+                 if q[k].get("score") is not None)
+    if scored == 0 and q["reverse_dcf"].get("implied_fcf_cagr") is None:
+        # Not an exception: a thin filer is a real state. But it must read as a failure
+        # to score, never as a clean pass over nothing (method §9).
+        q["state"] = "NOTHING_SCORED"
+        print(f"  quality {ticker}: 0 of 4 scores computed — "
+              f"missing {fund.get('coverage', {}).get('missing')}")
+    else:
+        q["state"] = "SCORED"
+    m["quality"] = q
+    m["fetched_at"] = NOW.isoformat()
+    jdump(path, m)
+    print(f"  quality {ticker}: {scored}/3 scores + reverse DCF "
+          f"{q['reverse_dcf'].get('state')}")
+    return [f"data/market/{safe_name(ticker)}.json"]
+
+
+# ---------------------------------------------------------------- insider (Form 4)
+def do_insider(ticker, lookback_days=365):
+    """Form 4 insider transactions via edgartools.
+
+    Adopted 2026-08-29 (see docs/analyst-sources.md). This is the one place edgartools
+    earns its install: hand-parsing ownership XML is exactly the work it exists to remove.
+
+    The extraction is deliberately defensive. Its object shape has not been exercised
+    against a live filing in this repo yet, so when the expected attributes are absent it
+    writes a `shape_probe` naming what the object actually had, instead of guessing a
+    mapping and silently recording wrong numbers. The first Actions run either returns
+    data or tells us precisely what to bind to.
+    """
+    cik = cik_for(ticker)
+    if not cik:
+        raise RuntimeError(f"no SEC CIK for {ticker} (Form 4 is a US-filer surface)")
+    try:
+        import edgar
+    except ImportError as e:
+        raise RuntimeError(f"edgartools not installed in this job: {e}")
+    edgar.set_identity(EDGAR_USER_AGENT)
+    cutoff = (NOW.replace(tzinfo=None)
+              - __import__("datetime").timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+
+    filings = edgar.Company(ticker).get_filings(form="4")
+    rows, probe = [], None
+    for filing in list(filings)[:40]:
+        fdate = str(getattr(filing, "filing_date", "") or "")
+        if fdate and fdate < cutoff:
+            break
+        try:
+            ob = filing.obj()
+        except Exception as e:  # noqa: BLE001
+            print(f"  Form 4 parse failed ({fdate}): {e}")
+            continue
+        txns = getattr(ob, "market_trades", None)
+        if txns is None:
+            txns = getattr(ob, "transactions", None)
+        if txns is None:
+            if probe is None:
+                probe = sorted(a for a in dir(ob) if not a.startswith("_"))[:40]
+            continue
+        try:
+            recs = txns.to_dict("records") if hasattr(txns, "to_dict") else list(txns)
+        except Exception:  # noqa: BLE001
+            recs = []
+        for t in recs:
+            rows.append({"filing_date": fdate,
+                         "insider": str(getattr(ob, "reporting_owner_name", None)
+                                        or getattr(ob, "owner_name", None) or "")[:120],
+                         "raw": {k: (str(v)[:60] if v is not None else None)
+                                 for k, v in list(dict(t).items())[:12]}})
+    if not rows and not control_ok():
+        raise RuntimeError("zero Form 4 rows and control probe failed")
+    out = {"ticker": ticker, "cik": cik, "fetched_at": NOW.isoformat(),
+           "window": [cutoff, TODAY], "row_count": len(rows), "rows": rows[:200],
+           "health": {"filings_examined": min(len(list(filings)), 40),
+                      **({"verified_zero": True, "probe": "stooq-AAPL-ok"} if not rows else {})},
+           **({"shape_probe": probe} if probe else {})}
+    path = DATA / "market" / f"{safe_name(ticker)}.json"
+    m = jload(path, {"ticker": ticker, "price_status": "NO_DATA", "prints": [],
+                     "series": None, "fundamentals": None, "pcs": None})
+    m["insider"] = out
+    m["fetched_at"] = NOW.isoformat()
+    m.setdefault("tier", tier_for(ticker, cik))
+    jdump(path, m)
+    print(f"  insider {ticker}: {len(rows)} transaction row(s)"
+          + (f" | SHAPE PROBE written: {probe}" if probe else ""))
     return [f"data/market/{safe_name(ticker)}.json"]
 
 
@@ -497,6 +692,10 @@ def main():
                 wrote = do_fundamentals(req["ticker"])
             elif k == "pcs":
                 wrote = do_pcs(req["ticker"])
+            elif k == "quality":
+                wrote = do_quality(req["ticker"])
+            elif k == "insider":
+                wrote = do_insider(req["ticker"], req.get("lookback_days") or 365)
             elif k == "edgar_fts":
                 wrote = do_edgar_fts(req["query"], req.get("forms"), req.get("lookback_days") or 365)
             elif k == "edgar_doc":

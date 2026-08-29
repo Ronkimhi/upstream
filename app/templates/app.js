@@ -807,6 +807,7 @@
       '<span class="vword"><span class="dot"></span>' + esc(st.verdict.replace("_", " ")) + "</span>" + zone +
       '<span class="right">' + chip(st.clock) + tierChip(st.tier) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") +
       (pos.length ? chip("in book @ " + pos[pos.length - 1].price, "accent") : "") +
+      gradeChip(st.earnings_quality) +
       '<span class="muted">review <span class="num">' + esc(st.review_by) + "</span></span></span></div>";
     var rt = st.red_team
       ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
@@ -822,6 +823,8 @@
     var priced = "<div class='card'><h3>What is already priced in</h3>" +
       (st.what_is_priced_in || []).map(function (p) { return "<div class='evli'>" + chip(p.tag) + " " + esc(p.expectation) + "</div>"; }).join("") +
       "<div class='small' style='margin-top:10px'>" + esc(st.priced_in_summary || "") + "</div></div>";
+    var gapc = gapTable(st);
+    var qualc = qualityCard(mk, st);
     return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
       (st.fixture ? '<div class="fixturebanner">Fixture page — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
       '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
@@ -830,9 +833,96 @@
       '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
       '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
       seclabel("Diligence") +
+      (gapc ? gapc : "") +
       '<div class="statgrid">' + priced + val + "</div>" +
+      (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
       "<div style='margin-top:14px'>" + rt + "</div>" +
       notesBlock(st) + changelogBlock(st) + footer() + "</main>";
+  }
+  // --- analyst surfaces (2026-08-29). Every number here is READ from the dive or from
+  // data/market/<T>.json.quality; the UI never computes a financial figure of its own.
+  function gradeChip(eq) {
+    if (!eq || eq.grade === undefined) return "";
+    var g = eq.grade;
+    var cls = (g === "A" || g === "B") ? "accent" : (g === "C" ? "CROWDED" : g === "D" ? "OVER_CROWDED" : "stale");
+    return chip("earnings " + (g === null ? "NULL" : esc(g)), cls);
+  }
+  function pct(v) { return v == null ? "—" : (v * 100).toFixed(1) + "%"; }
+  function ord(n) {
+    var r = n % 100;
+    if (r >= 11 && r <= 13) return n + "th";
+    return n + (["th", "st", "nd", "rd"][n % 10] || "th");
+  }
+  function gapTable(st) {
+    var g = st.expectations_gap;
+    if (!g || !(g.rows || []).length) return "";
+    var LABEL = { revenue_cagr_5y: "5y revenue CAGR", operating_margin: "Steady-state op margin",
+                  reinvestment_return: "Reinvestment return", terminal: "Terminal multiple / g",
+                  net_gap_direction: "Net gap direction" };
+    var rows = g.rows.map(function (r) {
+      var mine = typeof r.mine === "number" ? pct(r.mine) : esc(r.mine == null ? "—" : r.mine);
+      var mkt = typeof r.market_implied === "number" ? pct(r.market_implied)
+        : esc(r.market_implied == null ? "—" : r.market_implied);
+      var flag = (typeof r.percentile === "number" && r.percentile > 80)
+        ? " " + chip(ord(r.percentile) + " pct", "CROWDED") : (r.percentile != null ? " <span class='muted'>" + ord(r.percentile) + "</span>" : "");
+      return "<tr><td>" + esc(LABEL[r.driver] || r.driver) + "</td>" +
+        "<td class='num'>" + mkt + "</td><td class='num'>" + mine + "</td>" +
+        "<td class='small'>" + flag + "</td>" +
+        "<td class='small'>" + esc(r.leading_indicator || r.structural_reason || "") + "</td></tr>";
+    }).join("");
+    return "<div class='card'><h3>The expectations gap</h3>" +
+      "<div class='small muted' style='margin-bottom:8px'>What the price assumes, against what this dive expects. " +
+      "The implied column is solved in the data plane, never in session: " + esc(g.market_implied_source || "") + "</div>" +
+      "<div style='overflow-x:auto'><table class='gaptable'><thead><tr><th>Driver</th><th>Market implies</th>" +
+      "<th>This dive</th><th>Base rate</th><th>Verification</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
+      (st.independence_test ? "<div class='small' style='margin-top:12px'><b>Largest disagreement:</b> " +
+        esc(st.independence_test.largest_disagreement) + "<br><b>Why the gap exists:</b> " +
+        esc(st.independence_test.why_the_gap_exists) + "<br><b>Falsified by:</b> " +
+        esc(st.independence_test.falsification) + "</div>" : "") + "</div>";
+  }
+  function qualityCard(mk, st) {
+    var q = mk && mk.quality;
+    var eq = st.earnings_quality;
+    if (!q && !eq) return "";
+    var s = "<div class='card'><h3>Earnings quality and distress</h3>";
+    if (eq) {
+      s += "<div class='small' style='margin-bottom:10px'>" + gradeChip(eq) + " " + esc(eq.basis || "") +
+        (eq.grade === "D" ? " <b>Grade D forbids INVESTABLE.</b>"
+          : (eq.grade === "C" || eq.grade === null) ? " <b>Caps the verdict at WATCH.</b>" : "") + "</div>";
+    }
+    if (!q) {
+      return s + "<div class='emptystate'>No quality block yet.<div class='runwrap'>" +
+        runButton("request data " + st.ticker, "fundamentals then quality, ~5 minutes") + "</div></div></div>";
+    }
+    function line(label, blk, fmt) {
+      if (!blk) return "";
+      var v = blk.score;
+      var body = v == null
+        ? "<span class='pend'><span class='dot'></span>" + esc(blk.state || "pending") + "</span>" +
+          (blk.missing && blk.missing.length ? " <span class='muted small'>missing " + esc(blk.missing.slice(0, 3).join(", ")) +
+            (blk.missing.length > 3 ? " +" + (blk.missing.length - 3) : "") + "</span>" : "")
+        : "<span class='num'>" + esc(fmt ? fmt(v) : v) + "</span> " + chip(blk.state);
+      return "<dt>" + label + "</dt><dd>" + body + "</dd>";
+    }
+    var rd = q.reverse_dcf || {};
+    s += "<div class='kv'>" +
+      line("Piotroski F", q.piotroski, function (v) { return v + " / 9"; }) +
+      line("Beneish M", q.beneish) +
+      line("Altman Z", q.altman) +
+      "<dt>Market-implied FCF CAGR</dt><dd>" +
+      (rd.implied_fcf_cagr == null
+        ? "<span class='pend'><span class='dot'></span>" + esc(rd.state || "pending") + "</span>" +
+          (rd.reason ? " <span class='muted small'>" + esc(rd.reason) + "</span>" : "")
+        : "<span class='num'>" + pct(rd.implied_fcf_cagr) + "</span> <span class='muted small'>at " +
+          pct((rd.assumptions || {}).discount_rate) + " discount, " + pct((rd.assumptions || {}).terminal_growth) +
+          " terminal, " + esc((rd.assumptions || {}).horizon_years) + "y</span>") + "</dd>" +
+      "</div>";
+    if (q.health) {
+      s += "<div class='small muted' style='margin-top:10px'>" + esc(q.health.statement_fields_found) + " of " +
+        esc(q.health.statement_fields_needed) + " statement fields on file · as of " + esc(q.as_of || "—") +
+        " · formulas: " + esc(q.formulas || "") + "</div>";
+    }
+    return s + "</div>";
   }
   function priceChart(mk, st) {
     if (!mk || !mk.series || !(mk.series.rows || []).length) {
