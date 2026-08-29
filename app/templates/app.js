@@ -158,6 +158,7 @@
       '<a href="#/" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>' +
       '<nav class="nav">' +
       na("#/", "Radar", "radar") +
+      na("#/cortex", "Cortex", "cortex") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
       na("#/book", "Book", "book") +
       na("#/shadow", "Shadow", "shadow") +
@@ -666,6 +667,182 @@
       footer() + "</main>";
   }
 
+  /* ---------------- cortex ---------------- */
+  var CX = { W: 980, H: 520, XNOW: 600, CLAMP: 1460, LANES: { MACRO: 120, INDUSTRY: 250, USE_CASE: 375 }, BAND: 468 };
+  function cxX(dateStr) {
+    var dx = daysBetween(TODAY, dateStr);
+    if (isNaN(dx)) dx = 0;
+    var t = Math.sqrt(Math.min(Math.abs(dx), CX.CLAMP)) / Math.sqrt(CX.CLAMP);
+    return dx < 0 ? CX.XNOW - t * 540 : CX.XNOW + t * 340;
+  }
+  function famColor(f) {
+    return { POLICY: "var(--emg)", CORPORATE: "var(--accent)", TECH: "var(--und)", PHYSICAL: "var(--warn)", GEO: "var(--ovr)", MACRO: "var(--emg)", LEGAL: "var(--emg)" }[f] || "var(--border-strong)";
+  }
+  function cxTrim(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+  function cortexSvg() {
+    var s = "";
+    // year gridlines
+    var y0 = parseInt(TODAY.slice(0, 4), 10);
+    for (var yy = y0 - 4; yy <= y0 + 4; yy++) {
+      var jd = yy + "-01-01";
+      if (Math.abs(daysBetween(TODAY, jd)) > CX.CLAMP) continue;
+      var gx = cxX(jd);
+      s += '<line x1="' + gx.toFixed(1) + '" y1="30" x2="' + gx.toFixed(1) + '" y2="' + (CX.H - 26) + '" stroke="var(--chart-grid)"/>';
+      s += '<text x="' + gx.toFixed(1) + '" y="' + (CX.H - 10) + '" text-anchor="middle" font-size="10" class="mono-t" fill="var(--chart-axis)">' + yy + "</text>";
+    }
+    // lane labels + guides
+    Object.keys(CX.LANES).forEach(function (ln) {
+      var ly = CX.LANES[ln];
+      s += '<line x1="40" y1="' + ly + '" x2="' + (CX.W - 30) + '" y2="' + ly + '" stroke="var(--chart-grid)" stroke-dasharray="1 7"/>';
+      s += '<text x="40" y="' + (ly - 10) + '" font-size="9.5" letter-spacing="1.5" fill="var(--ink-3)">' + ln.replace("_", " ") + "</text>";
+    });
+    // ambient band guide
+    s += '<line x1="40" y1="' + CX.BAND + '" x2="' + (CX.W - 30) + '" y2="' + CX.BAND + '" stroke="var(--chart-grid)" stroke-dasharray="1 7"/>';
+    s += '<text x="40" y="' + (CX.BAND - 10) + '" font-size="9.5" letter-spacing="1.5" fill="var(--ink-3)">AMBIENT · candidates ← | known future →</text>';
+    // NOW line
+    s += '<line x1="' + CX.XNOW + '" y1="24" x2="' + CX.XNOW + '" y2="' + (CX.H - 26) + '" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.4"/>';
+    s += '<text x="' + CX.XNOW + '" y="16" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent)" letter-spacing="2">NOW</text>';
+    s += '<text x="' + (CX.XNOW - 12) + '" y="16" text-anchor="end" font-size="9.5" fill="var(--ink-3)">happened ·</text>';
+    s += '<text x="' + (CX.XNOW + 12) + '" y="16" font-size="9.5" fill="var(--ink-3)">· ahead</text>';
+
+    // big nodes: signals
+    var sigs = (D.signals || []).filter(function (x) { return x.status !== "DISMISSED" && x.status !== "EXPIRED"; });
+    var perLane = {};
+    sigs.forEach(function (sig) {
+      var occ = sig.occurrence || null;
+      var anchor = (occ && occ.anchor_date) || sig.created_at || TODAY;
+      var un = ((sig.unmappedness || {}).score || 0);
+      var node = {
+        sig: sig, occ: occ, x: cxX(anchor), anchor: anchor,
+        r: Math.max(18, Math.min(44, 18 + 26 * un / 100)),
+        y: CX.LANES[sig.lane] || CX.LANES.INDUSTRY,
+        chain: sig.chain_id ? byId(D.chains, sig.chain_id) : null,
+      };
+      (perLane[sig.lane] = perLane[sig.lane] || []).push(node);
+    });
+    var nodes = [];
+    Object.keys(perLane).forEach(function (ln) {
+      var row = perLane[ln].sort(function (a, b) { return a.x - b.x; });
+      var bump = [0, -46, 46, -78, 78];
+      var streak = 0;
+      row.forEach(function (n, i) {
+        if (i > 0 && (n.x - row[i - 1].x) < (n.r + row[i - 1].r + 40)) streak++; else streak = 0;
+        n.y += bump[Math.min(streak, bump.length - 1)];
+        nodes.push(n);
+      });
+    });
+    nodes.forEach(function (n) {
+      var sig = n.sig, occ = n.occ;
+      var kind = occ ? occ.kind : null;
+      var future = kind === "SCHEDULED";
+      var ringR = n.chain ? n.r + 16 : n.r;
+      // UNDERWAY duration bar: from anchor to NOW
+      if (kind === "UNDERWAY" && n.x < CX.XNOW)
+        s += '<line x1="' + n.x.toFixed(1) + '" y1="' + n.y + '" x2="' + CX.XNOW + '" y2="' + n.y + '" stroke="var(--accent)" stroke-width="3" opacity="0.28" stroke-linecap="round"/>';
+      var g = '<g data-cnode="sig:' + esc(sig.id) + '" tabindex="0" role="button" class="cxnode" aria-label="' + esc(sig.title) + '">';
+      g += '<title>' + esc(sig.title) + " — " + esc(kind ? kind + " · " + n.anchor : "occurrence undated (pre-gate card)") + "</title>";
+      g += '<circle cx="' + n.x.toFixed(1) + '" cy="' + n.y + '" r="' + n.r.toFixed(1) + '" fill="var(--band-good)" ' +
+        (future ? 'stroke="var(--accent)" stroke-dasharray="5 4"' : occ ? 'stroke="var(--accent)"' : 'stroke="var(--border-strong)" stroke-dasharray="2 4"') +
+        ' stroke-width="2"/>';
+      g += '<text x="' + n.x.toFixed(1) + '" y="' + (n.y + 4) + '" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">' + esc((sig.unmappedness || {}).score || (occ ? "" : "?")) + "</text>";
+      // chain satellites on a ring, clockwise from top by position
+      if (n.chain) {
+        var links = (n.chain.links || []).slice().sort(function (a, b) { return a.position - b.position; });
+        g += '<circle cx="' + n.x.toFixed(1) + '" cy="' + n.y + '" r="' + ringR + '" fill="none" stroke="var(--border)" stroke-width="1"/>';
+        links.forEach(function (l, i) {
+          var a = (-90 + i * (360 / links.length)) * Math.PI / 180;
+          var sx = n.x + ringR * Math.cos(a), sy = n.y + ringR * Math.sin(a);
+          var choke = l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT";
+          var mc = l.heat && l.heat.money_corner;
+          g += '<circle data-cnode="link:' + esc(n.chain.id) + ":" + esc(l.id) + '" class="cxsat" cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + (choke ? 6 : 4.5) + '" fill="' + verdColor(l.heat && l.heat.verdict) + '" ' +
+            (mc ? 'stroke="var(--gold)" stroke-width="2"' : choke ? 'stroke="var(--bad)" stroke-width="1.6"' : 'stroke="var(--surface)" stroke-width="1.2"') + ">" +
+            "<title>" + esc(l.name) + (l.heat && l.heat.verdict ? " — " + esc(l.heat.verdict.replace("_", " ")) : " — unscored") + (mc ? " · ★ money corner" : "") + "</title></circle>";
+        });
+        // armed indicators: hollow squares on the future-facing outer arc
+        var armed = [];
+        (n.chain.scenarios || []).forEach(function (sc) {
+          (sc.leading_indicators || []).forEach(function (ind) {
+            if (ind.armed) armed.push({ sc: sc, ind: ind });
+          });
+        });
+        armed.slice(0, 5).forEach(function (ai, i) {
+          var a = (-40 + i * (80 / Math.max(1, armed.length - 1 || 1))) * Math.PI / 180;
+          var ix = n.x + (ringR + 13) * Math.cos(a), iy = n.y + (ringR + 13) * Math.sin(a);
+          g += '<rect x="' + (ix - 3.5).toFixed(1) + '" y="' + (iy - 3.5).toFixed(1) + '" width="7" height="7" ' +
+            (ai.ind.tripped_at ? 'fill="var(--warn)"' : 'fill="none" stroke="var(--warn)" stroke-width="1.4"') + ">" +
+            "<title>armed: " + esc(ai.ind.indicator) + " (" + esc(ai.sc.id) + ")</title></rect>";
+        });
+      }
+      g += '<text x="' + n.x.toFixed(1) + '" y="' + (n.y + ringR + 16) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink-2)">' + esc(cxTrim((occ && occ.label) || sig.title, 30)) + "</text>";
+      s += g + "</g>";
+    });
+
+    // ambient band: candidates (dots) + calendar events (diamonds)
+    var cands = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; });
+    var evts = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; });
+    cands.forEach(function (cd, i) {
+      var x = cxX(cd.date), y = CX.BAND;
+      s += '<g data-cnode="cand:' + esc(cd.id) + '" tabindex="0" role="button" class="cxnode">' +
+        "<title>" + esc(cd.title) + " — " + esc(cd.family) + " · " + esc(cd.date) + "</title>" +
+        '<circle cx="' + x.toFixed(1) + '" cy="' + y + '" r="5" fill="' + famColor(cd.family) + '" fill-opacity="0.65" stroke="var(--surface)" stroke-width="1.2"/>' +
+        '<text x="' + x.toFixed(1) + '" y="' + (y + (i % 2 ? 20 : -12)) + '" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">' + esc(cxTrim(cd.title, 22)) + "</text></g>";
+    });
+    evts.forEach(function (ev, i) {
+      var x = cxX(ev.date), y = CX.BAND;
+      s += '<g data-cnode="evt:' + esc(ev.id) + '" tabindex="0" role="button" class="cxnode">' +
+        "<title>" + esc(ev.title) + " — " + esc(ev.kind) + " · " + esc(ev.date) + "</title>" +
+        '<rect x="' + (x - 5.5).toFixed(1) + '" y="' + (y - 5.5) + '" width="11" height="11" transform="rotate(45 ' + x.toFixed(1) + " " + y + ')" fill="var(--band-good)" stroke="' + famColor(ev.kind) + '" stroke-width="1.6" stroke-dasharray="3 2"/>' +
+        '<text x="' + x.toFixed(1) + '" y="' + (y + (i % 2 ? 22 : -14)) + '" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">' + esc(cxTrim(ev.title, 22)) + " · " + esc(ev.date.slice(5)) + "</text></g>";
+    });
+    if (!cands.length && !evts.length)
+      s += '<text x="' + CX.XNOW + '" y="' + (CX.BAND + 4) + '" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">ambient layer empty — the radar\'s feed triage and calendar sweep fill it</text>';
+    return '<svg viewBox="0 0 ' + CX.W + " " + CX.H + '" width="100%" style="min-width:760px;max-width:' + CX.W + 'px" role="img" aria-label="Cortex — occurrences on a past/future axis">' + s + "</svg>";
+  }
+  function cortexView() {
+    var nSig = (D.signals || []).filter(function (x) { return x.status !== "DISMISSED" && x.status !== "EXPIRED"; }).length;
+    var nC = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; }).length;
+    var nE = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; }).length;
+    return topbar("cortex") + "<main>" +
+      '<div class="pagehead"><h1>Cortex</h1><p class="sub">Every occurrence on one axis: big nodes are analyzed signals (size = how unmapped), their rings are the value chains, the bottom band is ambient — feed candidates on the left of NOW, known future events on the right. Solid happened; dashed is ahead.</p></div>' +
+      '<div class="card"><div class="chartwrap cortexwrap">' + cortexSvg() + "</div>" +
+      '<div class="legend">' +
+      '<span><span class="sw" style="background:var(--band-good);border:1.5px solid var(--accent);border-radius:50%"></span>signal (occurrence)</span>' +
+      '<span><span class="sw" style="background:var(--und)"></span>chain link (verdict color)</span>' +
+      '<span style="color:var(--gold)">◦ gold ring = money corner</span>' +
+      '<span><span class="sw" style="background:none;border:1.5px dashed var(--emg)"></span>known future event</span>' +
+      '<span><span class="sw" style="background:var(--warn)"></span>armed indicator</span>' +
+      "</div>" +
+      '<div class="muted" style="margin-top:8px">NOW = last build (' + esc(TODAY) + ") · " + nSig + " signal(s) · " + nC + " ambient candidate(s) · " + nE + " future event(s) · click any node</div></div>" +
+      "<div id='drawerHost'></div>" + footer() + "</main>";
+  }
+  function cortexDrawer(kind, id) {
+    if (kind === "sig") {
+      var sg = byId(D.signals, id);
+      if (!sg) return "";
+      var occ = sg.occurrence || {};
+      return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(sg.title) + '"><button class="x" data-closedrawer>✕</button>' +
+        '<div class="row">' + chip(occ.kind || "undated") + (occ.anchor_date ? chip(occ.anchor_date, "neutral") : "") + chip(sg.lane) + chip(sg.suggested_clock) + chip(sg.status, sg.status === "NEW" ? "accent" : "neutral") + "</div>" +
+        "<h2>" + esc(sg.title) + "</h2>" +
+        (occ.label ? "<p class='small'><b>" + esc(occ.label) + "</b>" + (occ.window ? " — " + esc(occ.window) : "") + "</p>" : "") +
+        "<p class='small'>" + esc(sg.thesis) + "</p>" +
+        '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/signal/' + esc(sg.id) + '">Open signal →</a>' +
+        (sg.chain_id ? ' <a class="chip accent" href="#/chain/' + esc(sg.chain_id) + '">Open chain →</a>' : "") + "</div>" +
+        (sg.status === "NEW" ? "<div style='margin-top:14px'>" + runButton("run chain " + sg.id, "maps this signal into a value chain") + "</div>" : "") +
+        "</div>";
+    }
+    var obj = null, isEvt = kind === "evt";
+    if (isEvt) obj = byId(((D.calendar || {}).events || []), id);
+    else obj = byId(((D.candidates || {}).candidates || []), id);
+    if (!obj) return "";
+    return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(obj.title) + '"><button class="x" data-closedrawer>✕</button>' +
+      '<div class="row">' + chip(isEvt ? obj.kind : obj.family) + chip(obj.date, "neutral") + chip(obj.status) + "</div>" +
+      "<h2>" + esc(obj.title) + "</h2>" +
+      "<p class='small'>" + esc(isEvt ? obj.why_it_matters : obj.why) + "</p>" +
+      "<div class='muted small'>[" + esc(obj.source_name) + (obj.source_date ? ", " + esc(obj.source_date) : "") + "]" + (obj.window ? " · " + esc(obj.window) : "") + "</div>" +
+      "<div style='margin-top:16px'>" + runButton("run radar", "the radar run judges promotion to a full signal card (method §0.1)") + "</div>" +
+      "</div>";
+  }
+
   /* ---------------- shared blocks ---------------- */
   function notesBlock(obj) {
     var n = obj.notes || [];
@@ -695,6 +872,7 @@
     else if (p[0] === "chain") html = chainView(p[1], p[2]);
     else if (p[0] === "screen") html = screenView(p[1], p[2]);
     else if (p[0] === "stock") html = stockView(p[1], p[2]);
+    else if (p[0] === "cortex") html = cortexView();
     else if (p[0] === "book") html = bookView();
     else if (p[0] === "shadow") html = shadowView();
     else html = homeView();
@@ -757,6 +935,33 @@
         });
       }
       n.addEventListener("click", open);
+      n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+    app.querySelectorAll("[data-cnode]").forEach(function (n) {
+      function open() {
+        var host = document.getElementById("drawerHost");
+        if (!host) return;
+        var tok = n.getAttribute("data-cnode").split(":");
+        var html = "";
+        if (tok[0] === "link") {
+          // call drawer(c, l) directly — the [data-drawer] binding derives the chain from the hash and would no-op on #/cortex
+          var c = byId(D.chains, tok[1]);
+          var l = c && byId(c.links, tok[2]);
+          if (l) html = drawer(c, l);
+        } else {
+          html = cortexDrawer(tok[0], tok.slice(1).join(":"));
+        }
+        if (!html) return;
+        host.innerHTML = html;
+        host.querySelectorAll("[data-closedrawer]").forEach(function (x) {
+          x.addEventListener("click", function () { host.innerHTML = ""; });
+        });
+        bindCopy(host);
+        host.querySelectorAll("[data-run]").forEach(function (b) {
+          b.addEventListener("click", function (e) { e.preventDefault(); enqueue(b.getAttribute("data-run"), b); });
+        });
+      }
+      n.addEventListener("click", function (e) { e.stopPropagation(); open(); });
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
     document.addEventListener("keydown", function (e) {

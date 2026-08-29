@@ -82,6 +82,8 @@ def main() -> int:
         "ledger": ledger_lines[-60:],
         "digests": digests[:4],
         "indicators": json.loads((DATA / "indicators.json").read_text()) if (DATA / "indicators.json").exists() else {"trips": []},
+        "calendar": json.loads((DATA / "calendar" / "events.json").read_text()) if (DATA / "calendar" / "events.json").exists() else {"events": []},
+        "candidates": json.loads((DATA / "radar" / "candidates.json").read_text()) if (DATA / "radar" / "candidates.json").exists() else {"candidates": []},
     }
 
     shell = (APP / "templates" / "shell.html").read_text()
