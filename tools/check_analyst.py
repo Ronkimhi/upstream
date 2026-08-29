@@ -37,6 +37,9 @@ CLOCK_MAX_DAYS = {"COMPOUNDER": 90, "EVENT": 21}
 GAP_ROWS = {"revenue_cagr_5y", "operating_margin", "reinvestment_return",
             "terminal", "net_gap_direction"}
 GRADES = {"A", "B", "C", "D", None}
+# A verdict written today off a series older than this is reasoning from a stale price.
+# Five trading days, expressed in calendar days so a long weekend does not trip it.
+STALE_SERIES_DAYS = 7
 TAGS = ("VERIFIED", "INFERRED", "SPECULATIVE", "NULL")
 
 failures: list[str] = []
@@ -98,7 +101,11 @@ def main() -> int:
         else datetime.date.today().isoformat()
     data = root / "data"
 
-    check_schema_drift(root)
+    # The schema-drift guard is an invariant of THIS checkout's code, not of whatever
+    # data tree --root points at, so it reads the code beside this script. Before this
+    # split, pointing --root at a probe tree crashed on a missing tools/fetch/fetch.py
+    # and the data checks below never ran.
+    check_schema_drift(Path(__file__).resolve().parent.parent)
 
     dives, touched = [], []
     for p in sorted((data / "stocks").glob("*.json")):
@@ -144,6 +151,63 @@ def main() -> int:
         elif d.get("link_id") is None and not str(d.get("link_id_basis") or "").strip():
             fail(f"{n}: link_id is null but link_id_basis is empty — an unattributed dive "
                  "must say why (method section 7)")
+
+        # 1c. PRICE PROVENANCE (2026-08-29 pressure test). Every level a dive states —
+        # the entry zone, no_entry_above, the valuation snapshot — is a function of one
+        # number: the price it reasoned from. Nothing checked that number against the
+        # series it claims to come from, so a remembered or mistyped price produced a
+        # perfectly-formed verdict at the wrong level, and the shape checks in
+        # validate.py would all have passed.
+        series = (mkt or {}).get("series") if isinstance(mkt, dict) else None
+        rows = (series or {}).get("rows") or []
+        pr = d.get("price_ref")
+        if not isinstance(pr, dict) or pr.get("value") is None:
+            fail(f"{n}: no price_ref{{value, source, as_of}} — the dive must say which price "
+                 f"it reasoned from (method section 1)")
+        elif not rows:
+            fail(f"{n}: price_ref cites a price but data/market/{ticker}.json has no series "
+                 f"— request prices and re-run rather than reasoning from a remembered number")
+        else:
+            at = str(pr.get("as_of") or "")
+            match = next((r for r in reversed(rows) if str(r[0]) == at), None)
+            if match is None:
+                prior = [r for r in rows if str(r[0]) <= at]
+                match = prior[-1] if prior else None
+                if match is None:
+                    fail(f"{n}: price_ref.as_of {at!r} is before every row in the series")
+            if match is not None:
+                close = match[1]
+                drift = abs(pr["value"] - close) / close if close else 1.0
+                if drift > 0.01:
+                    fail(f"{n}: price_ref {pr['value']} is {drift * 100:.1f}% away from the "
+                         f"{match[0]} close of {close} in data/market/{ticker}.json — a price "
+                         f"the dive states must be the price the data holds")
+            # Staleness: hard here, unlike validate.py's warning, because a verdict is
+            # being written today off this series.
+            age = days_between(str((series or {}).get("as_of") or rows[-1][0]), today)
+            if age is not None and age > STALE_SERIES_DAYS:
+                fail(f"{n}: the price series is {age}d old (cap {STALE_SERIES_DAYS}d) — "
+                     f"bridge a prices refresh before closing a verdict on it")
+            # Entry zone sanity against spot: a zone this far from the last close is a
+            # typo or a units error, not a view.
+            last = rows[-1][1]
+            ez = d.get("entry_zone") or {}
+            for key in ("low", "high"):
+                v = ez.get(key)
+                if isinstance(v, (int, float)) and last and not (0.3 * last <= v <= 2.0 * last):
+                    fail(f"{n}: entry_zone.{key} {v} is outside 0.3x-2x the last close "
+                         f"({last}) — check the number, not the thesis")
+        # The dual-source guarantee is currently unmet (stooq refuses the Actions venue,
+        # verified twice on 2026-08-29), so every price in this repo is SINGLE_SOURCE. That
+        # is acceptable for research and NOT acceptable silently: a dive resting on one
+        # unconfirmed print must say so on its own page.
+        pstatus = (mkt or {}).get("price_status") if isinstance(mkt, dict) else None
+        if pstatus in {"SINGLE_SOURCE", "DISPUTED"} and not d.get("fixture"):
+            note = str(d.get("price_source_note") or "").strip()
+            if not note:
+                fail(f"{n}: data/market/{ticker}.json is {pstatus} (one unconfirmed print), "
+                     f"so the dive needs a price_source_note saying the levels rest on a "
+                     f"single source. See docs/method.md section 1 on the price plane")
 
         # 2. bullet counts
         if len(d.get("bull") or []) != 3 or len(d.get("bear") or []) != 3:
