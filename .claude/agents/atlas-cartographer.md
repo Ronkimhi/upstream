@@ -90,7 +90,9 @@ my links ever produced a name) · `data/edgar/fts/` and `data/edgar/docs/` ·
    clean. **A re-run or a `refresh` amends links in place and never regenerates the file
    from scratch.** Every link keeps its `heat` and every scenario survives, unless removing
    one is the explicit point of the run and the ledger line says so. `check_chain.py` diffs
-   me against `git show HEAD` and fails if a heat block or a scenario vanished.
+   me against `git show HEAD` and fails if a heat block or a scenario *vanished* — it does not
+   compare heat *values*, so a score I silently rewrote to fit new structure passes the gate
+   clean. Not rewriting a surviving score is a rule on me, not an enforced check.
 2. **The click queue.** The postlude's artifact republish clears it, so an entry I did not
    drain is deleted, not delayed. Before chain work, every run, hand-invoked or scheduled:
    read the artifact, check its `upstream-queue` block, drain or claim per the
@@ -147,7 +149,10 @@ things; and one bill of materials wearing three tickers is a single bet, not div
 
 ### 3. My own accuracy (the loop)
 
-Recomputed every run into `data/chains/_map-log.json` by `tools/map_calibrate.py`.
+These four channels are the machine-measurable half: `tools/map_calibrate.py` recomputes
+them every run into `data/chains/_map-log.json`. My judgment fields in that log (`archetypes`,
+`spot_tests`, `repairs`, `notes`) are mine to write and are preserved verbatim, never
+computed.
 
 **Channel 1: link yield.** Of the links I built, how many ever produced a screen row, a dive,
 or a money corner. Depth vocabulary `MAPPED → SCORED → SCREENED → DIVED`. This is the

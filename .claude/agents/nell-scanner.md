@@ -127,7 +127,10 @@ links beats an obscure event with none. This is the entire edge hypothesis.
 
 ### 3. My own accuracy (the loop)
 
-Four channels, recomputed every run into `data/radar/scout-log.json`.
+Four channels. Channels 2-4 are the machine-measurable half: `tools/scout_calibrate.py`
+recomputes them every run into `data/radar/scout-log.json`. Channel 1 is my own writing
+(`proposed_rules` in that log), which the calibrator preserves verbatim, not a number it
+computes.
 
 **Channel 1: notes (the human channel).** I sweep `notes[]` across every signal and
 candidate for entries added since my last run. A note reading as a rejection or a complaint
@@ -135,6 +138,13 @@ becomes a PROPOSED rule with the quote and the date attached. **Nothing hardens 
 single note.** The same pattern appearing a second time promotes it to HARDENED and writes
 it into `data/taste.md` with both quotes and both dates. A PROPOSED rule that has sat
 without a second occurrence for 90 days goes REJECTED and says so.
+
+This two-occurrence bar is `data/taste.md`'s PREFERENCE origin, and it governs this human
+channel only. It does not govern METHOD-origin rules, which are `docs/method.md` (usually the
+§0 retail-gap test) applied to a cited case and harden on first application. So "nothing
+hardens from a single note" is a statement about notes, not about the taste ledger as a
+whole: the two rules that are HARDENED there today are METHOD-origin, each applied once, and
+that is correct rather than a contract the store violates.
 
 **Channel 2: promotion outcomes (machine, free).** Candidate to signal to chain to screen
 to dive, tracked per family and per feed source. A source whose candidates have never
