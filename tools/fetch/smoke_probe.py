@@ -13,6 +13,7 @@ Usage: python3 tools/fetch/smoke_probe.py [--dry-run]
 """
 import json
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -59,11 +60,31 @@ def p_submissions():
 
 
 def p_fts():
-    r = requests.get("https://efts.sec.gov/LATEST/search-index",
-                     params={"q": '"co-packaged optics"', "forms": "10-K,10-Q,8-K"},
-                     headers=H, timeout=60)
+    # Retry a 5xx once before calling it drift. On this probe's first live run
+    # (2026-08-29) it reported "HTTP 500 — ENDPOINT DRIFT, update FTS_URL" in the same run
+    # where GDELT returned 429, while a working FTS result sat in data/edgar/fts/ from
+    # hours earlier — so the endpoint had not drifted, SEC was shedding load. A liveness
+    # probe that names a permanent cause for a transient failure teaches the reader to
+    # ignore it, which is worse than not probing. A 4xx is still reported immediately:
+    # that one really does mean the request shape is wrong.
+    last = None
+    for attempt in (1, 2):
+        r = requests.get("https://efts.sec.gov/LATEST/search-index",
+                         params={"q": '"co-packaged optics"', "forms": "10-K,10-Q,8-K"},
+                         headers=H, timeout=60)
+        last = r
+        if r.status_code == 200:
+            break
+        if r.status_code < 500:
+            return False, (f"HTTP {r.status_code} — the request shape is being refused, "
+                           f"check params/User-Agent against fetch.py FTS_URL")
+        if attempt == 1:
+            time.sleep(5)
+    r = last
     if r.status_code != 200:
-        return False, f"HTTP {r.status_code} — ENDPOINT DRIFT, update FTS_URL in fetch.py"
+        return False, (f"HTTP {r.status_code} twice with a 5s gap — SEC is erroring, not "
+                       f"necessarily drifted. Compare against data/edgar/fts/ timestamps "
+                       f"before changing FTS_URL. Body starts {r.text.strip()[:80]!r}")
     total = r.json().get("hits", {}).get("total", {})
     n = total.get("value", 0) if isinstance(total, dict) else 0
     return n > 0, f"{n} hits for control query"
@@ -145,11 +166,23 @@ def main():
         ("sec_submissions", p_submissions),
         ("edgar_fts", p_fts),
         ("sec_companyfacts", p_companyfacts),
-        ("stooq", p_stooq),
-        ("gdelt", p_gdelt),
         ("radar_sentinel", p_radar_sentinel),
     ]
+    # REQUIRED means "if this is down the machine is broken". WARN means "known degraded,
+    # written down, and nothing downstream silently pretends otherwise".
+    #
+    # stooq and gdelt moved to warn on 2026-08-29, the first time this file ever ran. Both
+    # refuse the Actions venue from datacenter IPs — stooq answers every request with an
+    # HTML robots page, gdelt rate-limits with 429 — and this file's own docstring already
+    # carves out exactly that case. Leaving them REQUIRED would fail the weekly smoke run
+    # forever on two conditions that are documented (docs/method.md section 1), that no
+    # code change can fix, and that nothing downstream hides: prices come from yfinance,
+    # every market file says SINGLE_SOURCE, and a dive resting on one is gate-required to
+    # say so. An alarm that rings every week for a known reason trains its reader to
+    # ignore the week it means something.
     warn_only = [
+        ("stooq", p_stooq),
+        ("gdelt", p_gdelt),
         ("apewisdom", p_apewisdom),
         ("stocktwits", p_stocktwits),
         ("pytrends", p_pytrends),
