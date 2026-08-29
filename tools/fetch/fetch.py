@@ -405,15 +405,31 @@ def do_insider(ticker, lookback_days=365):
     cutoff = (NOW.replace(tzinfo=None)
               - __import__("datetime").timedelta(days=lookback_days)).strftime("%Y-%m-%d")
 
-    filings = edgar.Company(ticker).get_filings(form="4")
+    # Resolution diagnostics. The 2026-08-29 first live run returned zero rows in ~2ms,
+    # which is far too fast to have touched SEC: the loop body never ran, and the only
+    # probe I had fired inside it, so the result was an uninformative silent zero. The
+    # resolution steps are now recorded separately from the parse steps.
+    diag = {"company_resolved": None, "filings_listed": None, "parse_errors": []}
+    try:
+        company = edgar.Company(ticker)
+        diag["company_resolved"] = str(getattr(company, "name", None) or company)[:120]
+    except Exception as e:  # noqa: BLE001
+        raise RuntimeError(f"edgartools could not resolve {ticker}: {e}")
+    try:
+        filings = list(company.get_filings(form="4"))
+    except Exception as e:  # noqa: BLE001
+        raise RuntimeError(f"edgartools Form 4 listing failed for {ticker}: {e}")
+    diag["filings_listed"] = len(filings)
+
     rows, probe = [], None
-    for filing in list(filings)[:40]:
+    for filing in filings[:40]:
         fdate = str(getattr(filing, "filing_date", "") or "")
         if fdate and fdate < cutoff:
             break
         try:
             ob = filing.obj()
         except Exception as e:  # noqa: BLE001
+            diag["parse_errors"].append(f"{fdate}: {str(e)[:120]}")
             print(f"  Form 4 parse failed ({fdate}): {e}")
             continue
         txns = getattr(ob, "market_trades", None)
@@ -433,12 +449,27 @@ def do_insider(ticker, lookback_days=365):
                                         or getattr(ob, "owner_name", None) or "")[:120],
                          "raw": {k: (str(v)[:60] if v is not None else None)
                                  for k, v in list(dict(t).items())[:12]}})
-    if not rows and not control_ok():
-        raise RuntimeError("zero Form 4 rows and control probe failed")
+    # verified_zero needs a control on the SAME plane. stooq-AAPL proves prices work and
+    # says nothing about whether EDGAR ownership data is reachable, so it cannot certify
+    # an empty Form 4 result. Probe EDGAR with a filer that always has Form 4s.
+    edgar_control = None
+    if not rows:
+        try:
+            edgar_control = len(list(edgar.Company("AAPL").get_filings(form="4"))) > 0
+        except Exception as e:  # noqa: BLE001
+            diag["parse_errors"].append(f"edgar control probe: {str(e)[:120]}")
+            edgar_control = False
+        print(f"  EDGAR control probe (AAPL Form 4): {'OK' if edgar_control else 'FAILED'}")
+        if not edgar_control:
+            raise RuntimeError(
+                f"zero Form 4 rows for {ticker} AND the EDGAR control probe failed — "
+                f"cannot tell an empty result from a dead path. diagnostics: {diag}")
     out = {"ticker": ticker, "cik": cik, "fetched_at": NOW.isoformat(),
            "window": [cutoff, TODAY], "row_count": len(rows), "rows": rows[:200],
-           "health": {"filings_examined": min(len(list(filings)), 40),
-                      **({"verified_zero": True, "probe": "stooq-AAPL-ok"} if not rows else {})},
+           "diagnostics": diag,
+           "health": {"filings_examined": min(len(filings), 40),
+                      **({"verified_zero": True, "probe": "edgar-AAPL-form4-ok"}
+                         if (not rows and edgar_control) else {})},
            **({"shape_probe": probe} if probe else {})}
     path = DATA / "market" / f"{safe_name(ticker)}.json"
     m = jload(path, {"ticker": ticker, "price_status": "NO_DATA", "prints": [],
