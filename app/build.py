@@ -62,6 +62,19 @@ def main() -> int:
     digests = read_json_dir(DATA / "digest")
     digests.sort(key=lambda d: d.get("week", ""), reverse=True)
 
+    # trimmed feed subset for the cortex dust ring (title/source/family/date only)
+    feeds_store = {"items": []}
+    fp = DATA / "feeds" / "latest.json"
+    if fp.exists():
+        try:
+            _f = json.loads(fp.read_text())
+            feeds_store = {"as_of": _f.get("as_of"), "items": [
+                {"t": (it.get("title") or "")[:110], "s": it.get("source"),
+                 "f": it.get("family"), "d": it.get("ts")}
+                for it in _f.get("items", [])[:300] if isinstance(it, dict)]}
+        except Exception:
+            pass
+
     payload = {
         "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
         "signals": read_json_dir(DATA / "signals"),
@@ -83,6 +96,7 @@ def main() -> int:
         "digests": digests[:4],
         "indicators": json.loads((DATA / "indicators.json").read_text()) if (DATA / "indicators.json").exists() else {"trips": []},
         "calendar": json.loads((DATA / "calendar" / "events.json").read_text()) if (DATA / "calendar" / "events.json").exists() else {"events": []},
+        "feeds": feeds_store,
         "candidates": json.loads((DATA / "radar" / "candidates.json").read_text()) if (DATA / "radar" / "candidates.json").exists() else {"candidates": []},
     }
 

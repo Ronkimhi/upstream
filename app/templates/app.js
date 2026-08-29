@@ -668,152 +668,338 @@
   }
 
   /* ---------------- cortex ---------------- */
-  var CX = { W: 980, H: 520, XNOW: 600, CLAMP: 1460, LANES: { MACRO: 120, INDUSTRY: 250, USE_CASE: 375 }, BAND: 468 };
-  function cxX(dateStr) {
+  /* v2: always-dark canvas constellation. Force-directed hubs (signals) with
+     link halos and ticker leaves, soft past/future gravity around a NOW glow,
+     ambient candidates/events, and an outer dust ring of real feed headlines. */
+  var CXP = {
+    bg0: "#0a0a0f", bg1: "#14141c",
+    ink: "#dde0ef", ink2: "#9296ad", ink3: "#585c72",
+    accent: "#8687f0",
+    verd: { UNDISCOVERED: "#34c77e", EMERGING: "#e3b23c", CROWDED: "#e97f4e", OVER_CROWDED: "#c14a62" },
+    none: "#6a6e86", gold: "#d4a017", bad: "#e05a72",
+    fam: { POLICY: "#e3b23c", CORPORATE: "#8687f0", TECH: "#34c77e", PHYSICAL: "#e97f4e", GEO: "#c14a62", MACRO: "#e3b23c", LEGAL: "#e3b23c" }
+  };
+  function cxTrim(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+  var CX_NOWX = 720, CX_W = 1200, CX_H = 760, CX_CLAMP = 1460;
+  function cxTimeX(dateStr) {
     var dx = daysBetween(TODAY, dateStr);
     if (isNaN(dx)) dx = 0;
-    var t = Math.sqrt(Math.min(Math.abs(dx), CX.CLAMP)) / Math.sqrt(CX.CLAMP);
-    return dx < 0 ? CX.XNOW - t * 540 : CX.XNOW + t * 340;
+    var t = Math.sqrt(Math.min(Math.abs(dx), CX_CLAMP) / CX_CLAMP);
+    return dx < 0 ? CX_NOWX - t * 600 : CX_NOWX + t * 400;
   }
-  function famColor(f) {
-    return { POLICY: "var(--emg)", CORPORATE: "var(--accent)", TECH: "var(--und)", PHYSICAL: "var(--warn)", GEO: "var(--ovr)", MACRO: "var(--emg)", LEGAL: "var(--emg)" }[f] || "var(--border-strong)";
-  }
-  function cxTrim(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
-  function cortexSvg() {
-    var s = "";
-    // year gridlines
-    var y0 = parseInt(TODAY.slice(0, 4), 10);
-    for (var yy = y0 - 4; yy <= y0 + 4; yy++) {
-      var jd = yy + "-01-01";
-      if (Math.abs(daysBetween(TODAY, jd)) > CX.CLAMP) continue;
-      var gx = cxX(jd);
-      s += '<line x1="' + gx.toFixed(1) + '" y1="30" x2="' + gx.toFixed(1) + '" y2="' + (CX.H - 26) + '" stroke="var(--chart-grid)"/>';
-      s += '<text x="' + gx.toFixed(1) + '" y="' + (CX.H - 10) + '" text-anchor="middle" font-size="10" class="mono-t" fill="var(--chart-axis)">' + yy + "</text>";
+  function cxGraph() {
+    var nodes = [], edges = [], idx = {};
+    function add(n) { idx[n.kind + ":" + n.id] = nodes.length; nodes.push(n); return n; }
+    function link(aKey, bKey, alpha, rest) {
+      var a = idx[aKey], b = idx[bKey];
+      if (a == null || b == null) return;
+      edges.push({ a: a, b: b, alpha: alpha, rest: rest });
     }
-    // lane labels + guides
-    Object.keys(CX.LANES).forEach(function (ln) {
-      var ly = CX.LANES[ln];
-      s += '<line x1="40" y1="' + ly + '" x2="' + (CX.W - 30) + '" y2="' + ly + '" stroke="var(--chart-grid)" stroke-dasharray="1 7"/>';
-      s += '<text x="40" y="' + (ly - 10) + '" font-size="9.5" letter-spacing="1.5" fill="var(--ink-3)">' + ln.replace("_", " ") + "</text>";
-    });
-    // ambient band guide
-    s += '<line x1="40" y1="' + CX.BAND + '" x2="' + (CX.W - 30) + '" y2="' + CX.BAND + '" stroke="var(--chart-grid)" stroke-dasharray="1 7"/>';
-    s += '<text x="40" y="' + (CX.BAND - 10) + '" font-size="9.5" letter-spacing="1.5" fill="var(--ink-3)">AMBIENT · candidates ← | known future →</text>';
-    // NOW line
-    s += '<line x1="' + CX.XNOW + '" y1="24" x2="' + CX.XNOW + '" y2="' + (CX.H - 26) + '" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.4"/>';
-    s += '<text x="' + CX.XNOW + '" y="16" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent)" letter-spacing="2">NOW</text>';
-    s += '<text x="' + (CX.XNOW - 12) + '" y="16" text-anchor="end" font-size="9.5" fill="var(--ink-3)">happened ·</text>';
-    s += '<text x="' + (CX.XNOW + 12) + '" y="16" font-size="9.5" fill="var(--ink-3)">· ahead</text>';
-
-    // big nodes: signals
-    var sigs = (D.signals || []).filter(function (x) { return x.status !== "DISMISSED" && x.status !== "EXPIRED"; });
-    var perLane = {};
-    sigs.forEach(function (sig) {
-      var occ = sig.occurrence || null;
-      var anchor = (occ && occ.anchor_date) || sig.created_at || TODAY;
-      var un = ((sig.unmappedness || {}).score || 0);
-      var node = {
-        sig: sig, occ: occ, x: cxX(anchor), anchor: anchor,
-        r: Math.max(18, Math.min(44, 18 + 26 * un / 100)),
-        y: CX.LANES[sig.lane] || CX.LANES.INDUSTRY,
-        chain: sig.chain_id ? byId(D.chains, sig.chain_id) : null,
-      };
-      (perLane[sig.lane] = perLane[sig.lane] || []).push(node);
-    });
-    var nodes = [];
-    Object.keys(perLane).forEach(function (ln) {
-      var row = perLane[ln].sort(function (a, b) { return a.x - b.x; });
-      var bump = [0, -46, 46, -78, 78];
-      var streak = 0;
-      row.forEach(function (n, i) {
-        if (i > 0 && (n.x - row[i - 1].x) < (n.r + row[i - 1].r + 40)) streak++; else streak = 0;
-        n.y += bump[Math.min(streak, bump.length - 1)];
-        nodes.push(n);
+    (D.signals || []).forEach(function (sg, si) {
+      if (sg.status === "DISMISSED" || sg.status === "EXPIRED") return;
+      var occ = sg.occurrence || null;
+      var anchor = (occ && occ.anchor_date) || sg.created_at || TODAY;
+      var un = (sg.unmappedness || {}).score || 0;
+      var tx = cxTimeX(anchor);
+      add({
+        kind: "sig", id: sg.id, ref: sg, r: 14 + 16 * un / 100, color: CXP.accent,
+        dashed: occ && occ.kind === "SCHEDULED", tx: tx, txw: 0.012,
+        label: cxTrim(sg.title, 38),
+        desc: occ ? cxTrim(occ.label, 44) + " · " + anchor : "occurrence undated",
+        x: tx + (Math.random() - 0.5) * 40, y: CX_H * (0.32 + 0.36 * (si % 2)) + (Math.random() - 0.5) * 60
+      });
+      var c = sg.chain_id ? byId(D.chains, sg.chain_id) : null;
+      if (!c) return;
+      var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
+      links.forEach(function (l, i) {
+        var hub = nodes[idx["sig:" + sg.id]];
+        var a = -Math.PI / 2 + i * (2 * Math.PI / links.length);
+        var v = (l.heat || {}).verdict;
+        add({
+          kind: "link", id: l.id, ref: l, chainId: c.id, r: 3.2 + ((l.heat && l.heat.impact && l.heat.impact.score) || 40) / 55,
+          color: v ? CXP.verd[v] : CXP.none, gold: !!(l.heat && l.heat.money_corner),
+          choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
+          tip: l.name + (v ? " — " + v.replace("_", " ") : " — unscored"),
+          x: hub.x + (hub.r + 60) * Math.cos(a), y: hub.y + (hub.r + 60) * Math.sin(a)
+        });
+        link("link:" + l.id, "sig:" + sg.id, 0.05, hub.r + 52);
+        (l.example_tickers || []).slice(0, 4).forEach(function (t, ti) {
+          var me = nodes[idx["link:" + l.id]];
+          var key = l.id + "/" + t;
+          add({
+            kind: "tick", id: key, tip: t, r: 1.8, color: CXP.ink3,
+            x: me.x + (Math.random() - 0.5) * 40, y: me.y + (Math.random() - 0.5) * 40
+          });
+          link("tick:" + key, "link:" + l.id, 0.045, 20 + ti * 3);
+        });
+      });
+      links.forEach(function (l) {
+        (l.upstream_of || []).forEach(function (u) { link("link:" + l.id, "link:" + u, 0.13, 52); });
       });
     });
-    nodes.forEach(function (n) {
-      var sig = n.sig, occ = n.occ;
-      var kind = occ ? occ.kind : null;
-      var future = kind === "SCHEDULED";
-      var ringR = n.chain ? n.r + 16 : n.r;
-      // UNDERWAY duration bar: from anchor to NOW
-      if (kind === "UNDERWAY" && n.x < CX.XNOW)
-        s += '<line x1="' + n.x.toFixed(1) + '" y1="' + n.y + '" x2="' + CX.XNOW + '" y2="' + n.y + '" stroke="var(--accent)" stroke-width="3" opacity="0.28" stroke-linecap="round"/>';
-      var g = '<g data-cnode="sig:' + esc(sig.id) + '" tabindex="0" role="button" class="cxnode" aria-label="' + esc(sig.title) + '">';
-      g += '<title>' + esc(sig.title) + " — " + esc(kind ? kind + " · " + n.anchor : "occurrence undated (pre-gate card)") + "</title>";
-      g += '<circle cx="' + n.x.toFixed(1) + '" cy="' + n.y + '" r="' + n.r.toFixed(1) + '" fill="var(--band-good)" ' +
-        (future ? 'stroke="var(--accent)" stroke-dasharray="5 4"' : occ ? 'stroke="var(--accent)"' : 'stroke="var(--border-strong)" stroke-dasharray="2 4"') +
-        ' stroke-width="2"/>';
-      g += '<text x="' + n.x.toFixed(1) + '" y="' + (n.y + 4) + '" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">' + esc((sig.unmappedness || {}).score || (occ ? "" : "?")) + "</text>";
-      // chain satellites on a ring, clockwise from top by position
-      if (n.chain) {
-        var links = (n.chain.links || []).slice().sort(function (a, b) { return a.position - b.position; });
-        g += '<circle cx="' + n.x.toFixed(1) + '" cy="' + n.y + '" r="' + ringR + '" fill="none" stroke="var(--border)" stroke-width="1"/>';
-        links.forEach(function (l, i) {
-          var a = (-90 + i * (360 / links.length)) * Math.PI / 180;
-          var sx = n.x + ringR * Math.cos(a), sy = n.y + ringR * Math.sin(a);
-          var choke = l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT";
-          var mc = l.heat && l.heat.money_corner;
-          g += '<circle data-cnode="link:' + esc(n.chain.id) + ":" + esc(l.id) + '" class="cxsat" cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' + (choke ? 6 : 4.5) + '" fill="' + verdColor(l.heat && l.heat.verdict) + '" ' +
-            (mc ? 'stroke="var(--gold)" stroke-width="2"' : choke ? 'stroke="var(--bad)" stroke-width="1.6"' : 'stroke="var(--surface)" stroke-width="1.2"') + ">" +
-            "<title>" + esc(l.name) + (l.heat && l.heat.verdict ? " — " + esc(l.heat.verdict.replace("_", " ")) : " — unscored") + (mc ? " · ★ money corner" : "") + "</title></circle>";
-        });
-        // armed indicators: hollow squares on the future-facing outer arc
-        var armed = [];
-        (n.chain.scenarios || []).forEach(function (sc) {
-          (sc.leading_indicators || []).forEach(function (ind) {
-            if (ind.armed) armed.push({ sc: sc, ind: ind });
-          });
-        });
-        armed.slice(0, 5).forEach(function (ai, i) {
-          var a = (-40 + i * (80 / Math.max(1, armed.length - 1 || 1))) * Math.PI / 180;
-          var ix = n.x + (ringR + 13) * Math.cos(a), iy = n.y + (ringR + 13) * Math.sin(a);
-          g += '<rect x="' + (ix - 3.5).toFixed(1) + '" y="' + (iy - 3.5).toFixed(1) + '" width="7" height="7" ' +
-            (ai.ind.tripped_at ? 'fill="var(--warn)"' : 'fill="none" stroke="var(--warn)" stroke-width="1.4"') + ">" +
-            "<title>armed: " + esc(ai.ind.indicator) + " (" + esc(ai.sc.id) + ")</title></rect>";
-        });
+    (((D.candidates || {}).candidates) || []).forEach(function (cd) {
+      if (cd.status !== "AMBIENT") return;
+      var tx = cxTimeX(cd.date);
+      add({ kind: "cand", id: cd.id, ref: cd, r: 3.5, color: CXP.fam[cd.family] || CXP.none, tx: tx, txw: 0.01,
+            tip: cxTrim(cd.title, 60) + " · " + cd.family, x: tx + (Math.random() - 0.5) * 80, y: CX_H * (0.2 + Math.random() * 0.6) });
+    });
+    (((D.calendar || {}).events) || []).forEach(function (ev) {
+      if (ev.status !== "WATCHING") return;
+      var tx = cxTimeX(ev.date);
+      add({ kind: "evt", id: ev.id, ref: ev, r: 4, dashed: true, color: CXP.fam[ev.kind] || CXP.none, tx: tx, txw: 0.014,
+            tip: cxTrim(ev.title, 60) + " · " + ev.date, x: tx + (Math.random() - 0.5) * 60, y: CX_H * (0.25 + Math.random() * 0.5) });
+    });
+    return { nodes: nodes, edges: edges };
+  }
+  function cxSettle(g, ticks) {
+    for (var t = 0; t < ticks; t++) cxTick(g, 1);
+    return g;
+  }
+  function cxTick(g, alpha) {
+    var N = g.nodes, E = g.edges, i, j;
+    for (i = 0; i < N.length; i++) {
+      var a = N[i];
+      for (j = i + 1; j < N.length; j++) {
+        var b = N[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d2 = dx * dx + dy * dy + 0.01;
+        if (d2 > 90000) continue;
+        var f = alpha * 260 * (a.r + b.r) / d2;
+        if (f > 4) f = 4;
+        var d = Math.sqrt(d2);
+        a.vx = (a.vx || 0) + f * dx / d; a.vy = (a.vy || 0) + f * dy / d;
+        b.vx = (b.vx || 0) - f * dx / d; b.vy = (b.vy || 0) - f * dy / d;
       }
-      g += '<text x="' + n.x.toFixed(1) + '" y="' + (n.y + ringR + 16) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink-2)">' + esc(cxTrim((occ && occ.label) || sig.title, 30)) + "</text>";
-      s += g + "</g>";
-    });
-
-    // ambient band: candidates (dots) + calendar events (diamonds)
-    var cands = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; });
-    var evts = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; });
-    cands.forEach(function (cd, i) {
-      var x = cxX(cd.date), y = CX.BAND;
-      s += '<g data-cnode="cand:' + esc(cd.id) + '" tabindex="0" role="button" class="cxnode">' +
-        "<title>" + esc(cd.title) + " — " + esc(cd.family) + " · " + esc(cd.date) + "</title>" +
-        '<circle cx="' + x.toFixed(1) + '" cy="' + y + '" r="5" fill="' + famColor(cd.family) + '" fill-opacity="0.65" stroke="var(--surface)" stroke-width="1.2"/>' +
-        '<text x="' + x.toFixed(1) + '" y="' + (y + (i % 2 ? 20 : -12)) + '" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">' + esc(cxTrim(cd.title, 22)) + "</text></g>";
-    });
-    evts.forEach(function (ev, i) {
-      var x = cxX(ev.date), y = CX.BAND;
-      s += '<g data-cnode="evt:' + esc(ev.id) + '" tabindex="0" role="button" class="cxnode">' +
-        "<title>" + esc(ev.title) + " — " + esc(ev.kind) + " · " + esc(ev.date) + "</title>" +
-        '<rect x="' + (x - 5.5).toFixed(1) + '" y="' + (y - 5.5) + '" width="11" height="11" transform="rotate(45 ' + x.toFixed(1) + " " + y + ')" fill="var(--band-good)" stroke="' + famColor(ev.kind) + '" stroke-width="1.6" stroke-dasharray="3 2"/>' +
-        '<text x="' + x.toFixed(1) + '" y="' + (y + (i % 2 ? 22 : -14)) + '" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">' + esc(cxTrim(ev.title, 22)) + " · " + esc(ev.date.slice(5)) + "</text></g>";
-    });
-    if (!cands.length && !evts.length)
-      s += '<text x="' + CX.XNOW + '" y="' + (CX.BAND + 4) + '" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">ambient layer empty — the radar\'s feed triage and calendar sweep fill it</text>';
-    return '<svg viewBox="0 0 ' + CX.W + " " + CX.H + '" width="100%" style="min-width:760px;max-width:' + CX.W + 'px" role="img" aria-label="Cortex — occurrences on a past/future axis">' + s + "</svg>";
+    }
+    for (i = 0; i < E.length; i++) {
+      var e = E[i], p = N[e.a], q = N[e.b];
+      var ex = q.x - p.x, ey = q.y - p.y;
+      var el = Math.sqrt(ex * ex + ey * ey) + 0.01;
+      var s = alpha * 0.02 * (el - (e.rest || 50)) / el;
+      p.vx = (p.vx || 0) + s * ex; p.vy = (p.vy || 0) + s * ey;
+      q.vx = (q.vx || 0) - s * ex; q.vy = (q.vy || 0) - s * ey;
+    }
+    for (i = 0; i < N.length; i++) {
+      if (N[i].kind !== "sig") continue;
+      for (j = i + 1; j < N.length; j++) {
+        if (N[j].kind !== "sig") continue;
+        var hx = N[i].x - N[j].x, hy = N[i].y - N[j].y;
+        var hd = Math.sqrt(hx * hx + hy * hy) + 0.01;
+        var want = (N[i].r + N[j].r) * 3 + 240;
+        if (hd < want) {
+          var hf = alpha * 0.028 * (want - hd);
+          N[i].vx += hf * hx / hd; N[i].vy += hf * hy / hd;
+          N[j].vx -= hf * hx / hd; N[j].vy -= hf * hy / hd;
+        }
+      }
+    }
+    for (i = 0; i < N.length; i++) {
+      var n = N[i];
+      if (n.tx != null) n.vx = (n.vx || 0) + alpha * (n.txw || 0.01) * (n.tx - n.x);
+      n.vx = (n.vx || 0) + alpha * 0.0022 * (CX_W / 2 - n.x) * (n.tx != null ? 0.25 : 1);
+      n.vy = (n.vy || 0) + alpha * 0.004 * (CX_H / 2 - n.y);
+      n.x += (n.vx *= 0.82); n.y += (n.vy *= 0.82);
+    }
   }
   function cortexView() {
     var nSig = (D.signals || []).filter(function (x) { return x.status !== "DISMISSED" && x.status !== "EXPIRED"; }).length;
+    var nL = 0; (D.chains || []).forEach(function (c) { nL += (c.links || []).length; });
     var nC = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; }).length;
     var nE = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; }).length;
+    var nF = ((D.feeds || {}).items || []).length;
     return topbar("cortex") + "<main>" +
-      '<div class="pagehead"><h1>Cortex</h1><p class="sub">Every occurrence on one axis: big nodes are analyzed signals (size = how unmapped), their rings are the value chains, the bottom band is ambient — feed candidates on the left of NOW, known future events on the right. Solid happened; dashed is ahead.</p></div>' +
-      '<div class="card"><div class="chartwrap cortexwrap">' + cortexSvg() + "</div>" +
-      '<div class="legend">' +
-      '<span><span class="sw" style="background:var(--band-good);border:1.5px solid var(--accent);border-radius:50%"></span>signal (occurrence)</span>' +
-      '<span><span class="sw" style="background:var(--und)"></span>chain link (verdict color)</span>' +
-      '<span style="color:var(--gold)">◦ gold ring = money corner</span>' +
-      '<span><span class="sw" style="background:none;border:1.5px dashed var(--emg)"></span>known future event</span>' +
-      '<span><span class="sw" style="background:var(--warn)"></span>armed indicator</span>' +
-      "</div>" +
-      '<div class="muted" style="margin-top:8px">NOW = last build (' + esc(TODAY) + ") · " + nSig + " signal(s) · " + nC + " ambient candidate(s) · " + nE + " future event(s) · click any node</div></div>" +
+      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The occurrence field. Bright hubs are analyzed signals (size = how unmapped) with their value chains clustered around them; the dust ring is the raw feed — every dot a real headline. Past drifts left of the NOW seam, known future events sit right of it, dashed.</p></div>' +
+      '<div class="card cxpanel"><div class="cxwrap">' +
+      '<canvas id="cortexCanvas" role="img" aria-label="Cortex constellation — signals, chains, candidates, future events and feed dust on a past/future field"></canvas>' +
+      '<div class="cx-hud"><b>CORTEX</b> · occurrence field<br>' +
+      "signals <b>" + nSig + "</b> · chain links <b>" + nL + "</b> · candidates <b>" + nC + "</b><br>" +
+      "known future <b>" + nE + "</b> · feed dust <b>" + nF + "</b> · built <b>" + esc(TODAY) + "</b></div>" +
+      '<div class="cx-legend">● hub = signal · halo dots = chain links (verdict color, gold ring = money corner) · faint dots = tickers · ◆ dashed = known future · outer dust = raw feed (hover any dot) · drag nothing, click everything</div>' +
+      "</div></div>" +
       "<div id='drawerHost'></div>" + footer() + "</main>";
+  }
+  function cxShowDrawer(html) {
+    var host = document.getElementById("drawerHost");
+    if (!host || !html) return;
+    host.innerHTML = html;
+    host.querySelectorAll("[data-closedrawer]").forEach(function (x) {
+      x.addEventListener("click", function () { host.innerHTML = ""; });
+    });
+    bindCopy(host);
+    host.querySelectorAll("[data-run]").forEach(function (b) {
+      b.addEventListener("click", function (e) { e.preventDefault(); enqueue(b.getAttribute("data-run"), b); });
+    });
+  }
+  function cxDustDrawer(it) {
+    return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="feed item"><button class="x" data-closedrawer>✕</button>' +
+      '<div class="row">' + chip(it.f || "?") + chip((it.d || "").slice(0, 10), "neutral") + chip("raw feed") + "</div>" +
+      "<h2>" + esc(it.t) + "</h2>" +
+      "<div class='muted small'>[" + esc(it.s || "?") + "] · untriaged feed item — the weekday radar sweep judges whether it becomes a candidate (method §0.1)</div>" +
+      "<div style='margin-top:16px'>" + runButton("run radar", "triage the feed into candidates and signals") + "</div></div>";
+  }
+  function initCortex() {
+    var canvas = document.getElementById("cortexCanvas");
+    if (!canvas) return;
+    var ctx = canvas.getContext("2d");
+    var g = cxSettle(cxGraph(), 170);
+    var dust = ((D.feeds || {}).items || []).slice(0, 300);
+    var hover = null, mx = -1, my = -1, t0 = Date.now();
+    var tip = document.getElementById("cxtip");
+    if (!tip) { tip = document.createElement("div"); tip.className = "tooltip"; tip.id = "cxtip"; tip.style.display = "none"; document.body.appendChild(tip); }
+
+    var sprites = {};
+    function sprite(color, r, soft) {
+      var key = color + "/" + r + "/" + soft;
+      if (sprites[key]) return sprites[key];
+      var s = Math.ceil(r * (soft || 3)), c = document.createElement("canvas");
+      c.width = c.height = s * 2;
+      var x = c.getContext("2d");
+      var gr = x.createRadialGradient(s, s, 0, s, s, s);
+      gr.addColorStop(0, color);
+      gr.addColorStop(soft > 3 ? 0.2 : 0.5, color);
+      gr.addColorStop(1, "rgba(0,0,0,0)");
+      x.globalAlpha = soft > 3 ? 0.5 : 1;
+      x.fillStyle = gr;
+      x.fillRect(0, 0, s * 2, s * 2);
+      sprites[key] = { c: c, s: s };
+      return sprites[key];
+    }
+    function fit(w, h) {
+      var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+      g.nodes.forEach(function (n) {
+        if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+        if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
+      });
+      if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
+      var gw = Math.max(maxX - minX, 300), gh = Math.max(maxY - minY, 240);
+      var k = Math.min((w * 0.64) / gw, (h * 0.66) / gh);
+      return { k: k, ox: w / 2 - k * (minX + maxX) / 2, oy: h / 2 - k * (minY + maxY) / 2 };
+    }
+    function draw() {
+      if (!canvas.isConnected) { tip.style.display = "none"; return; }
+      var dpr = window.devicePixelRatio || 1;
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      if (canvas.width !== w * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var t = (Date.now() - t0) / 1000;
+      cxTick(g, 0.06);
+      var F = fit(w, h);
+      function SX(x) { return F.ox + F.k * x; }
+      function SY(y) { return F.oy + F.k * y; }
+      // ground
+      var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.7);
+      bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+      // NOW seam
+      var nx = SX(CX_NOWX);
+      var seam = ctx.createLinearGradient(nx - 46, 0, nx + 46, 0);
+      seam.addColorStop(0, "rgba(134,135,240,0)"); seam.addColorStop(0.5, "rgba(134,135,240,0.10)"); seam.addColorStop(1, "rgba(134,135,240,0)");
+      ctx.fillStyle = seam; ctx.fillRect(nx - 46, 0, 92, h);
+      ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.setLineDash([4, 6]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(nx, 26); ctx.lineTo(nx, h - 20); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(134,135,240,0.75)"; ctx.fillText("N O W", nx, 18);
+      ctx.fillStyle = CXP.ink3;
+      ctx.fillText("« PAST", nx - 58, 18); ctx.fillText("AHEAD »", nx + 62, 18);
+      // dust ring
+      var cxc = w / 2, cyc = h / 2, minR = Math.min(w, h) / 2;
+      for (var di = 0; di < dust.length; di++) {
+        var it = dust[di];
+        var ang = di * 2.399963 + 0.13;
+        var rad = minR * (0.74 + 0.2 * ((di * 0.6180339) % 1));
+        var dxp = cxc + rad * Math.cos(ang), dyp = cyc + rad * Math.sin(ang) * 0.92;
+        var tw = 0.30 + 0.16 * Math.sin(t * 0.8 + di * 1.7);
+        var col = CXP.fam[it.f] || CXP.ink3;
+        ctx.globalAlpha = tw;
+        var sp = sprite(col, 1.5, 0);
+        ctx.drawImage(sp.c, dxp - sp.s / 2, dyp - sp.s / 2, sp.s, sp.s);
+        it._x = dxp; it._y = dyp;
+      }
+      ctx.globalAlpha = 1;
+      // edges
+      g.edges.forEach(function (e) {
+        var p = g.nodes[e.a], q = g.nodes[e.b];
+        var hi = hover && (hover === p || hover === q);
+        ctx.strokeStyle = "rgba(205,210,235," + (hi ? Math.min(0.5, e.alpha * 4) : e.alpha) + ")";
+        ctx.lineWidth = hi ? 1.2 : 0.7;
+        ctx.beginPath(); ctx.moveTo(SX(p.x), SY(p.y)); ctx.lineTo(SX(q.x), SY(q.y)); ctx.stroke();
+      });
+      // nodes
+      g.nodes.forEach(function (n, ni) {
+        var x = SX(n.x) + 1.6 * Math.sin(t * 0.4 + ni), y = SY(n.y) + 1.2 * Math.cos(t * 0.33 + ni * 2);
+        n._x = x; n._y = y;
+        var R = Math.max(1.2, F.k * n.r);
+        if (n.kind === "sig") R = Math.max(11, R);
+        R = Math.round(R * 2) / 2; // quantize so glow sprites cache instead of exploding
+        var hi = hover === n;
+        var halo = sprite(n.color, R, n.kind === "sig" ? 7 : 4.2);
+        ctx.globalAlpha = n.kind === "tick" ? 0.4 : hi ? 1 : 0.85;
+        ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
+        var core = sprite(n.kind === "sig" ? "#eceefc" : n.color, Math.max(1, R * (n.kind === "sig" ? 0.6 : 0.72)), 0);
+        ctx.drawImage(core.c, x - core.s / 2, y - core.s / 2, core.s, core.s);
+        if (n.gold) { ctx.strokeStyle = CXP.gold; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(x, y, R + 2.5, 0, 7); ctx.stroke(); }
+        if (n.choke) { ctx.strokeStyle = CXP.bad; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, R + 5, 0, 7); ctx.stroke(); }
+        if (n.dashed) {
+          ctx.strokeStyle = n.kind === "sig" ? CXP.accent : n.color;
+          ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.arc(x, y, R + 4, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+        }
+        n._R = R;
+      });
+      // labels last, on top of every dot
+      g.nodes.forEach(function (n) {
+        if (n.kind !== "sig") return;
+        var hi = hover === n;
+        ctx.textAlign = "center";
+        ctx.font = "600 11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = hi ? "#ffffff" : CXP.ink;
+        ctx.fillText(n.label, n._x, n._y + n._R + 22);
+        ctx.font = "10px 'JetBrains Mono', monospace";
+        ctx.fillStyle = CXP.ink2;
+        ctx.fillText(n.desc, n._x, n._y + n._R + 36);
+      });
+      requestAnimationFrame(draw);
+    }
+    function pick(px, py) {
+      var best = null, bd = 1e9;
+      g.nodes.forEach(function (n) {
+        if (n._x == null) return;
+        var d = Math.abs(n._x - px) + Math.abs(n._y - py);
+        var reach = Math.max(9, n.r * 1.2 + 6);
+        if (d < reach && d < bd) { bd = d; best = n; }
+      });
+      if (!best) {
+        for (var i = 0; i < dust.length; i++) {
+          var it = dust[i];
+          if (it._x != null && Math.abs(it._x - px) + Math.abs(it._y - py) < 7) return { kind: "dust", ref: it, tip: cxTrim(it.t, 90) + " — " + (it.s || "") + " · " + ((it.d || "").slice(0, 10)) };
+        }
+      }
+      return best;
+    }
+    canvas.addEventListener("mousemove", function (e) {
+      var r = canvas.getBoundingClientRect();
+      mx = e.clientX - r.left; my = e.clientY - r.top;
+      hover = pick(mx, my);
+      canvas.style.cursor = hover ? "pointer" : "default";
+      if (hover) {
+        var txt = hover.kind === "sig" ? hover.label + " — " + hover.desc : hover.tip || "";
+        tip.innerHTML = "<span class='num'>" + esc(txt) + "</span>";
+        tip.style.display = "block"; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY - 12 + "px";
+      } else tip.style.display = "none";
+    });
+    canvas.addEventListener("mouseleave", function () { hover = null; tip.style.display = "none"; canvas.style.cursor = "default"; });
+    canvas.addEventListener("click", function (e) {
+      var r = canvas.getBoundingClientRect();
+      hover = pick(e.clientX - r.left, e.clientY - r.top);
+      if (!hover) return;
+      tip.style.display = "none";
+      if (hover.kind === "sig") cxShowDrawer(cortexDrawer("sig", hover.id));
+      else if (hover.kind === "link") { var c = byId(D.chains, hover.chainId); if (c) cxShowDrawer(drawer(c, hover.ref)); }
+      else if (hover.kind === "cand") cxShowDrawer(cortexDrawer("cand", hover.id));
+      else if (hover.kind === "evt") cxShowDrawer(cortexDrawer("evt", hover.id));
+      else if (hover.kind === "dust") cxShowDrawer(cxDustDrawer(hover.ref));
+    });
+    requestAnimationFrame(draw);
   }
   function cortexDrawer(kind, id) {
     if (kind === "sig") {
@@ -937,33 +1123,7 @@
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
-    app.querySelectorAll("[data-cnode]").forEach(function (n) {
-      function open() {
-        var host = document.getElementById("drawerHost");
-        if (!host) return;
-        var tok = n.getAttribute("data-cnode").split(":");
-        var html = "";
-        if (tok[0] === "link") {
-          // call drawer(c, l) directly — the [data-drawer] binding derives the chain from the hash and would no-op on #/cortex
-          var c = byId(D.chains, tok[1]);
-          var l = c && byId(c.links, tok[2]);
-          if (l) html = drawer(c, l);
-        } else {
-          html = cortexDrawer(tok[0], tok.slice(1).join(":"));
-        }
-        if (!html) return;
-        host.innerHTML = html;
-        host.querySelectorAll("[data-closedrawer]").forEach(function (x) {
-          x.addEventListener("click", function () { host.innerHTML = ""; });
-        });
-        bindCopy(host);
-        host.querySelectorAll("[data-run]").forEach(function (b) {
-          b.addEventListener("click", function (e) { e.preventDefault(); enqueue(b.getAttribute("data-run"), b); });
-        });
-      }
-      n.addEventListener("click", function (e) { e.stopPropagation(); open(); });
-      n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
-    });
+    if (document.getElementById("cortexCanvas")) initCortex();
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { var host = document.getElementById("drawerHost"); if (host) host.innerHTML = ""; }
     });
