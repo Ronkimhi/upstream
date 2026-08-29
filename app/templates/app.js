@@ -23,7 +23,7 @@
   }
   function chip(text, cls) { return '<span class="chip ' + esc(cls || "neutral") + '">' + esc(text) + "</span>"; }
   function tierChip(t) { return t ? '<span class="chip tier">' + esc(t) + "</span>" : ""; }
-  function verdColor(v) { return { UNDISCOVERED: "var(--und)", EMERGING: "var(--emg)", CROWDED: "var(--crd)", OVER_CROWDED: "var(--ovr)" }[v] || "var(--border-strong)"; }
+  function verdColor(v) { return { QUIET: "var(--quiet)", UNDISCOVERED: "var(--und)", EMERGING: "var(--emg)", CROWDED: "var(--crd)", OVER_CROWDED: "var(--ovr)" }[v] || "var(--border-strong)"; }
   function marketFor(t) { return (D.market || {})[String(t).replace(/\./g, "-")] || (D.market || {})[t] || null; }
   function fmtMoney(x) { return typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(x); }
   function seclabel(t) { return '<div class="seclabel">' + esc(t) + "</div>"; }
@@ -345,6 +345,73 @@
       }).join("");
   }
 
+  /* Map quality: the cartographer grading his own maps. Every figure prints its denominator,
+     so "0 findings" can be told apart from "nothing examined". Source: data/chains/_map-log.json. */
+  function mapStat(v, label) {
+    return '<div class="scstat"><div class="scnum">' + esc(v) + '</div><div class="muted">' + esc(label) + "</div></div>";
+  }
+  function mapCard(chainId) {
+    var ml = D.map;
+    if (!ml || !ml.calibration) return "";
+    var cal = ml.calibration, per = cal.per_chain || {}, dn = cal.denominators || {};
+    var arch = (ml.archetypes || []).filter(function (a) { return a.status === "HARDENED"; });
+    if (chainId) {
+      var v = per[chainId];
+      if (!v) return "";
+      var st = v.structure || {};
+      var findings = [];
+      if ((st.orphans || []).length) findings.push(st.orphans.length + " orphan link(s)");
+      if ((st.one_way_edges || []).length) findings.push(st.one_way_edges.length + " one-way edge(s)");
+      if ((st.wrong_direction_edges || []).length) findings.push(st.wrong_direction_edges.length + " edge(s) against the direction rule");
+      if ((st.verdict_mismatches || []).length) findings.push(st.verdict_mismatches.length + " verdict(s) disagreeing with their scores");
+      if ((st.thin_choke_points || []).length) findings.push("thin choke point: " + st.thin_choke_points.join(", "));
+      if ((st.links_without_tickers || []).length) findings.push(st.links_without_tickers.length + " link(s) with no tickers");
+      return '<div class="card mapq">' +
+        '<div class="row" style="justify-content:space-between;align-items:flex-start">' +
+        "<h3>Map quality</h3>" +
+        '<span class="muted">' + esc(st.links_without_evidence ? st.links_without_evidence.length : 0) +
+        "/" + esc(v.links) + " links uncited</span></div>" +
+        '<div class="scrow">' +
+        mapStat(v.yielded_a_name + "/" + v.links, "links that produced a name") +
+        mapStat(v.scored + "/" + v.links, "scored") +
+        mapStat((st.non_us_ticker_share == null ? "n/a" : Math.round(st.non_us_ticker_share * 100) + "%"), "non-US tickers") +
+        mapStat((v.money_corner_links || []).length, "money corner") +
+        "</div>" +
+        "<div class='small'>" +
+        (findings.length ? "Findings: " + esc(findings.join(" · ")) : "No structural findings across " +
+          esc(v.links) + " links and " + esc(st.tickers_examined) + " tickers examined.") +
+        ((v.dead_links || []).length
+          ? " Links that have never produced a name: " + esc(v.dead_links.join(", ")) + "."
+          : "") +
+        "</div></div>";
+    }
+    // global view (#/chains)
+    var ly = cal.link_yield || {}, dep = ly.depth || {};
+    return seclabel("Atlas — how good these maps have been") +
+      '<div class="statgrid">' +
+      '<div class="card"><h3>Link yield</h3><div class="scrow">' +
+      mapStat(ly.yielded_a_name + "/" + ly.links_total, "produced a name") +
+      mapStat((dep.DIVED || 0) + "/" + ly.links_total, "reached a dive") +
+      mapStat(ly.money_corner_links, "money corner") +
+      "</div><div class='small'>Joined on link_id only. " + esc(ly.note || "") + "</div></div>" +
+      '<div class="card"><h3>Depth</h3><div class="scrow">' +
+      mapStat(dep.MAPPED || 0, "mapped only") + mapStat(dep.SCORED || 0, "scored") +
+      mapStat(dep.SCREENED || 0, "screened") + mapStat(dep.DIVED || 0, "dived") +
+      "</div><div class='small'>" + esc(dn.chains_examined) + " chains, " + esc(dn.links_examined) +
+      " links, " + esc(dn.edges_examined) + " edges, " + esc(dn.screen_rows_examined) +
+      " screen rows examined.</div></div>" +
+      '<div class="card"><h3>Archetypes</h3>' +
+      (arch.length ? arch.map(function (a) {
+        return '<div class="evli">' + chip(a.origin) + " <b>" + esc(a.id) + "</b> " + esc(a.pattern) +
+          ' <span class="muted">(' + esc(a.occurrences) + " chain" + (a.occurrences === 1 ? "" : "s") + ")</span></div>";
+      }).join("") : "<div class='small'>None yet.</div>") + "</div>" +
+      "</div>" +
+      (ml.notes || []).filter(function (n) { return /^ESCALATION/.test(String(n.text || "")); })
+        .map(function (n) {
+          return '<div class="sysline"><span class="healthdot" style="background:var(--crd)"></span>' + esc(n.text) + "</div>";
+        }).join("");
+  }
+
   function homeView() {
     var sigs = (D.signals || []).slice().sort(function (a, b) {
       return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0);
@@ -367,7 +434,7 @@
       footer() + "</main>";
   }
   function chainsView() {
-    return topbar("chain") + "<main><div class='pagehead'><h1>Chains</h1></div><div class='siglist'>" +
+    return topbar("chain") + "<main><div class='pagehead'><h1>Chains</h1></div>" + mapCard(null) + "<div class='siglist'>" +
       (D.chains || []).map(function (c) {
         var money = (c.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
         return '<div class="sigrow" data-nav="#/chain/' + esc(c.id) + '" tabindex="0" role="link"><div>' +
@@ -417,7 +484,7 @@
     return topbar("chain") + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
       '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) + "</div>" +
       "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
-      chainScreenAction(c) +
+      chainScreenAction(c) + mapCard(c.id) +
       '<div class="seg">' +
       [["flow", "Flow"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
@@ -874,7 +941,7 @@
     bg0: "#08080d", bg1: "#14141c",
     ink: "#dde0ef", ink2: "#9296ad", ink3: "#585c72",
     accent: "#8687f0",
-    verd: { UNDISCOVERED: "#34c77e", EMERGING: "#e3b23c", CROWDED: "#e97f4e", OVER_CROWDED: "#c14a62" },
+    verd: { QUIET: "#7b8496", UNDISCOVERED: "#34c77e", EMERGING: "#e3b23c", CROWDED: "#e97f4e", OVER_CROWDED: "#c14a62" },
     dive: { INVESTABLE: "#34c77e", WATCH: "#e3b23c", TOO_LATE: "#c14a62" },
     none: "#6a6e86", gold: "#d4a017", bad: "#e05a72",
     fam: { POLICY: "#e3b23c", CORPORATE: "#8687f0", TECH: "#34c77e", PHYSICAL: "#e97f4e", GEO: "#c14a62", MACRO: "#e3b23c", LEGAL: "#e3b23c" }
@@ -1266,7 +1333,7 @@
     });
     (D.stocks || []).forEach(function (st) { names[st.ticker] = 1; });
     var nNames = Object.keys(names).length;
-    var vc = { UNDISCOVERED: 0, EMERGING: 0, CROWDED: 0, OVER_CROWDED: 0 }, unscored = 0, money = 0, choke = 0;
+    var vc = { QUIET: 0, UNDISCOVERED: 0, EMERGING: 0, CROWDED: 0, OVER_CROWDED: 0 }, unscored = 0, money = 0, choke = 0;
     links.forEach(function (l) {
       var v = (l.heat || {}).verdict;
       if (v && vc[v] != null) vc[v]++; else unscored++;
@@ -1298,10 +1365,32 @@
     var scoredN = links.length - unscored;
     h += '<div class="cx-grp">HEAT · ' + scoredN + "/" + links.length + " SCORED</div>";
     [["undiscovered", vc.UNDISCOVERED, "var(--und)"], ["emerging", vc.EMERGING, "var(--emg)"],
-     ["crowded", vc.CROWDED, "var(--crd)"], ["over-crowded", vc.OVER_CROWDED, "var(--ovr)"]].forEach(function (r) {
+     ["crowded", vc.CROWDED, "var(--crd)"], ["over-crowded", vc.OVER_CROWDED, "var(--ovr)"],
+     ["quiet", vc.QUIET, "var(--quiet)"]].forEach(function (r) {
       h += cxReg(r[0], r[1]) + cxBar(links.length ? r[1] / links.length : 0, r[2]);
     });
     h += cxReg("unscored", unscored, !unscored) + cxReg("money corner", money) + cxReg("choke point", choke);
+    // MAP register: the cartographer's own report card, on the same principle as the sockets.
+    // A link that has never produced a name is a finding about the map, so it is rendered.
+    var mcal = (D.map || {}).calibration;
+    if (mcal) {
+      var mly = mcal.link_yield || {}, mper = mcal.per_chain || {};
+      var mFind = 0, mThin = 0, mUncited = 0;
+      Object.keys(mper).forEach(function (k) {
+        var st = mper[k].structure || {};
+        mFind += (st.orphans || []).length + (st.one_way_edges || []).length +
+                 (st.wrong_direction_edges || []).length + (st.verdict_mismatches || []).length;
+        mThin += (st.thin_choke_points || []).length;
+        mUncited += (st.links_without_evidence || []).length;
+      });
+      h += '<div class="cx-grp">MAP · ' + (mly.yielded_a_name || 0) + "/" + (mly.links_total || 0) + " YIELDED</div>";
+      h += cxReg("dead links", (mly.links_total || 0) - (mly.yielded_a_name || 0)) +
+           cxBar(mly.links_total ? (mly.yielded_a_name || 0) / mly.links_total : 0, "var(--und)") +
+           cxReg("structural findings", mFind, !mFind) +
+           cxReg("thin choke points", mThin, !mThin) +
+           cxReg("uncited links", mUncited, !mUncited) +
+           cxReg("archetypes", ((D.map || {}).archetypes || []).filter(function (a) { return a.status === "HARDENED"; }).length);
+    }
     h += '<div class="cx-grp">FEED · ' + items.length + " HELD</div>";
     Object.keys(fam).sort(function (a, b) { return fam[b] - fam[a]; }).forEach(function (f) {
       h += cxReg(f.toLowerCase(), fam[f]) + cxBar(items.length ? fam[f] / items.length : 0, CXP.fam[f] || CXP.ink3);

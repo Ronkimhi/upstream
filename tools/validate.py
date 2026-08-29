@@ -23,7 +23,7 @@ CLOCKS = {"COMPOUNDER", "EVENT"}
 TAGS = {"VERIFIED", "INFERRED", "SPECULATIVE", "NULL"}
 INVESTABILITY = {"PURE_PLAYS_EXIST", "PARTIAL", "MOSTLY_PRIVATE", "UNINVESTABLE"}
 BOTTLENECK = {"LOW", "MEDIUM", "HIGH", "CHOKE_POINT"}
-HEAT_VERDICT = {"UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED"}
+HEAT_VERDICT = {"QUIET", "UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED"}
 SCENARIO_STATUS = {"OPEN", "SCREENED", "INVALIDATED", "PLAYED_OUT"}
 CHAIN_STATUS = {"BUILT", "ARCHIVED"}
 SCREEN_ROW_STATUS = {"CANDIDATE", "DIVED", "REJECTED", "SHADOWED"}
@@ -108,6 +108,27 @@ def check_evidence(f: Path, items, ctx: str) -> None:
             err(f, f"{ctx}[{i}]: {e['tag']} evidence needs a source")
 
 
+def _score(heat: dict, key: str):
+    """The numeric score under heat[key], or None when absent or unscored."""
+    blk = (heat or {}).get(key)
+    return blk.get("score") if isinstance(blk, dict) else None
+
+
+def band_for(impact, crowdedness):
+    """method 3 attention bands, first match wins. None when crowdedness is unscored."""
+    if crowdedness is None:
+        return None
+    if crowdedness > 80:
+        return "OVER_CROWDED"
+    if crowdedness > 60:
+        return "CROWDED"
+    if crowdedness > 40:
+        return "EMERGING"
+    if impact is None:
+        return None
+    return "UNDISCOVERED" if impact >= 60 else "QUIET"
+
+
 def check_common(f: Path, obj: dict) -> None:
     for k in ("confidence_audit", "changelog"):
         if k not in obj:
@@ -171,7 +192,8 @@ def v_chain(f: Path) -> None:
     c = load(f)
     if c is None:
         return
-    if not need(f, c, ["id", "signal_id", "clock", "status", "links", "scenarios"]):
+    if not need(f, c, ["id", "signal_id", "clock", "status", "links", "scenarios",
+                       "map_limitation"]):
         return
     check_enum(f, c["status"], CHAIN_STATUS, "status")
     check_enum(f, c["clock"], CLOCKS, "clock")
@@ -185,10 +207,12 @@ def v_chain(f: Path) -> None:
     if len(ids) != len(set(ids)):
         err(f, "duplicate link ids")
     idset = set(ids)
+    by_id = {x.get("id"): x for x in links if isinstance(x, dict)}
     for l in links:
         ctx = f"link {l.get('id')}"
         if not need(f, l, ["id", "position", "name", "role", "upstream_of",
-                           "downstream_of", "investability", "bottleneck"], ctx):
+                           "downstream_of", "investability", "bottleneck",
+                           "example_tickers"], ctx):
             continue
         check_enum(f, l["investability"], INVESTABILITY, f"{ctx}.investability")
         bn = l["bottleneck"]
@@ -200,11 +224,17 @@ def v_chain(f: Path) -> None:
             for ref in l[side]:
                 if ref not in idset:
                     err(f, f"{ctx}.{side} references unknown link {ref!r}")
-        # edge reciprocity: A.upstream_of B  <=>  B.downstream_of A
+        # edge reciprocity, BOTH directions. Until 2026-08-29 only the upstream_of leg was
+        # walked while the comment claimed <=>, so a stray downstream_of entry pointing at a
+        # real link passed silently: exactly what editing one side of an edge produces.
         for ref in l["upstream_of"]:
-            other = next((x for x in links if x.get("id") == ref), None)
+            other = by_id.get(ref)
             if other is not None and l["id"] not in other.get("downstream_of", []):
                 err(f, f"edge not reciprocal: {l['id']} upstream_of {ref} but not mirrored")
+        for ref in l["downstream_of"]:
+            other = by_id.get(ref)
+            if other is not None and l["id"] not in other.get("upstream_of", []):
+                err(f, f"edge not reciprocal: {l['id']} downstream_of {ref} but not mirrored")
         h = l.get("heat")
         if h is not None:
             for score in ("impact", "crowdedness", "capture"):
@@ -221,6 +251,98 @@ def v_chain(f: Path) -> None:
                 check_enum(f, h["verdict"], HEAT_VERDICT, f"{ctx}.heat.verdict")
             if "money_corner" not in h:
                 err(f, f"{ctx}.heat missing money_corner")
+            # method 3: bands partition the space and are COMPUTED, never written by hand.
+            imp, crd, cap = (_score(h, k) for k in ("impact", "crowdedness", "capture"))
+            want = band_for(imp, crd)
+            if want and h.get("verdict") is not None and h["verdict"] != want:
+                err(f, f"{ctx}.heat.verdict is {h['verdict']!r} but impact {imp} / "
+                       f"crowdedness {crd} computes {want} (method 3)")
+            if None not in (imp, crd, cap):
+                want_mc = imp >= 60 and crd <= 40 and cap >= 60
+                if bool(h.get("money_corner")) != want_mc:
+                    err(f, f"{ctx}.heat.money_corner is {h.get('money_corner')!r} but "
+                           f"i{imp}/c{crd}/v{cap} computes {want_mc} (method 3)")
+    # ---- structure: position, topology, coverage (method 4, amended 2026-08-29)
+    pos = {l.get("id"): l.get("position") for l in links if isinstance(l, dict)}
+    n = len(links)
+    if sorted(v for v in pos.values() if isinstance(v, int)) != list(range(1, n + 1)):
+        err(f, f"positions are not a permutation of 1..{n}: {sorted(pos.values(), key=str)}")
+    else:
+        # upstream first: raw input at 1, demand anchor last
+        for l in links:
+            for b in l.get("upstream_of", []):
+                if b in pos and pos[l["id"]] >= pos[b]:
+                    err(f, f"direction: {l['id']} (pos {pos[l['id']]}) is upstream_of {b} "
+                           f"(pos {pos[b]}) but does not precede it. method 4: position 1 is "
+                           f"the raw input, the last position is the demand anchor")
+    for l in links:
+        if not (l.get("upstream_of") or l.get("downstream_of")):
+            err(f, f"link {l.get('id')} is an orphan: no edge either way")
+    # one connected component, over the undirected edge set
+    if links:
+        adj = {l["id"]: set() for l in links if isinstance(l, dict) and l.get("id")}
+        for l in links:
+            for b in list(l.get("upstream_of", [])) + list(l.get("downstream_of", [])):
+                if b in adj and l.get("id") in adj:
+                    adj[l["id"]].add(b); adj[b].add(l["id"])
+        seen, stack = set(), [links[0].get("id")]
+        while stack:
+            cur = stack.pop()
+            if cur in seen or cur not in adj:
+                continue
+            seen.add(cur); stack.extend(adj[cur] - seen)
+        if len(seen) != len(adj):
+            err(f, f"chain is not one connected component: {len(seen)} of {len(adj)} links "
+                   f"reachable; stranded {sorted(set(adj) - seen)}")
+        # acyclic over the directed upstream_of edges
+        colour = {}
+
+        def cyclic(node):
+            colour[node] = 1
+            for nxt in by_id.get(node, {}).get("upstream_of", []):
+                if colour.get(nxt) == 1:
+                    return nxt
+                if nxt in by_id and colour.get(nxt) is None and cyclic(nxt):
+                    return nxt
+            colour[node] = 2
+            return None
+        for l in links:
+            if colour.get(l.get("id")) is None:
+                hit = cyclic(l["id"])
+                if hit:
+                    err(f, f"chain has a cycle through link {hit!r}; a chain is a process, "
+                           f"one thing leads to another")
+                    break
+    if not (c.get("map_limitation") or "").strip():
+        err(f, "map_limitation is empty: method 4 requires every map to state what it "
+               "structurally cannot see")
+    # coverage findings, reported with denominators rather than failing the build
+    empty_tk = [l.get("id") for l in links if not (l.get("example_tickers") or [])]
+    if empty_tk:
+        warn(f, f"{len(empty_tk)} of {n} links carry no example_tickers: {', '.join(map(str, empty_tk))}")
+    thin_choke = [l.get("id") for l in links
+                  if (l.get("bottleneck") or {}).get("criticality") == "CHOKE_POINT"
+                  and len(l.get("example_tickers") or []) <= 1]
+    if thin_choke:
+        warn(f, f"{len(thin_choke)} CHOKE_POINT link(s) with one ticker or none: "
+                f"{', '.join(map(str, thin_choke))}. Thin coverage at a choke point is the "
+                f"map's real hard-to-reach problem")
+    # the citation bar (method 4, amended 2026-08-29): WARNING while the seed corpus is
+    # backfilled, hardens to an error once clean. Dated in the ledger when it does.
+    uncited = [l.get("id") for l in links if not l.get("evidence")]
+    if uncited:
+        warn(f, f"{len(uncited)} of {n} links carry no evidence[]: a link is a claim that a "
+                f"stage exists and an edge is a claim that one stage feeds another. "
+                f"{', '.join(map(str, uncited))}")
+    for l in links:
+        if l.get("evidence"):
+            check_evidence(f, l["evidence"], f"link {l.get('id')}.evidence")
+            supported = {e.get("supports") for e in l["evidence"] if isinstance(e, dict)}
+            missing = [b for b in l.get("upstream_of", []) if b not in supported]
+            if missing and "role" not in supported:
+                warn(f, f"link {l.get('id')}: edges {missing} are not named by any evidence "
+                        f"item's supports field")
+
     scens = c["scenarios"]
     if scens:
         if not 3 <= len(scens) <= 6:
@@ -292,12 +414,24 @@ def v_screen(f: Path) -> None:
                 continue
             check_enum(f, row["tier"], TIERS, f"{ctx}.tier")
             check_enum(f, row["status"], SCREEN_ROW_STATUS, f"{ctx}.status")
-            if chain_level:
+            # link_id on EVERY row (method 6, amended 2026-08-29), scenario screens included:
+            # a name that cannot be attributed to the link that surfaced it cannot be counted
+            # against that link, and link yield is the only measure of whether a map was worth
+            # building. Null is allowed with a stated basis, the same discipline as an
+            # undisclosed exposure percentage.
+            if "link_id" not in row:
+                err(f, f"{ctx}: every screen row needs link_id (null with link_id_basis when "
+                       f"the name genuinely cannot be attributed to one link)")
+            else:
                 lid = row.get("link_id")
-                if not lid:
-                    err(f, f"{ctx}: chain-level screen row needs link_id (which link surfaced this name)")
+                if lid is None:
+                    if not row.get("link_id_basis"):
+                        err(f, f"{ctx}: link_id is null and needs a link_id_basis saying why")
                 elif chain is not None and lid not in link_ids:
                     err(f, f"{ctx}: link_id {lid!r} is not a link of chain {s['chain_id']}")
+            if chain_level and not row.get("link_id"):
+                err(f, f"{ctx}: a chain-level screen universe is built per link, so its rows "
+                       f"cannot be unattributed")
             for ng in row.get("earnings_nuggets", []):
                 if not {"quote", "accession", "url"} <= set(ng):
                     err(f, f"{ctx}: earnings nugget needs quote, accession, url")
@@ -553,6 +687,75 @@ def v_scout_log(f: Path) -> None:
                     f"it deterministically, do not re-teach it")
 
 
+def v_map_log(f: Path) -> None:
+    """Atlas's log: his calibration plus his judgment fields. Same split as v_scout_log,
+    and the same point: a calibration with no denominators is a report that cannot fail."""
+    d = load(f)
+    if d is None:
+        return
+    if not need(f, d, ["as_of", "calibration", "archetypes", "spot_tests", "repairs",
+                       "changelog"]):
+        return
+    check_date(f, d["as_of"], "as_of")
+    check_common(f, d)
+
+    cal = d["calibration"]
+    if not isinstance(cal, dict):
+        err(f, "calibration must be an object")
+    elif need(f, cal, ["generated_at", "link_yield", "denominators"], "calibration"):
+        dens = cal["denominators"]
+        if not isinstance(dens, dict) or not dens:
+            err(f, "calibration.denominators missing: a count with no denominator cannot fail")
+        else:
+            for k in ("chains_examined", "links_examined"):
+                if k not in dens:
+                    err(f, f"calibration.denominators missing {k}")
+        ly = cal["link_yield"]
+        if isinstance(ly, dict) and "links_total" not in ly:
+            err(f, "calibration.link_yield missing links_total: yield without its denominator "
+                   "is unreadable")
+
+    for i, a in enumerate(d["archetypes"]):
+        ctx = f"archetypes[{i}]"
+        if not isinstance(a, dict) or not need(f, a, ["id", "pattern", "origin", "status",
+                                                      "occurrences", "evidence"], ctx):
+            continue
+        check_enum(f, a["origin"], RULE_ORIGINS, f"{ctx}.origin")
+        check_enum(f, a["status"], RULE_STATUS, f"{ctx}.status")
+        if not isinstance(a["evidence"], list) or not a["evidence"]:
+            err(f, f"{ctx}: an archetype needs at least one evidence item naming the links "
+                   f"that established it")
+        # the same two hardening bars as data/taste.md, enforced not remembered
+        if a["status"] == "HARDENED":
+            if a["origin"] == "PREFERENCE" and (a.get("occurrences") or 0) < 2:
+                err(f, f"{ctx}: PREFERENCE-origin archetypes need 2 occurrences to harden, "
+                       f"has {a.get('occurrences')}")
+            if not a.get("taste_ref"):
+                err(f, f"{ctx}: HARDENED requires taste_ref naming its _archetypes.md entry")
+
+    for i, s in enumerate(d["spot_tests"]):
+        ctx = f"spot_tests[{i}]"
+        if isinstance(s, dict) and need(f, s, ["ts", "rule", "verdict"], ctx):
+            check_enum(f, s["verdict"], {"PASS", "FAIL"}, f"{ctx}.verdict")
+    for i, r in enumerate(d["repairs"]):
+        ctx = f"repairs[{i}]"
+        if not isinstance(r, dict) or not need(f, r, ["ts", "finding", "action", "prevention",
+                                                      "escalated"], ctx):
+            continue
+        if not r["prevention"]:
+            err(f, f"{ctx}: a repair with no prevention is a backfill, not a fix")
+
+    seq: dict = {}
+    for s in d["spot_tests"]:
+        if not isinstance(s, dict):
+            continue
+        rule = s.get("rule")
+        seq[rule] = seq.get(rule, 0) + 1 if s.get("verdict") == "FAIL" else 0
+        if seq[rule] >= 2:
+            warn(f, f"archetype {rule!r} has failed 2 consecutive spot tests: relocate it or "
+                    f"gate it deterministically, do not re-teach it")
+
+
 def v_feeds(f: Path) -> None:
     """Actions-owned feed store: lenient by design. A feed hiccup must never fail the repo."""
     d = load(f)
@@ -600,6 +803,8 @@ def main() -> int:
     ]
     for name, folder, glob, fn in plans:
         files = sorted(folder.glob(glob)) if folder.exists() else []
+        # underscore-prefixed files are agent stores (_map-log.json), never analysis objects
+        files = [f for f in files if not f.name.startswith("_")]
         counts[name] = len(files)
         for f in files:
             fn(f)
@@ -613,6 +818,9 @@ def main() -> int:
     if (DATA / "radar" / "candidates.json").exists():
         counts["candidates"] = 1
         v_candidates(DATA / "radar" / "candidates.json")
+    if (DATA / "chains" / "_map-log.json").exists():
+        counts["map-log"] = 1
+        v_map_log(DATA / "chains" / "_map-log.json")
     if (DATA / "radar" / "scout-log.json").exists():
         counts["scout-log"] = 1
         v_scout_log(DATA / "radar" / "scout-log.json")

@@ -9,7 +9,7 @@
   --emg: #C08A0B; --emg-ink: #7D5A05; --emg-bg: #FAF2DA;
   --crd: #D2622B; --crd-ink: #96421B; --crd-bg: #FBEBE0;
   --ovr: #C13A52; --ovr-ink: #92223C; --ovr-bg: #F9E5EA;
-  --gold: #B8860B;
+  --gold: #B8860B; --quiet: #8A8A96; --quiet-ink: #6B6B78; --quiet-bg: #F2F2F5;
   --good: #1F9D5B; --warn: #C08A0B; --bad: #C13A52;
   --band-good: rgba(31, 157, 91, 0.10); --band-bad: rgba(193, 58, 82, 0.07);
   --chart-grid: #EEEEF3; --chart-axis: #B9B9C4;
@@ -27,7 +27,7 @@
     --emg: #E3B23C; --emg-ink: #F0CF83; --emg-bg: rgba(227, 178, 60, 0.12);
     --crd: #E97F4E; --crd-ink: #F4AC87; --crd-bg: rgba(233, 127, 78, 0.12);
     --ovr: #E25C78; --ovr-ink: #F19AAC; --ovr-bg: rgba(226, 92, 120, 0.13);
-    --gold: #D9A94B;
+    --gold: #D9A94B; --quiet: #7B8496; --quiet-ink: #9AA1B0; --quiet-bg: rgba(123, 132, 150, 0.14); --quiet: #7B8496; --quiet-ink: #9AA1B0; --quiet-bg: rgba(123, 132, 150, 0.14);
     --good: #34C77E; --warn: #E3B23C; --bad: #E25C78;
     --band-good: rgba(52, 199, 126, 0.10); --band-bad: rgba(226, 92, 120, 0.08);
     --chart-grid: #1F1F28; --chart-axis: #4A4A58;
@@ -123,6 +123,7 @@ h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01
 .chip.EMERGING, .chip.WATCH, .chip.MIXED { background: var(--emg-bg); color: var(--emg-ink); }
 .chip.CROWDED { background: var(--crd-bg); color: var(--crd-ink); }
 .chip.OVER_CROWDED, .chip.TOO_LATE, .chip.WRONG { background: var(--ovr-bg); color: var(--ovr-ink); }
+.chip.QUIET { background: var(--quiet-bg); color: var(--quiet-ink); }
 .chip.stale { background: var(--emg-bg); color: var(--emg-ink); text-transform: none; letter-spacing: 0; }
 .chip.verystale { background: var(--ovr-bg); color: var(--ovr-ink); text-transform: none; letter-spacing: 0; }
 .chip.tier { background: var(--surface-2); color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
@@ -225,12 +226,14 @@ tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transpa
 .fnode.v-EMERGING { border-left-color: var(--emg); }
 .fnode.v-CROWDED { border-left-color: var(--crd); }
 .fnode.v-OVER_CROWDED { border-left-color: var(--ovr); }
+.fnode.v-QUIET { border-left-color: var(--quiet); }
 .fnode.v-none { border-left-color: var(--border-strong); border-style: dashed; }
 .fnode .pos { font-size: 9.5px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; margin-bottom: 3px; }
 .fnode .nm { font-size: 13px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; min-height: 34px; }
 .fnode .verd { font-size: 9.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 7px; }
 .fnode .verd.v-UNDISCOVERED { color: var(--und-ink); } .fnode .verd.v-EMERGING { color: var(--emg-ink); }
 .fnode .verd.v-CROWDED { color: var(--crd-ink); } .fnode .verd.v-OVER_CROWDED { color: var(--ovr-ink); }
+.fnode .verd.v-QUIET { color: var(--quiet-ink); }
 .fnode .verd.v-none { color: var(--ink-3); text-transform: none; letter-spacing: 0; }
 .triad { display: flex; align-items: flex-end; gap: 3px; height: 22px; position: absolute; right: 12px; bottom: 10px; }
 .triad i { display: block; width: 5px; border-radius: 2px 2px 1px 1px; min-height: 2px; }
@@ -456,6 +459,7 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .linkhead.v-EMERGING { border-left-color: var(--emg); }
 .linkhead.v-CROWDED { border-left-color: var(--crd); }
 .linkhead.v-OVER_CROWDED { border-left-color: var(--ovr); }
+.linkhead.v-QUIET { border-left-color: var(--quiet); }
 .linkhead .nm { font-weight: 600; font-size: 14.5px; }
 .linkhead .ct { margin-left: auto; font-size: 11.5px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
 .pxdot {

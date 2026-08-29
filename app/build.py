@@ -103,6 +103,7 @@ def main() -> int:
         "feeds": feeds_store,
         "candidates": json.loads((DATA / "radar" / "candidates.json").read_text()) if (DATA / "radar" / "candidates.json").exists() else {"candidates": []},
         "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
+        "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
     }
 
     shell = (APP / "templates" / "shell.html").read_text()
