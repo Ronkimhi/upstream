@@ -8,12 +8,15 @@ Duties:
      refresh price series for every non-ARCHIVED deep-dive ticker,
      evaluate armed scenario indicator checks (trips -> data/indicators.json),
      run the shadow +90d sweep, prune old FULFILLED requests.
-  3. verified_zero discipline: an empty result is written only when the
-     AAPL control probe succeeded in the same run; otherwise the request FAILS.
+  3. verified_zero discipline: an empty result is written only when a control probe
+     ON THE SAME DATA PLANE succeeded in the same run; otherwise the request FAILS.
+     Prices use the stooq probe; every EDGAR surface (fundamentals, FTS, insider) uses
+     its own edgar_*_ok() probe, because a price probe cannot certify EDGAR reachability.
 
 No Anthropic calls, no absolute paths, loud degradation. Stdlib + requests
 (+ yfinance best-effort via acis.dual_source).
 """
+import dataclasses
 import json
 import os
 import re
@@ -83,6 +86,63 @@ def control_ok():
             _control["ok"] = False
         print(f"control probe (stooq AAPL): {'OK' if _control['ok'] else 'FAILED'}")
     return _control["ok"]
+
+
+# --------------------------------------------------- EDGAR-plane control probes
+# A verified_zero must be certified on the SAME plane it was read from. control_ok()
+# probes stooq for a PRICE and says nothing about whether SEC EDGAR is reachable, so it
+# cannot certify an empty EDGAR result — on 2026-08-29 an insider run stamped
+# verified_zero against a passing price probe while the extraction was in fact broken.
+# Each SEC endpoint gets its own cached probe against a filer/query known to be non-empty.
+_edgar_probes = {}
+
+
+def _edgar_probe(key, fn, label):
+    if key not in _edgar_probes:
+        try:
+            _edgar_probes[key] = bool(fn())
+        except Exception as e:  # noqa: BLE001
+            _edgar_probes[key] = False
+            print(f"  EDGAR probe {label} raised: {str(e)[:120]}")
+        print(f"  EDGAR control probe ({label}): {'OK' if _edgar_probes[key] else 'FAILED'}")
+    return _edgar_probes[key]
+
+
+def edgar_facts_ok():
+    """AAPL companyfacts returns revenue — proves data.sec.gov XBRL is alive. Certifies an
+    empty `fundamentals` result."""
+    def probe():
+        edgar_wait()
+        r = requests.get(SEC_COMPANYFACTS_URL.format(cik=320193), headers=SEC_HEADERS, timeout=60)
+        if r.status_code != 200:
+            return False
+        gaap = r.json().get("facts", {}).get("us-gaap", {})
+        return bool(gaap.get("Revenues") or gaap.get("RevenueFromContractWithCustomerExcludingAssessedTax"))
+    return _edgar_probe("facts", probe, "AAPL companyfacts")
+
+
+def edgar_fts_ok():
+    """A known-common FTS query returns hits — proves efts.sec.gov is alive. Certifies an
+    empty full-text-search result."""
+    def probe():
+        edgar_wait()
+        r = requests.get(FTS_URL, params={"q": "revenue", "forms": "10-K"},
+                         headers=SEC_HEADERS, timeout=60)
+        if r.status_code != 200:
+            return False
+        total = r.json().get("hits", {}).get("total", {})
+        return (total.get("value", 0) if isinstance(total, dict) else 0) > 0
+    return _edgar_probe("fts", probe, "FTS revenue query")
+
+
+def edgar_forms_ok():
+    """AAPL Form 4 count > 0 — proves the ownership/submissions path is alive. Certifies an
+    empty `insider` result."""
+    def probe():
+        import edgar
+        edgar.set_identity(EDGAR_USER_AGENT)
+        return len(list(edgar.Company("AAPL").get_filings(form="4"))) > 0
+    return _edgar_probe("forms", probe, "AAPL Form 4")
 
 
 # ---------------------------------------------------------------- tickers/cik
@@ -298,9 +358,11 @@ def do_fundamentals(ticker):
     f["coverage"] = {"annual_fields_found": len(found), "annual_fields_attempted": len(attempted),
                      "missing": [k for k in attempted if k not in found]}
     if not f["revenue_fy"] and not f["revenue_q"]:
-        if not control_ok():
-            raise RuntimeError("empty companyfacts and control probe failed")
-        f["verified_zero"] = {"note": "no revenue concepts found", "control_ok": True}
+        if not edgar_facts_ok():
+            raise RuntimeError("empty companyfacts AND the EDGAR companyfacts probe failed "
+                               "— cannot tell an empty filer from a dead data.sec.gov")
+        f["verified_zero"] = {"note": "no revenue concepts found",
+                              "probe": "edgar-AAPL-companyfacts-ok"}
     path = DATA / "market" / f"{safe_name(ticker)}.json"
     m = jload(path, {"ticker": ticker, "price_status": "NO_DATA", "prints": [], "series": None, "pcs": None})
     m["fundamentals"] = f
@@ -421,7 +483,7 @@ def do_insider(ticker, lookback_days=365):
         raise RuntimeError(f"edgartools Form 4 listing failed for {ticker}: {e}")
     diag["filings_listed"] = len(filings)
 
-    rows, probe = [], None
+    rows = []
     for filing in filings[:40]:
         fdate = str(getattr(filing, "filing_date", "") or "")
         if fdate and fdate < cutoff:
@@ -432,48 +494,41 @@ def do_insider(ticker, lookback_days=365):
             diag["parse_errors"].append(f"{fdate}: {str(e)[:120]}")
             print(f"  Form 4 parse failed ({fdate}): {e}")
             continue
-        # Bound 2026-08-29 against the shape probe the previous run wrote: `market_trades`
-        # EXISTS on the object but is None for filings with no open-market trade, so the
-        # first binding read as "no data" on 40 consecutive filings that parsed fine.
-        # These are the real accessors, tried most-specific first.
-        txns, via = None, None
-        for name in ("common_stock_purchases", "common_stock_sales", "market_trades"):
-            v = getattr(ob, name, None)
-            if v is None:
-                continue
-            if hasattr(v, "__len__") and len(v) == 0:
-                continue
-            txns, via = v, name
-            break
-        if txns is None:
-            for meth in ("get_transaction_activities", "to_dataframe"):
-                fn = getattr(ob, meth, None)
-                if callable(fn):
-                    try:
-                        v = fn()
-                    except Exception as e:  # noqa: BLE001
-                        diag["parse_errors"].append(f"{fdate} {meth}: {str(e)[:100]}")
-                        continue
-                    if v is not None and (not hasattr(v, "__len__") or len(v)):
-                        txns, via = v, meth
-                        break
-        if txns is None:
-            if probe is None:
-                probe = sorted(a for a in dir(ob) if not a.startswith("_"))[:40]
-            continue
-        diag.setdefault("bound_via", {})
-        diag["bound_via"][via] = diag["bound_via"].get(via, 0) + 1
+        # Extraction bound against the INSTALLED edgartools source, read offline
+        # (edgar.ownership.forms.Form4), not guessed. get_transaction_activities() is the
+        # canonical method: it returns List[TransactionActivity] and already unifies
+        # market trades (P/S), non-market events (awards A, tax F, option exercise M, gifts,
+        # conversions) and derivatives into one normalized list. The earlier per-accessor
+        # binding failed because common_stock_purchases returns a pandas DataFrame that is
+        # empty for the very common all-awards filing, and the fallback then handed back
+        # TransactionActivity dataclasses that dict() cannot iterate.
         try:
-            recs = txns.to_dict("records") if hasattr(txns, "to_dict") else list(txns)
+            activities = ob.get_transaction_activities()
         except Exception as e:  # noqa: BLE001
-            diag["parse_errors"].append(f"{fdate} to_dict: {str(e)[:100]}")
-            recs = []
-        for t in recs:
-            rows.append({"filing_date": fdate, "via": via,
-                         "insider": str(getattr(ob, "insider_name", None)
-                                        or getattr(ob, "reporting_owner_name", None) or "")[:120],
-                         "raw": {k: (str(v)[:60] if v is not None else None)
-                                 for k, v in list(dict(t).items())[:12]}})
+            diag["parse_errors"].append(f"{fdate} get_transaction_activities: {str(e)[:120]}")
+            continue
+        if not activities:
+            # A Form 4 with zero activities is legitimate (e.g. a pure holdings amendment).
+            # It is not an extraction failure; it just adds no rows. Recorded, not raised.
+            diag["empty_activity_filings"] = diag.get("empty_activity_filings", 0) + 1
+            continue
+        insider = str(getattr(ob, "insider_name", None) or "")[:120]
+        for t in activities:
+            d = dataclasses.asdict(t)
+            rows.append({
+                "filing_date": fdate,
+                "insider": insider,
+                "code": t.code,
+                "code_description": t.code_description,
+                "transaction_type": t.transaction_type,
+                "security_type": t.security_type,
+                "security_title": d.get("security_title"),
+                "shares": t.shares_numeric,
+                "price_per_share": t.price_numeric,
+                "value": t.value_numeric,
+                "is_derivative": t.is_derivative,
+            })
+        diag["bound_via"] = "get_transaction_activities"
     # verified_zero needs a control on the SAME plane. stooq-AAPL proves prices work and
     # says nothing about whether EDGAR ownership data is reachable, so it cannot certify
     # an empty Form 4 result. Probe EDGAR with a filer that always has Form 4s.
@@ -482,26 +537,23 @@ def do_insider(ticker, lookback_days=365):
             f"{ticker}: {diag['filings_listed']} Form 4 filings listed and "
             f"{min(len(filings), 40)} examined, but 0 transaction rows extracted. That is an "
             f"EXTRACTION failure, not a verified zero — a company with filings has trades. "
-            f"shape probe: {probe} | diagnostics: {diag}")
+            f"diagnostics: {diag}")
+    # A genuine zero (a filer that truly reported nothing in the window) is only reachable
+    # here when filings_listed is 0 — the guard above already raised on filings-but-no-rows.
+    # It is still certified on the EDGAR plane, never the price plane.
     edgar_control = None
     if not rows:
-        try:
-            edgar_control = len(list(edgar.Company("AAPL").get_filings(form="4"))) > 0
-        except Exception as e:  # noqa: BLE001
-            diag["parse_errors"].append(f"edgar control probe: {str(e)[:120]}")
-            edgar_control = False
-        print(f"  EDGAR control probe (AAPL Form 4): {'OK' if edgar_control else 'FAILED'}")
+        edgar_control = edgar_forms_ok()
         if not edgar_control:
             raise RuntimeError(
-                f"zero Form 4 rows for {ticker} AND the EDGAR control probe failed — "
+                f"zero Form 4 rows for {ticker} AND the EDGAR Form 4 probe failed — "
                 f"cannot tell an empty result from a dead path. diagnostics: {diag}")
     out = {"ticker": ticker, "cik": cik, "fetched_at": NOW.isoformat(),
            "window": [cutoff, TODAY], "row_count": len(rows), "rows": rows[:200],
            "diagnostics": diag,
            "health": {"filings_examined": min(len(filings), 40),
                       **({"verified_zero": True, "probe": "edgar-AAPL-form4-ok"}
-                         if (not rows and edgar_control) else {})},
-           **({"shape_probe": probe} if probe else {})}
+                         if (not rows and edgar_control) else {})}}
     path = DATA / "market" / f"{safe_name(ticker)}.json"
     m = jload(path, {"ticker": ticker, "price_status": "NO_DATA", "prints": [],
                      "series": None, "fundamentals": None, "pcs": None})
@@ -509,8 +561,9 @@ def do_insider(ticker, lookback_days=365):
     m["fetched_at"] = NOW.isoformat()
     m.setdefault("tier", tier_for(ticker, cik))
     jdump(path, m)
-    print(f"  insider {ticker}: {len(rows)} transaction row(s)"
-          + (f" | SHAPE PROBE written: {probe}" if probe else ""))
+    print(f"  insider {ticker}: {len(rows)} transaction row(s) via {diag.get('bound_via')}"
+          + (f", {diag['empty_activity_filings']} empty-activity filing(s)"
+             if diag.get("empty_activity_filings") else ""))
     return [f"data/market/{safe_name(ticker)}.json"]
 
 
@@ -548,13 +601,14 @@ def do_edgar_fts(query, forms=None, lookback_days=365):
         })
     total = js.get("hits", {}).get("total", {})
     n = total.get("value", len(hits)) if isinstance(total, dict) else len(hits)
-    if not hits and not control_ok():
-        raise RuntimeError("zero FTS hits and control probe failed — cannot stamp verified_zero")
+    if not hits and not edgar_fts_ok():
+        raise RuntimeError("zero FTS hits AND the EDGAR FTS probe failed — cannot tell an "
+                           "empty query from a dead efts.sec.gov")
     slug = re.sub(r"[^a-z0-9]+", "-", query.lower()).strip("-")[:60]
     out = {"query": query, "forms": params["forms"], "window": [start, TODAY],
            "fetched_at": NOW.isoformat(), "hit_total": n, "hits": hits[:100],
            "health": {"status_code": r.status_code, "hit_count": len(hits),
-                      **({"verified_zero": True, "probe": "stooq-AAPL-ok"} if not hits else {})}}
+                      **({"verified_zero": True, "probe": "edgar-fts-revenue-ok"} if not hits else {})}}
     jdump(DATA / "edgar" / "fts" / f"{slug}.json", out)
     return [f"data/edgar/fts/{slug}.json"]
 
