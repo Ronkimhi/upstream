@@ -1,16 +1,21 @@
 {
  "as_of": "2026-08-29",
  "owner": "stocky",
- "note": "Stocky's calibration. Every number here is recomputed from disk at the start of each dive, never carried in memory. Seeded empty on 2026-08-29: the analyst exists, no real dive has run, and an empty denominator is the honest state. A zero here means nothing has been graded yet, NOT that nothing has been wrong.",
+ "note": "Stocky's calibration. Every number here is recomputed from disk at the start of each dive, never carried in memory. First real dive landed 2026-08-29 (VRT / ai-infrastructure); the denominators below moved off zero for the first time. A zero still means nothing has been graded in that channel yet, NOT that nothing has been wrong.",
  "calibration": {
   "shadow_book": {
    "question": "When I said TOO_LATE, was skipping it correct at +90d against SPY?",
-   "denominator": 0,
+   "denominator": 1,
    "graded": 0,
    "right": 0,
    "wrong": 0,
    "mixed": 0,
-   "source": "data/shadow/results.json (Actions prices the rows; I only read them)"
+   "source": "data/shadow/results.json (Actions prices the rows; I only read them)",
+   "open_rows": [
+    "SHD-20260829-01"
+   ],
+   "next_grade_due": "2026-11-27",
+   "recomputed_from": "data/shadow/book.json (1 row) and data/shadow/results.json (0 results)"
   },
   "entry_zones": {
    "question": "Did price ever reach the zones I drew, and what happened after?",
@@ -18,7 +23,8 @@
    "reached": 0,
    "never_reached": 0,
    "filled_same_week": 0,
-   "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone."
+   "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone.",
+   "recomputed_from": "data/stocks/*.json: 1 real dive, 0 INVESTABLE, so this channel still has no denominator"
   },
   "red_team_amendments": {
    "question": "How often does my own attack change my draft, and which attack lands?",
@@ -31,18 +37,52 @@
     "ENTRY_BASIS_STRESS": 0,
     "PRE_MORTEM": 0
    },
-   "note": "An attack dimension that has never amended anything is either unnecessary or being performed rather than run. Naming which is part of the report."
+   "note": "An attack dimension that has never amended anything is either unnecessary or being performed rather than run. Naming which is part of the report.",
+   "recomputed_from": "data/stocks/*.json: 1 real dive at status DRAFT, 0 red teams run. The first amendment rate is unmeasurable until run redteam VRT ai-infrastructure has executed."
   },
   "implied_growth": {
    "question": "The market-implied CAGR I recorded at dive time, against what was actually delivered by review_by.",
-   "denominator": 0,
+   "denominator": 1,
    "resolved": 0,
    "market_too_high": 0,
    "market_too_low": 0,
-   "note": "This grades the reverse DCF itself. Without it the gap table is a format, not a method."
+   "note": "This grades the reverse DCF itself. Without it the gap table is a format, not a method.",
+   "open_records": [
+    {
+     "ticker": "VRT",
+     "chain_id": "ai-infrastructure",
+     "dive_date": "2026-08-29",
+     "market_implied_fcf_cagr": 0.3295,
+     "source": "data/market/VRT.json quality.reverse_dcf (state SOLVED)",
+     "my_fcf_cagr": 0.171,
+     "my_revenue_cagr_5y": 0.19,
+     "resolve_by": "2026-11-27",
+     "resolves_against": "FY2026 reported net sales against the $13,800M-$14,200M guide, and the deferred-revenue balance against $3,633.7M at 2026-06-30. The five-year CAGR itself cannot resolve before 2030; the review date grades the first year of the path, not the path."
+    }
+   ],
+   "recomputed_from": "data/stocks/*.json expectations_gap blocks: 1 dive carrying a SOLVED market-implied column"
   }
  },
- "repairs": [],
+ "repairs": [
+  {
+   "finding": "price_source_note is required by tools/check_analyst.py on any dive resting on a SINGLE_SOURCE price, and app/templates/app.js renders it nowhere. The gate is satisfied while the reader is not informed, which is the exact defect class tools/check_render.py exists to catch.",
+   "action": "ESCALATED, not applied. app/ is CONSTITUTION tier and the fix is a renderer change, not a data change. Worked around inside the analyst's own lane by repeating the single-source warning in notes[0], which does render.",
+   "prevention": "none shipped this run; the workaround is per-dive and will rot the moment a dive forgets it.",
+   "ts": "2026-08-29T22:52:00Z"
+  },
+  {
+   "finding": "Earnings quotes inside a DIVE are verified by no gate. tools/check_screen.py enforces the verbatim rule for screens; tools/check_analyst.py does not, so a dive could quote a filing that does not contain the words. This dive's 9 quotes were checked by hand with check_screen's own normalize(), 9 of 9 matched, but that was discipline rather than enforcement.",
+   "action": "ESCALATED, not applied. tools/ is CONSTITUTION tier.",
+   "prevention": "none shipped this run.",
+   "ts": "2026-08-29T22:52:00Z"
+  },
+  {
+   "finding": "data/stocks/DEMO__ai-infrastructure.json carries a note saying it is deleted when the first real deep dive lands. That has now happened.",
+   "action": "NOT deleted. Deletion is irreversible, was not asked for, and CLAUDE.md's file-ownership rule says never delete-then-rebuild live data. Raised for Ron rather than actioned.",
+   "prevention": "n/a",
+   "ts": "2026-08-29T22:52:00Z"
+  }
+ ],
  "confidence_audit": {
   "verified": 0,
   "inferred": 0,
@@ -55,6 +95,30 @@
    "by": "ron",
    "change": "log seeded empty alongside the analyst contract; all four channels carry an explicit zero denominator so the first real dive has something to increment",
    "prior": null
+  },
+  {
+   "ts": "2026-08-29T22:52:00Z",
+   "by": "ron",
+   "change": "First real dive recorded: VRT / ai-infrastructure, TOO_LATE on the COMPOUNDER clock, earnings grade B, status DRAFT. Two of four channels move off a zero denominator: shadow_book to 1 (SHD-20260829-01, grades 2026-11-27) and implied_growth to 1 (32.95% market-implied FCF CAGR recorded against a 17.1% expectation). entry_zones and red_team_amendments stay at zero and stay honest about it: no INVESTABLE verdict has been written and no red team has run, so both rates are undefined rather than perfect. Three findings logged in repairs, all ESCALATED rather than auto-applied because all three sit in CONSTITUTION-tier files.",
+   "prior": "all four channels at denominator 0"
+  }
+ ],
+ "dives": [
+  {
+   "file": "data/stocks/VRT__ai-infrastructure.json",
+   "ticker": "VRT",
+   "chain_id": "ai-infrastructure",
+   "link_id": "liquid-cooling",
+   "verdict": "TOO_LATE",
+   "clock": "COMPOUNDER",
+   "earnings_grade": "B",
+   "status": "DRAFT",
+   "dive_date": "2026-08-29",
+   "review_by": "2026-11-27",
+   "price_ref": 257.08,
+   "price_status": "SINGLE_SOURCE",
+   "shadow_ref": "SHD-20260829-01",
+   "one_line": "The price carries a 32.95% five-year free-cash-flow CAGR; the most aggressive defensible path is 17.1%, and two thirds of the last two years of return came from the multiple rather than from delivery."
   }
  ]
 }
