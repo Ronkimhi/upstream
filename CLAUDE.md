@@ -35,7 +35,7 @@ Sessions write: `data/signals/ chains/ screens/ stocks/ shadow/book.json trades.
 | `log trade <TICKER> <bought\|sold\|trimmed\|added> <price> [note]` | — | one line appended to `data/trades.jsonl` | ts, by, ticker, action, price; never account numbers |
 | `note <object-id-or-ticker> "text"` | the object | notes[] append | ts + by + text |
 | `run review` | stocks, shadow book+results, trades | ledger NOTE line | list dives past review_by; shadow calibration stats (TOO_LATE hit rate); book vs machine calls |
-| `check health` | health/*, ledger, git log | ledger NOTE line | count EXPECTED fires vs now (radar: weekdays since LIVE; fetch cron: weekdays; smoke: weeks); report gaps loudly with dates; REGISTERED-but-never-fired = NOT LIVE, said in those words |
+| `check health` | health/*, ledger, git log | ledger NOTE line | count EXPECTED fires vs now (radar: weekdays since LIVE; fetch cron: weekdays; smoke: weeks); report gaps loudly with dates; REGISTERED-but-never-fired = NOT LIVE, said in those words; feeds stale (`health/actions.json feeds.last_run` >3 weekdays old, or `sources_failed` non-empty two runs straight) is its own loud line |
 
 `<chain>` is the chain slug (e.g. `ai-infrastructure`); `<Sn>` a scenario id (e.g. `S2`).
 
