@@ -766,15 +766,23 @@ def do_edgar_doc(ticker, lookback_days=200):
             base = "https://www.sec.gov/Archives/edgar/data/{}/{}".format(int(cik), accs[cand].replace("-", ""))
             edgar_wait()
             idx = requests.get(base + "/index.json", headers=SEC_HEADERS, timeout=60).json()
-            exhibits = [it["name"] for it in idx.get("directory", {}).get("item", [])
-                        if re.search(r"ex.{0,7}?99", it.get("name", ""), re.I) and it["name"].endswith((".htm", ".html"))]
-            if not exhibits:  # index.json is flaky (sometimes truncated) — parse the dir listing
+            names = [it["name"] for it in idx.get("directory", {}).get("item", [])
+                     if str(it.get("name", "")).endswith((".htm", ".html"))]
+            if not names:  # index.json is flaky (sometimes truncated) — parse the dir listing
                 edgar_wait()
                 listing = requests.get(base + "/", headers=SEC_HEADERS, timeout=60).text
-                names = set(re.findall(r'href="[^"]*/([^"/]+\.htm[l]?)"', listing))
-                exhibits = [n for n in sorted(names) if re.search(r"ex.{0,7}?99", n, re.I)]
+                names = sorted(set(re.findall(r'href="[^"]*/([^"/]+\.htm[l]?)"', listing)))
+            # Prefer names that look like an EX-99 exhibit, but do NOT stop there: GE
+            # Vernova and Constellation both file the earnings release under a name with
+            # no "ex99" in it (q2-2026-earnings-release.htm and similar), so the old
+            # pattern-only search found nothing, silently kept the 8-K COVER PAGE, and
+            # left those two filers permanently unquotable while looking fetched. Any
+            # document in the filing is a candidate; the longest one wins, and the
+            # comparison below only replaces the cover if it is genuinely longer.
+            likely = [n for n in names if re.search(r"ex.{0,7}?99", n, re.I)]
+            candidates = likely + [n for n in names if n not in likely]
             best = ""
-            for name in exhibits[:4]:
+            for name in candidates[:8]:
                 edgar_wait()
                 er = requests.get(base + "/" + name, headers=SEC_HEADERS, timeout=60)
                 if er.status_code == 200:
