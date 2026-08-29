@@ -1,0 +1,49 @@
+{
+  "id": "PROP-20260829-02",
+  "as_of": "2026-08-29",
+  "actor": "ron",
+  "reviewed_by": "cass-adversary",
+  "files": [".claude/agents/stocky.md"],
+  "behavior_change": "A future `run deepdive` will emit a dive JSON with no `link_id` and with a `market_implied_source` that is a bare pointer string, and it will pass both `check_analyst.py` and `validate.py` green even when the implied CAGR was typed in-session and the name sits on a chain link Atlas can no longer credit with having produced a verdict.",
+  "checks_touched": [
+    "tools/check_analyst.py:check 4 (expectations_gap market-implied provenance is verified as a source STRING containing 'data/market/' and 'quality', never as VALUES matching quality.reverse_dcf)",
+    "tools/check_analyst.py:check 5 (earnings-quality veto fires correctly on whatever grade is written, but the grade INPUT is never checked against the mechanical Beneish/-1.78 signal in the quality block)",
+    "tools/validate.py:dive schema (enforces link_id on every SCREEN row per method 6, lines 439-454, but has no link_id requirement on a DIVE, though method 7 mandates it same-day)",
+    ".claude/settings.json + .claude/hooks (no analyst-gate Stop/SubagentStop hook exists; radar-gate.py and chain-gate.py are registered on both, check_analyst.py is a postlude step run by obedience only)"
+  ],
+  "cost_if_wrong": "Six weeks on, a dive reads INVESTABLE on the strength of a 'not priced in' gap whose market-implied column was authored by hand rather than read from quality.reverse_dcf, and the stock page prints it as VERIFIED because a source string is present. Because the dive carries no link_id, Atlas's 'was this map worth building' calibration never learns the map produced a verdict at all. Nothing on the page, in check_analyst.py, or in validate.py distinguishes this dive from an honest one, and if the session simply never runs check_analyst.py there is no Stop hook to notice, unlike every radar or chain run.",
+  "how_you_would_know": "The mechanical tell exists but nothing runs it. Diff every dive's expectations_gap.rows[].market_implied against data/market/<T>.json quality.reverse_dcf: any divergence with no gate failure means the anti-'solve it in my head' rule was faked while passing. Grep DIVED rows for link_id: absence means Atlas's map-worth channel is blind to that verdict. Grep the ledger for a check_analyst run on a dive day: absence means the gate never fired. Absent those probes, nothing would surface any of the three, which is itself the finding.",
+  "challenges": [
+    {
+      "claim": "The dive JSON Stocky writes satisfies method 7, whose 2026-08-29 amendment requires every dive to name the chain link it sits on (link_id, or null with a stated basis).",
+      "attack": "stocky.md never mentions link_id anywhere; check_analyst.py has no link_id check; validate.py enforces link_id on every screen row (method 6) but not on a dive; the DEMO dive fixture has link_id absent and validates clean. Method built a link->screen->dive provenance chain this session specifically so that 'a link that reached INVESTABLE is the strongest evidence a map was worth building' (method 7), and Stocky is the terminus that drops it. The duty falls in the seam between Atlas (who needs the field to grade his maps) and Stocky (who must write it), and nobody holds it.",
+      "survives": false
+    },
+    {
+      "claim": "The contract's rule 'the market-implied column comes from the reverse-DCF solve in quality, I do not solve it in my head' is a real, enforced discipline.",
+      "attack": "check_analyst.py check 4 only asserts market_implied_source is a STRING containing 'data/market/' and 'quality'; validate.py only asserts it is non-empty. Neither opens data/market/<T>.json to compare the actual implied VALUES against quality.reverse_dcf. So a dive can fabricate the implied 5y CAGR, cite the file in one string, and pass both gates green. This is the neutered-check pattern my contract exists to catch: the green check certifies a citation, not provenance, and the whole product of a dive (the 'not priced in' verdict) rests on exactly the number left unchecked. The fix is fully mechanizable (load the file, compare), so this is not a design-inherent limit.",
+      "survives": false
+    },
+    {
+      "claim": "The earnings-quality A-D veto protects a verdict against a manipulated book, which is the stated reason it exists ('a cheap valuation and a good gap table are exactly what a manipulated book looks like from the outside').",
+      "attack": "The veto fires correctly on whatever grade is WRITTEN (C/NULL cap INVESTABLE, D forbids it, all enforced by check 5), but the grade INPUT is never checked. The Beneish M-Score and its -1.78 review threshold are mechanical and sit in the quality block, yet no gate forces grade<=C when quality shows a breach. A dive can grade A over a Beneish breach present in its own data and pass. The unmechanizable part (governance facts from filings) legitimately needs judgment, but the mechanical floor is enforceable and is not enforced, so the veto guards the output of the grade and not the grade itself.",
+      "survives": false
+    },
+    {
+      "claim": "The red team's fresh-context isolation ('I read ONLY the dive JSON and market data') is the mechanism that makes it a genuine attack rather than a rubber stamp.",
+      "attack": "No gate or hook can verify what a fresh-context run actually read; check_analyst.py only enforces that a red_team block with a pre_mortem is PRESENT before FINAL. The sole guard on whether the attack was real is Channel 3, the red-team amendment rate, which Stocky computes from his own log and could also perform rather than run. BUT: this is inherent to the architecture (fresh context is a subagent-launch property, unprovable from any artifact), it is shared identically by Nell, Atlas, my own red team and method 7 itself, and the contract already names the amendment-rate self-audit as the mitigation and calls a never-amending attack 'broken' in those words. It handles the limit as well as the design allows, so the claim survives as the honest ceiling, not as a defect unique to stocky.md.",
+      "survives": true
+    },
+    {
+      "claim": "check_analyst.py reliably gates every dive, so the vetoes stocky.md asserts cannot be skipped.",
+      "attack": "Unlike radar and chain, which each have a gate hook registered on both Stop and SubagentStop (radar-gate.py, chain-gate.py) that independently refuses to end a session that wrote the artifact without a same-day gated ledger line, there is no analyst-gate hook at all: no file, no registration. check_analyst.py is a postlude step that runs only if the session obeys the contract. A dive committed by a session that skipped the postlude leaves no independent trace, and the 21:11Z ESCALATION already records that subagent writes went ungated until today for the OTHER gates. The remedy (a hook plus a settings.json registration) is CONSTITUTION-tier and outside Stocky's lane to write, so the contract prose is not itself wrong, but the enforcement it leans on is a speed bump where radar and chain have a belt.",
+      "survives": false
+    }
+  ],
+  "verdict": "ADOPT_NARROWED",
+  "surviving_objection": "Adopt the contract: its prose is faithful to method 7 and its boundaries against Nell, Atlas and the screener are clean, and the vetoes method cares most about (C/D/NULL and independence-test caps on INVESTABLE, DRAFT-until-red-teamed, 3+3 bullets, the clock, the TOO_LATE shadow row) are all genuinely enforced by check_analyst.py. Narrow it in one concrete, in-lane way before it lands: add the method-7 link_id requirement to the verdict section (every dive names its chain link, or null with a stated basis), because the field is mandated, enforced on screens, dropped here, and load-bearing for Atlas's calibration. The two remaining findings are enforcement gaps in gates Ron owns, not wording defects in stocky.md, and should be routed to check_analyst.py rather than block this contract. But even this adoption is wrong the first day a dive cites quality.reverse_dcf in its market_implied_source string while authoring the implied CAGR by hand: neither check_analyst.py nor validate.py compares the cited values to the file, so the dive's entire 'not priced in' verdict, which is the only thing a dive produces, can rest on a number the contract forbids and no gate catches, and it will read as VERIFIED on the page. The contract asserts the right discipline; the machine does not yet make that assertion falsifiable.",
+  "ruling": null,
+  "changelog": [
+    {"ts": "2026-08-29T21:20:00Z", "by": "ron/cass-adversary", "change": "created: run devil .claude/agents/stocky.md; ADOPT_NARROWED, 5 challenges (4 fail, 1 survives)"}
+  ]
+}
