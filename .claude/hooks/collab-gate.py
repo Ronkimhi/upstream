@@ -222,11 +222,53 @@ def _touched_agent_contracts(payload: dict) -> list[str]:
     return hits
 
 
+def _uncommitted(subdir: str) -> set[str]:
+    """Paths under `subdir` that differ from HEAD right now.
+
+    The transcript can only say a session issued a write whose path looks like this one. It
+    cannot say where. A `cd` into a fixture tree that mirrors this repo's layout -- which is
+    what a good test of this very gate looks like -- makes `echo z >> .claude/agents/x.md`
+    read as a write to the real contract. That false positive blocked a real session.
+
+    So the two kinds of evidence are intersected, never trusted alone: the transcript says
+    THIS session did it, git says it actually happened. Git alone would drag in a concurrent
+    session's in-flight edits, which is the `git add -A` hazard in another costume.
+
+    Working tree only, deliberately. An earlier draft also counted anything committed today,
+    which dragged in the peer sessions that had committed Nell and Atlas hours before -- the
+    shared-tree hazard in another costume, and it kept the gate blocking on a session that had
+    changed nothing. A contract already committed without a review is CI's to catch (the
+    collab job requires a covering PROP for every commit touching `.claude/agents/*.md`);
+    this hook's job is the change still in flight, which is when a review is worth most.
+    """
+    out: set[str] = set()
+    try:
+        wt = subprocess.run(["git", "status", "--porcelain", "--", subdir],
+                            cwd=ROOT, capture_output=True, text=True, timeout=20)
+        if wt.returncode != 0:
+            return set()  # cannot read git: caller falls open
+        for ln in wt.stdout.splitlines():
+            if len(ln) > 3:
+                out.add(ln[3:].strip().strip('"'))
+    except Exception:  # noqa: BLE001
+        return set()
+    return out
+
+
 def on_stop(payload: dict) -> int:
     if payload.get("stop_hook_active"):
         return allow()
-    touched = _touched_agent_contracts(payload)
+    claimed = _touched_agent_contracts(payload)
+    if not claimed:
+        return allow()
+    real = _uncommitted(".claude/agents")
+    touched = [f_ for f_ in claimed if f_ in real]
     if not touched:
+        # The transcript named contracts this session never actually changed here (a fixture
+        # tree, a quoted example, a mention). Say so rather than passing silently.
+        print(f"collab-gate: transcript named {len(claimed)} agent contract(s) that do not "
+              f"differ from HEAD in this repo; not gating: {', '.join(claimed)}",
+              file=sys.stderr)
         return allow()
 
     try:

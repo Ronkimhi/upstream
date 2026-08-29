@@ -156,6 +156,12 @@ def _clean(paths: list[str]) -> list[str]:
             p = p[2:]
         if _NUMERIC.match(p):
             continue  # `[ $n > 3 ]` is a comparison, not a file called 3
+        # A capture carrying quotes, parens or commas is a fragment of code or prose that
+        # happens to name a path, not a path. Test harnesses in this repo are full of lines
+        # like `pre("Edit",{"file_path":".claude/agents/nell-scanner.md"})`, and one of them
+        # was captured whole and reported as a write.
+        if any(ch in p for ch in '"\'(),;'):
+            continue
         if p not in out:
             out.append(p)
     return out
