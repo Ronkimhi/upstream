@@ -4,7 +4,7 @@
  "scenario_id": "S2",
  "created_at": "2026-08-28",
  "as_of": "2026-08-29",
- "universe_note": "Seed screen, origin: chain-map research. Names drawn from the S2-moved links (power-equipment, grid-interconnect, energy-generation). Global by construction with data tiers printed. Fundamentals, PCS, and earnings nuggets intentionally PENDING_DATA until the first fetch cycle and screen refresh run against live data — no numbers are invented here.",
+ "universe_note": "Seed screen, origin: chain-map research. Names drawn from the S2-moved links (power-equipment, grid-interconnect, energy-generation). Global by construction with data tiers printed. Fundamentals, PCS, and earnings nuggets intentionally PENDING_DATA until the first fetch cycle and screen refresh run against live data \u2014 no numbers are invented here.",
  "queries_run": [
   {
    "query": "seed: chain-map link membership (no EDGAR FTS run yet)",
@@ -20,7 +20,7 @@
     "name": "Vertiv Holdings",
     "exchange": "NYSE",
     "tier": "T1",
-    "cik": "1674910",
+    "cik": 1674101,
     "thesis_1line": "Data-center power and cooling pure play; direct beneficiary of both S2 shortage pricing and the density transition.",
     "theme_revenue_exposure": {
      "pct": null,
@@ -157,7 +157,7 @@
     "exchange": "NASDAQ",
     "tier": "T1",
     "cik": "700923",
-    "thesis_1line": "Transmission and distribution EPC; volume winner in S2, capture to be tested (bid-competed margins — the grid-link trap applies).",
+    "thesis_1line": "Transmission and distribution EPC; volume winner in S2, capture to be tested (bid-competed margins \u2014 the grid-link trap applies).",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "not yet extracted from filings",
@@ -181,7 +181,7 @@
     "exchange": "NASDAQ",
     "tier": "T1",
     "cik": "1868275",
-    "thesis_1line": "Existing nuclear fleet with hyperscaler PPAs; earns in S2 (power scarcity) yet defensive if equipment orders disappoint — cushions the basket.",
+    "thesis_1line": "Existing nuclear fleet with hyperscaler PPAs; earns in S2 (power scarcity) yet defensive if equipment orders disappoint \u2014 cushions the basket.",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "not yet extracted from filings",
@@ -227,7 +227,7 @@
   {
    "ts": "2026-08-28T00:00:00Z",
    "by": "ron",
-   "change": "seed screen authored at repo creation; every row awaits fetched data — thesis lines are hypotheses, not verdicts",
+   "change": "seed screen authored at repo creation; every row awaits fetched data \u2014 thesis lines are hypotheses, not verdicts",
    "prior": null
   },
   {
@@ -236,6 +236,13 @@
    "kind": "AMEND",
    "change": "backfilled link_id on all 8 rows per method 6 (amended 2026-08-29). Attribution is per row from each row's own thesis line plus the chain's example_tickers, never by ticker match: a ticker back-match misattributes VRT and is ambiguous on GEV and ENR.DE, which sit on two links each. Every row records its link_id_basis. Finding: the screen's universe_note named three links but the universe actually spans four, liquid-cooling included.",
    "prior": "no row carried link_id; link yield was structurally uncomputable"
+  },
+  {
+   "ts": "2026-08-29T22:05:00Z",
+   "by": "ron",
+   "kind": "AMEND",
+   "change": "corrected VRT cik 1674910 (string) to 1674101 (int), matching data/market/VRT.json and data/edgar/docs/VRT.json. The digits were transposed and the type disagreed with every other file; nothing checked cross-file CIK agreement, so an EDGAR request keyed on this row would have resolved to the wrong filer or to nothing. A referential-integrity check over screen/market/edgar CIKs lands with this fix so the class cannot recur.",
+   "prior": "\"1674910\" (string)"
   }
  ]
 }

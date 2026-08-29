@@ -210,6 +210,29 @@ def fetch_series(ticker):
     return weekly + recent, source
 
 
+PRICE_OWNED_KEYS = ("ticker", "fetched_at", "tier", "cik", "price_status",
+                    "prints", "series", "week52", "probe")
+
+
+def merge_price_update(prev, update):
+    """Overlay a price refresh onto whatever the market file already holds.
+
+    A prices run owns exactly the keys in PRICE_OWNED_KEYS. Everything else on the
+    file — `quality`, `insider`, `fundamentals`, `pcs`, and any block added later —
+    belongs to another request kind and survives untouched. Before 2026-08-29 this
+    function did not exist: do_prices() rebuilt the dict from scratch carrying only
+    `fundamentals` and `pcs` forward, so one prices refresh deleted the `quality`
+    block that the dive gap table reads and the `insider` block behind it. That is
+    the no-delete rule failing silently in the one venue no session can watch.
+    Keys are carried by construction here, never by an enumerated allowlist, so a
+    block invented next month is safe without touching this code.
+    """
+    out = dict(prev or {})
+    for k, v in update.items():
+        out[k] = v
+    return out
+
+
 def do_prices(ticker):
     cik = cik_for(ticker)
     ds = dual_source_price(ticker)
@@ -217,26 +240,28 @@ def do_prices(ticker):
     status = ds["status"].replace("-", "_")
     if status == "NO_DATA" and rows:
         status = "SINGLE_SOURCE"
+    prev = jload(DATA / "market" / f"{safe_name(ticker)}.json", {})
     if status == "NO_DATA":
         if not control_ok():
             raise RuntimeError("price sources unreachable and control probe failed")
-        m = {"ticker": ticker, "fetched_at": NOW.isoformat(), "tier": tier_for(ticker, cik),
-             "price_status": "VERIFIED_ZERO",
-             "probe": {"control_ticker": "AAPL", "control_ok": True, "checked_at": NOW.isoformat()},
-             "prints": [], "series": None, "fundamentals": None, "pcs": None}
-        jdump(DATA / "market" / f"{safe_name(ticker)}.json", m)
+        update = {"ticker": ticker, "fetched_at": NOW.isoformat(), "tier": tier_for(ticker, cik),
+                  "price_status": "VERIFIED_ZERO",
+                  "probe": {"control_ticker": "AAPL", "control_ok": True, "checked_at": NOW.isoformat()},
+                  "prints": [], "series": None}
+        jdump(DATA / "market" / f"{safe_name(ticker)}.json", merge_price_update(prev, update))
         return [f"data/market/{safe_name(ticker)}.json"]
-    prev = jload(DATA / "market" / f"{safe_name(ticker)}.json", {})
-    m = {
+    update = {
         "ticker": ticker, "fetched_at": NOW.isoformat(), "tier": tier_for(ticker, cik),
         "cik": cik, "price_status": status,
         "prints": ds["detail"].get("prints", []),
-        "series": {"interval": "1d(24mo)+1w(prior)", "rows": rows, "source": source, "as_of": rows[-1][0]} if rows else prev.get("series"),
-        "week52": {"low": min(r_[1] for r_ in rows[-252:]), "high": max(r_[1] for r_ in rows[-252:])} if rows else prev.get("week52"),
-        "fundamentals": prev.get("fundamentals"),
-        "pcs": prev.get("pcs"),
+        "legs": ds["detail"].get("legs", {}),
     }
-    jdump(DATA / "market" / f"{safe_name(ticker)}.json", m)
+    if rows:
+        update["series"] = {"interval": "1d(24mo)+1w(prior)", "rows": rows,
+                            "source": source, "as_of": rows[-1][0]}
+        update["week52"] = {"low": min(r_[1] for r_ in rows[-252:]),
+                            "high": max(r_[1] for r_ in rows[-252:])}
+    jdump(DATA / "market" / f"{safe_name(ticker)}.json", merge_price_update(prev, update))
     return [f"data/market/{safe_name(ticker)}.json"]
 
 
@@ -444,6 +469,23 @@ def do_quality(ticker):
 
 
 # ---------------------------------------------------------------- insider (Form 4)
+# How many Form 4 filings one run will parse. This was a bare `40` written inline in
+# three places, which made a truncated window read like a complete one: VRT listed 450
+# filings, 40 were examined, and the output said `row_count: 40` with nothing anywhere
+# saying the other 410 were never opened. The cap stays (parsing 450 filings is minutes
+# of EDGAR-throttled work per ticker) but it is now named, recorded in health, and
+# printed as a WARN when it actually truncates.
+INSIDER_FILINGS_CAP = 40
+
+# Form 4 transaction codes that are open-market trades by the insider's own choice.
+# P = open-market purchase, S = open-market sale. Everything else (A awards, F tax
+# withholding, M option exercise, G gifts) is compensation plumbing, not a signal about
+# what the insider thinks the stock is worth. VRT's 40 rows are overwhelmingly fractional
+# dividend-equivalent accruals at price 0, which a page reporting "40 insider
+# transactions" presents as if they were trades.
+MARKET_TRADE_CODES = {"P", "S"}
+
+
 def do_insider(ticker, lookback_days=365):
     """Form 4 insider transactions via edgartools.
 
@@ -483,8 +525,12 @@ def do_insider(ticker, lookback_days=365):
         raise RuntimeError(f"edgartools Form 4 listing failed for {ticker}: {e}")
     diag["filings_listed"] = len(filings)
 
+    if len(filings) > INSIDER_FILINGS_CAP:
+        diag["filings_truncated"] = True
+        print(f"  WARN insider {ticker}: {len(filings)} Form 4 filings listed, parsing the "
+              f"most recent {INSIDER_FILINGS_CAP} — the window is truncated, not exhaustive")
     rows = []
-    for filing in filings[:40]:
+    for filing in filings[:INSIDER_FILINGS_CAP]:
         fdate = str(getattr(filing, "filing_date", "") or "")
         if fdate and fdate < cutoff:
             break
@@ -535,7 +581,8 @@ def do_insider(ticker, lookback_days=365):
     if not rows and diag["filings_listed"]:
         raise RuntimeError(
             f"{ticker}: {diag['filings_listed']} Form 4 filings listed and "
-            f"{min(len(filings), 40)} examined, but 0 transaction rows extracted. That is an "
+            f"{min(len(filings), INSIDER_FILINGS_CAP)} examined, but 0 transaction rows "
+            f"extracted. That is an "
             f"EXTRACTION failure, not a verified zero — a company with filings has trades. "
             f"diagnostics: {diag}")
     # A genuine zero (a filer that truly reported nothing in the window) is only reachable
@@ -548,10 +595,22 @@ def do_insider(ticker, lookback_days=365):
             raise RuntimeError(
                 f"zero Form 4 rows for {ticker} AND the EDGAR Form 4 probe failed — "
                 f"cannot tell an empty result from a dead path. diagnostics: {diag}")
+    # row_count counts every Form 4 line. market_rows counts the subset that is an
+    # actual open-market trade — see MARKET_TRADE_CODES. Both are written because
+    # dropping the compensation rows would be deleting data, and reporting only the
+    # total would let award accruals masquerade as insider conviction.
+    market_rows = [r for r in rows
+                   if r.get("code") in MARKET_TRADE_CODES and (r.get("price_per_share") or 0) > 0]
     out = {"ticker": ticker, "cik": cik, "fetched_at": NOW.isoformat(),
            "window": [cutoff, TODAY], "row_count": len(rows), "rows": rows[:200],
+           "market_row_count": len(market_rows),
            "diagnostics": diag,
-           "health": {"filings_examined": min(len(filings), 40),
+           "health": {"filings_examined": min(len(filings), INSIDER_FILINGS_CAP),
+                      "filings_cap": INSIDER_FILINGS_CAP,
+                      "filings_listed": diag["filings_listed"],
+                      "window_truncated": bool(diag.get("filings_truncated")),
+                      "market_rows": len(market_rows),
+                      "non_market_rows": len(rows) - len(market_rows),
                       **({"verified_zero": True, "probe": "edgar-AAPL-form4-ok"}
                          if (not rows and edgar_control) else {})}}
     path = DATA / "market" / f"{safe_name(ticker)}.json"
@@ -561,7 +620,8 @@ def do_insider(ticker, lookback_days=365):
     m["fetched_at"] = NOW.isoformat()
     m.setdefault("tier", tier_for(ticker, cik))
     jdump(path, m)
-    print(f"  insider {ticker}: {len(rows)} transaction row(s) via {diag.get('bound_via')}"
+    print(f"  insider {ticker}: {len(rows)} transaction row(s) "
+          f"({len(market_rows)} open-market) via {diag.get('bound_via')}"
           + (f", {diag['empty_activity_filings']} empty-activity filing(s)"
              if diag.get("empty_activity_filings") else ""))
     return [f"data/market/{safe_name(ticker)}.json"]
@@ -590,14 +650,22 @@ def do_edgar_fts(query, forms=None, lookback_days=365):
         if names:
             mt = re.search(r"\(([A-Z][A-Z0-9.\-]{0,9})\)\s+\(CIK", names[0])
             tick = mt.group(1) if mt else None
+        cik_i = int(ciks[0]) if ciks else None
+        # A hit with no link is a claim nobody can check. The FTS response carries no
+        # primary-document filename, so the honest link is the filing's index page,
+        # which EDGAR builds from cik + un-dashed accession. Written for every hit so a
+        # screen row or chain edge sourced from FTS can be traced back to the filing.
+        url = (f"https://www.sec.gov/Archives/edgar/data/{cik_i}/"
+               f"{adsh.replace('-', '')}/" if (cik_i and adsh) else None)
         hits.append({
             "entity_name": names[0].split("  (")[0].strip() if names else None,
-            "cik": int(ciks[0]) if ciks else None,
+            "cik": cik_i,
             "ticker": tick,
             "form": roots[0] if roots else src.get("file_type"),
             "file_type": src.get("file_type"),
             "filing_date": src.get("file_date"),
             "accession": adsh,
+            "url": url,
         })
     total = js.get("hits", {}).get("total", {})
     n = total.get("value", len(hits)) if isinstance(total, dict) else len(hits)
@@ -789,16 +857,43 @@ def refresh_dive_tickers(counts):
 
 
 # ---------------------------------------------------------------- main
+MAX_FETCH_ATTEMPTS = 3
+
+
+def request_due(req, is_cron):
+    """PENDING always; FAILED again on cron until MAX_FETCH_ATTEMPTS is spent.
+
+    A FAILED row used to be terminal: the loop only ever picked up PENDING, and the
+    30-day prune only removes FULFILLED, so a request that lost a race with a flaky
+    SEC endpoint stayed dead forever and looked exactly like one that was permanently
+    impossible. Retries are cron-only on purpose — a push-triggered bridge round-trip
+    is a session waiting on ONE batch, and it should not spend that window re-running
+    yesterday's failures.
+    """
+    st = req.get("status")
+    if st == "PENDING":
+        return True
+    if st == "FAILED" and is_cron:
+        return int(req.get("attempts") or 1) < MAX_FETCH_ATTEMPTS
+    return False
+
+
 def main():
     is_cron = "--cron" in sys.argv or os.environ.get("GITHUB_EVENT_NAME") == "schedule"
     req_path = DATA / "requests.json"
     reqs = jload(req_path, {"version": 1, "requests": []})
-    counts = {"processed": 0, "fulfilled": 0, "failed": 0, "refreshed": 0, "errors": 0}
+    counts = {"processed": 0, "fulfilled": 0, "failed": 0, "refreshed": 0, "errors": 0,
+              "retried": 0}
     trips = []
 
     for req in reqs.get("requests", []):
-        if req.get("status") != "PENDING":
+        if not request_due(req, is_cron):
             continue
+        if req.get("status") == "FAILED":
+            counts["retried"] += 1
+            print(f"RETRY {req['id']} (attempt {int(req.get('attempts') or 1) + 1}"
+                  f"/{MAX_FETCH_ATTEMPTS})")
+        req["attempts"] = int(req.get("attempts") or 0) + 1
         counts["processed"] += 1
         try:
             k = req["kind"]
@@ -821,13 +916,23 @@ def main():
             req["status"] = "FULFILLED"
             req["wrote"] = wrote
             req["fulfilled_at"] = NOW.isoformat()
+            req.pop("terminal", None)
             counts["fulfilled"] += 1
             print(f"FULFILLED {req['id']} ({k} {req.get('ticker') or req.get('query')})")
         except Exception as e:
             req["status"] = "FAILED"
             req["note"] = str(e)[:300]
+            req["last_attempt_at"] = NOW.isoformat()
             counts["failed"] += 1
-            print(f"FAILED {req['id']}: {e}")
+            if req["attempts"] >= MAX_FETCH_ATTEMPTS:
+                # Out of retries. Said on the row rather than inferred from a count,
+                # so a session reading requests.json can tell "still coming" from
+                # "this will never arrive" without knowing the retry policy.
+                req["terminal"] = True
+                print(f"FAILED {req['id']} (terminal after {req['attempts']} attempts): {e}")
+            else:
+                print(f"FAILED {req['id']} (attempt {req['attempts']}"
+                      f"/{MAX_FETCH_ATTEMPTS}, will retry on next cron): {e}")
 
     feeds_due = is_cron or "--feeds" in sys.argv or \
         os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
