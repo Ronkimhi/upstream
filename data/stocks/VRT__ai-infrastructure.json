@@ -7,16 +7,47 @@
  "scenario_ids": [],
  "tier": "T1",
  "clock": "COMPOUNDER",
- "status": "DRAFT",
+ "status": "FINAL",
  "created_at": "2026-08-29",
  "updated_at": "2026-08-29",
  "as_of": "2026-08-29",
  "review_by": "2026-11-27",
- "verdict": "TOO_LATE",
+ "verdict": "WATCH",
  "shadow_ref": "SHD-20260829-01",
  "entry_zone": null,
  "no_entry_above": null,
- "watch_triggers": [],
+ "watch_triggers": [
+  {
+   "metric": "Q3 2026 organic revenue growth against the guided floor (guide 34% to 36%)",
+   "level": "34%",
+   "direction": "below",
+   "note": "Replaces the draft's falsifier, which required a print at or above the guided CEILING and so could not fire inside the guided range. The FY2026 guide needs the back half to grow about 45% after Q2 2026 printed 24.1% reported, so the guide's own floor is the honest test."
+  },
+  {
+   "metric": "Deferred revenue balance, from $3,633.7M at 2026-06-30",
+   "level": "$3,633.7M",
+   "direction": "below",
+   "note": "A falling balance converts today's free cash flow into a working-capital headwind and confirms the prepayment wave was one cycle. A balance still compounding by 2027 makes it structural and this becomes a materially better business than the bear case allows."
+  },
+  {
+   "metric": "Gross margin, which was flat at 36.32% in FY2025 against 36.62% in FY2024",
+   "level": "37.5%",
+   "direction": "above",
+   "note": "The bull case needs pricing power; the record shows SG&A dilution. A sustained break above 37.5% is the first evidence that capture is price rather than scale, and it is the single fact that would move this toward INVESTABLE on fundamentals rather than on price."
+  },
+  {
+   "metric": "Share price, the level at which the 5-year and 10-year reverse-DCF conventions straddle the 15.7% to 18.3% defensible band instead of bracketing it 65% apart",
+   "level": "$175",
+   "direction": "below",
+   "note": "At $175 the 5-year convention implies 22.5% and the 10-year 13.2%, so the two readings sit either side of the defended band rather than one at 32.95% and the other at 18.33%. Stated as a straddle rule and not as a valuation: it is a rule for when the horizon convention stops being load-bearing, which is a weaker and more honest claim than a fair value."
+  },
+  {
+   "metric": "EMEA organic revenue, which fell 14.8% in H1 2026 against the Americas' +31.0%",
+   "level": "0%",
+   "direction": "above",
+   "note": "Carried over from the draft's leading indicator and unchanged by the attack. A 19% five-year path that is entirely Americas is regional, not structural."
+  }
+ ],
  "price_ref": {
   "value": 257.08,
   "source": "data/market/VRT.json series.rows last close (yfinance)",
@@ -25,12 +56,12 @@
  "price_source_note": "data/market/VRT.json carries price_status SINGLE_SOURCE: the 257.08 close of 2026-08-28 rests on ONE unconfirmed print from yfinance. The second leg (stooq) answered the Actions venue with an HTML robots page rather than CSV and has never answered in this repo's life, so no price here has been cross-checked against an independent source. Every level on this page, including the $141.66 re-entry arithmetic, inherits that single-source risk. See docs/method.md section 1 on the price plane.",
  "what_is_priced_in": [
   {
-   "expectation": "The price requires free cash flow to compound at 32.95% a year for five years, turning FY2025 free cash flow of $1,893.8M into $7,866M by 2030. Held at the FY2026 guided free-cash-flow margin of 17.9%, that needs about $44B of revenue by 2030, roughly 4.3x FY2025.",
-   "evidence": "data/market/VRT.json quality.reverse_dcf (implied_fcf_cagr 0.3295, state SOLVED, 9% discount, 2.5% terminal, 5y horizon); revenue translation computed from fundamentals.revenue_fy",
-   "tag": "VERIFIED"
+   "expectation": "The price requires free cash flow to compound at 32.95% a year for five years, turning FY2025 free cash flow of $1,893.8M into $7,866M by 2030. RED TEAM AMENDMENT 2026-08-29: that rate is a property of the solve's five-year explicit period as much as of the price, and the row is downgraded from VERIFIED to INFERRED because of it. Holding the base, the enterprise value, the 9% discount rate and the 2.5% terminal growth exactly as the data plane states them and changing only the horizon to ten years returns 18.33%, which is inside this dive's own 15.7% to 18.3% defensible band. The assumptions block in data/market/VRT.json quality.reverse_dcf carries the tag SPECULATIVE on itself.",
+   "evidence": "data/market/VRT.json quality.reverse_dcf (implied_fcf_cagr 0.3295, state SOLVED, base_fcf $1,893.8M, EV $98,476.1M, 9% discount, 2.5% terminal, 5y horizon, assumptions.tag SPECULATIVE); horizon sensitivity re-run in session on that same stated assumption set as an arithmetic check only, never to replace the quoted column",
+   "tag": "INFERRED"
   },
   {
-   "expectation": "Two thirds of the last two years of return came from the multiple, not from delivery: price +219.3% (80.52 to 257.08), revenue per share +48.8%, price/sales 4.48x to 9.61x. In log terms 66% multiple, 34% numbers. That is the method section 7 story-or-numbers decomposition, and it says story.",
+   "expectation": "Two thirds of the last two years of return came from the multiple, not from delivery: price +219.3% (80.52 to 257.08), revenue per share +48.8%, price/sales 4.48x to 9.61x. In log terms 66% multiple, 34% numbers. That is the method section 7 story-or-numbers decomposition, and it says story. RED TEAM AMENDMENT 2026-08-29: the two thirds is basis-dependent and the basis was the stale one. Measured against the current fiscal year on each date instead of the last completed one, price/sales went 3.83x to 7.21x and revenue per share $21.04 to $35.64, which is 54.6% multiple rather than 65.8%. Still a majority, so the direction holds and the emphasis does not.",
    "evidence": "computed from data/market/VRT.json series.rows, fundamentals.revenue_fy and fundamentals.shares_fy",
    "tag": "INFERRED"
   },
@@ -40,9 +71,9 @@
    "tag": "INFERRED"
   },
   {
-   "expectation": "FY2026 itself is contracted rather than contested and this dive does not dispute it: the 8-K guides net sales of $13,800M to $14,200M, adjusted free cash flow of $2,400M to $2,600M, and Q3 organic growth of 34% to 36%. The disagreement is entirely about 2027 through 2030.",
-   "evidence": "data/edgar/docs/VRT.json, 8-K EX-99.1 filed 2026-07-29, accession 0001628280-26-050323",
-   "tag": "VERIFIED"
+   "expectation": "FY2026 is guided, not delivered, and the draft conceded it too readily. The 8-K guides net sales of $13,800M to $14,200M, adjusted free cash flow of $2,400M to $2,600M, and Q3 organic growth of 34% to 36%. RED TEAM AMENDMENT 2026-08-29: reaching the $14,000M midpoint needs the back half to grow 45.4% against H2 2025 of $5,555.8M, after Q2 2026 printed 24.1% reported growth and Q1 printed 30.1%. The implied Q4 is 50.2%. So the year the draft called contracted carries the steepest acceleration in the company's recent record, and it sits in the two quarters nobody has seen. This cuts against the market on near-term risk and against the draft's framing at the same time: the guided FY2026 free-cash-flow midpoint of $2,500M is 99.3% of year one of the very path the draft called undefendable.",
+   "evidence": "data/edgar/docs/VRT.json, 8-K EX-99.1 filed 2026-07-29, accession 0001628280-26-050323; quarterly comparison computed from data/market/VRT.json fundamentals.revenue_q and revenue_fy (Q4 quarters derived as the fiscal year less the three reported quarters)",
+   "tag": "INFERRED"
   },
   {
    "expectation": "The street is positioned for more, not less: consensus sits at Strong Buy with a mean target near $344 and a median near $370 against a $257.08 close, with recent bank targets in a $330 to $435 range. Nobody is being talked out of this name.",
@@ -50,10 +81,10 @@
    "tag": "INFERRED"
   }
  ],
- "priced_in_summary": "TOO LATE on the COMPOUNDER clock, and the decomposition is the reason rather than the valuation being high. Over two years the price rose 219.3% while revenue per share rose 48.8%: the multiple did two thirds of the work, which is method section 7's definition of a re-rating that ate the runway. What is left in the price is a 32.95% five-year free-cash-flow CAGR. The most aggressive path this dive can defend is 19.1% revenue compounding at a 17% through-cycle free-cash-flow margin, which is 17.1% free-cash-flow compounding, and that 19% revenue number is itself an 85th-percentile outcome against the base rate that companies growing above 20% median-revert to single digits. Inverting the same solve on the same assumptions, a 17.1% implied growth rate corresponds to an enterprise value of $54.32B and a share price of $141.66, and a more generous 19% corresponds to $153.19. This is not a call that Vertiv is a bad company; it is a call that at 257.08 the market has already bought the next four years and one month of them. This becomes a dive worth re-opening below roughly $155, or on evidence that the deferred-revenue build is a permanent structural feature of the model rather than a one-cycle prepayment wave.",
+ "priced_in_summary": "WATCH on the COMPOUNDER clock, amended down from a TOO_LATE draft by this dive's own red team on 2026-08-29. The draft's case was that the price carries a 32.95% five-year free-cash-flow CAGR against a defensible 17.1%, roughly twice what the business can deliver, and that the gap opened through the multiple rather than through delivery. The second half of that survives: over two years price rose 219.3% while revenue per share rose 48.8%, and the multiple did 65.8% of the work on a trailing basis or 54.6% on a current-fiscal-year basis. The first half does not. The 32.95% is a property of the solve's five-year explicit period as much as of the price. Change only the horizon to ten years, holding the same $1,893.8M base, the same $98,476.1M enterprise value, the same 9% discount and the same 2.5% terminal growth, and the price requires 18.33%, which is the top edge of this dive's own 15.7% to 18.3% band, and which corresponds to this dive's own 2030 revenue of $24.5B at a 17.93% free-cash-flow margin against the 17.9% the company currently guides. Across defensible assumption sets the implied column runs 14.62% to 37.52%, an error bar that contains my whole column, so the reverse DCF cannot establish the gap the draft was written around, and the $141.66 re-entry level it produced moves to $234.52 on the ten-year reading, a 65% spread. What is left is a duration bet against a demanding base rate, three unimproved bear facts (free cash flow currently funded by a $1,822.7M half-year deferred-revenue build, operating leverage that came from SG&A dilution rather than from gross margin, and an FY2026 guide that needs 45.4% H2 growth after Q2 printed 24.1%), and no attention gap to be paid for waiting. That is a WATCH with hard triggers, not a TOO LATE, and it is not an invitation to buy.",
  "bull": [
   "Demand is contracted, not forecast. Deferred revenue rose $1,822.7M in H1 2026 to $3,633.7M, more than doubling in six months: customers are paying ahead of delivery, which is a harder signal than a pipeline comment. The company also reports it 'Achieved a net cash position at the end of second quarter 2026'.",
-  "Operating leverage is real and still widening. GAAP operating margin went 12.7% (FY2023) to 17.1% (FY2024) to 17.9% (FY2025) to 18.2% (H1 2026), and the company's own FY2026 guidance reconciliation implies 21.1% GAAP on midpoint revenue. Incremental operating margin over FY2023-2025 was 28.4%, well above the level being earned.",
+  "Operating leverage is real, and the attack narrowed what kind. GAAP operating margin went 12.7% (FY2023) to 17.1% (FY2024) to 17.9% (FY2025) to 18.2% (H1 2026), and the FY2026 guidance reconciliation implies 21.1% GAAP on midpoint revenue. But the source is cost dilution, not price: gross margin went 34.98%, 36.62%, 36.32% across FY2023-2025, flat to down in the year revenue grew 27.7%, while SG&A fell from 19.12% to 15.81% of revenue. Incremental operating margin of 28.4% over FY2023-2025 is genuine and it is scale, which is a real advantage in a capacity race and a weaker one in a price war.",
   "The balance sheet is a competitive weapon in a capacity race. Altman Z of 8.82 (SAFE), net cash, and $5.6B of liquidity let Vertiv fund capacity from cash flow while smaller cooling specialists cannot, and the filing says it is 'further accelerating capacity expansion and strategic investments to meet this demand and capture market share'."
  ],
  "bear": [
@@ -137,8 +168,8 @@
    },
    {
     "name": "Market-implied 5y FCF CAGR",
-    "value": "32.95% (SOLVED in the data plane)",
-    "tag": "VERIFIED",
+    "value": "32.95% (SOLVED in the data plane; its assumptions block is self-tagged SPECULATIVE)",
+    "tag": "INFERRED",
     "as_of": "2026-08-29"
    },
    {
@@ -148,13 +179,13 @@
     "as_of": "2026-08-29"
    },
    {
-    "name": "Price implied by a 17.1% FCF CAGR (same solve inverted)",
-    "value": "$141.66 (-44.9%)",
+    "name": "Price implied by a 17.1% FCF CAGR, 5-year explicit period",
+    "value": "$141.66 (-44.9%); reproduced at $142.22 in the red team, a 0.4% arithmetic drift",
     "tag": "INFERRED",
     "as_of": "2026-08-29"
    },
    {
-    "name": "Price implied by a 19% FCF CAGR (generous case)",
+    "name": "Price implied by a 19% FCF CAGR, 5-year explicit period",
     "value": "$153.19 (-40.4%)",
     "tag": "INFERRED",
     "as_of": "2026-08-29"
@@ -169,6 +200,36 @@
     "name": "Net debt",
     "value": "$129.2M (effectively net cash)",
     "tag": "VERIFIED",
+    "as_of": "2026-08-29"
+   },
+   {
+    "name": "Price implied by a 17.1% FCF CAGR, 10-year explicit period (same base, same 9% and 2.5%)",
+    "value": "$234.52 (-8.8%)",
+    "tag": "INFERRED",
+    "as_of": "2026-08-29"
+   },
+   {
+    "name": "Spread between the two horizon conventions on the same 17.1% target",
+    "value": "65.5% ($141.66 against $234.52) — the honest error bar on every level on this page",
+    "tag": "INFERRED",
+    "as_of": "2026-08-29"
+   },
+   {
+    "name": "Market-implied 5y FCF CAGR on a 10-year explicit period",
+    "value": "18.33%, inside the 15.7%-18.3% band this dive defends",
+    "tag": "INFERRED",
+    "as_of": "2026-08-29"
+   },
+   {
+    "name": "FY2026 guided adj. FCF midpoint against year one of the 32.95% path",
+    "value": "$2,500M against $2,518M required (99.3%)",
+    "tag": "INFERRED",
+    "as_of": "2026-08-29"
+   },
+   {
+    "name": "H2 2026 growth required by the FY guide midpoint",
+    "value": "+45.4% (after Q2 2026 printed +24.1%)",
+    "tag": "INFERRED",
     "as_of": "2026-08-29"
    }
   ]
@@ -192,7 +253,7 @@
     "percentile": 85,
     "structural_reason": "Content per megawatt is rising, not just megawatts. At current accelerator densities liquid cooling and high-density power distribution are specified into a hall rather than optional, so Vertiv's revenue per unit of data-center capacity grows even where capacity growth slows. H1 2026 organic growth of 19.9% on top of FY2025's 27.8% reported growth is that effect, not a one-off.",
     "leading_indicator": "EMEA organic revenue, which fell 14.8% in H1 2026 against the Americas' +31.0%. A 19% five-year path needs EMEA to stop shrinking by the FY2026 print; if the Americas is carrying the whole company, the path is regional rather than structural.",
-    "note": "The two columns are NOT the same unit and that is stated rather than smoothed: the data plane's solve returns a free-cash-flow CAGR of 32.95%, not a revenue CAGR. Held at the FY2026 guided free-cash-flow margin of 17.9%, 32.95% free-cash-flow compounding needs about $44B of revenue by 2030, a 33.9% revenue CAGR. Mine is 19.1% (14.0, 17.5, 20.5, 22.7, 24.5 $B for 2026-2030). Against the base rate that companies growing above 20% median-revert to single digits and only 1-3% hold 20%+ for a decade, 19% is already an 85th-percentile call, and it is barely half of what the price asks."
+    "note": "The two columns are NOT the same unit and that is stated rather than smoothed: the data plane's solve returns a free-cash-flow CAGR of 32.95%, not a revenue CAGR. Held at the FY2026 guided free-cash-flow margin of 17.9%, 32.95% free-cash-flow compounding needs about $44B of revenue by 2030, a 33.9% revenue CAGR. Mine is 19.1% (14.0, 17.5, 20.5, 22.7, 24.5 $B for 2026-2030). Against the base rate that companies growing above 20% median-revert to single digits and only 1-3% hold 20%+ for a decade, 19% is already an 85th-percentile call, and it is barely half of what the price asks. RED TEAM AMENDMENT 2026-08-29: 'barely half of what the price asks' is true only on the five-year convention. On a ten-year explicit period the price asks 18.33% of free-cash-flow compounding, which this dive's 19.1% revenue path at the guided 17.9% free-cash-flow margin delivers. The claim is narrowed to: the price asks for this path held for ten years rather than five."
    },
    {
     "driver": "operating_margin",
@@ -200,7 +261,7 @@
     "mine": 0.21,
     "percentile": 75,
     "leading_indicator": "Segment adjusted operating margin: APAC ran 13.2% in H1 2026 against the Americas' 27.3%, so the consolidated number is a mix outcome. Watch whether APAC closes the gap or the group margin is simply the Americas share rising.",
-    "note": "Both columns are GAAP operating margin. The market column is the same cash requirement expressed as margin instead of growth: on my $24.5B of 2030 revenue, the price's $7,866M of 2030 free cash flow is a 32.1% free-cash-flow margin, translated to about 31.5% operating margin at Vertiv's own FY2025 relationship (free-cash-flow margin ran 0.6pt above operating margin). Mine holds the FY2026 guided 21.1% GAAP margin flat, which is already the top of the company's own range (12.7%, 17.1%, 17.9%, 18.2% H1 2026) and below management's stated above-27% adjusted target for 2030, roughly 24% GAAP at the current 2.7pt amortization gap."
+    "note": "Both columns are GAAP operating margin. The market column is the same cash requirement expressed as margin instead of growth: on my $24.5B of 2030 revenue, the price's $7,866M of 2030 free cash flow is a 32.1% free-cash-flow margin, translated to about 31.5% operating margin at Vertiv's own FY2025 relationship (free-cash-flow margin ran 0.6pt above operating margin). Mine holds the FY2026 guided 21.1% GAAP margin flat, which is already the top of the company's own range (12.7%, 17.1%, 17.9%, 18.2% H1 2026) and below management's stated above-27% adjusted target for 2030, roughly 24% GAAP at the current 2.7pt amortization gap. RED TEAM AMENDMENT 2026-08-29: two things. First, the market column of 31.5% is a restatement of the five-year free-cash-flow requirement and inherits the same horizon convention; on a ten-year period the requirement is roughly the currently guided margin and this row's gap closes with it. Second, the columns are not symmetric: the market column is struck at the guided 17.9% free-cash-flow margin and mine at a 17% through-cycle margin, which flatters the bear case by about 5% on terminal free cash flow. Disclosed in the original band and named here."
    },
    {
     "driver": "reinvestment_return",
@@ -219,15 +280,53 @@
    },
    {
     "driver": "net_gap_direction",
-    "mine": "BEARISH",
-    "note": "The price requires roughly twice the free-cash-flow compounding this dive can defend: 32.95% against 17.1% (a 15.7% to 18.3% band depending on whether the through-cycle free-cash-flow margin settles at 16%, 17% or the currently guided 17.9%). Four of the five drivers point the same way and the fifth is agreement. The gap opened through the multiple rather than through delivery, which is what makes it a TOO LATE rather than a WATCH."
+    "mine": "BEARISH_ON_DURATION",
+    "note": "RED TEAM AMENDED 2026-08-29. The draft said: the price requires roughly twice the free-cash-flow compounding this dive can defend, 32.95% against 17.1%. That statement is convention-dependent and does not survive. Holding the solve's own base, enterprise value, discount rate and terminal growth and moving only the explicit period from five years to ten, the price requires 18.33%, which is the top edge of this dive's own 15.7% to 18.3% band. What is left is a duration disagreement: the price pays for this dive's defended path held for ten years, which the dive's own cited base rate says 1% to 3% of companies achieve. That is bearish, and it is not TOO LATE. Direction BEARISH stands; magnitude and every price level derived from it are withdrawn."
    }
-  ]
+  ],
+  "horizon_sensitivity": {
+   "why_this_is_here": "The priced-in attack re-ran the data plane's own solve against its own stated enterprise value of $98,476.1M and base free cash flow of $1,893.8M, changing one convention at a time. Nothing here replaces the quoted market-implied column; it measures the error bar around it, which is what the attack is for.",
+   "solves": [
+    {
+     "assumption_set": "as solved in the data plane: FY2025 base, 9% discount, 2.5% terminal, 5-year explicit period",
+     "implied_fcf_cagr": 0.3295
+    },
+    {
+     "assumption_set": "same, 10-year explicit period",
+     "implied_fcf_cagr": 0.1833
+    },
+    {
+     "assumption_set": "forward base at the FY2026 guided adjusted free cash flow midpoint of $2,500M, 5-year",
+     "implied_fcf_cagr": 0.2529
+    },
+    {
+     "assumption_set": "forward base $2,500M, 10-year",
+     "implied_fcf_cagr": 0.1462
+    },
+    {
+     "assumption_set": "FY2025 base, 8% discount, 5-year",
+     "implied_fcf_cagr": 0.2792
+    },
+    {
+     "assumption_set": "FY2025 base, 10% discount, 5-year",
+     "implied_fcf_cagr": 0.3752
+    },
+    {
+     "assumption_set": "FY2025 base, 3.0% terminal, 5-year",
+     "implied_fcf_cagr": 0.3099
+    }
+   ],
+   "finding": "The honest error bar on the implied column runs from 14.62% to 37.52% across assumption sets that are each individually defensible. This dive's own column is 17.1% with a stated 15.7% to 18.3% band, and that band sits inside the error bar rather than outside it. The analyst contract's own rule applies directly: if my column and the implied column differ by less than the honest error bar on the solve, there is no gap the reverse DCF can establish. The single cleanest statement of the problem: at a 10-year explicit period the price requires year-5 free cash flow of $4,393M, which is this dive's own 2030 revenue of $24.5B at a 17.93% free-cash-flow margin, against the FY2026 guided margin of 17.9%. Change only the horizon and the price asks for exactly the path this dive defends, held for twice as long.",
+   "what_survives": "The disagreement is duration, not magnitude. Holding roughly 18% free-cash-flow compounding for ten years is a harder base-rate call than holding 19% for five, and the base rate this dive cites (only 1% to 3% of companies hold 20% growth for a decade) bites harder on the ten-year reading, not less. The direction of the gap survives the attack. Its size, and every price level derived from its size, does not.",
+   "tag": "INFERRED",
+   "as_of": "2026-08-29"
+  }
  },
  "independence_test": {
-  "largest_disagreement": "The price treats FY2026's guided step-change as a run rate; I think it is a pull-forward peak, so the market is pricing 32.95% five-year free-cash-flow compounding where I can defend 17.1%, and the difference alone is about 45% of the share price.",
-  "why_the_gap_exists": "A duration error, not a direction error, and it is the one error a bullish, well-covered consensus makes most reliably. Twenty-six analysts and a Strong Buy consensus with a mean target near $344 are all right about 2026, which is contracted; the error is extrapolating a guided year into a terminal rate. It is compounded by a cash-flow artefact almost nobody adjusts for: the $1,822.7M H1 deferred-revenue build makes reported free cash flow look like a run rate when it is a stock change, and the reverse DCF's own base is the last clean year before that distortion. Sell-side long-term forecasts run 3-5 points high as a base rate; here the required rate is 16 points above my central case.",
-  "falsification": "By 2026-11-27, this dive's review date, the Q3 2026 print will have landed against guidance of $3,650M-$3,850M net sales and 34-36% organic growth. I am wrong, and this reverts to WATCH or better, if BOTH of these appear: Q3 organic growth prints at or above 36% AND deferred revenue grows by more than $800M again sequentially from the $3,633.7M of 2026-06-30, because that would make the prepayment build a structural feature of the model rather than a one-cycle wave. I am right if organic growth decelerates toward the low 20s with deferred revenue flat or falling, which converts today's free cash flow into a working-capital headwind. The separate price trigger: below roughly $155 the same solve implies a growth rate inside my defensible band and this stops being TOO LATE."
+  "largest_disagreement": "The market is paying for this dive's own defended path held for ten years, and I think it holds for about five before it fades: at $257.08 the same solve on a ten-year explicit period requires 18.33% free-cash-flow compounding, which is my 19.1% revenue path at the currently guided 17.9% free-cash-flow margin, and my disagreement is entirely about how long that persists rather than how fast it runs.",
+  "why_the_gap_exists": "A duration error, which is the one error a bullish, well-covered consensus makes most reliably, and the red team narrowed it from a magnitude error to a duration one. Twenty-six analysts and a Strong Buy consensus with a mean target near $344 are right about 2026 in direction; the error is extrapolating a guided step-change into a decade. It is compounded by a cash-flow artefact almost nobody adjusts for: the $1,822.7M H1 deferred-revenue build makes reported free cash flow look like a run rate when it is a stock change, and the reverse DCF's base is the last year before that distortion. The honest caveat, added by the attack: my own five-year convention made the same class of error in the opposite direction, by pricing a growth cliff at year six that nobody underwrites.",
+  "falsification": "RED TEAM AMENDED 2026-08-29, because the draft's falsifier could not fire. It required Q3 2026 organic growth at or above 36% AND a further $800M deferred-revenue build, a conjunction with both legs set at or above the top of the company's own guided range, so every in-line outcome would have confirmed the draft. The replacement is single-legged and set at the guide's floor: by 2026-11-27 the Q3 2026 print lands against guidance of $3,650M to $3,850M net sales and 34% to 36% organic growth. I am wrong about duration, and this moves toward INVESTABLE, if Q3 organic prints inside or above the guided range AND the deferred-revenue balance is still above $3,633.7M, because the FY2026 guide needs 45.4% H2 growth and delivering it while still collecting prepayments makes the model structural. I am right if Q3 organic prints below 34%, the guided floor, or the deferred-revenue balance falls, either of which turns free cash flow into a working-capital headwind. The price trigger is separate and is stated as a convention rule rather than a valuation: below $175 the five-year and ten-year readings straddle my defensible band instead of bracketing it 65% apart.",
+  "amended_by_red_team": true
  },
  "earnings_quality": {
   "grade": "B",
@@ -336,7 +435,9 @@
   "quality.shares_used is 382,553,680 as of 2025-12-31, while the 8-K reports 384,936,985 shares outstanding at 2026-06-30 and 392.8M diluted shares in the FY2026 guidance reconciliation. Market cap and the reverse-DCF enterprise value are therefore struck on a share count roughly 2.6% below the guided diluted figure. Correcting for it makes the name slightly more expensive, not less, so the direction of the error favours the verdict rather than the thesis.",
   "PCS media sub-score was not fetched (3 of 4 attention fields present) and the PCS gate state is ADVISORY because its control fixtures were unreadable in the Actions run, so Axis A is not machine-admissible evidence here regardless of what it reads.",
   "Backlog is the single most-quoted bull fact on this name and it does not appear in the 8-K on this plane. Web summaries cite a backlog above $15B and a book-to-bill near 3x. Neither is used anywhere in this dive, because a number that load-bearing must come from a filing.",
-  "A web summary encountered during research reported FY2026 guidance of $13.5B-$14.0B revenue and adjusted EPS of $6.30-$6.40, which contradicts the 8-K on disk ($13,800M-$14,200M and $6.65-$6.75). The filing governs and the web figure was discarded. Recorded because it is a live example of why the venue rule exists."
+  "A web summary encountered during research reported FY2026 guidance of $13.5B-$14.0B revenue and adjusted EPS of $6.30-$6.40, which contradicts the 8-K on disk ($13,800M-$14,200M and $6.65-$6.75). The filing governs and the web figure was discarded. Recorded because it is a live example of why the venue rule exists.",
+  "The reverse DCF's assumption block in data/market/VRT.json quality.reverse_dcf carries the tag SPECULATIVE on itself (9% discount, 2.5% terminal, 5-year horizon, bisection), and the explicit-period length is the single most consequential of those choices on this name: five years gives 32.95% and ten years gives 18.33% for the same price. The dive quotes the solved column as method section 7 requires and never re-solves it, but the reader should know the column is one point on a wide surface. This is a data-plane convention question, not a dive question, and it is recorded rather than acted on.",
+  "Quarterly revenue in data/market/VRT.json fundamentals.revenue_q is missing both Q4 quarters (2024-12-31 and 2025-12-31). The H2 acceleration arithmetic on this page derives them as the fiscal year less the three reported quarters ($2,346.4M and $2,880.0M), which is exact if the annual and quarterly series agree on scope and is unverified against a filing."
  ],
  "notes": [
   {
@@ -353,6 +454,16 @@
    "ts": "2026-08-29T22:42:00Z",
    "by": "ron",
    "text": "First real deep dive in this repo; the only other file in data/stocks is the DEMO fixture. Written as a pressure test of the gates hardened earlier today, so anything the gates caught is recorded in the changelog rather than quietly fixed."
+  },
+  {
+   "ts": "2026-08-29T23:05:00Z",
+   "by": "ron",
+   "text": "RED TEAM, 2026-08-29. The verdict moved from TOO_LATE to WATCH and the reason is arithmetic, not sentiment: the draft's headline gap (32.95% market-implied against 17.1% defended) is a property of the reverse DCF's five-year explicit period. Ten years, same base, same enterprise value, same 9% and 2.5%, returns 18.33%, which is the top edge of the draft's own defensible band. The $141.66 re-entry level becomes $234.52 on the same change, a 65.5% spread, so neither number is a level and both are now labelled as arithmetic. The bear case is intact and is written in red_team.surviving_bear_case; what is withdrawn is the claim that the price asks for twice what the business can deliver, replaced by the claim that it asks for the same path held twice as long."
+  },
+  {
+   "ts": "2026-08-29T23:06:00Z",
+   "by": "ron",
+   "text": "The shadow row SHD-20260829-01 stays open and is not deleted. It was written when the verdict was TOO_LATE and it records what skipping at 257.08 was worth over 90 days against SPY, which is still a fact worth grading now that the verdict is WATCH; its note in data/shadow/book.json has been amended to say the verdict changed, so the +90d result on 2026-11-27 is read against the right call."
   }
  ],
  "changelog": [
@@ -362,12 +473,82 @@
    "kind": "CREATE",
    "change": "First deep dive on VRT for the ai-infrastructure chain, on the liquid-cooling link, from the chain-level screen row. Verdict TOO_LATE on the COMPOUNDER clock. Reason in one line: the price carries a 32.95% five-year free-cash-flow CAGR solved in the data plane, the most aggressive path this dive can defend is 17.1%, and the two-year return decomposition (price +219.3%, revenue per share +48.8%, price/sales 4.48x to 9.61x) shows the gap opened through the multiple rather than through delivery. Earnings quality graded B and not load-bearing. Shadow row SHD-20260829-01 opened; it grades at +90d against SPY on 2026-11-27, the same day this dive is due for review. Status DRAFT: this is not a call until the red team has run.",
    "prior": null
+  },
+  {
+   "ts": "2026-08-29T23:05:00Z",
+   "by": "ron",
+   "kind": "AMEND",
+   "change": "RED TEAM, fresh context, reading only this file and data/market/VRT.json. VERDICT AMENDED: TOO_LATE to WATCH, status DRAFT to FINAL, five triggers written. Two attacks landed independently. PRICED_IN_CHECK: re-running the data plane's own solve against its own enterprise value and base while changing one convention at a time gives an implied column running 14.62% to 37.52%, an error bar that contains this dive's whole 15.7% to 18.3% column; on a ten-year explicit period the price requires 18.33%, which is this dive's own 2030 revenue of $24.5B at a 17.93% free-cash-flow margin against a guided 17.9%. ENTRY_BASIS_STRESS: the same inversion puts 17.1% at $234.52 on ten years against $141.66 on five, a 65.5% spread, so both levels are withdrawn as levels. PRE_MORTEM: all three reasons articulable, the first being that the 32.95% was chosen by a horizon convention rather than by the price. CAPTURE_REALITY partially landed (gross margin flat at 36.32% against 36.62% while operating margin rose, so the leverage is SG&A dilution) and bull bullet 2 was narrowed. CROWDEDNESS_REALITY confirmed with no amendment. Also amended: the falsification test, which in the draft required a print at or above the CEILING of the company's own guidance and therefore could not fire inside the guided range; the priced-in row calling FY2026 contracted, which the guide's required 45.4% H2 growth contradicts; and two VERIFIED tags downgraded to INFERRED where they rest on an assumptions block the data plane tags SPECULATIVE.",
+   "prior": "verdict TOO_LATE, status DRAFT, no watch_triggers, entry arithmetic stated at $141.66 and $153.19, falsification requiring Q3 organic at or above 36% AND a further $800M deferred-revenue build"
   }
  ],
  "confidence_audit": {
   "verified": 14,
-  "inferred": 15,
-  "speculative": 0,
+  "inferred": 27,
+  "speculative": 9,
   "null": 0
+ },
+ "red_team": {
+  "attacked_at": "2026-08-29T23:05:00Z",
+  "by": "stocky (fresh context)",
+  "context_read": "data/stocks/VRT__ai-infrastructure.json, data/market/VRT.json, docs/method.md section 7, .claude/agents/stocky.md, data/stocks/_dive-log.json, and the two gate scripts. The chain narrative, the signal card and the screen thesis line were NOT opened. No new filing quote was added, so nothing on this page needs verification it did not already have.",
+  "verdict_before": "TOO_LATE",
+  "verdict_after": "WATCH",
+  "verdict_survived": false,
+  "challenges": [
+   {
+    "dimension": "CROWDEDNESS_REALITY",
+    "attack": "Is the un-crowded read true or a listing artifact, and does any level on this page rest on it? Axis A reads DARK at 88.2 on three of four attention fields with media null, and the PCS gate state is ADVISORY because its control fixtures were unreadable in the fetch run.",
+    "outcome": "CONFIRMED, no amendment. The DARK read is a coverage artifact and the draft already said so in those words. Axis B is SATURATED: 26 analysts, 84.4% institutional ownership, 3.4% short float. I traced every level on the page back to its input (the 257.08 close, the reverse-DCF solve, the 8-K guide) and none of them touches PCS, so nothing rests on un-crowdedness. The bear case is stronger for it: there is no attention gap paying you to wait.",
+    "evidence": "data/market/VRT.json pcs (axis_a.score 88.2, state DARK, sub_scores media null, gate.state ADVISORY; axis_b analyst_count 26, held_pct_institutions 0.84446, short_pct_float 0.034)"
+   },
+   {
+    "dimension": "PRICED_IN_CHECK",
+    "attack": "The verdict rests on 32.95% market-implied against 17.1% defended. Is that a fact about the price or a fact about the solve? I re-ran the data plane's own solve against its own stated enterprise value of $98,476.1M and base free cash flow of $1,893.8M, changing one convention at a time.",
+    "outcome": "LANDED, and it overturned the verdict. Change only the explicit period from five years to ten, holding base, enterprise value, the 9% discount and the 2.5% terminal growth exactly as stated, and the implied rate is 18.33%, inside this dive's own 15.7% to 18.3% band. Re-base on the FY2026 guided adjusted free cash flow of $2,500M, a number the draft itself uses elsewhere for its 39.4x line, and the five-year rate is 25.29%. Across defensible sets the implied column runs 14.62% to 37.52%, an error bar that contains my entire column. Two facts sharpen it: at the ten-year reading the price needs year-5 free cash flow of $4,393M, which is this dive's own 2030 revenue of $24.5B at a 17.93% margin against a guided 17.9%; and the FY2026 guided free-cash-flow midpoint of $2,500M is 99.3% of year one of the 32.95% path the draft called undefendable. The contract's own rule decides it: a difference smaller than the honest error bar on the solve is not a gap.",
+    "evidence": "expectations_gap.horizon_sensitivity in this file; all solves re-run in session against data/market/VRT.json quality.reverse_dcf's own stated assumptions, purely as arithmetic on the quoted column and never as a replacement for it"
+   },
+   {
+    "dimension": "CAPTURE_REALITY",
+    "attack": "Bull bullet 2 claims operating leverage is real and widening. Is the margin story pricing power, which compounds and defends a terminal value, or dilution of a fixed cost base over more revenue, which does neither once the revenue stops accelerating?",
+    "outcome": "PARTIALLY LANDED, bull bullet 2 amended. Gross margin went 34.98%, 36.62%, 36.32% across FY2023-2025: flat to down in the year revenue grew 27.7%. Every point of operating-margin expansion came from SG&A falling 19.12% to 15.81% of revenue. That is scale, not price, and it is why 81.9% of enterprise value sitting beyond 2030 on the five-year reading is the wrong shape for an 11.3% share of a fragmenting market. This strengthens the bear case and is why WATCH here is not a bullish word.",
+    "evidence": "computed from data/market/VRT.json fundamentals.cost_of_revenue_fy, sga_fy, operating_income_fy and revenue_fy"
+   },
+   {
+    "dimension": "ENTRY_BASIS_STRESS",
+    "attack": "TOO_LATE draws no zone, so the levels under stress are the $141.66 and $153.19 inversions the draft offers as re-entry arithmetic, and its statement that this becomes a dive worth re-opening below roughly $155. Are those decision-useful, or are they the base case run backwards?",
+    "outcome": "LANDED, both levels withdrawn as levels and relabelled as convention-dependent arithmetic. Inverting the same solve on a ten-year explicit period puts 17.1% at $234.52 rather than $141.66: the two conventions disagree by 65.5% about the same company on the same day, and neither is wrong. A level that moves 65% on a convention the data plane self-tags SPECULATIVE cannot carry a verdict that tells a reader to stop looking. The draft's own reproduction was also 0.4% adrift ($141.66 against $142.22 re-derived), which is immaterial to the argument and is recorded because unexplained arithmetic drift is how a level stops being checkable. Replaced with a stated straddle rule at $175, which claims less.",
+    "evidence": "inversion re-run against data/market/VRT.json quality.reverse_dcf assumptions with shares_used 382,553,680 and net debt $129.2M, both from the same file"
+   },
+   {
+    "dimension": "PRE_MORTEM",
+    "attack": "It is 2027-08-29. The call was wrong, Vertiv compounded and skipping it cost real money. What happened? If I cannot say why the market would have been right to pay 32.95%, the verdict downgrades.",
+    "outcome": "LANDED, and it is the second independent reason for the downgrade. I can articulate all three reasons and the first is not a story about the company outperforming: it is the statement that my own convention chose my answer. See pre_mortem below.",
+    "evidence": "reasoned from the same data plane; no new sources"
+   }
+  ],
+  "pre_mortem": {
+   "prompt": "It is 2027-08-29. This call was wrong. VRT compounded and the TOO_LATE cost real money. Name the three most likely reasons.",
+   "reasons": [
+    {
+     "reason": "The horizon convention was the entire disagreement, and I priced a convention while calling it an expectation.",
+     "mechanism": "Nobody underwrites a 33% five-year sprint into a 2.5% cliff at year six. The market underwrote roughly 18% for a decade, which is what the same solve returns over ten years, and which needs nothing more than my own 19.1% revenue path at the free-cash-flow margin the company already guides. The 32.95% I built a verdict on was an artifact of a five-year explicit period that the data plane applies to every name and tags SPECULATIVE on its face.",
+     "early_tell": "It was visible on day one and I found it only by re-running the solve. The tell is that the FY2026 guided free-cash-flow midpoint of $2,500M is 99.3% of year one of the supposedly impossible path, while the draft said in the same file that FY2026 was not in dispute."
+    },
+    {
+     "reason": "The deferred-revenue build was structural, not a one-cycle wave, and I discounted the best fact on the page.",
+     "mechanism": "Customers prepaying for multi-phase hall builds is how this industry finances capacity now. The balance kept compounding past $3,633.7M, negative working capital became a permanent feature, and the free cash flow I discounted as customer-funded turned out to be the durable characteristic rather than the distortion. A business whose customers fund its growth needs neither the capital markets nor the 4.0%-of-revenue capex line to constrain it.",
+     "early_tell": "The 2026-11-27 print, which is why the deferred-revenue balance is trigger 2 and why its direction is written as the thing that would make me wrong rather than the thing that would confirm me."
+    },
+    {
+     "reason": "Content per megawatt kept rising and the scale leverage I dismissed as cost dilution kept running.",
+     "mechanism": "Revenue per unit of data-center capacity rose as densities rose, so revenue compounded through a capacity plateau rather than with it, and the incremental dollar needed no incremental salesforce, so SG&A kept falling as a share of revenue and operating margin reached the high twenties on flat gross margin. The 81.9% terminal share that looked like the wrong shape for an 11.3% market share turned out to be the right shape for an installed base with service attach, which is a different business from the equipment sale I was valuing.",
+     "early_tell": "Gross margin is the wrong metric to watch for this path and I made it trigger 3 anyway; the tell would have been SG&A as a share of revenue continuing to fall while gross margin stayed flat, which is exactly what FY2023-2025 already shows."
+    }
+   ],
+   "conclusion": "All three are articulable and the first is damning rather than merely possible, because it says the number the verdict was written around was chosen by my own modelling convention and not by the market. Under the contract that alone downgrades the verdict. It does not make the name attractive: reasons two and three are genuine bull cases that have to actually happen, and the triggers now name the dates and levels at which they either do or do not."
+  },
+  "amendments": "Verdict TOO_LATE amended to WATCH with five triggers, on two independent grounds: the priced-in check showed the implied column's honest error bar (14.62% to 37.52% across defensible assumption sets) contains this dive's entire 15.7% to 18.3% column, so the reverse DCF cannot establish the gap the draft was written around; and the pre-mortem's first reason says the 32.95% headline was chosen by a five-year horizon convention rather than by the price. Also amended: the $141.66 and $153.19 levels withdrawn as levels and relabelled convention-dependent, with the $234.52 ten-year counterpart added alongside and the 65.5% spread stated as the error bar on every level on the page; the falsification test rewritten, because the draft's version required a print at or above the CEILING of the company's own guidance and so could not fire inside the guided range, and it now tests the guide's floor with a single leg; bull bullet 2 narrowed, because gross margin was flat at 36.32% against 36.62% while operating margin rose, so the leverage is SG&A dilution and not pricing power; the priced-in row that called FY2026 contracted amended, because the guide midpoint needs 45.4% H2 growth after Q2 printed 24.1% and an implied Q4 of 50.2%; the two-thirds multiple decomposition narrowed to 54.6% on a current-fiscal-year basis; and two tags downgraded from VERIFIED to INFERRED because they rest on an assumptions block the data plane tags SPECULATIVE. Pre-mortem in one line each, recorded in full in red_team.pre_mortem which the stock page does not yet render: (1) the market underwrote about 18% for ten years, not 33% for five, and my convention manufactured the gap; (2) the deferred-revenue build was structural rather than a one-cycle prepayment wave, making customer-funded growth the durable feature; (3) content per megawatt kept rising so revenue compounded through a capacity plateau while SG&A leverage kept running on flat gross margin.",
+  "surviving_bear_case": "What survives the attack is a duration bet with a thin margin of safety, not a valuation error. At $257.08 the same reverse DCF this dive quotes requires roughly 18.3% free-cash-flow compounding for ten years, which is this dive's own defended 19.1% revenue path at the currently guided 17.9% free-cash-flow margin held for twice as long as it was defended, and the base rate this dive itself cites is that only 1% to 3% of companies hold 20% growth for a decade, so the price pays for a top-decile duration outcome and offers nothing for the ordinary one. Three bear facts are unimproved by the amendment: the free cash flow being discounted is currently funded by a $1,822.7M half-year deferred-revenue build rather than by operations, so the cash number is a stock change that reverses when the balance stops growing; the operating-margin expansion that makes any bull model work came entirely from SG&A falling 19.12% to 15.81% of revenue while gross margin went flat at 36.32%, which is scale and not pricing power; and the FY2026 guide the draft granted as contracted needs the back half to grow 45.4% after Q2 2026 printed 24.1% reported, with an implied Q4 of 50.2%, so the year's real risk sits in two quarters nobody has seen. Around that, value capture is fragmented at roughly 11.3% share against a top five holding about 35%, 81.9% of enterprise value sits beyond 2030 on the five-year reading, and 26 analysts, 84.4% institutional ownership and a Strong Buy consensus mean there is no attention gap paying anyone to wait. WATCH rather than TOO_LATE because the disagreement is about how long and not about how much, and not INVESTABLE at any level on this page, because the price at which it would become one moves 65.5% depending on a convention the data plane itself tags SPECULATIVE."
  }
 }

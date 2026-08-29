@@ -15,7 +15,7 @@
     "SHD-20260829-01"
    ],
    "next_grade_due": "2026-11-27",
-   "recomputed_from": "data/shadow/book.json (1 row) and data/shadow/results.json (0 results)"
+   "recomputed_from": "data/shadow/book.json (1 row) and data/shadow/results.json (0 results). SHD-20260829-01 was opened as a TOO_LATE row and its dive is now WATCH; the row stays open, is not re-priced, and its +90d result on 2026-11-27 grades what declining to buy VRT at 257.08 was worth. The row's own note carries the amendment."
   },
   "entry_zones": {
    "question": "Did price ever reach the zones I drew, and what happened after?",
@@ -24,21 +24,21 @@
    "never_reached": 0,
    "filled_same_week": 0,
    "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone.",
-   "recomputed_from": "data/stocks/*.json: 1 real dive, 0 INVESTABLE, so this channel still has no denominator"
+   "recomputed_from": "data/stocks/*.json: 1 real dive(s), 0 INVESTABLE, so this channel still has no denominator. Nothing has been graded here and that is not the same as nothing having been wrong."
   },
   "red_team_amendments": {
    "question": "How often does my own attack change my draft, and which attack lands?",
-   "denominator": 0,
-   "amended": 0,
+   "denominator": 1,
+   "amended": 1,
    "by_dimension": {
     "CROWDEDNESS_REALITY": 0,
-    "PRICED_IN_CHECK": 0,
-    "CAPTURE_REALITY": 0,
-    "ENTRY_BASIS_STRESS": 0,
-    "PRE_MORTEM": 0
+    "PRICED_IN_CHECK": 1,
+    "CAPTURE_REALITY": 1,
+    "ENTRY_BASIS_STRESS": 1,
+    "PRE_MORTEM": 1
    },
-   "note": "An attack dimension that has never amended anything is either unnecessary or being performed rather than run. Naming which is part of the report.",
-   "recomputed_from": "data/stocks/*.json: 1 real dive at status DRAFT, 0 red teams run. The first amendment rate is unmeasurable until run redteam VRT ai-infrastructure has executed."
+   "note": "An attack dimension that has never amended anything is either unnecessary or being performed rather than run, and naming which is part of the report. After run 1: PRICED_IN_CHECK, ENTRY_BASIS_STRESS, CAPTURE_REALITY and PRE_MORTEM have each landed once. CROWDEDNESS_REALITY has landed zero times and I do not yet call it performative: on this name it was checked by tracing every level back to its input and it correctly found that nothing rested on the DARK score. A confirmation is an outcome. Re-examine it if it has confirmed three dives in a row without once changing a word.",
+   "recomputed_from": "data/stocks/*.json: 1 dive(s) attacked, 1 amended. First red team in this repo's life, and it overturned the verdict it attacked (VRT TOO_LATE to WATCH). One run is not a rate: with a denominator of 1 this channel says the attack is capable of landing, and nothing about how often it will."
   },
   "implied_growth": {
    "question": "The market-implied CAGR I recorded at dive time, against what was actually delivered by review_by.",
@@ -46,7 +46,7 @@
    "resolved": 0,
    "market_too_high": 0,
    "market_too_low": 0,
-   "note": "This grades the reverse DCF itself. Without it the gap table is a format, not a method.",
+   "note": "This grades the reverse DCF itself. Without it the gap table is a format, not a method. Run 1 already produced the finding this channel exists for: the implied column is one point on a surface that runs 14.62% to 37.52% across defensible assumption sets on the same price, and the explicit-period length is the choice that moves it most.",
    "open_records": [
     {
      "ticker": "VRT",
@@ -57,10 +57,12 @@
      "my_fcf_cagr": 0.171,
      "my_revenue_cagr_5y": 0.19,
      "resolve_by": "2026-11-27",
-     "resolves_against": "FY2026 reported net sales against the $13,800M-$14,200M guide, and the deferred-revenue balance against $3,633.7M at 2026-06-30. The five-year CAGR itself cannot resolve before 2030; the review date grades the first year of the path, not the path."
+     "resolves_against": "FY2026 reported net sales against the $13,800M-$14,200M guide, and the deferred-revenue balance against $3,633.7M at 2026-06-30. The five-year CAGR itself cannot resolve before 2030; the review date grades the first year of the path, not the path.",
+     "my_fcf_cagr_note": "17.1% stands as the defended path. The red team did not change it; it changed what the market column means. On the data plane's five-year explicit period the market column is 32.95%; on a ten-year period, same base and same discount and terminal rates, it is 18.33%. When this record resolves, grade the reverse DCF against BOTH readings or the channel will teach the wrong lesson.",
+     "market_implied_fcf_cagr_10y_horizon": 0.1833
     }
    ],
-   "recomputed_from": "data/stocks/*.json expectations_gap blocks: 1 dive carrying a SOLVED market-implied column"
+   "recomputed_from": "data/stocks/*.json expectations_gap blocks: 1 dive(s) carrying a SOLVED market-implied column"
   }
  },
  "repairs": [
@@ -81,6 +83,18 @@
    "action": "NOT deleted. Deletion is irreversible, was not asked for, and CLAUDE.md's file-ownership rule says never delete-then-rebuild live data. Raised for Ron rather than actioned.",
    "prevention": "n/a",
    "ts": "2026-08-29T22:52:00Z"
+  },
+  {
+   "finding": "red_team.pre_mortem renders nowhere. app/templates/app.js prints attacked_at, verdict_survived, challenges, amendments and surviving_bear_case, and skips pre_mortem entirely. Method section 7 makes the pre-mortem the test that can downgrade a verdict, and on this dive it did; a reader of the stock page cannot see the reasoning that moved the call.",
+   "action": "ESCALATED, not applied. app/ is CONSTITUTION tier and this is a renderer change that was not asked for. Worked around inside my own lane by writing the three pre-mortem reasons in one line each at the end of red_team.amendments, which does render.",
+   "prevention": "none shipped this run; the workaround is per-dive and rots the moment a dive forgets it. Same shape as the price_source_note finding logged earlier today, which suggests the real fix is a render check that every method-mandated block has a template path, not another workaround.",
+   "ts": "2026-08-29T23:10:00Z"
+  },
+  {
+   "finding": "The draft's falsification condition could not fire. It required Q3 2026 organic growth at or above 36% AND a further $800M deferred-revenue build: a conjunction with both legs at or above the top of the company's own guided range, so every in-line outcome would have confirmed the verdict. tools/check_analyst.py checks that independence_test.falsification is a non-empty string, which this was.",
+   "action": "FIXED inside my lane: the falsifier is rewritten single-legged at the guide's floor (Q3 organic below 34%). The gate gap is ESCALATED, not patched, because tools/ is CONSTITUTION tier.",
+   "prevention": "none shipped this run. A machine cannot easily tell a rigged falsifier from a strict one, but it could require the falsification text to name a level that sits inside a range the dive states elsewhere, which would have caught this.",
+   "ts": "2026-08-29T23:10:00Z"
   }
  ],
  "confidence_audit": {
@@ -101,6 +115,12 @@
    "by": "ron",
    "change": "First real dive recorded: VRT / ai-infrastructure, TOO_LATE on the COMPOUNDER clock, earnings grade B, status DRAFT. Two of four channels move off a zero denominator: shadow_book to 1 (SHD-20260829-01, grades 2026-11-27) and implied_growth to 1 (32.95% market-implied FCF CAGR recorded against a 17.1% expectation). entry_zones and red_team_amendments stay at zero and stay honest about it: no INVESTABLE verdict has been written and no red team has run, so both rates are undefined rather than perfect. Three findings logged in repairs, all ESCALATED rather than auto-applied because all three sit in CONSTITUTION-tier files.",
    "prior": "all four channels at denominator 0"
+  },
+  {
+   "ts": "2026-08-29T23:10:00Z",
+   "by": "ron",
+   "change": "First red team executed (VRT / ai-infrastructure) and it overturned its own draft: TOO_LATE to WATCH, status DRAFT to FINAL. red_team_amendments moves off a zero denominator at 1 of 1, with PRICED_IN_CHECK, ENTRY_BASIS_STRESS, CAPTURE_REALITY and PRE_MORTEM each landing once and CROWDEDNESS_REALITY confirming without amendment. implied_growth's open record now carries both horizon readings of the market column (32.95% at five years, 18.33% at ten) because grading it against one would teach the wrong lesson. entry_zones stays at denominator 0: still no INVESTABLE verdict. shadow_book stays at 1 open row, unre-priced and annotated rather than deleted. Two repairs logged, both ESCALATED: red_team.pre_mortem renders nowhere, and a falsification test that could not fire passed the gate.",
+   "prior": "red_team_amendments at denominator 0 with the first amendment rate unmeasurable; VRT recorded as TOO_LATE/DRAFT"
   }
  ],
  "dives": [
@@ -109,16 +129,18 @@
    "ticker": "VRT",
    "chain_id": "ai-infrastructure",
    "link_id": "liquid-cooling",
-   "verdict": "TOO_LATE",
+   "verdict": "WATCH",
    "clock": "COMPOUNDER",
    "earnings_grade": "B",
-   "status": "DRAFT",
+   "status": "FINAL",
    "dive_date": "2026-08-29",
    "review_by": "2026-11-27",
    "price_ref": 257.08,
    "price_status": "SINGLE_SOURCE",
    "shadow_ref": "SHD-20260829-01",
-   "one_line": "The price carries a 32.95% five-year free-cash-flow CAGR; the most aggressive defensible path is 17.1%, and two thirds of the last two years of return came from the multiple rather than from delivery."
+   "one_line": "The price asks for the path this dive defends held for ten years, not for twice the path over five: the 32.95% headline was a five-year-horizon artifact and the same solve over ten years returns 18.33%, inside the dive's own band.",
+   "prior_verdict": "TOO_LATE (DRAFT, overturned by red team 2026-08-29)",
+   "red_team_amended": true
   }
  ]
 }
