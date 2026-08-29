@@ -72,24 +72,42 @@ def safe_name(t) -> str:
 # transcription difference, not a fidelity difference. Folding both sides means the
 # check fails on changed WORDS, never on changed glyphs — a check that cried wolf on
 # curly apostrophes would be turned off within a week, and then nothing would be checked.
-_PUNCT = {
-    "‘": "'", "’": "'", "‚": "'", "‛": "'",
-    "“": '"', "”": '"', "„": '"', "‟": '"',
-    "–": "-", "—": "-", "‒": "-", "―": "-", "−": "-",
-    " ": " ", " ": " ", " ": " ", " ": " ", " ": " ",
-    "​": "", "­": "",
+_QUOTES = {
+    "\u2018": "'", "\u2019": "'", "\u201a": "'", "\u201b": "'",
+    "\u201c": '"', "\u201d": '"', "\u201e": '"', "\u201f": '"',
+    "\u00b4": "'", "\u02bc": "'",
 }
+# Zero-width and soft-hyphen characters, which EDGAR HTML sprinkles through words and
+# which are invisible to whoever copies the quote out of the filing.
+_INVISIBLE = frozenset("\u200b\u200c\u200d\u00ad\ufeff")
 
 
 def normalize(s: str) -> str:
-    """Whitespace-normalized, case-folded, punctuation-folded — method section 1."""
+    """Whitespace-normalized, case-folded, punctuation-folded - method section 1.
+
+    Every Unicode dash (category Pd) folds to ASCII "-" and every Unicode space (Zs)
+    folds to " ", rather than being enumerated. The hand-written list missed U+2010
+    HYPHEN and U+2011 NON-BREAKING HYPHEN, which is what EDGAR actually emits inside
+    "year-over-year" and "book-to-bill", so a correctly transcribed quote failed to match
+    its own filing. That direction of error is the dangerous one: a verifier that rejects
+    true quotes gets switched off, and then nothing is verified at all.
+    """
     if not isinstance(s, str):
         return ""
     s = unicodedata.normalize("NFKC", s)
-    for a, b in _PUNCT.items():
-        s = s.replace(a, b)
-    s = re.sub(r"\s+", " ", s)
-    return s.strip().casefold()
+    out = []
+    for ch in s:
+        if ch in _INVISIBLE:
+            continue
+        if ch in _QUOTES:
+            out.append(_QUOTES[ch])
+        elif unicodedata.category(ch) == "Pd":      # every dash/hyphen form
+            out.append("-")
+        elif unicodedata.category(ch) == "Zs":      # every space form
+            out.append(" ")
+        else:
+            out.append(ch)
+    return re.sub(r"\s+", " ", "".join(out)).strip().casefold()
 
 
 def check_quotes(data: Path, screens: list) -> None:
