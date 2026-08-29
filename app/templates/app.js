@@ -271,9 +271,14 @@
       : s.status === "CHAINED"
         ? '<a class="chip accent" href="#/chain/' + esc(s.chain_id) + '">Open chain →</a>'
         : chip(s.status);
-    return '<div class="sigrow" data-nav="#/signal/' + esc(s.id) + '" tabindex="0" role="link" aria-label="' + esc(s.title) + '">' +
-      "<div>" +
-      '<div class="meta">' + chip(laneName) + chip(s.suggested_clock) +
+    var occ = s.occurrence || null;
+    var occLine = '<div class="occline">' + esc(laneName.toUpperCase()) + " &middot; " + esc(s.suggested_clock) +
+      (occ ? " &middot; " + esc(occ.kind) + " " + esc(occ.anchor_date) : " &middot; UNDATED") +
+      (occ && occ.label ? '<span class="ol">' + esc(occ.label) + "</span>" : "") + "</div>";
+    return '<div class="sigrow bracket" data-nav="#/signal/' + esc(s.id) + '" tabindex="0" role="link" aria-label="' + esc(s.title) + '">' +
+      '<i class="bk tl"></i><i class="bk tr"></i><i class="bk bl"></i><i class="bk br"></i>' +
+      "<div>" + occLine +
+      '<div class="meta">' +
       '<span class="num">' + esc((s.horizon_years || []).join("–")) + "y</span>" +
       "<span>" + (s.evidence || []).length + " evidence</span>" + staleChip(s.updated_at) + "</div>" +
       '<div class="t">' + esc(s.title) + "</div>" +
@@ -658,7 +663,23 @@
     } else {
       zone = '<div class="zone"><span class="zl">Shadow book</span><span class="zv" style="font-size:14px"><a href="#/shadow">graded at +90d vs SPY →</a></span></div>';
     }
-    var hero = '<div class="vhero ' + esc(st.verdict) + '">' +
+    var bigval = "";
+    if (mk && mk.series && (mk.series.rows || []).length) {
+      var sr = mk.series.rows, sn = sr.slice(-90);
+      var svals = sn.map(function (r) { return r[1]; });
+      var slo = Math.min.apply(null, svals), shi = Math.max.apply(null, svals);
+      var rng = (shi - slo) || 1;
+      var sp = sn.map(function (r, i) {
+        return (i ? "L" : "M") + (i / (sn.length - 1) * 64).toFixed(1) + " " + (20 - (r[1] - slo) / rng * 18).toFixed(1);
+      }).join("");
+      var lastRow = sr[sr.length - 1];
+      var first = sn[0][1], chg = first ? ((lastRow[1] - first) / first) * 100 : 0;
+      bigval = '<div class="bigval"><div><span class="v">' + fmtMoney(lastRow[1]) + "</span>" +
+        '<svg class="spark" viewBox="0 0 66 22" aria-hidden="true"><path d="' + sp + '" fill="none" stroke="' +
+        (chg >= 0 ? "var(--und)" : "var(--ovr)") + '" stroke-width="1.6"/></svg></div>' +
+        '<span class="l">last close · ' + esc(lastRow[0]) + " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% over 90 sessions</span></div>";
+    }
+    var hero = bigval + '<div class="vhero ' + esc(st.verdict) + '">' +
       '<span class="vword"><span class="dot"></span>' + esc(st.verdict.replace("_", " ")) + "</span>" + zone +
       '<span class="right">' + chip(st.clock) + tierChip(st.tier) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") +
       (pos.length ? chip("in book @ " + pos[pos.length - 1].price, "accent") : "") +
@@ -705,28 +726,49 @@
     function X(i) { return P.l + (i / (pts.length - 1)) * iw; }
     function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
     var s = '<div class="chartwrap"><svg id="pxchart" viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="price chart">';
-    if (st.entry_zone) s += '<rect x="' + P.l + '" y="' + Y(st.entry_zone.high) + '" width="' + iw + '" height="' + (Y(st.entry_zone.low) - Y(st.entry_zone.high)) + '" fill="var(--band-good)"/><text x="' + (P.l + 8) + '" y="' + (Y(st.entry_zone.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">ENTRY ZONE</text>';
-    if (st.no_entry_above) s += '<rect x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + Math.max(0, Y(st.no_entry_above) - P.t) + '" fill="var(--band-bad)"/><text x="' + (P.l + 8) + '" y="' + (P.t + 14) + '" font-size="10" font-weight="600" fill="var(--ovr)">NO ENTRY</text>';
+    if (st.entry_zone) {
+      s += '<rect x="' + P.l + '" y="' + Y(st.entry_zone.high) + '" width="' + iw + '" height="' + (Y(st.entry_zone.low) - Y(st.entry_zone.high)) + '" fill="var(--band-good)"/>' +
+        '<line x1="' + P.l + '" y1="' + Y(st.entry_zone.high) + '" x2="' + (W - P.r) + '" y2="' + Y(st.entry_zone.high) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
+        '<line x1="' + P.l + '" y1="' + Y(st.entry_zone.low) + '" x2="' + (W - P.r) + '" y2="' + Y(st.entry_zone.low) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
+        '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.entry_zone.high) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(st.entry_zone.high) + "</text>" +
+        '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.entry_zone.low) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(st.entry_zone.low) + "</text>" +
+        '<text x="' + (P.l + 8) + '" y="' + (Y(st.entry_zone.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">ENTRY ZONE</text>';
+    }
+    if (st.no_entry_above) {
+      s += '<line x1="' + P.l + '" y1="' + Y(st.no_entry_above) + '" x2="' + (W - P.r) + '" y2="' + Y(st.no_entry_above) + '" stroke="var(--ovr)" stroke-width="0.9" stroke-dasharray="2 5"/>' +
+        '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.no_entry_above) + 4) + '" font-size="10" class="mono-t" fill="var(--ovr)">' + esc(st.no_entry_above) + " no entry</text>";
+    }
     for (var t = 0; t <= 4; t++) {
       var v = lo + ((hi - lo) * t) / 4;
       s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
-      s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(0) + "</text>";
+      // top tick carries the axis name inline; the rest keep bare numbers (Evidence axis grammar)
+      // sits just inside the plot on the top gridline, so the event-label band above stays clear
+      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(0) + "   price, " + esc((mk.series.currency || "USD")) + "</text>";
+      else s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(0) + "</text>";
     }
     var lbl = Math.max(1, Math.floor(pts.length / 6));
     pts.forEach(function (r, i) { if (i % lbl === 0 && i < pts.length - 3) s += '<text x="' + X(i) + '" y="' + (H - P.b + 16) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(r[0].slice(0, 7)) + "</text>"; });
+    // An event outside the price window is exactly the one that must not vanish: a SCHEDULED
+    // occurrence or a dated calendar entry is future by definition. Clamp it to the edge instead.
     (st.events || []).forEach(function (e, ei) {
-      var idx = -1;
+      var idx = -1, off = "";
       pts.forEach(function (r, i) { if (idx < 0 && r[0] >= e.date) idx = i; });
-      if (idx < 0) return;
+      if (idx < 0) { idx = pts.length - 1; off = "after"; }
+      else if (e.date < pts[0][0]) { idx = 0; off = "before"; }
+      var ex = X(idx) + (off === "after" ? 10 : off === "before" ? -10 : 0);
       var lyy = ei % 2 === 0 ? P.t - 6 : P.t - 18;
-      s += '<line x1="' + X(idx) + '" y1="' + (P.t - 2) + '" x2="' + X(idx) + '" y2="' + (H - P.b) + '" stroke="var(--chart-axis)" stroke-dasharray="2 4"/>' +
-        '<text x="' + X(idx) + '" y="' + lyy + '" text-anchor="middle" font-size="9" fill="var(--ink-3)">' + esc(e.label.length > 26 ? e.label.slice(0, 25) + "…" : e.label) + "</text>";
+      var col = off ? "var(--emg)" : "var(--chart-axis)";
+      s += '<line x1="' + ex + '" y1="' + (P.t - 2) + '" x2="' + ex + '" y2="' + (H - P.b) + '" stroke="' + col + '" stroke-dasharray="' + (off ? "1 4" : "2 4") + '"/>';
+      if (off) s += '<path d="M' + ex + " " + (P.t + 4) + " l" + (off === "after" ? 5 : -5) + " 5 l" + (off === "after" ? -5 : 5) + ' 5 z" fill="var(--emg)"/>';
+      s += '<text x="' + ex + '" y="' + lyy + '" text-anchor="' + (off === "after" ? "end" : off === "before" ? "start" : "middle") + '" font-size="9" fill="' + (off ? "var(--emg)" : "var(--ink-3)") + '">' +
+        esc(e.label.length > 26 ? e.label.slice(0, 25) + "…" : e.label) + (off ? " · " + esc(e.date) : "") + "</text>";
     });
     var path = pts.map(function (r, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(r[1]).toFixed(1); }).join("");
     s += '<path d="' + path + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
     var last = pts[pts.length - 1];
     s += '<circle cx="' + X(pts.length - 1) + '" cy="' + Y(last[1]) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
     s += '<text x="' + (X(pts.length - 1) + 9) + '" y="' + (Y(last[1]) + 4) + '" font-size="11.5" font-weight="650" class="mono-t" fill="var(--ink)">' + last[1] + "</text>";
+    s += '<text x="' + (W - P.r) + '" y="' + (H - 6) + '" text-anchor="end" font-size="10.5" class="mono-t" fill="var(--ink-3)">date \u2192</text>';
     s += '<rect id="pxhover" x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
     s += "</svg></div>";
     s += '<div class="muted num" style="margin-top:8px">prices [' + esc(mk.series.source) + ", as of " + esc(mk.series.as_of) + "] · " + esc(mk.price_status) +
