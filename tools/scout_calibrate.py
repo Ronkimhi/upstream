@@ -29,6 +29,11 @@ EXPIRY_DAYS = 45
 FAMILIES = ("POLICY", "CORPORATE", "TECH", "PHYSICAL", "GEO")
 
 
+def existing_log():
+    """The log as it stands before this run, so a streak can be carried forward."""
+    return read_json(LOG) if LOG.exists() else None
+
+
 def read_json(path: Path, default=None):
     try:
         return json.loads(path.read_text())
@@ -202,6 +207,28 @@ def build_calibration() -> dict:
     notes_examined = sum(len(s.get("notes") or []) for s in signals) + \
         sum(len(c.get("notes") or []) for c in cands)
 
+    # ---- feed plane health. Nell's duty is "flag a source that failed two runs running";
+    # this measures it instead of asking her to remember. Actions owns actions.json.
+    actions = read_json(DATA / "health" / "actions.json", {}) or {}
+    fh = actions.get("feeds") or {}
+    summary = fh.get("summary") or {}
+    failed_now = summary.get("sources_failed") or []
+    prior = ((existing_log() or {}).get("calibration") or {}).get("feed_health") or {}
+    prior_failed = set(prior.get("sources_failed") or [])
+    prior_streaks = prior.get("failed_streak") or {}
+    streaks = {}
+    for src in failed_now:
+        streaks[src] = prior_streaks.get(src, 0) + 1 if src in prior_failed else 1
+    feed_health = {
+        "last_run": fh.get("last_run"),
+        "sources_ok": summary.get("sources_ok"),
+        "sources_failed": failed_now,
+        "failed_streak": streaks,
+        "flag_now": sorted(s for s, n in streaks.items() if n >= 2),
+        "held": summary.get("held"),
+        "stale_days": days_since(fh.get("last_run")) if fh.get("last_run") else None,
+    }
+
     return {
         "generated_at": NOW,
         "conversion": conversion,
@@ -218,6 +245,7 @@ def build_calibration() -> dict:
         },
         "latency": latency,
         "latency_unmatched": unmatched,
+        "feed_health": feed_health,
         "death_outcomes": {
             "signals_new_past_review_by": stale_signals,
             "candidates_past_expiry": overdue_cands,
@@ -238,7 +266,7 @@ def main() -> int:
     dry = "--dry-run" in sys.argv
     cal = build_calibration()
 
-    existing = read_json(LOG) if LOG.exists() else None
+    existing = existing_log()
     if isinstance(existing, dict):
         log = existing
         prior = (log.get("calibration") or {}).get("generated_at")
@@ -279,6 +307,12 @@ def main() -> int:
         f"  my misses: {len(dd['signals_new_past_review_by'])} of {d['signals_examined']} signals past review_by · "
         f"{len(dd['candidates_past_expiry'])} of {c['ambient']} AMBIENT past {EXPIRY_DAYS}d · "
         f"{len(dd['calendar_passed_unpromoted'])} of {d['calendar_examined']} calendar entries passed unpromoted"
+    )
+    fhh = cal["feed_health"]
+    print(
+        f"  feed plane: {fhh['sources_ok']} ok, {len(fhh['sources_failed'])} failed"
+        + (f", FLAG {', '.join(fhh['flag_now'])} (failed 2+ runs running)" if fhh["flag_now"] else "")
+        + (f", last run {fhh['stale_days']}d ago" if fhh["stale_days"] is not None else ", never run")
     )
     if dry:
         print("scout_calibrate: --dry-run, nothing written")

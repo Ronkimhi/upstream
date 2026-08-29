@@ -339,8 +339,10 @@
       (proposed.length ? "<div class='muted' style='margin-top:8px'>" + esc(proposed.length) +
         " proposed, waiting on a second occurrence</div>" : "") +
       "</div>" + "</div>" +
-      (esc_.length ? '<div class="sysline"><span class="healthdot" style="background:var(--crd)"></span>' +
-        esc(esc_[0].text) + "</div>" : "");
+      esc_.map(function (n) {
+        return '<div class="sysline"><span class="healthdot" style="background:var(--crd)"></span>' +
+          esc(n.text) + "</div>";
+      }).join("");
   }
 
   function homeView() {

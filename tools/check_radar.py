@@ -10,7 +10,8 @@ Checks, each reported with the denominator it examined (Rule 21):
   3. candidate expiry ran (no AMBIENT candidate 45+ days old)
   4. every PROMOTED candidate carries first_feed_ts, so latency stays measurable
   5. the scout log's calibration was regenerated today
-  6. today's radar ledger line names a taste-rules-applied count
+  6. every signal dismissed today carries a shadow row (method §8)
+  7. today's radar ledger line names a taste-rules-applied count AND what the click queue held
 
 Scope: checks 1, 2, 3, 5 and 6 only bind on a day that actually wrote a radar artifact.
 On a day with no radar run the gate reports NOT RUN TODAY and exits 0, rather than
@@ -109,7 +110,12 @@ def main() -> int:
     if stale_watching:
         fail(f"calendar: {len(stale_watching)} WATCHING entries past their date, mark PASSED: "
              f"{', '.join(map(str, stale_watching))}")
-    report(f"calendar: {len(events)} entries examined, {len(stale_watching)} past-date WATCHING")
+    # An empty calendar makes the sweep check unfalsifiable, so the scope boundary is stated
+    # on the same line as the result rather than left for a reader to infer.
+    report(f"calendar: {len(events)} entries examined, {len(stale_watching)} past-date WATCHING"
+           + ("  <- EMPTY: the sweep passed over nothing. Forward visibility is part of the "
+              "hunt (method §0.1); this is a scope boundary, not a clean result."
+              if not events else ""))
 
     # 3 + 4. candidate expiry ran, and promoted candidates stay latency-measurable
     cands = (read_json(data / "radar" / "candidates.json", {}) or {}).get("candidates", [])
@@ -141,7 +147,23 @@ def main() -> int:
                        if isinstance(r, dict) and r.get("status") == "HARDENED")
             report(f"scout log: calibration regenerated {gen}, {live} hardened taste rules live")
 
-    # 6. the ledger line names what it filtered
+    # 6. every signal dismissed today is priced: a dismissal with no shadow row is an
+    #    opinion made unfalsifiable (method §8). Mirrors the TOO_LATE rule on dives.
+    book = read_json(data / "shadow" / "book.json", {}) or {}
+    rows = book.get("rows") or []
+    row_refs = {r.get("id") for r in rows if isinstance(r, dict)} | \
+               {r.get("ref") for r in rows if isinstance(r, dict)}
+    dismissed = [s for s in touched if s.get("status") == "DISMISSED"]
+    unpriced = [s.get("id") for s in dismissed
+                if not s.get("shadow_ref") or s.get("shadow_ref") not in row_refs]
+    if unpriced:
+        fail(f"{len(unpriced)} of {len(dismissed)} signals dismissed today have no shadow row: "
+             f"{', '.join(map(str, unpriced))}. A dismissal that is never graded cannot be wrong.")
+    if dismissed:
+        report(f"dismissals: {len(dismissed)} today, {len(dismissed) - len(unpriced)} priced into "
+               f"the shadow book ({len(rows)} rows total)")
+
+    # 7. the ledger line names what it filtered, and what the click queue held
     if not radar_lines:
         fail(f"no RADAR ledger line for {today} but {len(touched)} signals were touched")
     else:
@@ -149,6 +171,12 @@ def main() -> int:
             if not re.search(r"taste[- ]?(ledger|rule)", ln, re.I):
                 fail("radar ledger line does not name a taste-rules-applied count "
                      "(method §6: taste filtering is applied VISIBLY)")
+            # The postlude's artifact republish CLEARS the queue, so an undrained click is a
+            # deleted click. The run must say what the queue held, even if the answer is empty.
+            if not re.search(r"(click )?queue", ln, re.I):
+                fail("radar ledger line does not say what the click queue held. The postlude's "
+                     "republish clears the queue, so an undrained entry is destroyed, not "
+                     "delayed. State it even when empty.")
         report(f"ledger: {len(radar_lines)} radar line(s) for {today}")
 
     print(f"check_radar: {today}")
