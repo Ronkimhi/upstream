@@ -17,6 +17,7 @@ No Anthropic calls, no absolute paths, loud degradation. Stdlib + requests
 (+ yfinance best-effort via acis.dual_source).
 """
 import dataclasses
+import html
 import json
 import os
 import re
@@ -702,10 +703,26 @@ def do_edgar_fts(query, forms=None, lookback_days=365):
 
 
 # ---------------------------------------------------------------- EDGAR doc
-def _strip_html(html):
-    text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html, flags=re.DOTALL | re.IGNORECASE)
+def _strip_html(html_text):
+    """Filing HTML to plain text, with entities DECODED rather than blanked.
+
+    This text is the evidence base: `tools/check_screen.py` verifies every earnings quote
+    against it verbatim, and method section 1 says a quote that cannot be verified is not
+    evidence. The old line replaced `&#?[a-zA-Z0-9]+;` with a SPACE, so every HTML entity
+    became a hole: "Powell&#8217;s Chairman" was stored as "Powell s Chairman" and
+    "T&amp;D backlog" as "T D backlog". Two consequences, both bad. A quote copied from
+    the real SEC page carries a real apostrophe and would NOT match the mangled text on
+    disk, so the verifier would reject TRUE quotes — the failure direction that gets a
+    checker switched off. And a quote that did match printed on the stock page with the
+    mangling intact, which is a misquotation of a filing.
+
+    Entities are decoded after tags are removed, so a decoded "<" can never be read as
+    markup. html.unescape is stdlib.
+    """
+    text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html_text,
+                  flags=re.DOTALL | re.IGNORECASE)
     text = re.sub(r"<[^>]+>", " ", text)
-    text = re.sub(r"&#?[a-zA-Z0-9]+;", " ", text)
+    text = html.unescape(text)
     return re.sub(r"\s+", " ", text).strip()
 
 
