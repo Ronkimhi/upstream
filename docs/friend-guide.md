@@ -11,7 +11,7 @@ You have full co-pilot rights: run any stage, add notes, log your own trades. Ev
 ## Working in it
 
 - Read `CLAUDE.md` (the command list) and `docs/method.md` (how scoring works) once.
-- Type commands in your Claude session exactly as the UI's "run" pills show them, e.g. `run heat ai-infrastructure`.
+- The UI's ▶ Run buttons queue the command into the shared page itself; any live Claude session (Ron's, yours, or the daily routine) picks it up and the page refreshes with results. Buttons need write access to the artifact — if your view is read-only they automatically fall back to copy-paste pills. Either way the same command works typed into your own Claude session, e.g. `run heat ai-infrastructure`.
 - First screen or dive on a new ticker usually ends with "data pending, re-run in ~5 minutes" — that is the GitHub Action fetching prices/filings. Re-run the same command after it lands.
 - Convention: one stage per chain at a time. Check `data/ledger.md` (or the Recent activity box on the UI home) before starting something big, so we don't run the same stage twice concurrently.
 - Disagree in place: `note <object> "I think the crowdedness score is too low because ..."` — notes render on the object's page.

@@ -87,6 +87,9 @@ def main() -> int:
     shell = (APP / "templates" / "shell.html").read_text()
     css = (APP / "templates" / "app.css").read_text()
     js = (APP / "templates" / "app.js").read_text()
+    if "</script" in js:
+        print("build: refused — app.js contains a literal </script>, which would terminate the inline tag; split the string")
+        return 1
     # </script>-safe JSON embedding
     blob = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
 
