@@ -925,7 +925,8 @@
       var un = (sg.unmappedness || {}).score || 0;
       var tx = cxTimeX(anchor);
       add({
-        kind: "sig", id: sg.id, ref: sg, rSem: 13 + 13 * un / 100, color: CXP.accent,
+        kind: "sig", id: sg.id, ref: sg, rSem: 10 + 42 * Math.pow(un / 100, 1.8),
+        tier: un >= 80 ? "MAJOR" : un >= 60 ? "MID" : "TAIL", color: CXP.accent,
         dashed: !!(occ && occ.kind === "SCHEDULED"), tx: tx, txw: 0.012,
         label: cxTrim(sg.title, 34),
         sub: occ ? cxTrim(occ.label, 40) + " · " + anchor : "occurrence undated",
@@ -956,7 +957,7 @@
         var h = l.heat || {};
         add({
           kind: "link", id: c.id + "/" + l.id, ref: l, chainId: c.id,
-          rSem: 3.0 + ((h.impact && h.impact.score) || 40) / 50,
+          rSem: (3.0 + ((h.impact && h.impact.score) || 40) / 50) * ((h.money_corner || (l.bottleneck || {}).criticality === "CHOKE_POINT") ? 1.4 : 1),
           color: h.verdict ? CXP.verd[h.verdict] : CXP.none,
           gold: !!h.money_corner, choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
           label: cxTrim(l.name, 22),
@@ -1129,6 +1130,39 @@
         x0: cx0 + (Math.random() - 0.5) * 900, y0: cy0 + (Math.random() - 0.5) * 620
       });
     }
+    // z = time (depth axis): sqrt-compressed days from today, past negative, future positive
+    function zOf(dateStr) {
+      var dx = daysBetween(TODAY, dateStr);
+      if (isNaN(dx)) dx = 0;
+      var zt = Math.sqrt(Math.min(Math.abs(dx), CX_CLAMP) / CX_CLAMP) * 480;
+      return dx < 0 ? -zt : zt;
+    }
+    nodes.forEach(function (n) {
+      if (n.kind !== "sig") return;
+      var occ = (n.ref || {}).occurrence || {};
+      n.z = zOf(occ.anchor_date || (n.ref || {}).created_at || TODAY);
+    });
+    nodes.forEach(function (n) {
+      if (n.kind !== "chain") return;
+      var host = byKey["sig:" + ((n.ref || {}).signal_id || "")];
+      n.z = (host ? host.z : 0) + (Math.random() - 0.5) * 20;
+    });
+    nodes.forEach(function (n) {
+      if (n.z != null) return;
+      var chz = n.chainId && byKey["chain:" + n.chainId] ? byKey["chain:" + n.chainId].z : null;
+      if (n.kind === "link") n.z = (chz || 0) + (Math.random() - 0.5) * 40;
+      else if (n.kind === "scen") n.z = (chz || 0) + 70 + Math.random() * 25;
+      else if (n.kind === "screen") n.z = ((byKey["chain:" + ((n.ref || {}).chain_id || "")] || {}).z || 0) + 85;
+      else if (n.kind === "co") {
+        var c0 = (n.chainIds || [])[0];
+        n.z = (c0 && byKey["chain:" + c0] ? byKey["chain:" + c0].z : 0) + (Math.random() - 0.5) * 40;
+      }
+      else if (n.kind === "dive" || n.kind === "shadow") n.z = zOf((n.ref || {}).as_of || (n.ref || {}).verdict_date || TODAY);
+      else if (n.kind === "cand") n.z = zOf((n.ref || {}).date);
+      else if (n.kind === "evt") n.z = Math.max(60, zOf((n.ref || {}).date));
+      else if (n.kind === "dust") n.z = (Math.random() - 0.5) * 70;
+      else n.z = 0;
+    });
     return { nodes: nodes, edges: edges, byKey: byKey, adj: adj, deg: deg, ring: null, builtAt: D.built_at };
   }
 
@@ -1194,8 +1228,9 @@
 
   /* ---- view: one graph<->screen transform for everything ---- */
   var CX_CACHE = null;
-  function cxFit(g, w, h) {
-    // frame the research core; the dust halo is allowed to bleed off-canvas
+  var CX_F = 900; // focal length; effective zoom k = CX_F / cam.dist
+  function cxCam(g, w, h) {
+    // frame the research core; the dust halo may bleed off-frame
     var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
     g.nodes.forEach(function (n) {
       if (n.kind === "dust") return;
@@ -1204,8 +1239,12 @@
     });
     if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
     var gw = Math.max(maxX - minX, 300), gh = Math.max(maxY - minY, 240);
-    var k = Math.max(0.25, Math.min(4, Math.min((w * 0.86) / gw, (h * 0.88) / gh)));
-    return { k: k, rot: 0, tx: w / 2 - k * (minX + maxX) / 2, ty: h / 2 - k * (minY + maxY) / 2 };
+    var s = Math.min((w * 0.78) / gw, (h * 0.8) / gh);
+    return {
+      yaw: -0.45, pitch: -0.22,
+      dist: Math.max(CX_F / 4, Math.min(3600, CX_F / Math.max(0.2, s))),
+      tx: (minX + maxX) / 2, ty: (minY + maxY) / 2, tz: 0
+    };
   }
 
   /* ---- instrument rails: every register is real data ---- */
@@ -1298,6 +1337,36 @@
         '<span class="s" style="color:' + (art.indexOf("skipped(") === 0 ? CXP.bad : "#3e4258") + '">' + esc(res.slice(0, 74)) + "</span></div>";
     }).join("");
   }
+  function cxOppRail() {
+    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; })
+      .slice().sort(function (a, b) { return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0); });
+    function moneyOf(sig) {
+      var out = null;
+      (D.chains || []).forEach(function (c) {
+        if (c.signal_id !== sig.id) return;
+        (c.links || []).forEach(function (l) { if (l.heat && l.heat.money_corner && !out) out = l.name; });
+      });
+      return out;
+    }
+    function row(s, i) {
+      var un = (s.unmappedness || {}).score || 0;
+      var m = moneyOf(s);
+      return '<button class="cxopp" data-cxfly="sig:' + esc(s.id) + '">' +
+        '<span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(cxTrim(s.title, 26)) + '</span><span class="un">' + un + "</span>" +
+        (m ? '<span class="mc">★ ' + esc(cxTrim(m, 30)) + "</span>" : '<span class="mc dim">' + esc((s.suggested_clock || "").toLowerCase()) + "</span>") +
+        "</button>";
+    }
+    var majors = sigs.filter(function (s) { return ((s.unmappedness || {}).score || 0) >= 80; });
+    var mids = sigs.filter(function (s) { var u = (s.unmappedness || {}).score || 0; return u >= 60 && u < 80; });
+    var tail = sigs.length - majors.length - mids.length;
+    var nC = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; }).length;
+    var nE = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; }).length;
+    var h = '<div class="cx-grp">OPPORTUNITIES · CLICK TO FLY</div>';
+    h += '<div class="cx-tierlbl">MAJOR</div>' + (majors.map(row).join("") || '<div class="cx-tiernone">none ≥ 80 unmapped</div>');
+    h += '<div class="cx-tierlbl">WATCH</div>' + (mids.map(function (s, i) { return row(s, majors.length + i); }).join("") || '<div class="cx-tiernone">none</div>');
+    h += '<div class="cx-tierlbl">LONG TAIL</div><div class="cx-tiernone">' + tail + " smaller signal(s) · " + nC + " candidates · " + nE + " future events · feed dust</div>";
+    return h;
+  }
   function cxFilterRail() {
     var h = '<div class="cx-grp">FILTER <button id="cxFReset" class="cxfreset" title="clear all filters">reset</button></div>';
     h += '<input id="cxSearch" class="cxsearch" type="text" placeholder="search the field…" aria-label="search the field">';
@@ -1314,9 +1383,9 @@
   }
   function cortexView() {
     return topbar("cortex") + "<main>" +
-      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Scroll to zoom — closer in, more detail appears. Hover any dot for its story, click to open it, drag the sky to pan, ⟲ ⟳ (or Q / E) to turn it. Dashed rings are known future events. Filters live on the left.</p></div>' +
+      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Depth is time: past sinks away, the future comes toward you, the NOW ring marks today. Drag to orbit the field in 3D, scroll to fly closer (detail appears as you approach), shift-drag to pan, ⟲ ⟳ or Q / E to spin. Hover any dot for its story, click to open it. The ranked opportunities on the left fly you straight to them.</p></div>' +
       '<div class="card cxpanel"><div class="cxframe">' +
-      '<div class="cx-rail-l">' + cxFilterRail() + cxRailLeft() + "</div>" +
+      '<div class="cx-rail-l">' + cxOppRail() + cxFilterRail() + cxRailLeft() + "</div>" +
       '<div class="cx-stage">' +
       '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
       '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
@@ -1533,20 +1602,22 @@
     return true;
   }
 
-  /* ---- renderer + interaction (v4: constellation — rotate, semantic zoom, hover cards, filters) ---- */
+  /* ---- renderer + interaction (v5: 3D orbit — depth is time; hierarchy tiers) ---- */
   function initCortex() {
     var canvas = document.getElementById("cortexCanvas");
     if (!canvas || canvas.__cxRunning) return;
     canvas.__cxRunning = true;
     var ctx = canvas.getContext("2d");
-    var g, sim, view;
+    var REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var g, sim, cam;
     if (CX_CACHE && CX_CACHE.builtAt === D.built_at) {
-      g = CX_CACHE.g; sim = CX_CACHE.sim; view = CX_CACHE.view;
+      g = CX_CACHE.g; sim = CX_CACHE.sim; cam = CX_CACHE.cam;
     } else {
-      g = cxBuild(); sim = cxSim(g); view = null;
-      CX_CACHE = { builtAt: D.built_at, g: g, sim: sim, view: null };
+      g = cxBuild(); sim = cxSim(g); cam = null;
+      CX_CACHE = { builtAt: D.built_at, g: g, sim: sim, cam: null };
     }
-    var hover = null, focus = null, drag = null, pan = null, raf = 0, frames = 0;
+    var hover = null, focus = null, drag = null, orbit = null, panMove = null, raf = 0, frames = 0;
+    var pinned = null, fly = null;
     var userView = !!(CX_CACHE && CX_CACHE.userView), settled = !!(CX_CACHE && CX_CACHE.settled);
     var card = document.getElementById("cxcard");
     if (!card) { card = document.createElement("div"); card.className = "cxcard"; card.id = "cxcard"; card.style.display = "none"; document.body.appendChild(card); }
@@ -1554,8 +1625,14 @@
     if (cntEl) {
       var nd = g.nodes.filter(function (n) { return n.kind !== "dust"; }).length;
       cntEl.textContent = "OBJECTS " + nd + " · EDGES " + g.edges.length + " · DUST " + (g.nodes.length - nd);
-      canvas.setAttribute("aria-label", "Cortex field: " + nd + " research objects, " + g.edges.length + " links, " + (g.nodes.length - nd) + " feed items");
+      canvas.setAttribute("aria-label", "Cortex field in 3D: " + nd + " research objects on a past-to-future depth axis; drag to orbit");
     }
+    var gc = { x: 0, y: 0 };
+    (function () {
+      var sx = 0, sy = 0, n0 = 0;
+      g.nodes.forEach(function (n) { if (n.kind !== "dust") { sx += n.x; sy += n.y; n0++; } });
+      if (n0) { gc.x = sx / n0; gc.y = sy / n0; }
+    })();
 
     var sprites = {}, spriteN = 0;
     function quant(r) { return r <= 8 ? Math.round(r * 2) / 2 : r <= 32 ? Math.round(r) : Math.round(r / 4) * 4; }
@@ -1573,75 +1650,151 @@
       spriteN++; sprites[key] = { c: c, s: s };
       return sprites[key];
     }
-    // one transform for everything: rotate → scale → translate; labels stay upright
-    function SX(x, y) { return (x * view.cr - y * view.sr) * view.k + view.tx; }
-    function SY(x, y) { return (x * view.sr + y * view.cr) * view.k + view.ty; }
-    function G2(px, py) {
-      var dx = (px - view.tx) / view.k, dy = (py - view.ty) / view.k;
-      return { x: dx * view.cr + dy * view.sr, y: -dx * view.sr + dy * view.cr };
+
+    var T = {}; // per-frame trig + viewport
+    function setT(w, h) {
+      T.cy = Math.cos(cam.yaw); T.sy = Math.sin(cam.yaw);
+      T.cp = Math.cos(cam.pitch); T.sp = Math.sin(cam.pitch);
+      T.w = w; T.h = h; T.k = CX_F / cam.dist;
     }
-    function setTrig() { view.cr = Math.cos(view.rot || 0); view.sr = Math.sin(view.rot || 0); }
-    function setRot(rot) {
-      var w2 = canvas.clientWidth / 2, h2 = canvas.clientHeight / 2;
-      var g0 = G2(w2, h2);
-      view.rot = rot; setTrig();
-      view.tx = w2 - (g0.x * view.cr - g0.y * view.sr) * view.k;
-      view.ty = h2 - (g0.x * view.sr + g0.y * view.cr) * view.k;
-      userView = true; CX_CACHE.userView = true;
+    function proj3(x, y, z) {
+      var dx = x - cam.tx, dy = y - cam.ty, dz = (z || 0) - cam.tz;
+      var x1 = dx * T.cy + dz * T.sy, z1 = -dx * T.sy + dz * T.cy, y1 = dy;
+      var y2 = y1 * T.cp - z1 * T.sp, z2 = y1 * T.sp + z1 * T.cp;
+      var d = cam.dist - z2;
+      if (d < 60) return null;
+      var s = CX_F / d;
+      return { x: T.w / 2 + x1 * s, y: T.h / 2 + y2 * s, s: s, d: d };
+    }
+    function camBasis() {
+      return {
+        rx: T.cy, ry: 0, rz: -T.sy,
+        ux: T.sy * T.sp, uy: T.cp, uz: T.cy * T.sp
+      };
     }
     function pick(px, py) {
-      var gp = G2(px, py), best = null, bd = 1e9, slop = 6 / view.k;
+      var best = null, bd = 1e9;
       for (var i = 0; i < g.nodes.length; i++) {
         var n = g.nodes[i];
-        var dx = n.x - gp.x, dy = n.y - gp.y, d = Math.sqrt(dx * dx + dy * dy);
-        if (d < n.r + slop && d < bd) { bd = d; best = n; }
+        if (n._px == null) continue;
+        var dx = n._px - px, dy = n._py - py, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < n.r * n._s + 6 && d < bd) { bd = d; best = n; }
       }
       return best;
     }
+    function flyTo(n) {
+      fly = {
+        t0: Date.now(), ms: 650,
+        from: { tx: cam.tx, ty: cam.ty, tz: cam.tz, dist: cam.dist },
+        to: { tx: n.x, ty: n.y, tz: n.z || 0, dist: Math.max(300, CX_F / 1.7) },
+        n: n
+      };
+      focus = n; pinned = null;
+      userView = true; CX_CACHE.userView = true; CX_CACHE.touched = true;
+    }
+
     function draw() {
       if (!canvas.isConnected) { canvas.__cxRunning = false; cancelAnimationFrame(raf); card.style.display = "none"; return; }
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var w = canvas.clientWidth, h = canvas.clientHeight;
       if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
         canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-        if (!view) { view = cxFit(g, w, h); setTrig(); }
       }
-      if (!view) { view = cxFit(g, w, h); setTrig(); }
-      if (view.cr == null) setTrig();
-      CX_CACHE.view = view;
+      if (!cam) { cam = cxCam(g, w, h); cam.tx = gc.x; cam.ty = gc.y; }
+      CX_CACHE.cam = cam;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       var t = Date.now() / 1000;
       var parked = sim.alpha() < sim.alphaMin();
       if (!parked) sim.tick();
-      if (parked && !settled) {
-        settled = true; CX_CACHE.settled = true;
-        if (!userView) { view = cxFit(g, w, h); setTrig(); CX_CACHE.view = view; }
+      if (parked && !settled) { settled = true; CX_CACHE.settled = true; if (!userView) { cam = cxCam(g, w, h); cam.tx = gc.x; cam.ty = gc.y; } }
+      if (fly) {
+        var ft = Math.min(1, (Date.now() - fly.t0) / fly.ms);
+        var e = ft < 0.5 ? 2 * ft * ft : 1 - Math.pow(-2 * ft + 2, 2) / 2;
+        cam.tx = fly.from.tx + (fly.to.tx - fly.from.tx) * e;
+        cam.ty = fly.from.ty + (fly.to.ty - fly.from.ty) * e;
+        cam.tz = fly.from.tz + (fly.to.tz - fly.from.tz) * e;
+        cam.dist = fly.from.dist + (fly.to.dist - fly.from.dist) * e;
+        if (ft >= 1) { pinned = fly.n; fly = null; }
+      } else if (!CX_CACHE.touched && !REDUCED && !hover && !focus) {
+        cam.yaw += 0.0012; // idle drift until first touch
       }
-      if (parked && !hover && !drag && (frames++ & 1)) { raf = requestAnimationFrame(draw); return; }
+      setT(w, h);
 
       var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.72);
       bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
       ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
-      var wob = 1.0, ramp = Math.min(1, Math.max((view.k - 1) / 3.75, 0));
-      var ramp2 = Math.min(1, Math.max((view.k - 1.9) / 1.1, 0));   // detail lines
-      var ramp3 = Math.min(1, Math.max((view.k - 2.6) / 1.2, 0));   // dust headlines
+      // NOW plane (translucent disc at z = 0) + the time axis with year ticks
+      var planeR = (g.ring ? g.ring.r0 * 1.02 : 520);
+      ctx.strokeStyle = "rgba(134,135,240,0.20)"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      var first = true, topPt = null;
+      for (var ai = 0; ai <= 64; ai++) {
+        var aa = ai * Math.PI * 2 / 64;
+        var pp = proj3(gc.x + planeR * Math.cos(aa), gc.y + planeR * Math.sin(aa), 0);
+        if (!pp) { first = true; continue; }
+        if (ai === 48) topPt = pp;
+        if (first) { ctx.moveTo(pp.x, pp.y); first = false; } else ctx.lineTo(pp.x, pp.y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([2, 8]);
+      ctx.beginPath();
+      [[-planeR, 0, planeR, 0], [0, -planeR, 0, planeR]].forEach(function (ln) {
+        var p1 = proj3(gc.x + ln[0], gc.y + ln[1], 0), p2 = proj3(gc.x + ln[2], gc.y + ln[3], 0);
+        if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
+      });
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
+      if (topPt) { ctx.fillStyle = "rgba(134,135,240,0.8)"; ctx.fillText("N O W", topPt.x, topPt.y - 6); }
+      // time axis through the center: year ticks along z
+      var y0 = parseInt(TODAY.slice(0, 4), 10);
+      ctx.strokeStyle = "rgba(134,135,240,0.14)";
+      var pA = proj3(gc.x, gc.y, -480), pB = proj3(gc.x, gc.y, 480);
+      if (pA && pB) { ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.stroke(); }
+      for (var yy = y0 - 3; yy <= y0 + 3; yy++) {
+        var dxDays = daysBetween(TODAY, yy + "-01-01");
+        if (Math.abs(dxDays) > CX_CLAMP) continue;
+        var zz = Math.sqrt(Math.abs(dxDays) / CX_CLAMP) * 480 * (dxDays < 0 ? -1 : 1);
+        var tp = proj3(gc.x, gc.y, zz);
+        if (!tp) continue;
+        ctx.fillStyle = "rgba(88,92,114,0.8)";
+        ctx.fillRect(tp.x - 1.5, tp.y - 1.5, 3, 3);
+        ctx.font = "9px 'JetBrains Mono', monospace";
+        ctx.fillText(String(yy), tp.x, tp.y - 6);
+      }
+      ctx.fillStyle = CXP.ink3; ctx.font = "9px 'JetBrains Mono', monospace";
+      if (pA) ctx.fillText("« PAST", pA.x, pA.y + 12);
+      if (pB) ctx.fillText("FUTURE »", pB.x, pB.y + 12);
+
+      // project all nodes
+      g.nodes.forEach(function (n, ni) {
+        var pp = proj3(n.x, n.y, n.z || 0);
+        if (!pp) { n._px = null; return; }
+        n._px = pp.x + (n.kind === "dust" || REDUCED ? 0 : Math.sin(t * 0.4 + ni));
+        n._py = pp.y + (n.kind === "dust" || REDUCED ? 0 : Math.cos(t * 0.33 + ni * 2) * 0.8);
+        n._s = pp.s; n._d = pp.d;
+      });
+
       var hi = hover || focus;
-      var hkey = hi ? hi.key : null, hadj = hi ? g.adj[hi.key] : null;
+      var hadj = hi ? g.adj[hi.key] : null;
       var anyFilter = CX_FILTER.q || CX_FILTER.chain || CX_FILTER.fam ||
         CX_KIND_CHIPS.some(function (kc) { return CX_FILTER.kinds[kc[0]] === false; });
+      function fog(n) { return Math.max(0.3, Math.min(1.15, cam.dist / n._d)); }
       function nodeAlpha(n) {
         var base = n.kind === "dust" ? 0.34 + 0.14 * Math.sin(t * 0.8 + n.seat * 1.7) : n.kind === "co" ? 0.72 : n.kind === "socket" ? 0.32 : 0.92;
+        base *= fog(n);
         if (anyFilter && !cxMatch(n)) base *= 0.07;
         if (!hi) return base;
-        return (n === hi || (hadj && hadj[n.key])) ? Math.max(base, 1 * (anyFilter && !cxMatch(n) ? 0.3 : 1)) : base * 0.2;
+        return (n === hi || (hadj && hadj[n.key])) ? Math.max(base, anyFilter && !cxMatch(n) ? 0.3 : 0.95) : base * 0.2;
       }
 
-      // edges, bucketed by alpha
+      // edges (under nodes), alpha by mean depth
       var buckets = {};
       g.edges.forEach(function (e) {
+        if (e.source._px == null || e.target._px == null) return;
         var near = hi && (e.source === hi || e.target === hi);
         var a = !hi ? e.alpha : near ? Math.min(0.55, e.alpha * 5) : e.alpha * 0.2;
+        a *= Math.max(0.3, Math.min(1.1, cam.dist / ((e.source._d + e.target._d) / 2)));
         if (anyFilter && (!cxMatch(e.source) || !cxMatch(e.target))) a *= 0.12;
         var b = Math.max(1, Math.round(a * 40));
         (buckets[b] = buckets[b] || []).push(e);
@@ -1651,19 +1804,20 @@
         ctx.lineWidth = b / 40 > 0.3 ? 1.15 : 0.7;
         ctx.beginPath();
         buckets[b].forEach(function (e) {
-          ctx.moveTo(SX(e.source.x, e.source.y), SY(e.source.x, e.source.y));
-          ctx.lineTo(SX(e.target.x, e.target.y), SY(e.target.x, e.target.y));
+          ctx.moveTo(e.source._px, e.source._py);
+          ctx.lineTo(e.target._px, e.target._py);
         });
         ctx.stroke();
       });
 
-      // nodes
-      g.nodes.forEach(function (n, ni) {
-        var x = SX(n.x, n.y) + (n.kind === "dust" ? 0 : wob * Math.sin(t * 0.4 + ni));
-        var y = SY(n.x, n.y) + (n.kind === "dust" ? 0 : wob * Math.cos(t * 0.33 + ni * 2));
-        n._px = x; n._py = y;
+      // nodes, painter-sorted far to near
+      var order = [];
+      g.nodes.forEach(function (n) { if (n._px != null) order.push(n); });
+      order.sort(function (a, b) { return b._d - a._d; });
+      order.forEach(function (n) {
+        var x = n._px, y = n._py;
         if (x < -80 || x > w + 80 || y < -80 || y > h + 80) return;
-        var R = quant(Math.max(n.kind === "dust" ? 0.9 : 2.2, n.r * view.k));
+        var R = quant(Math.max(n.kind === "dust" ? 0.9 : 2.2, n.r * n._s));
         var a = nodeAlpha(n);
         ctx.globalAlpha = a;
         if (n.kind === "dust") {
@@ -1695,9 +1849,9 @@
           }
           if (n.arcs && R > 8) {
             var seg = (Math.PI * 2) / n.arcs.length;
-            n.arcs.forEach(function (v, ai) {
+            n.arcs.forEach(function (v, aj) {
               ctx.strokeStyle = v ? CXP.verd[v] : CXP.none; ctx.lineWidth = 2.2;
-              ctx.beginPath(); ctx.arc(x, y, R + 5, -Math.PI / 2 + ai * seg + 0.04, -Math.PI / 2 + (ai + 1) * seg - 0.04); ctx.stroke();
+              ctx.beginPath(); ctx.arc(x, y, R + 5, -Math.PI / 2 + aj * seg + 0.04, -Math.PI / 2 + (aj + 1) * seg - 0.04); ctx.stroke();
             });
           }
           if (n.pinned) { ctx.strokeStyle = CXP.ink3; ctx.lineWidth = 1; ctx.strokeRect(x + R + 4, y - 2, 3, 3); }
@@ -1706,46 +1860,60 @@
         n._R = R;
       });
 
-      // labels last, on top; semantic detail grows with zoom
+      // labels last, near-to-far so close ones win visually; per-node semantic ramp
       ctx.textAlign = "center";
       var dustLabels = 0;
-      g.nodes.forEach(function (n) {
-        if (n._px == null || n._px < -60 || n._px > w + 60 || n._py < -40 || n._py > h + 40) return;
+      for (var oi = order.length - 1; oi >= 0; oi--) {
+        var n = order[oi];
+        if (n._px < -60 || n._px > w + 60 || n._py < -40 || n._py > h + 40) continue;
         var matched = !anyFilter || cxMatch(n);
+        var rampN = Math.min(1, Math.max((n._s - 1) / 3.75, 0));
+        var ramp2 = Math.min(1, Math.max((n._s - 1.9) / 1.1, 0));
         if (n.kind === "dust") {
-          if (ramp3 <= 0.03 || dustLabels > 70 || !matched) return;
-          if (hi && !(n === hi)) return;
+          var ramp3 = Math.min(1, Math.max((n._s - 2.6) / 1.2, 0));
+          if (ramp3 <= 0.03 || dustLabels > 60 || !matched) continue;
+          if (hi && n !== hi) continue;
           dustLabels++;
           ctx.globalAlpha = ramp3 * 0.55;
-          ctx.font = "9px 'JetBrains Mono', monospace";
-          ctx.fillStyle = CXP.ink3;
+          ctx.font = "9px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
           ctx.fillText(cxTrim((n.ref || {}).t, 30), n._px, n._py + 10);
-          return;
+          continue;
         }
-        if (!n.label) return;
+        if (!n.label) continue;
+        var major = n.tier === "MAJOR", mid = n.tier === "MID";
         var big = n.kind === "sig" || n.kind === "chain";
-        var base = big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.85, ramp) : n.kind === "co" ? Math.max(0, ramp - 0.35) : Math.max(0, ramp - 0.1);
-        var la = (n === hi) ? 1 : base * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1) * (matched ? 1 : 0.07);
-        if (la <= 0.03) return;
+        var base = major ? 1 : mid ? 0.9 : big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.55, rampN) : n.kind === "co" ? Math.max(0, rampN - 0.35) : Math.max(0, rampN - 0.1);
+        var la = (n === hi) ? 1 : base * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1) * (matched ? 1 : 0.07) * Math.max(0.4, Math.min(1, fog(n)));
+        if (la <= 0.03) continue;
         ctx.globalAlpha = la;
-        ctx.font = (big ? "600 12.5px" : "500 10.5px") + " 'Baloo 2', 'JetBrains Mono', sans-serif";
+        ctx.font = (major ? "700 14px" : big ? "600 12px" : "500 10.5px") + " 'Baloo 2', 'JetBrains Mono', sans-serif";
         ctx.fillStyle = n === hi ? "#ffffff" : big ? CXP.ink : CXP.ink2;
-        ctx.fillText(n.label, n._px, n._py + n._R + (big ? 18 : 13));
-        if (n.sub && big) {
+        ctx.fillText(n.label, n._px, n._py + n._R + (big ? 19 : 13));
+        if (n.sub && (big || n === hi)) {
           ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-          ctx.fillText(n.sub, n._px, n._py + n._R + 32);
+          ctx.fillText(n.sub, n._px, n._py + n._R + (major ? 35 : 32));
         }
-        if (ramp2 > 0.03 && (n === hi || ramp2 > 0.25)) {
+        if ((major || ramp2 > 0.25 || n === hi) && n.kind !== "socket") {
           var info = cxInfo(n);
           if (info) {
-            ctx.globalAlpha = la * ramp2;
+            ctx.globalAlpha = la * (major ? 0.85 : Math.max(0.4, ramp2));
             ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-            ctx.fillText(info, n._px, n._py + n._R + (big ? 45 : 26));
+            ctx.fillText(info, n._px, n._py + n._R + (major ? 49 : big ? 45 : 26));
           }
         }
-      });
+      }
       ctx.globalAlpha = 1;
-      if (zoomEl) zoomEl.textContent = "ZOOM " + view.k.toFixed(2) + "× · " + Math.round((view.rot || 0) * 180 / Math.PI) + "°";
+
+      if (pinned && pinned._px != null) {
+        card.innerHTML = cxHoverCard(pinned);
+        card.style.display = "block";
+        var r0 = canvas.getBoundingClientRect();
+        var lx = r0.left + pinned._px + 22, ly = r0.top + pinned._py - 30;
+        if (lx + 310 > innerWidth - 8) lx = r0.left + pinned._px - 322;
+        if (ly < 8) ly = 8; if (ly + 260 > innerHeight) ly = innerHeight - 268;
+        card.style.left = lx + "px"; card.style.top = ly + "px";
+      }
+      if (zoomEl) zoomEl.textContent = "ZOOM " + T.k.toFixed(2) + "× · YAW " + Math.round(cam.yaw * 180 / Math.PI) % 360 + "°";
       raf = requestAnimationFrame(draw);
     }
 
@@ -1753,100 +1921,118 @@
       if (!readEl) return;
       readEl.textContent = n ? (n.kind.toUpperCase() + " · " + (n.tip || n.label || "")) : "";
     }
-    function showCard(n, cx, cy) {
+    function showCard(n, cx2, cy2) {
       card.innerHTML = cxHoverCard(n);
       card.style.display = "block";
       var cw = card.offsetWidth || 300, chh = card.offsetHeight || 120;
-      var lx = cx + 16, ly = cy - 12;
-      if (lx + cw > innerWidth - 8) lx = cx - cw - 16;
+      var lx = cx2 + 16, ly = cy2 - 12;
+      if (lx + cw > innerWidth - 8) lx = cx2 - cw - 16;
       if (ly + chh > innerHeight - 8) ly = innerHeight - chh - 8;
       if (ly < 8) ly = 8;
       card.style.left = lx + "px"; card.style.top = ly + "px";
     }
+    function touched() { CX_CACHE.touched = true; userView = true; CX_CACHE.userView = true; }
+
     canvas.addEventListener("mousemove", function (e) {
       var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
       if (drag) {
         drag.moved += Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0);
-        var gp = G2(px, py);
-        drag.n.fx = gp.x; drag.n.fy = gp.y;
+        var B = camBasis(), s = drag.n._s || T.k;
+        var wx = (B.rx * (e.movementX || 0) + B.ux * (e.movementY || 0)) / s;
+        var wy = (B.ry * (e.movementX || 0) + B.uy * (e.movementY || 0)) / s;
+        drag.n.fx = (drag.n.fx == null ? drag.n.x : drag.n.fx) + wx;
+        drag.n.fy = (drag.n.fy == null ? drag.n.y : drag.n.fy) + wy;
         return;
       }
-      if (pan) { view.tx = pan.tx0 + (e.clientX - pan.sx); view.ty = pan.ty0 + (e.clientY - pan.sy); userView = true; CX_CACHE.userView = true; return; }
+      if (orbit) {
+        cam.yaw = orbit.yaw0 + (e.clientX - orbit.sx) * 0.005;
+        cam.pitch = Math.max(-1.4, Math.min(1.4, orbit.pitch0 - (e.clientY - orbit.sy) * 0.005));
+        return;
+      }
+      if (panMove) {
+        var B2 = camBasis(), sc = T.k;
+        cam.tx = panMove.tx0 - (B2.rx * (e.clientX - panMove.sx) + B2.ux * (e.clientY - panMove.sy)) / sc;
+        cam.ty = panMove.ty0 - (B2.ry * (e.clientX - panMove.sx) + B2.uy * (e.clientY - panMove.sy)) / sc;
+        cam.tz = panMove.tz0 - (B2.rz * (e.clientX - panMove.sx) + B2.uz * (e.clientY - panMove.sy)) / sc;
+        return;
+      }
       hover = pick(px, py);
       canvas.style.cursor = hover ? "pointer" : "grab";
       setRead(hover || focus);
-      if (hover) showCard(hover, e.clientX, e.clientY);
-      else card.style.display = "none";
+      if (hover) { pinned = null; showCard(hover, e.clientX, e.clientY); }
+      else if (!pinned) card.style.display = "none";
     });
     canvas.addEventListener("mousedown", function (e) {
+      touched(); pinned = null;
       var r = canvas.getBoundingClientRect();
       var n = pick(e.clientX - r.left, e.clientY - r.top);
-      if (n && n.kind !== "dust" && !n.socket) {
-        drag = { n: n, t0: Date.now(), moved: 0, shift: e.shiftKey };
+      if (n && n.kind !== "dust" && !n.socket && !e.shiftKey) {
+        drag = { n: n, t0: Date.now(), moved: 0, alt: e.altKey };
         n.fx = n.x; n.fy = n.y;
         sim.alphaTarget(0.3).alpha(Math.max(sim.alpha(), 0.12));
       } else if (n) {
         drag = { n: n, t0: Date.now(), moved: 0, tapOnly: true };
+      } else if (e.shiftKey) {
+        panMove = { sx: e.clientX, sy: e.clientY, tx0: cam.tx, ty0: cam.ty, tz0: cam.tz };
+        canvas.style.cursor = "move";
       } else {
-        pan = { sx: e.clientX, sy: e.clientY, tx0: view.tx, ty0: view.ty };
+        orbit = { sx: e.clientX, sy: e.clientY, yaw0: cam.yaw, pitch0: cam.pitch };
         canvas.style.cursor = "grabbing";
       }
     });
-    function endDrag(e) {
+    function endDrag() {
       if (drag) {
         var quick = (Date.now() - drag.t0) < 500 && drag.moved < 6;
         var n = drag.n;
         if (!drag.tapOnly) {
           sim.alphaTarget(0);
-          if (drag.shift) { n.pinned = true; } else { n.fx = null; n.fy = null; n.pinned = false; }
+          if (drag.alt) { n.pinned = true; } else { n.fx = null; n.fy = null; n.pinned = false; }
         }
         if (quick) { card.style.display = "none"; cxShowDrawer(cxNodeDrawer(n)); }
         drag = null;
       }
-      pan = null;
+      orbit = null; panMove = null;
       canvas.style.cursor = "grab";
     }
     canvas.addEventListener("mouseup", endDrag);
-    canvas.addEventListener("mouseleave", function (e) {
-      endDrag(e); hover = null; card.style.display = "none"; setRead(focus);
+    canvas.addEventListener("mouseleave", function () {
+      endDrag(); hover = null; if (!pinned) card.style.display = "none"; setRead(focus);
     });
     canvas.addEventListener("wheel", function (e) {
-      e.preventDefault();
-      var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+      e.preventDefault(); touched(); pinned = null;
       var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1);
-      var k2 = Math.max(0.25, Math.min(4, view.k * Math.pow(1.0015, -dy)));
-      view.tx = px - (px - view.tx) * (k2 / view.k);
-      view.ty = py - (py - view.ty) * (k2 / view.k);
-      view.k = k2; userView = true; CX_CACHE.userView = true;
+      cam.dist = Math.max(CX_F / 4, Math.min(3600, cam.dist * Math.pow(1.0015, dy)));
     }, { passive: false });
     canvas.addEventListener("keydown", function (e) {
-      var order = g.nodes.filter(function (n) { return n.kind !== "dust"; }).sort(function (a, b) {
+      var order2 = g.nodes.filter(function (n) { return n.kind !== "dust"; }).sort(function (a, b) {
         return (CX_ORDER[a.kind] - CX_ORDER[b.kind]) || (a.x - b.x);
       });
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-        e.preventDefault();
-        var idx = focus ? order.indexOf(focus) : -1;
-        idx = (idx + (e.key === "ArrowRight" ? 1 : -1) + order.length) % order.length;
-        focus = order[idx]; setRead(focus);
+        e.preventDefault(); touched();
+        var idx = focus ? order2.indexOf(focus) : -1;
+        idx = (idx + (e.key === "ArrowRight" ? 1 : -1) + order2.length) % order2.length;
+        focus = order2[idx]; setRead(focus);
       } else if (e.key === "Enter" || e.key === " ") {
         if (focus) { e.preventDefault(); cxShowDrawer(cxNodeDrawer(focus)); }
-      } else if (e.key === "q" || e.key === "Q") { e.preventDefault(); setRot((view.rot || 0) - Math.PI / 30); }
-      else if (e.key === "e" || e.key === "E") { e.preventDefault(); setRot((view.rot || 0) + Math.PI / 30); }
-      else if (e.key === "+" || e.key === "=" || e.key === "-") {
+      } else if (e.key === "q" || e.key === "Q") { e.preventDefault(); touched(); cam.yaw -= Math.PI / 30; }
+      else if (e.key === "e" || e.key === "E") { e.preventDefault(); touched(); cam.yaw += Math.PI / 30; }
+      else if (e.key === "+" || e.key === "=" ) { e.preventDefault(); touched(); cam.dist = Math.max(CX_F / 4, cam.dist * 0.8); }
+      else if (e.key === "-") { e.preventDefault(); touched(); cam.dist = Math.min(3600, cam.dist * 1.25); }
+      else if (e.key === "0" || e.key === "r" || e.key === "R") {
         e.preventDefault();
-        var kk = Math.max(0.25, Math.min(4, view.k * (e.key === "-" ? 0.8 : 1.25)));
-        var cw = canvas.clientWidth / 2, chh2 = canvas.clientHeight / 2;
-        view.tx = cw - (cw - view.tx) * (kk / view.k);
-        view.ty = chh2 - (chh2 - view.ty) * (kk / view.k);
-        view.k = kk; userView = true; CX_CACHE.userView = true;
-      } else if (e.key === "0" || e.key === "r" || e.key === "R") {
-        e.preventDefault();
-        view = cxFit(g, canvas.clientWidth, canvas.clientHeight); setTrig();
-        userView = false; CX_CACHE.userView = false; sim.alpha(0.25);
-      } else if (e.key === "Escape") { focus = null; setRead(null); }
+        cam = cxCam(g, canvas.clientWidth, canvas.clientHeight); cam.tx = gc.x; cam.ty = gc.y;
+        userView = false; CX_CACHE.userView = false; pinned = null; sim.alpha(0.2);
+      } else if (e.key === "Escape") { focus = null; pinned = null; card.style.display = "none"; setRead(null); }
     });
 
-    // filter rail wiring (rail re-renders with the view; state lives in CX_FILTER)
+    // opportunities register: fly the camera to a ranked node
+    document.querySelectorAll("[data-cxfly]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var n = g.byKey[b.getAttribute("data-cxfly")];
+        if (n) flyTo(n);
+      });
+    });
+    // filter rail wiring (state lives in CX_FILTER; rail re-renders per view)
     document.querySelectorAll("[data-cxk]").forEach(function (b) {
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-cxk");
@@ -1871,7 +2057,7 @@
     var cxReset = document.getElementById("cxFReset");
     if (cxReset) cxReset.addEventListener("click", function () {
       CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
-      var si = document.getElementById("cxSearch"); if (si) si.value = "";
+      var si0 = document.getElementById("cxSearch"); if (si0) si0.value = "";
       document.querySelectorAll("[data-cxk]").forEach(function (x) { x.classList.remove("off"); });
       document.querySelectorAll("[data-cxchain],[data-cxfam]").forEach(function (x) { x.classList.remove("on"); });
     });
@@ -1881,7 +2067,7 @@
       si.addEventListener("input", function () { CX_FILTER.q = si.value.trim().toLowerCase(); });
     }
     document.querySelectorAll("[data-crot]").forEach(function (b) {
-      b.addEventListener("click", function () { setRot((view.rot || 0) + parseInt(b.getAttribute("data-crot"), 10) * Math.PI / 12); });
+      b.addEventListener("click", function () { touched(); cam.yaw += parseInt(b.getAttribute("data-crot"), 10) * Math.PI / 12; });
     });
     raf = requestAnimationFrame(draw);
   }
