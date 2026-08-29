@@ -129,6 +129,21 @@ def main() -> int:
         n = p.name
         verdict = d.get("verdict")
         clock = d.get("clock")
+        ticker = d.get("ticker")
+        mkt = read_json(data / "market" / f"{str(ticker).replace('.', '-')}.json") \
+            if ticker else None
+        quality = mkt.get("quality") if isinstance(mkt, dict) else None
+
+        # 1b. link_id — method §7 requires every dive to name its chain link, or null with
+        # a stated basis (the same discipline a screen row already carries). Without this the
+        # gate certified dives that method mandates carry an attribution, and Atlas's link
+        # yield — the only measure of whether a map was worth building — silently lost them.
+        if "link_id" not in d:
+            fail(f"{n}: no link_id — method section 7 requires every dive to name its chain "
+                 "link, or null with a stated link_id_basis")
+        elif d.get("link_id") is None and not str(d.get("link_id_basis") or "").strip():
+            fail(f"{n}: link_id is null but link_id_basis is empty — an unattributed dive "
+                 "must say why (method section 7)")
 
         # 2. bullet counts
         if len(d.get("bull") or []) != 3 or len(d.get("bear") or []) != 3:
@@ -161,6 +176,23 @@ def main() -> int:
                 fail(f"{n}: expectations_gap.market_implied_source must point at "
                      f"data/market/<T>.json quality.reverse_dcf, got {src!r} "
                      "— the implied column is never solved in-session")
+            else:
+                # Cass PROP-20260829-02 finding 5: the citation was checked as a STRING, so
+                # a market-implied column fabricated in-session passed green while printing
+                # as sourced. Verify the cited file actually holds a solved reverse DCF —
+                # not by comparing per-driver rows (revenue CAGR is not the FCF CAGR the
+                # solve returns), but by confirming the number the source names EXISTS.
+                rd = (quality or {}).get("reverse_dcf") if isinstance(quality, dict) else None
+                if not isinstance(quality, dict):
+                    fail(f"{n}: market_implied_source cites data/market/{ticker}.json quality "
+                         "but that file or its quality block could not be read — an empty "
+                         "citation is not a source")
+                elif not isinstance(rd, dict) or rd.get("state") != "SOLVED" \
+                        or rd.get("implied_fcf_cagr") is None:
+                    st = (rd or {}).get("state")
+                    fail(f"{n}: market_implied_source cites quality.reverse_dcf but it is "
+                         f"{st!r}, not SOLVED — the implied column names a number the file "
+                         "does not contain")
             for r in gap["rows"]:
                 if not isinstance(r, dict):
                     continue
@@ -186,6 +218,15 @@ def main() -> int:
             if not eq.get("basis"):
                 fail(f"{n}: earnings_quality.basis missing — a grade with no stated inputs "
                      "is an opinion")
+            # Cass PROP-20260829-02 finding 3: the veto fired on whatever grade was written,
+            # but the grade was never checked against the mechanical signal it claims to
+            # summarize. Method §7 defines a Beneish breach as grade-C territory, so an A/B
+            # over a REVIEW-state Beneish contradicts the grade's own basis.
+            ben = quality.get("beneish") if isinstance(quality, dict) else None
+            if isinstance(ben, dict) and ben.get("state") == "REVIEW" and grade in ("A", "B"):
+                fail(f"{n}: earnings grade {grade} sits over a Beneish breach "
+                     f"(M={ben.get('score')} > {ben.get('threshold')}) — method section 7 "
+                     "defines a Beneish breach as grade-C territory")
 
         # 6. the independence test
         it = d.get("independence_test")
