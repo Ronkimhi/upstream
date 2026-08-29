@@ -32,6 +32,98 @@ def read_json_dir(folder: Path) -> list:
     return out
 
 
+BLOB_MARKER = "window.UPSTREAM_DATA = "
+
+
+def extract_committed_payload():
+    """The data blob out of the committed app/index.html, or None with a reason.
+
+    CLAUDE.md says index.html "is never hand-edited", and nothing enforced it. `--check`
+    validated data/ and assembled the HTML in memory, then threw it away without ever
+    comparing it to the file on disk — so a page left stale for a week, or edited by
+    hand, or built from data that has since moved, passed CI cleanly. The artifact is
+    what Ron actually reads; a number on it that no longer matches data/ is a
+    hallucination with a build step in front of it.
+    """
+    page = APP / "index.html"
+    if not page.exists():
+        return None, "app/index.html does not exist yet"
+    text = page.read_text()
+    i = text.find(BLOB_MARKER)
+    if i < 0:
+        return None, f"no {BLOB_MARKER!r} marker in app/index.html"
+    start = i + len(BLOB_MARKER)
+    end = text.find(";\n", start)
+    if end < 0:
+        return None, "the data blob is not terminated"
+    try:
+        return json.loads(text[start:end].replace("<\\/", "</")), None
+    except Exception as e:  # noqa: BLE001
+        return None, f"the embedded blob is not valid JSON: {e}"
+
+
+def _is_contiguous_run(sub: list, whole: list) -> bool:
+    """True when `sub` appears in `whole` as a run of consecutive items.
+
+    Both are windows on the tail of data/ledger.md, so the page's window may start
+    earlier than the current one; a page line that is not in the current window at all
+    is only a problem if the page's run is not a suffix-aligned slice of it. Comparing
+    on the overlap keeps this honest without failing on a slid window.
+    """
+    if not sub:
+        return True
+    for i in range(len(whole) - 1, -1, -1):
+        if whole[i] == sub[-1]:
+            n = min(len(sub), i + 1)
+            if sub[-n:] == whole[i + 1 - n:i + 1]:
+                return True
+    # The page's last line may have slid out of the current 60-line window entirely.
+    # Then the only check available is that every page line is a real ledger line.
+    return all(s in whole for s in sub)
+
+
+def compare_committed(payload: dict) -> list:
+    """Top-level keys where the committed page disagrees with freshly-read data/.
+
+    built_at is excluded: it changes on every build by design and says nothing about
+    whether the content drifted.
+    """
+    committed, why = extract_committed_payload()
+    if committed is None:
+        return [why]
+    drift = []
+    for key in sorted(set(payload) | set(committed)):
+        if key == "built_at":
+            continue
+        if key == "ledger":
+            # The postlude order is build, THEN append the ledger line describing the
+            # build, THEN commit — so the committed page is always a line or two behind
+            # by construction. Requiring equality here would fail every honest commit.
+            # What must hold is that the page invented nothing and dropped nothing: its
+            # lines are a contiguous run of the real ledger, in order.
+            page_lines, now_lines = committed.get(key) or [], payload.get(key) or []
+            if page_lines and not _is_contiguous_run(page_lines, now_lines):
+                drift.append("ledger: the committed page's lines are not a contiguous run "
+                             "of data/ledger.md — the page shows entries the ledger does "
+                             "not have, or in a different order")
+            continue
+        if key not in committed:
+            drift.append(f"{key}: missing from the committed page")
+        elif key not in payload:
+            drift.append(f"{key}: on the committed page but no longer built")
+        elif committed[key] != payload[key]:
+            a, b = committed[key], payload[key]
+            detail = ""
+            if isinstance(a, list) and isinstance(b, list) and len(a) != len(b):
+                detail = f" ({len(a)} on the page, {len(b)} in data/)"
+            elif isinstance(a, dict) and isinstance(b, dict):
+                moved = sorted(set(a) ^ set(b)) or \
+                    sorted(k for k in set(a) & set(b) if a[k] != b[k])
+                detail = f" (differs at: {', '.join(map(str, moved[:6]))})" if moved else ""
+            drift.append(f"{key}: the committed page disagrees with data/{detail}")
+    return drift
+
+
 def main() -> int:
     check = "--check" in sys.argv
 
@@ -72,10 +164,17 @@ def main() -> int:
     if fp.exists():
         try:
             _f = json.loads(fp.read_text())
-            feeds_store = {"as_of": _f.get("as_of"), "items": [
-                {"t": (it.get("title") or "")[:110], "s": it.get("source"),
-                 "f": it.get("family"), "d": it.get("ts")}
-                for it in _f.get("items", [])[:300] if isinstance(it, dict)]}
+            _items = [it for it in _f.get("items", []) if isinstance(it, dict)]
+            # `total` is the whole store; `items` is the subset inlined for the cortex
+            # dust ring. The UI used to render len(items) under the word HELD, so the
+            # page said "300 HELD" while the store held 317 and the Scout card two
+            # clicks away said 317 — one corpus, two numbers, on one page. The
+            # truncation is fine; reporting it as the total was not.
+            feeds_store = {"as_of": _f.get("as_of"), "total": len(_items),
+                           "items": [
+                               {"t": (it.get("title") or "")[:110], "s": it.get("source"),
+                                "f": it.get("family"), "d": it.get("ts")}
+                               for it in _items[:300]]}
         except Exception:
             pass
 
@@ -104,6 +203,16 @@ def main() -> int:
         "candidates": json.loads((DATA / "radar" / "candidates.json").read_text()) if (DATA / "radar" / "candidates.json").exists() else {"candidates": []},
         "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
         "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
+        # The scoring thresholds, shipped to the page instead of retyped in it. app.js
+        # had 60/40/60 and the band edges written as literals, duplicating
+        # tools/validate.py — they agreed on the day they were written and nothing kept
+        # them agreeing. A UI that draws a money-corner box from its own copy of the
+        # rule can disagree with the validator that computed the verdict.
+        "method": {
+            "money_corner": {"impact_min": 60, "crowd_max": 40, "capture_min": 60},
+            "bands": {"over_crowded_above": 80, "crowded_above": 60, "emerging_above": 40,
+                      "undiscovered_impact_min": 60},
+        },
     }
 
     shell = (APP / "templates" / "shell.html").read_text()
@@ -145,7 +254,16 @@ def main() -> int:
         print(f"build: WARNING index.html is {size_mb:.1f} MB (> {SIZE_WARN_MB} MB) — consider pruning ARCHIVED series from the inline blob")
 
     if check:
-        print(f"build: --check OK ({size_mb:.2f} MB, {len(payload['signals'])} signals, {len(payload['chains'])} chains, {len(payload['stocks'])} dives)")
+        drift = compare_committed(payload)
+        if drift:
+            print("build: --check FAILED — app/index.html does not match data/:")
+            for d in drift:
+                print(f"  - {d}")
+            print("build: run `python3 app/build.py` and commit the result")
+            return 1
+        print(f"build: --check OK ({size_mb:.2f} MB, {len(payload['signals'])} signals, "
+              f"{len(payload['chains'])} chains, {len(payload['stocks'])} dives; "
+              f"committed page matches data/)")
         return 0
 
     (APP / "index.html").write_text(html)

@@ -55,12 +55,18 @@ def fetch_price_yf(ticker):
                       "reason": f"{type(e).__name__}: {str(e)[:120]}"}
 
 
+STOOQ_HEADERS = {
+    "User-Agent": STOOQ_USER_AGENT,
+    "Accept": "text/csv,text/plain,*/*",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
 def fetch_price_stooq(ticker):
     """Returns (print|None, leg). See fetch_price_yf for why the leg exists."""
     url = STOOQ_DAILY_CSV_URL.format(symbol=_stooq_symbol(ticker))
     try:
-        resp = requests.get(url, timeout=30,
-                            headers={"User-Agent": STOOQ_USER_AGENT})
+        resp = requests.get(url, timeout=30, headers=STOOQ_HEADERS)
         if resp.status_code != 200:
             return None, {"source": "stooq", "answered": False,
                           "reason": f"http {resp.status_code}", "symbol": _stooq_symbol(ticker)}
