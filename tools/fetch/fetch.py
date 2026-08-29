@@ -432,26 +432,57 @@ def do_insider(ticker, lookback_days=365):
             diag["parse_errors"].append(f"{fdate}: {str(e)[:120]}")
             print(f"  Form 4 parse failed ({fdate}): {e}")
             continue
-        txns = getattr(ob, "market_trades", None)
+        # Bound 2026-08-29 against the shape probe the previous run wrote: `market_trades`
+        # EXISTS on the object but is None for filings with no open-market trade, so the
+        # first binding read as "no data" on 40 consecutive filings that parsed fine.
+        # These are the real accessors, tried most-specific first.
+        txns, via = None, None
+        for name in ("common_stock_purchases", "common_stock_sales", "market_trades"):
+            v = getattr(ob, name, None)
+            if v is None:
+                continue
+            if hasattr(v, "__len__") and len(v) == 0:
+                continue
+            txns, via = v, name
+            break
         if txns is None:
-            txns = getattr(ob, "transactions", None)
+            for meth in ("get_transaction_activities", "to_dataframe"):
+                fn = getattr(ob, meth, None)
+                if callable(fn):
+                    try:
+                        v = fn()
+                    except Exception as e:  # noqa: BLE001
+                        diag["parse_errors"].append(f"{fdate} {meth}: {str(e)[:100]}")
+                        continue
+                    if v is not None and (not hasattr(v, "__len__") or len(v)):
+                        txns, via = v, meth
+                        break
         if txns is None:
             if probe is None:
                 probe = sorted(a for a in dir(ob) if not a.startswith("_"))[:40]
             continue
+        diag.setdefault("bound_via", {})
+        diag["bound_via"][via] = diag["bound_via"].get(via, 0) + 1
         try:
             recs = txns.to_dict("records") if hasattr(txns, "to_dict") else list(txns)
-        except Exception:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
+            diag["parse_errors"].append(f"{fdate} to_dict: {str(e)[:100]}")
             recs = []
         for t in recs:
-            rows.append({"filing_date": fdate,
-                         "insider": str(getattr(ob, "reporting_owner_name", None)
-                                        or getattr(ob, "owner_name", None) or "")[:120],
+            rows.append({"filing_date": fdate, "via": via,
+                         "insider": str(getattr(ob, "insider_name", None)
+                                        or getattr(ob, "reporting_owner_name", None) or "")[:120],
                          "raw": {k: (str(v)[:60] if v is not None else None)
                                  for k, v in list(dict(t).items())[:12]}})
     # verified_zero needs a control on the SAME plane. stooq-AAPL proves prices work and
     # says nothing about whether EDGAR ownership data is reachable, so it cannot certify
     # an empty Form 4 result. Probe EDGAR with a filer that always has Form 4s.
+    if not rows and diag["filings_listed"]:
+        raise RuntimeError(
+            f"{ticker}: {diag['filings_listed']} Form 4 filings listed and "
+            f"{min(len(filings), 40)} examined, but 0 transaction rows extracted. That is an "
+            f"EXTRACTION failure, not a verified zero — a company with filings has trades. "
+            f"shape probe: {probe} | diagnostics: {diag}")
     edgar_control = None
     if not rows:
         try:
