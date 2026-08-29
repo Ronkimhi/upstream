@@ -28,6 +28,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from write_targets import from_tool_use  # noqa: E402
+
 ALLOW = 0  # every exit is 0; blocking is expressed in the JSON payload
 
 
@@ -58,6 +61,7 @@ def main() -> int:
     except Exception:  # noqa: BLE001
         return allow()
 
+    # Ask what each tool call WROTE, not what it was named: a heredoc is a write too.
     wrote_chain = False
     for line in raw.splitlines():
         if "data/chains/" not in line:
@@ -69,12 +73,15 @@ def main() -> int:
         for blk in (ev.get("message") or {}).get("content") or []:
             if not isinstance(blk, dict) or blk.get("type") != "tool_use":
                 continue
-            if blk.get("name") not in {"Write", "Edit", "NotebookEdit", "MultiEdit"}:
-                continue
-            path = str((blk.get("input") or {}).get("file_path") or "")
-            m = re.search(r"data/chains/([^/]+)\.json$", path)
-            if m and not m.group(1).startswith("_"):
-                wrote_chain = True
+            written, _unresolved = from_tool_use(
+                str(blk.get("name") or ""), blk.get("input") or {}
+            )
+            for target in written:
+                m = re.search(r"data/chains/([^/]+)\.json$", target)
+                if m and not m.group(1).startswith("_"):
+                    wrote_chain = True
+                    break
+            if wrote_chain:
                 break
         if wrote_chain:
             break

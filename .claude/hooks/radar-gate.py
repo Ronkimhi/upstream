@@ -26,6 +26,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from write_targets import from_tool_use  # noqa: E402
+
 ALLOW = 0  # every exit from this hook is 0; blocking is expressed in the JSON payload
 
 
@@ -57,7 +60,8 @@ def main() -> int:
     except Exception:  # noqa: BLE001
         return allow()
 
-    # Did THIS session write a signal card? Look for tool inputs naming the path.
+    # Did THIS session write a signal card? Ask what each tool call WROTE, not what it was
+    # named: a `cat > data/signals/...` heredoc is a write and this gate used to miss it.
     wrote_signal = False
     for line in raw.splitlines():
         if "data/signals/" not in line:
@@ -69,10 +73,10 @@ def main() -> int:
         for block_ in (ev.get("message") or {}).get("content") or []:
             if not isinstance(block_, dict) or block_.get("type") != "tool_use":
                 continue
-            if block_.get("name") not in {"Write", "Edit", "NotebookEdit", "MultiEdit"}:
-                continue
-            path = str((block_.get("input") or {}).get("file_path") or "")
-            if re.search(r"data/signals/[^/]+\.json$", path):
+            written, _unresolved = from_tool_use(
+                str(block_.get("name") or ""), block_.get("input") or {}
+            )
+            if any(re.search(r"data/signals/[^/]+\.json$", t) for t in written):
                 wrote_signal = True
                 break
         if wrote_signal:
