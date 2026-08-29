@@ -225,11 +225,26 @@ def check_run_day(data: Path, screens: list, chains_dir: Path, today: str) -> No
         ledger = (data / "ledger.md").read_text()
     except Exception:  # noqa: BLE001
         report("ledger: unreadable — skipping the ledger check (fails open, as elsewhere)")
-    today_lines = [ln for ln in ledger.splitlines() if ln.startswith(today)]
+    # Match the ledger line's COMMAND field, not the whole line. A line that merely
+    # contains "screen" and the chain name is not evidence a screen ran: every line
+    # written today while building this gate mentions both, and two successive
+    # tightenings of a substring test still passed over unrelated lines. The ledger format
+    # is `date | TYPE | <command> | by: ...`, so the command is field 3 and it either says
+    # `run screen <chain>` or it does not.
+    cmds = []
+    for ln in ledger.splitlines():
+        if not ln.startswith(today):
+            continue
+        parts = [f_.strip() for f_ in ln.split("|")]
+        if len(parts) >= 3 and re.match(r"^(RUN|AMEND)$", parts[1]):
+            cmds.append(parts[2])
     for p, s in touched:
         sid = str(s.get("id") or p.stem)
-        if not any(sid in ln for ln in today_lines):
-            fail(f"{p.name}: screen written today but no {today} ledger line names {sid}")
+        chain_id = str(s.get("chain_id") or "")
+        want = re.compile(rf"^(run screen|refresh)\b.*\b({re.escape(sid)}|{re.escape(chain_id)})\b")
+        if not any(want.match(c) for c in cmds):
+            fail(f"{p.name}: screen written today but no {today} ledger line whose COMMAND "
+                 f"field is a screen run for {sid} (found: {cmds or 'no RUN/AMEND lines today'})")
         chain = read_json(chains_dir / f"{s.get('chain_id')}.json")
         if not isinstance(chain, dict):
             continue

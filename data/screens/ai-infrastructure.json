@@ -1,0 +1,589 @@
+{
+ "id": "ai-infrastructure",
+ "chain_id": "ai-infrastructure",
+ "scenario_id": null,
+ "created_at": "2026-08-29",
+ "as_of": "2026-08-29",
+ "universe_note": "Chain-level screen: every name the chain touches, built PER LINK in method section 6 priority order (money corner first, then CHOKE_POINT, then by impact). Four of twelve links are worked here: power-equipment (the money corner, 5 names), grid-interconnect, liquid-cooling and energy-generation. The eight remaining links are named in data_gaps as searched-or-not-searched rather than left silent: foundry and advanced-packaging are CHOKE_POINT links and rank above the worked non-money-corner links, but their example tickers are non-US (2330.TW, BESI.AS, ASX) or already-crowded US names, and no market or EDGAR data has been fetched for any of them, so working them now would produce rows with nothing in them. That is a coverage gap in the fetch plane, not a finding about those links. Every number on every row is read from data/market/<T>.json or computed from it; every quote is verified verbatim against data/edgar/docs/<T>.json by tools/check_screen.py.",
+ "queries_run": [
+  {
+   "query": "chain-map link membership (example_tickers per link, money corner first)",
+   "forms": null,
+   "hits_examined": 12,
+   "names_extracted": 8
+  },
+  {
+   "query": "EDGAR earnings documents for every T1 name in the worked links",
+   "forms": "8-K item 2.02",
+   "hits_examined": 6,
+   "names_extracted": 6
+  }
+ ],
+ "buckets": {
+  "pure_play": [
+   {
+    "ticker": "VRT",
+    "name": "Vertiv Holdings",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1674101,
+    "link_id": "liquid-cooling",
+    "money_corner": false,
+    "thesis_1line": "Power and thermal management for data centers; the density transition is its product cycle, and the July 8-K raises full-year guidance on capacity expansion.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Vertiv does not disclose an AI-attributable revenue percentage; the 8-K describes demand qualitatively. Undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 10229900000,
+      "source": "data/market/VRT.json fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 1332800000,
+      "source": "data/market/VRT.json fundamentals.net_income_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.3295,
+      "state": "SOLVED",
+      "source": "data/market/VRT.json quality.reverse_dcf",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "piotroski": 6,
+     "beneish_state": "CLEAN",
+     "revenue_cagr_3y": {
+      "value": 0.2159,
+      "source": "computed from fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": 88.2,
+     "state": "DARK",
+     "machine_admissible": true,
+     "sub_scores": {
+      "trends": 30,
+      "wsb": 25,
+      "stocktwits": 5,
+      "media": null
+     },
+     "as_of": "2026-08-29",
+     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "tag": "INFERRED"
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "Demand for AI and general compute continues to intensify and with each technology advancement, deployments grow more complex and more infrastructure-intensive",
+      "accession": "0001628280-26-050323",
+      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED"
+     },
+     {
+      "quote": "The strong demand environment, growing pipelines, and the continual capacity expansions underway to serve customers give Vertiv the confidence to raise full year net sales guidance",
+      "accession": "0001628280-26-050323",
+      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED"
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "ticker": "POWL",
+    "name": "Powell Industries",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 80420,
+    "link_id": "power-equipment",
+    "money_corner": true,
+    "thesis_1line": "Custom switchgear and electrical distribution; small cap sitting on the chain's money corner, with a record order book in the quarter.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Powell reports by end market (petrochemical, LNG, utility, commercial including data centers) but does not break out a data-center revenue percentage in this 8-K. Undisclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-09-30",
+     "revenue_fy": {
+      "value": 1104318000,
+      "source": "data/market/POWL.json fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 180747000,
+      "source": "data/market/POWL.json fundamentals.net_income_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": -0.0734,
+      "state": "SOLVED",
+      "source": "data/market/POWL.json quality.reverse_dcf",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "piotroski": null,
+     "beneish_state": "CLEAN",
+     "revenue_cagr_3y": {
+      "value": 0.2752,
+      "source": "computed from fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": 100.0,
+     "state": "COVERAGE-THIN",
+     "machine_admissible": false,
+     "sub_scores": {
+      "trends": null,
+      "wsb": 25,
+      "stocktwits": 13,
+      "media": null
+     },
+     "as_of": "2026-08-29",
+     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "tag": "INFERRED"
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "Powell was awarded a record $934 million of new orders",
+      "accession": "0000080420-26-000103",
+      "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+      "form": "8-K",
+      "filing_date": "2026-08-03",
+      "tag": "VERIFIED"
+     },
+     {
+      "quote": "The Powell team also continues to focus on strong project execution as we deliver our record backlog",
+      "accession": "0000080420-26-000103",
+      "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+      "form": "8-K",
+      "filing_date": "2026-08-03",
+      "tag": "VERIFIED"
+     }
+    ],
+    "status": "CANDIDATE"
+   }
+  ],
+  "picks_and_shovels": [
+   {
+    "ticker": "ETN",
+    "name": "Eaton",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1551182,
+    "link_id": "power-equipment",
+    "money_corner": true,
+    "thesis_1line": "Diversified electrical major on the money-corner link; data centers are the stated growth driver but the name is large and widely held, so the attention gap is thin.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Eaton names data centers as a growth driver without a disclosed revenue percentage in this 8-K. Undisclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 27448000000,
+      "source": "data/market/ETN.json fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 4087000000,
+      "source": "data/market/ETN.json fundamentals.net_income_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.2958,
+      "state": "SOLVED",
+      "source": "data/market/ETN.json quality.reverse_dcf",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "piotroski": null,
+     "beneish_state": "PENDING_DATA",
+     "revenue_cagr_3y": {
+      "value": 0.0977,
+      "source": "computed from fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": 100.0,
+     "state": "DARK",
+     "machine_admissible": true,
+     "sub_scores": {
+      "trends": 30,
+      "wsb": 25,
+      "stocktwits": 13,
+      "media": null
+     },
+     "as_of": "2026-08-29",
+     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "tag": "INFERRED"
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "While data centers remain a key growth driver, we are benefiting from robust demand across our end markets",
+      "accession": "0001551182-26-000027",
+      "url": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000027/etn06302026exhibit99.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-31",
+      "tag": "VERIFIED"
+     },
+     {
+      "quote": "Total backlog at the end of June remained strong and was up 33% over June 2025",
+      "accession": "0001551182-26-000027",
+      "url": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000027/etn06302026exhibit99.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-31",
+      "tag": "VERIFIED"
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "ticker": "HPS-A.TO",
+    "name": "Hammond Power Solutions",
+    "exchange": "TSX",
+    "tier": "T3",
+    "cik": null,
+    "link_id": "power-equipment",
+    "money_corner": true,
+    "thesis_1line": "Dry-type transformers on the money-corner link; the small non-US listing the attention gap is supposed to hide.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "T3 local listing with no SEC CIK: no companyfacts, no EDGAR document, so no verbatim quote is possible from this plane. Fundamentals must come from filings or IR via web with INFERRED tags per method section 6.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": "PENDING_DATA",
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "second_order": [
+   {
+    "ticker": "GEV",
+    "name": "GE Vernova",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1996810,
+    "link_id": "power-equipment",
+    "money_corner": true,
+    "thesis_1line": "Gas turbines and grid equipment in one ticker; sits on power-equipment and energy-generation, filed under the money-corner link per method section 6.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "GE Vernova reports segment revenue (Power, Wind, Electrification) but no data-center-attributable percentage. Undisclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 38068000000,
+      "source": "data/market/GEV.json fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 4884000000,
+      "source": "data/market/GEV.json fundamentals.net_income_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": null,
+      "state": "PENDING_DATA",
+      "source": "data/market/GEV.json quality.reverse_dcf",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "piotroski": null,
+     "beneish_state": "PENDING_DATA",
+     "revenue_cagr_3y": {
+      "value": 0.0868,
+      "source": "computed from fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": 88.2,
+     "state": "DARK",
+     "machine_admissible": true,
+     "sub_scores": {
+      "trends": 30,
+      "wsb": 25,
+      "stocktwits": 5,
+      "media": null
+     },
+     "as_of": "2026-08-29",
+     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "tag": "INFERRED"
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "We delivered strong financial results in the second quarter as global demand for our products and solutions continues to grow",
+      "accession": "0001996810-26-000147",
+      "url": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000147/gevpressrelease2q26.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-22",
+      "tag": "VERIFIED"
+     },
+     {
+      "quote": "we remain on track to deliver 20 GW of annual gas turbine output in the third quarter of 2026",
+      "accession": "0001996810-26-000147",
+      "url": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000147/gevpressrelease2q26.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-22",
+      "tag": "VERIFIED"
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "ticker": "ENR.DE",
+    "name": "Siemens Energy",
+    "exchange": "XETRA",
+    "tier": "T2",
+    "cik": 1632790,
+    "link_id": "power-equipment",
+    "money_corner": true,
+    "thesis_1line": "European mirror of GEV on the money-corner link: grid technologies plus gas services backlog, thin US retail attention.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "T2 foreign listing: a CIK resolves but no US earnings document was fetched on this plane, so no verbatim quote is available. Cite from the annual report via web with INFERRED tags.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": "PENDING_DATA",
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "ticker": "MYRG",
+    "name": "MYR Group",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 700923,
+    "link_id": "grid-interconnect",
+    "money_corner": false,
+    "thesis_1line": "Transmission and distribution EPC; volume winner on the grid link, but capture is the open question the chain flags at 40 (bid-competed margins).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "MYR reports T&D and C&I segment backlog, not a data-center-attributable percentage. Undisclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 3657889000,
+      "source": "data/market/MYRG.json fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 118416000,
+      "source": "data/market/MYRG.json fundamentals.net_income_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.07,
+      "state": "SOLVED",
+      "source": "data/market/MYRG.json quality.reverse_dcf",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "piotroski": 8,
+     "beneish_state": "CLEAN",
+     "revenue_cagr_3y": {
+      "value": 0.0673,
+      "source": "computed from fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": 73.5,
+     "state": "DARK",
+     "machine_admissible": true,
+     "sub_scores": {
+      "trends": 12,
+      "wsb": 25,
+      "stocktwits": 13,
+      "media": null
+     },
+     "as_of": "2026-08-29",
+     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "tag": "INFERRED"
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "These results reflect the continued strength of our core markets, ongoing investment in electrical infrastructure, and sustained customer demand across our business",
+      "accession": "0000700923-26-000041",
+      "url": "https://www.sec.gov/Archives/edgar/data/700923/000070092326000041/myrg-2026630x8kxexx991.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED"
+     },
+     {
+      "quote": "MYR's backlog was $3.16 billion, which was an increase of $518.4 million, or 19.6 percent",
+      "accession": "0000700923-26-000041",
+      "url": "https://www.sec.gov/Archives/edgar/data/700923/000070092326000041/myrg-2026630x8kxexx991.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED"
+     }
+    ],
+    "status": "CANDIDATE"
+   }
+  ],
+  "hedge": [
+   {
+    "ticker": "CEG",
+    "name": "Constellation Energy",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 1868275,
+    "link_id": "energy-generation",
+    "money_corner": false,
+    "thesis_1line": "Existing nuclear fleet with hyperscaler PPAs; earns if power is scarce and cushions the basket if equipment orders disappoint.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "The document fetched for CEG is the quarterly financial supplement, whose prose is footnotes and methodology rather than management narrative, so no thematic quote is available from it. A press-release exhibit would be needed. Not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 22663000000,
+      "source": "data/market/CEG.json fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 2319000000,
+      "source": "data/market/CEG.json fundamentals.net_income_fy",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.4611,
+      "state": "SOLVED",
+      "source": "data/market/CEG.json quality.reverse_dcf",
+      "as_of": "2026-08-29",
+      "tag": "VERIFIED"
+     },
+     "piotroski": null,
+     "beneish_state": "PENDING_DATA",
+     "revenue_cagr_3y": {
+      "value": 0.0166,
+      "source": "computed from fundamentals.revenue_fy",
+      "as_of": "2026-08-29",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": 88.2,
+     "state": "DARK",
+     "machine_admissible": true,
+     "sub_scores": {
+      "trends": 30,
+      "wsb": 25,
+      "stocktwits": 5,
+      "media": null
+     },
+     "as_of": "2026-08-29",
+     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "tag": "INFERRED"
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ]
+ },
+ "data_gaps": [
+  "Links not worked, with the reason: networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters, frontier-models, ai-applications \u2014 no market or EDGAR data fetched for their example tickers, most of which are non-US listings the SEC plane cannot reach (2330.TW, 000660.KS, 005930.KS, BESI.AS, 5803.T, 7011.T).",
+  "HPS-A.TO (T3) and ENR.DE (T2): no EDGAR earnings document on this plane, so no verbatim quote is possible and fundamentals stay PENDING_DATA. Method section 6 allows these to be cited from filings or IR via web with INFERRED tags; that has not been done yet.",
+  "CEG: the fetched document is the quarterly financial supplement, not the press release, so no thematic management quote is available.",
+  "GEV: quality.reverse_dcf is PENDING_DATA, so GEV has no market-implied growth column and cannot support a dive gap table yet.",
+  "theme_revenue_exposure is null on all 8 rows: not one of these filers discloses a data-center-attributable revenue percentage in the fetched document. Undisclosed, never estimated (method section 6)."
+ ],
+ "taste_filtered": [
+  {
+   "ticker": "(none filtered)",
+   "rule": "TASTE-001 rare-earth miners and TASTE-002 Taiwan concentration were both applied to the 8-name universe; neither matched. TASTE-002 would have filtered a foundry-link name had that link been worked, which is one more reason the unworked links are named explicitly above."
+  }
+ ],
+ "health": {
+  "tickers_examined": 8,
+  "fully_scored": 6,
+  "pending": 2,
+  "errors": 0,
+  "links_worked": 4,
+  "links_total": 12,
+  "quotes_verified": 10
+ },
+ "notes": [
+  {
+   "ts": "2026-08-29T23:55:00Z",
+   "by": "ron",
+   "text": "PCS crowdedness is reported on every row and is load-bearing for nothing. This run is the clearest evidence yet that it should not be: Axis A reads ETN, a widely-held electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a large cap is a coverage artifact, not an attention gap. method section 3 already prints PCS as ADVISORY; this row-set is why that matters."
+  }
+ ],
+ "confidence_audit": {
+  "verified": 10,
+  "inferred": 6,
+  "speculative": 0,
+  "null": 8
+ },
+ "changelog": [
+  {
+   "ts": "2026-08-29T23:55:00Z",
+   "by": "ron",
+   "kind": "CREATE",
+   "change": "First chain-level screen for ai-infrastructure, and the first real exercise of the verbatim earnings-quote rule: 10 nuggets across 5 filers, each verified against data/edgar/docs/ by tools/check_screen.py before this file was written. Two filers (GEV, CEG) only became quotable during this run after the EX-99 exhibit selection was fixed, and every quote here would have failed verification before the HTML entity decoding fix earlier the same day.",
+   "prior": null
+  }
+ ]
+}
