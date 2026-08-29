@@ -3,7 +3,19 @@
   "use strict";
   var D = window.UPSTREAM_DATA || {};
   var app = document.getElementById("app");
-  var TODAY = (D.built_at || new Date().toISOString()).slice(0, 10);
+  /* BUILT_AT is when the data was assembled. TODAY is when someone is LOOKING at it, and
+     those are different questions. Staleness chips, review-due lists and the radar-silence
+     check all ask the second one, and all of them used to read built_at — so a published
+     artifact froze the day it was built and went on reporting "all quiet" and no stale
+     badges however long it sat open. A page about aging data that cannot itself age is
+     the one thing on the screen guaranteed to be wrong eventually. */
+  var BUILT_AT = (D.built_at || "").slice(0, 10);
+  var TODAY = new Date().toISOString().slice(0, 10);
+  /* The scoring thresholds come from the build (app/build.py injects payload.method from
+     the same constants tools/validate.py computes verdicts with) rather than being retyped
+     here. The fallbacks keep an older page rendering, and they are the only copy left. */
+  var METHOD = D.method || {};
+  var MC = METHOD.money_corner || { impact_min: 60, crowd_max: 40, capture_min: 60 };
 
   /* ---------------- helpers ---------------- */
   function esc(s) {
@@ -11,6 +23,18 @@
     return String(s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
+  }
+  /* One definition of "this link can be plotted", used by the scatter and by the
+     Not-scored list below it, so every link lands in exactly one of the two. They used
+     to disagree: the plot required impact AND crowdedness, the list tested crowdedness
+     alone, so a link with a crowdedness score and a null impact silently appeared in
+     neither. `!= null` everywhere: 0 is a score. */
+  /* A score of 0 is a score. `x || "–"` printed it as missing, which is the one
+     rendering error that turns a real finding into an apparent data gap. */
+  function num(v, dash) { return v == null ? (dash || "–") : v; }
+  function isPlottable(l) {
+    return !!(l.heat && l.heat.impact && l.heat.impact.score != null &&
+              l.heat.crowdedness && l.heat.crowdedness.score != null);
   }
   function byId(list, id) { for (var i = 0; i < (list || []).length; i++) if (list[i].id === id) return list[i]; return null; }
   function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
@@ -474,7 +498,7 @@
     if (!c) return notFound("chain " + id);
     chainTab = (tab === "heat" || tab === "scen" || tab === "flow") ? tab : "flow";
     var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
-    var scored = links.filter(function (l) { return l.heat && l.heat.crowdedness && l.heat.crowdedness.score != null; });
+    var scored = links.filter(isPlottable);
     var money = links.filter(function (l) { return l.heat && l.heat.money_corner; });
     var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : flowTab(c, links);
     var subtitle = scored.length
@@ -582,12 +606,18 @@
       return y2;
     }
     scored.slice().sort(function (a, b) { return a.heat.crowdedness.score - b.heat.crowdedness.score; }).forEach(function (l) {
-      var im = l.heat.impact ? l.heat.impact.score : null, cr = l.heat.crowdedness.score, cp = l.heat.capture ? l.heat.capture.score : 40;
-      if (im == null) return;
-      var r = 6 + (cp || 0) / 10;
+      /* capture used to default to 40 when the block was absent, and that invented 40 was
+         printed in the hover title as though it were a score. A missing score is drawn at
+         a fixed small radius and SAYS it is unscored. Note `!= null` throughout rather
+         than a truthiness test: a legitimate score of 0 is a finding, not a blank. */
+      var im = l.heat.impact ? l.heat.impact.score : null, cr = l.heat.crowdedness.score;
+      var cp = (l.heat.capture && l.heat.capture.score != null) ? l.heat.capture.score : null;
+      if (im == null || cr == null) return;
+      var r = cp == null ? 6 : 6 + cp / 10;
       var nm = shortName(l.name);
       var ly = labelSpot(X(im), [Y(cr) - r - 8, Y(cr) + r + 14, Y(cr) - r - 22, Y(cr) + r + 28, Y(cr) - r - 36], nm);
-      s += '<circle cx="' + X(im) + '" cy="' + Y(cr) + '" r="' + r.toFixed(1) + '" fill="' + verdColor(l.heat.verdict) + '" fill-opacity="0.85" stroke="var(--surface)" stroke-width="2"><title>' + esc(l.name) + " — impact " + im + ", crowdedness " + cr + ", capture " + cp + "</title></circle>";
+      s += '<circle cx="' + X(im) + '" cy="' + Y(cr) + '" r="' + r.toFixed(1) + '" fill="' + verdColor(l.heat.verdict) + '" fill-opacity="0.85" stroke="var(--surface)" stroke-width="2"' +
+        (cp == null ? ' stroke-dasharray="2 2"' : "") + "><title>" + esc(l.name) + " — impact " + im + ", crowdedness " + cr + ", capture " + (cp == null ? "unscored" : cp) + "</title></circle>";
       s += '<text x="' + X(im) + '" y="' + ly + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">' + esc(nm) + "</text>";
     });
     s += "</svg></div>";
@@ -595,12 +625,16 @@
       [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
         return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
       }).join("") + "</div></div>";
-    var un = links.filter(function (l) { return !l.heat || !l.heat.crowdedness || l.heat.crowdedness.score == null; });
+    var un = links.filter(function (l) { return !isPlottable(l); });
     if (un.length) s += '<div class="muted" style="margin-top:10px">Not scored: ' + un.map(function (l) { return esc(l.name); }).join(", ") + "</div>";
     var mc = links.filter(function (l) { return l.heat && l.heat.money_corner; });
     s += '<div class="callout" style="margin-top:14px">' +
-      (mc.length ? "<b>★ " + mc.map(function (l) { return esc(l.name); }).join(" · ") + "</b> clears all three bars (impact ≥ 60, crowdedness ≤ 40, capture ≥ 60). " :
-        "<b>No money corner yet</b> — no link clears impact ≥ 60, crowdedness ≤ 40, capture ≥ 60 together. ") +
+      (function () {
+        var bars = "impact ≥ " + MC.impact_min + ", crowdedness ≤ " + MC.crowd_max + ", capture ≥ " + MC.capture_min;
+        return mc.length
+          ? "<b>★ " + mc.map(function (l) { return esc(l.name); }).join(" · ") + "</b> clears all three bars (" + bars + "). "
+          : "<b>No money corner yet</b> — no link clears " + bars + " together. ";
+      })() +
       "Quiet links with <b>small dots</b> are the trap: ignored because capture is capped, not because the market missed them.</div>";
     return s;
   }
@@ -654,10 +688,20 @@
         '<div class="row"><a class="chip accent" href="#/screen/' + esc(c.id) + '">Open →</a>' +
         "<span data-stop>" + runButton("run screen " + c.id, null, { compact: true }) + "</span></div></div>";
     }
+    /* "not screened yet" is only true of the CHAIN-level screen. Scenario screens
+       (<chain>__Sn.json) are a different scope and chainScreen() correctly ignores them,
+       but the sentence read as though nothing had ever been screened on this chain while
+       a scenario screen sat in data/screens/ saying otherwise. Say which scope is missing. */
+    var scen = (D.screens || []).filter(function (x) { return x.chain_id === c.id && x.scenario_id; });
     return '<div class="chainaction"><div><span class="lbl">Stock opportunities</span>' +
-      '<span class="val">not screened yet</span>' +
+      '<span class="val">' + (scen.length
+        ? "no chain-wide screen yet — " + scen.length + " scenario screen" + (scen.length === 1 ? "" : "s")
+        : "not screened yet") + "</span>" +
       '<span class="lbl">finds every name this chain touches, link by link</span></div>' +
-      "<div class='row'><span data-stop>" + runButton("run screen " + c.id, null, { compact: true }) + "</span></div></div>";
+      "<div class='row'>" + (scen.length
+        ? scen.map(function (x) { return '<a class="chip" href="#/screen/' + esc(x.chain_id) + "/" + esc(x.scenario_id) + '">' + esc(x.scenario_id) + " →</a>"; }).join("")
+        : "") +
+      "<span data-stop>" + runButton("run screen " + c.id, null, { compact: true }) + "</span></div></div>";
   }
 
   function chainScreenView(chainId, byBucket) {
@@ -797,11 +841,12 @@
         return (i ? "L" : "M") + (i / (sn.length - 1) * 64).toFixed(1) + " " + (20 - (r[1] - slo) / rng * 18).toFixed(1);
       }).join("");
       var lastRow = sr[sr.length - 1];
-      var first = sn[0][1], chg = first ? ((lastRow[1] - first) / first) * 100 : 0;
+      var first = sn[0][1], chg = (first && sn.length > 1) ? ((lastRow[1] - first) / first) * 100 : null;
       bigval = '<div class="bigval"><div><span class="v">' + fmtMoney(lastRow[1]) + "</span>" +
         '<svg class="spark" viewBox="0 0 66 22" aria-hidden="true"><path d="' + sp + '" fill="none" stroke="' +
         (chg >= 0 ? "var(--und)" : "var(--ovr)") + '" stroke-width="1.6"/></svg></div>' +
-        '<span class="l">last close · ' + esc(lastRow[0]) + " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% over 90 sessions</span></div>";
+        '<span class="l">last close · ' + esc(lastRow[0]) +
+        (chg == null ? "" : " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% over " + sn.length + " sessions") + "</span></div>";
     }
     var hero = bigval + '<div class="vhero ' + esc(st.verdict) + '">' +
       '<span class="vword"><span class="dot"></span>' + esc(st.verdict.replace("_", " ")) + "</span>" + zone +
@@ -815,6 +860,36 @@
         (st.red_team.amendments ? "<div class='small'><b>Amended:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
         "<div class='small' style='margin-top:10px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
       : '<div class="card redteam"><div class="rt-label">Red team</div><div class="small" style="margin-top:8px">This dive is DRAFT — it becomes FINAL only after a fresh-context attack.</div><div style="margin-top:12px">' + runButton("run redteam " + ticker + " " + chainId) + "</div></div>";
+    /* R7: confidence_audit was written by every dive and rendered by nothing, so the
+       DEMO page showed INVESTABLE with an entry zone while every claim under it was
+       SPECULATIVE. An audit that only the file knows about cannot inform the reader.
+       R8: price_ref is the dive's own declaration of which price it reasoned from; the
+       chart silently used marketFor(ticker) instead, so a divergence was invisible. */
+    var ca = st.confidence_audit || {};
+    var caTotal = (ca.verified || 0) + (ca.inferred || 0) + (ca.speculative || 0) + (ca.null || 0);
+    var caWarn = caTotal > 0 && !ca.verified && st.verdict === "INVESTABLE";
+    var caCard = caTotal ? "<div class='card" + (caWarn ? " redteam" : "") + "'><h3>Evidence strength</h3>" +
+      "<div class='row' style='gap:6px;flex-wrap:wrap'>" +
+      [["verified", ca.verified || 0], ["inferred", ca.inferred || 0],
+       ["speculative", ca.speculative || 0], ["null", ca.null || 0]].map(function (t) {
+        return chip(t[1] + " " + t[0], t[0] === "verified" && t[1] ? "accent" : (t[1] ? "neutral" : "stale"));
+      }).join("") + "</div>" +
+      (caWarn ? "<div class='small' style='margin-top:10px'><b>No VERIFIED evidence supports this INVESTABLE verdict.</b> " +
+        "Every claim on this page is inferred or reasoned. Treat the entry zone as a hypothesis, not a level.</div>" : "") +
+      "</div>" : "";
+    var prCard = "";
+    if (st.price_ref && st.price_ref.value != null) {
+      var lastClose = (mk && mk.series && (mk.series.rows || []).length)
+        ? mk.series.rows[mk.series.rows.length - 1][1] : null;
+      var diverged = lastClose != null && Math.abs(lastClose - st.price_ref.value) / lastClose > 0.05;
+      prCard = "<div class='card'><h3>Price the dive reasoned from</h3><div class='kv'>" +
+        "<dt>price_ref</dt><dd class='num'>" + fmtMoney(st.price_ref.value) +
+        " <span class='muted'>[" + esc(st.price_ref.source) + ", " + esc(st.price_ref.as_of) + "]</span></dd>" +
+        (lastClose != null ? "<dt>latest close</dt><dd class='num'>" + fmtMoney(lastClose) +
+          " <span class='muted'>" + esc((mk.series || {}).as_of) + "</span></dd>" : "") +
+        "</div>" + (diverged ? "<div class='small' style='margin-top:8px'><b>The price this dive reasoned from is more than 5% away from the latest close.</b> Re-run the dive before acting on its levels.</div>" : "") +
+        "</div>";
+    }
     var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
       "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
       "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
@@ -835,6 +910,7 @@
       seclabel("Diligence") +
       (gapc ? gapc : "") +
       '<div class="statgrid">' + priced + val + "</div>" +
+      (caCard || prCard ? '<div class="statgrid" style="margin-top:14px">' + caCard + prCard + "</div>" : "") +
       (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
       "<div style='margin-top:14px'>" + rt + "</div>" +
       notesBlock(st) + changelogBlock(st) + footer() + "</main>";
@@ -957,7 +1033,7 @@
       s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
       // top tick carries the axis name inline; the rest keep bare numbers (Evidence axis grammar)
       // sits just inside the plot on the top gridline, so the event-label band above stays clear
-      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(0) + "   price, " + esc((mk.series.currency || "USD")) + "</text>";
+      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(0) + "   price" + (mk.series.currency ? ", " + esc(mk.series.currency) : "") + "</text>";
       else s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(0) + "</text>";
     }
     var lbl = Math.max(1, Math.floor(pts.length / 6));
@@ -1116,7 +1192,7 @@
         var h = l.heat || {};
         add({
           kind: "link", id: c.id + "/" + l.id, ref: l, chainId: c.id,
-          rSem: (3.0 + ((h.impact && h.impact.score) || 40) / 50) * ((h.money_corner || (l.bottleneck || {}).criticality === "CHOKE_POINT") ? 1.4 : 1),
+          rSem: (3.0 + (h.impact && h.impact.score != null ? h.impact.score : 0) / 50) * ((h.money_corner || (l.bottleneck || {}).criticality === "CHOKE_POINT") ? 1.4 : 1),
           color: h.verdict ? CXP.verd[h.verdict] : CXP.none,
           gold: !!h.money_corner, choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
           label: cxTrim(l.name, 22),
@@ -1481,7 +1557,10 @@
            cxReg("uncited links", mUncited, !mUncited) +
            cxReg("archetypes", ((D.map || {}).archetypes || []).filter(function (a) { return a.status === "HARDENED"; }).length);
     }
-    h += '<div class="cx-grp">FEED · ' + items.length + " HELD</div>";
+    var feedTotal = (D.feeds || {}).total;
+    h += '<div class="cx-grp">FEED · ' + (feedTotal == null || feedTotal === items.length
+      ? items.length + " HELD"
+      : items.length + " OF " + feedTotal + " HELD") + "</div>";
     Object.keys(fam).sort(function (a, b) { return fam[b] - fam[a]; }).forEach(function (f) {
       h += cxReg(f.toLowerCase(), fam[f]) + cxBar(items.length ? fam[f] / items.length : 0, CXP.fam[f] || CXP.ink3);
     });
@@ -1678,9 +1757,9 @@
   /* ---- semantic info + rich hover card ---- */
   function cxInfo(n) {
     var o = n.ref || {};
-    if (n.kind === "sig") return "unmapped " + ((o.unmappedness || {}).score || "?") + " · " + (o.evidence || []).length + " ev · " + (o.horizon_years || []).join("–") + "y";
-    if (n.kind === "link") { var h = o.heat || {}; return h.verdict ? "i" + ((h.impact || {}).score || "–") + " · c" + ((h.crowdedness || {}).score || "–") + " · v" + ((h.capture || {}).score || "–") : "unscored"; }
-    if (n.kind === "scen") return (o.probability_pct || "?") + "% · " + (o.status || "").toLowerCase();
+    if (n.kind === "sig") return "unmapped " + num((o.unmappedness || {}).score, "?") + " · " + (o.evidence || []).length + " ev · " + (o.horizon_years || []).join("–") + "y";
+    if (n.kind === "link") { var h = o.heat || {}; return h.verdict ? "i" + num((h.impact || {}).score) + " · c" + num((h.crowdedness || {}).score) + " · v" + num((h.capture || {}).score) : "unscored"; }
+    if (n.kind === "scen") return num(o.probability_pct, "?") + "% · " + (o.status || "").toLowerCase();
     if (n.kind === "cand") return (o.family || "") + " · " + (o.date || "");
     if (n.kind === "evt") return (o.kind || "") + " · " + (o.date || "");
     if (n.kind === "dive") return (o.verdict || "").replace("_", " ").toLowerCase() + " · " + (o.clock || "").toLowerCase();
@@ -1698,7 +1777,7 @@
       h = head("signal · " + (occ.kind || "undated"), o.title) +
         "<div class='bd'>" + esc(cxTrim(o.thesis, 200)) + "</div>" +
         cxCardRow("occurrence", (occ.label ? cxTrim(occ.label, 34) + " · " : "") + (occ.anchor_date || "?")) +
-        cxCardRow("unmapped", ((o.unmappedness || {}).score || "?") + " / 100") +
+        cxCardRow("unmapped", num((o.unmappedness || {}).score, "?") + " / 100") +
         cxCardRow("evidence", (o.evidence || []).length + " cited · horizon " + (o.horizon_years || []).join("–") + "y") +
         cxCardRow("review by", o.review_by || "—");
     } else if (n.kind === "chain") {
@@ -1712,14 +1791,14 @@
       h = head("chain link" + (ht.money_corner ? " · ★ money corner" : ""), o.name) +
         "<div class='bd'>" + esc(cxTrim(o.role, 160)) + "</div>" +
         (ht.verdict ? cxCardRow("verdict", ht.verdict.replace("_", " ")) +
-          cxCardRow("scores", "impact " + ((ht.impact || {}).score || "–") + " · crowded " + ((ht.crowdedness || {}).score || "–") + " · capture " + ((ht.capture || {}).score || "–"))
+          cxCardRow("scores", "impact " + num((ht.impact || {}).score) + " · crowded " + num((ht.crowdedness || {}).score) + " · capture " + num((ht.capture || {}).score))
           : cxCardRow("verdict", "unscored")) +
         ((o.bottleneck || {}).criticality === "CHOKE_POINT" ? cxCardRow("bottleneck", "CHOKE POINT") : "") +
         ((o.example_tickers || []).length ? cxCardRow("names", o.example_tickers.slice(0, 5).join(" · ")) : "");
     } else if (n.kind === "scen") {
       h = head("scenario " + o.id, o.title) +
         "<div class='bd'>" + esc(cxTrim(o.narrative, 180)) + "</div>" +
-        cxCardRow("probability", (o.probability_pct || "?") + "% · " + (o.status || "")) +
+        cxCardRow("probability", num(o.probability_pct, "?") + "% · " + (o.status || "")) +
         cxCardRow("indicators", (o.leading_indicators || []).length + " (" + (o.leading_indicators || []).filter(function (x) { return x.armed; }).length + " armed)");
     } else if (n.kind === "screen") {
       h = head("stock screen", o.id) + cxCardRow("scenario", o.scenario_id || "") + cxCardRow("as of", o.as_of || "");
