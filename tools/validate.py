@@ -41,6 +41,8 @@ CAL_KINDS = {"POLICY", "CORPORATE", "MACRO", "TECH", "LEGAL"}
 CAL_STATUS = {"WATCHING", "PROMOTED", "PASSED", "DROPPED"}
 CAND_FAMILIES = {"POLICY", "CORPORATE", "TECH", "PHYSICAL", "GEO"}
 CAND_STATUS = {"AMBIENT", "PROMOTED", "DISMISSED", "EXPIRED"}
+RULE_ORIGINS = {"METHOD", "PREFERENCE"}
+RULE_STATUS = {"PROPOSED", "HARDENED", "REJECTED"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 errors: list[str] = []
@@ -463,7 +465,92 @@ def v_candidates(f: Path) -> None:
                 err(f, f"{ctx}: PROMOTED requires promoted_signal_id")
             elif not (DATA / "signals" / f"{sid}.json").exists():
                 err(f, f"{ctx}: promoted_signal_id {sid} has no signal file")
+        # Optional join key back to the feed store. It is snapshotted rather than looked up
+        # because the feed store prunes at 500 items and the id alone would dangle.
+        if "first_feed_ts" in x:
+            check_date(f, x["first_feed_ts"], f"{ctx}.first_feed_ts")
+        if "feed_source" in x and not x["feed_source"]:
+            err(f, f"{ctx}: feed_source present but empty")
         check_mini_changelog(f, x["changelog"], ctx)
+
+
+def v_scout_log(f: Path) -> None:
+    """Nell's log: her calibration plus her judgment fields.
+
+    The calibration half is written by tools/scout_calibrate.py; the judgment half by the
+    agent. The denominators check is the point of this validator: a calibration block with
+    no denominators is a report that cannot fail (Rule 21).
+    """
+    d = load(f)
+    if d is None:
+        return
+    if not need(f, d, ["as_of", "calibration", "proposed_rules", "spot_tests",
+                       "repairs", "changelog"]):
+        return
+    check_date(f, d["as_of"], "as_of")
+    check_common(f, d)
+
+    cal = d["calibration"]
+    if not isinstance(cal, dict):
+        err(f, "calibration must be an object")
+    elif not need(f, cal, ["generated_at", "conversion", "denominators"], "calibration"):
+        pass
+    else:
+        dens = cal["denominators"]
+        if not isinstance(dens, dict) or not dens:
+            err(f, "calibration.denominators missing: a count with no denominator cannot fail")
+        else:
+            for k in ("signals_examined", "candidates_examined"):
+                if k not in dens:
+                    err(f, f"calibration.denominators missing {k}")
+        for i, lat in enumerate(cal.get("latency") or []):
+            if not isinstance(lat, dict) or "days_late" not in lat or "signal_id" not in lat:
+                err(f, f"calibration.latency[{i}] needs signal_id + days_late")
+        for i, u in enumerate(cal.get("latency_unmatched") or []):
+            if not isinstance(u, dict) or not u.get("reason"):
+                err(f, f"calibration.latency_unmatched[{i}] must name its reason")
+
+    for i, r in enumerate(d["proposed_rules"]):
+        ctx = f"proposed_rules[{i}]"
+        if not isinstance(r, dict) or not need(f, r, ["id", "pattern", "origin", "status",
+                                                      "occurrences", "evidence"], ctx):
+            continue
+        check_enum(f, r["origin"], RULE_ORIGINS, f"{ctx}.origin")
+        check_enum(f, r["status"], RULE_STATUS, f"{ctx}.status")
+        if not isinstance(r["evidence"], list) or not r["evidence"]:
+            err(f, f"{ctx}: a rule needs at least one evidence item with a quote and a date")
+        # The two hardening bars, enforced not remembered (data/taste.md).
+        if r["status"] == "HARDENED":
+            if r["origin"] == "PREFERENCE" and (r.get("occurrences") or 0) < 2:
+                err(f, f"{ctx}: PREFERENCE-origin rules need 2 occurrences to harden, has "
+                       f"{r.get('occurrences')}")
+            if not r.get("taste_ref"):
+                err(f, f"{ctx}: HARDENED requires taste_ref naming its data/taste.md rule")
+
+    for i, t in enumerate(d["spot_tests"]):
+        ctx = f"spot_tests[{i}]"
+        if not isinstance(t, dict) or not need(f, t, ["ts", "rule", "verdict"], ctx):
+            continue
+        check_enum(f, t["verdict"], {"PASS", "FAIL"}, f"{ctx}.verdict")
+
+    for i, r in enumerate(d["repairs"]):
+        ctx = f"repairs[{i}]"
+        if not isinstance(r, dict) or not need(f, r, ["ts", "finding", "action",
+                                                      "prevention", "escalated"], ctx):
+            continue
+        if not r["prevention"]:
+            err(f, f"{ctx}: a repair with no prevention is a backfill, not a fix")
+
+    # Two consecutive FAILs on one rule mean the rule is in the wrong place (v8 lesson).
+    seq: dict[str, int] = {}
+    for t in d["spot_tests"]:
+        if not isinstance(t, dict):
+            continue
+        rule = t.get("rule")
+        seq[rule] = seq.get(rule, 0) + 1 if t.get("verdict") == "FAIL" else 0
+        if seq[rule] >= 2:
+            warn(f, f"rule {rule!r} has failed 2 consecutive spot tests: relocate it or gate "
+                    f"it deterministically, do not re-teach it")
 
 
 def v_feeds(f: Path) -> None:
@@ -526,6 +613,9 @@ def main() -> int:
     if (DATA / "radar" / "candidates.json").exists():
         counts["candidates"] = 1
         v_candidates(DATA / "radar" / "candidates.json")
+    if (DATA / "radar" / "scout-log.json").exists():
+        counts["scout-log"] = 1
+        v_scout_log(DATA / "radar" / "scout-log.json")
     if (DATA / "feeds" / "latest.json").exists():
         counts["feeds"] = 1
         v_feeds(DATA / "feeds" / "latest.json")

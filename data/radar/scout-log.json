@@ -1,0 +1,295 @@
+{
+ "id": "scout-log",
+ "created_at": "2026-08-29T19:06:10Z",
+ "generated_by": "nell-scanner",
+ "proposed_rules": [
+  {
+   "id": "TASTE-001",
+   "pattern": "direct rare-earth-miner plays (MP Materials, Lynas and peers)",
+   "origin": "METHOD",
+   "status": "HARDENED",
+   "first_seen": "2026-08-29",
+   "occurrences": 1,
+   "hardened_at": "2026-08-29",
+   "taste_ref": "TASTE-001",
+   "evidence": [
+    {
+     "object_id": "ledger 2026-08-29 14:55Z",
+     "ts": "2026-08-29",
+     "quote": "rare-earth-miner direct plays (MP Materials +165%/Lynas +159% YoY, explicit \"retail enthusiasm and trading volume\" per coverage - already the GPU-class retail trade)"
+    }
+   ]
+  },
+  {
+   "id": "TASTE-002",
+   "pattern": "Taiwan chip-concentration diversification as a standing macro thesis",
+   "origin": "METHOD",
+   "status": "HARDENED",
+   "first_seen": "2026-08-29",
+   "occurrences": 1,
+   "hardened_at": "2026-08-29",
+   "taste_ref": "TASTE-002",
+   "evidence": [
+    {
+     "object_id": "ledger 2026-08-29 14:55Z",
+     "ts": "2026-08-29",
+     "quote": "TSMC concentration risk already exhaustively mapped by sell-side with a 2030-2035 diversification timeline, no retail gap"
+    }
+   ]
+  }
+ ],
+ "spot_tests": [
+  {
+   "ts": "2026-08-29T19:30:00Z",
+   "rule": "TASTE-001",
+   "verdict": "PASS",
+   "note": "Fed 'MP Materials signs offtake for expanded Mountain Pass separation capacity; shares up 12%'. Filtered under TASTE-001 with the rule quoted, and correctly noted the behind-the-miner carve-out was live but empty for this headline."
+  },
+  {
+   "ts": "2026-08-29T19:30:00Z",
+   "rule": "TASTE-002",
+   "verdict": "PASS",
+   "note": "Fed 'Taiwan chipmakers accelerate overseas fab plans as concentration risk pressure builds'. Filtered under TASTE-002; correctly identified it as the standing macro story with no dated discrete event, so the carve-out did not apply."
+  },
+  {
+   "ts": "2026-08-29T19:30:00Z",
+   "rule": "dedupe-by-thesis",
+   "verdict": "PASS",
+   "note": "Fed 'Harmonic Drive Systems cites 14-month lead times, capex to double capacity by 2028'. Correctly routed to an UPDATE of SIG-20260829-03 rather than a new card or a candidate, and named the quantitative deepening plus the new dated relief date."
+  }
+ ],
+ "repairs": [
+  {
+   "ts": "2026-08-29T19:25:00Z",
+   "finding": "candidates carried no join key to the feed store, so intake latency (channel 4) was structurally unmeasurable: 6 of 6 signals unmatched",
+   "action": "added first_feed_item_id + first_feed_ts + feed_source to the candidate record; backfilled CAND-20260829-01 by hand against Guardian World 2026-08-26 (id 2d3b491f7ad58d06); latency now 1 of 6 matched at 3 days late",
+   "prevention": "tools/check_radar.py fails a run that promotes a candidate without first_feed_ts; tools/validate.py types the fields when present",
+   "escalated": false
+  },
+  {
+   "ts": "2026-08-29T19:25:00Z",
+   "finding": "the two taste filters the 2026-08-29 radar applied were recorded only as ledger prose, so they could not be applied again by anyone",
+   "action": "written into data/taste.md as TASTE-001 and TASTE-002 with their evidence, and mirrored here",
+   "prevention": "tools/check_radar.py requires the radar ledger line to name a taste-rules-applied count",
+   "escalated": false
+  },
+  {
+   "ts": "2026-08-29T19:32:00Z",
+   "finding": "the Scout UI panel printed 'median days late' over a single observation, which is the same unfalsifiable-report failure the denominators rule exists to stop",
+   "action": "the latency stat now labels itself 'days late (n=1, not a median)' below 3 observations; found by the spot test, not by review",
+   "prevention": "the label is computed from the observation count, so it cannot say median until the sample supports one",
+   "escalated": false
+  }
+ ],
+ "notes": [
+  {
+   "ts": "2026-08-29T19:25:00Z",
+   "by": "nell-scanner",
+   "text": "ESCALATION for Ron, not auto-applied: the weekly smoke workflow (.github/workflows/smoke.yml, cron Mondays 06:00) has never fired since it landed 2026-08-28 (data/health/actions.json smoke.last_run is null). It is the sentinel that would notice a LIVE radar going silent, so while it has never run, radar silence is undetectable. Fixing it touches .github/workflows/ and is outside my lane."
+  }
+ ],
+ "confidence_audit": {
+  "verified": 0,
+  "inferred": 0,
+  "speculative": 0,
+  "null": 0
+ },
+ "changelog": [
+  {
+   "ts": "2026-08-29T19:06:10Z",
+   "by": "scout_calibrate",
+   "change": "created scout log"
+  },
+  {
+   "ts": "2026-08-29T19:06:30Z",
+   "by": "scout_calibrate",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-08-29T19:06:10Z"
+  },
+  {
+   "ts": "2026-08-29T19:25:00Z",
+   "by": "nell-scanner",
+   "change": "seeded judgment fields: 2 HARDENED METHOD-origin taste rules, 2 in-lane repairs, 1 escalation to Ron"
+  },
+  {
+   "ts": "2026-08-29T19:32:00Z",
+   "by": "nell-scanner",
+   "change": "3 spot tests run against the live contract, all PASS; one UI honesty defect found and fixed"
+  }
+ ],
+ "as_of": "2026-08-29",
+ "updated_at": "2026-08-29T19:06:30Z",
+ "calibration": {
+  "generated_at": "2026-08-29T19:06:30Z",
+  "conversion": {
+   "candidates_triaged": 10,
+   "promoted": 1,
+   "dismissed": 0,
+   "expired": 0,
+   "ambient": 9,
+   "promote_rate": 0.1
+  },
+  "per_family": {
+   "POLICY": {
+    "triaged": 2,
+    "promoted": 0,
+    "reached_chain": 0,
+    "reached_money_corner": 0
+   },
+   "CORPORATE": {
+    "triaged": 2,
+    "promoted": 0,
+    "reached_chain": 0,
+    "reached_money_corner": 0
+   },
+   "TECH": {
+    "triaged": 1,
+    "promoted": 0,
+    "reached_chain": 0,
+    "reached_money_corner": 0
+   },
+   "PHYSICAL": {
+    "triaged": 0,
+    "promoted": 0,
+    "reached_chain": 0,
+    "reached_money_corner": 0
+   },
+   "GEO": {
+    "triaged": 5,
+    "promoted": 1,
+    "reached_chain": 0,
+    "reached_money_corner": 0
+   }
+  },
+  "per_source": {
+   "SCMP": {
+    "items_seen": 50,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Guardian World": {
+    "items_seen": 45,
+    "triaged": 1,
+    "promoted": 1
+   },
+   "BBC World": {
+    "items_seen": 32,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Al Jazeera": {
+    "items_seen": 25,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Politico politics": {
+    "items_seen": 25,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "CNBC Top News": {
+    "items_seen": 23,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Ars Technica": {
+    "items_seen": 20,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Hacker News front page": {
+    "items_seen": 20,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Bloomberg Markets": {
+    "items_seen": 20,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "Federal Register significant docs": {
+    "items_seen": 19,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "GDACS alerts": {
+    "items_seen": 15,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "MarketWatch Top Stories": {
+    "items_seen": 10,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "The Verge": {
+    "items_seen": 10,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "USGS significant quakes": {
+    "items_seen": 3,
+    "triaged": 0,
+    "promoted": 0
+   },
+   "_no_feed_source_key": {
+    "items_seen": null,
+    "triaged": 9,
+    "promoted": 0,
+    "note": "candidates with no feed_source: session beats, or triaged before the key existed"
+   }
+  },
+  "funnel_depth": {
+   "signals_total": 6,
+   "reached_chain": 3,
+   "reached_screen": 1,
+   "reached_dive": 0,
+   "in_money_corner_chain": 2
+  },
+  "latency": [
+   {
+    "signal_id": "SIG-20260829-04",
+    "candidate_id": "CAND-20260829-01",
+    "first_feed_item_id": "2d3b491f7ad58d06",
+    "first_feed_ts": "2026-08-26",
+    "signal_created_at": "2026-08-29",
+    "days_late": 3
+   }
+  ],
+  "latency_unmatched": [
+   {
+    "signal_id": "SIG-20260828-01",
+    "reason": "no candidate promoted into this signal"
+   },
+   {
+    "signal_id": "SIG-20260828-02",
+    "reason": "no candidate promoted into this signal"
+   },
+   {
+    "signal_id": "SIG-20260829-01",
+    "reason": "no candidate promoted into this signal"
+   },
+   {
+    "signal_id": "SIG-20260829-02",
+    "reason": "no candidate promoted into this signal"
+   },
+   {
+    "signal_id": "SIG-20260829-03",
+    "reason": "no candidate promoted into this signal"
+   }
+  ],
+  "death_outcomes": {
+   "signals_new_past_review_by": [],
+   "candidates_past_expiry": [],
+   "calendar_passed_unpromoted": []
+  },
+  "denominators": {
+   "signals_examined": 6,
+   "candidates_examined": 10,
+   "calendar_examined": 0,
+   "feed_items_examined": 317,
+   "chains_examined": 3,
+   "notes_examined": 0
+  }
+ }
+}

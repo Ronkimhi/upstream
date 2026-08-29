@@ -289,6 +289,60 @@
       "<span data-stop>" + cta + "</span>" +
       "</div></div>";
   }
+  /* Scout panel: the radar grading its own intake. Every figure prints its denominator,
+     so "0 misses" can be told apart from "nothing was checked". Source: data/radar/scout-log.json. */
+  function scoutCard() {
+    var sc = D.scout;
+    if (!sc || !sc.calibration) return "";
+    var c = sc.calibration, cv = c.conversion || {}, dn = c.denominators || {}, fd = c.funnel_depth || {};
+    var lat = c.latency || [], unm = c.latency_unmatched || [];
+    var days = lat.map(function (l) { return l.days_late; }).filter(function (n) { return typeof n === "number"; }).sort(function (a, b) { return a - b; });
+    var med = days.length ? days[Math.floor(days.length / 2)] : null;
+    var dd = c.death_outcomes || {};
+    var hardened = (sc.proposed_rules || []).filter(function (r) { return r.status === "HARDENED"; });
+    var proposed = (sc.proposed_rules || []).filter(function (r) { return r.status === "PROPOSED"; });
+    var esc_ = (sc.notes || []).filter(function (n) { return /^ESCALATION/.test(String(n.text || "")); });
+
+    function stat(v, label) {
+      return '<div class="scstat"><div class="scnum">' + esc(v) + '</div><div class="muted">' + esc(label) + "</div></div>";
+    }
+    return seclabel("Scout — how good this intake has been") +
+      '<div class="statgrid">' +
+      '<div class="card"><h3>Conversion</h3><div class="scrow">' +
+      stat(cv.promoted + "/" + cv.candidates_triaged, "candidates promoted") +
+      stat(fd.reached_chain + "/" + fd.signals_total, "signals chained") +
+      stat(fd.in_money_corner_chain + "/" + fd.signals_total, "reached a money corner") +
+      "</div><div class='small'>" + esc(cv.ambient) + " AMBIENT still open · " +
+      esc(dn.feed_items_examined) + " feed items examined this run</div></div>" +
+
+      '<div class="card"><h3>Latency</h3><div class="scrow">' +
+      stat(med === null ? "n/a" : med + "d", days.length >= 3 ? "median days late" : "days late (n=" + days.length + ", not a median)") +
+      stat(lat.length + "/" + dn.signals_examined, "measurable") +
+      "</div><div class='small'>" +
+      (unm.length ? esc(unm.length) + " signal(s) unmeasurable: " + esc(unm[0].reason) +
+        ". Latency is the gap between an occurrence first appearing in the feed store and radar writing the card."
+        : "Every signal is joined back to its first feed appearance.") +
+      "</div></div>" +
+
+      '<div class="card"><h3>My misses</h3><div class="scrow">' +
+      stat((dd.signals_new_past_review_by || []).length + "/" + dn.signals_examined, "past review_by") +
+      stat((dd.candidates_past_expiry || []).length + "/" + cv.ambient, "past 45d expiry") +
+      stat(dn.calendar_examined ? (dd.calendar_passed_unpromoted || []).length + "/" + dn.calendar_examined : "—", "calendar passed") +
+      "</div><div class='small'>False positives are counted against the radar, not hidden." +
+      (dn.calendar_examined ? "" : " The forward calendar is empty, so that leg checked nothing: a scope boundary, not a clean result.") +
+      "</div></div>" +
+
+      '<div class="card"><h3>Taste rules</h3>' +
+      (hardened.length ? hardened.map(function (r) {
+        return '<div class="evli">' + chip(r.origin) + " <b>" + esc(r.id) + "</b> " + esc(r.pattern) + "</div>";
+      }).join("") : "<div class='small'>No rules yet.</div>") +
+      (proposed.length ? "<div class='muted' style='margin-top:8px'>" + esc(proposed.length) +
+        " proposed, waiting on a second occurrence</div>" : "") +
+      "</div>" + "</div>" +
+      (esc_.length ? '<div class="sysline"><span class="healthdot" style="background:var(--crd)"></span>' +
+        esc(esc_[0].text) + "</div>" : "");
+  }
+
   function homeView() {
     var sigs = (D.signals || []).slice().sort(function (a, b) {
       return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0);
@@ -300,6 +354,7 @@
       seclabel("Signals — ranked by how unmapped they still are") +
       '<div class="siglist">' + (sigs.map(sigRow).join("") ||
         '<div class="emptystate">No signals yet — the weekday radar routine fills this.</div>') + "</div>" +
+      scoutCard() +
       seclabel("System") +
       "<div>" +
       '<div class="sysline"><span class="healthdot" style="background:' + hs[0] + '"></span>' + esc(hs[1]) +
