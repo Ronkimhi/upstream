@@ -28,10 +28,27 @@ Run: python3 tools/check_analyst.py [--date YYYY-MM-DD] [--root PATH]
 Exit 0 clean, 1 on any failure.
 """
 import datetime
+import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
+
+
+def _load_normalizer():
+    """check_screen.normalize, imported rather than copied.
+
+    Two gates that both claim to check a quote "verbatim" must agree on what that means.
+    A second copy of this function would drift, and the drift would show up as a quote
+    that one gate accepts and the other calls fabricated."""
+    path = Path(__file__).resolve().parent / "check_screen.py"
+    spec = importlib.util.spec_from_file_location("_check_screen", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.normalize
+
+
+_normalize = _load_normalizer()
 
 CLOCK_MAX_DAYS = {"COMPOUNDER": 90, "EVENT": 21}
 GAP_ROWS = {"revenue_cagr_5y", "operating_margin", "reinvestment_return",
@@ -208,6 +225,39 @@ def main() -> int:
                 fail(f"{n}: data/market/{ticker}.json is {pstatus} (one unconfirmed print), "
                      f"so the dive needs a price_source_note saying the levels rest on a "
                      f"single source. See docs/method.md section 1 on the price plane")
+
+        # 1d. VERBATIM QUOTES IN THE DIVE (2026-08-29, raised by the first real dive).
+        # check_screen.py verifies quotes on SCREEN rows. A dive quotes filings too — in
+        # its thesis, its bull and bear bullets, its earnings-quality basis — and no gate
+        # touched them, so the deepest document in the funnel was the least checked. Same
+        # normalizer as the screen gate, imported rather than reimplemented so the two can
+        # never drift into disagreeing about what "verbatim" means.
+        quotes = []
+
+        def _collect(o):
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if k == "quote" and isinstance(v, str) and v.strip():
+                        quotes.append(v)
+                    else:
+                        _collect(v)
+            elif isinstance(o, list):
+                for x in o:
+                    _collect(x)
+        _collect(d)
+        if quotes:
+            doc = read_json(data / "edgar" / "docs" / f"{str(ticker).replace('.', '-')}.json")
+            if not isinstance(doc, dict) or not isinstance(doc.get("text"), str):
+                fail(f"{n}: quotes {len(quotes)} filing passage(s) but there is no document at "
+                     f"data/edgar/docs/{ticker}.json — fail closed (method section 1)")
+            else:
+                body = _normalize(doc["text"])
+                missed = [q for q in quotes if _normalize(q) not in body]
+                for q in missed:
+                    fail(f"{n}: quoted passage does NOT appear in {doc.get('form')} "
+                         f"{doc.get('accession')} on disk: {q.strip()[:90]!r}")
+                report(f"{n}: {len(quotes) - len(missed)}/{len(quotes)} quoted passage(s) "
+                       f"verified verbatim against data/edgar/docs/{ticker}.json")
 
         # 2. bullet counts
         if len(d.get("bull") or []) != 3 or len(d.get("bear") or []) != 3:

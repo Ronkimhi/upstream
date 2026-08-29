@@ -31,6 +31,7 @@
      neither. `!= null` everywhere: 0 is a score. */
   /* A score of 0 is a score. `x || "–"` printed it as missing, which is the one
      rendering error that turns a real finding into an apparent data gap. */
+  function str_or_empty(v) { return typeof v === "string" ? v.trim() : ""; }
   function num(v, dash) { return v == null ? (dash || "–") : v; }
   function isPlottable(l) {
     return !!(l.heat && l.heat.impact && l.heat.impact.score != null &&
@@ -882,12 +883,18 @@
       var lastClose = (mk && mk.series && (mk.series.rows || []).length)
         ? mk.series.rows[mk.series.rows.length - 1][1] : null;
       var diverged = lastClose != null && Math.abs(lastClose - st.price_ref.value) / lastClose > 0.05;
+      /* price_source_note is gate-required whenever the market file is SINGLE_SOURCE or
+         DISPUTED, and it was rendered nowhere — so the gate passed while the reader was
+         never told the levels rest on one unconfirmed print. A disclosure that only the
+         JSON carries is not a disclosure. Raised by the first real dive. */
+      var psn = str_or_empty(st.price_source_note);
       prCard = "<div class='card'><h3>Price the dive reasoned from</h3><div class='kv'>" +
         "<dt>price_ref</dt><dd class='num'>" + fmtMoney(st.price_ref.value) +
         " <span class='muted'>[" + esc(st.price_ref.source) + ", " + esc(st.price_ref.as_of) + "]</span></dd>" +
         (lastClose != null ? "<dt>latest close</dt><dd class='num'>" + fmtMoney(lastClose) +
           " <span class='muted'>" + esc((mk.series || {}).as_of) + "</span></dd>" : "") +
         "</div>" + (diverged ? "<div class='small' style='margin-top:8px'><b>The price this dive reasoned from is more than 5% away from the latest close.</b> Re-run the dive before acting on its levels.</div>" : "") +
+        (psn ? "<div class='small' style='margin-top:8px'><b>Single-source price.</b> " + esc(psn) + "</div>" : "") +
         "</div>";
     }
     var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
