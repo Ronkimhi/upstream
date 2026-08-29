@@ -27,39 +27,53 @@ import re
 
 STRUCTURED_WRITERS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 
-# A redirection target. Excludes fd dups (`2>&1`, `>&2`) and process substitution (`>(cmd)`).
-_REDIRECT = re.compile(r"(?<![0-9&>])>{1,2}\s*(?![&(])([A-Za-z0-9_./$~{}-]+)")
+# Redirection. Two passes, because one regex cannot both find `cat > "CLAUDE.md"` and ignore
+# `awk '$x > 5'`: the difference is quoting, not shape.
+#   pass 1 finds a QUOTED target: `> "path"` / `>> 'path'`
+#   pass 2 blanks every quoted region, then finds UNQUOTED targets in what is left
+# The lookbehind kills `->` (a python type hint is not a redirect) and fd dups (`2>&1`).
+_REDIRECT_QUOTED = re.compile(r"""(?<![-0-9&>])>{1,2}\|?\s*(["'])([^"'\n]+)\1""")
+_REDIRECT_BARE = re.compile(r"""(?<![-0-9&>])>{1,2}\|?\s*(?![&(])([A-Za-z0-9_./$~{}-]+)""")
+_QUOTED_REGION = re.compile('\'[^\'\\n]*\'|"[^"\\n]*"')
 
 # python: Path("x").write_text(...) / Path('x').open('w') / open("x", "w")
 _PY_WRITE_TEXT = re.compile(r"""Path\(\s*["']([^"']+)["']\s*\)\s*\.\s*(?:write_text|write_bytes|open)\b""")
 _PY_OPEN = re.compile(r"""\bopen\(\s*["']([^"']+)["']\s*,\s*["'][wax]""")
-# json.dump(obj, open("x","w")) is covered by _PY_OPEN; the Path(...).open("w") form by the above.
 
-_TEE = re.compile(r"\btee\b((?:\s+-\S+)*)\s+((?:[A-Za-z0-9_./$~{}-]+\s*)+)")
-_TOUCH = re.compile(r"\btouch\b((?:\s+-\S+)*)\s+((?:[A-Za-z0-9_./$~{}-]+\s*)+)")
+_TEE = re.compile(r"""\btee\b((?:\s+-\S+)*)\s+((?:["']?[A-Za-z0-9_./$~{}-]+["']?\s*)+)""")
+_TOUCH = re.compile(r"""\btouch\b((?:\s+-\S+)*)\s+((?:["']?[A-Za-z0-9_./$~{}-]+["']?\s*)+)""")
 _DD_OF = re.compile(r"\bdd\b[^|;&]*\bof=([A-Za-z0-9_./$~{}-]+)")
 _CP_MV = re.compile(r"\b(?:cp|mv|install|rsync)\b((?:\s+-\S+)*)\s+(\S+)\s+(\S+)")
 _GIT_RESTORE = re.compile(r"\bgit\s+(?:checkout|restore)\b[^|;&]*?--\s+((?:[A-Za-z0-9_./$~{}-]+\s*)+)")
 
-# `sed -i` (GNU: -i / -i.bak) and BSD (-i '' / -i ""). Operands are the trailing paths.
+# In-place editors. `sed -i` we resolve; the rest we resolve where we can and REPORT where
+# we cannot, because a silent miss in a write detector is the failure mode that matters.
 _SED_INPLACE = re.compile(r"\bsed\b[^|;&]*?\s-i\b")
+_PERL_INPLACE = re.compile(r"\bperl\b[^|;&]*?\s-\w*i\w*\b")
 
-# Constructs that write but whose target we cannot resolve statically.
+# Writers whose target this module does not resolve. Named, not swallowed: a caller prints
+# these so the gate's blind spot is visible instead of looking like a clean pass.
 _OPAQUE = (
     (re.compile(r"\bshutil\.(?:copy|copy2|copyfile|move)\b"), "shutil copy/move"),
     (re.compile(r"\bos\.(?:rename|replace|remove|unlink)\b"), "os.rename/replace/remove"),
     (re.compile(r"\bxargs\b[^|;&]*\b(?:tee|rm|mv|cp)\b"), "xargs into a writer"),
     (re.compile(r">\s*\$\{?\w"), "redirect into a shell variable"),
-    (re.compile(r"\bwrite_text\s*\(", ), "write_text on a non-literal path"),
+    (re.compile(r"\bopen\(\s*[A-Za-z_]"), "open() on a non-literal path"),
+    (re.compile(r"Path\(\s*[A-Za-z_][^)]*\)\s*\.\s*write_"), "write_text on a computed path"),
+    (re.compile(r"\bpatch\b\s+-"), "patch(1)"),
+    (re.compile(r"\bgit\s+apply\b"), "git apply"),
+    (re.compile(r"\b(?:ed|ex)\s+-s\b"), "ed/ex script"),
 )
+
+_NUMERIC = re.compile(r"^\d+$")
 
 
 def _split_words(blob: str) -> list[str]:
     return [w for w in blob.split() if w]
 
 
-def _sed_targets(command: str) -> list[str]:
-    """`sed -i [ext] EXPR... FILE...` — the operands after the script, minus flags.
+def _inplace_targets(command: str, verb: str, rx) -> list[str]:
+    """`sed -i` / `perl -i` — the operands after the script, minus flags.
 
     BSD needs `-i ''`, GNU takes `-i` bare or `-i.bak`. Rather than model both dialects, take
     every trailing token that survives flag-stripping, quote-stripping and the -e/-f options,
@@ -67,11 +81,11 @@ def _sed_targets(command: str) -> list[str]:
     """
     out: list[str] = []
     for segment in re.split(r"[|;&]+", command):
-        if not _SED_INPLACE.search(segment):
+        if not rx.search(segment):
             continue
         toks = _split_words(segment)
         try:
-            start = toks.index("sed")
+            start = toks.index(verb)
         except ValueError:
             continue
         rest = toks[start + 1:]
@@ -102,8 +116,15 @@ def from_bash(command: str) -> tuple[list[str], list[str]]:
     targets: list[str] = []
     unresolved: list[str] = []
 
-    for m in _REDIRECT.finditer(command):
+    # pass 1: quoted redirect targets, read from the original text
+    for m in _REDIRECT_QUOTED.finditer(command):
+        targets.append(m.group(2))
+    # pass 2: unquoted redirect targets, read from text with quoted regions blanked, so that
+    # `echo "a -> b"` and `awk '$x > 5'` contribute nothing.
+    blanked = _QUOTED_REGION.sub(lambda m: " " * len(m.group(0)), command)
+    for m in _REDIRECT_BARE.finditer(blanked):
         targets.append(m.group(1))
+    # the python forms are read from the ORIGINAL text: their paths are quoted by nature
     for rx in (_PY_WRITE_TEXT, _PY_OPEN):
         targets.extend(m.group(1) for m in rx.finditer(command))
     for m in _DD_OF.finditer(command):
@@ -115,7 +136,8 @@ def from_bash(command: str) -> tuple[list[str], list[str]]:
         targets.extend(_split_words(m.group(1)))
     for m in _CP_MV.finditer(command):
         targets.append(m.group(3))  # destination only
-    targets.extend(_sed_targets(command))
+    targets.extend(_inplace_targets(command, "sed", _SED_INPLACE))
+    targets.extend(_inplace_targets(command, "perl", _PERL_INPLACE))
 
     for rx, label in _OPAQUE:
         if rx.search(command):
@@ -132,6 +154,8 @@ def _clean(paths: list[str]) -> list[str]:
             continue
         if p.startswith("./"):
             p = p[2:]
+        if _NUMERIC.match(p):
+            continue  # `[ $n > 3 ]` is a comparison, not a file called 3
         if p not in out:
             out.append(p)
     return out

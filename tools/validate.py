@@ -33,6 +33,21 @@ VERDICTS = {"INVESTABLE", "WATCH", "TOO_LATE"}
 PRICE_STATUS = {"AGREED", "SINGLE_SOURCE", "DISPUTED", "NO_DATA", "VERIFIED_ZERO"}
 REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc",
              "quality", "insider"}   # quality/insider added 2026-08-29 (the analyst)
+PROP_VERDICTS = {"ADOPT", "ADOPT_NARROWED", "REJECT"}
+RULING_DECISIONS = {"KEEP", "REVERT", "NARROW"}
+
+# Who may appear in a `by` field. Humans and roles, then the agents and scripts that write on
+# their behalf. Shipped as a WARNING behind --strict-actors, following the --strict-citations
+# precedent in check_chain.py: closing this enum today fails the repo, because ~25 rows in
+# data/ already say atlas-cartographer, nell-scanner, scout_calibrate or map_calibrate. It
+# hardens once those are backfilled to `<actor>/<agent-or-script>`.
+ACTORS = {"ron", "yotam", "routine", "click"}
+AGENTS = {"nell-scanner", "atlas-cartographer", "stocky", "cass-adversary",
+          "scout_calibrate", "map_calibrate", "dive_calibrate", "fetch", "actions"}
+_ACTOR_RE = re.compile(
+    r"^(?P<actor>[a-z0-9_-]+)(?:/(?P<agent>[a-z0-9_-]+))?(?: \(session [A-Za-z0-9._-]{1,32}\))?$"
+)
+STRICT_ACTORS = "--strict-actors" in sys.argv
 REQ_STATUS = {"PENDING", "FULFILLED", "FAILED"}
 BUCKETS = ("pure_play", "picks_and_shovels", "second_order", "hedge")
 TRADE_ACTIONS = {"bought", "sold", "trimmed", "added"}
@@ -94,6 +109,8 @@ def check_mini_changelog(f: Path, entries, ctx: str) -> None:
     for i, c in enumerate(entries):
         if not isinstance(c, dict) or not {"ts", "by", "change"} <= set(c):
             err(f, f"{ctx}.changelog[{i}] needs ts, by, change")
+        else:
+            check_actor(f, c.get("by"), f"{ctx}.changelog[{i}]")
 
 
 def check_evidence(f: Path, items, ctx: str) -> None:
@@ -138,10 +155,14 @@ def check_common(f: Path, obj: dict) -> None:
         for i, c in enumerate(obj["changelog"]):
             if not isinstance(c, dict) or not {"ts", "by", "change"} <= set(c):
                 err(f, f"changelog[{i}] needs ts, by, change")
+            else:
+                check_actor(f, c.get("by"), f"changelog[{i}]")
     if isinstance(obj.get("notes"), list):
         for i, n in enumerate(obj["notes"]):
             if not isinstance(n, dict) or not {"ts", "by", "text"} <= set(n):
                 err(f, f"notes[{i}] needs ts, by, text")
+            else:
+                check_actor(f, n.get("by"), f"notes[{i}]")
 
 
 # ---------------------------------------------------------------- signals
@@ -827,6 +848,116 @@ def v_feeds(f: Path) -> None:
             break
 
 
+def check_actor(f: Path, value, ctx: str) -> None:
+    """`by` must name a known actor, optionally the agent or script that acted for them.
+
+    Warning by default, error under --strict-actors. See the ACTORS comment above for why.
+    """
+    if not isinstance(value, str) or not value.strip():
+        err(f, f"{ctx}.by is empty")
+        return
+    m = _ACTOR_RE.match(value.strip())
+    if not m:
+        (err if STRICT_ACTORS else warn)(
+            f, f"{ctx}.by = {value!r} is not `<actor>` or `<actor>/<agent>` "
+               f"(optionally ` (session <id>)`)")
+        return
+    actor, agent = m.group("actor"), m.group("agent")
+    if actor not in ACTORS:
+        if actor in AGENTS and agent is None:
+            # Legacy shape: the agent wrote it and nobody recorded whose session it was.
+            (err if STRICT_ACTORS else warn)(
+                f, f"{ctx}.by = {value!r} names an agent with no actor. Write "
+                   f"`ron/{actor}` or `yotam/{actor}` so a change has a person behind it")
+            return
+        (err if STRICT_ACTORS else warn)(
+            f, f"{ctx}.by = {value!r}: unknown actor {actor!r}. Known: "
+               f"{', '.join(sorted(ACTORS))}")
+        return
+    if agent is not None and agent not in AGENTS:
+        (err if STRICT_ACTORS else warn)(
+            f, f"{ctx}.by = {value!r}: unknown agent {agent!r}")
+
+
+def v_proposal(f: Path) -> None:
+    """An adversary review of a change to the machine itself (`run devil`).
+
+    A PROP is the receipt that an instruction change was attacked before it landed. The
+    verdict is the adversary's; the `ruling` is Ron's and stays null until he makes it.
+    """
+    obj = load(f)
+    if obj is None:
+        return
+    if not isinstance(obj, dict):
+        err(f, "proposal must be a JSON object")
+        return
+    # Every one of these is an attack the contract mandates. CLAUDE.md says this stage is
+    # machine-checked, so the four attack fields are REQUIRED, not decorative: without them a
+    # PROP carrying a verdict and three placeholder challenges validated clean and satisfied
+    # both the postlude gate and CI.
+    for k in ("id", "as_of", "actor", "reviewed_by", "files", "verdict", "challenges",
+              "behavior_change", "checks_touched", "cost_if_wrong", "how_you_would_know",
+              "surviving_objection"):
+        if k not in obj:
+            err(f, f"missing required key: {k}")
+    for k in ("behavior_change", "cost_if_wrong", "how_you_would_know"):
+        if k in obj and not str(obj.get(k) or "").strip():
+            err(f, f"{k} is empty. The contract's four attacks are the review; a blank one "
+                   f"means the attack was not made")
+    if "checks_touched" in obj and not isinstance(obj.get("checks_touched"), list):
+        err(f, "checks_touched must be a list (empty is a legitimate answer, absent is not)")
+    if obj.get("reviewed_by") != "cass-adversary":
+        err(f, f"reviewed_by = {obj.get('reviewed_by')!r}: a proposal is a record that the "
+               f"adversary reviewed the change, so this is always 'cass-adversary'")
+    if not re.match(r"^PROP-\d{8}-\d{2}$", str(obj.get("id") or "")):
+        err(f, f"id {obj.get('id')!r} is not PROP-YYYYMMDD-NN")
+    check_date(f, obj.get("as_of"), "as_of")
+    check_actor(f, obj.get("actor"), "proposal")
+
+    files = obj.get("files")
+    if not isinstance(files, list) or not files or not all(isinstance(x, str) and x for x in files):
+        err(f, "files[] must be a non-empty list of repo-relative paths")
+
+    if obj.get("verdict") not in PROP_VERDICTS:
+        err(f, f"verdict {obj.get('verdict')!r} not in {sorted(PROP_VERDICTS)}")
+
+    ch = obj.get("challenges")
+    if not isinstance(ch, list) or len(ch) < 3:
+        err(f, f"challenges[] needs >= 3 entries, has {len(ch) if isinstance(ch, list) else 0}. "
+               f"A review that raised fewer than three objections did not attack anything")
+    else:
+        for i, c in enumerate(ch):
+            if not isinstance(c, dict) or not {"claim", "attack", "survives"} <= set(c):
+                err(f, f"challenges[{i}] needs claim, attack, survives")
+                continue
+            if not isinstance(c.get("survives"), bool):
+                err(f, f"challenges[{i}].survives must be true/false, not {c.get('survives')!r}")
+            for k in ("claim", "attack"):
+                if not str(c.get(k) or "").strip():
+                    err(f, f"challenges[{i}].{k} is empty")
+        # Three copies of one objection is one objection. Caught because a PROP with three
+        # identical placeholder challenges was demonstrated to validate clean.
+        claims = [str(c.get("claim") or "").strip().lower() for c in ch if isinstance(c, dict)]
+        distinct = {c for c in claims if c}
+        if claims and len(distinct) < 3:
+            err(f, f"challenges[] has {len(distinct)} distinct claim(s) across {len(claims)} "
+                   f"entries. Repeating one objection is not three objections")
+
+    if not str(obj.get("surviving_objection") or "").strip():
+        err(f, "surviving_objection is empty. Even an ADOPT states what would make it wrong")
+
+    ruling = obj.get("ruling")
+    if ruling is not None:
+        if not isinstance(ruling, dict) or not {"by", "ts", "decision"} <= set(ruling):
+            err(f, "ruling needs by, ts, decision")
+        else:
+            if ruling.get("decision") not in RULING_DECISIONS:
+                err(f, f"ruling.decision {ruling.get('decision')!r} not in "
+                       f"{sorted(RULING_DECISIONS)}")
+            if str(ruling.get("by") or "").split("/")[0] != "ron":
+                err(f, f"ruling.by = {ruling.get('by')!r}: only ron rules on a proposal")
+
+
 def v_trades(f: Path) -> None:
     for i, line in enumerate(f.read_text().splitlines()):
         if not line.strip():
@@ -838,8 +969,10 @@ def v_trades(f: Path) -> None:
             continue
         if not {"ts", "by", "ticker", "action", "price"} <= set(t):
             err(f, f"line {i + 1}: needs ts, by, ticker, action, price")
-        elif t["action"] not in TRADE_ACTIONS:
-            err(f, f"line {i + 1}: action {t['action']!r} not in {sorted(TRADE_ACTIONS)}")
+        else:
+            check_actor(f, t.get("by"), f"line {i + 1}")
+            if t["action"] not in TRADE_ACTIONS:
+                err(f, f"line {i + 1}: action {t['action']!r} not in {sorted(TRADE_ACTIONS)}")
 
 
 def main() -> int:
@@ -881,6 +1014,10 @@ def main() -> int:
     if (DATA / "feeds" / "latest.json").exists():
         counts["feeds"] = 1
         v_feeds(DATA / "feeds" / "latest.json")
+    props = sorted((DATA / "proposals").glob("PROP-*.json")) if (DATA / "proposals").is_dir() else []
+    counts["proposals"] = len(props)
+    for f in props:
+        v_proposal(f)
 
     summary = " · ".join(f"{k}: {v}" for k, v in counts.items())
     print(f"validate: {summary}")
