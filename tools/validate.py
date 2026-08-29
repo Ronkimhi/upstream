@@ -7,6 +7,7 @@ verdict completeness. Loud per-file report; exit 1 on any error.
 
 Run: python3 tools/validate.py            (from repo root or anywhere)
 """
+import datetime
 import json
 import re
 import sys
@@ -14,6 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
+TODAY = datetime.date.today().isoformat()
 
 LANES = {"MACRO", "INDUSTRY", "USE_CASE"}
 SIGNAL_STATUS = {"NEW", "CHAINED", "DISMISSED", "EXPIRED"}
@@ -33,6 +35,13 @@ REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc"}
 REQ_STATUS = {"PENDING", "FULFILLED", "FAILED"}
 BUCKETS = ("pure_play", "picks_and_shovels", "second_order", "hedge")
 TRADE_ACTIONS = {"bought", "sold", "trimmed", "added"}
+OCCURRENCE_KINDS = {"HAPPENED", "UNDERWAY", "SCHEDULED"}
+OCCURRENCE_GATE = "2026-08-30"  # signals created on/after this date must carry an occurrence block
+CAL_KINDS = {"POLICY", "CORPORATE", "MACRO", "TECH", "LEGAL"}
+CAL_STATUS = {"WATCHING", "PROMOTED", "PASSED", "DROPPED"}
+CAND_FAMILIES = {"POLICY", "CORPORATE", "TECH", "PHYSICAL", "GEO"}
+CAND_STATUS = {"AMBIENT", "PROMOTED", "DISMISSED", "EXPIRED"}
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -65,6 +74,23 @@ def need(f: Path, obj: dict, keys: list[str], ctx: str = "") -> bool:
 def check_enum(f: Path, val, allowed: set, ctx: str) -> None:
     if val not in allowed:
         err(f, f"{ctx}: {val!r} not in {sorted(allowed)}")
+
+
+def check_date(f: Path, val, ctx: str) -> bool:
+    if not (isinstance(val, str) and DATE_RE.match(val)):
+        err(f, f"{ctx}: {val!r} is not YYYY-MM-DD")
+        return False
+    return True
+
+
+def check_mini_changelog(f: Path, entries, ctx: str) -> None:
+    """Changelog check for objects without the full check_common contract."""
+    if not isinstance(entries, list):
+        err(f, f"{ctx}: changelog must be a list")
+        return
+    for i, c in enumerate(entries):
+        if not isinstance(c, dict) or not {"ts", "by", "change"} <= set(c):
+            err(f, f"{ctx}.changelog[{i}] needs ts, by, change")
 
 
 def check_evidence(f: Path, items, ctx: str) -> None:
@@ -117,6 +143,24 @@ def v_signal(f: Path) -> None:
             err(f, "status CHAINED but chain_id is null")
         elif not (DATA / "chains" / f"{s['chain_id']}.json").exists():
             err(f, f"chain_id {s['chain_id']} has no chain file")
+    occ = s.get("occurrence")
+    if occ is None:
+        if s.get("created_at", "") >= OCCURRENCE_GATE:
+            err(f, "occurrence block required for signals created >= " + OCCURRENCE_GATE)
+        else:
+            warn(f, "occurrence missing (pre-gate card; backfill via AMEND)")
+    elif not isinstance(occ, dict):
+        err(f, "occurrence must be an object")
+    elif need(f, occ, ["kind", "anchor_date", "label"], "occurrence"):
+        check_enum(f, occ["kind"], OCCURRENCE_KINDS, "occurrence.kind")
+        if check_date(f, occ["anchor_date"], "occurrence.anchor_date"):
+            # time-direction sanity is advisory only: validation must not rot with the calendar
+            if occ["kind"] in {"HAPPENED", "UNDERWAY"} and occ["anchor_date"] > TODAY:
+                warn(f, f"occurrence {occ['kind']} anchored in the future ({occ['anchor_date']})")
+            if occ["kind"] == "SCHEDULED" and occ["anchor_date"] < TODAY:
+                warn(f, f"SCHEDULED occurrence date passed ({occ['anchor_date']}); amend kind or dismiss")
+        if not occ.get("label"):
+            err(f, "occurrence.label must be non-empty")
     check_common(f, s)
 
 
@@ -322,6 +366,107 @@ def v_shadow(f: Path) -> None:
                 err(f, f"shadow row {row.get('id', '?')} incomplete")
 
 
+def v_calendar(f: Path) -> None:
+    c = load(f)
+    if c is None:
+        return
+    if not need(f, c, ["as_of", "events"]):
+        return
+    events = c["events"]
+    if not isinstance(events, list):
+        err(f, "events must be a list")
+        return
+    if len([e for e in events if isinstance(e, dict) and e.get("status") == "WATCHING"]) > 60:
+        warn(f, "more than 60 WATCHING events; sweep should prune (attention + page-size hygiene)")
+    ids = set()
+    for e in events:
+        eid = e.get("id", "?") if isinstance(e, dict) else "?"
+        ctx = f"event {eid}"
+        if not isinstance(e, dict) or not need(f, e, ["id", "date", "title", "kind",
+                                                      "why_it_matters", "source_name",
+                                                      "source_date", "status", "added_by",
+                                                      "changelog"], ctx):
+            continue
+        if not re.match(r"^EVT-\d{8}-\d{2}$", e["id"]):
+            err(f, f"{ctx}: id must match EVT-YYYYMMDD-NN")
+        if e["id"] in ids:
+            err(f, f"duplicate event id {e['id']}")
+        ids.add(e["id"])
+        check_date(f, e["date"], f"{ctx}.date")
+        check_enum(f, e["kind"], CAL_KINDS, f"{ctx}.kind")
+        check_enum(f, e["status"], CAL_STATUS, f"{ctx}.status")
+        if not e["why_it_matters"] or not e["source_name"]:
+            err(f, f"{ctx}: why_it_matters and source_name must be non-empty")
+        if e["status"] == "PROMOTED":
+            sid = e.get("promoted_signal_id")
+            if not sid:
+                err(f, f"{ctx}: PROMOTED requires promoted_signal_id")
+            elif not (DATA / "signals" / f"{sid}.json").exists():
+                err(f, f"{ctx}: promoted_signal_id {sid} has no signal file")
+        if e["status"] == "WATCHING" and isinstance(e.get("date"), str) and e["date"] < TODAY:
+            warn(f, f"{ctx}: WATCHING but date passed; sweep should mark PASSED")
+        check_mini_changelog(f, e["changelog"], ctx)
+
+
+def v_candidates(f: Path) -> None:
+    c = load(f)
+    if c is None:
+        return
+    if not need(f, c, ["as_of", "candidates"]):
+        return
+    cands = c["candidates"]
+    if not isinstance(cands, list):
+        err(f, "candidates must be a list")
+        return
+    if len([x for x in cands if isinstance(x, dict) and x.get("status") == "AMBIENT"]) > 40:
+        warn(f, "more than 40 AMBIENT candidates; radar should dismiss or expire (attention hygiene)")
+    ids = set()
+    for x in cands:
+        cid = x.get("id", "?") if isinstance(x, dict) else "?"
+        ctx = f"candidate {cid}"
+        if not isinstance(x, dict) or not need(f, x, ["id", "date", "title", "family",
+                                                      "source_name", "why", "status",
+                                                      "added_by", "changelog"], ctx):
+            continue
+        if not re.match(r"^CAND-\d{8}-\d{2}$", x["id"]):
+            err(f, f"{ctx}: id must match CAND-YYYYMMDD-NN")
+        if x["id"] in ids:
+            err(f, f"duplicate candidate id {x['id']}")
+        ids.add(x["id"])
+        check_date(f, x["date"], f"{ctx}.date")
+        check_enum(f, x["family"], CAND_FAMILIES, f"{ctx}.family")
+        check_enum(f, x["status"], CAND_STATUS, f"{ctx}.status")
+        if not x["why"] or not x["source_name"]:
+            err(f, f"{ctx}: why and source_name must be non-empty")
+        if x["status"] == "PROMOTED":
+            sid = x.get("promoted_signal_id")
+            if not sid:
+                err(f, f"{ctx}: PROMOTED requires promoted_signal_id")
+            elif not (DATA / "signals" / f"{sid}.json").exists():
+                err(f, f"{ctx}: promoted_signal_id {sid} has no signal file")
+        check_mini_changelog(f, x["changelog"], ctx)
+
+
+def v_feeds(f: Path) -> None:
+    """Actions-owned feed store: lenient by design. A feed hiccup must never fail the repo."""
+    d = load(f)
+    if d is None:
+        return
+    if "as_of" not in d or "items" not in d:
+        warn(f, "feed store missing as_of/items (Actions writer will overwrite)")
+        return
+    items = d["items"]
+    if not isinstance(items, list):
+        warn(f, "feed items not a list")
+        return
+    if len(items) > 500:
+        warn(f, f"feed store holds {len(items)} items, above the 500 cap; fetcher should prune")
+    for i, it in enumerate(items[:20]):
+        if not isinstance(it, dict) or not {"id", "source", "family", "ts", "title"} <= set(it):
+            warn(f, f"items[{i}] malformed (needs id, source, family, ts, title)")
+            break
+
+
 def v_trades(f: Path) -> None:
     for i, line in enumerate(f.read_text().splitlines()):
         if not line.strip():
@@ -356,6 +501,15 @@ def main() -> int:
         v_requests(DATA / "requests.json")
     if (DATA / "trades.jsonl").exists():
         v_trades(DATA / "trades.jsonl")
+    if (DATA / "calendar" / "events.json").exists():
+        counts["calendar"] = 1
+        v_calendar(DATA / "calendar" / "events.json")
+    if (DATA / "radar" / "candidates.json").exists():
+        counts["candidates"] = 1
+        v_candidates(DATA / "radar" / "candidates.json")
+    if (DATA / "feeds" / "latest.json").exists():
+        counts["feeds"] = 1
+        v_feeds(DATA / "feeds" / "latest.json")
 
     summary = " · ".join(f"{k}: {v}" for k, v in counts.items())
     print(f"validate: {summary}")
