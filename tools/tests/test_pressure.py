@@ -240,5 +240,38 @@ class TestBandsAndMoneyCorner(unittest.TestCase):
                              "a score of 0 must produce a band, not be read as missing")
 
 
+class TestReverseDCFHorizon(unittest.TestCase):
+    """The market-implied column of every gap table is one point on a steep curve. The
+    first red team this repo ran overturned a TOO_LATE verdict because the 32.95% "market
+    expectation" was 18.33% over a ten-year explicit period — same price, same cash flow,
+    same discount rate. The horizon is our assumption, tagged SPECULATIVE, so the solve
+    now reports its own sensitivity."""
+
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "tools"))
+        from acis.quality import implied_growth
+        self.solve = implied_growth
+
+    def test_vrt_headline_and_band(self):
+        r = self.solve(1893.8e6, 98476100054.4)
+        self.assertEqual(r["state"], "SOLVED")
+        self.assertAlmostEqual(r["implied_fcf_cagr"], 0.3295, places=3)
+        self.assertAlmostEqual(r["implied_by_horizon"]["10"], 0.1833, places=3)
+        self.assertGreater(r["horizon_spread"], 0.10,
+                           "a spread this wide is the whole reason the band is reported")
+
+    def test_longer_horizon_always_implies_slower_growth(self):
+        r = self.solve(1893.8e6, 98476100054.4)
+        vals = [r["implied_by_horizon"][k] for k in sorted(r["implied_by_horizon"], key=int)]
+        self.assertEqual(vals, sorted(vals, reverse=True))
+
+    def test_degenerate_inputs_do_not_invent_a_number(self):
+        self.assertEqual(self.solve(None, 1.0)["state"], "PENDING_DATA")
+        self.assertEqual(self.solve(-5.0, 1.0)["state"], "NOT_APPLICABLE")
+        self.assertEqual(self.solve(1.0, -3.0)["state"], "NOT_APPLICABLE")
+        for bad in (self.solve(None, 1.0), self.solve(-5.0, 1.0)):
+            self.assertIsNone(bad["implied_fcf_cagr"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -859,6 +859,14 @@
       ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
         (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
         (st.red_team.amendments ? "<div class='small'><b>Amended:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
+        /* The pre-mortem is the check that catches a lazy verdict — "it is twelve months
+           on and this was wrong, why?" — and it rendered nowhere, so the page showed the
+           attack's conclusion without the reasoning that is most likely to change a
+           reader's mind. Raised by the first red team. */
+        (st.red_team.pre_mortem ? "<div class='small' style='margin-top:10px'><b>Pre-mortem — if this verdict is wrong in twelve months:</b>" +
+          (Array.isArray(st.red_team.pre_mortem)
+            ? "<ul class='bullets'>" + st.red_team.pre_mortem.map(function (r) { return "<li>" + esc(typeof r === "string" ? r : (r.reason || JSON.stringify(r))) + "</li>"; }).join("") + "</ul>"
+            : " " + esc(st.red_team.pre_mortem)) + "</div>" : "") +
         "<div class='small' style='margin-top:10px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
       : '<div class="card redteam"><div class="rt-label">Red team</div><div class="small" style="margin-top:8px">This dive is DRAFT — it becomes FINAL only after a fresh-context attack.</div><div style="margin-top:12px">' + runButton("run redteam " + ticker + " " + chainId) + "</div></div>";
     /* R7: confidence_audit was written by every dive and rendered by nothing, so the

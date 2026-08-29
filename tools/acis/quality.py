@@ -228,6 +228,11 @@ def altman(f: dict, market_cap: float | None) -> dict:
     }
 
 
+# Explicit-period lengths the reverse DCF is re-solved over, so the headline number is
+# always accompanied by its sensitivity to the one assumption we choose most arbitrarily.
+HORIZON_SENSITIVITY_YEARS = (5, 7, 10)
+
+
 def implied_growth(fcf0, enterprise_value, discount_rate=DEFAULT_DISCOUNT_RATE,
                    terminal_growth=DEFAULT_TERMINAL_GROWTH, years=DEFAULT_HORIZON_YEARS) -> dict:
     """Reverse DCF: the FCF CAGR the current enterprise value already assumes.
@@ -269,25 +274,60 @@ def implied_growth(fcf0, enterprise_value, discount_rate=DEFAULT_DISCOUNT_RATE,
         terminal = fcf * (1 + terminal_growth) / (discount_rate - terminal_growth)
         return total + terminal / ((1 + discount_rate) ** years)
 
-    lo, hi = -0.50, 1.00
-    if pv(lo) > enterprise_value:
+    def solve(horizon):
+        """Bisection on g for one explicit-period length. None when out of range."""
+        def pv_h(g):
+            total = 0.0
+            fcf = fcf0
+            for t in range(1, horizon + 1):
+                fcf = fcf * (1 + g)
+                total += fcf / ((1 + discount_rate) ** t)
+            terminal = fcf * (1 + terminal_growth) / (discount_rate - terminal_growth)
+            return total + terminal / ((1 + discount_rate) ** horizon)
+        lo_, hi_ = -0.50, 1.00
+        if pv_h(lo_) > enterprise_value or pv_h(hi_) < enterprise_value:
+            return None
+        for _ in range(200):
+            mid = (lo_ + hi_) / 2
+            if pv_h(mid) < enterprise_value:
+                lo_ = mid
+            else:
+                hi_ = mid
+        return round((lo_ + hi_) / 2, 4)
+
+    if pv(-0.50) > enterprise_value:
         return {"implied_fcf_cagr": None, "state": "OUT_OF_RANGE",
                 "reason": "price implies decline steeper than -50% CAGR", "assumptions": assumptions}
-    if pv(hi) < enterprise_value:
+    if pv(1.00) < enterprise_value:
         return {"implied_fcf_cagr": None, "state": "OUT_OF_RANGE",
                 "reason": "price implies growth above +100% CAGR", "assumptions": assumptions}
-    for _ in range(200):
-        mid = (lo + hi) / 2
-        if pv(mid) < enterprise_value:
-            lo = mid
-        else:
-            hi = mid
-    g = (lo + hi) / 2
+    g = solve(years)
+    # The headline number is one point on a curve, and the curve is steep. VRT on
+    # 2026-08-29: 32.95% over a 5-year explicit period, 18.33% over 10 — same price, same
+    # cash flow, same discount rate, different convention. The 2026-08-29 red team
+    # overturned a TOO_LATE verdict that had treated the 5-year figure as "what the market
+    # expects", when the market can equally be underwriting half that rate for twice as
+    # long. The horizon is our choice, not the market's, and `assumptions.tag` has always
+    # said SPECULATIVE. Reporting the band next to the point makes the sensitivity
+    # impossible to miss and lets a gap table cite a range instead of a single artifact.
+    by_horizon = {}
+    for h in HORIZON_SENSITIVITY_YEARS:
+        v = solve(h)
+        if v is not None:
+            by_horizon[str(h)] = v
+    spread = (max(by_horizon.values()) - min(by_horizon.values())) if len(by_horizon) > 1 else None
     return {
-        "implied_fcf_cagr": round(g, 4),
+        "implied_fcf_cagr": g,
         "state": "SOLVED",
         "base_fcf": fcf0,
         "enterprise_value": enterprise_value,
+        "implied_by_horizon": by_horizon,
+        "horizon_spread": round(spread, 4) if spread is not None else None,
+        "horizon_note": (
+            "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon "
+            "shows the same solve over other explicit-period lengths; where the spread is "
+            "wide, a gap against the headline number is a statement about the horizon "
+            "convention as much as about the price, and a dive must say which it means."),
         "assumptions": assumptions,
     }
 
