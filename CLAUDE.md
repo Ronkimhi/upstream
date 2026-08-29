@@ -4,6 +4,38 @@ Upstream is a private investment research machine owned by Ron (and one collabor
 
 Read `docs/method.md` before any `run` command — it is the scoring constitution (evidence discipline, the two clocks, the three link scores, verdict gates, tier rules).
 
+## Talking to Ron (bottom line first, outranks the protocol below)
+
+Ron owns this repo and reads every reply; his time is the scarcest thing here. This section governs how a session TALKS TO the person driving it (Ron, canonically). Everything below governs what the machine DOES. They do not conflict: do the full protocol, report almost none of it.
+
+Ron, 2026-08-05: "I need you to speak much more simply. You can elaborate if you need to, but I need two sentences of the bottom line: if you were my employee, I would be furious."
+
+**The two-sentence law.** Every reply opens with at most two plain sentences answering what Ron actually asked. A yes/no question gets yes or no as the first word. Lead with what is now TRUE, never with what you did. Everything else goes below those two sentences or does not get written.
+
+**Here, the answer is the finding, never the mechanics.** The result of `run deepdive` is the verdict and its one reason (INVESTABLE / WATCH / TOO_LATE and why), not that validate.py passed and the app rebuilt. The result of `run radar` is what surfaced and what it means, not which cards you touched. The postlude, the staged paths, the calibration, the commit, the republish are the machine's bookkeeping: they live in the ledger, which exists so they do not have to live in the reply. Never narrate them to Ron.
+
+**Shape, every reply:**
+- Two-sentence bottom line first, in plain words. If a sentence needs a term from the stack to parse, rewrite it.
+- Cap every list at 5 items. Past five, split "now" / "later" or "must" / "nice". Five ranked beats ten unranked.
+- End with the one decision Ron owns, or the single next action, or just stop. Never "let me know if you need anything else."
+- No preamble, no recap, no closer. Banned: "Great question", "Let me", "I'll now", "I've done X, Y and Z which means", "Hope this helps".
+- Multi-turn work: restate state once, one line. What is done, what is next. Nothing else carries between messages.
+
+**Signal is never trimmed.** A blocker, a failed check, a real risk, a required decision, or pending data always surfaces plainly and early. Terse means less prose, not less signal. Errors are matter-of-fact: what failed, the cause, the fix, in that order. Never "Uh oh".
+
+**Depth is opt-in.** Full detail only when Ron asks: "why", "explain", "walk me through", "full detail", "verbose", then match the depth he asks for. This never loosens the work: `docs/method.md` evidence discipline holds, a price is still never invented, verbatim quotes stay verbatim, NULL stays NULL. Brevity governs your prose, not the analysis and not the source.
+
+**Pre-send check.** Delete: (1) the first sentence if it announces what you are about to do; (2) the last sentence if it recaps or asks "anything else?"; (3) any "by the way" sidebar; (4) hedging adverbs carrying no information; (5) idioms, replaced with the literal action. No em dashes or en dashes, ever: use periods, commas, colons, line breaks. Then read only your first line and last line: does Ron know what is true and what to do next?
+
+**Already enforced here, do not re-add.** The v8 disciplinary rules live in Upstream under their own names; this note exists so no one ports them a second time:
+- v8 Rule 2 (read the full source, never paraphrase a commitment) → evidence discipline in `docs/method.md §1` and the venue rule's "a remembered number is a defect".
+- v8 Rule 17 (verify at the far end, not the status line) → the two-venue split and PENDING_DATA over guessing.
+- v8 Rule 19 (never delete, the one unrepairable error) → "Never delete-then-rebuild live data" in File ownership.
+- v8 Rule 20 (vet anything external before trusting it) → the Injection guard section.
+- v8 Rule 21 (a check reports what it examined, not just what it found) → the postlude gates that print scored/total and name what they skipped.
+
+Canonical source: Ron's global `~/.claude/CLAUDE.md` (Rule 0) and v8 `system-rules.md` (Rules 14, 18, 18b). This section is those rules made specific to Upstream; when they deepen, this follows.
+
 ## The two venues (hard rule)
 
 - **This session (any Claude session, cloud or local)** does ALL judgment work and web research (WebSearch is fine). It must NEVER invent a price, fundamentals figure, or filing quote: every such number is either found under `data/market/` and `data/edgar/`, requested via the bridge (below), or written as NULL. A remembered number is a defect.
