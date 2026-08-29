@@ -46,7 +46,7 @@ Sessions write: `data/signals/ chains/ screens/ stocks/ shadow/book.json trades.
 3. Append ONE line to `data/ledger.md`: `YYYY-MM-DD HH:MMZ | RUN|AMEND|RADAR|RADAR-DEGRADED|DIGEST|NOTE | <command> | by: ron|friend|routine | wrote: <paths> | result: <one-line summary> | health: <scored/total or n/a> | artifact: republished|skipped(<reason>)`.
 4. Stamp `data/health/sessions.json` (`last_commands[<command>] = ts`).
 5. Commit race-safe: `git add -A`, commit `[<command>] <one-line summary>`, then up to 3 rounds of `git pull --rebase` + `git push`. Conflict rules: `app/index.html` → take either side, re-run build.py, continue; `data/requests.json` → union of rows.
-6. Republish the shared claude.ai artifact from `app/index.html` (same artifact URL each time), best-effort: if this venue cannot, record `artifact: skipped(<reason>)` in the ledger line — a skip is normal, never a failure.
+6. Republish the shared claude.ai artifact from `app/index.html` (same artifact URL each time), passing `capabilities: {artifact: {}}` and favicon 🧭 so the Run buttons keep working. **This step comes only AFTER step 5's push has succeeded, and it is the last action of the run — never before the commit.** In cloud/routine venues it may block on a permission prompt or be refused outright; that is expected and must never cost committed work. If it does not go through, record `artifact: skipped(<reason>)` in the ledger line — a skip is normal, never a failure, and the repo's `app/index.html` stays canonical until the next session republishes it.
 7. If data was requested, end with exactly: "data pending, re-run `<command>` in ~5 minutes."
 
 ## Click-queue protocol (the UI's Run buttons)
