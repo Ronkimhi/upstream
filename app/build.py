@@ -16,6 +16,10 @@ ROOT = Path(__file__).resolve().parent.parent
 APP = ROOT / "app"
 DATA = ROOT / "data"
 SIZE_WARN_MB = 2.0
+# Vendored UMD modules, inlined in this exact order (each attaches to window.d3;
+# d3-force resolves the other three off that object at define time). Vetting record
+# and licence: app/templates/vendor/README.md and LICENSE-d3.txt.
+VENDOR_FILES = ["d3-quadtree.min.js", "d3-dispatch.min.js", "d3-timer.min.js", "d3-force.min.js"]
 
 
 def read_json_dir(folder: Path) -> list:
@@ -106,10 +110,33 @@ def main() -> int:
     if "</script" in js:
         print("build: refused — app.js contains a literal </script>, which would terminate the inline tag; split the string")
         return 1
+
+    # Vendored third-party code (app/templates/vendor/README.md carries the vetting record).
+    # Explicit allowlist, never a glob: order matters (each UMD attaches to window.d3 and
+    # d3-force reads the other three off it), and an unreviewed file must never inline itself.
+    vendor_js = ""
+    for name in VENDOR_FILES:
+        vf = APP / "templates" / "vendor" / name
+        if not vf.exists():
+            print(f"build: refused — missing vendor file {vf}")
+            return 1
+        vt = vf.read_text()
+        if "</script" in vt:
+            print(f"build: refused — vendor/{name} contains a literal </script>")
+            return 1
+        if "Copyright" not in vt:
+            print(f"build: refused — vendor/{name} lost its licence banner (ISC requires the notice in all copies)")
+            return 1
+        vendor_js += f"/* vendored verbatim: {name} · licence: app/templates/vendor/LICENSE-d3.txt */\n{vt}\n"
+
     # </script>-safe JSON embedding
     blob = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
 
-    html = shell.replace("{{APP_CSS}}", css).replace("{{UPSTREAM_DATA}}", blob).replace("{{APP_JS}}", js)
+    # Data substituted LAST so a feed headline containing a literal placeholder cannot be replaced.
+    html = (shell.replace("{{APP_CSS}}", css)
+                 .replace("{{VENDOR_JS}}", vendor_js)
+                 .replace("{{APP_JS}}", js)
+                 .replace("{{UPSTREAM_DATA}}", blob))
 
     size_mb = len(html.encode()) / 1e6
     if size_mb > SIZE_WARN_MB:
