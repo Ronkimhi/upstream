@@ -1,4 +1,4 @@
-/* Upstream SPA — vanilla JS over window.UPSTREAM_DATA. Hash-routed, no external libs. */
+/* Upstream SPA v2 — vanilla JS over window.UPSTREAM_DATA. Hash-routed, no external libs. */
 (function () {
   "use strict";
   var D = window.UPSTREAM_DATA || {};
@@ -17,33 +17,125 @@
   function staleChip(asOf) {
     if (!asOf) return "";
     var d = daysBetween(asOf, TODAY);
-    if (d > 90) return '<span class="chip verystale">stale · as of ' + esc(asOf) + "</span>";
-    if (d > 30) return '<span class="chip stale">stale · as of ' + esc(asOf) + "</span>";
-    if (d > 7) return '<span class="chip neutral">as of ' + esc(asOf) + "</span>";
+    if (d > 90) return '<span class="chip verystale">stale · ' + esc(asOf) + "</span>";
+    if (d > 30) return '<span class="chip stale">stale · ' + esc(asOf) + "</span>";
     return "";
   }
   function chip(text, cls) { return '<span class="chip ' + esc(cls || "neutral") + '">' + esc(text) + "</span>"; }
   function tierChip(t) { return t ? '<span class="chip tier">' + esc(t) + "</span>" : ""; }
-  function cmdPill(cmd, caption) {
-    return '<div><span class="cmd"><span>' + esc(cmd) + '</span><button data-copy="' + esc(cmd) + '">copy</button></span>' +
-      '<div class="cmd-caption">' + esc(caption || "paste into a Claude session on Ronkimhi/upstream") + "</div></div>";
-  }
   function verdColor(v) { return { UNDISCOVERED: "var(--und)", EMERGING: "var(--emg)", CROWDED: "var(--crd)", OVER_CROWDED: "var(--ovr)" }[v] || "var(--border-strong)"; }
   function marketFor(t) { return (D.market || {})[String(t).replace(/\./g, "-")] || (D.market || {})[t] || null; }
   function fmtMoney(x) { return typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(x); }
-  function slug(s) { return String(s); }
+  function seclabel(t) { return '<div class="seclabel">' + esc(t) + "</div>"; }
+
+  /* ---------------- click queue (artifact capability) ----------------
+     A Run click publishes a new version of this page with the command queued
+     in the #upstream-queue block. Any live Claude session watching the
+     artifact is notified, executes the command against the repo, and
+     republishes the page with the results baked in. Where queueing is
+     unavailable (local preview, read-only viewer) the button degrades to a
+     copy affordance automatically. */
+  var QUEUE = { v: 1, queue: [] };
+  try { QUEUE = JSON.parse(document.getElementById("upstream-queue").textContent) || QUEUE; } catch (e) {}
+  var QSTATE = { readonly: false, busy: false };
+  var SCRIPT_END = "</scr" + "ipt>";
+  function canQueue() { return !!(window.claude && typeof window.claude.use === "function") && !QSTATE.readonly; }
+  function isQueued(cmd) { return (QUEUE.queue || []).some(function (q) { return q.cmd === cmd; }); }
+  function toast(msg, ms) {
+    var t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, ms || 5600);
+  }
+  function fetchSelfSource() {
+    function ok(r) { return r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status)); }
+    return fetch("index.html", { cache: "no-store" }).then(ok)
+      .catch(function () { return fetch(location.href.split("#")[0], { cache: "no-store" }).then(ok); })
+      .then(function (src) {
+        if (src.indexOf('id="upstream-queue"') < 0) throw new Error("queue block not found in source");
+        return src;
+      });
+  }
+  function replaceQueueBlock(src, queueObj) {
+    var open = src.indexOf('id="upstream-queue"');
+    var start = src.indexOf(">", open) + 1;
+    var end = src.indexOf(SCRIPT_END, start);
+    return src.slice(0, start) + JSON.stringify(queueObj).replace(/<\//g, "<\\/") + src.slice(end);
+  }
+  function enqueue(cmd, btn) {
+    if (QSTATE.busy) return;
+    QSTATE.busy = true;
+    if (btn) { btn.disabled = true; btn.textContent = "Queuing…"; }
+    var fail = function (msg, permanent) {
+      QSTATE.busy = false;
+      if (permanent) QSTATE.readonly = true;
+      toast(msg, 6500);
+      route();
+    };
+    if (!canQueue()) return fail("Queueing unavailable in this view — copy the command into a Claude session instead.", false);
+    window.claude.use("artifact").then(function (ns) {
+      if (!ns) return fail("This view cannot queue — copy the command into a Claude session instead.", true);
+      return fetchSelfSource().then(function (src) {
+        var cur = { v: 1, queue: [] };
+        try {
+          var o = src.indexOf('id="upstream-queue"');
+          var s = src.indexOf(">", o) + 1;
+          cur = JSON.parse(src.slice(s, src.indexOf(SCRIPT_END, s))) || cur;
+        } catch (e) {}
+        if ((cur.queue || []).some(function (q) { return q.cmd === cmd; })) {
+          QSTATE.busy = false; QUEUE = cur; toast("Already queued: " + cmd); route(); return;
+        }
+        cur.queue = (cur.queue || []).concat([{ id: "q-" + Date.now(), cmd: cmd, ts: new Date().toISOString() }]);
+        try { sessionStorage.setItem("upstream.justQueued", cmd); } catch (e) {}
+        return ns.publish(replaceQueueBlock(src, cur)).catch(function (err) {
+          try { sessionStorage.removeItem("upstream.justQueued"); } catch (e) {}
+          var code = (err && err.code) || "upstream_error";
+          if (code === "conflict") { QSTATE.busy = false; return; } // view reloads to the winner; re-click there
+          if (code === "not_writer" || code === "not_granted" || code === "not_declared" ||
+              code === "capability_disabled" || code === "capability_removed")
+            return fail("This view is read-only — buttons switched to copy mode.", true);
+          if (code === "rate_limited") return fail("Queueing too fast — wait a minute and try again.", false);
+          return fail("Queueing failed (" + code + ") — use copy this time.", false);
+        });
+      });
+    }).catch(function () { fail("Queueing unavailable — use copy instead.", false); });
+  }
+  var RUN_LABELS = [
+    [/^run chain /, "Build chain"], [/^run heat /, "Score heat map"], [/^run scenarios /, "Write scenarios"],
+    [/^run screen /, "Screen stocks"], [/^run deepdive /, "Run deep dive"], [/^run redteam /, "Red-team it"],
+    [/^request data /, "Fetch data"], [/^refresh /, "Update"], [/^run radar/, "Run radar"], [/^run digest/, "Build digest"],
+  ];
+  function runLabel(cmd) {
+    for (var i = 0; i < RUN_LABELS.length; i++) if (RUN_LABELS[i][0].test(cmd)) return RUN_LABELS[i][1];
+    return "Run";
+  }
+  function cmdline(cmd) {
+    return '<span class="cmdline"><code>' + esc(cmd) + '</code><button data-copy="' + esc(cmd) + '" title="copy command">copy</button></span>';
+  }
+  function runButton(cmd, caption, opts) {
+    opts = opts || {};
+    if (isQueued(cmd)) {
+      if (opts.compact) return '<button class="btn-run q" disabled>Queued ✓</button>';
+      return '<div class="runwrap"><button class="btn-run q" disabled>Queued ✓</button>' +
+        '<span class="cmdline">waiting for a live Claude session · ' + cmdline(cmd) + "</span></div>";
+    }
+    var btn = canQueue()
+      ? '<button class="btn-run" data-run="' + esc(cmd) + '">' + esc(runLabel(cmd)) + "</button>"
+      : '<button class="btn-run" data-copyrun="' + esc(cmd) + '">' + esc(runLabel(cmd)) + (opts.compact ? "" : " — copy") + "</button>";
+    if (opts.compact) return btn;
+    return '<div class="runwrap">' + btn +
+      '<span class="cmdline">' + esc(caption || (canQueue() ? "runs in a live Claude session; results land on this page" : "copies the command — paste into a Claude session on this repo")) +
+      " · " + cmdline(cmd) + "</span></div>";
+  }
 
   /* ---------------- shell ---------------- */
   function pendingCount() {
-    var r = (D.requests && D.requests.requests) || [];
-    return r.filter(function (x) { return x.status === "PENDING"; }).length;
+    return ((D.requests || {}).requests || []).filter(function (x) { return x.status === "PENDING"; }).length;
   }
   function failedCount() {
-    var r = (D.requests && D.requests.requests) || [];
-    return r.filter(function (x) { return x.status === "FAILED"; }).length;
+    return ((D.requests || {}).requests || []).filter(function (x) { return x.status === "FAILED"; }).length;
   }
   function healthState() {
-    if (failedCount() > 0) return ["var(--bad)", "data requests FAILED — check data/requests.json"];
+    if (failedCount() > 0) return ["var(--bad)", failedCount() + " data request(s) FAILED — see data/requests.json"];
     var rs = ((D.health || {}).sessions || {}).routine_status || {};
     if (rs.radar === "LIVE") {
       var lastRadar = null;
@@ -51,99 +143,176 @@
       if (lastRadar && daysBetween(lastRadar, TODAY) > 4) return ["var(--bad)", "radar silent since " + lastRadar];
     }
     if (pendingCount() > 0) return ["var(--warn)", pendingCount() + " data request(s) pending"];
-    return ["var(--good)", "all quiet"];
+    return ["var(--good)", "all loops quiet"];
   }
-  function topbar() {
+  function navHrefChains() {
+    return (D.chains || []).length === 1 ? "#/chain/" + D.chains[0].id : "#/chains";
+  }
+  function topbar(active) {
     var hs = healthState();
-    var p = pendingCount();
+    var q = (QUEUE.queue || []).length;
+    function na(href, label, key) {
+      return '<a href="' + href + '" class="' + (active === key ? "on" : "") + '">' + label + "</a>";
+    }
     return '<div class="topbar">' +
       '<a href="#/" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>' +
-      '<span class="builtat">built ' + esc(D.built_at || "?") + "</span>" +
+      '<nav class="nav">' +
+      na("#/", "Radar", "radar") +
+      na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
+      na("#/book", "Book", "book") +
+      na("#/shadow", "Shadow", "shadow") +
+      "</nav>" +
       '<span class="spacer"></span>' +
-      (p ? '<span class="tb-chip"><span class="healthdot" style="background:var(--warn)"></span>' + p + " pending</span>" : "") +
+      (q ? '<span class="tb-chip" title="queued commands awaiting a live Claude session"><span class="healthdot" style="background:var(--accent)"></span>' + q + " queued</span>" : "") +
+      (pendingCount() ? '<span class="tb-chip"><span class="healthdot" style="background:var(--warn)"></span>' + pendingCount() + " fetching</span>" : "") +
       '<span class="tb-chip" title="' + esc(hs[1]) + '"><span class="healthdot" style="background:' + hs[0] + '"></span>health</span>' +
-      '<button class="tb-btn" data-nav="#/shadow">shadow</button>' +
-      '<button class="tb-btn" data-nav="#/book">book</button>' +
-      '<button class="tb-btn" id="themeBtn">theme</button>' +
+      '<button class="tb-btn" id="themeBtn" title="theme">◐</button>' +
       "</div>";
   }
   function crumbs(parts) {
     var h = '<div class="crumbs"><a href="#/">Radar</a>';
     parts.forEach(function (p, i) {
-      h += '<span class="sep">›</span>';
+      h += '<span class="sep">/</span>';
       if (p.href && i < parts.length - 1) h += '<a href="' + p.href + '">' + esc(p.label) + "</a>";
-      else if (p.cmd) h += '<span class="cmd" style="padding:2px 8px;font-size:11px">' + esc(p.cmd) + '<button data-copy="' + esc(p.cmd) + '">copy</button></span>';
       else h += '<span class="here">' + esc(p.label) + "</span>";
     });
     return h + "</div>";
   }
   function footer() {
-    return '<div class="footer">Upstream is a private research tool. Verdicts and zones are analytical outputs from public data with stated methods and gaps — not investment advice. Canonical copy: <span class="mono">app/index.html</span> in the repo; if this page looks stale, a newer build may not have been republished yet.</div>';
+    return '<div class="footer">Upstream is a private research tool for its two users. Verdicts, zones, and levels are analytical outputs from public data with stated methods and gaps — not investment advice. Built ' + esc(D.built_at || "?") + " · canonical copy: <span class='mono'>app/index.html</span> in the repo.</div>";
   }
 
   /* ---------------- what changed ---------------- */
   function lastVisit() { try { return localStorage.getItem("upstream.lastVisit"); } catch (e) { return null; } }
   function stampVisit() { try { localStorage.setItem("upstream.lastVisit", new Date().toISOString()); } catch (e) {} }
-  function whatChanged() {
+  function deltaItems() {
     var since = lastVisit();
     var items = [];
     (D.signals || []).forEach(function (s) {
-      if (!since || (s.created_at && s.created_at > since.slice(0, 10))) items.push("New signal: <a href='#/signal/" + s.id + "'>" + esc(s.title) + "</a>");
+      if (!since || (s.created_at && s.created_at > since.slice(0, 10)))
+        items.push({ k: "new", h: "Signal: <a href='#/signal/" + s.id + "'>" + esc(s.title) + "</a>" });
     });
     (D.stocks || []).forEach(function (st) {
       (st.changelog || []).forEach(function (c) {
-        if (since && c.ts > since) items.push("Deep dive updated: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> — " + esc(c.change));
+        if (since && c.ts > since) items.push({ k: "upd", h: "<a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> — " + esc(c.change) });
       });
-      if (st.review_by && st.review_by <= TODAY && st.status !== "ARCHIVED") items.push("Review due: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> (review_by " + esc(st.review_by) + ")");
+      if (st.review_by && st.review_by <= TODAY && st.status !== "ARCHIVED")
+        items.push({ k: "due", h: "Review due: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> (by " + esc(st.review_by) + ")" });
     });
     (D.chains || []).forEach(function (c) {
       (c.scenarios || []).forEach(function (sc) {
         (sc.leading_indicators || []).forEach(function (ind) {
-          if (ind.tripped_at) items.push("Indicator TRIPPED: " + esc(ind.indicator) + " → scenario <a href='#/chain/" + c.id + "'>" + esc(sc.id + " " + sc.title) + "</a>");
+          if (ind.tripped_at) items.push({ k: "trip", h: esc(ind.indicator) + " → <a href='#/chain/" + c.id + "/scen'>" + esc(sc.id + " · " + sc.title) + "</a>" });
         });
       });
     });
     ((D.indicators || {}).trips || []).forEach(function (t) {
-      if (!since || t.tripped_at >= since.slice(0, 10)) items.push("Indicator TRIPPED " + esc(t.tripped_at) + ": " + esc(t.indicator) + " (" + esc(t.ticker) + " " + esc(t.op) + " " + esc(t.level) + ", seen " + esc(t.seen) + ") → <a href='#/chain/" + t.chain + "'>" + esc(t.chain + " " + t.scenario) + "</a>");
+      if (!since || t.tripped_at >= since.slice(0, 10))
+        items.push({ k: "trip", h: esc(t.indicator) + " (" + esc(t.ticker) + " " + esc(t.op) + " " + esc(t.level) + ", seen " + esc(t.seen) + ") → <a href='#/chain/" + t.chain + "/scen'>" + esc(t.chain + " " + t.scenario) + "</a>" });
     });
-    if (!since && !items.length) items.push("First visit on this device — everything below is new to you.");
-    if (since && !items.length) items.push("Nothing changed since your last visit (" + esc(since.slice(0, 10)) + ").");
-    return '<div class="card brief"><h3>What changed' + (since ? " since " + esc(since.slice(0, 10)) : "") + "</h3><ul>" +
-      items.slice(0, 12).map(function (i) { return "<li>" + i + "</li>"; }).join("") + "</ul></div>";
+    return { since: since, items: items };
   }
 
   /* ---------------- home ---------------- */
-  function signalCard(s) {
-    var next = s.status === "NEW" ? cmdPill("run chain " + s.id, "build this signal's value chain") :
-      s.status === "CHAINED" ? '<a class="chip accent" href="#/chain/' + esc(s.chain_id) + '">open chain →</a>' : "";
-    return '<a class="card sigcard" href="#/signal/' + esc(s.id) + '">' +
-      '<div class="row">' + chip(s.status, s.status === "NEW" ? "accent" : "neutral") +
-      chip(s.suggested_clock) + '<span class="muted num">' + esc((s.horizon_years || []).join("-")) + "y</span>" +
-      staleChip(s.updated_at) + "</div>" +
-      "<h3>" + esc(s.title) + "</h3>" +
-      '<div class="thesis">' + esc(s.thesis) + "</div>" +
-      '<div class="row"><span class="muted">unmapped ' + '<span class="num">' + esc((s.unmappedness || {}).score) + "</span>/100</span>" +
-      '<span class="muted">' + (s.evidence || []).length + " evidence</span></div></a>" +
-      (next ? '<div style="margin:-2px 0 12px">' + next + "</div>" : "");
+  function funnelCard() {
+    var nSig = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; }).length;
+    var nCh = (D.chains || []).length;
+    var nScen = 0, nScr = (D.screens || []).length;
+    (D.chains || []).forEach(function (c) { nScen += (c.scenarios || []).length; });
+    var nVer = (D.stocks || []).length;
+    var one = (D.chains || [])[0];
+    var stages = [
+      { n: nSig, l: "Signals", href: "#/" },
+      { n: nCh, l: nCh === 1 ? "Chain" : "Chains", href: navHrefChains() },
+      { n: nScen, l: "Scenarios", href: one ? "#/chain/" + one.id + "/scen" : "#/" },
+      { n: nScr, l: "Screens", href: nScr && one ? "#/screen/" + D.screens[0].chain_id + "/" + D.screens[0].scenario_id : "#/" },
+      { n: nVer, l: "Verdicts", href: nVer ? "#/stock/" + D.stocks[0].ticker + "/" + D.stocks[0].chain_id : "#/" },
+    ];
+    var W = 520, H = 132, n = stages.length, gap = 14, segW = (W - gap * (n - 1)) / n;
+    var s = '<svg class="funnel" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="pipeline">';
+    stages.forEach(function (st, i) {
+      var x = i * (segW + gap);
+      var op = 1 - i * 0.17;
+      s += '<a href="' + st.href + '">';
+      s += '<rect class="fseg" x="' + x + '" y="46" width="' + segW + '" height="46" rx="10" fill="var(--accent)" opacity="' + op.toFixed(2) + '"/>';
+      s += '<text class="stagecount" x="' + (x + segW / 2) + '" y="30" text-anchor="middle">' + st.n + "</text>";
+      s += '<text class="stagelabel" x="' + (x + segW / 2) + '" y="112" text-anchor="middle">' + esc(st.l) + "</text>";
+      s += "</a>";
+      if (i < n - 1) s += '<path d="M' + (x + segW + 2.5) + ' 63 l8 6 -8 6" fill="none" stroke="var(--border-strong)" stroke-width="1.6" stroke-linecap="round"/>';
+    });
+    s += "</svg>";
+    return '<div class="card funnelcard"><div class="fc-title">The funnel — click a stage</div>' + s +
+      '<div class="muted" style="margin-top:10px">Lazy by design: each stage runs only when someone asks, and everything ever run is saved here.</div></div>';
+  }
+  function todayCard() {
+    var d = deltaItems();
+    var body;
+    if (!d.items.length) {
+      body = '<div class="quiet"><span class="big">All quiet.</span><span class="muted">Nothing changed since ' +
+        (d.since ? "your last visit (" + esc(d.since.slice(0, 10)) + ")" : "the seed build") + ". The radar accumulates on weekdays; Saturday brings the digest.</span></div>";
+    } else {
+      body = '<ul class="delta">' + d.items.slice(0, 6).map(function (i) {
+        var lbl = { new: "new", trip: "tripped", due: "due", upd: "updated" }[i.k];
+        return '<li><span class="k ' + i.k + '">' + lbl + "</span><span>" + i.h + "</span></li>";
+      }).join("") + "</ul>";
+    }
+    var dg = (D.digests || [])[0];
+    return '<div class="card today"><h2>' + (d.items.length ? "Since you last looked" : "Today") + "</h2>" +
+      '<div class="when">' + esc(TODAY) + "</div>" + body +
+      (dg ? '<div class="muted" style="margin-top:12px">Latest digest: <b>' + esc(dg.week || "") + "</b> — " + esc((dg.summary || "").slice(0, 140)) + "</div>" : "") +
+      "</div>";
+  }
+  function sigRow(s) {
+    var laneName = { MACRO: "Macro", INDUSTRY: "Industry", USE_CASE: "Use case" }[s.lane] || s.lane;
+    var un = (s.unmappedness || {}).score;
+    var cta = s.status === "NEW"
+      ? runButton("run chain " + s.id, null, { compact: true })
+      : s.status === "CHAINED"
+        ? '<a class="chip accent" href="#/chain/' + esc(s.chain_id) + '">Open chain →</a>'
+        : chip(s.status);
+    return '<div class="sigrow" data-nav="#/signal/' + esc(s.id) + '" tabindex="0" role="link" aria-label="' + esc(s.title) + '">' +
+      "<div>" +
+      '<div class="meta">' + chip(laneName) + chip(s.suggested_clock) +
+      '<span class="num">' + esc((s.horizon_years || []).join("–")) + "y</span>" +
+      "<span>" + (s.evidence || []).length + " evidence</span>" + staleChip(s.updated_at) + "</div>" +
+      '<div class="t">' + esc(s.title) + "</div>" +
+      '<div class="th">' + esc(s.thesis) + "</div>" +
+      "</div>" +
+      '<div class="right">' +
+      '<span class="gauge" title="how unmapped this event\'s chain consequences are"><span class="track"><i style="width:' + (un || 0) + '%"></i></span><span class="num">' + esc(un) + "</span> unmapped</span>" +
+      "<span data-stop>" + cta + "</span>" +
+      "</div></div>";
   }
   function homeView() {
-    var lanes = { MACRO: [], INDUSTRY: [], USE_CASE: [] };
-    (D.signals || []).forEach(function (s) { (lanes[s.lane] = lanes[s.lane] || []).push(s); });
-    var digest = (D.digests || [])[0];
-    var lh = { MACRO: "Macro & geopolitics", INDUSTRY: "Industry inflections", USE_CASE: "Emerging use cases" };
-    var ledgerTail = (D.ledger || []).slice(-6).reverse();
-    return topbar() + "<main>" +
-      "<h1>Radar</h1><p class='lead'>Known events whose chain consequences are still unmapped. Nothing below was analyzed until someone clicked it; everything analyzed is saved forever.</p>" +
-      whatChanged() +
-      (digest ? '<div class="card" style="margin-top:12px"><h3>Saturday digest · ' + esc(digest.week || "") + "</h3><div class='small'>" + esc(digest.summary || "") + "</div></div>" : "") +
-      "<h2>Signals</h2><div class='lanes'>" +
-      Object.keys(lanes).map(function (k) {
-        return "<div><div class='lane-h'>" + esc(lh[k]) + " · " + lanes[k].length + "</div>" +
-          (lanes[k].map(signalCard).join("") || '<div class="emptystate">nothing yet — the radar routine fills this lane</div>') + "</div>";
-      }).join("") + "</div>" +
-      "<h2>Recent activity</h2><div class='card'><div class='mono' style='font-size:11.5px;white-space:pre-wrap;color:var(--ink-2)'>" +
-      ledgerTail.map(esc).join("\n") + "</div></div>" +
+    var sigs = (D.signals || []).slice().sort(function (a, b) {
+      return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0);
+    });
+    var hs = healthState();
+    var sys = (D.ledger || []).slice(-3).reverse();
+    return topbar("radar") + "<main>" +
+      '<div class="hero">' + todayCard() + funnelCard() + "</div>" +
+      seclabel("Signals — ranked by how unmapped they still are") +
+      '<div class="siglist">' + (sigs.map(sigRow).join("") ||
+        '<div class="emptystate">No signals yet — the weekday radar routine fills this.</div>') + "</div>" +
+      seclabel("System") +
+      "<div>" +
+      '<div class="sysline"><span class="healthdot" style="background:' + hs[0] + '"></span>' + esc(hs[1]) +
+      " · radar " + esc((((D.health || {}).sessions || {}).routine_status || {}).radar || "?").toLowerCase() +
+      " · digest " + esc((((D.health || {}).sessions || {}).routine_status || {}).digest || "?").toLowerCase() + "</div>" +
+      sys.map(function (l) { return '<div class="sysline"><span class="mono">' + esc(l) + "</span></div>"; }).join("") +
+      "</div>" +
       footer() + "</main>";
+  }
+  function chainsView() {
+    return topbar("chain") + "<main><div class='pagehead'><h1>Chains</h1></div><div class='siglist'>" +
+      (D.chains || []).map(function (c) {
+        var money = (c.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
+        return '<div class="sigrow" data-nav="#/chain/' + esc(c.id) + '" tabindex="0" role="link"><div>' +
+          '<div class="meta">' + chip(c.clock) + "<span>" + (c.links || []).length + " links</span><span>" + (c.scenarios || []).length + " scenarios</span>" + staleChip(c.heat_as_of) + "</div>" +
+          '<div class="t">' + esc(c.title) + "</div>" +
+          (money.length ? '<div class="th">★ money corner: ' + esc(money.map(function (l) { return l.name; }).join(", ")) + "</div>" : "") +
+          "</div></div>";
+      }).join("") + "</div>" + footer() + "</main>";
   }
 
   /* ---------------- signal ---------------- */
@@ -151,19 +320,20 @@
     var s = byId(D.signals, id);
     if (!s) return notFound("signal " + id);
     var evid = (s.evidence || []).map(function (e) {
-      return '<div class="evli">' + chip(e.tag, "neutral") + " " + esc(e.claim) +
+      return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) +
         (e.source_name ? ' <span class="muted">[' + esc(e.source_name) + (e.source_date ? ", " + esc(e.source_date) : "") + "]</span>" : "") + "</div>";
     }).join("");
-    return topbar() + crumbs([{ label: s.title }]) + "<main>" +
-      '<div class="row">' + chip(s.lane) + chip(s.status, s.status === "NEW" ? "accent" : "neutral") + chip(s.suggested_clock) + staleChip(s.updated_at) + "</div>" +
-      "<h1>" + esc(s.title) + "</h1><p class='lead'>" + esc(s.thesis) + "</p>" +
-      "<div class='grid' style='grid-template-columns:repeat(auto-fit,minmax(280px,1fr))'>" +
+    return topbar("radar") + crumbs([{ label: s.title }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip(s.lane) + chip(s.suggested_clock) + chip(s.status, s.status === "NEW" ? "accent" : "neutral") + staleChip(s.updated_at) + "</div>" +
+      "<h1>" + esc(s.title) + "</h1><p class='sub'>" + esc(s.thesis) + "</p></div>" +
+      '<div class="statgrid" style="margin-top:14px">' +
       "<div class='card'><h3>Why now</h3><div class='small'>" + esc(s.why_now) + "</div></div>" +
       "<div class='card'><h3>The retail gap</h3><div class='small'>" + esc(s.retail_gap) + "</div></div>" +
-      "<div class='card'><h3>Unmapped-ness · <span class='num'>" + esc((s.unmappedness || {}).score) + "</span>/100</h3><div class='small'>" + esc((s.unmappedness || {}).rationale) + "</div></div></div>" +
-      "<h2>Evidence</h2><div class='card'>" + (evid || "<div class='muted'>none</div>") + "</div>" +
-      "<h2>Next</h2>" + (s.chain_id ? "<a class='chip accent' href='#/chain/" + esc(s.chain_id) + "'>open the value chain →</a>" :
-        s.status === "NEW" ? cmdPill("run chain " + s.id, "builds the 8-15 link value chain for this signal") : "<span class='muted'>" + esc(s.status) + "</span>") +
+      "<div class='card'><div class='stat'><span class='v'>" + esc((s.unmappedness || {}).score) + "</span><span class='l'>unmapped / 100 — " + esc((s.unmappedness || {}).rationale) + "</span></div></div></div>" +
+      seclabel("Evidence") + "<div class='card'>" + (evid || "<div class='muted'>none</div>") + "</div>" +
+      seclabel("Next step") +
+      (s.chain_id ? "<a class='chip accent' href='#/chain/" + esc(s.chain_id) + "'>Open the value chain →</a>" :
+        s.status === "NEW" ? runButton("run chain " + s.id, "maps this signal into an 8-15 link value chain") : "<span class='muted'>" + esc(s.status) + "</span>") +
       notesBlock(s) + changelogBlock(s) + footer() + "</main>";
   }
 
@@ -172,134 +342,161 @@
   function chainView(id, tab) {
     var c = byId(D.chains, id);
     if (!c) return notFound("chain " + id);
-    chainTab = tab || chainTab || "flow";
+    chainTab = (tab === "heat" || tab === "scen" || tab === "flow") ? tab : "flow";
     var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
     var scored = links.filter(function (l) { return l.heat && l.heat.crowdedness && l.heat.crowdedness.score != null; });
     var money = links.filter(function (l) { return l.heat && l.heat.money_corner; });
     var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : flowTab(c, links);
-    return topbar() + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
-      '<div class="row">' + chip(c.clock) + chip(c.status) + staleChip(c.heat_as_of) +
-      (money.length ? chip("★ money corner: " + money.map(function (l) { return l.name; }).join(", "), "UNDISCOVERED") : "") + "</div>" +
-      "<h1>" + esc(c.title) + "</h1>" +
-      "<p class='lead section-note'>" + esc(c.map_limitation || "") + "</p>" +
-      '<div class="tabs">' +
-      ["flow:Flow", "heat:Heat 2x2", "scen:Scenarios"].map(function (t) {
-        var k = t.split(":");
+    var subtitle = scored.length
+      ? (money.length ? "Money corner: " + money.map(function (l) { return l.name; }).join(", ") + ". " : "No link clears all three thresholds yet. ") +
+        scored.length + " of " + links.length + " links scored, as of " + (c.heat_as_of || "—") + "."
+      : "Chain mapped; heat not scored yet.";
+    return topbar("chain") + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) + "</div>" +
+      "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
+      '<div class="seg">' +
+      [["flow", "Flow"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
       }).join("") + "</div>" + body +
-      "<div class='healthline'>heat coverage: " + scored.length + "/" + links.length + " links scored · as of " + esc(c.heat_as_of || "never") + "</div>" +
       notesBlock(c) + changelogBlock(c) + footer() + "</main>";
   }
   function sigTitle(id) { var s = byId(D.signals, id); return s ? s.title : id; }
+  function triad(h) {
+    if (!h) return "";
+    function bar(o, cls) {
+      var v = o && o.score != null ? o.score : 0;
+      return '<i class="' + cls + '" style="height:' + Math.max(2, (v / 100) * 22).toFixed(0) + 'px"></i>';
+    }
+    return '<span class="triad" aria-hidden="true">' + bar(h.impact, "ti") + bar(h.crowdedness, "tc") + bar(h.capture, "tv") + "</span>";
+  }
   function flowTab(c, links) {
     var h = '<div class="flow">';
     links.forEach(function (l, i) {
-      var hv = l.heat && l.heat.verdict;
-      var cr = l.heat && l.heat.crowdedness && l.heat.crowdedness.score;
-      var im = l.heat && l.heat.impact && l.heat.impact.score;
-      var cp = l.heat && l.heat.capture && l.heat.capture.score;
-      h += '<div class="fnode ' + (hv ? "v-" + hv : "") + '" data-drawer="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.name) + '">' +
+      var hv = (l.heat && l.heat.verdict) || null;
+      h += '<div class="fnode ' + (hv ? "v-" + hv : "v-none") + '" data-drawer="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.name) + '">' +
         (l.heat && l.heat.money_corner ? '<span class="star" title="money corner">★</span>' : "") +
         (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT" ? '<span class="choke" title="choke point"></span>' : "") +
-        '<div class="pos">' + (i + 1) + "</div><div class='nm'>" + esc(l.name) + "</div>" +
-        '<div class="sc">' + (hv ? "i" + im + " · c" + cr + " · v" + cp : "unscored") + "</div></div>";
-      if (i < links.length - 1) h += '<div class="farrow">→</div>';
+        '<div class="pos">' + String(i + 1).padStart(2, "0") + "</div>" +
+        '<div class="nm">' + esc(l.name) + "</div>" +
+        '<div class="verd ' + (hv ? "v-" + hv : "v-none") + '">' + (hv ? esc(hv.replace("_", " ")) : "unscored") + "</div>" +
+        triad(l.heat) + "</div>";
+      if (i < links.length - 1) h += '<div class="farrow">›</div>';
     });
     h += "</div>";
     h += '<div class="legend">' +
-      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+      '<span><span class="tri-demo"><i style="height:11px;background:var(--accent)"></i><i style="height:7px;background:var(--crd)"></i><i style="height:9px;background:var(--und)"></i></span>impact · crowdedness · capture</span>' +
+      [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
         return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
       }).join("") +
-      "<span>★ money corner</span><span><span class='choke' style='position:static;display:inline-block;vertical-align:-1px'></span> choke point</span>" +
-      "<span class='mono'>i impact · c crowdedness · v value capture</span></div>";
+      '<span style="color:var(--gold)">★ money corner</span><span><span class="choke" style="position:static;display:inline-block;vertical-align:-1px;margin-right:6px"></span>choke point</span>' +
+      "</div>";
     h += "<div id='drawerHost'></div>";
     return h;
   }
   function scoreBar(name, obj, colorVar) {
-    if (!obj || obj.score == null) return '<div class="scorebar"><span class="small">' + esc(name) + '</span><div class="tk"></div><span class="num muted">null</span></div>';
-    return '<div class="scorebar"><span class="small">' + esc(name) + '</span><div class="tk"><i style="width:' + obj.score + "%;background:var(" + colorVar + ')"></i></div><span class="num">' + obj.score + "</span></div>";
+    if (!obj || obj.score == null) return '<div class="scorebar"><span class="lb">' + esc(name) + '</span><div class="tk"></div><span class="vl muted">—</span></div>';
+    return '<div class="scorebar"><span class="lb">' + esc(name) + '</span><div class="tk"><i style="width:' + obj.score + "%;background:var(" + colorVar + ')"></i></div><span class="vl">' + obj.score + "</span></div>";
   }
   function drawer(c, l) {
     var h = l.heat || {};
     function ev(o) { return ((o || {}).evidence || []).map(function (e) { return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) + (e.source_name ? " <span class='muted'>[" + esc(e.source_name) + "]</span>" : "") + "</div>"; }).join(""); }
-    return '<div class="drawer" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
-      '<div class="row">' + (h.verdict ? chip(h.verdict, h.verdict) : chip("unscored")) + (h.money_corner ? chip("★ money corner", "UNDISCOVERED") : "") + chip(l.investability) + chip("bottleneck: " + (l.bottleneck || {}).criticality) + "</div>" +
-      "<h2 style='margin-top:10px'>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p>" +
+    function block(title, o) {
+      if (!o) return "";
+      return "<h3>" + title + "</h3><div class='small'>" + esc(o.rationale || "") + "</div>" + ev(o);
+    }
+    return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
+      '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + chip((l.bottleneck || {}).criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + ((l.bottleneck || {}).criticality || "").toLowerCase()) + "</div>" +
+      "<h2>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p>" +
       scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
-      (h.impact ? "<h3 style='margin-top:12px'>Impact</h3><div class='small'>" + esc((h.impact || {}).rationale) + "</div>" + ev(h.impact) : "") +
-      (h.crowdedness ? "<h3 style='margin-top:10px'>Crowdedness</h3><div class='small'>" + esc((h.crowdedness || {}).rationale) + "</div>" + ev(h.crowdedness) : "") +
-      (h.capture ? "<h3 style='margin-top:10px'>Value capture</h3><div class='small'>" + esc((h.capture || {}).rationale) + "</div>" + ev(h.capture) : "") +
-      (h.repricing_check && h.repricing_check.note ? "<h3 style='margin-top:10px'>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) + "</div>" : "") +
-      "<h3 style='margin-top:12px'>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
+      block("Impact", h.impact) + block("Crowdedness", h.crowdedness) + block("Value capture", h.capture) +
+      (h.repricing_check && h.repricing_check.note ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) + "</div>" : "") +
+      "<h3>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
       "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
-      "<h3 style='margin-top:12px'>Example names</h3><div class='row'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div>" +
-      (h.verdict ? "" : "<div style='margin-top:14px'>" + cmdPill("run heat " + c.id, "scores every unscored link with fetched evidence") + "</div>") +
+      "<h3>Example names</h3><div class='row'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div>" +
+      (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "scores every unscored link with fetched evidence") + "</div>") +
       "</div>";
   }
   function linkName(c, id) { var l = byId(c.links, id); return l ? l.name : id; }
+  function shortName(n) { return n.split("(")[0].replace(" & ", " · ").trim(); }
   function heatTab(c, links, scored) {
-    if (!scored.length) return '<div class="emptystate">No links scored yet.<br><br>' + cmdPill("run heat " + c.id) + "</div>";
-    var W = 880, H = 520, P = { l: 60, r: 30, t: 26, b: 46 };
+    if (!scored.length) return '<div class="emptystate">No links scored yet.<div class="runwrap">' + runButton("run heat " + c.id) + "</div></div>";
+    var W = 940, H = 560, P = { l: 64, r: 40, t: 34, b: 52 };
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
     function X(v) { return P.l + (v / 100) * iw; }
-    function Y(cr) { return P.t + (cr / 100) * ih; } // crowd 0 at TOP (money corner top-right)
-    var s = '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="Impact vs crowdedness scatter">';
-    s += '<rect x="' + X(60) + '" y="' + Y(0) + '" width="' + (X(100) - X(60)) + '" height="' + (Y(40) - Y(0)) + '" fill="var(--band-good)" rx="8"/>';
-    s += '<text x="' + (X(80)) + '" y="' + (Y(8)) + '" text-anchor="middle" font-size="11" font-weight="600" fill="var(--und)">money corner</text>';
-    [0, 20, 40, 60, 80, 100].forEach(function (v) {
-      s += '<line x1="' + X(v) + '" y1="' + P.t + '" x2="' + X(v) + '" y2="' + (H - P.b) + '" stroke="var(--chart-grid)" stroke-width="1"/>';
-      s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)" stroke-width="1"/>';
-      s += '<text x="' + X(v) + '" y="' + (H - P.b + 18) + '" text-anchor="middle" font-size="10" class="mono-t">' + v + "</text>";
-      s += '<text x="' + (P.l - 10) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t">' + v + "</text>";
+    function Y(cr) { return P.t + (cr / 100) * ih; } // crowdedness 0 at TOP → money corner top-right
+    var s = '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="Impact vs crowdedness map">';
+    s += '<rect x="' + X(60) + '" y="' + Y(0) + '" width="' + (X(100) - X(60)) + '" height="' + (Y(40) - Y(0)) + '" fill="var(--band-good)" rx="10"/>';
+    s += '<text x="' + X(80) + '" y="' + (Y(0) + 20) + '" text-anchor="middle" font-size="11" font-weight="650" fill="var(--und)" letter-spacing="1">★ MONEY CORNER</text>';
+    [0, 25, 50, 75, 100].forEach(function (v) {
+      s += '<line x1="' + X(v) + '" y1="' + P.t + '" x2="' + X(v) + '" y2="' + (H - P.b) + '" stroke="var(--chart-grid)"/>';
+      s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
+      s += '<text x="' + X(v) + '" y="' + (H - P.b + 20) + '" text-anchor="middle" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v + "</text>";
+      s += '<text x="' + (P.l - 12) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v + "</text>";
     });
-    s += '<line x1="' + X(60) + '" y1="' + P.t + '" x2="' + X(60) + '" y2="' + (H - P.b) + '" stroke="var(--ink-3)" stroke-dasharray="4 4" stroke-width="1"/>';
-    s += '<line x1="' + P.l + '" y1="' + Y(40) + '" x2="' + (W - P.r) + '" y2="' + Y(40) + '" stroke="var(--ink-3)" stroke-dasharray="4 4" stroke-width="1"/>';
-    s += '<text x="' + (P.l + iw / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11">Impact →</text>';
-    s += '<text transform="rotate(-90)" x="' + (-(P.t + ih / 2)) + '" y="16" text-anchor="middle" font-size="11">Crowdedness (quieter is higher) →</text>';
-    scored.forEach(function (l) {
+    s += '<line x1="' + X(60) + '" y1="' + P.t + '" x2="' + X(60) + '" y2="' + (H - P.b) + '" stroke="var(--chart-axis)" stroke-dasharray="3 5"/>';
+    s += '<line x1="' + P.l + '" y1="' + Y(40) + '" x2="' + (W - P.r) + '" y2="' + Y(40) + '" stroke="var(--chart-axis)" stroke-dasharray="3 5"/>';
+    s += '<text x="' + (P.l + iw / 2) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11.5" font-weight="550">Impact →</text>';
+    s += '<text transform="rotate(-90)" x="' + (-(P.t + ih / 2)) + '" y="18" text-anchor="middle" font-size="11.5" font-weight="550">Quieter →</text>';
+    var placed = [];
+    function labelSpot(x, yCands, name) {
+      var w = name.length * 5.6;
+      for (var ci = 0; ci < yCands.length; ci++) {
+        var y = yCands[ci];
+        if (y < P.t + 10 || y > H - P.b - 4) continue;
+        var hit = placed.some(function (p) { return Math.abs(p.y - y) < 13 && (Math.abs(p.x - x) < (p.w + w) / 2 + 6); });
+        if (!hit) { placed.push({ x: x, y: y, w: w }); return y; }
+      }
+      var y2 = yCands[yCands.length - 1];
+      placed.push({ x: x, y: y2, w: w });
+      return y2;
+    }
+    scored.slice().sort(function (a, b) { return a.heat.crowdedness.score - b.heat.crowdedness.score; }).forEach(function (l) {
       var im = l.heat.impact ? l.heat.impact.score : null, cr = l.heat.crowdedness.score, cp = l.heat.capture ? l.heat.capture.score : 40;
       if (im == null) return;
-      var r = 5 + (cp || 0) / 11;
-      s += '<circle cx="' + X(im) + '" cy="' + Y(cr) + '" r="' + r.toFixed(1) + '" fill="' + verdColor(l.heat.verdict) + '" fill-opacity="0.82" stroke="var(--surface)" stroke-width="2" data-dot="' + esc(l.id) + '"><title>' + esc(l.name) + ": impact " + im + ", crowdedness " + cr + ", capture " + cp + "</title></circle>";
-      s += '<text x="' + X(im) + '" y="' + (Y(cr) - r - 5) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">' + esc(l.name.split(" ")[0] === "AI" ? l.name : l.name.split("(")[0].trim()) + "</text>";
+      var r = 6 + (cp || 0) / 10;
+      var nm = shortName(l.name);
+      var ly = labelSpot(X(im), [Y(cr) - r - 8, Y(cr) + r + 14, Y(cr) - r - 22, Y(cr) + r + 28, Y(cr) - r - 36], nm);
+      s += '<circle cx="' + X(im) + '" cy="' + Y(cr) + '" r="' + r.toFixed(1) + '" fill="' + verdColor(l.heat.verdict) + '" fill-opacity="0.85" stroke="var(--surface)" stroke-width="2"><title>' + esc(l.name) + " — impact " + im + ", crowdedness " + cr + ", capture " + cp + "</title></circle>";
+      s += '<text x="' + X(im) + '" y="' + ly + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">' + esc(nm) + "</text>";
     });
     s += "</svg></div>";
     s += '<div class="legend"><span>dot size = value capture</span>' +
-      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+      [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
         return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
-      }).join("") + "</div>";
+      }).join("") + "</div></div>";
     var un = links.filter(function (l) { return !l.heat || !l.heat.crowdedness || l.heat.crowdedness.score == null; });
-    if (un.length) s += '<div class="muted" style="margin-top:8px">not scored: ' + un.map(function (l) { return esc(l.name); }).join(", ") + "</div>";
-    s += "</div>";
+    if (un.length) s += '<div class="muted" style="margin-top:10px">Not scored: ' + un.map(function (l) { return esc(l.name); }).join(", ") + "</div>";
     var mc = links.filter(function (l) { return l.heat && l.heat.money_corner; });
-    s += "<h2>Reading it</h2><div class='card small'>" +
-      (mc.length ? "<b>Money corner:</b> " + mc.map(function (l) { return esc(l.name) + " (i" + l.heat.impact.score + " c" + l.heat.crowdedness.score + " v" + l.heat.capture.score + ")"; }).join(" · ") + ". " : "No link currently meets all three thresholds (impact ≥ 60, crowdedness ≤ 40, capture ≥ 60). ") +
-      "High-impact low-crowd links with small dots are the trap: un-crowded because capture is capped — see each link's capture rationale.</div>";
+    s += '<div class="callout" style="margin-top:14px">' +
+      (mc.length ? "<b>★ " + mc.map(function (l) { return esc(l.name); }).join(" · ") + "</b> clears all three bars (impact ≥ 60, crowdedness ≤ 40, capture ≥ 60). " :
+        "<b>No money corner yet</b> — no link clears impact ≥ 60, crowdedness ≤ 40, capture ≥ 60 together. ") +
+      "Quiet links with <b>small dots</b> are the trap: ignored because capture is capped, not because the market missed them.</div>";
     return s;
   }
   function scenTab(c) {
     var scens = c.scenarios || [];
-    if (!scens.length) return '<div class="emptystate">No scenarios yet.<br><br>' + cmdPill("run scenarios " + c.id) + "</div>";
+    if (!scens.length) return '<div class="emptystate">No scenarios yet.<div class="runwrap">' + runButton("run scenarios " + c.id) + "</div></div>";
     return scens.map(function (s) {
       var mv = (s.links_moved || []).map(function (m) {
-        return '<span class="mv"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(linkName(c, m.link_id)) + " · " + esc(m.magnitude.toLowerCase()) + "</span>";
+        return '<span class="mv"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(shortName(linkName(c, m.link_id))) + " · " + esc(m.magnitude.toLowerCase()) + "</span>";
       }).join("");
       var inds = (s.leading_indicators || []).map(function (i) {
         var trip = ((D.indicators || {}).trips || []).filter(function (t) {
           return t.chain === c.id && t.scenario === s.id && t.indicator === i.indicator;
         })[0];
         var trippedAt = i.tripped_at || (trip && trip.tripped_at);
-        var badge = trippedAt ? chip("TRIPPED " + trippedAt, "OVER_CROWDED") : i.armed ? chip("armed", "accent") : "";
+        var badge = trippedAt ? chip("tripped " + trippedAt, "OVER_CROWDED") : i.armed ? chip("armed", "accent") : "";
         return "<li>" + esc(i.indicator) + " <span class='muted'>(" + esc(i.where_to_watch) + ")</span> " + badge + "</li>";
       }).join("");
-      return '<div class="card scen"><div class="row"><b>' + esc(s.id) + " · " + esc(s.title) + "</b>" + chip(s.status, s.status === "SCREENED" ? "accent" : "neutral") + (s.clock ? chip(s.clock) : "") +
-        '<span class="num muted">p ' + esc(s.probability_pct) + "%</span></div>" +
+      return '<div class="card scen"><div class="head"><span class="t">' + esc(s.id) + " — " + esc(s.title) + "</span>" +
+        chip(s.status, s.status === "SCREENED" ? "accent" : "neutral") + (s.clock && s.clock !== c.clock ? chip(s.clock) : "") +
+        '<span class="p">' + esc(s.probability_pct) + "<small>%</small></span></div>" +
         '<div class="pbar"><i style="width:' + esc(s.probability_pct) + '%"></i></div>' +
         "<div class='small'>" + esc(s.narrative) + "</div>" +
-        "<div style='margin:8px 0 4px'>" + mv + "</div>" +
-        "<details><summary>Leading indicators & invalidation</summary><ul class='bullets'>" + inds + "</ul>" +
-        "<div class='small' style='margin-top:6px'><b>Invalidation:</b> " + (s.invalidation_signs || []).map(esc).join(" · ") + "</div></details>" +
-        "<div style='margin-top:10px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">open stock screen →</a>' : cmdPill("run screen " + c.id + " " + s.id, "screens stocks for this scenario")) + "</div></div>";
+        "<div style='margin:10px 0 2px'>" + mv + "</div>" +
+        "<details><summary>Leading indicators & invalidation</summary><div class='body'><ul class='bullets'>" + inds + "</ul>" +
+        "<div class='small' style='margin-top:8px'><b>Invalidation:</b> " + (s.invalidation_signs || []).map(esc).join(" · ") + "</div></div></details>" +
+        "<div style='margin-top:14px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">Open stock screen →</a>' : runButton("run screen " + c.id + " " + s.id, "screens stocks for this scenario, bucketed and tiered")) + "</div></div>";
     }).join("");
   }
 
@@ -314,27 +511,32 @@
     var body = Object.keys(names).map(function (k) {
       var rows = (sc.buckets || {})[k] || [];
       if (!rows.length) return "";
-      return "<h2>" + names[k] + " · " + rows.length + '</h2><div class="tablewrap"><table><thead><tr><th>Name</th><th>Tier</th><th>Thesis</th><th>Exposure</th><th>Fundamentals</th><th>Attention</th><th>Status</th></tr></thead><tbody>' +
+      return seclabel(names[k] + " — " + rows.length) +
+        '<div class="tablewrap"><table><thead><tr><th>Name</th><th>Tier</th><th>Thesis</th><th>Exposure</th><th>Fundamentals</th><th>Attention</th><th></th></tr></thead><tbody>' +
         rows.map(function (r) {
-          var f = r.fundamentals === "PENDING_DATA" ? chip("pending data", "stale") :
-            (typeof r.fundamentals === "object" && r.fundamentals ? "<span class='num small'>" + esc(r.fundamentals.summary || JSON.stringify(r.fundamentals).slice(0, 60)) + "</span>" : "—");
-          var cw = r.crowdedness === "PENDING_DATA" ? chip("pending", "stale") :
+          var f = r.fundamentals === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>pending</span>' :
+            (typeof r.fundamentals === "object" && r.fundamentals ? "<span class='num small'>" + esc(r.fundamentals.summary || "fetched") + "</span>" : "—");
+          var cw = r.crowdedness === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>pending</span>' :
             (r.crowdedness && r.crowdedness.state ? chip(r.crowdedness.state + (r.crowdedness.pcs_score != null ? " " + r.crowdedness.pcs_score : ""), r.crowdedness.state === "DARK" ? "UNDISCOVERED" : r.crowdedness.state === "CROWDED" ? "CROWDED" : "neutral") : "—");
           var ex = r.theme_revenue_exposure && r.theme_revenue_exposure.pct != null ? "<span class='num'>" + esc(r.theme_revenue_exposure.pct) + "%</span>" :
-            '<span class="chip neutral" title="' + esc((r.theme_revenue_exposure || {}).basis || "") + '">NULL</span>';
-          var nug = (r.earnings_nuggets || []).length ? "<details><summary>" + r.earnings_nuggets.length + " nugget(s)</summary>" +
+            '<span class="muted" title="' + esc((r.theme_revenue_exposure || {}).basis || "") + '">null</span>';
+          var nug = (r.earnings_nuggets || []).length ? "<details><summary>" + r.earnings_nuggets.length + " earnings nugget(s)</summary>" +
             r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + " · <a href='" + esc(n.url) + "'>" + esc(n.accession) + "</a></div></blockquote>"; }).join("") + "</details>" : "";
-          var dived = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">dive →</a>' : chip(r.status);
-          return "<tr><td><b>" + esc(r.ticker) + "</b><div class='muted'>" + esc(r.name || "") + " · " + esc(r.exchange || "") + "</div>" + nug + "</td><td>" + tierChip(r.tier) + "</td><td class='small' style='max-width:260px'>" + esc(r.thesis_1line) + "</td><td>" + ex + "</td><td>" + f + "</td><td>" + cw + "</td><td>" + dived + "</td></tr>";
+          var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">Dive →</a>' :
+            r.status === "CANDIDATE" ? "" : chip(r.status);
+          return "<tr><td><div class='tk-name'>" + esc(r.ticker) + "</div><div class='tk-co'>" + esc(r.name || "") + " · " + esc(r.exchange || "") + "</div>" + nug + "</td>" +
+            "<td>" + tierChip(r.tier) + "</td><td class='small' style='max-width:280px'>" + esc(r.thesis_1line) + "</td>" +
+            "<td>" + ex + "</td><td>" + f + "</td><td>" + cw + "</td><td>" + act + "</td></tr>";
         }).join("") + "</tbody></table></div>";
     }).join("");
-    var gaps = (sc.data_gaps || []);
-    return topbar() + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "Screen · " + scenId }]) + "<main>" +
-      "<h1>" + esc(scen ? scen.title : scenId) + " — stock screen</h1>" +
-      "<p class='lead section-note'>" + esc(sc.universe_note) + "</p>" + body +
-      ((sc.taste_filtered || []).length ? "<div class='card small' style='margin-top:12px'><b>Filtered by taste:</b> " + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
-      (gaps.length ? "<div style='margin-top:14px'>" + cmdPill("run screen " + chainId + " " + scenId, "re-run once fetched data lands (" + gaps.length + " names pending)") + "</div>" : "") +
-      "<div class='healthline'>examined " + esc((sc.health || {}).tickers_examined) + " · fully scored " + esc((sc.health || {}).fully_scored) + " · pending " + esc((sc.health || {}).pending) + " · errors " + esc((sc.health || {}).errors) + "</div>" +
+    var gaps = sc.data_gaps || [];
+    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "Screen " + scenId }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip(scenId) + chip((sc.health || {}).fully_scored + "/" + (sc.health || {}).tickers_examined + " scored") + "</div>" +
+      "<h1>" + esc(scen ? scen.title : scenId) + "</h1>" +
+      "<p class='sub'>" + esc(sc.universe_note) + "</p></div>" + body +
+      ((sc.taste_filtered || []).length ? '<div class="callout" style="margin-top:16px"><b>Filtered by taste:</b> ' + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
+      (gaps.length ? "<div style='margin-top:18px'>" + runButton("run screen " + chainId + " " + scenId, "re-scores once fetched data lands (" + gaps.length + " names pending)") + "</div>" : "") +
+      "<div class='healthline'>examined " + esc((sc.health || {}).tickers_examined) + " · scored " + esc((sc.health || {}).fully_scored) + " · pending " + esc((sc.health || {}).pending) + " · errors " + esc((sc.health || {}).errors) + "</div>" +
       notesBlock(sc) + changelogBlock(sc) + footer() + "</main>";
   }
 
@@ -346,46 +548,55 @@
     var c = byId(D.chains, chainId);
     var mk = marketFor(ticker);
     var pos = (D.trades || []).filter(function (t) { return t.ticker === ticker; });
-    var vb = '<div class="verdictbar ' + esc(st.verdict) + '"><span class="v">' + esc(st.verdict.replace("_", " ")) + "</span>" +
-      chip(st.clock) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") + tierChip(st.tier) +
-      (pos.length ? chip("in book: " + pos.map(function (t) { return t.action + " @ " + t.price; }).join(", "), "accent") : "") +
-      '<span class="spacer" style="flex:1"></span><span class="muted">review by <span class="num">' + esc(st.review_by) + "</span></span></div>";
-    var zones = st.verdict === "INVESTABLE" && st.entry_zone ?
-      "<div class='card'><h3>Entry logic</h3><div class='kv'><dt>Entry zone</dt><dd class='num'>" + fmtMoney(st.entry_zone.low) + " – " + fmtMoney(st.entry_zone.high) + "</dd>" +
-      "<dt>No entry above</dt><dd class='num'>" + fmtMoney(st.no_entry_above) + "</dd><dt>Basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd></div></div>" :
-      st.verdict === "WATCH" ? "<div class='card'><h3>Watch triggers</h3><ul class='bullets'>" + (st.watch_triggers || []).map(function (t) { return "<li>" + esc(t.metric) + " " + esc(t.direction || "") + " <span class='num'>" + esc(t.level) + "</span></li>"; }).join("") + "</ul></div>" :
-      "<div class='card'><h3>Shadow tracking</h3><div class='small'>TOO LATE calls are graded: this name was added to the <a href='#/shadow'>shadow book</a> and is repriced at +90 days vs SPY.</div></div>";
-    var rt = st.red_team ? "<div class='card redteam'><h3>Red team · attacked " + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</h3>" +
-      (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:6px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
-      (st.red_team.amendments ? "<div class='small'><b>Amendments:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
-      "<div class='small' style='margin-top:8px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>" :
-      "<div class='card redteam'><h3>Red team</h3><div class='small'>This dive is DRAFT — it becomes FINAL only after a fresh-context attack.</div><div style='margin-top:8px'>" + cmdPill("run redteam " + ticker + " " + chainId) + "</div></div>";
+    var zone = "";
+    if (st.verdict === "INVESTABLE" && st.entry_zone) {
+      zone = '<div class="zone"><span class="zl">Entry zone</span><span class="zv">' + fmtMoney(st.entry_zone.low) + "–" + fmtMoney(st.entry_zone.high) + "</span></div>" +
+        '<div class="zone"><span class="zl">No entry above</span><span class="zv">' + fmtMoney(st.no_entry_above) + "</span></div>";
+    } else if (st.verdict === "WATCH") {
+      zone = '<div class="zone"><span class="zl">Waiting on</span><span class="zv" style="font-size:14px">' +
+        (st.watch_triggers || []).map(function (t) { return esc(t.metric) + " " + esc(t.direction || "") + " " + esc(t.level); }).join(" · ") + "</span></div>";
+    } else {
+      zone = '<div class="zone"><span class="zl">Shadow book</span><span class="zv" style="font-size:14px"><a href="#/shadow">graded at +90d vs SPY →</a></span></div>';
+    }
+    var hero = '<div class="vhero ' + esc(st.verdict) + '">' +
+      '<span class="vword"><span class="dot"></span>' + esc(st.verdict.replace("_", " ")) + "</span>" + zone +
+      '<span class="right">' + chip(st.clock) + tierChip(st.tier) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") +
+      (pos.length ? chip("in book @ " + pos[pos.length - 1].price, "accent") : "") +
+      '<span class="muted">review <span class="num">' + esc(st.review_by) + "</span></span></span></div>";
+    var rt = st.red_team
+      ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
+        (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
+        (st.red_team.amendments ? "<div class='small'><b>Amended:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
+        "<div class='small' style='margin-top:10px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
+      : '<div class="card redteam"><div class="rt-label">Red team</div><div class="small" style="margin-top:8px">This dive is DRAFT — it becomes FINAL only after a fresh-context attack.</div><div style="margin-top:12px">' + runButton("run redteam " + ticker + " " + chainId) + "</div></div>";
+    var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
+      "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
+      "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
+      (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + "]</span></dd>"; }).join("") +
+      (st.entry_zone ? "<dt>Entry basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") + "</div></div>";
     var priced = "<div class='card'><h3>What is already priced in</h3>" +
       (st.what_is_priced_in || []).map(function (p) { return "<div class='evli'>" + chip(p.tag) + " " + esc(p.expectation) + "</div>"; }).join("") +
-      "<div class='small' style='margin-top:8px'>" + esc(st.priced_in_summary || "") + "</div></div>";
-    var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
-      "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", as of " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
-      "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
-      (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + ", " + esc(l.as_of) + "]</span></dd>"; }).join("") + "</div></div>";
-    return topbar() + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
-      (st.fixture ? '<div class="fixturebanner">FIXTURE PAGE — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
-      "<h1 style='margin-top:10px'>" + esc(st.ticker) + " <span class='muted' style='font-weight:400;font-size:15px'>" + esc(st.name || "") + "</span></h1>" + vb +
-      "<h2>Price</h2><div class='card'>" + priceChart(mk, st) + "</div>" +
-      "<div class='twocol' style='margin-top:12px'>" + zones + val + "</div>" +
-      "<div class='twocol' style='margin-top:12px'><div class='card'><h3 style='color:var(--good)'>Bull</h3><ul class='bullets'>" + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
-      "<div class='card'><h3 style='color:var(--bad)'>Bear</h3><ul class='bullets'>" + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
-      "<div style='margin-top:12px'>" + priced + "</div>" +
-      "<div style='margin-top:12px'>" + rt + "</div>" +
+      "<div class='small' style='margin-top:10px'>" + esc(st.priced_in_summary || "") + "</div></div>";
+    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
+      (st.fixture ? '<div class="fixturebanner">Fixture page — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
+      '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
+      seclabel("Price") + "<div class='card'>" + priceChart(mk, st) + "</div>" +
+      seclabel("The case") +
+      '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
+      '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
+      seclabel("Diligence") +
+      '<div class="statgrid">' + priced + val + "</div>" +
+      "<div style='margin-top:14px'>" + rt + "</div>" +
       notesBlock(st) + changelogBlock(st) + footer() + "</main>";
   }
   function priceChart(mk, st) {
     if (!mk || !mk.series || !(mk.series.rows || []).length) {
-      return '<div class="emptystate">No price series yet.<br><br>' + cmdPill("request data " + st.ticker, "queues a fetch; the workflow fills data/market in ~5 minutes") + "</div>";
+      return '<div class="emptystate">No price series yet.<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
     }
     var rows = mk.series.rows;
     var step = Math.max(1, Math.floor(rows.length / 420));
     var pts = rows.filter(function (_, i) { return i % step === 0 || i === rows.length - 1; });
-    var W = 900, H = 380, P = { l: 56, r: 74, t: 18, b: 34 };
+    var W = 940, H = 360, P = { l: 52, r: 76, t: 30, b: 34 };
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
     var vals = pts.map(function (r) { return r[1]; });
     var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
@@ -394,32 +605,32 @@
     function X(i) { return P.l + (i / (pts.length - 1)) * iw; }
     function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
     var s = '<div class="chartwrap"><svg id="pxchart" viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="price chart">';
-    if (st.entry_zone) s += '<rect x="' + P.l + '" y="' + Y(st.entry_zone.high) + '" width="' + iw + '" height="' + (Y(st.entry_zone.low) - Y(st.entry_zone.high)) + '" fill="var(--band-good)"/><text x="' + (P.l + 6) + '" y="' + (Y(st.entry_zone.high) + 13) + '" font-size="10" fill="var(--und)">entry zone</text>';
-    if (st.no_entry_above) s += '<rect x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + Math.max(0, Y(st.no_entry_above) - P.t) + '" fill="var(--band-bad)"/><text x="' + (P.l + 6) + '" y="' + (P.t + 13) + '" font-size="10" fill="var(--ovr)">no entry</text>';
-    var ticks = 5;
-    for (var t = 0; t <= ticks; t++) {
-      var v = lo + ((hi - lo) * t) / ticks;
+    if (st.entry_zone) s += '<rect x="' + P.l + '" y="' + Y(st.entry_zone.high) + '" width="' + iw + '" height="' + (Y(st.entry_zone.low) - Y(st.entry_zone.high)) + '" fill="var(--band-good)"/><text x="' + (P.l + 8) + '" y="' + (Y(st.entry_zone.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">ENTRY ZONE</text>';
+    if (st.no_entry_above) s += '<rect x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + Math.max(0, Y(st.no_entry_above) - P.t) + '" fill="var(--band-bad)"/><text x="' + (P.l + 8) + '" y="' + (P.t + 14) + '" font-size="10" font-weight="600" fill="var(--ovr)">NO ENTRY</text>';
+    for (var t = 0; t <= 4; t++) {
+      var v = lo + ((hi - lo) * t) / 4;
       s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
-      s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t">' + v.toFixed(0) + "</text>";
+      s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(0) + "</text>";
     }
     var lbl = Math.max(1, Math.floor(pts.length / 6));
-    pts.forEach(function (r, i) { if (i % lbl === 0) s += '<text x="' + X(i) + '" y="' + (H - P.b + 16) + '" text-anchor="middle" font-size="9.5" class="mono-t">' + esc(r[0].slice(0, 7)) + "</text>"; });
-    (st.events || []).forEach(function (e) {
+    pts.forEach(function (r, i) { if (i % lbl === 0 && i < pts.length - 3) s += '<text x="' + X(i) + '" y="' + (H - P.b + 16) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(r[0].slice(0, 7)) + "</text>"; });
+    (st.events || []).forEach(function (e, ei) {
       var idx = -1;
       pts.forEach(function (r, i) { if (idx < 0 && r[0] >= e.date) idx = i; });
       if (idx < 0) return;
-      s += '<line x1="' + X(idx) + '" y1="' + P.t + '" x2="' + X(idx) + '" y2="' + (H - P.b) + '" stroke="var(--ink-3)" stroke-dasharray="2 4"/>' +
-        '<text x="' + X(idx) + '" y="' + (P.t - 4 + (((st.events.indexOf(e)) % 2) * 0)) + '" text-anchor="middle" font-size="9" fill="var(--ink-3)">' + esc(e.label.length > 24 ? e.label.slice(0, 23) + "…" : e.label) + "</text>";
+      var lyy = ei % 2 === 0 ? P.t - 6 : P.t - 18;
+      s += '<line x1="' + X(idx) + '" y1="' + (P.t - 2) + '" x2="' + X(idx) + '" y2="' + (H - P.b) + '" stroke="var(--chart-axis)" stroke-dasharray="2 4"/>' +
+        '<text x="' + X(idx) + '" y="' + lyy + '" text-anchor="middle" font-size="9" fill="var(--ink-3)">' + esc(e.label.length > 26 ? e.label.slice(0, 25) + "…" : e.label) + "</text>";
     });
     var path = pts.map(function (r, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(r[1]).toFixed(1); }).join("");
     s += '<path d="' + path + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
     var last = pts[pts.length - 1];
     s += '<circle cx="' + X(pts.length - 1) + '" cy="' + Y(last[1]) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
-    s += '<text x="' + (X(pts.length - 1) + 8) + '" y="' + (Y(last[1]) + 4) + '" font-size="11" font-weight="600" class="mono-t" fill="var(--ink)">' + last[1] + "</text>";
+    s += '<text x="' + (X(pts.length - 1) + 9) + '" y="' + (Y(last[1]) + 4) + '" font-size="11.5" font-weight="650" class="mono-t" fill="var(--ink)">' + last[1] + "</text>";
     s += '<rect id="pxhover" x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
     s += "</svg></div>";
-    s += '<div class="muted num" style="margin-top:6px">prices [' + esc(mk.series.source) + ", as of " + esc(mk.series.as_of) + "] · " + esc(mk.price_status) +
-      (mk.price_status === "DISPUTED" ? " — both prints shown in data/market, never averaged" : "") + "</div>";
+    s += '<div class="muted num" style="margin-top:8px">prices [' + esc(mk.series.source) + ", as of " + esc(mk.series.as_of) + "] · " + esc(mk.price_status) +
+      (mk.price_status === "DISPUTED" ? " — both prints kept in data/market, never averaged" : "") + "</div>";
     window.__px = { pts: pts, X: X, Y: Y, P: P, W: W };
     return s;
   }
@@ -430,47 +641,47 @@
     var rows = trades.map(function (t) {
       var st = null;
       (D.stocks || []).forEach(function (s) { if (s.ticker === t.ticker) st = s; });
-      return "<tr><td class='num'>" + esc((t.ts || "").slice(0, 10)) + "</td><td><b>" + esc(t.ticker) + "</b></td><td>" + chip(t.action) + "</td><td class='num'>" + fmtMoney(t.price) + "</td><td>" + esc(t.by) + "</td><td>" +
-        (st ? '<a href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '">' + chip(st.verdict, st.verdict) + "</a>" : "<span class='muted'>no dive</span>") + "</td><td class='small'>" + esc(t.note || "") + "</td></tr>";
+      return "<tr><td class='num'>" + esc((t.ts || "").slice(0, 10)) + "</td><td class='tk-name'>" + esc(t.ticker) + "</td><td>" + chip(t.action) + "</td><td class='num'>" + fmtMoney(t.price) + "</td><td>" + esc(t.by) + "</td><td>" +
+        (st ? '<a href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '">' + chip(st.verdict.replace("_", " "), st.verdict) + "</a>" : "<span class='muted'>no dive</span>") + "</td><td class='small'>" + esc(t.note || "") + "</td></tr>";
     }).join("");
-    return topbar() + crumbs([{ label: "Book" }]) + "<main><h1>Book</h1><p class='lead'>Real positions, logged one line at a time. Calibration measures your money, not hypotheticals.</p>" +
+    return topbar("book") + "<main><div class='pagehead'><h1>Book</h1><p class='sub'>Real positions, one line each. Calibration measures your money, not hypotheticals.</p></div>" +
       (trades.length ? '<div class="tablewrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Action</th><th>Price</th><th>By</th><th>Machine call</th><th>Note</th></tr></thead><tbody>' + rows + "</tbody></table></div>" :
-        '<div class="emptystate">No trades logged.<br><br>' + cmdPill('log trade VRT bought 112 "starter position"') + "</div>") +
+        '<div class="emptystate">No trades logged yet.<div style="margin-top:12px">' + cmdline('log trade VRT bought 112 "starter position"') + "</div></div>") +
       footer() + "</main>";
   }
   function shadowView() {
     var rows = ((D.shadow || {}).book || {}).rows || [];
-    var res = ((D.shadow || {}).results) || {};
+    var res = (D.shadow || {}).results || {};
     var right = 0, graded = 0;
     var body = rows.map(function (r) {
       var x = res[r.id];
       if (x && x.call) { graded++; if (x.call === "RIGHT") right++; }
-      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td><b>" + esc(r.ticker) + "</b></td><td>" + chip(r.origin) + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
-        "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% vs SPY</span> " + chip(x.call, x.call) : chip("awaiting +90d", "neutral")) + "</td></tr>";
+      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'>" + esc(r.ticker) + "</td><td>" + chip(r.origin.replace(/_/g, " ")) + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
+        "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% vs SPY</span> " + chip(x.call, x.call) : chip("awaiting +90d")) + "</td></tr>";
     }).join("");
-    return topbar() + crumbs([{ label: "Shadow book" }]) + "<main><h1>Shadow book</h1><p class='lead'>Every TOO LATE verdict and dismissed signal, repriced at +90 days vs SPY. RIGHT means skipping was correct. The machine's \"no\" gets graded here.</p>" +
-      (graded ? "<div class='card' style='max-width:340px'><h3>TOO LATE hit rate</h3><div class='num' style='font-size:26px;font-weight:700'>" + Math.round((100 * right) / graded) + "%</div><div class='muted'>" + right + " of " + graded + " graded calls were right</div></div>" : "") +
-      (rows.length ? '<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
-        '<div class="emptystate" style="margin-top:12px">Empty — it fills automatically from TOO LATE verdicts and dismissed signals.</div>') +
+    return topbar("shadow") + "<main><div class='pagehead'><h1>Shadow book</h1><p class='sub'>Every TOO LATE verdict and dismissed signal, repriced at +90 days against SPY. RIGHT means skipping was correct — the machine's \"no\" gets graded here.</p></div>" +
+      (graded ? '<div class="card" style="max-width:320px;margin-bottom:16px"><div class="stat"><span class="v">' + Math.round((100 * right) / graded) + '%</span><span class="l">of graded TOO LATE calls were right (' + right + " of " + graded + ")</span></div></div>" : "") +
+      (rows.length ? '<div class="tablewrap"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
+        '<div class="emptystate">Empty — fills automatically from TOO LATE verdicts and dismissed signals.</div>') +
       footer() + "</main>";
   }
 
   /* ---------------- shared blocks ---------------- */
   function notesBlock(obj) {
     var n = obj.notes || [];
-    return "<h2>Notes</h2>" + (n.length ? n.map(function (x) {
+    return seclabel("Notes") + (n.length ? n.map(function (x) {
       return '<div class="note"><span class="who">' + esc(x.by) + " · " + esc((x.ts || "").slice(0, 10)) + "</span><br>" + esc(x.text) + "</div>";
-    }).join("") : "<div class='muted'>none — add one with <span class='mono'>note " + esc(obj.id || obj.ticker || "") + ' "..."</span></div>');
+    }).join("") : '<div class="muted">None — add one from any session: <span class="mono">note ' + esc(obj.id || obj.ticker || "") + ' "…"</span></div>');
   }
   function changelogBlock(obj) {
     var c = (obj.changelog || []).slice().reverse();
     if (!c.length) return "";
-    return "<h2>History</h2><div class='timeline'>" + c.map(function (x) {
+    return seclabel("History") + "<div class='timeline'>" + c.map(function (x) {
       return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
     }).join("") + "</div>";
   }
   function notFound(what) {
-    return topbar() + "<main><div class='emptystate'>Not found: " + esc(what) + '<br><br><a href="#/">back to radar</a></div>' + footer() + "</main>";
+    return topbar() + "<main><div class='emptystate' style='margin-top:40px'>Not found: " + esc(what) + '<br><br><a href="#/">back to radar</a></div>' + footer() + "</main>";
   }
 
   /* ---------------- router & events ---------------- */
@@ -480,6 +691,7 @@
     var html;
     if (!p[0]) html = homeView();
     else if (p[0] === "signal") html = signalView(p[1]);
+    else if (p[0] === "chains") html = chainsView();
     else if (p[0] === "chain") html = chainView(p[1], p[2]);
     else if (p[0] === "screen") html = screenView(p[1], p[2]);
     else if (p[0] === "stock") html = stockView(p[1], p[2]);
@@ -490,8 +702,8 @@
     window.scrollTo(0, 0);
     wire();
   }
-  function wire() {
-    app.querySelectorAll("[data-copy]").forEach(function (b) {
+  function bindCopy(scope) {
+    scope.querySelectorAll("[data-copy]").forEach(function (b) {
       b.addEventListener("click", function (e) {
         e.preventDefault(); e.stopPropagation();
         var txt = b.getAttribute("data-copy");
@@ -500,9 +712,33 @@
         catch (err) { fallbackCopy(txt); done(); }
       });
     });
-    app.querySelectorAll("[data-nav]").forEach(function (b) { b.addEventListener("click", function () { location.hash = b.getAttribute("data-nav"); }); });
+  }
+  function wire() {
+    bindCopy(app);
+    app.querySelectorAll("[data-run]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        enqueue(b.getAttribute("data-run"), b);
+      });
+    });
+    app.querySelectorAll("[data-copyrun]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        var cmd = b.getAttribute("data-copyrun");
+        try { navigator.clipboard.writeText(cmd); } catch (err) { fallbackCopy(cmd); }
+        b.textContent = "Copied ✓ — paste into a Claude session";
+        setTimeout(function () { b.textContent = runLabel(cmd) + " — copy"; }, 2600);
+      });
+    });
+    app.querySelectorAll("[data-stop]").forEach(function (n) {
+      n.addEventListener("click", function (e) { e.stopPropagation(); });
+    });
+    app.querySelectorAll("[data-nav]").forEach(function (n) {
+      n.addEventListener("click", function () { location.hash = n.getAttribute("data-nav"); });
+      n.addEventListener("keydown", function (e) { if (e.key === "Enter") location.hash = n.getAttribute("data-nav"); });
+    });
     app.querySelectorAll("[data-tab]").forEach(function (b) {
-      b.addEventListener("click", function () { chainTab = b.getAttribute("data-tab"); location.hash = "#/chain/" + b.getAttribute("data-chain") + "/" + chainTab; });
+      b.addEventListener("click", function () { location.hash = "#/chain/" + b.getAttribute("data-chain") + "/" + b.getAttribute("data-tab"); });
     });
     app.querySelectorAll("[data-drawer]").forEach(function (n) {
       function open() {
@@ -512,13 +748,19 @@
         if (!l) return;
         var host = document.getElementById("drawerHost");
         host.innerHTML = drawer(c, l);
-        host.querySelector("[data-closedrawer]").addEventListener("click", function () { host.innerHTML = ""; });
-        host.querySelectorAll("[data-copy]").forEach(function (b) {
-          b.addEventListener("click", function () { try { navigator.clipboard.writeText(b.getAttribute("data-copy")); b.textContent = "copied"; } catch (e) { fallbackCopy(b.getAttribute("data-copy")); } });
+        host.querySelectorAll("[data-closedrawer]").forEach(function (x) {
+          x.addEventListener("click", function () { host.innerHTML = ""; });
+        });
+        bindCopy(host);
+        host.querySelectorAll("[data-run]").forEach(function (b) {
+          b.addEventListener("click", function (e) { e.preventDefault(); enqueue(b.getAttribute("data-run"), b); });
         });
       }
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { var host = document.getElementById("drawerHost"); if (host) host.innerHTML = ""; }
     });
     var tb = document.getElementById("themeBtn");
     if (tb) tb.addEventListener("click", cycleTheme);
@@ -534,7 +776,7 @@
         i = Math.max(0, Math.min(px.pts.length - 1, i));
         var pt = px.pts[i];
         tip.innerHTML = "<span class='num'>" + esc(pt[0]) + " · " + pt[1] + "</span>";
-        tip.style.display = "block"; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY - 10 + "px";
+        tip.style.display = "block"; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY - 12 + "px";
       });
       hov.addEventListener("mouseleave", function () { tip.style.display = "none"; });
     }
@@ -558,5 +800,12 @@
 
   window.addEventListener("hashchange", route);
   route();
+  try {
+    var jq = sessionStorage.getItem("upstream.justQueued");
+    if (jq) {
+      sessionStorage.removeItem("upstream.justQueued");
+      toast("Queued: " + jq + " — a live Claude session runs it and this page refreshes with the result.");
+    }
+  } catch (e) {}
   setTimeout(stampVisit, 4000);
 })();
