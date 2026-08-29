@@ -514,6 +514,18 @@ def main():
             counts["failed"] += 1
             print(f"FAILED {req['id']}: {e}")
 
+    feeds_due = is_cron or "--feeds" in sys.argv or \
+        os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+    feeds_summary = None
+    if feeds_due:
+        try:
+            from feeds import run_feeds
+            feeds_summary = run_feeds()
+        except Exception as e:  # feeds must never block the market/EDGAR plane
+            counts["errors"] += 1
+            feeds_summary = {"error": str(e)[:200]}
+            print(f"feeds: run FAILED: {e}")
+
     if is_cron:
         refresh_dive_tickers(counts)
         eval_indicators(trips)
@@ -533,6 +545,8 @@ def main():
     fetch_h["runs"] = (fetch_h.get("runs", []) + [{
         "ts": NOW.isoformat(), "event": os.environ.get("GITHUB_EVENT_NAME", "manual"),
         **counts, "trips": len(trips)}])[-14:]
+    if feeds_summary is not None:
+        health["feeds"] = {"last_run": NOW.isoformat(), "summary": feeds_summary}
     jdump(DATA / "health" / "actions.json", health)
 
     if trips:
