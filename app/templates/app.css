@@ -338,17 +338,52 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .footer { margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--ink-3); max-width: 90ch; }
 
 /* ---------------- cortex ---------------- */
-.cxpanel { padding: 0; overflow: hidden; background: #0a0a0f; border-color: #1d1d28; }
-.cxwrap { position: relative; height: min(660px, 78vh); }
-.cxwrap canvas { display: block; width: 100%; height: 100%; }
-.cx-hud {
-  position: absolute; top: 14px; left: 18px; pointer-events: none;
-  font-family: "JetBrains Mono", monospace; font-size: 10.5px; line-height: 1.8;
-  letter-spacing: 0.4px; color: #585c72; text-transform: uppercase;
+/* The panel commits to its own dark ground in every theme: it is a map, not a card. */
+.cxpanel { padding: 0; overflow: hidden; background: #08080d; border-color: #1b1b26; }
+.cxframe {
+  position: relative; display: grid;
+  grid-template-columns: 186px minmax(0, 1fr) 214px;
+  grid-template-rows: minmax(0, 1fr) 26px;
+  grid-template-areas: "rail-l stage rail-r" "strip strip strip";
+  height: min(720px, 82vh); background: #08080d;
 }
-.cx-hud b { color: #dde0ef; font-weight: 600; }
-.cx-legend {
-  position: absolute; bottom: 10px; left: 18px; right: 18px; pointer-events: none;
-  font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: 0.3px;
-  color: #4c5065; text-align: center;
+.cx-rail-l { grid-area: rail-l; border-right: 1px solid #16161f; }
+.cx-rail-r { grid-area: rail-r; border-left: 1px solid #16161f; }
+.cx-rail-l, .cx-rail-r { overflow: hidden auto; padding: 12px 12px 10px; }
+.cx-stage { grid-area: stage; position: relative; min-width: 0; min-height: 0; }
+.cx-stage canvas { display: block; width: 100%; height: 100%; outline: none; cursor: grab; }
+.cx-strip { grid-area: strip; border-top: 1px solid #16161f; display: flex; align-items: center; gap: 16px; padding: 0 14px; overflow: hidden; }
+.cx-rail-l, .cx-rail-r, .cx-strip {
+  font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7;
+  letter-spacing: .04em; color: #585c72; text-transform: uppercase;
+}
+.cx-strip .cx-read { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9296ad; }
+.cx-strip .cx-s1 { color: #dde0ef; }
+.cx-brackets { position: absolute; inset: 8px; pointer-events: none; }
+.cx-brackets i { position: absolute; width: 18px; height: 18px; }
+.cx-brackets i:nth-child(1) { top: 0; left: 0; border-top: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
+.cx-brackets i:nth-child(2) { top: 0; right: 0; border-top: 1px solid #2c2c3d; border-right: 1px solid #2c2c3d; }
+.cx-brackets i:nth-child(3) { bottom: 0; left: 0; border-bottom: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
+.cx-brackets i:nth-child(4) { bottom: 0; right: 0; border-bottom: 1px solid #2c2c3d; border-right: 1px solid #2c2c3d; }
+.cx-grp { color: #3e4258; margin: 12px 0 4px; padding-bottom: 3px; border-bottom: 1px solid #16161f; }
+.cx-grp:first-child { margin-top: 0; }
+.cx-reg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.cx-reg .v { color: #dde0ef; font-variant-numeric: tabular-nums; }
+.cx-reg .v.dim { color: #585c72; }
+.cx-bar { height: 2px; margin: 1px 0 3px; background: #16161f; }
+.cx-bar i { display: block; height: 2px; }
+.cx-ev { padding: 5px 0; border-bottom: 1px solid #12121a; cursor: default; }
+.cx-ev .t { color: #9296ad; }
+.cx-ev .k { font-weight: 600; }
+.cx-ev .s { display: block; color: #4c5065; text-transform: none; letter-spacing: 0; font-size: 9.5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-mobile { display: none; }
+@media (max-width: 1080px) {
+  .cxframe { grid-template-columns: 168px minmax(0, 1fr); grid-template-areas: "rail-l stage" "strip strip"; }
+  .cx-rail-r { display: none; }
+}
+@media (max-width: 760px) {
+  .cxframe { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "strip"; height: min(560px, 70vh); }
+  .cx-rail-l { display: none; }
+  .cx-mobile { display: block; }
 }

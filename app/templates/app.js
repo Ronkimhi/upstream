@@ -157,8 +157,8 @@
     return '<div class="topbar">' +
       '<a href="#/" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>' +
       '<nav class="nav">' +
-      na("#/", "Radar", "radar") +
-      na("#/cortex", "Cortex", "cortex") +
+      na("#/", "Cortex", "cortex") +
+      na("#/radar", "Radar", "radar") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
       na("#/book", "Book", "book") +
       na("#/shadow", "Shadow", "shadow") +
@@ -171,7 +171,7 @@
       "</div>";
   }
   function crumbs(parts) {
-    var h = '<div class="crumbs"><a href="#/">Radar</a>';
+    var h = '<div class="crumbs"><a href="#/radar">Radar</a>';
     parts.forEach(function (p, i) {
       h += '<span class="sep">/</span>';
       if (p.href && i < parts.length - 1) h += '<a href="' + p.href + '">' + esc(p.label) + "</a>";
@@ -223,11 +223,11 @@
     var nVer = (D.stocks || []).length;
     var one = (D.chains || [])[0];
     var stages = [
-      { n: nSig, l: "Signals", href: "#/" },
+      { n: nSig, l: "Signals", href: "#/radar" },
       { n: nCh, l: nCh === 1 ? "Chain" : "Chains", href: navHrefChains() },
-      { n: nScen, l: "Scenarios", href: one ? "#/chain/" + one.id + "/scen" : "#/" },
-      { n: nScr, l: "Screens", href: nScr && one ? "#/screen/" + D.screens[0].chain_id + "/" + D.screens[0].scenario_id : "#/" },
-      { n: nVer, l: "Verdicts", href: nVer ? "#/stock/" + D.stocks[0].ticker + "/" + D.stocks[0].chain_id : "#/" },
+      { n: nScen, l: "Scenarios", href: one ? "#/chain/" + one.id + "/scen" : "#/radar" },
+      { n: nScr, l: "Screens", href: nScr && one ? "#/screen/" + D.screens[0].chain_id + "/" + D.screens[0].scenario_id : "#/radar" },
+      { n: nVer, l: "Verdicts", href: nVer ? "#/stock/" + D.stocks[0].ticker + "/" + D.stocks[0].chain_id : "#/radar" },
     ];
     var W = 520, H = 132, n = stages.length, gap = 14, segW = (W - gap * (n - 1)) / n;
     var s = '<svg class="funnel" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="pipeline">';
@@ -668,156 +668,455 @@
   }
 
   /* ---------------- cortex ---------------- */
-  /* v2: always-dark canvas constellation. Force-directed hubs (signals) with
-     link halos and ticker leaves, soft past/future gravity around a NOW glow,
-     ambient candidates/events, and an outer dust ring of real feed headlines. */
+  /* v3: the whole machine as one field. d3-force (vendored, ISC) lays out every
+     research object — signals, chains, links, scenarios, screens, names, dives,
+     shadow rows, candidates, known future events — plus a dust halo of raw feed
+     headlines. One graph<->screen transform; zoom, pan, drag, neighbour-dim. */
   var CXP = {
-    bg0: "#0a0a0f", bg1: "#14141c",
+    bg0: "#08080d", bg1: "#14141c",
     ink: "#dde0ef", ink2: "#9296ad", ink3: "#585c72",
     accent: "#8687f0",
     verd: { UNDISCOVERED: "#34c77e", EMERGING: "#e3b23c", CROWDED: "#e97f4e", OVER_CROWDED: "#c14a62" },
+    dive: { INVESTABLE: "#34c77e", WATCH: "#e3b23c", TOO_LATE: "#c14a62" },
     none: "#6a6e86", gold: "#d4a017", bad: "#e05a72",
     fam: { POLICY: "#e3b23c", CORPORATE: "#8687f0", TECH: "#34c77e", PHYSICAL: "#e97f4e", GEO: "#c14a62", MACRO: "#e3b23c", LEGAL: "#e3b23c" }
   };
+  var CX_W = 1200, CX_H = 760, CX_NOWX = 720, CX_CLAMP = 1460;
+  var CX_CHARGE = { sig: -900, chain: -700, scen: -420, screen: -380, dive: -320, shadow: -260, link: -180, evt: -110, cand: -70, co: -60, socket: 0, dust: -3 };
+  var CX_EDGE = {
+    "sig-chain":   { d: 90,  s: 0.55, a: 0.16 },
+    "chain-link":  { d: 120, s: 0.22, a: 0.07 },
+    "link-link":   { d: 58,  s: 0.30, a: 0.13 },
+    "chain-scen":  { d: 150, s: 0.35, a: 0.10 },
+    "scen-link":   { d: 105, s: 0.06, a: 0.035 },
+    "scen-screen": { d: 80,  s: 0.50, a: 0.14 },
+    "screen-co":   { d: 60,  s: 0.35, a: 0.09 },
+    "co-link":     { d: 34,  s: 0.10, a: 0.04 },
+    "dive-co":     { d: 40,  s: 0.60, a: 0.18 },
+    "dive-shadow": { d: 30,  s: 0.70, a: 0.18 }
+  };
+  var CX_ORDER = { sig: 0, chain: 1, link: 2, scen: 3, screen: 4, co: 5, dive: 6, shadow: 7, cand: 8, evt: 9, socket: 10 };
   function cxTrim(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
-  var CX_NOWX = 720, CX_W = 1200, CX_H = 760, CX_CLAMP = 1460;
   function cxTimeX(dateStr) {
     var dx = daysBetween(TODAY, dateStr);
     if (isNaN(dx)) dx = 0;
     var t = Math.sqrt(Math.min(Math.abs(dx), CX_CLAMP) / CX_CLAMP);
-    return dx < 0 ? CX_NOWX - t * 600 : CX_NOWX + t * 400;
+    return dx < 0 ? CX_NOWX - t * 560 : CX_NOWX + t * 380;
   }
-  function cxGraph() {
-    var nodes = [], edges = [], idx = {};
-    function add(n) { idx[n.kind + ":" + n.id] = nodes.length; nodes.push(n); return n; }
-    function link(aKey, bKey, alpha, rest) {
-      var a = idx[aKey], b = idx[bKey];
-      if (a == null || b == null) return;
-      edges.push({ a: a, b: b, alpha: alpha, rest: rest });
+
+  /* ---- graph model: every research object in the payload ---- */
+  function cxBuild() {
+    var nodes = [], edges = [], byKey = {}, i;
+    function add(n) {
+      n.key = n.kind + ":" + n.id;
+      if (byKey[n.key]) return byKey[n.key];
+      n.x = n.x0; n.y = n.y0;
+      byKey[n.key] = n; nodes.push(n); return n;
     }
-    (D.signals || []).forEach(function (sg, si) {
-      if (sg.status === "DISMISSED" || sg.status === "EXPIRED") return;
+    function join(aKey, bKey, type) {
+      if (!byKey[aKey] || !byKey[bKey] || aKey === bKey) return;
+      edges.push({ source: aKey, target: bKey, type: type, alpha: (CX_EDGE[type] || {}).a || 0.06 });
+    }
+    var cx0 = CX_W / 2, cy0 = CX_H / 2;
+    function seedX(t) { return cx0 + (t - 0.5) * 460 + (Math.random() - 0.5) * 90; }
+    function seedY(t) { return cy0 + (t - 0.5) * 300 + (Math.random() - 0.5) * 90; }
+
+    // signals
+    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
+    sigs.forEach(function (sg, si) {
       var occ = sg.occurrence || null;
       var anchor = (occ && occ.anchor_date) || sg.created_at || TODAY;
       var un = (sg.unmappedness || {}).score || 0;
       var tx = cxTimeX(anchor);
       add({
-        kind: "sig", id: sg.id, ref: sg, r: 14 + 16 * un / 100, color: CXP.accent,
-        dashed: occ && occ.kind === "SCHEDULED", tx: tx, txw: 0.012,
-        label: cxTrim(sg.title, 38),
-        desc: occ ? cxTrim(occ.label, 44) + " · " + anchor : "occurrence undated",
-        x: tx + (Math.random() - 0.5) * 40, y: CX_H * (0.32 + 0.36 * (si % 2)) + (Math.random() - 0.5) * 60
-      });
-      var c = sg.chain_id ? byId(D.chains, sg.chain_id) : null;
-      if (!c) return;
-      var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
-      links.forEach(function (l, i) {
-        var hub = nodes[idx["sig:" + sg.id]];
-        var a = -Math.PI / 2 + i * (2 * Math.PI / links.length);
-        var v = (l.heat || {}).verdict;
-        add({
-          kind: "link", id: l.id, ref: l, chainId: c.id, r: 3.2 + ((l.heat && l.heat.impact && l.heat.impact.score) || 40) / 55,
-          color: v ? CXP.verd[v] : CXP.none, gold: !!(l.heat && l.heat.money_corner),
-          choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
-          tip: l.name + (v ? " — " + v.replace("_", " ") : " — unscored"),
-          x: hub.x + (hub.r + 60) * Math.cos(a), y: hub.y + (hub.r + 60) * Math.sin(a)
-        });
-        link("link:" + l.id, "sig:" + sg.id, 0.05, hub.r + 52);
-        (l.example_tickers || []).slice(0, 4).forEach(function (t, ti) {
-          var me = nodes[idx["link:" + l.id]];
-          var key = l.id + "/" + t;
-          add({
-            kind: "tick", id: key, tip: t, r: 1.8, color: CXP.ink3,
-            x: me.x + (Math.random() - 0.5) * 40, y: me.y + (Math.random() - 0.5) * 40
-          });
-          link("tick:" + key, "link:" + l.id, 0.045, 20 + ti * 3);
-        });
-      });
-      links.forEach(function (l) {
-        (l.upstream_of || []).forEach(function (u) { link("link:" + l.id, "link:" + u, 0.13, 52); });
+        kind: "sig", id: sg.id, ref: sg, rSem: 13 + 13 * un / 100, color: CXP.accent,
+        dashed: !!(occ && occ.kind === "SCHEDULED"), tx: tx, txw: 0.012,
+        label: cxTrim(sg.title, 34),
+        sub: occ ? cxTrim(occ.label, 40) + " · " + anchor : "occurrence undated",
+        tip: sg.title + " — " + (occ ? occ.kind + " · " + anchor : "undated"),
+        x0: tx + (Math.random() - 0.5) * 60,
+        y0: CX_H * (0.26 + 0.5 * ((si % 3) / 2)) + (Math.random() - 0.5) * 70
       });
     });
+
+    // chains (iterate directly; attach via signal_id so an orphaned chain still draws)
+    (D.chains || []).forEach(function (c, ci) {
+      var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
+      var scored = links.filter(function (l) { return l.heat && l.heat.crowdedness && l.heat.crowdedness.score != null; }).length;
+      var host = c.signal_id && byKey["sig:" + c.signal_id];
+      var hx = host ? host.x0 : seedX(ci / Math.max(1, (D.chains || []).length));
+      var hy = host ? host.y0 + 120 : cy0;
+      add({
+        kind: "chain", id: c.id, ref: c, rSem: 10 + 6 * (links.length ? scored / links.length : 0),
+        color: CXP.accent, label: cxTrim(c.title, 30),
+        sub: links.length + " links · " + scored + " scored",
+        tip: c.title + " — " + links.length + " links, " + scored + " scored",
+        arcs: links.map(function (l) { return (l.heat || {}).verdict || null; }),
+        x0: hx + (Math.random() - 0.5) * 40, y0: hy + (Math.random() - 0.5) * 40
+      });
+      if (host) join("chain:" + c.id, "sig:" + c.signal_id, "sig-chain");
+      links.forEach(function (l, li) {
+        var a = (-90 + li * (360 / Math.max(1, links.length))) * Math.PI / 180;
+        var h = l.heat || {};
+        add({
+          kind: "link", id: c.id + "/" + l.id, ref: l, chainId: c.id,
+          rSem: 3.0 + ((h.impact && h.impact.score) || 40) / 50,
+          color: h.verdict ? CXP.verd[h.verdict] : CXP.none,
+          gold: !!h.money_corner, choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
+          label: cxTrim(l.name, 22),
+          tip: l.name + (h.verdict ? " — " + h.verdict.replace("_", " ") : " — unscored") + (h.money_corner ? " · ★ money corner" : ""),
+          x0: hx + 130 * Math.cos(a), y0: hy + 130 * Math.sin(a)
+        });
+        join("link:" + c.id + "/" + l.id, "chain:" + c.id, "chain-link");
+      });
+      links.forEach(function (l) {
+        (l.upstream_of || []).forEach(function (u) {
+          join("link:" + c.id + "/" + l.id, "link:" + c.id + "/" + u, "link-link");
+        });
+      });
+      (c.scenarios || []).forEach(function (s, si2) {
+        var col = s.status === "SCREENED" ? CXP.verd.UNDISCOVERED
+          : (s.status === "INVALIDATED" || s.status === "PLAYED_OUT") ? CXP.ink3 : CXP.accent;
+        add({
+          kind: "scen", id: c.id + "/" + s.id, ref: s, chainId: c.id,
+          rSem: 4.5 + 7 * ((s.probability_pct || 0) / 100), color: col,
+          label: s.id, sub: cxTrim(s.title, 26), ty: CX_H * 0.16, tyw: 0.006,
+          tip: s.id + " · " + s.title + " — " + s.probability_pct + "%",
+          x0: hx + (si2 - 1.5) * 90, y0: hy - 180 + (Math.random() - 0.5) * 40
+        });
+        join("scen:" + c.id + "/" + s.id, "chain:" + c.id, "chain-scen");
+        (s.links_moved || []).forEach(function (m) {
+          join("scen:" + c.id + "/" + s.id, "link:" + c.id + "/" + m.link_id, "scen-link");
+        });
+      });
+    });
+
+    // companies: union of example tickers, screened names, dived and shadowed tickers
+    var coSeen = {};
+    function co(ticker, seedNear) {
+      var t = String(ticker || "").trim();
+      if (!t) return null;
+      var k = "co:" + t;
+      if (coSeen[t]) return byKey[k];
+      coSeen[t] = 1;
+      var near = seedNear || { x0: cx0, y0: cy0 };
+      return add({
+        kind: "co", id: t, rSem: 2.0, color: CXP.ink3, label: t,
+        tip: t, hollow: !marketFor(t),
+        x0: near.x0 + (Math.random() - 0.5) * 90, y0: near.y0 + (Math.random() - 0.5) * 90
+      });
+    }
+    (D.chains || []).forEach(function (c) {
+      (c.links || []).forEach(function (l) {
+        var ln = byKey["link:" + c.id + "/" + l.id];
+        (l.example_tickers || []).forEach(function (t) {
+          var n = co(t, ln);
+          if (n) join("co:" + n.id, "link:" + c.id + "/" + l.id, "co-link");
+        });
+      });
+    });
+
+    // screens
+    (D.screens || []).forEach(function (sc) {
+      var names = [];
+      ["pure_play", "picks_and_shovels", "second_order", "hedge"].forEach(function (b) {
+        ((sc.buckets || {})[b] || []).forEach(function (r) { names.push(r); });
+      });
+      var anchorScen = byKey["scen:" + sc.chain_id + "/" + sc.scenario_id];
+      add({
+        kind: "screen", id: sc.id, ref: sc, rSem: 6 + 0.9 * Math.sqrt(names.length || 1),
+        color: CXP.ink2, label: "SCREEN " + sc.scenario_id,
+        sub: names.length + " names", tip: sc.id + " — " + names.length + " names screened",
+        x0: (anchorScen ? anchorScen.x0 : cx0) + 60, y0: (anchorScen ? anchorScen.y0 : cy0) - 60
+      });
+      if (anchorScen) join("scen:" + sc.chain_id + "/" + sc.scenario_id, "screen:" + sc.id, "scen-screen");
+      names.forEach(function (r) {
+        var n = co(r.ticker, byKey["screen:" + sc.id]);
+        if (!n) return;
+        n.tier = r.tier; n.screened = true;
+        n.color = r.tier === "T1" ? CXP.ink : r.tier === "T2" ? CXP.ink2 : CXP.ink3;
+        n.tip = r.ticker + (r.name ? " · " + r.name : "") + " — " + (r.tier || "") + " " + (r.status || "");
+        join("screen:" + sc.id, "co:" + n.id, "screen-co");
+      });
+    });
+
+    // dives
+    (D.stocks || []).forEach(function (st) {
+      var w = st.verdict === "INVESTABLE" ? 1 : st.verdict === "WATCH" ? 0.6 : 0.3;
+      var target = byKey["co:" + st.ticker];
+      add({
+        kind: "dive", id: st.ticker + "__" + st.chain_id, ref: st,
+        rSem: 7 + 4 * w, color: CXP.dive[st.verdict] || CXP.none,
+        dashed: st.status === "DRAFT", label: st.ticker,
+        sub: (st.verdict || "").replace("_", " ").toLowerCase(),
+        tip: st.ticker + " — " + st.verdict + " (" + st.clock + ", " + st.status + ")",
+        ty: CX_H * 0.86, tyw: 0.008,
+        x0: target ? target.x0 : cx0, y0: CX_H * 0.84
+      });
+      var cn = co(st.ticker, byKey["dive:" + st.ticker + "__" + st.chain_id]);
+      if (cn) { cn.dived = true; join("dive:" + st.ticker + "__" + st.chain_id, "co:" + cn.id, "dive-co"); }
+    });
+
+    // shadow rows
+    var sres = (D.shadow || {}).results || {};
+    (((D.shadow || {}).book || {}).rows || []).forEach(function (r, ri) {
+      var call = (sres[r.id] || {}).call;
+      add({
+        kind: "shadow", id: r.id, ref: r, rSem: 4,
+        color: call === "RIGHT" ? CXP.verd.UNDISCOVERED : call === "WRONG" ? CXP.verd.OVER_CROWDED : CXP.none,
+        label: r.ticker, tip: r.ticker + " — shadow " + (call || "awaiting +90d"),
+        ty: CX_H * 0.9, tyw: 0.008, x0: CX_W * 0.8 + ri * 26, y0: CX_H * 0.9
+      });
+      co(r.ticker, byKey["shadow:" + r.id]);
+      (D.stocks || []).forEach(function (st) {
+        if (st.shadow_ref && st.shadow_ref.indexOf(r.id) > -1) join("dive:" + st.ticker + "__" + st.chain_id, "shadow:" + r.id, "dive-shadow");
+      });
+    });
+
+    // ambient candidates + known future events
     (((D.candidates || {}).candidates) || []).forEach(function (cd) {
       if (cd.status !== "AMBIENT") return;
       var tx = cxTimeX(cd.date);
-      add({ kind: "cand", id: cd.id, ref: cd, r: 3.5, color: CXP.fam[cd.family] || CXP.none, tx: tx, txw: 0.01,
-            tip: cxTrim(cd.title, 60) + " · " + cd.family, x: tx + (Math.random() - 0.5) * 80, y: CX_H * (0.2 + Math.random() * 0.6) });
+      add({
+        kind: "cand", id: cd.id, ref: cd, rSem: 3.5, color: CXP.fam[cd.family] || CXP.none,
+        tx: tx, txw: 0.010, label: cxTrim(cd.title, 20),
+        tip: cd.title + " — " + cd.family + " · " + cd.date,
+        x0: tx + (Math.random() - 0.5) * 90, y0: CX_H * (0.62 + Math.random() * 0.26)
+      });
     });
     (((D.calendar || {}).events) || []).forEach(function (ev) {
       if (ev.status !== "WATCHING") return;
       var tx = cxTimeX(ev.date);
-      add({ kind: "evt", id: ev.id, ref: ev, r: 4, dashed: true, color: CXP.fam[ev.kind] || CXP.none, tx: tx, txw: 0.014,
-            tip: cxTrim(ev.title, 60) + " · " + ev.date, x: tx + (Math.random() - 0.5) * 60, y: CX_H * (0.25 + Math.random() * 0.5) });
+      add({
+        kind: "evt", id: ev.id, ref: ev, rSem: 4, dashed: true, color: CXP.fam[ev.kind] || CXP.none,
+        tx: tx, txw: 0.014, label: cxTrim(ev.title, 20),
+        tip: ev.title + " — " + ev.kind + " · " + ev.date,
+        x0: tx + (Math.random() - 0.5) * 60, y0: CX_H * (0.2 + Math.random() * 0.3)
+      });
     });
-    return { nodes: nodes, edges: edges };
+
+    // sockets: an empty funnel stage still shows its shape
+    function socket(id, label, gx, gy, nav, note) {
+      add({ kind: "socket", id: id, rSem: 16, color: CXP.ink3, dashed: true, socket: true,
+            label: label + " · 0", nav: nav, tip: note, fx: gx, fy: gy, x0: gx, y0: gy });
+    }
+    if (!(D.screens || []).length) socket("screen", "SCREEN", CX_W * 0.80, CX_H * 0.30, null, "no scenario screened yet");
+    if (!(D.stocks || []).length) socket("dive", "DIVE", CX_W * 0.72, CX_H * 0.86, null, "no deep dive yet");
+    if (!(((D.shadow || {}).book || {}).rows || []).length) socket("shadow", "SHADOW", CX_W * 0.90, CX_H * 0.86, "#/shadow", "no TOO LATE verdict graded yet");
+    if (!(((D.candidates || {}).candidates) || []).filter(function (c) { return c.status === "AMBIENT"; }).length)
+      socket("cand", "AMBIENT", CX_NOWX - 300, CX_H * 0.80, null, "run radar to triage the feed");
+    if (!(((D.calendar || {}).events) || []).filter(function (e) { return e.status === "WATCHING"; }).length)
+      socket("evt", "KNOWN FUTURE", CX_NOWX + 230, CX_H * 0.22, null, "no dated future event tracked yet");
+
+    // adjacency + degree-weighted radii (bounded, additive: degree never swamps semantics)
+    var adj = {}, deg = {};
+    nodes.forEach(function (n) { adj[n.key] = {}; deg[n.key] = 0; });
+    edges.forEach(function (e) {
+      adj[e.source][e.target] = 1; adj[e.target][e.source] = 1;
+      deg[e.source]++; deg[e.target]++;
+    });
+    nodes.forEach(function (n) {
+      n.r = n.rSem + (n.kind === "socket" ? 0 : Math.min(6, 1.25 * Math.sqrt(Math.max(0, deg[n.key] - 1))));
+    });
+
+    // feed dust: real headlines, laid out on an annulus (seats filled after warm-up)
+    var dust = ((D.feeds || {}).items || []);
+    for (i = 0; i < dust.length; i++) {
+      var it = dust[i];
+      add({
+        kind: "dust", id: "d" + i, ref: it, rSem: 1.5, r: 1.5,
+        color: CXP.fam[it.f] || CXP.ink3, seat: i,
+        tip: cxTrim(it.t, 84) + " — " + (it.s || "") + " · " + ((it.d || "").slice(0, 10)),
+        x0: cx0 + (Math.random() - 0.5) * 900, y0: cy0 + (Math.random() - 0.5) * 620
+      });
+    }
+    return { nodes: nodes, edges: edges, byKey: byKey, adj: adj, deg: deg, ring: null, builtAt: D.built_at };
   }
-  function cxSettle(g, ticks) {
-    for (var t = 0; t < ticks; t++) cxTick(g, 1);
-    return g;
-  }
-  function cxTick(g, alpha) {
-    var N = g.nodes, E = g.edges, i, j;
-    for (i = 0; i < N.length; i++) {
-      var a = N[i];
-      for (j = i + 1; j < N.length; j++) {
-        var b = N[j];
-        var dx = a.x - b.x, dy = a.y - b.y;
-        var d2 = dx * dx + dy * dy + 0.01;
-        if (d2 > 90000) continue;
-        var f = alpha * 260 * (a.r + b.r) / d2;
-        if (f > 4) f = 4;
-        var d = Math.sqrt(d2);
-        a.vx = (a.vx || 0) + f * dx / d; a.vy = (a.vy || 0) + f * dy / d;
-        b.vx = (b.vx || 0) - f * dx / d; b.vy = (b.vy || 0) - f * dy / d;
+
+  /* ---- simulation (vendored d3-force; we own the clock) ---- */
+  function cxRingForce(g) {
+    var ns;
+    function force(alpha) {
+      if (!g.ring) return;
+      for (var i = 0; i < ns.length; i++) {
+        var n = ns[i];
+        if (n.kind !== "dust" || n.sx == null) continue;
+        n.vx += (n.sx - n.x) * 0.08 * alpha;
+        n.vy += (n.sy - n.y) * 0.08 * alpha;
       }
     }
-    for (i = 0; i < E.length; i++) {
-      var e = E[i], p = N[e.a], q = N[e.b];
-      var ex = q.x - p.x, ey = q.y - p.y;
-      var el = Math.sqrt(ex * ex + ey * ey) + 0.01;
-      var s = alpha * 0.02 * (el - (e.rest || 50)) / el;
-      p.vx = (p.vx || 0) + s * ex; p.vy = (p.vy || 0) + s * ey;
-      q.vx = (q.vx || 0) - s * ex; q.vy = (q.vy || 0) - s * ey;
+    force.initialize = function (_) { ns = _; };
+    return force;
+  }
+  function cxSeats(g) {
+    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    g.nodes.forEach(function (n) {
+      if (n.kind === "dust") return;
+      if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
+    });
+    if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
+    var cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    var r0 = 0.62 * Math.max(maxX - minX, maxY - minY), band = 0.28 * r0;
+    g.ring = { cx: cx, cy: cy, r0: r0, band: band };
+    g.nodes.forEach(function (n) {
+      if (n.kind !== "dust") return;
+      var ang = n.seat * 2.399963 + 0.13;
+      var rad = r0 + band * ((n.seat * 0.6180339) % 1);
+      n.sx = cx + rad * Math.cos(ang);
+      n.sy = cy + rad * Math.sin(ang) * 0.92;
+    });
+  }
+  function cxSim(g) {
+    var sim = d3.forceSimulation(g.nodes)
+      .velocityDecay(0.55)
+      .force("charge", d3.forceManyBody().theta(0.9).distanceMin(2).distanceMax(420)
+        .strength(function (n) { return CX_CHARGE[n.kind] != null ? CX_CHARGE[n.kind] : -80; }))
+      .force("link", d3.forceLink(g.edges).id(function (n) { return n.key; })
+        .distance(function (e) { return (CX_EDGE[e.type] || {}).d || 80; })
+        .strength(function (e) { return (CX_EDGE[e.type] || {}).s || 0.2; }))
+      .force("collide", d3.forceCollide(function (n) { return n.kind === "dust" ? 1.8 : n.r + 2; }).strength(0.65))
+      .force("x", d3.forceX(function (n) { return n.tx != null ? n.tx : CX_W / 2; })
+        .strength(function (n) { return n.kind === "dust" ? 0 : (n.txw != null ? n.txw : 0.0015); }))
+      .force("y", d3.forceY(function (n) { return n.ty != null ? n.ty : CX_H / 2; })
+        .strength(function (n) { return n.kind === "dust" ? 0 : (n.tyw != null ? n.tyw : 0.003); }))
+      .force("ring", cxRingForce(g));
+    sim.stop();
+    var i;
+    for (i = 0; i < 70; i++) sim.tick();     // structure first, dust free
+    cxSeats(g);                               // annulus from the settled core
+    for (i = 0; i < 20; i++) sim.tick();     // dust snaps toward its seats
+    var bad = false;
+    g.nodes.forEach(function (n) { if (!isFinite(n.x) || !isFinite(n.y)) bad = true; });
+    if (bad) {
+      g.nodes.forEach(function (n) { n.x = n.x0; n.y = n.y0; n.vx = n.vy = 0; });
+      for (i = 0; i < 60; i++) sim.tick();
     }
-    for (i = 0; i < N.length; i++) {
-      if (N[i].kind !== "sig") continue;
-      for (j = i + 1; j < N.length; j++) {
-        if (N[j].kind !== "sig") continue;
-        var hx = N[i].x - N[j].x, hy = N[i].y - N[j].y;
-        var hd = Math.sqrt(hx * hx + hy * hy) + 0.01;
-        var want = (N[i].r + N[j].r) * 3 + 240;
-        if (hd < want) {
-          var hf = alpha * 0.028 * (want - hd);
-          N[i].vx += hf * hx / hd; N[i].vy += hf * hy / hd;
-          N[j].vx -= hf * hx / hd; N[j].vy -= hf * hy / hd;
-        }
+    return sim;
+  }
+
+  /* ---- view: one graph<->screen transform for everything ---- */
+  var CX_CACHE = null;
+  function cxFit(g, w, h) {
+    // frame the research core; the dust halo is allowed to bleed off-canvas
+    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    g.nodes.forEach(function (n) {
+      if (n.kind === "dust") return;
+      if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
+    });
+    if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
+    var gw = Math.max(maxX - minX, 300), gh = Math.max(maxY - minY, 240);
+    var k = Math.max(0.25, Math.min(4, Math.min((w * 0.86) / gw, (h * 0.88) / gh)));
+    return { k: k, tx: w / 2 - k * (minX + maxX) / 2, ty: h / 2 - k * (minY + maxY) / 2 };
+  }
+
+  /* ---- instrument rails: every register is real data ---- */
+  function cxReg(k, v, dim) { return '<div class="cx-reg"><span class="k">' + esc(k) + '</span><span class="v' + (dim ? " dim" : "") + '">' + esc(v) + "</span></div>"; }
+  function cxBar(share, color) { return '<div class="cx-bar"><i style="width:' + Math.round(share * 100) + "%;background:" + color + '"></i></div>'; }
+  function cxAgeDays(ts) { if (!ts) return null; var d = daysBetween(String(ts).slice(0, 10), TODAY); return isNaN(d) ? null : d; }
+  function cxRailLeft() {
+    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
+    var links = [], scens = 0;
+    (D.chains || []).forEach(function (c) { links = links.concat(c.links || []); scens += (c.scenarios || []).length; });
+    var names = {};
+    links.forEach(function (l) { (l.example_tickers || []).forEach(function (t) { names[t] = 1; }); });
+    (D.screens || []).forEach(function (sc) {
+      ["pure_play", "picks_and_shovels", "second_order", "hedge"].forEach(function (b) {
+        ((sc.buckets || {})[b] || []).forEach(function (r) { names[r.ticker] = 1; });
+      });
+    });
+    (D.stocks || []).forEach(function (st) { names[st.ticker] = 1; });
+    var nNames = Object.keys(names).length;
+    var vc = { UNDISCOVERED: 0, EMERGING: 0, CROWDED: 0, OVER_CROWDED: 0 }, unscored = 0, money = 0, choke = 0;
+    links.forEach(function (l) {
+      var v = (l.heat || {}).verdict;
+      if (v && vc[v] != null) vc[v]++; else unscored++;
+      if (l.heat && l.heat.money_corner) money++;
+      if ((l.bottleneck || {}).criticality === "CHOKE_POINT") choke++;
+    });
+    var fam = {}, items = (D.feeds || {}).items || [];
+    items.forEach(function (it) { fam[it.f] = (fam[it.f] || 0) + 1; });
+    var rs = ((D.health || {}).sessions || {}).routine_status || {};
+    var act = (D.health || {}).actions || {};
+    var fs = (act.feeds || {}).summary || {};
+    var pcsOk = 0;
+    Object.keys(D.market || {}).forEach(function (k) {
+      var m = D.market[k];
+      if (m && m.pcs && m.pcs.axis_a && m.pcs.axis_a.machine_admissible) pcsOk++;
+    });
+    var stalest = 0;
+    (D.chains || []).forEach(function (c) { var a = cxAgeDays(c.heat_as_of); if (a > stalest) stalest = a; });
+    (D.screens || []).forEach(function (s) { var a = cxAgeDays(s.as_of); if (a > stalest) stalest = a; });
+    var cands = ((D.candidates || {}).candidates || []).filter(function (c) { return c.status === "AMBIENT"; }).length;
+    var evts = ((D.calendar || {}).events || []).filter(function (e) { return e.status === "WATCHING"; }).length;
+    var h = '<div class="cx-grp">FUNNEL</div>' +
+      cxReg("signals", sigs.length) + cxReg("chains", (D.chains || []).length) +
+      cxReg("links", links.length) + cxReg("scenarios", scens) +
+      cxReg("screens", (D.screens || []).length) + cxReg("names", nNames) +
+      cxReg("dives", (D.stocks || []).length) +
+      cxReg("shadow", ((((D.shadow || {}).book) || {}).rows || []).length) +
+      cxReg("ambient", cands) + cxReg("known future", evts);
+    var scoredN = links.length - unscored;
+    h += '<div class="cx-grp">HEAT · ' + scoredN + "/" + links.length + " SCORED</div>";
+    [["undiscovered", vc.UNDISCOVERED, "var(--und)"], ["emerging", vc.EMERGING, "var(--emg)"],
+     ["crowded", vc.CROWDED, "var(--crd)"], ["over-crowded", vc.OVER_CROWDED, "var(--ovr)"]].forEach(function (r) {
+      h += cxReg(r[0], r[1]) + cxBar(links.length ? r[1] / links.length : 0, r[2]);
+    });
+    h += cxReg("unscored", unscored, !unscored) + cxReg("money corner", money) + cxReg("choke point", choke);
+    h += '<div class="cx-grp">FEED · ' + items.length + " HELD</div>";
+    Object.keys(fam).sort(function (a, b) { return fam[b] - fam[a]; }).forEach(function (f) {
+      h += cxReg(f.toLowerCase(), fam[f]) + cxBar(items.length ? fam[f] / items.length : 0, CXP.fam[f] || CXP.ink3);
+    });
+    h += '<div class="cx-grp">SYSTEM</div>' +
+      cxReg("requests", pendingCount() + "P / " + failedCount() + "F", !pendingCount() && !failedCount()) +
+      cxReg("radar", (rs.radar || "?").toLowerCase()) + cxReg("digest", (rs.digest || "?").toLowerCase()) +
+      cxReg("feeds", (fs.sources_ok != null ? fs.sources_ok + "/" + (fs.sources_ok + (fs.sources_failed || []).length) : "—") +
+        (cxAgeDays((act.feeds || {}).last_run) != null ? " · " + cxAgeDays((act.feeds || {}).last_run) + "d" : "")) +
+      cxReg("fetch", cxAgeDays((act.fetch || {}).last_run) != null ? cxAgeDays((act.fetch || {}).last_run) + "d" : "—") +
+      cxReg("trips", ((D.indicators || {}).trips || []).length, !((D.indicators || {}).trips || []).length) +
+      cxReg("pcs armed", pcsOk + "/" + nNames, !pcsOk) +
+      cxReg("queued", (QUEUE.queue || []).length, !(QUEUE.queue || []).length) +
+      cxReg("digest wk", ((D.digests || [])[0] || {}).week || "—") +
+      cxReg("stalest", stalest ? stalest + "d" : "—") +
+      cxReg("since visit", deltaItems().items.length);
+    return h;
+  }
+  var CX_LTYPE = { RUN: "#8687f0", AMEND: "#e3b23c", RADAR: "#34c77e", "RADAR-DEGRADED": "#e97f4e", DIGEST: "#8687f0", NOTE: "#6a6e86" };
+  function cxLedgerRows() {
+    return (D.ledger || []).slice().reverse().slice(0, 26).map(function (line) {
+      var f = line.split("|").map(function (x) { return x.trim(); });
+      var ts = (f[0] || "").slice(11) || (f[0] || "").slice(0, 10);
+      var type = f[1] || "NOTE", cmd = f[2] || "", by = "", res = "", art = "";
+      for (var i = 3; i < f.length; i++) {
+        var s = f[i];
+        if (s.indexOf("by:") === 0) by = s.slice(3).trim();
+        else if (s.indexOf("result:") === 0) res = s.slice(7).trim();
+        else if (s.indexOf("artifact:") === 0) art = s.slice(9).trim();
+        else if (res) res += " | " + s;
       }
-    }
-    for (i = 0; i < N.length; i++) {
-      var n = N[i];
-      if (n.tx != null) n.vx = (n.vx || 0) + alpha * (n.txw || 0.01) * (n.tx - n.x);
-      n.vx = (n.vx || 0) + alpha * 0.0022 * (CX_W / 2 - n.x) * (n.tx != null ? 0.25 : 1);
-      n.vy = (n.vy || 0) + alpha * 0.004 * (CX_H / 2 - n.y);
-      n.x += (n.vx *= 0.82); n.y += (n.vy *= 0.82);
-    }
+      return '<div class="cx-ev" title="' + esc(res) + '"><span class="t">' + esc(ts) + '</span> <span class="k" style="color:' +
+        (CX_LTYPE[type] || CXP.none) + '">' + esc(type) + "</span>" +
+        '<span class="s">' + esc(cmd) + (by ? " · " + esc(by) : "") + "</span>" +
+        '<span class="s" style="color:' + (art.indexOf("skipped(") === 0 ? CXP.bad : "#3e4258") + '">' + esc(res.slice(0, 74)) + "</span></div>";
+    }).join("");
   }
   function cortexView() {
-    var nSig = (D.signals || []).filter(function (x) { return x.status !== "DISMISSED" && x.status !== "EXPIRED"; }).length;
-    var nL = 0; (D.chains || []).forEach(function (c) { nL += (c.links || []).length; });
-    var nC = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; }).length;
-    var nE = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; }).length;
-    var nF = ((D.feeds || {}).items || []).length;
     return topbar("cortex") + "<main>" +
-      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The occurrence field. Bright hubs are analyzed signals (size = how unmapped) with their value chains clustered around them; the dust ring is the raw feed — every dot a real headline. Past drifts left of the NOW seam, known future events sit right of it, dashed.</p></div>' +
-      '<div class="card cxpanel"><div class="cxwrap">' +
-      '<canvas id="cortexCanvas" role="img" aria-label="Cortex constellation — signals, chains, candidates, future events and feed dust on a past/future field"></canvas>' +
-      '<div class="cx-hud"><b>CORTEX</b> · occurrence field<br>' +
-      "signals <b>" + nSig + "</b> · chain links <b>" + nL + "</b> · candidates <b>" + nC + "</b><br>" +
-      "known future <b>" + nE + "</b> · feed dust <b>" + nF + "</b> · built <b>" + esc(TODAY) + "</b></div>" +
-      '<div class="cx-legend">● hub = signal · halo dots = chain links (verdict color, gold ring = money corner) · faint dots = tickers · ◆ dashed = known future · outer dust = raw feed (hover any dot) · drag nothing, click everything</div>' +
+      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The whole machine on one field. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, screened names and verdicts. The halo is the raw feed — every mote a real headline. Scroll to zoom, drag to pan, drag a node to move it, hover to isolate its neighbourhood.</p></div>' +
+      '<div class="card cxpanel"><div class="cxframe">' +
+      '<div class="cx-rail-l">' + cxRailLeft() + "</div>" +
+      '<div class="cx-stage">' +
+      '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
+      '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
+      "</div>" +
+      '<div class="cx-rail-r"><div class="cx-grp">EVENT LOG</div>' + cxLedgerRows() + "</div>" +
+      '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
       "</div></div>" +
+      '<div class="card cx-mobile" style="margin-top:14px">' + cxRailLeft() + "</div>" +
       "<div id='drawerHost'></div>" + footer() + "</main>";
   }
+
   function cxShowDrawer(html) {
     var host = document.getElementById("drawerHost");
     if (!host || !html) return;
@@ -829,177 +1128,384 @@
     host.querySelectorAll("[data-run]").forEach(function (b) {
       b.addEventListener("click", function (e) { e.preventDefault(); enqueue(b.getAttribute("data-run"), b); });
     });
+    host.querySelectorAll("[data-copyrun]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.preventDefault();
+        var cmd = b.getAttribute("data-copyrun");
+        try { navigator.clipboard.writeText(cmd); } catch (err) { fallbackCopy(cmd); }
+        b.textContent = "Copied ✓";
+      });
+    });
+  }
+
+  function cxNodeDrawer(n) {
+    var o = n.ref;
+    if (n.kind === "sig") return cortexDrawer("sig", n.id);
+    if (n.kind === "cand") return cortexDrawer("cand", n.id);
+    if (n.kind === "evt") return cortexDrawer("evt", n.id);
+    if (n.kind === "link") { var c = byId(D.chains, n.chainId); return c ? drawer(c, o) : ""; }
+    if (n.kind === "dust") return cxDustDrawer(o);
+    if (n.kind === "chain") {
+      var money = (o.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
+      return cxDrawerShell(o.title,
+        chip(o.clock) + chip(o.status) + staleChip(o.heat_as_of),
+        "<p class='small'>" + (o.links || []).length + " links · " + (o.scenarios || []).length + " scenarios" +
+        (money.length ? " · ★ money corner: " + esc(money.map(function (l) { return l.name; }).join(", ")) : "") + "</p>" +
+        (o.map_limitation ? "<div class='muted small'>" + esc(o.map_limitation) + "</div>" : "") +
+        '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/chain/' + esc(o.id) + '">Open chain →</a>' +
+        '<a class="chip accent" href="#/chain/' + esc(o.id) + '/heat">Heat map →</a>' +
+        '<a class="chip accent" href="#/chain/' + esc(o.id) + '/scen">Scenarios →</a></div>');
+    }
+    if (n.kind === "scen") {
+      var ch = byId(D.chains, n.chainId);
+      return cxDrawerShell(o.id + " — " + o.title,
+        chip(o.status) + chip(o.probability_pct + "%", "accent") + (o.clock ? chip(o.clock) : ""),
+        "<p class='small'>" + esc(o.narrative) + "</p>" +
+        "<h3>Leading indicators</h3><ul class='bullets'>" + (o.leading_indicators || []).map(function (x) {
+          return "<li>" + esc(x.indicator) + (x.armed ? " " + chip("armed", "accent") : "") + "</li>";
+        }).join("") + "</ul>" +
+        "<div class='small'><b>Invalidation:</b> " + (o.invalidation_signs || []).map(esc).join(" · ") + "</div>" +
+        '<div style="margin-top:14px">' + (o.screen_ref
+          ? '<a class="chip accent" href="#/screen/' + esc(n.chainId) + "/" + esc(o.id) + '">Open screen →</a>'
+          : runButton("run screen " + n.chainId + " " + o.id, "screens stocks for this scenario")) + "</div>");
+    }
+    if (n.kind === "screen") { location.hash = "#/screen/" + o.chain_id + "/" + o.scenario_id; return ""; }
+    if (n.kind === "dive") { location.hash = "#/stock/" + o.ticker + "/" + o.chain_id; return ""; }
+    if (n.kind === "shadow") { location.hash = "#/shadow"; return ""; }
+    if (n.kind === "socket") { if (n.nav) location.hash = n.nav; return ""; }
+    if (n.kind === "co") {
+      var t = n.id, where = [], mk = marketFor(t), srow = null;
+      (D.chains || []).forEach(function (c) {
+        (c.links || []).forEach(function (l) {
+          if ((l.example_tickers || []).indexOf(t) > -1) where.push(c.title + " · " + l.name);
+        });
+      });
+      (D.screens || []).forEach(function (sc) {
+        ["pure_play", "picks_and_shovels", "second_order", "hedge"].forEach(function (b) {
+          ((sc.buckets || {})[b] || []).forEach(function (r) { if (r.ticker === t) srow = { r: r, b: b, sc: sc }; });
+        });
+      });
+      var dv = null;
+      (D.stocks || []).forEach(function (st) { if (st.ticker === t) dv = st; });
+      return cxDrawerShell(t + (srow && srow.r.name ? " — " + srow.r.name : ""),
+        (srow ? tierChip(srow.r.tier) + chip(srow.b.replace(/_/g, " ")) : chip("named in a chain")) +
+        (mk ? chip("market data", "accent") : chip("no market data")) + (dv ? chip(dv.verdict.replace("_", " "), dv.verdict) : ""),
+        (srow && srow.r.thesis_1line ? "<p class='small'>" + esc(srow.r.thesis_1line) + "</p>" : "") +
+        "<h3>Named in</h3><div class='small'>" + (where.map(esc).join("<br>") || "—") + "</div>" +
+        (mk ? "<h3>Market</h3><div class='small num'>" + esc(mk.price_status) + (mk.series ? " · series as of " + esc(mk.series.as_of) : "") + "</div>"
+            : "<div class='muted small' style='margin-top:10px'>No market file — queue a fetch to price it.</div>") +
+        '<div style="margin-top:14px">' + (dv
+          ? '<a class="chip accent" href="#/stock/' + esc(t) + "/" + esc(dv.chain_id) + '">Open dive →</a>'
+          : srow ? runButton("run deepdive " + t + " " + srow.sc.chain_id, "full dive: clock, verdict, entry basis")
+                 : runButton("request data " + t, "queues prices + fundamentals")) + "</div>");
+    }
+    return "";
+  }
+  function cxDrawerShell(title, chips, body) {
+    return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(title) + '">' +
+      '<button class="x" data-closedrawer>✕</button><div class="row">' + chips + "</div>" +
+      "<h2>" + esc(title) + "</h2>" + body + "</div>";
   }
   function cxDustDrawer(it) {
-    return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="feed item"><button class="x" data-closedrawer>✕</button>' +
-      '<div class="row">' + chip(it.f || "?") + chip((it.d || "").slice(0, 10), "neutral") + chip("raw feed") + "</div>" +
-      "<h2>" + esc(it.t) + "</h2>" +
-      "<div class='muted small'>[" + esc(it.s || "?") + "] · untriaged feed item — the weekday radar sweep judges whether it becomes a candidate (method §0.1)</div>" +
-      "<div style='margin-top:16px'>" + runButton("run radar", "triage the feed into candidates and signals") + "</div></div>";
+    return cxDrawerShell(it.t,
+      chip(it.f || "?") + chip((it.d || "").slice(0, 10), "neutral") + chip("raw feed"),
+      "<div class='muted small'>[" + esc(it.s || "?") + "] · untriaged feed item — the weekday radar sweep decides whether it becomes a candidate (method §0.1)</div>" +
+      "<div style='margin-top:16px'>" + runButton("run radar", "triage the feed into candidates and signals") + "</div>");
   }
+
+  /* ---- renderer + interaction ---- */
   function initCortex() {
     var canvas = document.getElementById("cortexCanvas");
-    if (!canvas) return;
+    // per-element guard, not global: navigating away and back within a frame would
+    // otherwise leave a fresh canvas with no loop, because the old loop self-cancels
+    // only on its next frame.
+    if (!canvas || canvas.__cxRunning) return;
+    canvas.__cxRunning = true;
     var ctx = canvas.getContext("2d");
-    var g = cxSettle(cxGraph(), 170);
-    var dust = ((D.feeds || {}).items || []).slice(0, 300);
-    var hover = null, mx = -1, my = -1, t0 = Date.now();
+    var g, sim, view;
+    if (CX_CACHE && CX_CACHE.builtAt === D.built_at) {
+      g = CX_CACHE.g; sim = CX_CACHE.sim; view = CX_CACHE.view;
+    } else {
+      g = cxBuild(); sim = cxSim(g); view = null;
+      CX_CACHE = { builtAt: D.built_at, g: g, sim: sim, view: null };
+    }
+    var hover = null, focus = null, drag = null, pan = null, raf = 0, frames = 0;
+    var userView = !!(CX_CACHE && CX_CACHE.userView), settled = !!(CX_CACHE && CX_CACHE.settled);
     var tip = document.getElementById("cxtip");
     if (!tip) { tip = document.createElement("div"); tip.className = "tooltip"; tip.id = "cxtip"; tip.style.display = "none"; document.body.appendChild(tip); }
+    var readEl = document.getElementById("cxRead"), zoomEl = document.getElementById("cxZoom"), cntEl = document.getElementById("cxCounts");
+    if (cntEl) {
+      var nd = g.nodes.filter(function (n) { return n.kind !== "dust"; }).length;
+      cntEl.textContent = "OBJECTS " + nd + " · EDGES " + g.edges.length + " · DUST " + (g.nodes.length - nd);
+      canvas.setAttribute("aria-label", "Cortex field: " + nd + " research objects, " + g.edges.length + " links, " + (g.nodes.length - nd) + " feed items");
+    }
 
-    var sprites = {};
+    var sprites = {}, spriteN = 0;
+    function quant(r) { return r <= 8 ? Math.round(r * 2) / 2 : r <= 32 ? Math.round(r) : Math.round(r / 4) * 4; }
     function sprite(color, r, soft) {
       var key = color + "/" + r + "/" + soft;
       if (sprites[key]) return sprites[key];
-      var s = Math.ceil(r * (soft || 3)), c = document.createElement("canvas");
+      if (spriteN > 600) { sprites = {}; spriteN = 0; }
+      var s = Math.min(Math.ceil(r * soft), 256), c = document.createElement("canvas");
       c.width = c.height = s * 2;
       var x = c.getContext("2d");
       var gr = x.createRadialGradient(s, s, 0, s, s, s);
-      gr.addColorStop(0, color);
-      gr.addColorStop(soft > 3 ? 0.2 : 0.5, color);
-      gr.addColorStop(1, "rgba(0,0,0,0)");
+      gr.addColorStop(0, color); gr.addColorStop(soft > 3 ? 0.2 : 0.5, color); gr.addColorStop(1, "rgba(0,0,0,0)");
       x.globalAlpha = soft > 3 ? 0.5 : 1;
-      x.fillStyle = gr;
-      x.fillRect(0, 0, s * 2, s * 2);
-      sprites[key] = { c: c, s: s };
+      x.fillStyle = gr; x.fillRect(0, 0, s * 2, s * 2);
+      spriteN++; sprites[key] = { c: c, s: s };
       return sprites[key];
     }
-    function fit(w, h) {
-      var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-      g.nodes.forEach(function (n) {
-        if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
-        if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
-      });
-      if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
-      var gw = Math.max(maxX - minX, 300), gh = Math.max(maxY - minY, 240);
-      var k = Math.min((w * 0.64) / gw, (h * 0.66) / gh);
-      return { k: k, ox: w / 2 - k * (minX + maxX) / 2, oy: h / 2 - k * (minY + maxY) / 2 };
-    }
-    function draw() {
-      if (!canvas.isConnected) { tip.style.display = "none"; return; }
-      var dpr = window.devicePixelRatio || 1;
-      var w = canvas.clientWidth, h = canvas.clientHeight;
-      if (canvas.width !== w * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var t = (Date.now() - t0) / 1000;
-      cxTick(g, 0.06);
-      var F = fit(w, h);
-      function SX(x) { return F.ox + F.k * x; }
-      function SY(y) { return F.oy + F.k * y; }
-      // ground
-      var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.7);
-      bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-      // NOW seam
-      var nx = SX(CX_NOWX);
-      var seam = ctx.createLinearGradient(nx - 46, 0, nx + 46, 0);
-      seam.addColorStop(0, "rgba(134,135,240,0)"); seam.addColorStop(0.5, "rgba(134,135,240,0.10)"); seam.addColorStop(1, "rgba(134,135,240,0)");
-      ctx.fillStyle = seam; ctx.fillRect(nx - 46, 0, 92, h);
-      ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.setLineDash([4, 6]); ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(nx, 26); ctx.lineTo(nx, h - 20); ctx.stroke(); ctx.setLineDash([]);
-      ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(134,135,240,0.75)"; ctx.fillText("N O W", nx, 18);
-      ctx.fillStyle = CXP.ink3;
-      ctx.fillText("« PAST", nx - 58, 18); ctx.fillText("AHEAD »", nx + 62, 18);
-      // dust ring
-      var cxc = w / 2, cyc = h / 2, minR = Math.min(w, h) / 2;
-      for (var di = 0; di < dust.length; di++) {
-        var it = dust[di];
-        var ang = di * 2.399963 + 0.13;
-        var rad = minR * (0.74 + 0.2 * ((di * 0.6180339) % 1));
-        var dxp = cxc + rad * Math.cos(ang), dyp = cyc + rad * Math.sin(ang) * 0.92;
-        var tw = 0.30 + 0.16 * Math.sin(t * 0.8 + di * 1.7);
-        var col = CXP.fam[it.f] || CXP.ink3;
-        ctx.globalAlpha = tw;
-        var sp = sprite(col, 1.5, 0);
-        ctx.drawImage(sp.c, dxp - sp.s / 2, dyp - sp.s / 2, sp.s, sp.s);
-        it._x = dxp; it._y = dyp;
-      }
-      ctx.globalAlpha = 1;
-      // edges
-      g.edges.forEach(function (e) {
-        var p = g.nodes[e.a], q = g.nodes[e.b];
-        var hi = hover && (hover === p || hover === q);
-        ctx.strokeStyle = "rgba(205,210,235," + (hi ? Math.min(0.5, e.alpha * 4) : e.alpha) + ")";
-        ctx.lineWidth = hi ? 1.2 : 0.7;
-        ctx.beginPath(); ctx.moveTo(SX(p.x), SY(p.y)); ctx.lineTo(SX(q.x), SY(q.y)); ctx.stroke();
-      });
-      // nodes
-      g.nodes.forEach(function (n, ni) {
-        var x = SX(n.x) + 1.6 * Math.sin(t * 0.4 + ni), y = SY(n.y) + 1.2 * Math.cos(t * 0.33 + ni * 2);
-        n._x = x; n._y = y;
-        var R = Math.max(1.2, F.k * n.r);
-        if (n.kind === "sig") R = Math.max(11, R);
-        R = Math.round(R * 2) / 2; // quantize so glow sprites cache instead of exploding
-        var hi = hover === n;
-        var halo = sprite(n.color, R, n.kind === "sig" ? 7 : 4.2);
-        ctx.globalAlpha = n.kind === "tick" ? 0.4 : hi ? 1 : 0.85;
-        ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
-        var core = sprite(n.kind === "sig" ? "#eceefc" : n.color, Math.max(1, R * (n.kind === "sig" ? 0.6 : 0.72)), 0);
-        ctx.drawImage(core.c, x - core.s / 2, y - core.s / 2, core.s, core.s);
-        if (n.gold) { ctx.strokeStyle = CXP.gold; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(x, y, R + 2.5, 0, 7); ctx.stroke(); }
-        if (n.choke) { ctx.strokeStyle = CXP.bad; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, R + 5, 0, 7); ctx.stroke(); }
-        if (n.dashed) {
-          ctx.strokeStyle = n.kind === "sig" ? CXP.accent : n.color;
-          ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
-          ctx.beginPath(); ctx.arc(x, y, R + 4, 0, 7); ctx.stroke(); ctx.setLineDash([]);
-        }
-        n._R = R;
-      });
-      // labels last, on top of every dot
-      g.nodes.forEach(function (n) {
-        if (n.kind !== "sig") return;
-        var hi = hover === n;
-        ctx.textAlign = "center";
-        ctx.font = "600 11px 'JetBrains Mono', monospace";
-        ctx.fillStyle = hi ? "#ffffff" : CXP.ink;
-        ctx.fillText(n.label, n._x, n._y + n._R + 22);
-        ctx.font = "10px 'JetBrains Mono', monospace";
-        ctx.fillStyle = CXP.ink2;
-        ctx.fillText(n.desc, n._x, n._y + n._R + 36);
-      });
-      requestAnimationFrame(draw);
-    }
+    function SX(x) { return x * view.k + view.tx; }
+    function SY(y) { return y * view.k + view.ty; }
+    function GX(px) { return (px - view.tx) / view.k; }
+    function GY(py) { return (py - view.ty) / view.k; }
     function pick(px, py) {
-      var best = null, bd = 1e9;
-      g.nodes.forEach(function (n) {
-        if (n._x == null) return;
-        var d = Math.abs(n._x - px) + Math.abs(n._y - py);
-        var reach = Math.max(9, n.r * 1.2 + 6);
+      var gx = GX(px), gy = GY(py), best = null, bd = 1e9, slop = 6 / view.k;
+      for (var i = 0; i < g.nodes.length; i++) {
+        var n = g.nodes[i];
+        var dx = n.x - gx, dy = n.y - gy, d = Math.sqrt(dx * dx + dy * dy);
+        var reach = n.r + slop;
         if (d < reach && d < bd) { bd = d; best = n; }
-      });
-      if (!best) {
-        for (var i = 0; i < dust.length; i++) {
-          var it = dust[i];
-          if (it._x != null && Math.abs(it._x - px) + Math.abs(it._y - py) < 7) return { kind: "dust", ref: it, tip: cxTrim(it.t, 90) + " — " + (it.s || "") + " · " + ((it.d || "").slice(0, 10)) };
-        }
       }
       return best;
     }
+    function labelAlpha(n, ramp) {
+      if (n.kind === "sig" || n.kind === "chain" || n.kind === "dive" || n.kind === "socket") return Math.max(0.85, ramp);
+      if (n.kind === "scen" || n.kind === "screen") return ramp;
+      if (n.kind === "link" || n.kind === "evt") return Math.max(0, ramp - 0.15);
+      if (n.kind === "co") return Math.max(0, ramp - 0.35);
+      return 0;
+    }
+    function draw() {
+      if (!canvas.isConnected) { canvas.__cxRunning = false; cancelAnimationFrame(raf); tip.style.display = "none"; return; }
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+        if (!view) view = cxFit(g, w, h);
+      }
+      if (!view) view = cxFit(g, w, h);
+      CX_CACHE.view = view;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var t = Date.now() / 1000;
+      var parked = sim.alpha() < sim.alphaMin();
+      if (!parked) sim.tick();
+      if (parked && !settled) {
+        // the layout kept expanding after the warm-up fit; frame it once it stops moving
+        settled = true; CX_CACHE.settled = true;
+        if (!userView) { view = cxFit(g, w, h); CX_CACHE.view = view; }
+      }
+      if (parked && !hover && !drag && (frames++ & 1)) { raf = requestAnimationFrame(draw); return; }
+
+      var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.72);
+      bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+
+      // NOW seam
+      var nx = SX(CX_NOWX);
+      if (nx > -60 && nx < w + 60) {
+        var seam = ctx.createLinearGradient(nx - 50, 0, nx + 50, 0);
+        seam.addColorStop(0, "rgba(134,135,240,0)"); seam.addColorStop(0.5, "rgba(134,135,240,0.09)"); seam.addColorStop(1, "rgba(134,135,240,0)");
+        ctx.fillStyle = seam; ctx.fillRect(nx - 50, 0, 100, h);
+        ctx.strokeStyle = "rgba(134,135,240,0.28)"; ctx.setLineDash([4, 6]); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(nx, 20); ctx.lineTo(nx, h - 12); ctx.stroke(); ctx.setLineDash([]);
+        ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(134,135,240,0.7)"; ctx.fillText("N O W", nx, 14);
+        ctx.fillStyle = CXP.ink3; ctx.fillText("« PAST", nx - 58, 14); ctx.fillText("AHEAD »", nx + 60, 14);
+      }
+
+      var wob = 1.6 / view.k, ramp = Math.min(1, Math.max((view.k - 1) / 3.75, 0));
+      var hi = hover || focus;
+      var hkey = hi ? hi.key : null, hadj = hi ? g.adj[hi.key] : null;
+      function nodeAlpha(n) {
+        var base = n.kind === "dust" ? 0.34 + 0.14 * Math.sin(t * 0.8 + n.seat * 1.7) : n.kind === "co" ? 0.72 : n.kind === "socket" ? 0.32 : 0.92;
+        if (!hi) return base;
+        return (n === hi || (hadj && hadj[n.key])) ? 1 : base * 0.2;
+      }
+
+      // edges, bucketed by alpha
+      var buckets = {};
+      g.edges.forEach(function (e) {
+        var near = hi && (e.source === hi || e.target === hi);
+        var a = !hi ? e.alpha : near ? Math.min(0.55, e.alpha * 5) : e.alpha * 0.2;
+        var b = Math.max(1, Math.round(a * 40));
+        (buckets[b] = buckets[b] || []).push(e);
+      });
+      Object.keys(buckets).forEach(function (b) {
+        ctx.strokeStyle = "rgba(205,210,235," + (b / 40).toFixed(3) + ")";
+        ctx.lineWidth = b / 40 > 0.3 ? 1.15 : 0.7;
+        ctx.beginPath();
+        buckets[b].forEach(function (e) {
+          ctx.moveTo(SX(e.source.x), SY(e.source.y));
+          ctx.lineTo(SX(e.target.x), SY(e.target.y));
+        });
+        ctx.stroke();
+      });
+
+      // nodes
+      g.nodes.forEach(function (n, ni) {
+        var x = SX(n.x) + (n.kind === "dust" ? 0 : wob * view.k * 0.6 * Math.sin(t * 0.4 + ni));
+        var y = SY(n.y) + (n.kind === "dust" ? 0 : wob * view.k * 0.5 * Math.cos(t * 0.33 + ni * 2));
+        if (x < -80 || x > w + 80 || y < -80 || y > h + 80) { n._sx = x; n._sy = y; return; }
+        n._sx = x; n._sy = y;
+        var R = quant(Math.max(n.kind === "dust" ? 0.9 : 2.2, n.r * view.k));
+        var a = nodeAlpha(n);
+        ctx.globalAlpha = a;
+        if (n.kind === "dust") {
+          var sp = sprite(n.color, 1.6, 3);
+          ctx.drawImage(sp.c, x - sp.s / 2, y - sp.s / 2, sp.s, sp.s);
+        } else {
+          if (R > 26) {
+            var grd = ctx.createRadialGradient(x, y, 0, x, y, R * 3);
+            grd.addColorStop(0, n.color); grd.addColorStop(0.2, n.color); grd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.globalAlpha = a * 0.5; ctx.fillStyle = grd;
+            ctx.beginPath(); ctx.arc(x, y, R * 3, 0, 7); ctx.fill();
+            ctx.globalAlpha = a;
+          } else {
+            var halo = sprite(n.color, R, n.kind === "sig" || n.kind === "chain" ? 6 : 4.2);
+            ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
+          }
+          if (n.hollow) {
+            ctx.strokeStyle = n.color; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(x, y, Math.max(2, R * 0.8), 0, 7); ctx.stroke();
+          } else if (!n.socket) {
+            var core = sprite(n.kind === "sig" || n.kind === "chain" ? "#eceefc" : n.color, Math.max(1, quant(R * 0.62)), 2.6);
+            ctx.drawImage(core.c, x - core.s / 2, y - core.s / 2, core.s, core.s);
+          }
+          if (n.gold) { ctx.strokeStyle = CXP.gold; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, R + 3, 0, 7); ctx.stroke(); }
+          if (n.choke) { ctx.strokeStyle = CXP.bad; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, R + 6, 0, 7); ctx.stroke(); }
+          if (n.dashed) {
+            ctx.strokeStyle = n.color; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(x, y, R + 4, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+          }
+          if (n.arcs && R > 8) {
+            var seg = (Math.PI * 2) / n.arcs.length;
+            n.arcs.forEach(function (v, ai) {
+              ctx.strokeStyle = v ? CXP.verd[v] : CXP.none; ctx.lineWidth = 2.2;
+              ctx.beginPath(); ctx.arc(x, y, R + 5, -Math.PI / 2 + ai * seg + 0.04, -Math.PI / 2 + (ai + 1) * seg - 0.04); ctx.stroke();
+            });
+          }
+          if (n.pinned) {
+            ctx.strokeStyle = CXP.ink3; ctx.lineWidth = 1;
+            ctx.strokeRect(x + R + 4, y - 2, 3, 3);
+          }
+          if (n === focus) {
+            ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(x, y, R + 8, 0, 7); ctx.stroke();
+          }
+        }
+        n._R = R;
+      });
+
+      // labels last
+      ctx.textAlign = "center";
+      g.nodes.forEach(function (n) {
+        if (!n.label || n.kind === "dust" || n._sx == null) return;
+        if (n._sx < -60 || n._sx > w + 60 || n._sy < -40 || n._sy > h + 40) return;
+        var la = (n === hi) ? 1 : labelAlpha(n, ramp) * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1);
+        if (la <= 0.03) return;
+        ctx.globalAlpha = la;
+        var big = n.kind === "sig" || n.kind === "chain";
+        ctx.font = (big ? "600 11px" : "10px") + " 'JetBrains Mono', monospace";
+        ctx.fillStyle = n === hi ? "#ffffff" : big ? CXP.ink : CXP.ink2;
+        ctx.fillText(n.label, n._sx, n._sy + n._R + (big ? 18 : 13));
+        if (n.sub && (big || n === hi)) {
+          ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
+          ctx.fillText(n.sub, n._sx, n._sy + n._R + (big ? 31 : 25));
+        }
+      });
+      ctx.globalAlpha = 1;
+      if (zoomEl) zoomEl.textContent = "ZOOM " + view.k.toFixed(2) + "×";
+      raf = requestAnimationFrame(draw);
+    }
+
+    function setRead(n) {
+      if (!readEl) return;
+      readEl.textContent = n ? (n.kind.toUpperCase() + " · " + (n.tip || n.label || "")) : "";
+    }
     canvas.addEventListener("mousemove", function (e) {
-      var r = canvas.getBoundingClientRect();
-      mx = e.clientX - r.left; my = e.clientY - r.top;
-      hover = pick(mx, my);
-      canvas.style.cursor = hover ? "pointer" : "default";
+      var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+      if (drag) {
+        drag.moved += Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0);
+        drag.n.fx = GX(px); drag.n.fy = GY(py);
+        return;
+      }
+      if (pan) { view.tx = pan.tx0 + (e.clientX - pan.sx); view.ty = pan.ty0 + (e.clientY - pan.sy); userView = true; CX_CACHE.userView = true; return; }
+      hover = pick(px, py);
+      canvas.style.cursor = hover ? "pointer" : "grab";
+      setRead(hover || focus);
       if (hover) {
-        var txt = hover.kind === "sig" ? hover.label + " — " + hover.desc : hover.tip || "";
-        tip.innerHTML = "<span class='num'>" + esc(txt) + "</span>";
-        tip.style.display = "block"; tip.style.left = e.clientX + 14 + "px"; tip.style.top = e.clientY - 12 + "px";
+        tip.innerHTML = "<span class='num'>" + esc(hover.tip || hover.label || "") + "</span>";
+        tip.style.display = "block"; tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY - 12) + "px";
       } else tip.style.display = "none";
     });
-    canvas.addEventListener("mouseleave", function () { hover = null; tip.style.display = "none"; canvas.style.cursor = "default"; });
-    canvas.addEventListener("click", function (e) {
+    canvas.addEventListener("mousedown", function (e) {
       var r = canvas.getBoundingClientRect();
-      hover = pick(e.clientX - r.left, e.clientY - r.top);
-      if (!hover) return;
-      tip.style.display = "none";
-      if (hover.kind === "sig") cxShowDrawer(cortexDrawer("sig", hover.id));
-      else if (hover.kind === "link") { var c = byId(D.chains, hover.chainId); if (c) cxShowDrawer(drawer(c, hover.ref)); }
-      else if (hover.kind === "cand") cxShowDrawer(cortexDrawer("cand", hover.id));
-      else if (hover.kind === "evt") cxShowDrawer(cortexDrawer("evt", hover.id));
-      else if (hover.kind === "dust") cxShowDrawer(cxDustDrawer(hover.ref));
+      var n = pick(e.clientX - r.left, e.clientY - r.top);
+      if (n && n.kind !== "dust" && !n.socket) {
+        drag = { n: n, t0: Date.now(), moved: 0, shift: e.shiftKey };
+        n.fx = n.x; n.fy = n.y;
+        sim.alphaTarget(0.3).alpha(Math.max(sim.alpha(), 0.12));
+      } else if (n) {
+        drag = { n: n, t0: Date.now(), moved: 0, tapOnly: true };
+      } else {
+        pan = { sx: e.clientX, sy: e.clientY, tx0: view.tx, ty0: view.ty };
+        canvas.style.cursor = "grabbing";
+      }
     });
-    requestAnimationFrame(draw);
+    function endDrag(e) {
+      if (drag) {
+        var quick = (Date.now() - drag.t0) < 500 && drag.moved < 6;
+        var n = drag.n;
+        if (!drag.tapOnly) {
+          sim.alphaTarget(0);
+          if (drag.shift) { n.pinned = true; } else { n.fx = null; n.fy = null; n.pinned = false; }
+        }
+        if (quick) { tip.style.display = "none"; cxShowDrawer(cxNodeDrawer(n)); }
+        drag = null;
+      }
+      pan = null;
+      canvas.style.cursor = "grab";
+    }
+    canvas.addEventListener("mouseup", endDrag);
+    canvas.addEventListener("mouseleave", function (e) {
+      endDrag(e); hover = null; tip.style.display = "none"; setRead(focus);
+    });
+    canvas.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+      var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1);
+      var k2 = Math.max(0.25, Math.min(4, view.k * Math.pow(1.0015, -dy)));
+      view.tx = px - (px - view.tx) * (k2 / view.k);
+      view.ty = py - (py - view.ty) * (k2 / view.k);
+      view.k = k2; userView = true; CX_CACHE.userView = true;
+    }, { passive: false });
+    canvas.addEventListener("keydown", function (e) {
+      var order = g.nodes.filter(function (n) { return n.kind !== "dust"; }).sort(function (a, b) {
+        return (CX_ORDER[a.kind] - CX_ORDER[b.kind]) || (a.x - b.x);
+      });
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        var idx = focus ? order.indexOf(focus) : -1;
+        idx = (idx + (e.key === "ArrowRight" ? 1 : -1) + order.length) % order.length;
+        focus = order[idx]; setRead(focus);
+      } else if (e.key === "Enter" || e.key === " ") {
+        if (focus) { e.preventDefault(); cxShowDrawer(cxNodeDrawer(focus)); }
+      } else if (e.key === "+" || e.key === "=" || e.key === "-") {
+        e.preventDefault();
+        var kk = Math.max(0.25, Math.min(4, view.k * (e.key === "-" ? 0.8 : 1.25)));
+        var cw = canvas.clientWidth / 2, chh = canvas.clientHeight / 2;
+        view.tx = cw - (cw - view.tx) * (kk / view.k);
+        view.ty = chh - (chh - view.ty) * (kk / view.k);
+        view.k = kk;
+      } else if (e.key === "0" || e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        view = cxFit(g, canvas.clientWidth, canvas.clientHeight);
+        userView = false; CX_CACHE.userView = false; sim.alpha(0.25);
+      } else if (e.key === "Escape") { focus = null; setRead(null); }
+    });
+    raf = requestAnimationFrame(draw);
   }
   function cortexDrawer(kind, id) {
     if (kind === "sig") {
@@ -1044,7 +1550,7 @@
     }).join("") + "</div>";
   }
   function notFound(what) {
-    return topbar() + "<main><div class='emptystate' style='margin-top:40px'>Not found: " + esc(what) + '<br><br><a href="#/">back to radar</a></div>' + footer() + "</main>";
+    return topbar() + "<main><div class='emptystate' style='margin-top:40px'>Not found: " + esc(what) + '<br><br><a href="#/radar">back to radar</a></div>' + footer() + "</main>";
   }
 
   /* ---------------- router & events ---------------- */
@@ -1052,7 +1558,8 @@
     var h = location.hash || "#/";
     var p = h.replace(/^#\//, "").split("/").map(decodeURIComponent);
     var html;
-    if (!p[0]) html = homeView();
+    if (!p[0]) html = cortexView();
+    else if (p[0] === "radar") html = homeView();
     else if (p[0] === "signal") html = signalView(p[1]);
     else if (p[0] === "chains") html = chainsView();
     else if (p[0] === "chain") html = chainView(p[1], p[2]);
@@ -1061,7 +1568,7 @@
     else if (p[0] === "cortex") html = cortexView();
     else if (p[0] === "book") html = bookView();
     else if (p[0] === "shadow") html = shadowView();
-    else html = homeView();
+    else html = cortexView();
     app.innerHTML = html;
     window.scrollTo(0, 0);
     wire();
