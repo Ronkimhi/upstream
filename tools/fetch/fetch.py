@@ -33,6 +33,7 @@ import requests  # noqa: E402
 from acis.config import (  # noqa: E402
     EDGAR_USER_AGENT, EDGAR_DELAY_SECONDS, SEC_COMPANY_TICKERS_URL,
     SEC_SUBMISSIONS_URL, SEC_COMPANYFACTS_URL, STOOQ_DAILY_CSV_URL,
+    STOOQ_USER_AGENT,
 )
 from acis.dual_source import dual_source_price, _stooq_symbol  # noqa: E402
 
@@ -70,21 +71,33 @@ def safe_name(t):
 
 
 # ---------------------------------------------------------------- control probe
-_control = {"checked": False, "ok": False}
+_control = {"checked": False, "ok": False, "reason": None}
 
 
 def control_ok():
     """One stooq AAPL probe per run: proves the price plumbing is alive so an
-    empty result elsewhere can be stamped verified_zero instead of lying."""
+    empty result elsewhere can be stamped verified_zero instead of lying.
+
+    Sends STOOQ_USER_AGENT, not SEC_HEADERS. It used to send the EDGAR agent, which
+    stooq answers with an HTML robots page — so this probe reported FAILED for reasons
+    that had nothing to do with whether prices were reachable, and the one-word FAILED
+    said nothing about why. It fails closed either way (a zero can never be certified by
+    a probe that did not pass), which is why the breakage stayed invisible: the safe
+    direction is also the silent one.
+    """
     if not _control["checked"]:
         _control["checked"] = True
         try:
             r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol="aapl.us"),
-                             headers=SEC_HEADERS, timeout=30)
+                             headers={"User-Agent": STOOQ_USER_AGENT}, timeout=30)
             _control["ok"] = r.status_code == 200 and r.text.startswith("Date") and len(r.text) > 2000
-        except Exception:
+            _control["reason"] = None if _control["ok"] else (
+                f"http {r.status_code}, body starts {r.text.strip()[:60]!r}")
+        except Exception as e:  # noqa: BLE001
             _control["ok"] = False
-        print(f"control probe (stooq AAPL): {'OK' if _control['ok'] else 'FAILED'}")
+            _control["reason"] = f"{type(e).__name__}: {str(e)[:120]}"
+        print(f"control probe (stooq AAPL): {'OK' if _control['ok'] else 'FAILED'}"
+              + (f" — {_control['reason']}" if _control.get("reason") else ""))
     return _control["ok"]
 
 
@@ -177,8 +190,15 @@ def fetch_series(ticker):
     yfinance fallback. Returns (rows, source) or (None, None)."""
     rows, source = None, None
     try:
+        # STOOQ_USER_AGENT, not SEC_HEADERS — see control_ok(). This call is why every
+        # series in data/market/ records source "yfinance": stooq is tried first and was
+        # answering the EDGAR agent with an HTML page, so the primary series source has
+        # silently been the fallback since the repo was created.
         r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol=_stooq_symbol(ticker)),
-                         headers=SEC_HEADERS, timeout=30)
+                         headers={"User-Agent": STOOQ_USER_AGENT}, timeout=30)
+        if r.status_code != 200 or not r.text.startswith("Date"):
+            print(f"  stooq series unavailable for {ticker}: http {r.status_code}, "
+                  f"body starts {r.text.strip()[:60]!r} — falling back to yfinance")
         if r.status_code == 200 and r.text.startswith("Date"):
             lines = r.text.strip().splitlines()[1:]
             rows = []

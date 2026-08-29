@@ -23,10 +23,14 @@ import requests  # noqa: E402
 
 from acis.config import (  # noqa: E402
     EDGAR_USER_AGENT, SEC_COMPANY_TICKERS_URL, SEC_SUBMISSIONS_URL,
-    SEC_COMPANYFACTS_URL, STOOQ_DAILY_CSV_URL,
+    SEC_COMPANYFACTS_URL, STOOQ_DAILY_CSV_URL, STOOQ_USER_AGENT,
 )
 
 H = {"User-Agent": EDGAR_USER_AGENT}
+# stooq rejects the EDGAR agent with an HTML robots page (2026-08-29). A liveness probe
+# sending the wrong header reports the endpoint dead when it is the request that is wrong,
+# which is the failure mode a smoke test exists to prevent.
+H_STOOQ = {"User-Agent": STOOQ_USER_AGENT}
 NOW = datetime.now(timezone.utc)
 results = {}
 
@@ -72,9 +76,9 @@ def p_companyfacts():
 
 
 def p_stooq():
-    r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol="aapl.us"), headers=H, timeout=30)
+    r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol="aapl.us"), headers=H_STOOQ, timeout=30)
     if r.status_code != 200 or not r.text.startswith("Date"):
-        return False, f"HTTP {r.status_code}"
+        return False, f"HTTP {r.status_code}, body starts {r.text.strip()[:60]!r}"
     last = r.text.strip().splitlines()[-1].split(",")[0]
     age = (NOW.replace(tzinfo=None) - datetime.strptime(last, "%Y-%m-%d")).days
     return age <= 7, f"last bar {last} ({age}d old)"

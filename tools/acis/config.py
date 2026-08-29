@@ -116,6 +116,18 @@ SCANNER_SCORE_THRESHOLDS = {
 
 EDGAR_USER_AGENT = "ACIS Research Tool ronkkimhi@gmail.com"
 EDGAR_DELAY_SECONDS = 0.5
+
+# Stooq is the SECOND price source, and it needs its own header. SEC asks filers-of-record
+# to identify themselves and rejects generic agents; stooq does the opposite — on
+# 2026-08-29 every request carrying the EDGAR agent came back HTTP 200 with an HTML page
+# whose head says `<meta name="robots" content="no...`, never CSV. The old code read that
+# as a generic failure and returned None with a debug log, which is why every price in this
+# repo says SINGLE_SOURCE: the dual-source guarantee has been nominally on and factually
+# off since the repo was created, and nothing could have told us. This is a public daily
+# CSV endpoint being asked for the same file a browser would get; the polite contact
+# address stays on the string so we remain identifiable.
+STOOQ_USER_AGENT = ("Mozilla/5.0 (compatible; UpstreamResearch/1.0; "
+                    "+mailto:ronkkimhi@gmail.com)")
 OPENINSIDER_DELAY_SECONDS = 2.0
 GEMINI_DELAY_SECONDS = 4.0
 

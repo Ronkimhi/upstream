@@ -18,7 +18,7 @@ from datetime import datetime
 import requests
 
 from acis.config import (
-    STOOQ_DAILY_CSV_URL, DUAL_SOURCE_DISAGREEMENT_PCT, EDGAR_USER_AGENT,
+    STOOQ_DAILY_CSV_URL, DUAL_SOURCE_DISAGREEMENT_PCT, STOOQ_USER_AGENT,
 )
 
 logger = logging.getLogger("acis.dual_source")
@@ -60,7 +60,7 @@ def fetch_price_stooq(ticker):
     url = STOOQ_DAILY_CSV_URL.format(symbol=_stooq_symbol(ticker))
     try:
         resp = requests.get(url, timeout=30,
-                            headers={"User-Agent": EDGAR_USER_AGENT})
+                            headers={"User-Agent": STOOQ_USER_AGENT})
         if resp.status_code != 200:
             return None, {"source": "stooq", "answered": False,
                           "reason": f"http {resp.status_code}", "symbol": _stooq_symbol(ticker)}

@@ -131,7 +131,11 @@
    "FIXTURE: escalators expire with the current backlog and renewals reprice down"
   ]
  },
- "price_ref": "data/market/DEMO.json",
+ "price_ref": {
+  "value": 84.52,
+  "source": "data/market/DEMO.json",
+  "as_of": "2026-08-27"
+ },
  "shadow_ref": null,
  "notes": [
   {
@@ -152,6 +156,13 @@
    "by": "ron",
    "change": "fixture deep dive authored so every UI surface renders before real data exists",
    "prior": null
+  },
+  {
+   "ts": "2026-08-29T22:25:00Z",
+   "by": "ron",
+   "kind": "AMEND",
+   "change": "price_ref was the bare path string \"data/market/DEMO.json\" \u2014 a required key whose shape nothing checked, so it carried no value and no date and could not be compared to anything. Now {value, source, as_of} per method section 1, matching the series last close (84.52 on 2026-08-27) it claims to reference. The fixture is the shape every real dive is written against, so it is held to the schema rather than exempted from it.",
+   "prior": "data/market/DEMO.json"
   }
  ],
  "earnings_quality": {

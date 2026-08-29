@@ -6,6 +6,7 @@ JSON well-formedness, required keys, closed enums, referential integrity,
 verdict completeness. Loud per-file report; exit 1 on any error.
 
 Run: python3 tools/validate.py            (from repo root or anywhere)
+     python3 tools/validate.py --root PATH  (validate another tree, e.g. a probe clone)
 """
 import datetime
 import json
@@ -13,7 +14,12 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+# --root brings this in line with check_radar / check_chain / check_analyst / check_screen,
+# which all accept one. Without it the validator could only ever be pointed at its own
+# repo, so testing what it does to a deliberately corrupted file meant corrupting live data.
+_argv = sys.argv[1:]
+ROOT = (Path(_argv[_argv.index("--root") + 1]).resolve() if "--root" in _argv
+        else Path(__file__).resolve().parent.parent)
 DATA = ROOT / "data"
 TODAY = datetime.date.today().isoformat()
 
@@ -60,9 +66,26 @@ CAND_STATUS = {"AMBIENT", "PROMOTED", "DISMISSED", "EXPIRED"}
 RULE_ORIGINS = {"METHOD", "PREFERENCE"}
 RULE_STATUS = {"PROPOSED", "HARDENED", "REJECTED"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+TODAY = datetime.date.today().isoformat()
+
+# Evidence written on or after this date must be dated, and VERIFIED evidence must carry a
+# url. Same shape and same reason as OCCURRENCE_GATE above: 88 legacy evidence items carry
+# no url and 70 carry no date, so an immediate hard error would fail every postlude in the
+# repo and the check would be reverted within the hour. Legacy items warn and are counted
+# in the citation-debt line printed once per run, so the debt is visible while it is paid.
+EVIDENCE_GATE = "2026-08-30"
+
+# Staleness thresholds, method section 9. WARN only: the market moves on weekends and the
+# fetch plane runs weekdays, so an error here would brick a Saturday postlude for a
+# condition nobody can fix until Monday. The hard staleness gate binds where it matters —
+# on the dive being written today, in check_analyst.py.
+STALE_MARKET_DAYS = 7
+STALE_PCS_DAYS = 30
+STALE_FUNDAMENTALS_DAYS = 100
 
 errors: list[str] = []
 warnings: list[str] = []
+_debt = {"no_date": 0, "no_url": 0}
 
 
 def err(f: Path, msg: str) -> None:
@@ -71,6 +94,23 @@ def err(f: Path, msg: str) -> None:
 
 def warn(f: Path, msg: str) -> None:
     warnings.append(f"{f.relative_to(ROOT)}: {msg}")
+
+
+def _age_days(when):
+    """Days between an ISO date/timestamp and today, or None if unparseable."""
+    try:
+        return (datetime.date.today() - datetime.date.fromisoformat(str(when)[:10])).days
+    except (ValueError, TypeError):
+        return None
+
+
+def _citation_shortfall(f: Path, msg: str, kind: str, gated: bool) -> None:
+    """A missing or malformed citation: an error past EVIDENCE_GATE, counted debt before it."""
+    if gated:
+        err(f, msg)
+    else:
+        _debt[kind] += 1
+        warn(f, msg)
 
 
 def load(f: Path):
@@ -113,10 +153,29 @@ def check_mini_changelog(f: Path, entries, ctx: str) -> None:
             check_actor(f, c.get("by"), f"{ctx}.changelog[{i}]")
 
 
-def check_evidence(f: Path, items, ctx: str) -> None:
+def check_evidence(f: Path, items, ctx: str, touched_on: str | None = None) -> None:
+    """method section 1 as a check: `value [source, as of YYYY-MM-DD]`.
+
+    "A number without both source and date does not exist for decision purposes" was
+    written in the constitution and enforced on exactly one surface (check_radar, on
+    signals, and there only as a truthiness test). Every other evidence item in the repo
+    could carry a source name and no date, or no locator of any kind, and pass. On
+    2026-08-29 all 88 evidence items in data/ carried zero URLs, and the 70 chain heat
+    items carried no source_date field at all.
+
+    `touched_on` is the parent object's own date (created_at / heat_as_of / the last
+    changelog stamp). Items on an object touched on or after EVIDENCE_GATE must be dated,
+    and a VERIFIED item must carry the locator that makes VERIFIED mean anything. Older
+    items warn and are counted as citation debt, printed once per run. The gate is dated
+    rather than immediate for the reason the OCCURRENCE_GATE was: closing it on legacy
+    data would fail every postlude in the repo, and a check that cannot be run is not a
+    check. Note the consequence, which is intended: amending a legacy card moves it past
+    the gate, so touching a card means dating its evidence.
+    """
     if not isinstance(items, list):
         err(f, f"{ctx}: evidence must be a list")
         return
+    gated = bool(touched_on) and str(touched_on)[:10] >= EVIDENCE_GATE
     for i, e in enumerate(items):
         if not isinstance(e, dict) or "claim" not in e or "tag" not in e:
             err(f, f"{ctx}[{i}]: evidence needs claim + tag")
@@ -124,6 +183,37 @@ def check_evidence(f: Path, items, ctx: str) -> None:
         check_enum(f, e["tag"], TAGS, f"{ctx}[{i}].tag")
         if e["tag"] in {"VERIFIED", "INFERRED"} and not (e.get("source_name") or e.get("source")):
             err(f, f"{ctx}[{i}]: {e['tag']} evidence needs a source")
+        if e["tag"] == "NULL":
+            continue  # a NULL is a recorded absence; it has nothing to cite
+        date = e.get("source_date")
+        url = e.get("url") or e.get("source_url")
+        # Same gate governs presence AND format. Several seed items carry month precision
+        # ("2026-07"), which is honest imprecision about a monthly source rather than a
+        # fabrication, and erroring on it would fail every postlude over data written
+        # before the rule existed. New evidence snaps to a day, the way method section 0
+        # already makes occurrence anchors snap.
+        if not date:
+            _citation_shortfall(
+                f, f"{ctx}[{i}]: evidence needs source_date (method section 1)"
+                   + (f" — the parent was touched {str(touched_on)[:10]}, on or after the "
+                      f"{EVIDENCE_GATE} gate" if gated else ""), "no_date", gated)
+        elif not DATE_RE.match(str(date)):
+            _citation_shortfall(
+                f, f"{ctx}[{i}].source_date: {date!r} is not YYYY-MM-DD (snap an imprecise "
+                   f"source to a day, as method section 0 does for anchors)", "no_date", gated)
+        elif str(date) > TODAY:
+            # Always an error, gate or no gate: a source dated in the future is not
+            # imprecision, it is a claim about a document that does not exist yet.
+            err(f, f"{ctx}[{i}].source_date: {date} is in the future")
+        if not url:
+            if gated and e["tag"] == "VERIFIED":
+                err(f, f"{ctx}[{i}]: VERIFIED evidence needs a url — VERIFIED means "
+                       f"fetched from a primary source this run, which is a claim about a "
+                       f"document somebody else can open")
+            else:
+                _debt["no_url"] += 1
+        elif not str(url).startswith(("http://", "https://")):
+            err(f, f"{ctx}[{i}].url: {str(url)[:60]!r} is not a fetchable http(s) URL")
 
 
 def _score(heat: dict, key: str):
@@ -177,7 +267,8 @@ def v_signal(f: Path) -> None:
     check_enum(f, s["lane"], LANES, "lane")
     check_enum(f, s["status"], SIGNAL_STATUS, "status")
     check_enum(f, s["suggested_clock"], CLOCKS, "suggested_clock")
-    check_evidence(f, s["evidence"], "evidence")
+    check_evidence(f, s["evidence"], "evidence",
+                   touched_on=s.get("updated_at") or s.get("created_at"))
     if s["status"] == "NEW" and len([e for e in s.get("evidence", []) if isinstance(e, dict)]) < 2:
         err(f, "a NEW signal needs >= 2 evidence items")
     hy = s["horizon_years"]
@@ -269,6 +360,13 @@ def v_chain(f: Path) -> None:
                     err(f, f"{ctx}.heat.{score}.score out of 0..100")
                 elif sc.get("score") is not None and not sc.get("evidence"):
                     err(f, f"{ctx}.heat.{score} scored without evidence")
+                elif sc.get("evidence"):
+                    # Heat evidence was only ever checked for existence, so all 70 items
+                    # in the seed corpus carry no source_date field at all while their
+                    # sibling signal evidence does. A score is a number; method section 1
+                    # binds it like any other.
+                    check_evidence(f, sc["evidence"], f"{ctx}.heat.{score}.evidence",
+                                   touched_on=h.get("as_of") or c.get("heat_as_of"))
             if h.get("verdict") is not None:
                 check_enum(f, h["verdict"], HEAT_VERDICT, f"{ctx}.heat.verdict")
             if "money_corner" not in h:
@@ -356,9 +454,11 @@ def v_chain(f: Path) -> None:
         warn(f, f"{len(uncited)} of {n} links carry no evidence[]: a link is a claim that a "
                 f"stage exists and an edge is a claim that one stage feeds another. "
                 f"{', '.join(map(str, uncited))}")
+    chain_touched = c.get("updated_at") or (c.get("changelog") or [{}])[-1].get("ts")
     for l in links:
         if l.get("evidence"):
-            check_evidence(f, l["evidence"], f"link {l.get('id')}.evidence")
+            check_evidence(f, l["evidence"], f"link {l.get('id')}.evidence",
+                           touched_on=chain_touched)
             supported = {e.get("supports") for e in l["evidence"] if isinstance(e, dict)}
             missing = [b for b in l.get("upstream_of", []) if b not in supported]
             if missing and "role" not in supported:
@@ -479,10 +579,40 @@ def v_stock(f: Path) -> None:
         ez = d.get("entry_zone")
         if not (isinstance(ez, dict) and {"low", "high", "basis"} <= set(ez)):
             err(f, "verdict INVESTABLE requires entry_zone{low, high, basis}")
+        else:
+            lo, hi = ez.get("low"), ez.get("high")
+            if isinstance(lo, (int, float)) and isinstance(hi, (int, float)) and lo >= hi:
+                err(f, f"entry_zone low {lo} is not below high {hi}")
+            if not str(ez.get("basis") or "").strip():
+                err(f, "entry_zone.basis is empty: method section 7 wants the analytical "
+                       "reason for the band in one line, not just the numbers")
+        # no_entry_above is required by CLAUDE.md for every INVESTABLE dive and was
+        # checked by nothing anywhere in the repo. It is the level that makes a verdict
+        # falsifiable: without it "INVESTABLE" has no price at which it stops being true.
+        nea = d.get("no_entry_above")
+        if not isinstance(nea, (int, float)):
+            err(f, "verdict INVESTABLE requires a numeric no_entry_above (the level at "
+                   "which the verdict stops holding)")
+        elif isinstance(ez, dict) and isinstance(ez.get("high"), (int, float)) \
+                and nea < ez["high"]:
+            err(f, f"no_entry_above {nea} sits below the top of the entry zone "
+                   f"{ez['high']}: the dive would forbid its own entry")
     if d["verdict"] == "TOO_LATE" and not d.get("shadow_ref"):
         err(f, "verdict TOO_LATE requires shadow_ref (shadow row must exist)")
     if len(d["bull"]) != 3 or len(d["bear"]) != 3:
         err(f, "bull and bear must each have exactly 3 bullets")
+    # price_ref was a required KEY whose shape nobody checked, so it could be a bare
+    # number, a string, or a path with no date — none of which lets a reader ask "as of
+    # when, from where". method section 1 shape: {value, source, as_of}.
+    pr = d.get("price_ref")
+    if pr is not None:
+        if not isinstance(pr, dict) or not {"value", "source", "as_of"} <= set(pr):
+            err(f, "price_ref must be {value, source, as_of} — a price with no date and "
+                   "no source does not exist for decision purposes (method section 1)")
+        else:
+            if not isinstance(pr.get("value"), (int, float)):
+                err(f, f"price_ref.value {pr.get('value')!r} is not a number")
+            check_date(f, pr.get("as_of"), "price_ref.as_of")
     if d["status"] == "FINAL":
         rt = d.get("red_team")
         if not (isinstance(rt, dict) and {"attacked_at", "challenges",
@@ -540,8 +670,48 @@ def v_market(f: Path) -> None:
     series = m.get("series")
     if series and series.get("rows"):
         rows = series["rows"]
-        if not all(isinstance(r, list) and len(r) == 2 for r in rows[:5]):
-            err(f, "series.rows must be [date, close] pairs")
+        # The whole series, not rows[:5]. This file is the price plane every chart, entry
+        # zone and reverse-DCF reads from; a malformed or out-of-order row at index 400 is
+        # exactly the kind of thing that renders as a plausible line on a chart. 553 rows
+        # is nothing to scan.
+        bad_shape = [i for i, r in enumerate(rows)
+                     if not (isinstance(r, list) and len(r) == 2)]
+        if bad_shape:
+            err(f, f"series.rows must be [date, close] pairs; {len(bad_shape)} malformed, "
+                   f"first at index {bad_shape[0]}")
+        else:
+            bad_date = [i for i, r in enumerate(rows) if not DATE_RE.match(str(r[0]))]
+            if bad_date:
+                err(f, f"series.rows: {len(bad_date)} row(s) have a non-YYYY-MM-DD date, "
+                       f"first at index {bad_date[0]} ({rows[bad_date[0]][0]!r})")
+            bad_close = [i for i, r in enumerate(rows)
+                         if not isinstance(r[1], (int, float)) or r[1] <= 0
+                         or r[1] != r[1]]  # NaN is the only value unequal to itself
+            if bad_close:
+                err(f, f"series.rows: {len(bad_close)} close(s) are not a positive number, "
+                       f"first at index {bad_close[0]} ({rows[bad_close[0]][1]!r})")
+            unordered = [i for i in range(1, len(rows)) if str(rows[i][0]) <= str(rows[i - 1][0])]
+            if unordered:
+                err(f, f"series.rows are not strictly ascending by date: {len(unordered)} "
+                       f"break(s), first at index {unordered[0]} "
+                       f"({rows[unordered[0] - 1][0]} then {rows[unordered[0]][0]})")
+    # Staleness, method section 9. WARN by design: the fetch plane runs weekdays and the
+    # market is shut at weekends, so an error here would brick a Saturday postlude over a
+    # condition no session can fix. The hard gate binds on the dive being written, in
+    # check_analyst.py, where a stale price actually changes a verdict.
+    for label, when, limit in (
+            ("fetched_at", m.get("fetched_at"), STALE_MARKET_DAYS),
+            ("series.as_of", (series or {}).get("as_of"), STALE_MARKET_DAYS),
+            ("pcs.as_of", (m.get("pcs") or {}).get("as_of"), STALE_PCS_DAYS),
+            ("fundamentals.as_of", (m.get("fundamentals") or {}).get("as_of"),
+             STALE_FUNDAMENTALS_DAYS)):
+        age = _age_days(when)
+        if age is not None and age > limit:
+            warn(f, f"{label} is {age}d old (>{limit}d): refresh before it is used in a "
+                    f"verdict (method section 9)")
+    if m["price_status"] == "DISPUTED":
+        warn(f, "price_status DISPUTED: the two sources disagree beyond tolerance, so no "
+                "number here may be used in a verdict without saying so")
 
 
 def v_requests(f: Path) -> None:
@@ -958,6 +1128,145 @@ def v_proposal(f: Path) -> None:
                 err(f, f"ruling.by = {ruling.get('by')!r}: only ron rules on a proposal")
 
 
+# ---------------------------------------------------------------- EDGAR + misc stores
+# Everything below was written by the fetch plane and read by the UI or the analyst while
+# being validated by nothing at all. data/edgar/docs/ is the sharpest case: it is the
+# evidence base the verbatim-quote rule depends on, and until now a truncated, empty or
+# mis-tickered document would have been discovered only by a quote failing to match it.
+def v_edgar_doc(f: Path) -> None:
+    d = load(f)
+    if d is None:
+        return
+    if not need(f, d, ["ticker", "cik", "accession", "url", "filing_date", "form", "text"]):
+        return
+    check_date(f, d.get("filing_date"), "filing_date")
+    if not str(d.get("url") or "").startswith("https://www.sec.gov/"):
+        err(f, f"url {str(d.get('url'))[:60]!r} is not an sec.gov Archives URL")
+    if not re.match(r"^\d{10}-\d{2}-\d{6}$", str(d.get("accession") or "")):
+        err(f, f"accession {d.get('accession')!r} is not in EDGAR 0000000000-00-000000 form")
+    text = d.get("text")
+    if not isinstance(text, str) or len(text) < 500:
+        err(f, f"text is {len(text) if isinstance(text, str) else 'not a string'}: too short "
+               f"to verify a quote against — refetch rather than quote from it")
+    elif d.get("chars") is not None and d["chars"] != len(text):
+        err(f, f"chars says {d['chars']} but text is {len(text)} long")
+    if f.stem != str(d.get("ticker")).replace(".", "-"):
+        err(f, f"filename {f.stem} does not match ticker {d.get('ticker')!r}: a quote "
+               f"verifier looks this file up BY ticker and would check the wrong document")
+
+
+def v_edgar_fts(f: Path) -> None:
+    d = load(f)
+    if d is None:
+        return
+    if not need(f, d, ["query", "hits"]):
+        return
+    hits = d.get("hits")
+    if not isinstance(hits, list):
+        err(f, "hits must be a list")
+        return
+    nourl = 0
+    for i, h in enumerate(hits):
+        if not isinstance(h, dict):
+            err(f, f"hits[{i}] is not an object")
+            continue
+        if not h.get("accession"):
+            err(f, f"hits[{i}] carries no accession")
+        if not h.get("url"):
+            nourl += 1
+    if nourl:
+        # WARN, not error: the seed file was fetched before hits carried a url. New files
+        # get one from the fetch plane (2026-08-29), so this number should go to zero and
+        # stay there.
+        warn(f, f"{nourl} of {len(hits)} FTS hit(s) carry no url: a hit with no link is a "
+                f"claim nobody can open. Refetch to backfill")
+
+
+def v_indicators(f: Path) -> None:
+    d = load(f)
+    if d is None:
+        return
+    trips = d.get("trips")
+    if not isinstance(trips, list):
+        err(f, "indicators.json needs a trips list")
+        return
+    for i, t in enumerate(trips):
+        if not isinstance(t, dict) or not {"chain", "scenario", "indicator"} <= set(t):
+            err(f, f"trips[{i}] needs chain, scenario, indicator")
+
+
+def v_shadow_results(f: Path) -> None:
+    d = load(f)
+    if d is None:
+        return
+    if not isinstance(d, dict):
+        err(f, "shadow results must be an object keyed by shadow row id")
+        return
+    book = load(DATA / "shadow" / "book.json") if (DATA / "shadow" / "book.json").exists() else None
+    ids = {r.get("id") for r in (book or {}).get("rows", [])} if isinstance(book, dict) else set()
+    for k, v in d.items():
+        if ids and k not in ids:
+            err(f, f"result {k!r} grades a shadow row that does not exist in book.json")
+        if not isinstance(v, dict):
+            err(f, f"result {k!r} is not an object")
+
+
+def v_digest(f: Path) -> None:
+    d = load(f)
+    if d is None:
+        return
+    if not need(f, d, ["week", "summary", "ranked"]):
+        return
+    if not isinstance(d.get("ranked"), list):
+        err(f, "ranked must be a list")
+    # generated_by is how every other log in the repo says who wrote it (scout-log says
+    # nell-scanner, map-log says atlas-cartographer). The digest says nothing.
+    if not d.get("generated_by"):
+        warn(f, "no generated_by: every other generated store names its writer")
+
+
+def v_cross_file_ciks() -> None:
+    """One CIK per ticker across market, edgar docs and screens, int-normalized.
+
+    A string CIK and an int CIK are the same filer; transposed digits are a different
+    filer, or none. VRT carried 1674910 in a screen row against 1674101 in every other
+    file, and nothing compared them, so an EDGAR request keyed on that row would have
+    resolved to the wrong company or silently to nothing.
+    """
+    seen: dict[str, list[tuple[int, Path]]] = {}
+
+    def note(ticker, cik, path):
+        if ticker in (None, "") or cik in (None, ""):
+            return
+        try:
+            seen.setdefault(str(ticker), []).append((int(str(cik).strip()), path))
+        except (TypeError, ValueError):
+            err(path, f"cik {cik!r} for {ticker} is not a number")
+
+    for p in sorted((DATA / "market").glob("*.json")):
+        m = load(p)
+        if isinstance(m, dict):
+            note(m.get("ticker"), m.get("cik"), p)
+    for p in sorted((DATA / "edgar" / "docs").glob("*.json")) if (DATA / "edgar" / "docs").is_dir() else []:
+        d = load(p)
+        if isinstance(d, dict):
+            note(d.get("ticker"), d.get("cik"), p)
+    for p in sorted((DATA / "screens").glob("*.json")):
+        s = load(p)
+        if not isinstance(s, dict):
+            continue
+        for rows in (s.get("buckets") or {}).values():
+            for r in rows or []:
+                if isinstance(r, dict):
+                    note(r.get("ticker"), r.get("cik"), p)
+    for ticker, entries in seen.items():
+        distinct = {c for c, _ in entries}
+        if len(distinct) > 1:
+            where = ", ".join(f"{c} in {p.relative_to(ROOT)}" for c, p in entries)
+            err(entries[0][1], f"{ticker} has {len(distinct)} different CIKs across files: "
+                               f"{where}. One of them points at the wrong filer")
+
+
 def v_trades(f: Path) -> None:
     for i, line in enumerate(f.read_text().splitlines()):
         if not line.strip():
@@ -1018,9 +1327,33 @@ def main() -> int:
     counts["proposals"] = len(props)
     for f in props:
         v_proposal(f)
+    # Stores that the fetch plane writes and the analyst or the UI reads. Validated from
+    # 2026-08-29; before that every one of them could hold anything at all.
+    for name, folder, fn in (("edgar-docs", DATA / "edgar" / "docs", v_edgar_doc),
+                             ("edgar-fts", DATA / "edgar" / "fts", v_edgar_fts)):
+        files = sorted(folder.glob("*.json")) if folder.is_dir() else []
+        counts[name] = len(files)
+        for f in files:
+            fn(f)
+    for path, fn in ((DATA / "indicators.json", v_indicators),
+                     (DATA / "shadow" / "results.json", v_shadow_results)):
+        if path.exists():
+            fn(path)
+    digests = sorted((DATA / "digest").glob("*.json")) if (DATA / "digest").is_dir() else []
+    counts["digest"] = len(digests)
+    for f in digests:
+        v_digest(f)
+    v_cross_file_ciks()
 
     summary = " · ".join(f"{k}: {v}" for k, v in counts.items())
     print(f"validate: {summary}")
+    if _debt["no_date"] or _debt["no_url"]:
+        # One line, every run, naming what is owed. Legacy evidence predating EVIDENCE_GATE
+        # warns rather than failing, and a warning nobody counts is a warning nobody pays:
+        # this number is the backlog, and it should only ever go down.
+        print(f"validate: citation debt (pre-{EVIDENCE_GATE} evidence): "
+              f"{_debt['no_date']} item(s) with no source_date, "
+              f"{_debt['no_url']} with no url")
     for w in warnings:
         print(f"  WARN  {w}")
     if errors:
