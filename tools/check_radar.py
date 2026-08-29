@@ -12,10 +12,14 @@ Checks, each reported with the denominator it examined (Rule 21):
   5. the scout log's calibration was regenerated today
   6. every signal dismissed today carries a shadow row (method §8)
   7. today's radar ledger line names a taste-rules-applied count AND what the click queue held
+  8. an EMPTY day (a run that wrote 0 cards) proves it swept the feed: the scout log's
+     feed_items_examined is > 0, so a scanner that silently stopped searching cannot pass as
+     a quiet day
 
 Scope: checks 1, 2, 3, 5 and 6 only bind on a day that actually wrote a radar artifact.
 On a day with no radar run the gate reports NOT RUN TODAY and exits 0, rather than
-reporting a clean pass over nothing.
+reporting a clean pass over nothing. Check 8 is the opposite boundary: it binds ONLY on a
+day that ran but touched no signals, the exact case where checks 1 and 6 pass over nothing.
 
 Run: python3 tools/check_radar.py [--date YYYY-MM-DD] [--root PATH]
 Exit 0 clean, 1 on any failure.
@@ -178,6 +182,28 @@ def main() -> int:
                      "republish clears the queue, so an undrained entry is destroyed, not "
                      "delayed. State it even when empty.")
         report(f"ledger: {len(radar_lines)} radar line(s) for {today}")
+
+    # 8. an empty day must show its work. A run that touched no signals still ran, so check 1
+    #    (occurrence blocks) and check 6 (dismissals) loop over nothing and pass vacuously.
+    #    Without this, a scout that silently stopped searching is byte-identical to a scout
+    #    that swept the whole feed and found nothing worth a card. The falsifiable difference
+    #    is feed_items_examined: the sweep either looked at the feed store or it did not.
+    if radar_lines and not touched:
+        denoms = {}
+        if isinstance(log, dict):
+            denoms = (log.get("calibration") or {}).get("denominators") \
+                or log.get("denominators") or {}
+        examined = denoms.get("feed_items_examined")
+        if not isinstance(examined, int) or examined <= 0:
+            fail(f"radar ran today and wrote 0 signal cards, but the scout log shows "
+                 f"feed_items_examined={examined!r}. A run that examined nothing is a scanner "
+                 f"that stopped searching, not a quiet day. If the feed store was genuinely "
+                 f"empty or the fetch failed, the run is degraded: mark the ledger line "
+                 f"RADAR-DEGRADED and say why, so an absence of input is never read as an "
+                 f"absence of opportunity.")
+        else:
+            report(f"empty day: 0 cards written, but {examined} feed items examined -- a quiet "
+                   f"day that showed its work, not a silent stop")
 
     print(f"check_radar: {today}")
     for ln in lines:
