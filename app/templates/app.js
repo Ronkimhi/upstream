@@ -355,6 +355,7 @@
     return topbar("chain") + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
       '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) + "</div>" +
       "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
+      chainScreenAction(c) +
       '<div class="seg">' +
       [["flow", "Flow"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
@@ -502,7 +503,105 @@
   }
 
   /* ---------------- screen ---------------- */
+  function chainScreen(chainId) {
+    var found = null;
+    (D.screens || []).forEach(function (s) {
+      if (s.chain_id === chainId && (s.scenario_id === null || s.scenario_id === undefined)) found = s;
+    });
+    return found;
+  }
+  function screenNameCount(sc) {
+    var n = 0;
+    Object.keys(sc.buckets || {}).forEach(function (k) { n += (sc.buckets[k] || []).length; });
+    return n;
+  }
+  function chainScreenAction(c) {
+    var sc = chainScreen(c.id);
+    if (sc) {
+      var n = screenNameCount(sc);
+      return '<div class="chainaction"><div><span class="lbl">Stock opportunities</span>' +
+        '<span class="val">' + n + ' name' + (n === 1 ? "" : "s") + ' across the chain</span>' +
+        '<span class="lbl">as of ' + esc(sc.as_of || "?") + "</span></div>" +
+        '<div class="row"><a class="chip accent" href="#/screen/' + esc(c.id) + '">Open →</a>' +
+        "<span data-stop>" + runButton("run screen " + c.id, null, { compact: true }) + "</span></div></div>";
+    }
+    return '<div class="chainaction"><div><span class="lbl">Stock opportunities</span>' +
+      '<span class="val">not screened yet</span>' +
+      '<span class="lbl">finds every name this chain touches, link by link</span></div>' +
+      "<div class='row'><span data-stop>" + runButton("run screen " + c.id, null, { compact: true }) + "</span></div></div>";
+  }
+
+  function chainScreenView(chainId, byBucket) {
+    var c = byId(D.chains, chainId);
+    var sc = chainScreen(chainId);
+    if (!sc) return notFound("chain screen " + chainId);
+    var BN = { pure_play: "Pure play", picks_and_shovels: "Picks and shovels", second_order: "Second order", hedge: "Hedge" };
+    var rows = [];
+    Object.keys(BN).forEach(function (k) {
+      (sc.buckets[k] || []).forEach(function (r) { rows.push({ r: r, bucket: k }); });
+    });
+    function nameCell(x) {
+      var r = x.r;
+      var mk = marketFor(r.ticker);
+      var dot = mk ? '<span class="pxdot on" title="market data present"></span>'
+                   : '<span class="pxdot" title="no market data yet — request queued"></span>';
+      var act = r.status === "DIVED"
+        ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">Dive →</a>'
+        : r.status === "CANDIDATE" ? "<span data-stop>" + runButton("run deepdive " + r.ticker + " " + chainId, null, { compact: true }) + "</span>"
+        : chip(r.status);
+      return "<tr><td>" + dot + "<span class='tk-name'>" + esc(r.ticker) + "</span>" +
+        (r.money_corner ? '<span class="star" title="money-corner link">★</span>' : "") +
+        "<div class='tk-co'>" + esc(r.name || "") + "</div></td>" +
+        "<td>" + tierChip(r.tier) + "</td>" +
+        "<td class='small' style='max-width:300px'>" + esc(r.thesis_1line) + "</td>" +
+        "<td>" + chip(BN[x.bucket] || x.bucket) + "</td>" +
+        "<td>" + act + "</td></tr>";
+    }
+    function table(inner) {
+      return '<div class="tablewrap"><table><thead><tr><th>Name</th><th>Tier</th><th>Thesis</th><th>Bucket</th><th></th></tr></thead><tbody>' +
+        inner + "</tbody></table></div>";
+    }
+    var body;
+    if (byBucket) {
+      body = Object.keys(BN).map(function (k) {
+        var rs = rows.filter(function (x) { return x.bucket === k; });
+        if (!rs.length) return "";
+        return seclabel(BN[k] + " — " + rs.length) + table(rs.map(nameCell).join(""));
+      }).join("");
+    } else {
+      var links = ((c || {}).links || []).slice().sort(function (a, b) { return a.position - b.position; });
+      body = links.map(function (l) {
+        var rs = rows.filter(function (x) { return x.r.link_id === l.id; });
+        if (!rs.length) return "";
+        var hv = (l.heat || {}).verdict;
+        return '<div class="linkhead ' + (hv ? "v-" + hv : "v-none") + '">' +
+          "<span class='nm'>" + esc(l.name) + "</span>" +
+          (hv ? chip(hv.replace("_", " "), hv) : chip("unscored")) +
+          ((l.heat || {}).money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") +
+          ((l.bottleneck || {}).criticality === "CHOKE_POINT" ? chip("choke point", "OVER_CROWDED") : "") +
+          "<span class='ct'>" + rs.length + " name" + (rs.length === 1 ? "" : "s") + "</span></div>" +
+          table(rs.map(nameCell).join(""));
+      }).join("");
+      var orphan = rows.filter(function (x) { return !byId((c || {}).links || [], x.r.link_id); });
+      if (orphan.length) body += seclabel("Unlinked — " + orphan.length) + table(orphan.map(nameCell).join(""));
+    }
+    var h = sc.health || {};
+    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "Stock opportunities" }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip("chain screen", "accent") +
+      chip(screenNameCount(sc) + " names") + staleChip(sc.as_of) + "</div>" +
+      "<h1>Stock opportunities — " + esc(c ? c.title : chainId) + "</h1>" +
+      "<p class='sub'>" + esc(sc.universe_note || "") + "</p></div>" +
+      '<div class="seg"><button class="' + (byBucket ? "" : "on") + '" data-nav="#/screen/' + esc(chainId) + '">By link</button>' +
+      '<button class="' + (byBucket ? "on" : "") + '" data-nav="#/screen/' + esc(chainId) + '/bucket">By bucket</button></div>' +
+      (body || '<div class="emptystate">No names surfaced yet.</div>') +
+      ((sc.taste_filtered || []).length ? '<div class="callout" style="margin-top:16px"><b>Filtered by taste:</b> ' + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
+      "<div style='margin-top:18px'>" + runButton("run screen " + chainId, "re-runs discovery across every link") + "</div>" +
+      "<div class='healthline'>examined " + esc(h.tickers_examined) + " · scored " + esc(h.fully_scored) +
+      " · pending " + esc(h.pending) + " · errors " + esc(h.errors) + "</div>" +
+      notesBlock(sc) + changelogBlock(sc) + footer() + "</main>";
+  }
   function screenView(chainId, scenId) {
+    if (!scenId || scenId === "bucket") return chainScreenView(chainId, scenId === "bucket");
     var sc = null;
     (D.screens || []).forEach(function (s) { if (s.chain_id === chainId && s.scenario_id === scenId) sc = s; });
     var c = byId(D.chains, chainId);

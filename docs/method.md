@@ -79,6 +79,8 @@ Universe is built by discovery (chain research + EDGAR full-text queries by CIK)
 - **T3** local-only listing: best-effort prices; fundamentals cited from filings/IR via web with `[INFERRED]` tags; PCS = COVERAGE-THIN.
 Tiers are printed, never hidden; a T3 name is never excluded for being T3 (the seed case's money corner includes them). Theme revenue exposure comes from filings with the quote; undisclosed exposure = `pct: null` with basis "not disclosed", tag NULL. Taste-ledger filtering is applied VISIBLY: filtered names are listed with the rule that filtered them.
 
+**Two screen scopes.** A *scenario* screen (`run screen <chain> <Sn>`, file `<chain>__<Sn>.json`) builds its universe from what that scenario moves. A *chain* screen (`run screen <chain>`, file `<chain>.json`, `scenario_id: null`) answers the broader question — every name the chain touches, regardless of which scenario fires. Its universe is built per LINK: each link's example tickers plus EDGAR full-text discovery against that link's role, worked in priority order (money-corner links first, then CHOKE_POINT, then the rest by impact). Every row records the `link_id` that surfaced it and a `money_corner` flag, so the same file reads either by link or by bucket. Buckets, tiers, exposure discipline, and the verbatim-quote rule are identical to a scenario screen. A name surfacing from two links is listed once, under the higher-priority link, with the second noted in its thesis line.
+
 ## 7. Deep dives and verdicts
 
 Closed vocabulary: `INVESTABLE | WATCH | TOO_LATE`, clock-labeled.

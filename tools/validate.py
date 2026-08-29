@@ -264,8 +264,21 @@ def v_screen(f: Path) -> None:
     if not need(f, s, ["id", "chain_id", "scenario_id", "as_of", "universe_note",
                        "queries_run", "buckets", "health"]):
         return
-    if not (DATA / "chains" / f"{s['chain_id']}.json").exists():
+    chain_file = DATA / "chains" / f"{s['chain_id']}.json"
+    if not chain_file.exists():
         err(f, f"chain_id {s['chain_id']} has no chain file")
+        chain = None
+    else:
+        try:
+            chain = json.loads(chain_file.read_text())
+        except Exception:  # noqa: BLE001
+            chain = None
+    link_ids = {l.get("id") for l in (chain or {}).get("links", [])}
+    scen_ids = {sc.get("id") for sc in (chain or {}).get("scenarios", [])}
+    # scenario_id null = chain-level screen (universe built per link, method §6).
+    chain_level = s["scenario_id"] is None
+    if not chain_level and chain is not None and s["scenario_id"] not in scen_ids:
+        err(f, f"scenario_id {s['scenario_id']} is not a scenario of chain {s['chain_id']}")
     b = s["buckets"]
     for name in BUCKETS:
         if name not in b:
@@ -277,6 +290,12 @@ def v_screen(f: Path) -> None:
                 continue
             check_enum(f, row["tier"], TIERS, f"{ctx}.tier")
             check_enum(f, row["status"], SCREEN_ROW_STATUS, f"{ctx}.status")
+            if chain_level:
+                lid = row.get("link_id")
+                if not lid:
+                    err(f, f"{ctx}: chain-level screen row needs link_id (which link surfaced this name)")
+                elif chain is not None and lid not in link_ids:
+                    err(f, f"{ctx}: link_id {lid!r} is not a link of chain {s['chain_id']}")
             for ng in row.get("earnings_nuggets", []):
                 if not {"quote", "accession", "url"} <= set(ng):
                     err(f, f"{ctx}: earnings nugget needs quote, accession, url")
