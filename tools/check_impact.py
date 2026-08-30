@@ -5,6 +5,8 @@
 prose, so it can only ever be honoured by memory. This is the same list as an exit code.
 
 Corpus integrity (every invocation, whenever appraisals exist on disk):
+  - every evidence item on a scored leg carries a verbatim `source_excerpt`, and every
+    number the item's `claim` asserts appears in that excerpt (method section 1)
   - exactly one permanent appraisal per occurrence_id; id must match filename
   - every occurrence reference resolves and anchor_date agrees
   - review_by is exactly as_of + 90 calendar days
@@ -23,6 +25,7 @@ Run: python3 tools/check_impact.py [--date YYYY-MM-DD] [--root PATH]
 Exit 0 clean, 1 on any failure.
 """
 import datetime
+import hashlib
 import json
 import re
 import sys
@@ -32,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from impact_score import (  # noqa: E402
     LEGS,
     MONEY_BANDS,
+    audit_excerpt,
     compute,
     expected_queue_ids,
     expected_review_by,
@@ -39,6 +43,21 @@ from impact_score import (  # noqa: E402
     scan_ticker_venue,
     scores_match,
 )
+
+# The source_excerpt bar landed on this date. It is NOT a cutoff: it is enforced on the whole
+# corpus, because the defect it closes was live the same day. A cutoff dated tomorrow would
+# have exempted the entire 36-file wave that motivated the rule, which is the one outcome
+# that makes the gate worthless.
+EXCERPT_GATE = "2026-08-30"
+# The sole appraisal committed in HEAD when the bar landed, exempted by exact repo-relative
+# path plus committed byte content. Same shape and same reason as
+# check_analyst.STOCKY_LEGACY_BASELINE: a writer cannot grandfather a new file by backdating
+# as_of, and AMENDING this one drops the exemption, so the debt cannot be parked forever. It
+# prints a WARNING naming the file on every single run until it is repaired.
+EXCERPT_LEGACY_BASELINE = {
+    "data/impact/IMP-20260830-01.json":
+        "8fcf86c51466113d0b1185a9a4fdc01b959497aa9ab0917b51db09429c788a31",
+}
 
 failures: list[str] = []
 lines: list[str] = []
@@ -71,6 +90,72 @@ def load_appraisals(data: Path) -> list[dict]:
                 a["_file"] = f.name
                 apps.append(a)
     return apps
+
+
+def is_committed_legacy_appraisal(root: Path, path: Path) -> bool:
+    """True only for an exact path-and-content match to the pre-gate HEAD baseline."""
+    try:
+        rel = path.relative_to(root).as_posix()
+        content = path.read_bytes()
+    except (OSError, ValueError):
+        return False
+    return EXCERPT_LEGACY_BASELINE.get(rel) == hashlib.sha256(content).hexdigest()
+
+
+def _leg_is_null(obj: dict) -> bool:
+    return obj.get("score", "x") is None or obj.get("band", "x") is None
+
+
+def check_corpus_excerpts(apps: list[dict], data: Path, root: Path) -> None:
+    """method section 1: an evidence item without a verbatim source span is not evidence.
+
+    Why this is a gate and not a paragraph: 36 appraisals were written on 2026-08-30 and
+    adversarial verifiers that fetched every cited URL found roughly 85% carrying at least
+    one evidence item whose source does not contain the claim. A throughput figure cited to
+    an article containing none of its digits. A EUR 4 billion valuation cited to a release
+    saying the terms are confidential. 200 GW cited to a page saying 474 GW. Every one had a
+    real, relevant URL attached and the page was never opened. Method section 1 already said
+    a number exists only if a named, dated, fetchable source states it, and nothing enforced
+    it, so it regressed at scale on the first day it was used at scale.
+    """
+    items = present = numerics = matched = derived = idents = legacy = 0
+    unmatched_items = 0
+    for a in apps:
+        aid = a.get("id", a["_file"])
+        path = data / "impact" / a["_file"]
+        if is_committed_legacy_appraisal(root, path):
+            legacy += 1
+            report(f"WARNING {a['_file']}: the one appraisal committed before the "
+                   f"{EXCERPT_GATE} source_excerpt bar, exempt by exact committed content. "
+                   f"Its evidence carries no verbatim spans and is owed a repair; amending "
+                   f"the file drops the exemption")
+            continue
+        for leg in LEGS:
+            obj = a.get(leg)
+            if not isinstance(obj, dict) or _leg_is_null(obj):
+                continue
+            for i, e in enumerate(obj.get("evidence") or []):
+                if not isinstance(e, dict) or e.get("tag") == "NULL":
+                    continue
+                items += 1
+                res = audit_excerpt(e)
+                present += 1 if res["has_excerpt"] else 0
+                numerics += res["numerics"]
+                matched += res["matched"]
+                derived += res["derived"]
+                idents += res["identifiers"]
+                if res["unmatched"]:
+                    unmatched_items += 1
+                for f_ in res["findings"]:
+                    fail(f"{aid}: {leg}.evidence[{i}] {f_}")
+    report(f"excerpts: {items} evidence item(s) on scored legs examined across "
+           f"{len(apps) - legacy} appraisal(s), {present} carry a source_excerpt, "
+           f"{numerics} claim numeric(s) cross-checked, {numerics - matched} not found in "
+           f"their excerpt across {unmatched_items} item(s), {derived} declared derived, "
+           f"{idents} identifier token(s) not numerically checkable, "
+           f"{legacy} dated legacy exemption(s)"
+           + ("  <- no scored evidence on disk, so the excerpt bar passed over nothing"
+              if not items else ""))
 
 
 def check_corpus_references(apps: list[dict], data: Path) -> None:
@@ -316,6 +401,7 @@ def main() -> int:
     log = read_json(data / "impact" / "_rank-log.json", {}) or {}
 
     if apps:
+        check_corpus_excerpts(apps, data, root)
         check_corpus_references(apps, data)
         check_corpus_venue(apps, data)
         check_corpus_uniqueness(apps)

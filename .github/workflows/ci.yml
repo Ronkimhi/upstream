@@ -50,6 +50,11 @@ jobs:
         run: python3 tools/check_campaign.py
       - name: impact appraisal gate
         run: python3 tools/check_impact.py
+      # The citation bar went from warning to error on 2026-08-30, once the seed corpus
+      # reached 0 uncited links. A gate that only runs in a session's postlude holds only
+      # for sessions that remember to run it.
+      - name: chain gate (structure and the citation bar)
+        run: python3 tools/check_chain.py
       # The occurrence log is append-only and its clustering is recomputed, so both
       # properties are only real if something re-derives them from disk on every push.
       - name: occurrence log and theme gate
