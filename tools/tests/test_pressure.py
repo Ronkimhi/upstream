@@ -319,5 +319,48 @@ class TestQueueAllowlist(unittest.TestCase):
         self.assertIn("control character", self.why("run radar\nrun digest"))
 
 
+class TestSecondSourceParsing(unittest.TestCase):
+    """The second source (stockanalysis, adopted 2026-08-30) is an UNDOCUMENTED endpoint,
+    so it owes us no ordering guarantee. The bake-off's first parser took the last array
+    element and reported a close of 232.56 dated 2025-08-28 as a successful answer — a
+    year stale and 27% off, which is worse than a refusal because it looks like
+    corroboration. Rows are selected by max date, and these fix that in place."""
+
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "tools"))
+        import acis.dual_source as ds
+        self.ds = ds
+
+    def _payload(self, rows):
+        class R:
+            status_code = 200
+            @staticmethod
+            def json(): return {"data": rows}
+        return R
+
+    def test_newest_row_wins_regardless_of_order(self):
+        oldest_last = [{"t": "2026-08-28", "c": 319.7}, {"t": "2025-08-28", "c": 232.56}]
+        newest_last = list(reversed(oldest_last))
+        for rows in (oldest_last, newest_last):
+            self.ds.requests.get = lambda *a, **k: self._payload(rows)
+            got, leg = self.ds.fetch_price_stockanalysis("AAPL")
+            self.assertTrue(leg["answered"])
+            self.assertEqual(got["date"], "2026-08-28")
+            self.assertEqual(got["close"], 319.7)
+
+    def test_unusable_rows_are_refused_not_guessed(self):
+        for rows in ([], [{"t": "2026-08-28", "c": None}], [{"t": "", "c": 5}],
+                     [{"t": "2026-08-28", "c": -3}]):
+            self.ds.requests.get = lambda *a, **k: self._payload(rows)
+            got, leg = self.ds.fetch_price_stockanalysis("AAPL")
+            self.assertIsNone(got)
+            self.assertFalse(leg["answered"])
+            self.assertTrue(leg["reason"], "a refusal must always say why")
+
+    def tearDown(self):
+        import importlib
+        importlib.reload(self.ds)
+
+
 if __name__ == "__main__":
     unittest.main()

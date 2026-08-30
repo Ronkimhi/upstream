@@ -13,6 +13,7 @@ Rule 21: every call reports which sources answered.
 import csv
 import io
 import logging
+import re
 from datetime import datetime
 
 import requests
@@ -94,6 +95,68 @@ def fetch_price_stooq(ticker):
                       "symbol": _stooq_symbol(ticker)}
 
 
+def fetch_price_stockanalysis(ticker):
+    """Second source, adopted 2026-08-30. Returns (print|None, leg).
+
+    Chosen on evidence from the venue that matters rather than from documentation: the
+    `bakeoff` workflow probed seven candidates from a GitHub Actions runner and this was
+    the only key-free, non-Yahoo source that answered with a current price. It agreed
+    with the primary to the cent on the same session (319.70 vs 319.70001, 2026-08-28),
+    which is the property a second source exists to provide.
+
+    Two honest caveats, recorded because they bear on how much this print is worth:
+    the endpoint is undocumented, so it can change shape without notice — hence
+    selecting the row by MAX DATE rather than by position, after the bake-off's first
+    parser silently returned a year-old close that looked like corroboration — and the
+    terms of use for programmatic access are not explicit, so this stays at the repo's
+    natural volume (tens of requests on a weekday) and must not be scaled up without
+    Ron reading them. If it stops answering, `price_status` returns to SINGLE_SOURCE with
+    the reason on the file, which is exactly the behaviour that made stooq's decade-long
+    silence visible in the first place.
+    """
+    url = f"https://stockanalysis.com/api/symbol/s/{ticker.lower()}/history"
+    try:
+        resp = requests.get(url, params={"range": "1M", "period": "Daily"},
+                            headers={"User-Agent": STOOQ_USER_AGENT}, timeout=30)
+        if resp.status_code != 200:
+            return None, {"source": "stockanalysis", "answered": False,
+                          "reason": f"http {resp.status_code}"}
+        js = resp.json() or {}
+        rows = js.get("data") or js.get("result") or []
+        if not isinstance(rows, list) or not rows:
+            return None, {"source": "stockanalysis", "answered": False,
+                          "reason": f"no rows in payload: {str(js)[:80]}"}
+        best = None
+        for row in rows:
+            if isinstance(row, dict):
+                close, date = row.get("c", row.get("close")), row.get("t") or row.get("date")
+            elif isinstance(row, list) and len(row) >= 2:
+                close, date = row[-1], row[0]
+            else:
+                continue
+            try:
+                close = float(close)
+            except (TypeError, ValueError):
+                continue
+            # A missing date must never become the STRING "None". `str(None)[:10]` is
+            # truthy, so the earlier guard let a dateless row through carrying a
+            # plausible-looking date — the exact defect class this repo spent a day
+            # removing. An undated price is not a price we can compare to anything.
+            date = str(date)[:10] if isinstance(date, (str, int, float)) else ""
+            if close <= 0 or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+                continue
+            if best is None or date > best["date"]:
+                best = {"close": close, "date": date, "source": "stockanalysis"}
+        if best is None:
+            return None, {"source": "stockanalysis", "answered": False,
+                          "reason": f"no dated close among {len(rows)} row(s)"}
+        return best, {"source": "stockanalysis", "answered": True, "reason": None}
+    except Exception as e:  # noqa: BLE001
+        logger.debug("stockanalysis price failed for %s: %s", ticker, e)
+        return None, {"source": "stockanalysis", "answered": False,
+                      "reason": f"{type(e).__name__}: {str(e)[:120]}"}
+
+
 def _days_apart(a, b):
     try:
         da = datetime.strptime(a["date"], "%Y-%m-%d").date()
@@ -148,9 +211,22 @@ def dual_source_price(ticker):
     """Fetch both prints and compare. Returns
     {ticker, status, close (only when AGREED), detail, as_of}."""
     yf_print, yf_leg = fetch_price_yf(ticker)
-    stooq_print, stooq_leg = fetch_price_stooq(ticker)
-    legs = {"yfinance": yf_leg, "stooq": stooq_leg}
-    status, detail = compare_prints(yf_print, stooq_print, legs=legs)
+    # Second source, in preference order. stockanalysis is the one that answers this
+    # venue (bake-off, 2026-08-30); stooq is kept as a fallback rather than deleted
+    # because its refusal is a property of the runner's IP, not of the code, and a
+    # different venue may well get a different answer. Both legs are always reported,
+    # so "the second source did not answer" can never again mean silence.
+    sa_print, sa_leg = fetch_price_stockanalysis(ticker)
+    second, second_leg_name = (sa_print, "stockanalysis")
+    stooq_print, stooq_leg = (None, {"source": "stooq", "answered": False,
+                                     "reason": "not attempted: stockanalysis answered"})
+    if second is None:
+        stooq_print, stooq_leg = fetch_price_stooq(ticker)
+        second = stooq_print
+        second_leg_name = "stooq"
+    legs = {"yfinance": yf_leg, "stockanalysis": sa_leg, "stooq": stooq_leg,
+            "second_source_used": second_leg_name if second is not None else None}
+    status, detail = compare_prints(yf_print, second, legs=legs)
     result = {
         "ticker": ticker,
         "status": status,
