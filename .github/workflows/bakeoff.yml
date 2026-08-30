@@ -1,0 +1,67 @@
+# Which free price sources actually answer from THIS venue?
+#
+# The dual-source guarantee in docs/method.md section 1 has never been met: stooq, the
+# designated second source, answers every request from GitHub Actions with an HTML robots
+# page. That is a property of the runner's IP, not of the code, so the question can only
+# be settled here — a session asking from a laptop gets a different and useless answer.
+#
+# Run it from the Actions tab (workflow_dispatch). It writes data/health/source_bakeoff.json
+# and never touches data/market/: this is a diagnostic, not a fetcher.
+#
+# Key-gated candidates stay dark until their secret exists. Add one under
+# Settings > Secrets and variables > Actions and re-run; the report will say whether it
+# answered, with what number, and how far that number sits from the others.
+name: bakeoff
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: "Ticker to price-check across every candidate"
+        required: false
+        default: "AAPL"
+
+concurrency:
+  group: bakeoff
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bakeoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install deps
+        run: pip install --quiet requests
+      - name: probe every candidate
+        env:
+          # Absent secrets are not an error: the candidate reports "no <NAME> secret set"
+          # and the run continues. That is the point — the report shows exactly which
+          # sources are reachable today and which are one signup away.
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
+          TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        run: python3 tools/fetch/source_bakeoff.py --ticker "${{ inputs.ticker || 'AAPL' }}"
+      - name: commit the report
+        run: |
+          git config user.name upstream-bot
+          git config user.email actions@users.noreply.github.com
+          git add data/health/source_bakeoff.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "[bakeoff] price-source probe $(date -u +%F)
+
+          Actor: routine"
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase || true
+            sleep $((i * 5))
+          done
+          exit 1
