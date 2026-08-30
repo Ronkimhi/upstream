@@ -77,7 +77,9 @@ def main() -> int:
                 str(blk.get("name") or ""), blk.get("input") or {}
             )
             for target in written:
-                m = re.search(r"data/chains/([^/]+)\.json$", target)
+                root_ = Path(__file__).resolve().parent.parent.parent
+                name_ = _in_repo(target, root_, "data/chains", r"[^/]+\.json")
+                m = re.fullmatch(r"([^/]+)\.json", name_) if name_ else None
                 if m and not m.group(1).startswith("_"):
                     wrote_chain = True
                     break
@@ -130,3 +132,39 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def _in_repo(target: str, root, subdir: str, pattern: str):
+    r"""Return the matched filename only when `target` really lands in <root>/<subdir>/.
+
+    The gates used to test `re.search(r"data/signals/[^/]+\.json$", target)`, which is
+    unanchored: ANY path ending that way matched, wherever it lived. On 2026-08-30 a
+    session wrote a throwaway probe card to
+    `/private/tmp/.../scratchpad/gate/data/signals/SIG-20260901-01.json` while testing the
+    evidence gate, and this hook read it as a real radar run and demanded a RADAR ledger
+    line and a fresh scout calibration for a sweep that never happened.
+
+    That is the worst failure a gate of this kind can have. Refusing to close is meant to
+    stop a session forgetting to record work it DID; here it pressures a session into
+    recording work it did NOT do, into an append-only ledger, and into regenerating a
+    calibration over unchanged data so the scout log would claim a sweep occurred. A gate
+    that manufactures evidence is worse than no gate.
+
+    Relative paths resolve against the repo root (that is the session cwd); absolute paths
+    must already be inside it. Anything outside is another tree and is not this gate's
+    business.
+    """
+    import re as _re
+    from pathlib import Path as _Path
+    try:
+        p = _Path(target)
+        p = (root / p) if not p.is_absolute() else p
+        p = p.resolve()
+        rel = p.relative_to(_Path(root).resolve())      # raises if outside the repo
+    except Exception:  # noqa: BLE001
+        return None
+    parts = rel.parts
+    want = tuple(subdir.strip("/").split("/"))
+    if parts[:len(want)] != want or len(parts) != len(want) + 1:
+        return None
+    return parts[-1] if _re.fullmatch(pattern, parts[-1]) else None

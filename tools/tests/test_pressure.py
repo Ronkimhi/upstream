@@ -578,5 +578,56 @@ class TestSecondSourceParsing(unittest.TestCase):
         importlib.reload(self.ds)
 
 
+class TestHookPathAnchoring(unittest.TestCase):
+    """radar-gate and chain-gate matched `data/signals/x.json` ANYWHERE in a path.
+
+    On 2026-08-30 this session wrote a throwaway probe card to a scratchpad tree while
+    testing the evidence gate, at .../scratchpad/gate/data/signals/SIG-20260901-01.json,
+    and the Stop hook read it as a real radar run: it refused to let the session end until
+    a RADAR ledger line and a fresh scout calibration existed for a sweep that never
+    happened.
+
+    That inverts the point of the gate. Refusing to close is meant to stop a session
+    forgetting to record work it DID. Unanchored, it pressures a session into recording
+    work it did NOT do — into an append-only ledger, and into regenerating a calibration
+    over unchanged data so the scout log would claim a sweep occurred. A gate that
+    manufactures evidence is worse than no gate at all.
+    """
+
+    def setUp(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "radar_gate", ROOT / ".claude" / "hooks" / "radar-gate.py")
+        self.rg = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.rg)
+        self.root = ROOT
+
+    def _hit(self, path, subdir="data/signals", pat=r"[^/]+\.json"):
+        return self.rg._in_repo(path, self.root, subdir, pat) is not None
+
+    def test_a_real_repo_write_still_counts(self):
+        """The gate must keep doing its actual job."""
+        self.assertTrue(self._hit("data/signals/SIG-20260830-01.json"))
+        self.assertTrue(self._hit(str(ROOT / "data/signals/SIG-20260830-01.json")))
+
+    def test_a_scratchpad_probe_does_not_count(self):
+        self.assertFalse(self._hit(
+            "/private/tmp/claude-502/x/scratchpad/gate/data/signals/SIG-20260901-01.json"))
+
+    def test_paths_outside_the_repo_do_not_count(self):
+        self.assertFalse(self._hit("../elsewhere/data/signals/SIG-1.json"))
+        self.assertFalse(self._hit("/tmp/data/signals/SIG-1.json"))
+
+    def test_neighbouring_stores_and_shapes_do_not_count(self):
+        self.assertFalse(self._hit("data/screens/ai-infrastructure.json"))
+        self.assertFalse(self._hit("data/signals/nested/deep.json"))
+        self.assertFalse(self._hit("data/signals/notes.md"))
+
+    def test_the_chain_gate_shares_the_helper(self):
+        self.assertTrue(self._hit("data/chains/ai-infrastructure.json", "data/chains"))
+        self.assertFalse(self._hit(
+            "/private/tmp/x/scratchpad/data/chains/ai-infrastructure.json", "data/chains"))
+
+
 if __name__ == "__main__":
     unittest.main()
