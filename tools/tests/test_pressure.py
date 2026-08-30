@@ -33,6 +33,8 @@ def _load(name, path):
 fetch = _load("fetch_mod", ROOT / "tools" / "fetch" / "fetch.py")
 build = _load("build_mod", ROOT / "app" / "build.py")
 check_screen = _load("check_screen_mod", ROOT / "tools" / "check_screen.py")
+check_analyst = _load("check_analyst_mod", ROOT / "tools" / "check_analyst.py")
+check_render = _load("check_render_mod", ROOT / "tools" / "check_render.py")
 from acis.dual_source import compare_prints  # noqa: E402
 
 
@@ -165,6 +167,169 @@ class TestQuoteVerifier(unittest.TestCase):
             check_screen.check_quotes(data, [(p, screen)])
             self.assertTrue(any("no document on disk" in f for f in check_screen.failures),
                             "an unverifiable quote must fail, never be skipped")
+
+
+class TestDiveQuoteVerifier(unittest.TestCase):
+    """G2: check_screen.py verified quotes on SCREEN rows and nothing verified them in a
+    DIVE — the deepest document in the funnel was the least checked. A dive quotes filings
+    in its filing_evidence, its earnings-quality basis and its red-team challenges, and any
+    of those could have said words the filing does not contain. The first real dive (VRT,
+    2026-08-29) carried nine quotes and matched 9 of 9, but by hand: discipline, not
+    enforcement, and discipline is what the next dive forgets."""
+
+    DOC = {"form": "8-K", "accession": "0001628280-26-050323",
+           "text": ("Second quarter revenue reflected minor timing shifts, primarily due to "
+                    "temporary supply chain\n congestion and multi\u2011phased project "
+                    "execution as deployments scale in size and complexity.")}
+
+    def _tree(self, td, doc=DOC, ticker="VRT"):
+        data = Path(td) / "data"
+        (data / "edgar" / "docs").mkdir(parents=True)
+        if doc is not None:
+            (data / "edgar" / "docs" / f"{ticker}.json").write_text(json.dumps(doc))
+        return data
+
+    def _run(self, data, dive, ticker="VRT"):
+        check_analyst.failures.clear()
+        check_analyst.lines.clear()
+        check_analyst.check_dive_quotes(data, "probe.json", ticker, dive)
+        return list(check_analyst.failures), list(check_analyst.lines)
+
+    def test_a_real_quote_passes_and_is_counted(self):
+        with tempfile.TemporaryDirectory() as td:
+            data = self._tree(td)
+            dive = {"filing_evidence": [{"quote": "temporary supply chain congestion"}]}
+            failures, lines = self._run(data, dive)
+            self.assertEqual(failures, [])
+            self.assertTrue(any("1/1 quoted passage" in ln for ln in lines),
+                            f"the gate must report what it examined, got {lines}")
+
+    def test_a_fabricated_quote_is_caught(self):
+        """The whole point. A sentence that reads like a filing and is not in one."""
+        with tempfile.TemporaryDirectory() as td:
+            data = self._tree(td)
+            dive = {"filing_evidence": [
+                {"quote": "temporary supply chain congestion"},
+                {"quote": "management reaffirmed full year guidance of 40% growth"}]}
+            failures, _ = self._run(data, dive)
+            self.assertEqual(len(failures), 1, failures)
+            self.assertIn("does NOT appear", failures[0])
+            self.assertIn("40% growth", failures[0])
+
+    def test_fails_closed_when_the_document_is_missing(self):
+        """Method section 1 says fail closed. `unverifiable` and `verified` must never
+        land in the same bucket, which is what a skip would do."""
+        with tempfile.TemporaryDirectory() as td:
+            data = self._tree(td, doc=None)
+            failures, _ = self._run(data, {"filing_evidence": [{"quote": "anything at all"}]})
+            self.assertEqual(len(failures), 1, failures)
+            self.assertIn("no document", failures[0])
+
+    def test_a_dive_that_quotes_nothing_is_not_asked_for_a_document(self):
+        """Fail-closed applies to quotes, not to dives. A dive with no filing quotes has
+        nothing to verify, and demanding a document from it would train the next session
+        to add an empty quote to quiet the gate."""
+        with tempfile.TemporaryDirectory() as td:
+            data = self._tree(td, doc=None)
+            failures, lines = self._run(data, {"bull": ["reasoned, not quoted"]})
+            self.assertEqual(failures, [])
+            self.assertEqual(lines, [])
+
+    def test_quotes_are_found_at_any_depth_not_just_filing_evidence(self):
+        """A quote hidden in a red-team challenge or an earnings-quality basis is exactly
+        the one a narrow walk would miss, and exactly the one worth checking."""
+        dive = {"filing_evidence": [{"quote": "one"}],
+                "earnings_quality": {"basis": {"quote": "two"}},
+                "red_team": {"challenges": [{"attack": "x", "evidence": [{"quote": "three"}]}]},
+                "bull": ["no quote here"],
+                "notes": [{"text": "prose", "cites": {"quote": "four"}}]}
+        self.assertEqual(sorted(check_analyst.collect_quotes(dive)),
+                         ["four", "one", "three", "two"])
+
+    def test_an_empty_or_non_string_quote_is_not_a_quote(self):
+        self.assertEqual(check_analyst.collect_quotes(
+            {"a": {"quote": "   "}, "b": {"quote": None}, "c": {"quote": 12}}), [])
+
+    def test_the_dive_gate_does_not_own_a_second_normalizer(self):
+        """Two gates that both claim to check a quote `verbatim` must agree on what that
+        means. A copy would drift, and the drift shows up as a quote one gate accepts and
+        the other calls fabricated — so check_analyst imports check_screen.normalize
+        rather than defining one. Identity is not asserted: each module loads its own
+        copy of check_screen by path, so the function objects differ while the source
+        does not. What is asserted is that there is only one source."""
+        self.assertNotIn("def normalize(",
+                         (ROOT / "tools" / "check_analyst.py").read_text(),
+                         "the dive gate has grown its own normalizer; it must import "
+                         "check_screen.normalize so the two can never disagree")
+        self.assertEqual(check_analyst._normalize.__name__, "normalize")
+        for probe in ("Year\u2010over\u2011year  ORDERS",
+                      "book\u2013to\u2013bill \u201cabove\u201d 1.1",
+                      "soft\u00adhyphen\u200bzero width", "  ", "plain ascii"):
+            self.assertEqual(check_analyst._normalize(probe), check_screen.normalize(probe),
+                             f"the two gates disagree on {probe!r}")
+
+
+class TestGateRequiredFieldsAreRendered(unittest.TestCase):
+    """G3: price_source_note was required by check_analyst.py on every dive resting on a
+    single unconfirmed price print, and rendered by no template. The gate reported green
+    while the reader was never told. That is the mirror of the invented-number class
+    check_render.py already guarded, and it needed its own invariant: every dive field the
+    analyst gate names must have a render path in app.js."""
+
+    JS_OK = "var st = D.stocks[0]; esc(st.verdict); esc(st.price_source_note);"
+
+    def test_a_gate_required_field_with_no_render_path_is_caught(self):
+        analyst = "\n".join(f'    x = d.get("field_{chr(97 + i)}")' for i in range(20)) + \
+                  '\n    y = d.get("price_source_note")\n'
+        failures, report = check_render.gate_rendered_failures(analyst, self.JS_OK)
+        self.assertTrue(any("st.field_a" in f for f in failures), failures)
+        self.assertFalse(any("st.price_source_note" in f for f in failures), failures)
+        self.assertIn("field(s) required by", report)
+
+    def test_the_not_in_d_form_counts_as_gate_required(self):
+        analyst = "\n".join(f'    x = d.get("field_{chr(97 + i)}")' for i in range(20)) + \
+                  '\n    if "link_id" not in d:\n        fail("x")\n'
+        failures, _ = check_render.gate_rendered_failures(analyst, self.JS_OK)
+        self.assertTrue(any("st.link_id" in f for f in failures), failures)
+
+    def test_a_sibling_variable_is_not_mistaken_for_the_dive(self):
+        """`rd.get("state")` reads the reverse-DCF block, not the dive. Without the
+        look-behind the scan demanded that app.js render `st.state`, and a check that
+        invents work gets deleted."""
+        analyst = "\n".join(f'    x = d.get("field_{chr(97 + i)}")' for i in range(20)) + \
+                  '\n    s = rd.get("state")\n    q = quality.get("beneish")\n'
+        failures, _ = check_render.gate_rendered_failures(analyst, self.JS_OK)
+        self.assertFalse(any("st.state" in f or "st.beneish" in f for f in failures), failures)
+
+    def test_a_renamed_dive_variable_in_the_gate_fails_loudly(self):
+        """The failure mode a regex scan hides: rename `d` and the harvest is empty, so
+        the check passes over nothing and reports a clean bill. It must refuse instead."""
+        failures, report = check_render.gate_rendered_failures(
+            '    x = dive.get("price_source_note")\n', self.JS_OK)
+        self.assertTrue(failures)
+        self.assertIn("SCAN BROKEN", report)
+        self.assertIn("renamed", failures[0])
+
+    def test_a_renamed_dive_variable_in_app_js_fails_loudly(self):
+        analyst = "\n".join(f'    x = d.get("field_{chr(97 + i)}")' for i in range(20))
+        failures, report = check_render.gate_rendered_failures(
+            analyst, "var dive = D.stocks[0]; esc(dive.verdict);")
+        self.assertTrue(failures)
+        self.assertIn("SCAN BROKEN", report)
+
+    def test_the_quote_walk_arrays_are_covered_too(self):
+        """filing_evidence is verified by the gate's recursive quote walk, which names no
+        field, so the regex cannot see it. Nine verified passages that render nowhere are
+        a check performed for nobody."""
+        analyst = "\n".join(f'    x = d.get("field_{chr(97 + i)}")' for i in range(20))
+        failures, _ = check_render.gate_rendered_failures(analyst, self.JS_OK)
+        self.assertTrue(any("st.filing_evidence" in f for f in failures), failures)
+
+    def test_the_shipped_tree_satisfies_its_own_invariant(self):
+        failures, report = check_render.gate_rendered_failures(
+            (ROOT / "tools" / "check_analyst.py").read_text(),
+            (ROOT / "app" / "templates" / "app.js").read_text())
+        self.assertEqual(failures, [], f"{report}\n" + "\n".join(failures))
 
 
 class TestPayloadDiff(unittest.TestCase):

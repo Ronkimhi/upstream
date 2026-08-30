@@ -6,7 +6,9 @@ That column was prose, so it could only ever be honoured by memory. This is the 
 as an exit code. Sibling of `tools/check_radar.py`; same contract, same shape.
 
 Checks, each reported with the denominator it examined:
-  1. every dive touched today: verdict completeness per method section 7
+  1. every dive touched today: verdict completeness per method section 7, its chain-link
+     attribution, the price it reasoned from, and every filing passage it quotes verified
+     verbatim against data/edgar/docs/<T>.json with the screen gate's own normalizer
   2. exactly 3 bull and 3 bear bullets
   3. review_by inside the clock (COMPOUNDER <= 90d, EVENT <= 21d from updated_at)
   4. the expectations gap table has its five required rows, and the market-implied column
@@ -108,6 +110,56 @@ def check_schema_drift(root: Path) -> None:
         fail(f"schema drift: fetch.py writes {sorted(unused)} which acis.quality never reads")
     report(f"schema: {len(consumed)} consumed / {len(produced)} produced fields agree"
            if not (missing or unused) else "schema: DRIFTED")
+
+
+def collect_quotes(obj) -> list:
+    """Every non-empty `quote` string anywhere in the dive, at any depth.
+
+    A dive quotes filings in places a screen row never does — filing_evidence, the
+    earnings-quality basis, a bull or bear bullet, a red-team challenge — so the walk is
+    over the whole object rather than one known array. Recursing on the value of a `quote`
+    key is pointless (it is a string), which is why the else branch skips it.
+    """
+    found: list = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k == "quote" and isinstance(v, str) and v.strip():
+                found.append(v)
+            else:
+                found.extend(collect_quotes(v))
+    elif isinstance(obj, list):
+        for x in obj:
+            found.extend(collect_quotes(x))
+    return found
+
+
+def check_dive_quotes(data: Path, n: str, ticker, d) -> None:
+    """VERBATIM QUOTES IN THE DIVE (2026-08-29, raised by the first real dive).
+
+    check_screen.py verifies quotes on SCREEN rows. A dive quotes filings too, and no gate
+    touched them, so the deepest document in the funnel was the least checked. Same
+    normalizer as the screen gate, imported rather than reimplemented so the two can never
+    drift into disagreeing about what "verbatim" means.
+
+    Fails CLOSED, exactly as method section 1 demands of the screen: a dive that quotes a
+    filing with no document on disk is a failure, not a skip. A dive that quotes nothing
+    is not asked for a document, because there is nothing to check against it.
+    """
+    quotes = collect_quotes(d)
+    if not quotes:
+        return
+    doc = read_json(data / "edgar" / "docs" / f"{str(ticker).replace('.', '-')}.json")
+    if not isinstance(doc, dict) or not isinstance(doc.get("text"), str):
+        fail(f"{n}: quotes {len(quotes)} filing passage(s) but there is no document at "
+             f"data/edgar/docs/{ticker}.json — fail closed (method section 1)")
+        return
+    body = _normalize(doc["text"])
+    missed = [q for q in quotes if _normalize(q) not in body]
+    for q in missed:
+        fail(f"{n}: quoted passage does NOT appear in {doc.get('form')} "
+             f"{doc.get('accession')} on disk: {q.strip()[:90]!r}")
+    report(f"{n}: {len(quotes) - len(missed)}/{len(quotes)} quoted passage(s) "
+           f"verified verbatim against data/edgar/docs/{ticker}.json")
 
 
 def main() -> int:
@@ -226,38 +278,10 @@ def main() -> int:
                      f"so the dive needs a price_source_note saying the levels rest on a "
                      f"single source. See docs/method.md section 1 on the price plane")
 
-        # 1d. VERBATIM QUOTES IN THE DIVE (2026-08-29, raised by the first real dive).
-        # check_screen.py verifies quotes on SCREEN rows. A dive quotes filings too — in
-        # its thesis, its bull and bear bullets, its earnings-quality basis — and no gate
-        # touched them, so the deepest document in the funnel was the least checked. Same
-        # normalizer as the screen gate, imported rather than reimplemented so the two can
-        # never drift into disagreeing about what "verbatim" means.
-        quotes = []
-
-        def _collect(o):
-            if isinstance(o, dict):
-                for k, v in o.items():
-                    if k == "quote" and isinstance(v, str) and v.strip():
-                        quotes.append(v)
-                    else:
-                        _collect(v)
-            elif isinstance(o, list):
-                for x in o:
-                    _collect(x)
-        _collect(d)
-        if quotes:
-            doc = read_json(data / "edgar" / "docs" / f"{str(ticker).replace('.', '-')}.json")
-            if not isinstance(doc, dict) or not isinstance(doc.get("text"), str):
-                fail(f"{n}: quotes {len(quotes)} filing passage(s) but there is no document at "
-                     f"data/edgar/docs/{ticker}.json — fail closed (method section 1)")
-            else:
-                body = _normalize(doc["text"])
-                missed = [q for q in quotes if _normalize(q) not in body]
-                for q in missed:
-                    fail(f"{n}: quoted passage does NOT appear in {doc.get('form')} "
-                         f"{doc.get('accession')} on disk: {q.strip()[:90]!r}")
-                report(f"{n}: {len(quotes) - len(missed)}/{len(quotes)} quoted passage(s) "
-                       f"verified verbatim against data/edgar/docs/{ticker}.json")
+        # 1d. see check_dive_quotes() — lifted to module level so it can be unit-tested
+        # without building a whole dive tree, which is how the screen gate's own quote
+        # check earned its five tests.
+        check_dive_quotes(data, n, ticker, d)
 
         # 2. bullet counts
         if len(d.get("bull") or []) != 3 or len(d.get("bear") or []) != 3:

@@ -854,7 +854,8 @@
       '<span class="right">' + chip(st.clock) + tierChip(st.tier) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") +
       (pos.length ? chip("in book @ " + pos[pos.length - 1].price, "accent") : "") +
       gradeChip(st.earnings_quality) +
-      '<span class="muted">review <span class="num">' + esc(st.review_by) + "</span></span></span></div>";
+      '<span class="muted">updated <span class="num">' + esc(st.updated_at) + '</span> · review <span class="num">' + esc(st.review_by) + "</span></span>" +
+      staleChip(st.updated_at) + "</span></div>";
     var rt = st.red_team
       ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
         (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
@@ -905,6 +906,37 @@
         (psn ? "<div class='small' style='margin-top:8px'><b>Single-source price.</b> " + esc(psn) + "</div>" : "") +
         "</div>";
     }
+    /* link_id and link_id_basis are required of every dive by method section 7 and by
+       tools/check_analyst.py, and neither reached the page. Without them a reader cannot
+       tell a name that IS the link from one parked on the nearest link the screen had —
+       which is exactly what this dive says about itself in its basis, at length, where
+       nobody could read it. Same defect as price_source_note: gate-required, invisible. */
+    var linkc = "";
+    if (st.link_id || str_or_empty(st.link_id_basis)) {
+      linkc = "<div class='card'><h3>Chain link</h3><div class='row' style='gap:6px;flex-wrap:wrap'>" +
+        (st.link_id ? chip(c ? linkName(c, st.link_id) : st.link_id, "accent")
+                    : chip("unattributed", "stale")) +
+        "</div>" +
+        (str_or_empty(st.link_id_basis)
+          ? "<div class='small' style='margin-top:8px'>" + esc(st.link_id_basis) + "</div>" : "") +
+        "</div>";
+    }
+    /* filing_evidence is the strongest material in the file — passages lifted from the
+       filing on disk, each verified verbatim against data/edgar/docs/<T>.json by
+       tools/check_analyst.py — and it was the only evidence the page never showed. A
+       quote the machine checks and the reader cannot see is a check performed for nobody. */
+    var fe = st.filing_evidence || [];
+    var fec = fe.length ? "<div class='card'><h3>Filing evidence</h3>" +
+      "<div class='small muted'>" + fe.length + " passage(s), each verified word for word against the filing on disk.</div>" +
+      fe.map(function (q) {
+        return "<blockquote>\u201c" + esc(q.quote) + "\u201d<div class='muted'>" + chip(q.tag || "VERIFIED", q.tag === "VERIFIED" ? "accent" : "neutral") +
+          " " + esc(q.form || "") + " · " + esc(q.filing_date || "") + " · " +
+          (q.url ? "<a href='" + esc(q.url) + "'>" + esc(q.accession || "source") + "</a>" : esc(q.accession || "")) +
+          "</div></blockquote>";
+      }).join("") +
+      (str_or_empty(st.filing_evidence_note)
+        ? "<div class='small' style='margin-top:10px'>" + esc(st.filing_evidence_note) + "</div>" : "") +
+      "</div>" : "";
     var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
       "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
       "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
@@ -918,6 +950,7 @@
     return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
       (st.fixture ? '<div class="fixturebanner">Fixture page — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
       '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
+      (linkc ? "<div style='margin-top:14px'>" + linkc + "</div>" : "") +
       seclabel("Price") + "<div class='card'>" + priceChart(mk, st) + "</div>" +
       seclabel("The case") +
       '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
@@ -927,6 +960,7 @@
       '<div class="statgrid">' + priced + val + "</div>" +
       (caCard || prCard ? '<div class="statgrid" style="margin-top:14px">' + caCard + prCard + "</div>" : "") +
       (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
+      (fec ? "<div style='margin-top:14px'>" + fec + "</div>" : "") +
       "<div style='margin-top:14px'>" + rt + "</div>" +
       notesBlock(st) + changelogBlock(st) + footer() + "</main>";
   }
