@@ -69,6 +69,12 @@ REQUIRE = [
     ("app/templates/app.js", r"function isPlottable\(",
      "the single definition of a plottable link (the scatter and the not-scored list "
      "must not disagree)"),
+    ("app/templates/app.js", r"function opportunityChip\(",
+     "the opportunity-tier renderer that keeps O1/O2/O3 distinct from data tiers"),
+    ("app/templates/app.js", r"function campaignView\(",
+     "the Campaign route, including its truthful missing-data state"),
+    ("app/build.py", r"def build_campaign_ix\(",
+     "the bounded campaign projection that keeps evidence and profiles out of the page"),
     ("app/templates/shell.html", r'id="upstream-queue"',
      "the click-queue block every Run button appends to"),
     ("app/templates/shell.html", r"window\.UPSTREAM_DATA = ",

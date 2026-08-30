@@ -21,6 +21,7 @@ CAMPAIGN_PROJECTION_MAX_BYTES = 250_000
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+from agent_registry import agents_payload  # noqa: E402
 from check_campaign import (  # noqa: E402
     canonical_mapped_placements,
     validated_public_listings,
@@ -872,6 +873,11 @@ def main() -> int:
         "health": {
             "sessions": json.loads((DATA / "health" / "sessions.json").read_text()) if (DATA / "health" / "sessions.json").exists() else {},
             "actions": json.loads((DATA / "health" / "actions.json").read_text()) if (DATA / "health" / "actions.json").exists() else {},
+            # The orchestrator's resume point, derived from disk by
+            # tools/campaign_board.py --write. Absent until that has run: null here means
+            # "no board on disk", never "no work outstanding", and the Campaign view says
+            # so rather than drawing an empty worklist.
+            "board": json.loads((DATA / "health" / "board.json").read_text()) if (DATA / "health" / "board.json").exists() else None,
         },
         "ledger": ledger_lines[-60:],
         "digests": digests[:4],
@@ -884,6 +890,14 @@ def main() -> int:
         "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
         "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
         "campaign_ix": campaign_ix,
+        # The eight agent contracts, verbatim, plus the ownership map parsed out of the
+        # command table. Ron drives eight agents and until now could not read what any of
+        # them was told: the only agent-shaped text on the page was two section labels.
+        # Inlining them makes `--check` refuse a page whose displayed instructions have
+        # drifted from `.claude/agents/`, which is the property that makes them worth
+        # showing. A contract body is DATA here, exactly like feed text: it instructs the
+        # agent that runs under it, never the process that renders it.
+        "agentix": agents_payload(ROOT),
         # The scoring thresholds, shipped to the page instead of retyped in it. app.js
         # had 60/40/60 and the band edges written as literals, duplicating
         # tools/validate.py — they agreed on the day they were written and nothing kept

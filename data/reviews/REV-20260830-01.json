@@ -1,0 +1,195 @@
+{
+  "id": "REV-20260830-01",
+  "as_of": "2026-08-30",
+  "target": "current uncommitted Ten-Theme campaign machine changes",
+  "reviewed_by": "cass-adversary",
+  "behavior_change": "The current machine diff adds frozen campaign selection, audited issuer and profile joins, exact Stocky handoffs, a pre-chain Tally impact queue, Adam's machine audit, and new Ember heat and scenario ownership with gates and calibration.",
+  "checks_touched": [
+    "tools/validate.py:v_mapping",
+    "tools/validate.py:v_company",
+    "tools/validate.py:v_campaign",
+    "tools/validate.py:v_review",
+    "tools/check_map.py:validate_mapping",
+    "tools/check_profile.py:validate_profile",
+    "tools/check_campaign.py:compute_campaign_completion",
+    "tools/check_analyst.py",
+    "tools/map_calibrate.py:build_calibration",
+    "tools/check_map.py:mapping_fingerprint",
+    "tools/check_map.py:audit_failures",
+    "tools/check_map.py:audit_write_scope_failures",
+    ".claude/hooks/campaign-gate.py",
+    ".claude/hooks/universe-gate.py",
+    ".claude/hooks/profile-gate.py",
+    "tools/check_render.py",
+    "tools/queue_allowlist.py",
+    ".github/workflows/ci.yml",
+    "tools/tests/test_campaign.py",
+    "tools/tests/test_campaign_hooks.py",
+    "tools/tests/test_campaign_ui.py",
+    "tools/tests/test_campaign_commands.py",
+    "tools/tests/test_cass.py",
+    "tools/check_impact.py:main",
+    "tools/impact_score.py:compute",
+    "tools/impact_score.py:rank_key",
+    "tools/impact_calibrate.py:build",
+    "tools/check_machine.py:command_rows",
+    "tools/check_machine.py:audit_promises",
+    "tools/check_machine.py:audit_gate_falsifiability",
+    "tools/check_machine.py:audit_hooks",
+    "tools/check_machine.py:audit_agents",
+    "tools/check_machine.py:audit_routines",
+    "tools/validate.py:v_impact",
+    "tools/validate.py:v_rank_log",
+    "tools/validate.py:v_digest",
+    ".claude/hooks/impact-gate.py",
+    "tools/tests/test_stocky_admission.py",
+    "tools/tests/test_profile_substance.py",
+    "tools/tests/test_map_proof.py",
+    "tools/tests/test_campaign_denominators.py",
+    "tools/tests/test_impact.py",
+    "tools/tests/test_machine.py",
+    "tools/check_heat.py",
+    "tools/check_scenarios.py",
+    "tools/ember_calibrate.py",
+    ".claude/hooks/ember-gate.py",
+    "tools/tests/test_heat.py",
+    "tools/tests/test_scenarios.py",
+    "tools/tests/test_ember_hook.py",
+    "tools/check_screen.py:check_campaign_identity",
+    "tools/tests/test_screen_identity.py"
+  ],
+  "cost_if_wrong": "A false Ember health bucket can hide scored work as pending, a hand-written Tally queue can change chain priority, a non-active placement can enter a Sieve handoff, and Adam can certify a gate test that never invoked the gate while every focused check reports OK.",
+  "how_you_would_know": "Fresh behavior probes returned exit zero for fully scored heat reported as 0 scored and 2 pending, three complete scenarios reported as 0 scored and 3 pending, a PRIME appraisal represented in the rank queue as THIN with score 0.1 and unmappedness 0, a nested market_ticker carrying an unfetched arbitrary numeric fact, a PENDING mapping placement admitted to a strict campaign screen, and an Adam refusal certificate produced by running false with check_alpha.py as an unused argument.",
+  "challenges": [
+    {
+      "claim": "Campaign-era Stocky admission requires an exact O1 issuer, listing, chain, link and screen handoff from a currently closed mapping.",
+      "attack": "ACTIVE, DRAFT, missing-audit, FAIL, stale-fingerprint, stale-audit, O2/O3, wrong-listing, wrong-link and wrong-screen probes refuse, including DRAFT and FINAL against an honest ACTIVE current FAIL map. Forged old dates, copied or renamed legacy content, and changed ticker or chain now refuse. The sole legacy VRT file is accepted only at its exact path and exact HEAD byte digest, which matched 98b1f6f3fba93fa7bbbde38ae5db761409471bfa758df3b37d51ae80d4e4d9cf in both HEAD and the worktree.",
+      "survives": true
+    },
+    {
+      "claim": "Every COMPLETE profile metric group is canonical and substantive rather than a generic placeholder.",
+      "attack": "Copy the same placeholder NULL object into all eight groups, remove required canonical keys, reuse one generic NULL basis, add unknown O1 states, and replace finite values with non-numeric values. The profile gate refuses each shape while accepting field-specific O2 NULLs and sourced finite canonical fields.",
+      "survives": true
+    },
+    {
+      "claim": "Official identity evidence plus the semantic audit proves that each counted issuer has a real public listing.",
+      "attack": "Every placement-counted listing needs its own identity sample, exact listing digest, matching evidence URL, date, source type and exact source_excerpt. Missing, unrelated and post-audit replacement excerpts refuse, and the listing evidence itself must state the exact legal issuer, exchange and ticker. Self-labelled blog URLs also refuse.",
+      "survives": true
+    },
+    {
+      "claim": "EXHAUSTED is a structured multi-source census rather than one shaped zero-hit assertion.",
+      "attack": "Collapse the searches to one domain and one source type, remove same-plane zero-hit controls, disagree on the qualification boundary, understate hits, omit dispositions, count a rejected issuer, and delete an audited search. The map gate refuses every mutation and requires every EXHAUSTED placement and search in the audit sample.",
+      "survives": true
+    },
+    {
+      "claim": "The selected campaign denominator is a structured frozen record of at least 25 candidates rather than a hand-entered count.",
+      "attack": "Drop a candidate while retaining candidates_examined, remove one of the five dimensions or its dated URL, duplicate an id, mutate the frozen basis or selected-theme identity, and rewrite an alternate in place. Campaign validation and HEAD preservation refuse all of them.",
+      "survives": true
+    },
+    {
+      "claim": "Atlas calibration preserves legacy screen yield per chain while using normalized mapping yield only where a mapping exists.",
+      "attack": "Mix one normalized chain with one legacy chain and one attributed legacy screen row. build_calibration reports mixed mode, keeps the legacy chain on screen yield, uses placement yield for the normalized chain, and preserves both denominators.",
+      "survives": true
+    },
+    {
+      "claim": "The campaign, universe, profile and impact hooks normalize their run dates to UTC.",
+      "attack": "Exercise ledger and calibration timestamps on both sides of local midnight with +14:00 and -07:00 offsets. The three amended campaign hooks and the new impact hook normalize to the UTC day and refuse stale UTC dates. The unchanged radar and chain hooks still use local dates, so this claim is limited to the hooks touched by the diff.",
+      "survives": true
+    },
+    {
+      "claim": "Campaign completion and the dashboard share one placement-backed public-issuer denominator.",
+      "attack": "Add orphan issuer rows, duplicate listings, rejected placements, unresolved listings, one issuer on two links, and one issuer on two themes. Campaign-wide, per-theme and per-link projections agree: orphan and rejected rows do not pad, one issuer is one campaign issuer, and link counts remain placement-specific.",
+      "survives": true
+    },
+    {
+      "claim": "Mapping audits enforce UTC freshness, current material fingerprints, content digests, exact denominators, complete placement and search samples, and declared rather than cryptographically claimed independence.",
+      "attack": "Move an audit before a later material changelog, mutate a role after sampling, use a stale or unmatched digest, remove one target sample or EXHAUSTED search, falsify denominators, omit provenance, and claim SELF_REVIEW without disclosing it. Every probe fails; the contract explicitly limits reviewer independence to declared provenance.",
+      "survives": true
+    },
+    {
+      "claim": "A COMPLETE map can reopen to ACTIVE only through a newer explained FAIL audit over unchanged material.",
+      "attack": "Attempt a bare status regression, reuse the prior PASS, omit the appended explanation, use a stale fingerprint, and change material fields during the audit. Preservation refuses all of them; the exact newer FAIL plus appended explanation passes. The transition itself survives, but Stocky does not honor the reopened state as challenged above.",
+      "survives": true
+    },
+    {
+      "claim": "Both live issuer maps are COMPLETE under current matching PASS audits.",
+      "attack": "Run check_map over the live corpus and recompute each audit against current material content. It reports two maps, 23 links, 182 of 182 distinct placements and six EXHAUSTED links with no findings. ai-infrastructure is COMPLETE/PASS with 76 of 76 placement-counted listings sampled and 105 placements; tibet-mega-dam is COMPLETE/PASS with 66 of 66 listings sampled and 77 placements.",
+      "survives": true
+    },
+    {
+      "claim": "Cass remains advisory and does not restore peer actors, ownership tiers, check_collab, commit trailers or queue-claim arbitration.",
+      "attack": "Search active settings, hooks, workflows, tools and the command protocol for check_collab, collab hooks, Actor trailers, CRAFT or CONSTITUTION tiers, and PRIMARY or STANDBY arbitration. No live file or registration exists; Adam mentions the removed apparatus only as a prohibition in his contract.",
+      "survives": true
+    },
+    {
+      "claim": "Adam's gate-falsifiability audit proves that each reported gate has a test which watches that gate refuse a defect.",
+      "attack": "The prior bare-name synthetic result and two-gates one-result spoofs now refuse. A test that runs subprocess.run(['false', 'check_alpha.py']) and asserts the nonzero return code is still certified for check_alpha. The process invoked false, not the gate, yet the fixture reports 1 of 1 gate covered and check_machine OK.",
+      "survives": false
+    },
+    {
+      "claim": "A digest cannot omit Adam's required machine section or generated_by field while the integrated gates remain green.",
+      "attack": "Validate a digest containing only week, summary and ranked. tools/validate.py now exits one and names both missing generated_by and missing machine section; the live digest passes.",
+      "survives": true
+    },
+    {
+      "claim": "Tally's four-leg arithmetic, cited-or-NULL money rule and impact-band partition are deterministic and non-vacuous.",
+      "attack": "Probe every band boundary, a NULL leg, a hand-written wrong band, speculative money, undated evidence, stale calibration, a missing occurrence and a run-day empty set. The helper partitions every scored combination and the focused gate refuses each malformed case with examined denominators.",
+      "survives": true
+    },
+    {
+      "claim": "Tally permits one permanent appraisal per occurrence, enforces review_by at plus 90 days, and applies the venue rule to every ticker-level number.",
+      "attack": "Same-day and off-day duplicate, one-day review_by, ticker_facts, empty queue, duplicate queue and arbitrary numeric keys beside ticker now refuse. The same arbitrary unfetched number beside market_ticker instead of ticker is not discovered: a nested {market_ticker: ZZZ, widget_count_usd: 12345.67} appraisal returns zero and reports that zero ticker-level facts were examined.",
+      "survives": false
+    },
+    {
+      "claim": "Ember heat gates make a complete campaign-era heat block non-vacuous and compute every opportunity label consistently.",
+      "attack": "All-NULL heat retaining UNDISCOVERED or money_corner now refuses, an honest NULL block with null derived fields passes, crowdedness 60 is CROWDED through the shared helper, and non-reconciling totals refuse. Two fully scored valid links can still declare heat_health {examined: 2, scored: 0, pending: 2, errors: 0}; check_heat reports zero findings and OK.",
+      "survives": false
+    },
+    {
+      "claim": "Ember scenario gates make every armed machine check executable and bind the written health denominator to the scenarios examined.",
+      "attack": "False armed flags, unsupported types, malformed tickers, string, null and non-finite levels now refuse, and health totals must reconcile. Three complete valid scenarios can still declare scenario_health {examined: 3, scored: 0, pending: 3, errors: 0}; check_scenarios reports zero findings and OK.",
+      "survives": false
+    },
+    {
+      "claim": "Sieve campaign-screen admission refuses legacy evasion, wrong tiers, rejected placements and stale identity paths.",
+      "attack": "A new unmarked or backdated screen, REJECTED, SUPERSEDED or explicitly inactive placement, and profile-to-row data-tier mismatch now refuse. A placement carrying status PENDING is treated as qualified because the gate rejects three named statuses instead of requiring ACTIVE; the strict campaign screen returns zero and OK after the current audit fingerprint is refreshed.",
+      "survives": false
+    },
+    {
+      "claim": "Tally's derived rank queue exactly represents and orders every current appraisal.",
+      "attack": "Keep the correct occurrence_id and appraisal_id but replace a PRIME appraisal's queue fields with impact_score 0.1, impact_band THIN and unmappedness 0. check_impact reports zero queue integrity defects and OK because it binds only the ids and does not compare row values or order with the appraisal and occurrence.",
+      "survives": false
+    }
+  ],
+  "verdict": "REJECT",
+  "surviving_objection": "A PRIME appraisal can be written into the derived rank queue as THIN with score 0.1 and unmappedness 0 while check_impact reports OK, so the machine can change which occurrence gets chained next without changing the evidence.",
+  "resolution": "Resolved 2026-08-30 by the ten-theme infusion P0 pass. Every one of the six failing challenges was re-probed verbatim rather than trusted by test name. Five (15 market_ticker alias, 16 heat_health reconciliation, 17 scenario_health reconciliation, 18 ACTIVE-only placement admission, 19 rank-queue value and order integrity) were already closed by work that landed after this review was written; each probe now exits 1 and a named test watches the refusal. Challenge 12 was genuinely open in a wider form than the review states: the literal false/check_alpha.py spoof already refused, but subprocess.run(['./check_alpha.py']) and subprocess.run([str('check_alpha.py')]) both certified coverage, because argv items were matched by name rather than resolved to a path. check_machine.py now assembles an argv item's path from its string constants and requires the last two segments to be tools/<gate>.py with <gate> a real file. Two adjacent defects found while closing it are fixed in the same pass: ember-gate.py raised ValueError on the ledger's prose headers and so never enforced anything, and check_screen.py required opportunity_tier == O2 on a screen row while run selection promotes to O1, which made screening and selection mutually exclusive. The surviving objection stands as written and is not claimed closed.",
+  "changelog": [
+    {
+      "ts": "2026-08-30T03:28:15Z",
+      "change": "Initial fresh-context advisory review of the current uncommitted Ten-Theme campaign machine changes."
+    },
+    {
+      "ts": "2026-08-30T04:08:05Z",
+      "change": "AMEND after the first REJECT was addressed. Prior verdict: REJECT. Current verdict: REJECT. Exact campaign identity joins, structured frozen selection, per-chain calibration, UTC dates for the three new hooks, and constrained COMPLETE-to-ACTIVE reopening are closed; Stocky admission, substantive metric groups, public-listing and EXHAUSTED proof, dashboard mapped denominators, and independent current universe-audit evidence remain blocking."
+    },
+    {
+      "ts": "2026-08-30T13:07:17Z",
+      "change": "AMEND after the second REJECT was addressed. Prior verdicts preserved: REJECT, REJECT. Current verdict: REJECT. Canonical metrics, structured selection, multi-source EXHAUSTED proof, mixed calibration, UTC handling in the touched hooks, canonical issuer denominators, current map audits, and exact identity joins are closed. Remaining blockers are Stocky admission through a reopened FAIL map, listing identity evidence not bound into semantic audit samples, duplicate and stale Tally appraisals plus opt-in ticker enforcement, and Adam's digest and per-gate falsifiability claims remaining non-blocking or spoofable."
+    },
+    {
+      "ts": "2026-08-30T13:17:28Z",
+      "change": "AMEND after the third REJECT was addressed. Prior verdicts preserved: REJECT, REJECT, REJECT. Current verdict: REJECT. Direct ACTIVE, FAIL, stale and non-COMPLETE Stocky admission, complete listing-sample coverage, the same-day Tally attack, two-gate Adam spoof, and missing digest machine metadata are closed. Remaining blockers are writable legacy dates, unbound identity excerpts, Tally off-day and queue completeness gaps, synthetic Adam certificates, vacuous Ember heat and scenario shapes, and Sieve marker, placement-status and data-tier bypasses."
+    },
+    {
+      "ts": "2026-08-30T13:27:07Z",
+      "change": "AMEND after the fourth REJECT was addressed. Prior verdicts preserved: REJECT, REJECT, REJECT, REJECT. Current verdict: REJECT. Stocky's legacy boundary is exact-path and HEAD-byte bound; listing excerpts, NULL heat, scenario check shapes, Sieve marker and named inactive states, Tally off-day corpus checks and empty queue, and the prior Adam synthetic-result spoof are closed. Remaining blockers are false but reconciling Ember health classifications, Tally queue values and market_ticker aliases, non-ACTIVE Sieve statuses outside the denylist, and Adam subprocess certificates that mention but never invoke the gate."
+    },
+    {
+      "ts": "2026-08-30T14:23:29.508307+00:00",
+      "by": "session",
+      "change": "resolution recorded: 1 of 6 failing challenges was open and is fixed; 5 were already closed and re-verified by probe; 2 adjacent gate defects fixed in the same pass. Verdict REJECT is preserved as written."
+    }
+  ]
+}

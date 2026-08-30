@@ -111,14 +111,21 @@ def control_ok():
 _edgar_probes = {}
 
 
-def _edgar_probe(key, fn, label):
+def _edgar_probe(key, fn, label, plane="EDGAR"):
+    """One cached control probe per (plane, surface), printed with the plane it probed.
+
+    `plane` exists because the yfinance statements fallback needs the same discipline on a
+    different data plane, and a Yahoo probe printed as "EDGAR control probe" would be the
+    exact class of misleading output the verified_zero rule exists to prevent.
+    """
     if key not in _edgar_probes:
         try:
             _edgar_probes[key] = bool(fn())
         except Exception as e:  # noqa: BLE001
             _edgar_probes[key] = False
-            print(f"  EDGAR probe {label} raised: {str(e)[:120]}")
-        print(f"  EDGAR control probe ({label}): {'OK' if _edgar_probes[key] else 'FAILED'}")
+            print(f"  {plane} probe {label} raised: {str(e)[:120]}")
+        print(f"  {plane} control probe ({label}): "
+              f"{'OK' if _edgar_probes[key] else 'FAILED'}")
     return _edgar_probes[key]
 
 
@@ -345,10 +352,12 @@ QUALITY_FIELDS = ("revenue", "net_income", "operating_income", "gross_profit",
                   "inventory", "ppe_net", "shares", "long_term_debt")
 
 
-def do_fundamentals(ticker):
-    cik = cik_for(ticker)
-    if not cik:
-        raise RuntimeError(f"no SEC CIK for {ticker} (T3 name: cite fundamentals from filings/IR via web, tagged INFERRED)")
+def _fundamentals_sec(ticker, cik):
+    """Primary leg: SEC companyfacts XBRL. Returns the fundamentals dict, writes nothing.
+
+    Unchanged behaviour — this is the body `do_fundamentals` has always had, lifted into
+    its own function so a second leg could exist without touching the first one.
+    """
     edgar_wait()
     r = requests.get(SEC_COMPANYFACTS_URL.format(cik=int(cik)), headers=SEC_HEADERS, timeout=60)
     if r.status_code != 200:
@@ -409,6 +418,248 @@ def do_fundamentals(ticker):
                                "— cannot tell an empty filer from a dead data.sec.gov")
         f["verified_zero"] = {"note": "no revenue concepts found",
                               "probe": "edgar-AAPL-companyfacts-ok"}
+    return f
+
+
+# ------------------------------------------- fundamentals: yfinance statements fallback
+# The SEC leg only exists for a filer with a CIK, so before 2026-08-30 every non-US listing
+# had no fundamentals, no `pcs` and no `quality` block at all: 16 FAILED rows in
+# data/requests.json every one reading "no SEC CIK for <T>", and 19 of 28 files in
+# data/market/ price-only. Chains here are global by construction, which left most of the
+# issuer census unprofileable and undivable. Ron approved this second leg 2026-08-30.
+#
+# What it is NOT: a filing. Yahoo's statements are a VENDOR AGGREGATE — a third party's
+# normalisation of a local-GAAP or IFRS report nobody in this repo has read. Every block it
+# writes carries source "yfinance-statements", tag INFERRED and official_source false, and
+# method section 6A now says in as many words that such a number satisfies the T2/T3
+# profile bar only with a derivation basis and can never be cited as a filing quote.
+#
+# Each field names candidate (statement, row labels) pairs in preference order. The labels
+# are the DataFrame index yf.Ticker(t).income_stmt / .balance_sheet / .cashflow return; they
+# were read off a live response (1072.HK, 2026-08-30), not guessed from documentation. The
+# emitted keys come from QUALITY_FIELDS itself rather than a parallel list, so a rename
+# there fails this map loudly instead of silently degrading every score to PENDING_DATA the
+# way the 2026-08-29 long_term_debt drift did.
+YF_FACT_MAP = {
+    "revenue": [("income", ["Total Revenue", "Operating Revenue"])],
+    "net_income": [("income", ["Net Income", "Net Income Common Stockholders",
+                               "Net Income Including Noncontrolling Interests",
+                               "Net Income Continuous Operations"])],
+    "operating_income": [("income", ["Operating Income",
+                                     "Total Operating Income As Reported", "EBIT"])],
+    "gross_profit": [("income", ["Gross Profit"])],
+    "cost_of_revenue": [("income", ["Cost Of Revenue", "Reconciled Cost Of Revenue"])],
+    "operating_cashflow": [("cash", ["Operating Cash Flow",
+                                     "Cash Flow From Continuing Operating Activities"])],
+    # Yahoo signs Capital Expenditure as a cash OUTFLOW (negative); the SEC leg's
+    # PaymentsToAcquirePropertyPlantAndEquipment is a positive payment. Normalised to the
+    # SEC convention below so one stored field never means two different things.
+    "capex": [("cash", ["Capital Expenditure", "Purchase Of PPE"])],
+    "depreciation": [("cash", ["Depreciation And Amortization",
+                               "Depreciation Amortization Depletion", "Depreciation"]),
+                     ("income", ["Reconciled Depreciation",
+                                 "Depreciation And Amortization In Income Statement"])],
+    "sga": [("income", ["Selling General And Administration",
+                        "General And Administrative Expense"])],
+    "total_assets": [("balance", ["Total Assets"])],
+    "current_assets": [("balance", ["Current Assets", "Total Current Assets"])],
+    "current_liabilities": [("balance", ["Current Liabilities", "Total Current Liabilities"])],
+    "total_liabilities": [("balance", ["Total Liabilities Net Minority Interest",
+                                       "Total Liabilities"])],
+    "retained_earnings": [("balance", ["Retained Earnings"])],
+    "equity": [("balance", ["Stockholders Equity", "Common Stock Equity",
+                            "Total Equity Gross Minority Interest"])],
+    "receivables": [("balance", ["Accounts Receivable", "Receivables",
+                                 "Gross Accounts Receivable"])],
+    "inventory": [("balance", ["Inventory", "Inventories"])],
+    "ppe_net": [("balance", ["Net PPE", "Property Plant And Equipment Net"])],
+    # A point-in-time share COUNT, matching the SEC leg's instant-shape `shares`. The
+    # income-statement average-share rows are the fallback, not the first choice: Piotroski
+    # reads this series to detect issuance, and an average smears the very step it looks for.
+    "shares": [("balance", ["Ordinary Shares Number", "Share Issued"]),
+               ("income", ["Diluted Average Shares", "Basic Average Shares"])],
+    "long_term_debt": [("balance", ["Long Term Debt",
+                                    "Long Term Debt And Capital Lease Obligation"])],
+}
+
+# The two non-QUALITY_FIELDS rows the SEC leg also writes, because do_quality reads them to
+# build enterprise value. Same single-latest-row shape it produces.
+YF_EXTRA_MAP = {
+    "cash": [("balance", ["Cash And Cash Equivalents",
+                          "Cash Cash Equivalents And Short Term Investments"])],
+    "total_debt": [("balance", ["Total Debt", "Long Term Debt And Capital Lease Obligation",
+                                "Long Term Debt"])],
+}
+
+YF_CONTROL_TICKER = "MSFT"
+
+
+def yf_statements_ok():
+    """MSFT's income statement carries Total Revenue — proves the Yahoo fundamentals plane
+    is alive, so an empty statement set elsewhere can be stamped verified_zero instead of
+    lying. Same discipline as edgar_facts_ok(), applied on the plane the number actually
+    came from: neither the stooq price probe nor an EDGAR probe certifies anything about a
+    vendor statements endpoint."""
+    def probe():
+        import yfinance as yf
+        inc = yf.Ticker(YF_CONTROL_TICKER).income_stmt
+        return inc is not None and not inc.empty and "Total Revenue" in list(inc.index)
+    return _edgar_probe("yf_statements", probe,
+                        f"{YF_CONTROL_TICKER} yfinance income_stmt", plane="yfinance")
+
+
+def _yf_num(v):
+    """float(v) or None. NaN is None, because a NaN written to JSON is not valid JSON and
+    a NaN scored as a number is worse."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return None if f != f else f
+
+
+def _yf_rows(frames, sources, transform=None):
+    """Latest 8 annual periods for one field as [(period_end, value), ...], oldest first.
+
+    Exactly the row shape the SEC leg's pick() returns, because acis.quality reads both
+    legs through one code path and must never need to know which one wrote the file.
+    """
+    for statement, labels in sources:
+        fr = frames.get(statement)
+        if fr is None:
+            continue
+        for label in labels:
+            if label not in fr.index:
+                continue
+            row = fr.loc[label]
+            if getattr(row, "ndim", 1) > 1:   # duplicate label -> DataFrame, take the first
+                row = row.iloc[0]
+            keep = {}
+            for col, val in row.items():
+                v = _yf_num(val)
+                if v is None:
+                    continue
+                end = col.date() if hasattr(col, "date") else col
+                keep[str(end)[:10]] = transform(v) if transform else v
+            if keep:
+                return sorted(keep.items())[-8:]
+    return []
+
+
+def _fundamentals_yfinance(ticker):
+    """Fallback leg for a ticker with no SEC CIK. Returns the fundamentals dict.
+
+    Reuses the plumbing the price leg already uses — a local `import yfinance`, one Ticker
+    object per call, and a recorded reason for every source that did not answer — rather
+    than adding a second HTTP path of its own. One Ticker object matters: yfinance caches
+    per instance, so the three statements and `.info` cost one round trip each, once.
+    """
+    try:
+        import yfinance as yf
+    except ImportError as e:
+        raise RuntimeError(f"yfinance not installed in this job: {e}")
+    try:
+        tk = yf.Ticker(ticker)
+    except Exception as e:  # noqa: BLE001
+        raise RuntimeError(f"yfinance could not resolve {ticker}: "
+                           f"{type(e).__name__}: {str(e)[:120]}")
+
+    # A leg that swallows its failure is an unfalsifiable source (see dual_source.py).
+    frames, legs = {}, {}
+    for name, attr in (("income", "income_stmt"), ("balance", "balance_sheet"),
+                       ("cash", "cashflow")):
+        try:
+            fr = getattr(tk, attr)
+            ok = fr is not None and not fr.empty
+            frames[name] = fr if ok else None
+            legs[name] = {"answered": bool(ok), "reason": None if ok else "empty frame",
+                          "line_items": int(fr.shape[0]) if ok else 0,
+                          "periods": [str(c)[:10] for c in fr.columns] if ok else []}
+        except Exception as e:  # noqa: BLE001
+            frames[name] = None
+            legs[name] = {"answered": False, "line_items": 0, "periods": [],
+                          "reason": f"{type(e).__name__}: {str(e)[:120]}"}
+    info = {}
+    try:
+        info = tk.info or {}
+        legs["info"] = {"answered": bool(info), "reason": None if info else "empty info"}
+    except Exception as e:  # noqa: BLE001
+        legs["info"] = {"answered": False, "reason": f"{type(e).__name__}: {str(e)[:120]}"}
+
+    f = {
+        # Honesty markers, load-bearing. method section 1's tag vocabulary and section 6A
+        # both bind on these: a vendor aggregate is INFERRED, is not an official source,
+        # and can never be cited as a filing quote.
+        "source": "yfinance-statements",
+        "tag": "INFERRED",
+        "official_source": False,
+        "vendor": "Yahoo Finance via yfinance",
+        "vendor_caveat": ("third-party normalisation of a local-GAAP/IFRS report this repo "
+                          "has not read; INFERRED, never citable as a filing quote "
+                          "(method section 6A)"),
+        "cik": None,
+        "as_of": TODAY,
+        # Written because they can disagree: 1072.HK reports in CNY and trades in HKD, and
+        # multiplying an HKD price by a share count to compare against CNY liabilities is a
+        # manufactured number. do_quality reads these two fields and refuses the comparison.
+        "statement_currency": info.get("financialCurrency"),
+        "price_currency": info.get("currency"),
+        "revenue_fy": _yf_rows(frames, YF_FACT_MAP["revenue"]),
+        # The SEC leg's revenue_q is 10-Q-derived. Yahoo's interim statements are not
+        # reliably quarterly for a foreign filer (a Hong Kong issuer reports half-yearly),
+        # so an interim series stored under a name that says "quarterly" would be mislabelled
+        # data. Empty with a stated reason beats a wrong label (method section 1).
+        "revenue_q": [],
+        "interim_note": ("no interim series: vendor interim statements are not reliably "
+                         "quarterly for non-US filers, and a half-year row stored as _q "
+                         "would be mislabelled"),
+        "legs": legs,
+    }
+    found, attempted = [], []
+    for key in QUALITY_FIELDS:
+        attempted.append(key)
+        rows = _yf_rows(frames, YF_FACT_MAP[key],
+                        transform=abs if key == "capex" else None)
+        if rows:
+            f[f"{key}_fy"] = rows
+            found.append(key)
+    for key, sources in YF_EXTRA_MAP.items():
+        f[key] = _yf_rows(frames, sources)[-1:] or None
+    f["coverage"] = {"annual_fields_found": len(found),
+                     "annual_fields_attempted": len(attempted),
+                     "missing": [k for k in attempted if k not in found]}
+
+    # Vendor scalars, kept OUT of the *_fy series shape on purpose: a single latest count is
+    # not a series, and Piotroski reading it as one would compare a period against itself.
+    # do_quality falls back to them only when the statement series is absent.
+    shares_field = ("impliedSharesOutstanding" if _yf_num(info.get("impliedSharesOutstanding"))
+                    else "sharesOutstanding")
+    f["shares_latest"] = {"value": _yf_num(info.get(shares_field)), "field": shares_field,
+                          "source": "yfinance-info", "tag": "INFERRED", "as_of": TODAY}
+    f["market_cap_vendor"] = {"value": _yf_num(info.get("marketCap")),
+                              "currency": info.get("currency"),
+                              "source": "yfinance-info", "tag": "INFERRED", "as_of": TODAY}
+
+    if not f["revenue_fy"]:
+        # Same rule as the SEC leg, certified on the plane the read came from: an empty
+        # result is only writable when a control probe proved the endpoint answers at all.
+        if not yf_statements_ok():
+            raise RuntimeError(
+                f"no yfinance statement rows for {ticker} AND the yfinance statements "
+                f"control probe failed — cannot tell a name Yahoo does not cover from a "
+                f"dead fundamentals endpoint. legs: {legs}")
+        f["verified_zero"] = {"note": "no revenue rows in yfinance statements",
+                              "probe": f"yfinance-{YF_CONTROL_TICKER}-income-stmt-ok"}
+        print(f"  WARN fundamentals {ticker}: yfinance returned no revenue rows "
+              f"(control probe OK, so this is coverage, not an outage)")
+    print(f"  fundamentals {ticker}: yfinance-statements, {len(found)}/{len(attempted)} "
+          f"annual fields, currency {f['statement_currency']}")
+    return f
+
+
+def _store_fundamentals(ticker, f, cik):
+    """One writer for both legs, so a block can never land in a shape that depends on which
+    source produced it."""
     path = DATA / "market" / f"{safe_name(ticker)}.json"
     m = jload(path, {"ticker": ticker, "price_status": "NO_DATA", "prints": [], "series": None, "pcs": None})
     m["fundamentals"] = f
@@ -416,6 +667,15 @@ def do_fundamentals(ticker):
     m.setdefault("tier", tier_for(ticker, cik))
     jdump(path, m)
     return [f"data/market/{safe_name(ticker)}.json"]
+
+
+def do_fundamentals(ticker):
+    """SEC companyfacts when the ticker resolves to a CIK, the vendor statements fallback
+    when it does not. The CIK is the ONLY thing that chooses the leg: an SEC filer never
+    silently reads a vendor aggregate instead of its own filings."""
+    cik = cik_for(ticker)
+    f = _fundamentals_sec(ticker, cik) if cik else _fundamentals_yfinance(ticker)
+    return _store_fundamentals(ticker, f, cik)
 
 
 # ---------------------------------------------------------------- pcs
@@ -455,22 +715,49 @@ def do_quality(ticker):
         return rows[-1][1] if rows else None
 
     shares = last_val(fund.get("shares_fy"))
+    shares_as_of = fund.get("shares_fy", [[None]])[-1][0] if fund.get("shares_fy") else None
+    if shares is None and isinstance(fund.get("shares_latest"), dict):
+        # Vendor leg only: the statement series is absent, so the latest vendor count is the
+        # honest remaining input. Named as vendor in shares_used rather than blended in.
+        shares = fund["shares_latest"].get("value")
+        shares_as_of = fund["shares_latest"].get("as_of")
     price = None
     if m.get("series") and m["series"].get("rows"):
         price = m["series"]["rows"][-1][1]
     elif m.get("prints"):
         price = m["prints"][0].get("close")
     market_cap = shares * price if (shares and price) else None
+    if market_cap is None and isinstance(fund.get("market_cap_vendor"), dict):
+        market_cap = fund["market_cap_vendor"].get("value")
+    # A statement currency that differs from the trading currency makes market cap and
+    # enterprise value cross-currency arithmetic: 1072.HK reports in CNY and trades in HKD,
+    # so shares x price is HKD while total_liabilities is CNY. Altman Z and the reverse DCF
+    # would both be confidently wrong. No FX series is on disk, so the answer is NULL with a
+    # stated basis, never a converted guess (method section 1). The SEC leg writes neither
+    # field, so this can only ever fire on the vendor leg.
+    currency_note = None
+    stmt_ccy, px_ccy = fund.get("statement_currency"), fund.get("price_currency")
+    if stmt_ccy and px_ccy and stmt_ccy != px_ccy:
+        currency_note = (f"statements reported in {stmt_ccy}, listing trades in {px_ccy}; "
+                         f"no FX source on disk, so market cap and enterprise value are "
+                         f"NULL rather than mixed-currency arithmetic")
+        market_cap = None
+        print(f"  quality {ticker}: {currency_note}")
     debt, cash = last_val(fund.get("total_debt")), last_val(fund.get("cash"))
     ev = None
     if market_cap is not None and debt is not None and cash is not None:
         ev = market_cap + debt - cash
 
     q = compute_quality(fund, market_cap=market_cap, enterprise_value=ev, as_of=TODAY)
+    q["currency_note"] = currency_note
+    q["official_source"] = fund.get("official_source", True)
+    q["source_tag"] = fund.get("tag", "VERIFIED")
     q["price_used"] = {"value": price, "source": (m.get("series") or {}).get("source"),
                        "as_of": (m.get("series") or {}).get("as_of")}
-    q["shares_used"] = {"value": shares,
-                        "as_of": fund.get("shares_fy", [[None]])[-1][0] if fund.get("shares_fy") else None}
+    q["shares_used"] = {"value": shares, "as_of": shares_as_of,
+                        "source": "fundamentals.shares_fy" if fund.get("shares_fy")
+                        else ("fundamentals.shares_latest (vendor, INFERRED)"
+                              if shares is not None else None)}
     scored = sum(1 for k in ("piotroski", "beneish", "altman")
                  if q[k].get("score") is not None)
     if scored == 0 and q["reverse_dcf"].get("implied_fcf_cagr") is None:

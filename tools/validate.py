@@ -17,6 +17,8 @@ from pathlib import Path
 from check_campaign import validate_campaign
 from check_map import corpus_identity_failures, validate_mapping
 from check_profile import validate_profile
+from heat_score import band_for, money_corner, score_from
+from impact_score import BANDS as IMPACT_BANDS, LEGS as IMPACT_LEGS, MONEY_BANDS, compute as impact_compute
 
 # --root brings this in line with check_radar / check_chain / check_analyst / check_screen,
 # which all accept one. Without it the validator could only ever be pointed at its own
@@ -44,6 +46,7 @@ SCREEN_ROW_STATUS = {"CANDIDATE", "DIVED", "REJECTED", "SHADOWED"}
 TIERS = {"T1", "T2", "T3"}
 DIVE_STATUS = {"DRAFT", "FINAL"}
 VERDICTS = {"INVESTABLE", "WATCH", "TOO_LATE"}
+REVIEW_VERDICTS = {"ADOPT", "ADOPT_NARROWED", "REJECT"}
 PRICE_STATUS = {"AGREED", "SINGLE_SOURCE", "DISPUTED", "NO_DATA", "VERIFIED_ZERO"}
 REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc",
              "quality", "insider"}   # quality/insider added 2026-08-29 (the analyst)
@@ -208,27 +211,6 @@ def check_evidence(f: Path, items, ctx: str, touched_on: str | None = None) -> N
             err(f, f"{ctx}[{i}].url: {str(url)[:60]!r} is not a fetchable http(s) URL")
 
 
-def _score(heat: dict, key: str):
-    """The numeric score under heat[key], or None when absent or unscored."""
-    blk = (heat or {}).get(key)
-    return blk.get("score") if isinstance(blk, dict) else None
-
-
-def band_for(impact, crowdedness):
-    """method 3 attention bands, first match wins. None when crowdedness is unscored."""
-    if crowdedness is None:
-        return None
-    if crowdedness > 80:
-        return "OVER_CROWDED"
-    if crowdedness > 60:
-        return "CROWDED"
-    if crowdedness > 40:
-        return "EMERGING"
-    if impact is None:
-        return None
-    return "UNDISCOVERED" if impact >= 60 else "QUIET"
-
-
 def check_common(f: Path, obj: dict) -> None:
     for k in ("confidence_audit", "changelog"):
         if k not in obj:
@@ -286,6 +268,117 @@ def v_signal(f: Path) -> None:
         if not occ.get("label"):
             err(f, "occurrence.label must be non-empty")
     check_common(f, s)
+
+
+# ---------------------------------------------------------------- impact appraisals
+def v_impact(f: Path) -> None:
+    """method section 0.2: four legs, cited-or-NULL money, a band computed from the legs."""
+    a = load(f)
+    if a is None:
+        return
+    if not need(f, a, ["id", "occurrence_id", "as_of", "anchor_date", "money_at_stake",
+                       "public_reach", "capture_odds", "timing_fit", "impact_score",
+                       "impact_band", "review_by", "confidence_audit"]):
+        return
+    check_date(f, a["as_of"], "as_of")
+    check_date(f, a["review_by"], "review_by")
+    check_date(f, a["anchor_date"], "anchor_date")
+
+    # The occurrence must exist. An appraisal of a thesis nobody wrote down is a number with
+    # no subject, and it would still sort into the queue.
+    oid = a["occurrence_id"]
+    if isinstance(oid, str) and oid.startswith("SIG-"):
+        sig = DATA / "signals" / f"{oid}.json"
+        if not sig.exists():
+            err(f, f"occurrence_id {oid} has no signal file")
+        else:
+            s = load(sig) or {}
+            occ_anchor = (s.get("occurrence") or {}).get("anchor_date")
+            if occ_anchor and occ_anchor != a["anchor_date"]:
+                err(f, f"anchor_date {a['anchor_date']} disagrees with {oid} "
+                       f"occurrence.anchor_date {occ_anchor}")
+    elif isinstance(oid, str) and oid.startswith("CAND-"):
+        cands = load(DATA / "radar" / "candidates.json") if (DATA / "radar" / "candidates.json").exists() else None
+        ids = {c.get("id") for c in (cands or {}).get("candidates", []) if isinstance(c, dict)}
+        if oid not in ids:
+            err(f, f"occurrence_id {oid} is not in data/radar/candidates.json")
+    else:
+        err(f, f"occurrence_id {oid!r} must be a SIG- or CAND- id")
+
+    for leg in IMPACT_LEGS:
+        obj = a.get(leg)
+        if not isinstance(obj, dict):
+            err(f, f"{leg} must be an object (score/band + rationale + evidence)")
+            continue
+        is_null = obj.get("score", "missing") is None or obj.get("band", "missing") is None
+        if is_null:
+            # A NULL leg is a first-class result and the only thing it owes is why.
+            if not obj.get("basis"):
+                err(f, f"{leg} is NULL and needs a stated basis (what was looked for)")
+            continue
+        if not obj.get("rationale"):
+            err(f, f"{leg} needs a written rationale (method section 3 discipline)")
+        ev = obj.get("evidence")
+        if not isinstance(ev, list) or not ev:
+            err(f, f"{leg} needs >= 1 dated cited evidence item, or NULL with a basis")
+        else:
+            check_evidence(f, ev, leg, touched_on=a.get("as_of"))
+            if leg == "money_at_stake":
+                # The one leg where a reasoned guess is refused outright (method section 0.2):
+                # an unsourced market size sits at the head of the funnel and every later
+                # stage inherits it.
+                for i, e in enumerate(ev):
+                    if isinstance(e, dict) and e.get("tag") == "SPECULATIVE":
+                        err(f, f"money_at_stake.evidence[{i}] is SPECULATIVE; this leg is "
+                               f"cited or NULL (method section 0.2)")
+        if leg == "money_at_stake":
+            if obj.get("band") not in MONEY_BANDS:
+                err(f, f"money_at_stake.band: {obj.get('band')!r} not in {sorted(MONEY_BANDS)}")
+        else:
+            v = obj.get("score")
+            if not (isinstance(v, (int, float)) and not isinstance(v, bool) and 0 <= v <= 100):
+                err(f, f"{leg}.score must be 0-100 or null, got {v!r}")
+
+    # The band is computed, never written. Same rule as the 2026-08-29 section 3 amendment:
+    # a verdict that disagrees with its own scores is an error, not a style choice.
+    check_enum(f, a["impact_band"], set(IMPACT_BANDS), "impact_band")
+    c = impact_compute(a)
+    if a["impact_band"] != c["impact_band"]:
+        err(f, f"impact_band {a['impact_band']!r} disagrees with its own legs "
+               f"(computed {c['impact_band']!r}; null legs: {c['null_legs'] or 'none'})")
+    if c["impact_score"] is None:
+        if a["impact_score"] is not None:
+            err(f, f"impact_score must be null while legs are NULL ({c['null_legs']})")
+        if not a.get("unranked_reason"):
+            err(f, "UNRANKED appraisal needs an unranked_reason naming the missing leg")
+    elif not (isinstance(a["impact_score"], (int, float))
+              and abs(float(a["impact_score"]) - c["impact_score"]) < 0.05):
+        err(f, f"impact_score {a['impact_score']!r} disagrees with its own legs "
+               f"(computed {c['impact_score']})")
+    check_common(f, a)
+
+
+def v_rank_log(f: Path) -> None:
+    log = load(f)
+    if log is None:
+        return
+    if not need(f, log, ["as_of", "calibration", "queue"], "rank-log"):
+        return
+    check_date(f, log["as_of"], "rank-log.as_of")
+    cal = log.get("calibration")
+    if not isinstance(cal, dict) or "denominators" not in cal:
+        err(f, "rank-log.calibration needs a denominators block (method section 9, Rule 21)")
+    if not isinstance(log.get("queue"), list):
+        err(f, "rank-log.queue must be a list")
+        return
+    for i, row in enumerate(log["queue"]):
+        if not isinstance(row, dict) or not {"occurrence_id", "impact_band"} <= set(row):
+            err(f, f"rank-log.queue[{i}] needs occurrence_id and impact_band")
+            continue
+        # The pair, never the score alone (method section 0.2). A queue that stopped carrying
+        # unmappedness is a queue that quietly replaced section 0's selection rule.
+        if "unmappedness" not in row:
+            err(f, f"rank-log.queue[{i}] must carry unmappedness beside impact_score")
 
 
 # ---------------------------------------------------------------- chains
@@ -360,14 +453,14 @@ def v_chain(f: Path) -> None:
             if "money_corner" not in h:
                 err(f, f"{ctx}.heat missing money_corner")
             # method 3: bands partition the space and are COMPUTED, never written by hand.
-            imp, crd, cap = (_score(h, k) for k in ("impact", "crowdedness", "capture"))
+            imp, crd, cap = (score_from(h, k) for k in ("impact", "crowdedness", "capture"))
             want = band_for(imp, crd)
             if want and h.get("verdict") is not None and h["verdict"] != want:
                 err(f, f"{ctx}.heat.verdict is {h['verdict']!r} but impact {imp} / "
                        f"crowdedness {crd} computes {want} (method 3)")
             if None not in (imp, crd, cap):
-                want_mc = imp >= 60 and crd <= 40 and cap >= 60
-                if bool(h.get("money_corner")) != want_mc:
+                want_mc = money_corner(imp, crd, cap)
+                if h.get("money_corner") != want_mc:
                     err(f, f"{ctx}.heat.money_corner is {h.get('money_corner')!r} but "
                            f"i{imp}/c{crd}/v{cap} computes {want_mc} (method 3)")
     # ---- structure: position, topology, coverage (method 4, amended 2026-08-29)
@@ -669,6 +762,94 @@ def v_campaign(f: Path) -> None:
         return
     for finding in validate_campaign(ROOT, f, obj):
         err(f, finding)
+
+
+def v_review(f: Path) -> None:
+    """Cass's advisory review of a change to the research machine."""
+    obj = load(f)
+    if obj is None:
+        return
+    if not isinstance(obj, dict):
+        err(f, "review must be a JSON object")
+        return
+
+    required = (
+        "id", "as_of", "target", "reviewed_by", "behavior_change", "checks_touched",
+        "cost_if_wrong", "how_you_would_know", "challenges", "verdict",
+        "surviving_objection", "resolution", "changelog",
+    )
+    if not need(f, obj, list(required)):
+        return
+
+    for removed in ("actor", "ruling"):
+        if removed in obj:
+            err(f, f"{removed} is not part of an advisory review")
+
+    review_id = obj.get("id")
+    id_valid = bool(re.fullmatch(r"REV-\d{8}-\d{2}", str(review_id or "")))
+    if not id_valid:
+        err(f, f"id {review_id!r} is not REV-YYYYMMDD-NN")
+    elif f.stem != review_id:
+        err(f, f"filename {f.stem!r} must match id {review_id!r}")
+
+    if check_date(f, obj.get("as_of"), "as_of") and id_valid:
+        id_date = f"{review_id[4:8]}-{review_id[8:10]}-{review_id[10:12]}"
+        if obj["as_of"] != id_date:
+            err(f, f"as_of {obj['as_of']!r} does not match id date {id_date}")
+
+    if obj.get("reviewed_by") != "cass-adversary":
+        err(f, f"reviewed_by must be 'cass-adversary', found {obj.get('reviewed_by')!r}")
+
+    for key in ("target", "behavior_change", "cost_if_wrong",
+                "how_you_would_know", "surviving_objection"):
+        if not isinstance(obj.get(key), str) or not obj[key].strip():
+            err(f, f"{key} must be a non-empty string")
+
+    checks = obj.get("checks_touched")
+    if not isinstance(checks, list) or not all(
+            isinstance(item, str) and item.strip() for item in checks):
+        err(f, "checks_touched must be a list of non-empty strings; an empty list is allowed")
+
+    check_enum(f, obj.get("verdict"), REVIEW_VERDICTS, "verdict")
+
+    challenges = obj.get("challenges")
+    if not isinstance(challenges, list) or len(challenges) < 3:
+        err(f, "challenges must contain at least 3 distinct entries")
+    else:
+        normalized_claims = []
+        for i, challenge in enumerate(challenges):
+            ctx = f"challenges[{i}]"
+            if not isinstance(challenge, dict) or not {
+                    "claim", "attack", "survives"} <= set(challenge):
+                err(f, f"{ctx} needs claim, attack, survives")
+                continue
+            for key in ("claim", "attack"):
+                if not isinstance(challenge.get(key), str) or not challenge[key].strip():
+                    err(f, f"{ctx}.{key} must be a non-empty string")
+            if not isinstance(challenge.get("survives"), bool):
+                err(f, f"{ctx}.survives must be true or false")
+            if isinstance(challenge.get("claim"), str) and challenge["claim"].strip():
+                normalized_claims.append(
+                    re.sub(r"\s+", " ", challenge["claim"].strip()).casefold())
+        if len(set(normalized_claims)) < 3:
+            err(f, "challenges must contain at least 3 distinct claims")
+
+    resolution = obj.get("resolution")
+    if resolution is not None and (
+            not isinstance(resolution, str) or not resolution.strip()):
+        err(f, "resolution must be null or a non-empty string")
+
+    changelog = obj.get("changelog")
+    if not isinstance(changelog, list) or not changelog:
+        err(f, "changelog must be a non-empty list")
+    else:
+        for i, entry in enumerate(changelog):
+            if not isinstance(entry, dict) or not {"ts", "change"} <= set(entry):
+                err(f, f"changelog[{i}] needs ts and change")
+                continue
+            for key in ("ts", "change"):
+                if not isinstance(entry.get(key), str) or not entry[key].strip():
+                    err(f, f"changelog[{i}].{key} must be a non-empty string")
 
 
 # ---------------------------------------------------------------- market / misc
@@ -1124,10 +1305,42 @@ def v_digest(f: Path) -> None:
         return
     if not isinstance(d.get("ranked"), list):
         err(f, "ranked must be a list")
-    # generated_by is how every other log in the repo says who wrote it (scout-log says
-    # nell-scanner, map-log says atlas-cartographer). The digest says nothing.
+    # Campaign-era digests must name their writer and carry Adam's machine sweep. Warn-only
+    # let a digest omit both and still exit zero, which reads as a healthy machine.
     if not d.get("generated_by"):
-        warn(f, "no generated_by: every other generated store names its writer")
+        err(f, "no generated_by: every generated store names its writer")
+    m = d.get("machine")
+    if m is None:
+        err(f, "no machine section: Adam's sweep rides in the digest, and a digest without "
+               "it is an unaudited machine that reads like a healthy one")
+    elif not isinstance(m, dict):
+        err(f, "machine must be an object")
+    else:
+        for k in ("as_of", "examined", "findings_by_category", "promise_ledger_backlog",
+                  "changed_since_last_week", "next_action", "v8_reachable"):
+            if k not in m:
+                err(f, f"machine missing {k}")
+        if isinstance(m.get("examined"), dict) and not m["examined"]:
+            err(f, "machine.examined must be a non-empty object of denominators")
+        if isinstance(m.get("findings_by_category"), dict) and not m["findings_by_category"]:
+            err(f, "machine.findings_by_category must be a non-empty object")
+        if isinstance(m.get("promise_ledger_backlog"), str) and not m["promise_ledger_backlog"].strip():
+            err(f, "machine.promise_ledger_backlog must be a non-empty string")
+        if isinstance(m.get("changed_since_last_week"), str) and not m["changed_since_last_week"].strip():
+            err(f, "machine.changed_since_last_week must be a non-empty string")
+        if isinstance(m.get("next_action"), str) and not m["next_action"].strip():
+            err(f, "machine.next_action must name one next action")
+        if "v8_reachable" in m and not isinstance(m["v8_reachable"], bool):
+            err(f, "machine.v8_reachable must be a boolean: whether the v8 tree could be read "
+                   "is a scope boundary and scope boundaries are findings, not footnotes")
+        # Legacy total-only field is allowed beside findings_by_category but not instead of it.
+        if isinstance(m.get("findings"), int) and not isinstance(m.get("findings_by_category"), dict):
+            err(f, "machine.findings is a bare count with no machine.findings_by_category "
+                   "breakdown beside it")
+        if isinstance(m.get("findings_by_category"), dict) and isinstance(m.get("examined"), dict):
+            total = sum(v for v in m["findings_by_category"].values() if isinstance(v, int))
+            if isinstance(m.get("findings"), int) and total != m["findings"]:
+                err(f, "machine.findings disagrees with the sum of machine.findings_by_category")
 
 
 
@@ -1193,10 +1406,12 @@ def main() -> int:
     counts = {}
     plans = [
         ("signals", DATA / "signals", "*.json", v_signal),
+        ("impact", DATA / "impact", "*.json", v_impact),
         ("chains", DATA / "chains", "*.json", v_chain),
         ("mappings", DATA / "mappings", "*.json", v_mapping),
         ("companies", DATA / "companies", "*.json", v_company),
         ("campaigns", DATA / "campaigns", "CAMP-*.json", v_campaign),
+        ("reviews", DATA / "reviews", "REV-*.json", v_review),
         ("screens", DATA / "screens", "*.json", v_screen),
         ("stocks", DATA / "stocks", "*.json", v_stock),
         ("market", DATA / "market", "*.json", v_market),
@@ -1235,6 +1450,9 @@ def main() -> int:
     if (DATA / "chains" / "_map-log.json").exists():
         counts["map-log"] = 1
         v_map_log(DATA / "chains" / "_map-log.json")
+    if (DATA / "impact" / "_rank-log.json").exists():
+        counts["rank-log"] = 1
+        v_rank_log(DATA / "impact" / "_rank-log.json")
     if (DATA / "radar" / "scout-log.json").exists():
         counts["scout-log"] = 1
         v_scout_log(DATA / "radar" / "scout-log.json")

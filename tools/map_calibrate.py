@@ -12,11 +12,11 @@ Every metric carries its denominator (Rule 21: a count with no denominator canno
 Link yield is joined on `link_id` only. Ticker back-matching is never used: tested against
 the seed screen it misattributes VRT and is ambiguous on any name sitting on two links.
 
-Run: python3 tools/map_calibrate.py [--dry-run]
+Run: python3 tools/map_calibrate.py [--root PATH] [--dry-run]
 """
 import datetime
+import argparse
 import json
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -34,8 +34,8 @@ def read_json(path: Path, default=None):
         return default
 
 
-def existing_log():
-    return read_json(LOG) if LOG.exists() else None
+def existing_log(log_path=LOG):
+    return read_json(log_path) if log_path.exists() else None
 
 
 def load_dir(folder: Path) -> list[dict]:
@@ -147,10 +147,43 @@ def structure_findings(c: dict) -> dict:
     }
 
 
-def build_calibration() -> dict:
-    chains = load_dir(DATA / "chains")
-    screens = load_dir(DATA / "screens")
-    stocks = load_dir(DATA / "stocks")
+def build_calibration(root=ROOT) -> dict:
+    data = root / "data"
+    chains = load_dir(data / "chains")
+    screens = load_dir(data / "screens")
+    stocks = load_dir(data / "stocks")
+    mappings = load_dir(data / "mappings")
+    profiles = load_dir(data / "companies")
+
+    # Mode is per chain. The first campaign mapping must not turn unrelated legacy chains
+    # into dead links merely because data/mappings/ now exists.
+    normalized_chains = {
+        mapping.get("chain_id") for mapping in mappings if mapping.get("chain_id")
+    }
+    chain_ids = {chain.get("id") for chain in chains if chain.get("id")}
+    legacy_chains = chain_ids - normalized_chains
+    mapping_mode = (
+        "mixed" if normalized_chains & chain_ids and legacy_chains
+        else "normalized" if normalized_chains & chain_ids
+        else "legacy_chain_fallback"
+    )
+    mapped_by_link: dict[tuple, set] = {}
+    for mapping in mappings:
+        for placement in mapping.get("placements") or []:
+            if not isinstance(placement, dict):
+                continue
+            key = (placement.get("chain_id"), placement.get("link_id"))
+            mapped_by_link.setdefault(key, set()).add(placement.get("issuer_id"))
+    profiled_by_link: dict[tuple, set] = {}
+    for profile in profiles:
+        if profile.get("status") != "COMPLETE" or \
+                profile.get("opportunity_tier") not in {"O1", "O2"}:
+            continue
+        for placement in profile.get("placements") or []:
+            if not isinstance(placement, dict):
+                continue
+            key = (placement.get("chain_id"), placement.get("link_id"))
+            profiled_by_link.setdefault(key, set()).add(profile.get("issuer_id"))
 
     # ---- link yield, joined on link_id ONLY.
     rows_by_link: dict[tuple, int] = {}
@@ -173,12 +206,22 @@ def build_calibration() -> dict:
         if lid:
             dives_by_link.setdefault((st.get("chain_id"), lid), []).append(st.get("ticker"))
 
-    per_chain, depth_totals = {}, {"MAPPED": 0, "SCORED": 0, "SCREENED": 0, "DIVED": 0}
+    per_chain, depth_totals = {}, {
+        "MAPPED": 0, "PROFILED": 0, "SCREENED": 0, "DIVED": 0,
+        "UNMAPPED": 0, "SCORED": 0,
+    }
     money_links = 0
     for c in chains:
         cid = c.get("id")
         links = c.get("links") or []
+        chain_mode = (
+            "normalized" if cid in normalized_chains else "legacy_chain_fallback"
+        )
         scored = [l for l in links if (l.get("heat") or {}).get("verdict")]
+        mapped = [l for l in links
+                  if mapped_by_link.get((cid, l.get("id")))
+                  or chain_mode == "legacy_chain_fallback"]
+        profiled = [l for l in links if profiled_by_link.get((cid, l.get("id")))]
         screened = [l for l in links if rows_by_link.get((cid, l.get("id")))]
         dived = [l for l in links if dives_by_link.get((cid, l.get("id")))]
         money = [l for l in links if (l.get("heat") or {}).get("money_corner")]
@@ -189,26 +232,51 @@ def build_calibration() -> dict:
                 depth_totals["DIVED"] += 1
             elif rows_by_link.get((cid, lid)):
                 depth_totals["SCREENED"] += 1
-            elif (l.get("heat") or {}).get("verdict"):
+            elif profiled_by_link.get((cid, lid)):
+                depth_totals["PROFILED"] += 1
+            elif chain_mode == "legacy_chain_fallback" and \
+                    (l.get("heat") or {}).get("verdict"):
+                # Keep the exact pre-campaign seed hierarchy until normalized maps exist.
+                # SCORED is compatibility-only for chains without a normalized map.
                 depth_totals["SCORED"] += 1
-            else:
+            elif mapped_by_link.get((cid, lid)) or \
+                    chain_mode == "legacy_chain_fallback":
                 depth_totals["MAPPED"] += 1
+            else:
+                depth_totals["UNMAPPED"] += 1
         kinds = {}
         for e in c.get("changelog") or []:
             kinds[e.get("kind") or "UNTYPED"] = kinds.get(e.get("kind") or "UNTYPED", 0) + 1
         per_chain[cid] = {
             "links": len(links),
             "scored": len(scored),
-            "yielded_a_name": len(screened),
+            "mapped": len(mapped),
+            "profiled": len(profiled),
+            "mapping_mode": chain_mode,
+            "yielded_a_name": len(mapped) if chain_mode == "normalized" else len(screened),
+            "yielded_a_screen": len(screened),
             "yielded_a_dive": len(dived),
             "money_corner_links": [l.get("id") for l in money],
-            "dead_links": [l.get("id") for l in links if not rows_by_link.get((cid, l.get("id")))],
+            "dead_links": [
+                l.get("id") for l in links
+                if chain_mode == "normalized"
+                and not mapped_by_link.get((cid, l.get("id")))
+            ] if chain_mode == "normalized" else [
+                l.get("id") for l in links if not rows_by_link.get((cid, l.get("id")))
+            ],
             "changelog_kinds": kinds,
             "structure": structure_findings(c),
         }
 
     all_links = sum(len(c.get("links") or []) for c in chains)
     yielded = sum(v["yielded_a_name"] for v in per_chain.values())
+    screened_yield = sum(v["yielded_a_screen"] for v in per_chain.values())
+    normalized_links = sum(
+        v["links"] for v in per_chain.values() if v["mapping_mode"] == "normalized"
+    )
+    normalized_yield = sum(
+        v["mapped"] for v in per_chain.values() if v["mapping_mode"] == "normalized"
+    )
 
     # ---- amendment history: my own misses
     amendments = []
@@ -227,10 +295,27 @@ def build_calibration() -> dict:
             "yielded_a_name": yielded,
             "yield_rate": round(yielded / all_links, 3) if all_links else None,
             "depth": depth_totals,
+            "mapping_mode": mapping_mode,
+            "historical_screened_yield": {
+                "yielded": screened_yield,
+                "links_total": all_links,
+                "yield_rate": round(screened_yield / all_links, 3) if all_links else None,
+            },
+            "normalized_mapped_yield": {
+                "yielded": normalized_yield,
+                "links_total": normalized_links,
+                "yield_rate": (
+                    round(normalized_yield / normalized_links, 3)
+                    if normalized_links else None
+                ),
+            },
             "money_corner_links": money_links,
             "unattributed_screen_rows": unattributed,
             "note": ("Joined on link_id only. A screen row with no link_id cannot be counted "
-                     "against any link; ticker back-matching is not a substitute."),
+                     "against any link; ticker back-matching is not a substitute. "
+                     "Campaign mappings and profiles join on chain_id + link_id + issuer_id. "
+                     "Normalized versus legacy fallback is selected per chain; historical "
+                     "screened yield and normalized mapped yield are reported separately."),
         },
         "per_chain": per_chain,
         "amendment_history": {
@@ -247,14 +332,29 @@ def build_calibration() -> dict:
             "screens_examined": len(screens),
             "screen_rows_examined": sum(len(r or []) for s in screens for r in (s.get("buckets") or {}).values()),
             "dives_examined": len([s for s in stocks if not s.get("fixture")]),
+            "mappings_examined": len(mappings),
+            "mapping_placements_examined": sum(
+                len(mapping.get("placements") or []) for mapping in mappings),
+            "profiles_examined": len(profiles),
+            "complete_profiles_examined": sum(
+                1 for profile in profiles
+                if profile.get("status") == "COMPLETE"
+                and profile.get("opportunity_tier") in {"O1", "O2"}),
         },
     }
 
 
 def main() -> int:
-    dry = "--dry-run" in sys.argv
-    cal = build_calibration()
-    log = existing_log()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root")
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    root = Path(args.root).resolve() if args.root else ROOT
+    data = root / "data"
+    log_path = data / "chains" / "_map-log.json"
+    dry = args.dry_run
+    cal = build_calibration(root)
+    log = existing_log(log_path)
     if isinstance(log, dict):
         prior = (log.get("calibration") or {}).get("generated_at")
         log.setdefault("changelog", []).append({
@@ -276,8 +376,16 @@ def main() -> int:
     print(f"map_calibrate: {d['chains_examined']} chains, {d['links_examined']} links, "
           f"{d['edges_examined']} edges, {d['screen_rows_examined']} screen rows, "
           f"{d['dives_examined']} dives examined")
+    print(f"  campaign depth: {d['mapping_placements_examined']} placements, "
+          f"{d['complete_profiles_examined']}/{d['profiles_examined']} complete profiles "
+          f"({ly['mapping_mode']})")
     print(f"  link yield: {ly['yielded_a_name']}/{ly['links_total']} links ever produced a name · "
           f"depth {ly['depth']} · {ly['money_corner_links']} money-corner links")
+    historical = ly["historical_screened_yield"]
+    normalized = ly["normalized_mapped_yield"]
+    print(f"  historical screened yield: {historical['yielded']}/"
+          f"{historical['links_total']} · normalized mapped yield: "
+          f"{normalized['yielded']}/{normalized['links_total']}")
     ah = cal["amendment_history"]
     print(f"  amendments: {len(ah['amendments'])} across {ah['entries_total']} changelog entries "
           f"({ah['entries_typed']} typed)")
@@ -296,15 +404,15 @@ def main() -> int:
             flags.append(f"thin choke: {','.join(st['thin_choke_points'])}")
         if st["links_without_evidence"]:
             flags.append(f"{len(st['links_without_evidence'])}/{st['links']} uncited")
-        print(f"  {cid}: {v['yielded_a_name']}/{v['links']} yielded, "
+        print(f"  {cid} ({v['mapping_mode']}): {v['yielded_a_name']}/{v['links']} yielded, "
               f"{v['scored']}/{v['links']} scored, non-US {st['non_us_ticker_share']}"
               + (" · " + "; ".join(flags) if flags else " · clean"))
     if dry:
         print("map_calibrate: --dry-run, nothing written")
         return 0
-    LOG.parent.mkdir(parents=True, exist_ok=True)
-    LOG.write_text(json.dumps(log, indent=1, ensure_ascii=False) + "\n")
-    print(f"map_calibrate: wrote {LOG.relative_to(ROOT)}")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(json.dumps(log, indent=1, ensure_ascii=False) + "\n")
+    print(f"map_calibrate: wrote {log_path.relative_to(root)}")
     return 0
 
 

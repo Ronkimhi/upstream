@@ -26,6 +26,26 @@ def _load_build():
 build = _load_build()
 
 
+def public_listing(issuer_id, issuer_name, listing_id, ticker, exchange):
+    return {
+        "listing_id": listing_id,
+        "issuer_id": issuer_id,
+        "ticker": ticker,
+        "exchange": exchange,
+        "identity_evidence": [{
+            "claim": f"{issuer_name} is listed as {exchange}:{ticker}",
+            "tag": "VERIFIED",
+            "source_name": f"{exchange} issuer directory",
+            "source_date": "2026-08-29",
+            "url": "https://example.invalid/official-listing",
+            "source_type": "OFFICIAL_EXCHANGE",
+            "legal_issuer": issuer_name,
+            "exchange": exchange,
+            "ticker": ticker,
+        }],
+    }
+
+
 def _all_keys(value):
     keys = set()
     if isinstance(value, dict):
@@ -52,6 +72,7 @@ class CampaignScaleFixture:
         for folder in ("campaigns", "mappings", "companies"):
             (self.data / folder).mkdir(parents=True)
         self.chains = []
+        self.screens = []
         self.stocks = []
         self.requests = {"requests": []}
         self._write()
@@ -85,6 +106,7 @@ class CampaignScaleFixture:
                         "link_id": link_id,
                         "issuer_id": self.issuer_id(theme_index, company_index),
                         "role": self.RAW_MARKER + ("x" * 300),
+                        "status": "ACTIVE",
                         "evidence": [{
                             "claim": self.RAW_MARKER + ("y" * 500),
                             "source_name": "scale fixture",
@@ -109,12 +131,16 @@ class CampaignScaleFixture:
                 "issuer_id": self.issuer_id(theme_index, company_index),
                 "name": f"Company {self.ticker(theme_index, company_index)}",
             } for company_index in range(self.PROFILES_PER_THEME)]
-            listings = [{
-                "listing_id": f"NASDAQ:{self.ticker(theme_index, company_index)}",
-                "issuer_id": self.issuer_id(theme_index, company_index),
-                "ticker": self.ticker(theme_index, company_index),
-                "exchange": "NASDAQ",
-            } for company_index in range(self.PROFILES_PER_THEME)]
+            listings = [
+                public_listing(
+                    self.issuer_id(theme_index, company_index),
+                    f"Company {self.ticker(theme_index, company_index)}",
+                    f"NASDAQ:{self.ticker(theme_index, company_index)}",
+                    self.ticker(theme_index, company_index),
+                    "NASDAQ",
+                )
+                for company_index in range(self.PROFILES_PER_THEME)
+            ]
             mapping = {
                 "id": f"MAP-{chain_id}",
                 "chain_id": chain_id,
@@ -162,25 +188,77 @@ class CampaignScaleFixture:
                         theme_index * self.O1_PER_THEME + company_index + 1
                         if company_index < self.O1_PER_THEME else None
                     ),
+                    "opportunity": {
+                        "tier": "O1" if company_index < self.O1_PER_THEME else "O2",
+                        "rank": (
+                            theme_index * self.O1_PER_THEME + company_index + 1
+                            if company_index < self.O1_PER_THEME else None
+                        ),
+                        "basis": self.RAW_MARKER + " nested opportunity basis",
+                    },
                     "status": "COMPLETE",
                     "as_of": "2026-08-29",
                     "business_summary": self.RAW_MARKER + ("z" * 2000),
+                    "exposure_summary": self.RAW_MARKER + " exposure",
+                    "crowdedness_caveats": [self.RAW_MARKER + " crowdedness"],
+                    "catalysts": [self.RAW_MARKER + " catalyst"],
+                    "risks": [self.RAW_MARKER + " risk"],
+                    "data_gaps": [self.RAW_MARKER + " gap"],
                     "metrics": {
-                        "revenue": {"value": company_index, "source": self.RAW_MARKER}
+                        "revenue": {
+                            "value": company_index,
+                            "source": self.RAW_MARKER,
+                            "basis": self.RAW_MARKER + " metric basis",
+                        }
                     },
                     "listing_refs": [f"NASDAQ:{ticker}"],
                     "placements": profile_placements,
+                    "opportunity_basis": self.RAW_MARKER + " opportunity basis",
                     "disposition": {
                         "state": "WATCHLIST",
-                        "basis": "direct capture and expectations gap",
+                        "basis": self.RAW_MARKER + " disposition basis",
                     },
                 }
                 (self.data / "companies" / f"{issuer_id}.json").write_text(json.dumps(profile))
+                if company_index < self.O1_PER_THEME:
+                    handoff_link = profile_placements[0]["link_id"]
+                    if not any(screen.get("chain_id") == chain_id for screen in self.screens):
+                        self.screens.append({
+                            "id": chain_id,
+                            "chain_id": chain_id,
+                            "as_of": "2026-08-29",
+                            "buckets": {"pure_play": []},
+                        })
+                    next(screen for screen in self.screens
+                         if screen["chain_id"] == chain_id)["buckets"]["pure_play"].append({
+                             "issuer_id": issuer_id,
+                             "listing_id": f"NASDAQ:{ticker}",
+                             "ticker": ticker,
+                             "link_id": handoff_link,
+                             "thesis_1line": self.RAW_MARKER + " screen thesis",
+                         })
+                    profile["selection_basis"] = {
+                        "screen_handoff": {
+                            "screen_ref": chain_id,
+                            "chain_id": chain_id,
+                            "link_id": handoff_link,
+                            "listing_id": f"NASDAQ:{ticker}",
+                        },
+                        "direct_exposure": {
+                            "basis": self.RAW_MARKER + " selection basis",
+                        },
+                    }
+                    (self.data / "companies" / f"{issuer_id}.json").write_text(
+                        json.dumps(profile))
                 if company_index < self.FINALS_PER_THEME:
                     self.stocks.append({
+                        "issuer_id": issuer_id,
+                        "listing_id": f"NASDAQ:{ticker}",
                         "ticker": ticker,
                         "chain_id": chain_id,
+                        "link_id": profile_placements[0]["link_id"],
                         "status": "FINAL",
+                        "as_of": "2026-08-29",
                     })
             pending_ticker = self.ticker(theme_index, self.PROFILES_PER_THEME - 1)
             self.requests["requests"].append({
@@ -194,8 +272,9 @@ class CampaignScaleFixture:
         campaign = {
             "id": "CAMP-20260829-01",
             "title": "Ten-theme scale fixture",
-            "as_of": "2026-08-29",
+            "as_of": "2026-01-15",
             "status": "ACTIVE",
+            "selection_basis": {"as_of": "2026-01-15"},
             "themes": themes,
             "targets": {
                 "theme_count": self.THEMES,
@@ -204,6 +283,184 @@ class CampaignScaleFixture:
                 "profiles_per_theme_min": 10,
                 "o1_min": 30,
                 "o1_max": 60,
+            },
+            "completion": {
+                "themes_selected": self.THEMES,
+                "themes_complete": 0,
+                "distinct_mapped_issuers": self.THEMES * self.PROFILES_PER_THEME,
+                "completed_profiles": self.THEMES * self.PROFILES_PER_THEME,
+                "opportunity_tiers": {
+                    "O1": self.THEMES * self.O1_PER_THEME,
+                    "O2": self.THEMES * (
+                        self.PROFILES_PER_THEME - self.O1_PER_THEME),
+                    "O3": 0,
+                },
+                "o1_complete": self.THEMES * self.O1_PER_THEME,
+                "o1_final": self.THEMES * self.FINALS_PER_THEME,
+                "per_theme": [],
+            },
+            "blockers": [],
+        }
+        (self.data / "campaigns" / "CAMP-20260829-01.json").write_text(
+            json.dumps(campaign))
+
+
+class CampaignIdentityFixture:
+    """Small fixture that makes placement, listing, and handoff mistakes observable."""
+
+    def __init__(self, root):
+        self.data = Path(root) / "data"
+        for folder in ("campaigns", "mappings", "companies"):
+            (self.data / folder).mkdir(parents=True)
+        self.chains = [{
+            "id": "theme-a",
+            "title": "Theme A",
+            "heat_as_of": "2026-08-28",
+            "links": [
+                {"id": "L1", "name": "First", "position": 1},
+                {"id": "L2", "name": "Second", "position": 2},
+            ],
+        }]
+        self.screens = [{
+            "id": "theme-a",
+            "chain_id": "theme-a",
+            "as_of": "2026-08-29",
+            "buckets": {"pure_play": [
+                {"issuer_id": "ISS-A", "listing_id": "XTKS:ZZZ",
+                 "ticker": "ZZZ", "link_id": "L2"},
+                {"issuer_id": "ISS-C", "listing_id": "XNYS:CCC",
+                 "ticker": "CCC", "link_id": "L2"},
+            ]},
+        }]
+        self.stocks = [
+            # The exact O1 handoff. ZZZ is deliberately not the lexical first listing.
+            {"issuer_id": "ISS-A", "listing_id": "XTKS:ZZZ",
+             "ticker": "ZZZ", "chain_id": "theme-a",
+             "link_id": "L2", "status": "FINAL", "as_of": "2026-08-30"},
+            # Same issuer and chain, but no matching screen handoff.
+            {"issuer_id": "ISS-A", "listing_id": "XNYS:AAA",
+             "ticker": "AAA", "chain_id": "theme-a",
+             "link_id": "L1", "status": "FINAL", "as_of": "2026-08-30"},
+            # O1 profile with no screen handoff.
+            {"issuer_id": "ISS-B", "listing_id": "XNYS:BBB",
+             "ticker": "BBB", "chain_id": "theme-a",
+             "link_id": "L1", "status": "FINAL", "as_of": "2026-08-30"},
+            # Exact handoff and FINAL, but the issuer is O2.
+            {"issuer_id": "ISS-C", "listing_id": "XNYS:CCC",
+             "ticker": "CCC", "chain_id": "theme-a",
+             "link_id": "L2", "status": "FINAL", "as_of": "2026-08-30"},
+        ]
+        self.requests = {"requests": [
+            {"id": "REQ-1", "issuer_id": "ISS-D", "ticker": "DDD",
+             "chain_id": "theme-a", "status": "PENDING"},
+            {"id": "REQ-2", "issuer_id": "ISS-D", "ticker": "DDD",
+             "chain_id": "theme-a", "status": "PENDING"},
+        ]}
+        self._write()
+
+    def _write(self):
+        placements = [
+            {"chain_id": "theme-a", "link_id": "L1", "issuer_id": "ISS-A",
+             "status": "ACTIVE"},
+            {"chain_id": "theme-a", "link_id": "L2", "issuer_id": "ISS-A",
+             "status": "ACTIVE"},
+            {"chain_id": "theme-a", "link_id": "L1", "issuer_id": "ISS-B",
+             "status": "ACTIVE"},
+            {"chain_id": "theme-a", "link_id": "L2", "issuer_id": "ISS-C",
+             "status": "ACTIVE"},
+            {"chain_id": "theme-a", "link_id": "L1", "issuer_id": "ISS-D",
+             "status": "ACTIVE"},
+        ]
+        mapping = {
+            "id": "MAP-theme-a",
+            "chain_id": "theme-a",
+            "as_of": "2026-08-29",
+            "status": "COMPLETE",
+            "target_issuers_per_link": 10,
+            "issuers": [
+                {"issuer_id": issuer_id, "name": f"Issuer {issuer_id[-1]}"}
+                for issuer_id in ("ISS-A", "ISS-B", "ISS-C", "ISS-D")
+            ],
+            "listings": [
+                public_listing("ISS-A", "Issuer A", "XNYS:AAA", "AAA", "XNYS"),
+                public_listing("ISS-A", "Issuer A", "XTKS:ZZZ", "ZZZ", "XTKS"),
+                public_listing("ISS-B", "Issuer B", "XNYS:BBB", "BBB", "XNYS"),
+                public_listing("ISS-C", "Issuer C", "XNYS:CCC", "CCC", "XNYS"),
+                public_listing("ISS-D", "Issuer D", "XNYS:DDD", "DDD", "XNYS"),
+            ],
+            "placements": placements,
+            "link_coverage": [
+                {"link_id": "L1", "status": "OPEN", "distinct_issuer_count": 3},
+                {"link_id": "L2", "status": "TARGET_MET", "distinct_issuer_count": 2},
+            ],
+        }
+        (self.data / "mappings" / "theme-a.json").write_text(json.dumps(mapping))
+
+        profiles = [
+            {
+                "issuer_id": "ISS-A", "issuer_name": "Issuer A",
+                "status": "COMPLETE", "data_tier": "T1",
+                "opportunity_tier": "O1", "opportunity_rank": 1,
+                # Mapping has A on both links; the profile resolves only L2.
+                "placements": [{"chain_id": "theme-a", "link_id": "L2"}],
+                "listing_refs": ["XNYS:AAA", "XTKS:ZZZ"],
+                "selection_basis": {"screen_handoff": {
+                    "screen_ref": "theme-a", "chain_id": "theme-a",
+                    "link_id": "L2", "listing_id": "XTKS:ZZZ",
+                }},
+                "as_of": "2026-08-27",
+            },
+            {
+                "issuer_id": "ISS-B", "issuer_name": "Issuer B",
+                "status": "COMPLETE", "data_tier": "T2",
+                "opportunity_tier": "O1", "opportunity_rank": 2,
+                "placements": [{"chain_id": "theme-a", "link_id": "L1"}],
+                "listing_refs": ["XNYS:BBB"],
+                "as_of": "2026-08-27",
+            },
+            {
+                "issuer_id": "ISS-C", "issuer_name": "Issuer C",
+                "status": "COMPLETE", "data_tier": "T2",
+                "opportunity_tier": "O2",
+                "placements": [{"chain_id": "theme-a", "link_id": "L2"}],
+                "listing_refs": ["XNYS:CCC"],
+                "as_of": "2026-08-27",
+            },
+            {
+                "issuer_id": "ISS-D", "issuer_name": "Issuer D",
+                "status": "BLOCKED", "data_tier": "T3",
+                "opportunity_tier": "O3",
+                "placements": [{"chain_id": "theme-a", "link_id": "L1"}],
+                "listing_refs": ["XNYS:DDD"],
+                "as_of": "2026-08-27",
+            },
+        ]
+        for profile in profiles:
+            (self.data / "companies" / f"{profile['issuer_id']}.json").write_text(
+                json.dumps(profile))
+
+        campaign = {
+            "id": "CAMP-20260829-01",
+            "title": "Identity fixture",
+            "as_of": "2026-01-15",
+            "selection_basis": {"as_of": "2026-01-15"},
+            "status": "ACTIVE",
+            "themes": [{
+                "theme_id": "THEME-A", "chain_id": "theme-a",
+                "title": "Theme A", "stage": "MAPPED", "as_of": "2026-01-15",
+            }],
+            "targets": {
+                "theme_count": 10, "issuers_per_link": 10,
+                "completed_profiles_min": 200, "profiles_per_theme_min": 10,
+                "o1_min": 30, "o1_max": 60,
+            },
+            "completion": {
+                "themes_selected": 1, "themes_complete": 0,
+                "distinct_mapped_issuers": 4, "completed_profiles": 3,
+                "opportunity_tiers": {"O1": 2, "O2": 1, "O3": 1},
+                "o1_complete": 2,
+                "o1_final": 1,
+                "per_theme": [],
             },
             "blockers": [],
         }
@@ -222,18 +479,155 @@ class TestCampaignProjection(unittest.TestCase):
         self.assertNotIn("counts", projection,
                          "without a campaign manifest there are no honest denominators")
 
+    def test_missing_mapping_is_unknown_not_zero_coverage(self):
+        with tempfile.TemporaryDirectory() as td:
+            data = Path(td) / "data"
+            (data / "campaigns").mkdir(parents=True)
+            campaign = {
+                "id": "CAMP-20260829-01",
+                "title": "Missing mapping fixture",
+                "as_of": "2026-01-15",
+                "selection_basis": {"as_of": "2026-01-15"},
+                "status": "ACTIVE",
+                "themes": [{
+                    "theme_id": "THEME-A", "chain_id": "theme-a",
+                    "title": "Theme A", "stage": "CHAINED",
+                    "as_of": "2026-01-15",
+                }],
+                "targets": {
+                    "theme_count": 10, "issuers_per_link": 10,
+                    "completed_profiles_min": 200,
+                    "profiles_per_theme_min": 10,
+                    "o1_min": 30, "o1_max": 60,
+                },
+                "completion": {
+                    "themes_selected": 1, "distinct_mapped_issuers": 0,
+                    "completed_profiles": 0,
+                    "opportunity_tiers": {"O1": 0, "O2": 0, "O3": 0},
+                },
+                "blockers": [],
+            }
+            (data / "campaigns" / campaign["id"]).with_suffix(".json").write_text(
+                json.dumps(campaign))
+            projection = build.build_campaign_ix(data, chains=[{
+                "id": "theme-a", "heat_as_of": "2026-08-29",
+                "links": [{"id": "L1", "position": 1}],
+            }])
+
+        theme = projection["themes"][0]
+        link = theme["links"][0]
+        self.assertFalse(theme["mapping_present"])
+        self.assertIsNone(theme["counts"]["mapped_issuers"])
+        self.assertIsNone(link["mapped"])
+        self.assertIsNone(link["target"])
+        self.assertIsNone(link["status"])
+        self.assertEqual(theme["counts"]["blockers"], 0)
+        self.assertNotIn("NOT_STARTED", json.dumps(projection))
+        self.assertEqual(theme["selection_as_of"], "2026-01-15")
+        self.assertEqual(theme["coverage_as_of"], "2026-08-29")
+        self.assertEqual(projection["selection_as_of"], "2026-01-15")
+        self.assertEqual(projection["coverage_as_of"], "2026-08-29")
+
+    def _identity_projection(self, *, with_completion=True):
+        with tempfile.TemporaryDirectory() as td:
+            fixture = CampaignIdentityFixture(td)
+            if not with_completion:
+                path = fixture.data / "campaigns" / "CAMP-20260829-01.json"
+                campaign = json.loads(path.read_text())
+                campaign.pop("completion")
+                path.write_text(json.dumps(campaign))
+            return build.build_campaign_ix(
+                fixture.data, chains=fixture.chains, screens=fixture.screens,
+                stocks=fixture.stocks, requests=fixture.requests)
+
+    def test_multi_link_profiles_and_finals_keep_exact_placements(self):
+        projection = self._identity_projection()
+        theme = projection["themes"][0]
+        links = {row["id"]: row for row in theme["links"]}
+
+        self.assertEqual(theme["counts"]["profiles"], 3)
+        self.assertEqual(links["L1"]["profiled"], 1,
+                         "ISS-A must not profile L1 when its profile only resolves L2")
+        self.assertEqual(links["L2"]["profiled"], 2)
+        self.assertEqual(links["L1"]["finals"], 0,
+                         "a chain-level final must not repeat across every issuer link")
+        self.assertEqual(links["L2"]["finals"], 1)
+
+    def test_dual_listing_final_uses_exact_screen_handoff_stock(self):
+        projection = self._identity_projection()
+        queue = {row["issuer_id"]: row for row in projection["o1"]}
+
+        self.assertEqual(queue["ISS-A"]["stock_ticker"], "ZZZ")
+        self.assertEqual(queue["ISS-A"]["listing_id"], "XTKS:ZZZ")
+        self.assertEqual(queue["ISS-A"]["link_id"], "L2")
+        self.assertTrue(queue["ISS-A"]["final"])
+
+    def test_o2_and_unhanded_finals_do_not_count(self):
+        projection = self._identity_projection(with_completion=False)
+        queue = {row["issuer_id"]: row for row in projection["o1"]}
+
+        self.assertEqual(projection["counts"]["o1"], 2)
+        self.assertEqual(projection["counts"]["finals"], 1)
+        self.assertIsNone(queue["ISS-B"]["stock_ticker"])
+        self.assertFalse(queue["ISS-B"]["handoff_present"])
+        self.assertFalse(queue["ISS-B"]["final"])
+        self.assertNotIn("ISS-C", queue, "an O2 FINAL is not an O1 handoff")
+
+    def test_pending_and_freshness_use_issuer_and_coverage_units(self):
+        projection = self._identity_projection()
+
+        self.assertEqual(projection["counts"]["mapped_issuers"], 4)
+        self.assertEqual(projection["counts"]["profiles"], 3)
+        self.assertEqual(projection["counts"]["pending"], 1)
+        self.assertEqual(projection["selection_as_of"], "2026-01-15")
+        self.assertEqual(projection["coverage_as_of"], "2026-08-30")
+
+        theme = projection["themes"][0]
+        self.assertEqual(theme["counts"]["o1"], 1)
+        self.assertEqual(theme["counts"]["finals"], 1)
+        self.assertEqual(theme["counts"]["pending"], 1)
+        self.assertEqual(theme["counts"]["blockers"], 1,
+                         "only the explicitly OPEN L1 coverage creates a deficit")
+
+    def test_campaign_totals_recompute_mapped_issuer_denominator(self):
+        with tempfile.TemporaryDirectory() as td:
+            fixture = CampaignIdentityFixture(td)
+            path = fixture.data / "campaigns" / "CAMP-20260829-01.json"
+            campaign = json.loads(path.read_text())
+            campaign["completion"].update({
+                "themes_selected": 9,
+                "distinct_mapped_issuers": 37,
+                "completed_profiles": 23,
+                "opportunity_tiers": {"O1": 11, "O2": 12, "O3": 14},
+            })
+            path.write_text(json.dumps(campaign))
+            projection = build.build_campaign_ix(
+                fixture.data, chains=fixture.chains, screens=fixture.screens,
+                stocks=fixture.stocks, requests=fixture.requests)
+
+        self.assertEqual(projection["counts"]["themes"], 9)
+        self.assertEqual(
+            projection["counts"]["mapped_issuers"], 4,
+            "a stale completion count must not override canonical mapped issuers",
+        )
+        self.assertEqual(projection["counts"]["profiles"], 23)
+        self.assertEqual(projection["counts"]["o1"], 11)
+        self.assertEqual(projection["counts"]["finals"], 1)
+
     def test_target_scale_is_compact_deterministic_and_complete(self):
         with tempfile.TemporaryDirectory() as td:
             fixture = CampaignScaleFixture(td)
             first = build.build_campaign_ix(
                 fixture.data,
                 chains=fixture.chains,
+                screens=fixture.screens,
                 stocks=fixture.stocks,
                 requests=fixture.requests,
             )
             second = build.build_campaign_ix(
                 fixture.data,
                 chains=list(reversed(fixture.chains)),
+                screens=list(reversed(fixture.screens)),
                 stocks=list(reversed(fixture.stocks)),
                 requests={"requests": list(reversed(fixture.requests["requests"]))},
             )
@@ -243,7 +637,7 @@ class TestCampaignProjection(unittest.TestCase):
         self.assertEqual(first_blob, second_blob)
         self.assertEqual(first["counts"]["themes"], 10)
         self.assertEqual(first["counts"]["links"], 120)
-        self.assertEqual(first["counts"]["placements"], 1200)
+        self.assertEqual(first["counts"]["mapped_issuers"], 200)
         self.assertEqual(first["counts"]["profiles"], 200)
         self.assertEqual(first["counts"]["o1"], 60)
         self.assertEqual(first["counts"]["finals"], 30)
@@ -257,20 +651,25 @@ class TestCampaignProjection(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             fixture = CampaignScaleFixture(td)
             projection = build.build_campaign_ix(
-                fixture.data, chains=fixture.chains, stocks=fixture.stocks,
+                fixture.data, chains=fixture.chains, screens=fixture.screens,
+                stocks=fixture.stocks,
                 requests=fixture.requests)
         blob = json.dumps(projection, separators=(",", ":"))
         self.assertNotIn(fixture.RAW_MARKER, blob)
         self.assertTrue({
             "evidence", "role", "searches", "business_summary", "metrics",
-            "listing_refs",
+            "listing_refs", "exposure_summary", "crowdedness_caveats",
+            "catalysts", "risks", "data_gaps", "disposition",
+            "opportunity", "opportunity_basis", "selection_basis",
+            "screen_handoff", "basis",
         }.isdisjoint(_all_keys(projection)))
 
     def test_scale_stays_inside_single_html_budget(self):
         with tempfile.TemporaryDirectory() as td:
             fixture = CampaignScaleFixture(td)
             projection = build.build_campaign_ix(
-                fixture.data, chains=fixture.chains, stocks=fixture.stocks,
+                fixture.data, chains=fixture.chains, screens=fixture.screens,
+                stocks=fixture.stocks,
                 requests=fixture.requests)
         current, _ = build.extract_committed_payload()
         payload = dict(current or {})
@@ -292,19 +691,28 @@ class TestCampaignRendererContract(unittest.TestCase):
         self.assertIn('p[0] === "campaign"', self.js)
         self.assertIn("No campaign data exists yet.", self.js)
         self.assertIn("Nothing has been inferred.", self.js)
+        self.assertIn("mapping unavailable", self.js)
+        self.assertIn("theme.mapping_present", self.js)
+        self.assertIn("staleChip(theme.coverage_as_of)", self.js)
+        self.assertIn("staleChip(ix.coverage_as_of)", self.js)
+        self.assertIn("campaignSelectionStamp(theme.selection_as_of)", self.js)
+        self.assertIn("campaignSelectionStamp(ix.selection_as_of)", self.js)
+        self.assertNotIn("staleChip(theme.selection_as_of)", self.js)
 
     def test_data_and_opportunity_tiers_use_different_renderers(self):
         self.assertIn("function opportunityChip(", self.js)
         self.assertIn("tierChip(row.data_tier)", self.js)
         self.assertIn("opportunityChip(row.opportunity_tier)", self.js)
+        self.assertIn("row.stock_ticker", self.js)
         self.assertIn(".chip.tier", self.css)
         self.assertIn(".chip.opportunity", self.css)
         self.assertIn(".chip.opp-O1", self.css)
 
     def test_dashboard_exposes_required_campaign_surfaces(self):
         for label in ("Theme coverage", "Per-link coverage", "complete profiles",
-                      "O1 queue", "FINAL verdicts", "pending data", "Blockers"):
+                      "O1 queue", "O1 FINAL", "pending data", "Blockers"):
             self.assertIn(label, self.js)
+        self.assertIn("t.profiles_per_theme", self.js)
 
 
 if __name__ == "__main__":

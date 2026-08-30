@@ -162,6 +162,9 @@
     [/^run chain /, "Build chain"], [/^run heat /, "Score heat map"], [/^run scenarios /, "Write scenarios"],
     [/^run screen /, "Screen stocks"], [/^run deepdive /, "Run deep dive"], [/^run redteam /, "Red-team it"],
     [/^request data /, "Fetch data"], [/^refresh /, "Update"], [/^run radar/, "Run radar"], [/^run digest/, "Build digest"],
+    [/^run campaign init/, "Start campaign"], [/^run universe-audit /, "Audit universe"],
+    [/^run universe /, "Map issuers"], [/^run profile /, "Profile issuer"],
+    [/^run selection /, "Select O1"],
   ];
   function runLabel(cmd) {
     for (var i = 0; i < RUN_LABELS.length; i++) if (RUN_LABELS[i][0].test(cmd)) return RUN_LABELS[i][1];
@@ -1288,6 +1291,74 @@
       '<div class="tablewrap campaign-o1"><table><thead><tr><th>Rank</th><th>Company</th><th>Data tier</th><th>Opportunity</th><th>Primary theme</th><th>Profile</th><th>Next step</th></tr></thead><tbody>' +
       body + "</tbody></table></div>";
   }
+  /* The orchestrator's resume point: tools/campaign_board.py derives every row from
+     disk with the SAME stage ladder tools/check_campaign.py enforces, and validates
+     every command it emits through tools/queue_allowlist.py before writing it. The page
+     prints those rows and nothing else — it never infers a stage, a next step, or a
+     blocker of its own, because a second implementation of the ladder here would be free
+     to disagree with the gate and the reader could not tell which one was lying.
+     A null board means "the board has not been generated", never "no work outstanding". */
+  function campaignBoardBlockers(rows) {
+    if (!(rows || []).length) return '<span class="muted">none</span>';
+    return rows.map(function (b) {
+      return "<div>" + campaignStatusChip(b.kind) +
+        "<div class='tk-co campaign-bad'>" + esc(b.detail) + "</div></div>";
+    }).join("");
+  }
+  function campaignBoardNext(row) {
+    if (!row.next_command) {
+      return '<span class="muted">nothing to run</span>' +
+        (row.next_reason ? "<div class='tk-co'>" + esc(row.next_reason) + "</div>" : "");
+    }
+    return runButton(row.next_command, null, { compact: true }) +
+      "<div class='tk-co mono'>" + esc(row.next_command) + "</div>" +
+      (row.next_reason ? "<div class='tk-co'>" + esc(row.next_reason) + "</div>" : "");
+  }
+  function campaignBoard() {
+    var board = ((D.health || {}).board) || null;
+    if (!board) {
+      return seclabel("Worklist") +
+        '<div class="emptystate campaign-empty-small"><b>No board has been generated.</b><br>' +
+        "The resume point is derived from disk, never hand-written. Run " +
+        cmdline("python3 tools/campaign_board.py --write") +
+        " in a session on this repo, rebuild, and every theme's stage, next command and blocker appear here.</div>";
+    }
+    if (board.scope === "SCOPE_EMPTY") {
+      return seclabel("Worklist") +
+        '<div class="emptystate campaign-empty-small"><b>SCOPE EMPTY.</b><br>' +
+        esc(board.scope_note) + "</div>";
+    }
+    var d = board.denominators || {}, t = board.targets || {};
+    var rows = (board.worklist || []).map(function (row) {
+      return "<tr><td class='num'>" + esc(num(row.rank)) + "</td>" +
+        "<td><div class='tk-name'>" + esc(row.title) + "</div>" +
+        "<div class='tk-co mono'>" + esc(row.theme_id) + "</div></td>" +
+        "<td>" + campaignStatusChip(row.stage) +
+        (row.provisional ? chip("provisional", "stale") : "") + "</td>" +
+        "<td>" + campaignBoardNext(row) + "</td>" +
+        "<td>" + campaignBoardBlockers(row.blockers) + "</td></tr>";
+    }).join("");
+    return seclabel("Worklist") +
+      "<div class='row'>" + staleChip(board.as_of) +
+      '<span class="muted">computed from disk ' +
+      '<span class="num">' + esc(board.as_of) + "</span> · " + esc(board.scope_note) +
+      "</span></div>" +
+      '<div class="statgrid campaign-summary">' +
+      campaignSummaryStat(d.themes_total, "themes on the board") +
+      campaignSummaryStat(d.distinct_mapped_issuers, "distinct mapped issuers") +
+      campaignSummaryStat(d.complete_profiles, "complete profiles", t.completed_profiles_min) +
+      campaignSummaryStat(d.o1, "O1", (t.o1_min != null && t.o1_max != null) ? t.o1_min + "–" + t.o1_max : null) +
+      campaignSummaryStat(d.final_dives, "FINAL dives", d.o1) +
+      campaignSummaryStat(d.pending_requests_blocking, "pending rows blocking work") +
+      "</div>" +
+      (rows
+        ? '<div class="tablewrap campaign-o1"><table><thead><tr><th>Rank</th><th>Theme</th><th>Stage</th><th>Next command</th><th>Blocker</th></tr></thead><tbody>' +
+          rows + "</tbody></table></div>"
+        : '<div class="emptystate campaign-empty-small">The board resolved no themes. Nothing has been inferred.</div>') +
+      (board.next_command
+        ? runButton(board.next_command, "the first step on the board, in rank then stage order")
+        : "");
+  }
   function campaignThemeCard(theme, profileTarget) {
     var c = theme.counts || {};
     var pct = profileTarget != null && profileTarget > 0
@@ -1354,6 +1425,7 @@
     if (!ix.present) {
       return topbar("campaign") + "<main><div class='pagehead'><h1>Campaign</h1><p class='sub'>Ten-theme research coverage, from mappings through final verdicts.</p></div>" +
         '<div class="emptystate campaign-empty"><b>No campaign data exists yet.</b><br>A campaign manifest must exist under <span class="mono">data/campaigns/</span> before mappings or company files are counted. Nothing has been inferred.</div>' +
+        campaignBoard() +
         footer() + "</main>";
     }
     if (themeId) return campaignThemeView(ix, themeId);
@@ -1375,6 +1447,7 @@
       campaignSummaryStat(c.blockers, "blockers") +
       "</div>" +
       campaignBlockers(ix.blockers) +
+      campaignBoard() +
       seclabel("Theme coverage") +
       ((ix.themes || []).length
         ? '<div class="campaign-grid">' + ix.themes.map(function (theme) { return campaignThemeCard(theme, t.profiles_per_theme); }).join("") + "</div>"

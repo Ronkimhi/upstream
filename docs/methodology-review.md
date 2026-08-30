@@ -79,6 +79,15 @@ deliberate: a rebuild that could rewrite scores is the hazard this whole stage i
 - **The positioning 2x2 and "find the empty quadrant".** Already built: it is the heat map,
   impact against inverted crowdedness, with the money corner as the empty quadrant.
 
+## Carried back to v8 (2026-08-30)
+
+The reciprocal channel, used for the first time. Four practices went the other way, recorded in
+`M-memory/learning-log.md` when the tree was reachable: advisory-first hardening for any audit
+landing on an existing backlog; CI over Stop hooks for enforcement a session cannot switch off;
+Rule 21 turned on the gates themselves (is there a test that has watched this gate FAIL);
+and the rule that a heuristic audit must print matched and unmatched counts together, because an
+unenforced-rule count cannot otherwise be told apart from a matcher that failed that many times.
+
 ## The reciprocal finding
 
 The traffic is not one way. Upstream's three per-link scores are the thing v8 does not have:
@@ -89,3 +98,9 @@ moat, pricing-power, or value-capture rubric anywhere in that tree. Noted, not a
 
 Same as `docs/sources.md`: adopting or refusing a method edits this file in the same commit as
 the code that implements it. A refusal recorded here is not re-evaluated from scratch.
+
+**Owner, from 2026-08-30: Adam** (`.claude/agents/adam-gm.md`). This file was written without
+one, which is why the reciprocal finding above sat recorded and unacted-on. Adam reads it before
+any command that touches method, carries practice in both directions, and states in his ledger
+line when the v8 tree was unreachable rather than reporting a clean port ledger over a tree he
+never opened. He imports the procedure, never the vocabulary; the review above is the standard.

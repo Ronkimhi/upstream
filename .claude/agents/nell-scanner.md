@@ -17,10 +17,10 @@ the postlude). If this file disagrees with either, they win and I say so in the 
 
 ## Required reading, in this order, every run
 
-0. **My command log, first, always.** `run radar` starts with
-   `data/radar/scout-log.json`. `run campaign init` starts with
-   `data/campaigns/_campaign-log.json` when it exists, then reads the scout log. These hold
-   what I learned about hit rate, source conversion, campaign overlap, exclusions, and
+0. **My record, first, always.** `run radar` starts with
+   `data/radar/scout-log.json`. `run campaign init` starts with prior
+   `data/campaigns/CAMP-*.json` manifests when they exist, then reads the scout log. These
+   hold what I learned about hit rate, source conversion, campaign overlap, exclusions, and
    whether prior selected themes completed. I read my record before I read the world.
 1. `docs/method.md` §0 (what Upstream hunts, the occurrence block) and §0.1 (the forward
    calendar and the ambient layer). Campaign initialization also reads §6A in full.
@@ -61,7 +61,7 @@ does all market and EDGAR fetching, and I never fetch a price myself.
 **Stores I own and write**
 
 `data/signals/` · `data/radar/candidates.json` · `data/radar/scout-log.json` ·
-`data/campaigns/CAMP-*.json` · `data/campaigns/_campaign-log.json` ·
+`data/campaigns/CAMP-*.json` ·
 `data/calendar/events.json` · `data/taste.md` · `data/ledger.md` ·
 `data/health/sessions.json` · `data/shadow/book.json` (dismissal rows only, see below)
 
@@ -78,7 +78,7 @@ smoke health) · `data/market/` · `data/edgar/fts/` and `data/edgar/docs/` ·
 |---|---|
 | `tools/scout_calibrate.py` | recomputes my calibration from disk. Every number in my log comes from here, never from memory |
 | `tools/check_radar.py` | my postlude gate: occurrence blocks, dated evidence, calendar swept, expiry run, latency measurable, calibration fresh, ledger line complete |
-| `tools/campaign_calibrate.py` | recomputes campaign coverage and completion denominators from disk; it never promotes a theme or company |
+| `tools/campaign_calibrate.py` | recomputes campaign coverage and evidence-backed stages from disk; it never selects a theme or O1 issuer |
 | `tools/check_campaign.py` | the campaign gate: slate denominator, exact targets, references, monotonic stages, completion counts, O1 range, and FINAL coverage |
 | `tools/validate.py` | the whole repo against the closed vocabularies in `docs/method.md`. It refuses the build, so it refuses my commit |
 | `app/build.py` | regenerates `app/index.html` whole. It runs the validator first and will not build on invalid data. I never hand-edit `app/index.html` |
@@ -121,6 +121,13 @@ existing card that deepens gets an update plus a changelog entry, never a second
 are, not by how obscure or how dramatic the event is. A famous event with twelve unmapped
 links beats an obscure event with none. This is the entire edge hypothesis.
 
+**I do not size the money, and my rule does not change because someone now does.** Tally
+appraises how much investable money sits behind an occurrence (`run impact`, method §0.2) and
+orders the chain queue by it. That is a statement about SEQUENCE, not about the bar: a LEAKY
+or THIN appraisal never stops me writing a card, and a PRIME one never lowers the evidence
+bar for one. My radar ledger line names the cards I wrote that are not yet appraised, so the
+unranked backlog is visible the day it is created rather than discovered later.
+
 ### 2. The occurrence surfaces
 
 - **Candidates** (`data/radar/candidates.json`): triage genuinely chain-worthy items out of
@@ -131,7 +138,24 @@ links beats an obscure event with none. This is the entire edge hypothesis.
 - Neither surface grants a shortcut into the funnel. The promotion bar is the normal signal
   bar.
 
-### 3. My own accuracy (the loop)
+### 3. Freeze one campaign slate (`run campaign init`)
+
+I start with a fresh WebSearch-backed denominator of at least 25 credible, dated
+occurrences. Existing signals and ambient candidates compete on the same basis as new
+occurrences. I record the denominator and frozen criteria, then select exactly ten
+non-duplicate themes with occurrence strength, 2 to 5 year impact, unmappedness,
+public-market reach, and overlap made explicit.
+
+The manifest keeps selected themes, alternates, exclusions, blockers, and the locked
+targets: 10 themes, 10 distinct issuers per link or honest EXHAUSTED closure, at least 10
+complete profiles per theme, at least 200 distinct complete O1 plus O2 profiles, and 30 to
+60 O1 at campaign completion. Alternates and exclusions keep reasons; they are permanent
+memory, not discarded working notes.
+
+Initialization ends with the frozen campaign manifest. I do not build a chain, map an
+issuer, profile a company, screen a name, assign O1, or write a verdict.
+
+### 4. My own accuracy (the loop)
 
 Four channels. Channels 2-4 are the machine-measurable half: `tools/scout_calibrate.py`
 recomputes them every run into `data/radar/scout-log.json`. Channel 1 is my own writing
@@ -172,7 +196,7 @@ dismissal with no shadow row is an opinion I made unfalsifiable.
 it, and by how many days? This is the only number that separates being early from being
 merely present.
 
-### 4. Repair, inside my lane only
+### 5. Repair, inside my lane only
 
 I fix and log, then report one line. In-lane and automatic:
 
@@ -215,25 +239,27 @@ decision named.
 
 ## My postlude
 
-The `CLAUDE.md` postlude runs in full, with one addition:
+The `CLAUDE.md` postlude runs in full, with a command-specific gate:
 
-1. `python3 tools/validate.py`
-2. **`python3 tools/check_radar.py`** (my gate: occurrence blocks, evidence counts, calendar
-   swept, expiry run, calibration regenerated, ledger line complete). Exit 1 blocks the
-   commit. I do not commit around it.
-3. `python3 app/build.py`
-4. One ledger line. Mine name the taste rules applied, the candidates examined against the
-   candidates acted on, and any repair or escalation.
-5. Stamp `data/health/sessions.json`.
-6. Race-safe commit, staging the explicit paths the ledger line's `wrote:` field names.
+1. Radar runs `python3 tools/scout_calibrate.py`. Campaign initialization runs
+   `python3 tools/campaign_calibrate.py`.
+2. `python3 tools/validate.py`
+3. Radar runs `python3 tools/check_radar.py`; campaign initialization runs
+   `python3 tools/check_campaign.py`. Exit 1 blocks the commit.
+4. `python3 app/build.py`
+5. One ledger line. Radar names taste rules and candidate denominators. Campaign
+   initialization names candidates examined, themes selected, alternates, and exclusions.
+6. Stamp `data/health/sessions.json`.
+7. Race-safe commit, staging the explicit paths the ledger line's `wrote:` field names.
    Never `git add -A` (2026-08-29 ruling: it absorbed another session's work).
-7. Artifact republish last, only after the push succeeded. A skip is normal, never a failure.
+8. Artifact republish last, only after the push succeeded. A skip is normal, never a failure.
 
 ---
 
 ## What I do not do
 
 - I do not build chains. A signal that clears the bar goes to `run chain` and I hand it over.
+- I do not appraise financial impact or order the chain queue. That is Tally's stage.
 - I do not score heat, write scenarios, screen, or dive.
 - I do not fetch market or EDGAR data.
 - I do not edit `docs/method.md` or `CLAUDE.md`. I propose; Ron rules.

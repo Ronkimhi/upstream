@@ -44,8 +44,19 @@ import sys
 import unicodedata
 from pathlib import Path
 
+from check_map import mapping_fingerprint
+
 failures: list[str] = []
 lines: list[str] = []
+CAMPAIGN_SCREEN_CUTOFF = "2026-08-31"
+# These are the only screen files committed before campaign-v1 identity existed.  The
+# allowlist is intentionally path-based: a writer cannot grandfather a new file merely by
+# backdating its writable as_of field.
+LEGACY_SCREEN_ALLOWLIST = frozenset({
+    "ai-infrastructure.json",
+    "ai-infrastructure__S2.json",
+    "tibet-mega-dam.json",
+})
 
 
 def fail(msg: str) -> None:
@@ -213,6 +224,189 @@ def check_cik_agreement(data: Path, screens: list) -> None:
            else "cik: no screen row carries a CIK to cross-check")
 
 
+def _screen_rows(screen: dict):
+    for rows in (screen.get("buckets") or {}).values():
+        for row in rows or []:
+            if isinstance(row, dict):
+                yield row
+
+
+def _current_audit(mapping: dict) -> bool:
+    """A screen may use a mapping only after its current semantic audit passed."""
+    audit = mapping.get("audit")
+    return (
+        mapping.get("status") == "COMPLETE"
+        and isinstance(audit, dict)
+        and audit.get("status") == "PASS"
+        and audit.get("mapping_fingerprint") == mapping_fingerprint(mapping)
+    )
+
+
+def _scenario_moved_links(chain: dict, scenario_id) -> set | None:
+    for scenario in chain.get("scenarios") or []:
+        if isinstance(scenario, dict) and scenario.get("id") == scenario_id:
+            links = set()
+            for moved in scenario.get("links_moved") or []:
+                if isinstance(moved, dict) and moved.get("link_id"):
+                    links.add(moved["link_id"])
+                elif isinstance(moved, str):
+                    links.add(moved)
+            return links
+    return None
+
+
+def _screen_dates(screen: dict) -> set[str]:
+    return {
+        str(screen.get(field) or "")[:10]
+        for field in ("as_of", "created_at")
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(screen.get(field) or "")[:10])
+    }
+
+
+def _is_qualified_placement(placement: dict | None) -> bool:
+    """A campaign screen may consume only a current, explicit ACTIVE placement."""
+    return isinstance(placement, dict) and placement.get("status") == "ACTIVE" and \
+        placement.get("active") is not False and placement.get("is_active") is not False and \
+        bool(placement.get("evidence") or [])
+
+
+def _campaign_strict(screen: dict, mapping_exists: bool) -> bool:
+    if screen.get("identity_schema") == "campaign-v1":
+        return True
+    rows = list(_screen_rows(screen))
+    normalized_refs = {
+        "issuer_id", "listing_id", "mapping_ref", "profile_ref", "campaign_ref",
+    }
+    if any(any(key in row for key in normalized_refs) for row in rows):
+        return True
+    return mapping_exists and any(day >= CAMPAIGN_SCREEN_CUTOFF
+                                  for day in _screen_dates(screen))
+
+
+def _allowlisted_legacy(path: Path, screen: dict) -> bool:
+    return path.name in LEGACY_SCREEN_ALLOWLIST and \
+        all(day < CAMPAIGN_SCREEN_CUTOFF for day in _screen_dates(screen))
+
+
+def check_campaign_identity(data: Path, screens: list) -> None:
+    """Hold the exact mapping -> COMPLETE O1/O2 profile -> screen boundary.
+
+    Strictness is objective: campaign-v1 fields, or a post-cutoff screen over a normalized
+    mapping, activate it. Older data is readable only from the committed legacy allowlist,
+    never because a writer supplied an old date. Campaign rows must be fully attributable
+    before selection can promote their profile to O1.
+
+    O1 is ACCEPTED here, and that is not a loosening. This function re-reads every screen on
+    disk on every invocation, while `run selection` promotes a screened profile from O2 to O1.
+    Demanding O2 exactly therefore broke every earlier screen the moment the first selection
+    landed, which made screening and selecting mutually exclusive and the campaign funnel
+    unrunnable (2026-08-30). O1 is a strictly LATER state of a profile that was O2 when it was
+    screened, so it is a valid history; O3, DRAFT and BLOCKED are still refused, which is the
+    rule that was actually doing work.
+    """
+    campaign_rows = legacy_screens = checked = 0
+    required = {
+        "issuer_id", "listing_id", "ticker", "market_ticker", "chain_id", "link_id",
+        "mapping_ref", "profile_ref", "data_tier",
+    }
+    for path, screen in screens:
+        chain_id = screen.get("chain_id")
+        mapping_path = data / "mappings" / f"{chain_id}.json"
+        mapping = read_json(mapping_path)
+        strict = _campaign_strict(screen, isinstance(mapping, dict))
+        if not strict and _allowlisted_legacy(path, screen):
+            legacy_screens += 1
+            report(f"WARNING {path.name}: pre-campaign legacy screen has no campaign-v1 "
+                   "identity schema; readable, but not silently exempt from identity controls")
+            continue
+        if not strict:
+            fail(f"{path.name}: screen is not in the committed pre-{CAMPAIGN_SCREEN_CUTOFF} "
+                 "legacy allowlist; identity requirements cannot be bypassed by backdating")
+            continue
+        if screen.get("identity_schema") != "campaign-v1":
+            fail(f"{path.name}: campaign-era screen lacks identity_schema 'campaign-v1'")
+        if not isinstance(mapping, dict):
+            fail(f"{path.name}: campaign-v1 screen has no normalized mapping "
+                 f"{mapping_path.name}")
+            continue
+        if not _current_audit(mapping):
+            fail(f"{path.name}: campaign mapping {mapping_path.name} lacks a current PASS "
+                 "audit and COMPLETE status; screen rows cannot use a stale or failed census")
+        listings = {
+            item.get("listing_id"): item for item in mapping.get("listings") or []
+            if isinstance(item, dict) and item.get("listing_id")
+        }
+        placements = {
+            (item.get("chain_id"), item.get("link_id"), item.get("issuer_id")): item
+            for item in mapping.get("placements") or [] if isinstance(item, dict)
+        }
+        scenario_id = screen.get("scenario_id")
+        moved_links = None
+        if scenario_id is not None:
+            chain = read_json(data / "chains" / f"{chain_id}.json")
+            moved_links = _scenario_moved_links(chain, scenario_id) \
+                if isinstance(chain, dict) else None
+            if moved_links is None:
+                fail(f"{path.name}: scenario_id {scenario_id!r} does not resolve to a "
+                     f"scenario with moved links on chain {chain_id!r}")
+        seen_issuers = set()
+        for row in _screen_rows(screen):
+            campaign_rows += 1
+            checked += 1
+            where = f"{path.name}:{row.get('ticker') or row.get('market_ticker') or '?'}"
+            missing = sorted(key for key in required if not str(row.get(key) or "").strip())
+            if missing:
+                fail(f"{where}: campaign screen row missing required identity fields: "
+                     + ", ".join(missing))
+                continue
+            if row.get("chain_id") != chain_id:
+                fail(f"{where}: row chain_id does not match screen chain_id {chain_id!r}")
+            if row.get("mapping_ref") != f"data/mappings/{chain_id}.json":
+                fail(f"{where}: mapping_ref must be data/mappings/{chain_id}.json")
+            issuer_id, listing_id, link_id = (
+                row["issuer_id"], row["listing_id"], row["link_id"])
+            listing = listings.get(listing_id)
+            if not listing or listing.get("issuer_id") != issuer_id:
+                fail(f"{where}: listing_id {listing_id!r} does not resolve to issuer_id "
+                     f"{issuer_id!r} in the qualified mapping")
+            elif listing.get("ticker") != row.get("market_ticker") or \
+                    listing.get("ticker") != row.get("ticker"):
+                fail(f"{where}: ticker and market_ticker must match the official mapped "
+                     "listing ticker")
+            placement = placements.get((chain_id, link_id, issuer_id))
+            if not _is_qualified_placement(placement):
+                fail(f"{where}: link_id {link_id!r} has no current qualified mapping "
+                     f"placement for issuer_id {issuer_id!r}; placement.status must be "
+                     "exactly ACTIVE")
+            if moved_links is not None and link_id not in moved_links:
+                fail(f"{where}: scenario screen row link_id {link_id!r} is not moved by "
+                     f"scenario {scenario_id!r}")
+            expected_profile_ref = f"data/companies/{issuer_id}.json"
+            if row.get("profile_ref") != expected_profile_ref:
+                fail(f"{where}: profile_ref must be {expected_profile_ref}")
+            profile = read_json(data / "companies" / f"{issuer_id}.json")
+            if not isinstance(profile, dict) or profile.get("issuer_id") != issuer_id:
+                fail(f"{where}: profile_ref does not resolve to issuer_id {issuer_id!r}")
+            elif profile.get("status") != "COMPLETE" or \
+                    profile.get("opportunity_tier") not in {"O1", "O2"}:
+                fail(f"{where}: campaign screen requires a COMPLETE O1 or O2 profile; O3, "
+                     "DRAFT, and BLOCKED profiles are not screen inputs. O1 is only ever a "
+                     "later promotion by `run selection` of a profile that was O2 when it "
+                     "was screened, never an eligibility a writer may claim at screen time")
+            if row.get("data_tier") not in {"T1", "T2", "T3"}:
+                fail(f"{where}: data_tier must be T1, T2, or T3")
+            elif isinstance(profile, dict) and row["data_tier"] != profile.get("data_tier"):
+                fail(f"{where}: data_tier {row['data_tier']!r} does not match profile "
+                     f"data_tier {profile.get('data_tier')!r}")
+            if "opportunity_tier" in row:
+                fail(f"{where}: opportunity_tier belongs on the profile, not the screen row")
+            if issuer_id in seen_issuers and not str(row.get("secondary_link_basis") or "").strip():
+                fail(f"{where}: duplicate issuer row needs a non-empty secondary_link_basis")
+            seen_issuers.add(issuer_id)
+    report(f"campaign identity: {checked}/{campaign_rows} campaign row(s) examined; "
+           f"{legacy_screens} legacy screen(s) warned")
+
+
 def check_run_day(data: Path, screens: list, chains_dir: Path, today: str) -> None:
     """Check 5. Only binds on a day a screen was written."""
     touched = [(p, s) for p, s in screens if str(s.get("as_of", ""))[:10] == today]
@@ -287,6 +481,7 @@ def main() -> int:
     check_quotes(data, screens)
     check_pending_backed(data, screens)
     check_cik_agreement(data, screens)
+    check_campaign_identity(data, screens)
     check_run_day(data, screens, data / "chains", today)
 
     print("\n".join(lines))

@@ -11,6 +11,7 @@ Exit 0 clean, 1 on any failure.
 """
 import argparse
 import json
+import math
 import re
 import subprocess
 from pathlib import Path
@@ -23,9 +24,52 @@ OPPORTUNITY_TIERS = {"O1", "O2", "O3"}
 DISPOSITIONS = {"ADVANCE", "RETAIN", "DEFER", "PASS", "BLOCKED"}
 EVIDENCE_TAGS = {"VERIFIED", "INFERRED", "SPECULATIVE", "NULL"}
 VERDICT_WORDS = {"INVESTABLE", "WATCH", "TOO_LATE"}
-METRIC_GROUPS = {
-    "revenue", "growth", "margins", "cash_conversion",
-    "leverage", "quality", "valuation", "reverse_dcf",
+VALUATION_RATIO_FIELDS = {
+    "price_to_earnings", "forward_price_to_earnings", "pe_ratio",
+    "ev_to_ebitda", "ev_ebitda", "ev_to_sales", "price_to_sales",
+    "price_to_book", "fcf_yield", "free_cash_flow_yield",
+    "earnings_yield", "dividend_yield",
+}
+CANONICAL_METRIC_FIELDS = {
+    "revenue": {"latest_fy"},
+    "growth": {"revenue_cagr_3y"},
+    "margins": {"operating_margin"},
+    "cash_conversion": {
+        "operating_cash_flow_to_net_income", "fcf_margin",
+    },
+    "leverage": {"net_debt_to_ebitda"},
+    "quality": {
+        "piotroski", "beneish_state", "official_source_equivalent",
+    },
+    "valuation": {"market_cap", *VALUATION_RATIO_FIELDS},
+    "reverse_dcf": {"implied_fcf_cagr", "horizon_spread"},
+}
+METRIC_GROUPS = set(CANONICAL_METRIC_FIELDS)
+NULL_BASIS_TERMS = {
+    "latest_fy": (("latest", "fy"), ("fiscal", "year")),
+    "revenue_cagr_3y": (("revenue", "cagr"), ("revenue", "3y"),
+                        ("revenue", "three", "year")),
+    "operating_margin": (("operating", "margin"),),
+    "operating_cash_flow_to_net_income": (
+        ("operating", "cash", "flow", "net", "income"),
+    ),
+    "fcf_margin": (("fcf", "margin"), ("free", "cash", "flow", "margin")),
+    "net_debt_to_ebitda": (("net", "debt", "ebitda"),),
+    "piotroski": (("piotroski",),),
+    "beneish_state": (("beneish",),),
+    "market_cap": (("market", "cap"), ("market", "capitalization")),
+    "implied_fcf_cagr": (("implied", "fcf", "cagr"),
+                         ("implied", "free", "cash", "flow", "cagr")),
+    "horizon_spread": (("horizon", "spread"),),
+    "official_source_equivalent": (("quality", "equivalent"),),
+}
+UNKNOWN_METRIC_STATES = {
+    "UNKNOWN", "PLACEHOLDER", "PENDING", "PENDING_DATA", "NOT_AVAILABLE",
+    "NOT_APPLICABLE", "UNAVAILABLE",
+}
+SELECTION_DIMENSIONS = {
+    "direct_exposure", "capture", "heat", "quality", "expectations_gap",
+    "evidence_confidence", "duplicate_exposure",
 }
 COMPLETE_FIELDS = {
     "business_summary", "exposure_summary", "metrics", "crowdedness_caveats",
@@ -36,6 +80,8 @@ COMPLETE_FIELDS = {
 def _mapping_indexes(root: Path):
     issuer_names = {}
     listing_to_issuer = {}
+    listing_details = {}
+    listing_chains = set()
     placements = set()
     folder = root / "data" / "mappings"
     for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
@@ -50,11 +96,14 @@ def _mapping_indexes(root: Path):
         for listing in mapping.get("listings") or []:
             if isinstance(listing, dict) and listing.get("listing_id"):
                 listing_to_issuer[listing["listing_id"]] = listing.get("issuer_id")
+                listing_details[(mapping.get("chain_id"), listing["listing_id"])] = listing
+                listing_chains.add((mapping.get("chain_id"), listing.get("listing_id"),
+                                    listing.get("issuer_id")))
         for placement in mapping.get("placements") or []:
             if isinstance(placement, dict):
                 placements.add((placement.get("chain_id"), placement.get("link_id"),
                                 placement.get("issuer_id")))
-    return issuer_names, listing_to_issuer, placements
+    return issuer_names, listing_to_issuer, listing_details, listing_chains, placements
 
 
 def _verdict_leaks(obj, where: str = "profile") -> list[str]:
@@ -135,12 +184,170 @@ def numeric_source_failures(metrics, where: str = "metrics") -> tuple[list[str],
     return failures, examined, inferred
 
 
+def _basis_names_field(basis, field: str) -> bool:
+    normalized = re.sub(r"[^a-z0-9]+", " ", str(basis or "").casefold()).strip()
+    terms = NULL_BASIS_TERMS.get(
+        field,
+        (tuple(part for part in field.casefold().split("_") if part),),
+    )
+    return any(all(term in normalized for term in alternative)
+               for alternative in terms)
+
+
+def _canonical_field_failures(
+        field: str, item, where: str, *, allow_null: bool) -> list[str]:
+    """Validate one named canonical metric field without inherited source metadata."""
+    failures = []
+    if not isinstance(item, dict):
+        return [f"{where}: canonical field must be an object"]
+    if "value" not in item:
+        return [f"{where}: canonical field needs a value key"]
+
+    value = item.get("value")
+    if value is None:
+        if item.get("tag") != "NULL":
+            failures.append(f"{where}: null value must be tagged NULL")
+        basis = item.get("basis")
+        if not isinstance(basis, str) or not basis.strip():
+            failures.append(f"{where}: NULL value needs a field-specific basis")
+        elif not _basis_names_field(basis, field):
+            failures.append(
+                f"{where}: NULL basis must name the missing {field} field")
+        if not allow_null:
+            failures.append(
+                f"{where}: O1 cannot retain a NULL critical canonical field")
+        return failures
+
+    if isinstance(value, bool) or not isinstance(value, (int, float)) \
+            or not math.isfinite(value):
+        failures.append(f"{where}.value must be a finite number or explicit NULL")
+        return failures
+    if not _has_source(item):
+        failures.append(
+            f"{where}: numeric object needs source_name, source_date and http(s) url")
+    if item.get("tag") not in EVIDENCE_TAGS - {"NULL"}:
+        failures.append(
+            f"{where}: numeric object tag must be VERIFIED, INFERRED or SPECULATIVE")
+    if item.get("tag") == "INFERRED":
+        if item.get("official_source") is not True:
+            failures.append(
+                f"{where}: INFERRED numeric object needs official_source: true")
+        if not isinstance(item.get("basis"), str) or not item["basis"].strip():
+            failures.append(
+                f"{where}: INFERRED numeric object needs a derivation basis")
+    if item.get("tag") == "SPECULATIVE" and (
+            not isinstance(item.get("basis"), str) or not item["basis"].strip()):
+        failures.append(
+            f"{where}: SPECULATIVE numeric object needs an assumption basis")
+    state = str(item.get("state") or "").strip().upper()
+    if not allow_null and state in UNKNOWN_METRIC_STATES:
+        failures.append(f"{where}: O1 cannot retain unknown state {state!r}")
+    return failures
+
+
+def _quality_equivalent_failures(item, data_tier, where: str) -> list[str]:
+    failures = []
+    if data_tier not in {"T2", "T3"}:
+        failures.append(f"{where}: official-source equivalent is limited to T2/T3")
+    if isinstance(item, dict):
+        if item.get("tag") != "INFERRED" or item.get("official_source") is not True:
+            failures.append(
+                f"{where}: equivalent must be INFERRED from an official_source")
+        if set(item.get("equivalent_for") or []) != {"piotroski", "beneish_state"}:
+            failures.append(
+                f"{where}.equivalent_for must name piotroski and beneish_state")
+        basis = str(item.get("basis") or "")
+        if not _basis_names_field(basis, "official_source_equivalent"):
+            failures.append(
+                f"{where}: basis must explain the quality equivalent")
+    return failures
+
+
+def metric_group_failures(
+        group: str, value, *, data_tier=None, opportunity_tier=None) -> list[str]:
+    """Enforce the closed minimum schema for one metric group."""
+    where = f"metrics.{group}"
+    if not isinstance(value, dict):
+        return [f"{where}: metric group must be an object"]
+
+    allowed = CANONICAL_METRIC_FIELDS[group]
+    unknown = sorted(set(value) - allowed)
+    failures = [
+        f"{where}: non-canonical metric fields are forbidden: {', '.join(unknown)}"
+    ] if unknown else []
+    allow_null = opportunity_tier != "O1"
+
+    if group == "cash_conversion":
+        if not (set(value) & allowed):
+            failures.append(
+                f"{where} needs operating_cash_flow_to_net_income or fcf_margin")
+    elif group == "quality":
+        standard = {"piotroski", "beneish_state"}
+        has_standard = standard <= set(value)
+        has_equivalent = "official_source_equivalent" in value
+        if not has_standard and not has_equivalent:
+            failures.append(
+                f"{where} needs piotroski and beneish_state, or a T2/T3 "
+                "official_source_equivalent")
+    elif group == "valuation":
+        if "market_cap" not in value:
+            failures.append(f"{where} needs canonical key market_cap")
+        if not (set(value) & VALUATION_RATIO_FIELDS):
+            failures.append(f"{where} needs at least one canonical ratio or yield")
+    else:
+        for field in sorted(allowed - set(value)):
+            failures.append(f"{where} needs canonical key {field}")
+
+    for field in sorted(set(value) & allowed):
+        item_where = f"{where}.{field}"
+        failures.extend(_canonical_field_failures(
+            field, value[field], item_where, allow_null=allow_null))
+        if field == "official_source_equivalent":
+            failures.extend(_quality_equivalent_failures(
+                value[field], data_tier, item_where))
+    return failures
+
+
+def duplicate_null_basis_failures(metrics: dict) -> list[str]:
+    """One NULL explanation cannot stand in for several different facts."""
+    uses: dict[str, list[str]] = {}
+    for group, fields in CANONICAL_METRIC_FIELDS.items():
+        block = metrics.get(group)
+        if not isinstance(block, dict):
+            continue
+        for field in fields & set(block):
+            item = block[field]
+            if not isinstance(item, dict) or item.get("value") is not None:
+                continue
+            basis = re.sub(
+                r"\s+", " ", str(item.get("basis") or "").strip().casefold())
+            if basis:
+                uses.setdefault(basis, []).append(f"metrics.{group}.{field}")
+    return [
+        "NULL basis is reused across canonical fields and is not field-specific: "
+        + ", ".join(sorted(paths))
+        for paths in uses.values()
+        if len(paths) > 1
+    ]
+
+
 def _nonempty(value) -> bool:
     if isinstance(value, str):
         return bool(value.strip())
     if isinstance(value, (list, dict)):
         return bool(value)
     return value is not None
+
+
+def _nonempty_object(value) -> bool:
+    if not isinstance(value, dict) or not value:
+        return False
+    return any(
+        _nonempty_object(child) if isinstance(child, dict)
+        else any(_nonempty(item) for item in child) if isinstance(child, list)
+        else _nonempty(child)
+        for child in value.values()
+    )
 
 
 def completeness(profile: dict) -> tuple[int, int]:
@@ -156,8 +363,44 @@ def completeness(profile: dict) -> tuple[int, int]:
     ]
     checks.extend(_nonempty(profile.get(field)) for field in sorted(COMPLETE_FIELDS))
     metrics = profile.get("metrics")
-    checks.extend(isinstance(metrics, dict) and group in metrics for group in sorted(METRIC_GROUPS))
+    checks.extend(
+        isinstance(metrics, dict)
+        and group in metrics
+        and not metric_group_failures(
+            group,
+            metrics[group],
+            data_tier=profile.get("data_tier"),
+            opportunity_tier=profile.get("opportunity_tier"),
+        )
+        for group in sorted(METRIC_GROUPS)
+    )
     return sum(checks), len(checks)
+
+
+def _screen_for_ref(root: Path, screen_ref) -> dict | None:
+    ref = str(screen_ref or "").strip()
+    if not ref:
+        return None
+    folder = root / "data" / "screens"
+    for path, screen in (
+            (path, read_json(path))
+            for path in sorted(folder.glob("*.json")) if folder.is_dir()):
+        if not isinstance(screen, dict):
+            continue
+        identities = {
+            screen.get("id"), path.name, path.stem,
+            str(path.relative_to(root)),
+        }
+        if ref in identities:
+            return screen
+    return None
+
+
+def _screen_rows(screen: dict):
+    for rows in (screen.get("buckets") or {}).values():
+        for row in rows or []:
+            if isinstance(row, dict):
+                yield row
 
 
 def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
@@ -195,10 +438,19 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
     if "tier" in profile:
         failures.append("ambiguous tier is forbidden; data_tier T1/T2/T3 and "
                         "opportunity_tier O1/O2/O3 are separate fields")
-    if profile.get("status") == "COMPLETE" and profile.get("opportunity_tier") == "O3":
-        failures.append("O3 is mapped-only coverage; completed-profile counts use O1 + O2")
+    status = profile.get("status")
+    opportunity_tier = profile.get("opportunity_tier")
+    if status == "COMPLETE" and opportunity_tier not in {"O1", "O2"}:
+        failures.append("COMPLETE profiles must be O1 or O2")
+    if status in {"DRAFT", "BLOCKED"} and opportunity_tier != "O3":
+        failures.append(f"{status} profiles must be O3")
+    if opportunity_tier in {"O1", "O2"} and status != "COMPLETE":
+        failures.append(f"{opportunity_tier} profiles must be COMPLETE")
+    if opportunity_tier == "O3" and status not in {"DRAFT", "BLOCKED"}:
+        failures.append("O3 profiles must be DRAFT or BLOCKED")
 
-    issuer_names, listing_to_issuer, mapped_placements = _mapping_indexes(root)
+    issuer_names, listing_to_issuer, listing_details, listing_chains, \
+        mapped_placements = _mapping_indexes(root)
     if issuer_id not in issuer_names:
         failures.append(f"issuer_id {issuer_id!r} does not resolve in data/mappings/")
     elif str(issuer_names[issuer_id] or "").strip().casefold() != \
@@ -209,10 +461,17 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
     if not isinstance(listing_refs, list):
         failures.append("listing_refs must be a list of mapping listing_id values")
         listing_refs = []
-    if len(listing_refs) != len(set(listing_refs)):
+    valid_listing_refs = [
+        listing_id for listing_id in listing_refs
+        if isinstance(listing_id, str) and listing_id.strip()
+    ]
+    if len(valid_listing_refs) != len(listing_refs):
+        failures.append("listing_refs entries must be non-empty strings")
+    if len(valid_listing_refs) != len(set(valid_listing_refs)):
         failures.append("listing_refs contains duplicates")
     for i, listing_id in enumerate(listing_refs):
-        if listing_to_issuer.get(listing_id) != issuer_id:
+        if not isinstance(listing_id, str) or \
+                listing_to_issuer.get(listing_id) != issuer_id:
             failures.append(f"listing_refs[{i}] {listing_id!r} does not resolve to {issuer_id}")
 
     placements = profile.get("placements")
@@ -239,6 +498,21 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
     else:
         source_findings, _, _ = numeric_source_failures(metrics)
         failures.extend(source_findings)
+        extra_groups = sorted(set(metrics) - METRIC_GROUPS)
+        if extra_groups:
+            failures.append(
+                f"profile has non-canonical metric groups: {extra_groups}")
+        missing_groups = sorted(METRIC_GROUPS - set(metrics))
+        if missing_groups:
+            failures.append(f"profile missing metric groups: {missing_groups}")
+        for group in sorted(METRIC_GROUPS & set(metrics)):
+            failures.extend(metric_group_failures(
+                group,
+                metrics[group],
+                data_tier=profile.get("data_tier"),
+                opportunity_tier=profile.get("opportunity_tier"),
+            ))
+        failures.extend(duplicate_null_basis_failures(metrics))
 
     disposition = profile.get("disposition")
     if not isinstance(disposition, dict) or \
@@ -254,11 +528,66 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
         have, total = completeness(profile)
         if have != total:
             failures.append(f"COMPLETE profile has {have}/{total} required fields complete")
-        missing_groups = sorted(METRIC_GROUPS - set(metrics or {}))
-        if missing_groups:
-            failures.append(f"COMPLETE profile missing metric groups: {missing_groups}")
         if not profile.get("catalysts") or not profile.get("risks"):
             failures.append("COMPLETE profile needs at least one catalyst and one risk")
+
+    if opportunity_tier == "O1":
+        basis = profile.get("selection_basis")
+        if not isinstance(basis, dict):
+            failures.append("O1 requires selection_basis as an object")
+            basis = {}
+        for dimension in sorted(SELECTION_DIMENSIONS):
+            value = basis.get(dimension)
+            if not _nonempty_object(value):
+                failures.append(
+                    f"O1 selection_basis.{dimension} must be a non-empty object")
+        handoff = basis.get("screen_handoff")
+        if not isinstance(handoff, dict):
+            failures.append("O1 selection_basis.screen_handoff must be an object")
+        else:
+            needed = {"screen_ref", "chain_id", "link_id", "listing_id"}
+            missing_handoff = sorted(needed - set(handoff))
+            if missing_handoff:
+                failures.append("O1 selection_basis.screen_handoff missing "
+                                + ", ".join(missing_handoff))
+            chain_id = handoff.get("chain_id")
+            link_id = handoff.get("link_id")
+            listing_id = handoff.get("listing_id")
+            if not all(str(handoff.get(key) or "").strip() for key in needed):
+                failures.append(
+                    "O1 selection_basis.screen_handoff fields must be non-empty")
+            if (chain_id, link_id, issuer_id) not in mapped_placements:
+                failures.append(
+                    "O1 screen handoff does not resolve to the issuer's mapping placement")
+            if listing_id not in listing_refs:
+                failures.append(
+                    f"O1 screen handoff listing_id {listing_id!r} is not in listing_refs")
+            if (chain_id, listing_id, issuer_id) not in listing_chains:
+                failures.append(
+                    "O1 screen handoff listing identity does not resolve for this issuer "
+                    "in the named chain mapping")
+            screen = _screen_for_ref(root, handoff.get("screen_ref"))
+            if not isinstance(screen, dict):
+                failures.append(
+                    f"O1 screen_handoff.screen_ref {handoff.get('screen_ref')!r} "
+                    "does not resolve in data/screens/")
+            elif screen.get("chain_id") != chain_id:
+                failures.append(
+                    "O1 screen handoff chain_id disagrees with the referenced screen")
+            else:
+                listing = listing_details.get((chain_id, listing_id)) or {}
+                matches = [
+                    row for row in _screen_rows(screen)
+                    if row.get("issuer_id") == issuer_id
+                    and row.get("listing_id") == listing_id
+                    and row.get("link_id") == link_id
+                ]
+                if not matches:
+                    failures.append(
+                        "O1 screen handoff has no exact issuer_id/listing_id/link_id row")
+                elif any(row.get("ticker") != listing.get("ticker") for row in matches):
+                    failures.append(
+                        "O1 screen handoff ticker disagrees with its mapped listing")
 
     if not isinstance(profile.get("confidence_audit"), dict):
         failures.append("confidence_audit must be an object")

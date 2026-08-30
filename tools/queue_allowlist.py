@@ -20,28 +20,45 @@ shape" means when the string came from a web page).
 
     from queue_allowlist import is_allowed, reject_reason
 
-`tools/tests/test_pressure.py` holds the injection probes. Adding a shape here without a
-probe there is how this file stops being trustworthy.
+`tools/tests/test_pressure.py`, `tools/tests/test_campaign_commands.py`,
+`tools/tests/test_cass.py` and `tools/tests/test_impact.py` hold the injection probes. Adding a shape here without a probe is
+how this file stops being trustworthy.
 """
 import re
 
 # Fragments, named so the shapes below read as the command table in CLAUDE.md does.
 _SIGNAL = r"SIG-\d{8}-\d{2}"
+_CANDIDATE = r"CAND-\d{8}-\d{2}"
 _SLUG = r"[a-z0-9-]{2,40}"
 _TICKER = r"[A-Z0-9.\-]{1,10}"
 _SCENARIO = r"S[1-6]"
+_CAMPAIGN = r"CAMP-\d{8}-\d{2}"
 _PATH = r"data/[a-z]+/[A-Za-z0-9._\-]+\.json"
+_SAFE_SEGMENT = r"(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+"
+_MACHINE_PATH = (
+    rf"(?:CLAUDE\.md|README\.md|"
+    rf"(?:\.claude|\.github|app|docs|tools)/(?:{_SAFE_SEGMENT}/)*{_SAFE_SEGMENT})"
+)
+_SHA = r"[0-9a-f]{7,40}"
 
 SHAPES = (
     r"run radar",
     r"run digest",
+    r"run campaign init",
+    rf"run selection {_CAMPAIGN}",
+    rf"run impact (?:{_SIGNAL}|{_CANDIDATE})",
     rf"run chain {_SIGNAL}",
+    rf"run universe {_SLUG}",
+    rf"run universe-audit {_SLUG}",
     rf"run heat {_SLUG}",
     rf"run scenarios {_SLUG}",
     rf"run screen {_SLUG} {_SCENARIO}",
     rf"run screen {_SLUG}",
+    rf"run profile {_TICKER}",
+    rf"run profile --campaign {_CAMPAIGN}",
     rf"run deepdive {_TICKER} {_SLUG}",
     rf"run redteam {_TICKER} {_SLUG}",
+    rf"run devil (?:{_MACHINE_PATH}|{_SHA})",
     rf"refresh {_PATH}",
     rf"request data(?: {_TICKER})+",
 )
@@ -58,7 +75,7 @@ def is_allowed(cmd) -> bool:
     """
     if not isinstance(cmd, str) or not cmd:
         return False
-    if cmd != cmd.strip() or any(ch in cmd for ch in "\n\r\t\x00"):
+    if cmd != cmd.strip() or any(ord(ch) < 32 or ord(ch) == 127 for ch in cmd):
         return False
     return any(rx.fullmatch(cmd) for rx in _COMPILED)
 
@@ -71,7 +88,7 @@ def reject_reason(cmd) -> str:
     """
     if not isinstance(cmd, str) or not cmd:
         return "not a non-empty string"
-    if any(ch in cmd for ch in "\n\r\t\x00"):
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in cmd):
         return "contains a control character (a second command can hide behind the first)"
     if cmd != cmd.strip():
         return "has leading or trailing whitespace"

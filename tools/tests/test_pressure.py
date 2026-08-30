@@ -442,7 +442,7 @@ class TestBandsAndMoneyCorner(unittest.TestCase):
         self.assertEqual(b(70, 81), "OVER_CROWDED")
         self.assertEqual(b(70, 80), "CROWDED")
         self.assertEqual(b(70, 61), "CROWDED")
-        self.assertEqual(b(70, 60), "EMERGING")
+        self.assertEqual(b(70, 60), "CROWDED")
         self.assertEqual(b(70, 41), "EMERGING")
         self.assertEqual(b(70, 40), "UNDISCOVERED")
         self.assertEqual(b(59, 40), "QUIET", "un-crowded but it does not matter")

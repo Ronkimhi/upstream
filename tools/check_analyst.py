@@ -6,6 +6,9 @@ That column was prose, so it could only ever be honoured by memory. This is the 
 as an exit code. Sibling of `tools/check_radar.py`; same contract, same shape.
 
 Checks, each reported with the denominator it examined:
+  0. every campaign-era DRAFT or FINAL resolves through one exact COMPLETE O1 profile,
+     a COMPLETE mapping with a current PASS audit that passes check_map audit validation,
+     qualified mapping listing and placement, and normalized screen handoff
   1. every dive touched today: verdict completeness per method section 7, its chain-link
      attribution, the price it reasoned from, and every filing passage it quotes verified
      verbatim against data/edgar/docs/<T>.json with the screen gate's own normalizer
@@ -22,19 +25,23 @@ Checks, each reported with the denominator it examined:
  10. today's ledger line names the verdict, the clock and the earnings grade
  11. schema drift guard: fetch.QUALITY_FIELDS and acis.quality's series_fields agree
 
-Scope: checks 1-10 only bind on a day that actually wrote a dive. On a day with no dive
-the gate reports NOT RUN TODAY and exits 0, rather than reporting a clean pass over
-nothing. Check 11 always runs: it is a code-level invariant, not a run artifact.
+Scope: admission check 0 and schema-drift check 11 always run. Checks 1-10 only bind on a
+day that actually wrote a dive. On a day with no dive the gate reports NOT RUN TODAY
+rather than reporting a clean pass over run-specific checks it did not perform.
 
 Run: python3 tools/check_analyst.py [--date YYYY-MM-DD] [--root PATH]
 Exit 0 clean, 1 on any failure.
 """
 import datetime
+import hashlib
 import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
+
+import check_map
+import check_profile
 
 
 def _load_normalizer():
@@ -60,6 +67,19 @@ GRADES = {"A", "B", "C", "D", None}
 # Five trading days, expressed in calendar days so a long weekend does not trip it.
 STALE_SERIES_DAYS = 7
 TAGS = ("VERIFIED", "INFERRED", "SPECULATIVE", "NULL")
+# Campaign identity became a Stocky admission requirement on this date.
+STOCKY_ADMISSION_GATE = "2026-08-30"
+STOCKY_IDENTITY_FIELDS = (
+    "issuer_id", "listing_id", "chain_id", "link_id", "screen_ref",
+)
+# The sole pre-campaign Stocky document committed in HEAD when campaign admission landed.
+# Eligibility is the exact repo-relative path plus the committed byte content, never mutable
+# lifecycle metadata. This intentionally rejects copies, renames, ticker/chain changes, and
+# new files backdated through created_at, updated_at, or as_of.
+STOCKY_LEGACY_BASELINE = {
+    "data/stocks/VRT__ai-infrastructure.json":
+        "98b1f6f3fba93fa7bbbde38ae5db761409471bfa758df3b37d51ae80d4e4d9cf",
+}
 
 failures: list[str] = []
 lines: list[str] = []
@@ -78,6 +98,238 @@ def read_json(path: Path, default=None):
         return json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         return default
+
+
+def is_committed_legacy_stock(root: Path, path: Path) -> bool:
+    """True only for an exact path-and-content match to the pre-gate HEAD baseline."""
+    try:
+        relative_path = path.relative_to(root).as_posix()
+        content = path.read_bytes()
+    except (OSError, ValueError):
+        return False
+    expected = STOCKY_LEGACY_BASELINE.get(relative_path)
+    return expected == hashlib.sha256(content).hexdigest()
+
+
+def _screen_for_ref(root: Path, screen_ref: str) -> dict | None:
+    """Resolve the same explicit screen identities accepted by the profile handoff."""
+    folder = root / "data" / "screens"
+    for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
+        screen = read_json(path)
+        if not isinstance(screen, dict):
+            continue
+        identities = {
+            screen.get("id"), path.name, path.stem, str(path.relative_to(root)),
+        }
+        if screen_ref in identities:
+            return screen
+    return None
+
+
+def _screen_rows(screen: dict):
+    buckets = screen.get("buckets")
+    if not isinstance(buckets, dict):
+        return
+    for rows in buckets.values():
+        for row in rows or []:
+            if isinstance(row, dict):
+                yield row
+
+
+def _qualified_placement_failures(placement: dict) -> list[str]:
+    """The exact map row must carry the role evidence that qualified it."""
+    findings = []
+    if placement.get("status", "ACTIVE") != "ACTIVE":
+        findings.append(
+            f"mapping placement status must be ACTIVE, found {placement.get('status')!r}")
+    if not str(placement.get("role") or "").strip():
+        findings.append("qualified mapping placement has no role")
+    evidence = placement.get("evidence")
+    if not isinstance(evidence, list) or not evidence:
+        findings.append("qualified mapping placement has no evidence")
+        return findings
+    for i, item in enumerate(evidence):
+        where = f"qualified mapping placement evidence[{i}]"
+        if not isinstance(item, dict):
+            findings.append(f"{where} is not an object")
+            continue
+        if not str(item.get("claim") or "").strip():
+            findings.append(f"{where} has no claim")
+        if item.get("tag") not in check_map.EVIDENCE_TAGS:
+            findings.append(f"{where} has invalid tag {item.get('tag')!r}")
+        if not str(item.get("source_name") or item.get("source") or "").strip():
+            findings.append(f"{where} has no source_name")
+        if not check_map.valid_date(item.get("source_date")):
+            findings.append(f"{where} has invalid source_date")
+        url = item.get("url") or item.get("source_url")
+        if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+            findings.append(f"{where} has no fetchable http(s) url")
+    return findings
+
+
+def _mapping_admission_failures(mapping: dict) -> list[str]:
+    """Campaign-era Stocky requires COMPLETE map plus check_map audit validation."""
+    findings = []
+    if mapping.get("status") != "COMPLETE":
+        findings.append(
+            "Stocky admission requires mapping status COMPLETE, "
+            f"found {mapping.get('status')!r}")
+    for item in check_map.audit_failures(mapping):
+        findings.append(f"mapping audit not admission-valid: {item}")
+    return findings
+
+
+def stock_admission_failures(root: Path, stock: dict) -> list[str]:
+    """Prove a campaign-era Stocky file came from one exact qualified O1 handoff.
+
+    Identity never falls back to ticker. The dive, O1 profile, mapping listing and
+    placement, and referenced screen row must all resolve to the same issuer/listing/link.
+    """
+    findings = []
+    identity = {}
+    for field in STOCKY_IDENTITY_FIELDS:
+        value = stock.get(field)
+        if not isinstance(value, str) or not value.strip():
+            findings.append(f"campaign-era dive requires non-empty {field}")
+        else:
+            identity[field] = value
+    ticker = stock.get("ticker")
+    if not isinstance(ticker, str) or not ticker.strip():
+        findings.append("campaign-era dive requires a non-empty canonical ticker")
+    if findings:
+        return findings
+
+    issuer_id = identity["issuer_id"]
+    listing_id = identity["listing_id"]
+    chain_id = identity["chain_id"]
+    link_id = identity["link_id"]
+    screen_ref = identity["screen_ref"]
+    if not check_map.ISSUER_ID_RE.fullmatch(issuer_id):
+        findings.append(f"issuer_id {issuer_id!r} is not a stable safe identifier")
+        return findings
+
+    profile_path = root / "data" / "companies" / f"{issuer_id}.json"
+    profile = read_json(profile_path)
+    if not isinstance(profile, dict):
+        findings.append(
+            f"issuer_id {issuer_id!r} has no exact profile at "
+            f"data/companies/{issuer_id}.json")
+        return findings
+    if profile.get("status") != "COMPLETE":
+        findings.append(
+            f"issuer profile status must be COMPLETE, found {profile.get('status')!r}")
+    if profile.get("opportunity_tier") != "O1":
+        findings.append(
+            "Stocky admission requires opportunity_tier O1, found "
+            f"{profile.get('opportunity_tier')!r}")
+    for profile_finding in check_profile.validate_profile(root, profile_path, profile):
+        findings.append(f"O1 profile is not admission-valid: {profile_finding}")
+
+    selection = profile.get("selection_basis")
+    handoff = selection.get("screen_handoff") if isinstance(selection, dict) else None
+    if not isinstance(handoff, dict):
+        findings.append(
+            "O1 profile needs structured selection_basis.screen_handoff")
+        return findings
+    for dimension in sorted(check_profile.SELECTION_DIMENSIONS):
+        value = selection.get(dimension)
+        if not isinstance(value, dict) or not value:
+            findings.append(
+                f"O1 selection_basis.{dimension} must be a non-empty object")
+
+    expected = {
+        "issuer_id": profile.get("issuer_id"),
+        "listing_id": handoff.get("listing_id"),
+        "chain_id": handoff.get("chain_id"),
+        "link_id": handoff.get("link_id"),
+        "screen_ref": handoff.get("screen_ref"),
+    }
+    for field in STOCKY_IDENTITY_FIELDS:
+        if identity[field] != expected[field]:
+            findings.append(
+                f"dive {field} {identity[field]!r} does not exactly match "
+                f"O1 screen handoff {expected[field]!r}")
+
+    if listing_id not in (profile.get("listing_refs") or []):
+        findings.append(
+            f"listing_id {listing_id!r} is not one of the O1 profile's listing_refs")
+    exact_profile_placement = any(
+        isinstance(placement, dict)
+        and placement.get("chain_id") == chain_id
+        and placement.get("link_id") == link_id
+        for placement in profile.get("placements") or []
+    )
+    if not exact_profile_placement:
+        findings.append(
+            f"O1 profile has no exact placement for {(chain_id, link_id)!r}")
+
+    mapping_path = root / "data" / "mappings" / f"{chain_id}.json"
+    mapping = read_json(mapping_path)
+    if not isinstance(mapping, dict):
+        findings.append(
+            f"chain_id {chain_id!r} has no exact mapping at "
+            f"data/mappings/{chain_id}.json")
+        return findings
+    if mapping.get("chain_id") != chain_id:
+        findings.append(
+            f"mapping chain_id {mapping.get('chain_id')!r} does not match {chain_id!r}")
+    findings.extend(_mapping_admission_failures(mapping))
+
+    listings = [
+        row for row in mapping.get("listings") or []
+        if isinstance(row, dict) and row.get("listing_id") == listing_id
+    ]
+    if len(listings) != 1:
+        findings.append(
+            f"listing_id {listing_id!r} resolves to {len(listings)} mapping listings, "
+            "expected exactly 1")
+    else:
+        listing = listings[0]
+        if listing.get("issuer_id") != issuer_id:
+            findings.append(
+                f"mapping listing {listing_id!r} belongs to "
+                f"{listing.get('issuer_id')!r}, not {issuer_id!r}")
+        if listing.get("ticker") != ticker:
+            findings.append(
+                f"dive ticker {ticker!r} does not exactly match mapping listing "
+                f"{listing_id!r} ticker {listing.get('ticker')!r}")
+
+    placements = [
+        row for row in mapping.get("placements") or []
+        if isinstance(row, dict)
+        and row.get("chain_id") == chain_id
+        and row.get("link_id") == link_id
+        and row.get("issuer_id") == issuer_id
+    ]
+    if len(placements) != 1:
+        findings.append(
+            "exact (chain_id, link_id, issuer_id) resolves to "
+            f"{len(placements)} mapping placements, expected exactly 1")
+    else:
+        findings.extend(_qualified_placement_failures(placements[0]))
+
+    screen = _screen_for_ref(root, screen_ref)
+    if not isinstance(screen, dict):
+        findings.append(
+            f"screen_ref {screen_ref!r} does not resolve in data/screens/")
+        return findings
+    if screen.get("chain_id") != chain_id:
+        findings.append(
+            f"referenced screen chain_id {screen.get('chain_id')!r} does not match "
+            f"{chain_id!r}")
+    exact_rows = [
+        row for row in _screen_rows(screen)
+        if row.get("issuer_id") == issuer_id
+        and row.get("listing_id") == listing_id
+        and row.get("ticker") == ticker
+        and row.get("link_id") == link_id
+    ]
+    if not exact_rows:
+        findings.append(
+            f"screen_ref {screen_ref!r} has no exact row for issuer_id "
+            f"{issuer_id!r}, listing_id {listing_id!r}, ticker {ticker!r}, "
+            f"link_id {link_id!r}")
+    return findings
 
 
 def days_between(a: str, b: str):
@@ -219,9 +471,28 @@ def main() -> int:
         if str(d.get("updated_at", ""))[:10] == today:
             touched.append((p, d))
 
+    # Admission is a corpus invariant, not a campaign-completion calculation and not a
+    # FINAL-only check. A bad DRAFT must stop here, before red-team work can bless it.
+    admission_checked = legacy = 0
+    for p, d in dives:
+        if is_committed_legacy_stock(root, p):
+            legacy += 1
+            report(
+                f"WARN {p.name}: exact pre-{STOCKY_ADMISSION_GATE} committed legacy "
+                "baseline match; O1 issuer/listing/screen admission is not grandfathered "
+                "silently. Amend it onto the campaign schema before relying on it for "
+                "campaign coverage.")
+            continue
+        admission_checked += 1
+        for finding in stock_admission_failures(root, d):
+            fail(f"{p.name}: {finding}")
+    report(
+        f"admission: {admission_checked} campaign-era dive(s) checked; "
+        f"{legacy} pre-{STOCKY_ADMISSION_GATE} legacy warning(s)")
+
     if not touched:
         report(f"NOT RUN TODAY ({today}): 0 of {len(dives)} dive(s) updated. "
-               "Nothing to gate; schema check above still applied.")
+               "No run-specific checks applied; schema and admission checks still did.")
         print("\n".join(lines))
         if failures:
             print("\nFAILURES:")
