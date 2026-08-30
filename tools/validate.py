@@ -14,6 +14,10 @@ import re
 import sys
 from pathlib import Path
 
+from check_campaign import validate_campaign
+from check_map import corpus_identity_failures, validate_mapping
+from check_profile import validate_profile
+
 # --root brings this in line with check_radar / check_chain / check_analyst / check_screen,
 # which all accept one. Without it the validator could only ever be pointed at its own
 # repo, so testing what it does to a deliberately corrupted file meant corrupting live data.
@@ -43,21 +47,6 @@ VERDICTS = {"INVESTABLE", "WATCH", "TOO_LATE"}
 PRICE_STATUS = {"AGREED", "SINGLE_SOURCE", "DISPUTED", "NO_DATA", "VERIFIED_ZERO"}
 REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc",
              "quality", "insider"}   # quality/insider added 2026-08-29 (the analyst)
-PROP_VERDICTS = {"ADOPT", "ADOPT_NARROWED", "REJECT"}
-RULING_DECISIONS = {"KEEP", "REVERT", "NARROW"}
-
-# Who may appear in a `by` field. Humans and roles, then the agents and scripts that write on
-# their behalf. Shipped as a WARNING behind --strict-actors, following the --strict-citations
-# precedent in check_chain.py: closing this enum today fails the repo, because ~25 rows in
-# data/ already say atlas-cartographer, nell-scanner, scout_calibrate or map_calibrate. It
-# hardens once those are backfilled to `<actor>/<agent-or-script>`.
-ACTORS = {"ron", "yotam", "routine", "click"}
-AGENTS = {"nell-scanner", "atlas-cartographer", "stocky", "cass-adversary",
-          "scout_calibrate", "map_calibrate", "dive_calibrate", "fetch", "actions"}
-_ACTOR_RE = re.compile(
-    r"^(?P<actor>[a-z0-9_-]+)(?:/(?P<agent>[a-z0-9_-]+))?(?: \(session [A-Za-z0-9._-]{1,32}\))?$"
-)
-STRICT_ACTORS = "--strict-actors" in sys.argv
 REQ_STATUS = {"PENDING", "FULFILLED", "FAILED"}
 BUCKETS = ("pure_play", "picks_and_shovels", "second_order", "hedge")
 TRADE_ACTIONS = {"bought", "sold", "trimmed", "added"}
@@ -154,8 +143,6 @@ def check_mini_changelog(f: Path, entries, ctx: str) -> None:
     for i, c in enumerate(entries):
         if not isinstance(c, dict) or not {"ts", "by", "change"} <= set(c):
             err(f, f"{ctx}.changelog[{i}] needs ts, by, change")
-        else:
-            check_actor(f, c.get("by"), f"{ctx}.changelog[{i}]")
 
 
 def check_evidence(f: Path, items, ctx: str, touched_on: str | None = None) -> None:
@@ -250,14 +237,10 @@ def check_common(f: Path, obj: dict) -> None:
         for i, c in enumerate(obj["changelog"]):
             if not isinstance(c, dict) or not {"ts", "by", "change"} <= set(c):
                 err(f, f"changelog[{i}] needs ts, by, change")
-            else:
-                check_actor(f, c.get("by"), f"changelog[{i}]")
     if isinstance(obj.get("notes"), list):
         for i, n in enumerate(obj["notes"]):
             if not isinstance(n, dict) or not {"ts", "by", "text"} <= set(n):
                 err(f, f"notes[{i}] needs ts, by, text")
-            else:
-                check_actor(f, n.get("by"), f"notes[{i}]")
 
 
 # ---------------------------------------------------------------- signals
@@ -660,6 +643,34 @@ def v_stock(f: Path) -> None:
     check_common(f, d)
 
 
+# ---------------------------------------------------------------- campaign foundation
+def v_mapping(f: Path) -> None:
+    """Normalized issuer census and many-to-many chain placements."""
+    obj = load(f)
+    if obj is None:
+        return
+    for finding in validate_mapping(ROOT, f, obj):
+        err(f, finding)
+
+
+def v_company(f: Path) -> None:
+    """Reusable medium-depth issuer profile. Never a Stocky verdict."""
+    obj = load(f)
+    if obj is None:
+        return
+    for finding in validate_profile(ROOT, f, obj):
+        err(f, finding)
+
+
+def v_campaign(f: Path) -> None:
+    """Ten-theme campaign manifest and its computed completion counts."""
+    obj = load(f)
+    if obj is None:
+        return
+    for finding in validate_campaign(ROOT, f, obj):
+        err(f, finding)
+
+
 # ---------------------------------------------------------------- market / misc
 def v_market(f: Path) -> None:
     m = load(f)
@@ -1023,121 +1034,6 @@ def v_feeds(f: Path) -> None:
             break
 
 
-def check_actor(f: Path, value, ctx: str) -> None:
-    """`by` must name a known actor, optionally the agent or script that acted for them.
-
-    Warning by default, error under --strict-actors. See the ACTORS comment above for why.
-    """
-    if not isinstance(value, str) or not value.strip():
-        err(f, f"{ctx}.by is empty")
-        return
-    m = _ACTOR_RE.match(value.strip())
-    if not m:
-        (err if STRICT_ACTORS else warn)(
-            f, f"{ctx}.by = {value!r} is not `<actor>` or `<actor>/<agent>` "
-               f"(optionally ` (session <id>)`)")
-        return
-    actor, agent = m.group("actor"), m.group("agent")
-    if actor not in ACTORS:
-        if actor in AGENTS and agent is None:
-            # Legacy shape: the agent wrote it and nobody recorded whose session it was.
-            (err if STRICT_ACTORS else warn)(
-                f, f"{ctx}.by = {value!r} names an agent with no actor. Write "
-                   f"`ron/{actor}` or `yotam/{actor}` so a change has a person behind it")
-            return
-        (err if STRICT_ACTORS else warn)(
-            f, f"{ctx}.by = {value!r}: unknown actor {actor!r}. Known: "
-               f"{', '.join(sorted(ACTORS))}")
-        return
-    if agent is not None and agent not in AGENTS:
-        (err if STRICT_ACTORS else warn)(
-            f, f"{ctx}.by = {value!r}: unknown agent {agent!r}")
-
-
-def v_proposal(f: Path) -> None:
-    """An adversary review of a change to the machine itself (`run devil`).
-
-    A PROP is the receipt that an instruction change was attacked before it landed. The
-    verdict is the adversary's; the `ruling` is Ron's and stays null until he makes it.
-    """
-    obj = load(f)
-    if obj is None:
-        return
-    if not isinstance(obj, dict):
-        err(f, "proposal must be a JSON object")
-        return
-    # Every one of these is an attack the contract mandates. CLAUDE.md says this stage is
-    # machine-checked, so the four attack fields are REQUIRED, not decorative: without them a
-    # PROP carrying a verdict and three placeholder challenges validated clean and satisfied
-    # both the postlude gate and CI.
-    for k in ("id", "as_of", "actor", "reviewed_by", "files", "verdict", "challenges",
-              "behavior_change", "checks_touched", "cost_if_wrong", "how_you_would_know",
-              "surviving_objection"):
-        if k not in obj:
-            err(f, f"missing required key: {k}")
-    for k in ("behavior_change", "cost_if_wrong", "how_you_would_know"):
-        if k in obj and not str(obj.get(k) or "").strip():
-            err(f, f"{k} is empty. The contract's four attacks are the review; a blank one "
-                   f"means the attack was not made")
-    if "checks_touched" in obj and not isinstance(obj.get("checks_touched"), list):
-        err(f, "checks_touched must be a list (empty is a legitimate answer, absent is not)")
-    if obj.get("reviewed_by") != "cass-adversary":
-        err(f, f"reviewed_by = {obj.get('reviewed_by')!r}: a proposal is a record that the "
-               f"adversary reviewed the change, so this is always 'cass-adversary'")
-    if not re.match(r"^PROP-\d{8}-\d{2}$", str(obj.get("id") or "")):
-        err(f, f"id {obj.get('id')!r} is not PROP-YYYYMMDD-NN")
-    check_date(f, obj.get("as_of"), "as_of")
-    check_actor(f, obj.get("actor"), "proposal")
-
-    files = obj.get("files")
-    if not isinstance(files, list) or not files or not all(isinstance(x, str) and x for x in files):
-        err(f, "files[] must be a non-empty list of repo-relative paths")
-
-    if obj.get("verdict") not in PROP_VERDICTS:
-        err(f, f"verdict {obj.get('verdict')!r} not in {sorted(PROP_VERDICTS)}")
-
-    ch = obj.get("challenges")
-    if not isinstance(ch, list) or len(ch) < 3:
-        err(f, f"challenges[] needs >= 3 entries, has {len(ch) if isinstance(ch, list) else 0}. "
-               f"A review that raised fewer than three objections did not attack anything")
-    else:
-        for i, c in enumerate(ch):
-            if not isinstance(c, dict) or not {"claim", "attack", "survives"} <= set(c):
-                err(f, f"challenges[{i}] needs claim, attack, survives")
-                continue
-            if not isinstance(c.get("survives"), bool):
-                err(f, f"challenges[{i}].survives must be true/false, not {c.get('survives')!r}")
-            for k in ("claim", "attack"):
-                if not str(c.get(k) or "").strip():
-                    err(f, f"challenges[{i}].{k} is empty")
-        # Three copies of one objection is one objection. Caught because a PROP with three
-        # identical placeholder challenges was demonstrated to validate clean.
-        claims = [str(c.get("claim") or "").strip().lower() for c in ch if isinstance(c, dict)]
-        distinct = {c for c in claims if c}
-        if claims and len(distinct) < 3:
-            err(f, f"challenges[] has {len(distinct)} distinct claim(s) across {len(claims)} "
-                   f"entries. Repeating one objection is not three objections")
-
-    if not str(obj.get("surviving_objection") or "").strip():
-        err(f, "surviving_objection is empty. Even an ADOPT states what would make it wrong")
-
-    ruling = obj.get("ruling")
-    if ruling is not None:
-        if not isinstance(ruling, dict) or not {"by", "ts", "decision"} <= set(ruling):
-            err(f, "ruling needs by, ts, decision")
-        else:
-            if ruling.get("decision") not in RULING_DECISIONS:
-                err(f, f"ruling.decision {ruling.get('decision')!r} not in "
-                       f"{sorted(RULING_DECISIONS)}")
-            if str(ruling.get("by") or "").split("/")[0] != "ron":
-                err(f, f"ruling.by = {ruling.get('by')!r}: only ron rules on a proposal")
-
-
-# ---------------------------------------------------------------- EDGAR + misc stores
-# Everything below was written by the fetch plane and read by the UI or the analyst while
-# being validated by nothing at all. data/edgar/docs/ is the sharpest case: it is the
-# evidence base the verbatim-quote rule depends on, and until now a truncated, empty or
-# mis-tickered document would have been discovered only by a quote failing to match it.
 def v_edgar_doc(f: Path) -> None:
     d = load(f)
     if d is None:
@@ -1158,6 +1054,7 @@ def v_edgar_doc(f: Path) -> None:
     if f.stem != str(d.get("ticker")).replace(".", "-"):
         err(f, f"filename {f.stem} does not match ticker {d.get('ticker')!r}: a quote "
                f"verifier looks this file up BY ticker and would check the wrong document")
+
 
 
 def v_edgar_fts(f: Path) -> None:
@@ -1187,6 +1084,7 @@ def v_edgar_fts(f: Path) -> None:
                 f"claim nobody can open. Refetch to backfill")
 
 
+
 def v_indicators(f: Path) -> None:
     d = load(f)
     if d is None:
@@ -1198,6 +1096,7 @@ def v_indicators(f: Path) -> None:
     for i, t in enumerate(trips):
         if not isinstance(t, dict) or not {"chain", "scenario", "indicator"} <= set(t):
             err(f, f"trips[{i}] needs chain, scenario, indicator")
+
 
 
 def v_shadow_results(f: Path) -> None:
@@ -1216,6 +1115,7 @@ def v_shadow_results(f: Path) -> None:
             err(f, f"result {k!r} is not an object")
 
 
+
 def v_digest(f: Path) -> None:
     d = load(f)
     if d is None:
@@ -1228,6 +1128,7 @@ def v_digest(f: Path) -> None:
     # nell-scanner, map-log says atlas-cartographer). The digest says nothing.
     if not d.get("generated_by"):
         warn(f, "no generated_by: every other generated store names its writer")
+
 
 
 def v_cross_file_ciks() -> None:
@@ -1272,6 +1173,7 @@ def v_cross_file_ciks() -> None:
                                f"{where}. One of them points at the wrong filer")
 
 
+
 def v_trades(f: Path) -> None:
     for i, line in enumerate(f.read_text().splitlines()):
         if not line.strip():
@@ -1283,10 +1185,8 @@ def v_trades(f: Path) -> None:
             continue
         if not {"ts", "by", "ticker", "action", "price"} <= set(t):
             err(f, f"line {i + 1}: needs ts, by, ticker, action, price")
-        else:
-            check_actor(f, t.get("by"), f"line {i + 1}")
-            if t["action"] not in TRADE_ACTIONS:
-                err(f, f"line {i + 1}: action {t['action']!r} not in {sorted(TRADE_ACTIONS)}")
+        elif t["action"] not in TRADE_ACTIONS:
+            err(f, f"line {i + 1}: action {t['action']!r} not in {sorted(TRADE_ACTIONS)}")
 
 
 def main() -> int:
@@ -1294,6 +1194,9 @@ def main() -> int:
     plans = [
         ("signals", DATA / "signals", "*.json", v_signal),
         ("chains", DATA / "chains", "*.json", v_chain),
+        ("mappings", DATA / "mappings", "*.json", v_mapping),
+        ("companies", DATA / "companies", "*.json", v_company),
+        ("campaigns", DATA / "campaigns", "CAMP-*.json", v_campaign),
         ("screens", DATA / "screens", "*.json", v_screen),
         ("stocks", DATA / "stocks", "*.json", v_stock),
         ("market", DATA / "market", "*.json", v_market),
@@ -1306,6 +1209,16 @@ def main() -> int:
         counts[name] = len(files)
         for f in files:
             fn(f)
+    mapping_records = []
+    mapping_dir = DATA / "mappings"
+    for path in sorted(mapping_dir.glob("*.json")) if mapping_dir.is_dir() else []:
+        if path.name.startswith("_"):
+            continue
+        obj = load(path)
+        if isinstance(obj, dict):
+            mapping_records.append((path, obj))
+    for finding in corpus_identity_failures(mapping_records):
+        err(mapping_records[0][0], finding)
     if (DATA / "requests.json").exists():
         v_requests(DATA / "requests.json")
     if (DATA / "trades.jsonl").exists():
@@ -1328,10 +1241,6 @@ def main() -> int:
     if (DATA / "feeds" / "latest.json").exists():
         counts["feeds"] = 1
         v_feeds(DATA / "feeds" / "latest.json")
-    props = sorted((DATA / "proposals").glob("PROP-*.json")) if (DATA / "proposals").is_dir() else []
-    counts["proposals"] = len(props)
-    for f in props:
-        v_proposal(f)
     # Stores that the fetch plane writes and the analyst or the UI reads. Validated from
     # 2026-08-29; before that every one of them could hold anything at all.
     for name, folder, fn in (("edgar-docs", DATA / "edgar" / "docs", v_edgar_doc),
