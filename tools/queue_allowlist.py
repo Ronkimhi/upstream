@@ -60,6 +60,11 @@ SHAPES = (
     r"run themes",
     r"run campaign init",
     rf"run selection {_CAMPAIGN}",
+    # The batch form sits ABOVE the single-occurrence one. is_allowed does not care about
+    # order, but reject_reason reports the first shape a string starts like, and
+    # "run impact --queue" starting like "run impact <id>" reads as a malformed id rather
+    # than as the batch command it is.
+    r"run impact --queue",
     rf"run impact (?:{_SIGNAL}|{_CANDIDATE})",
     rf"run chain {_SIGNAL}",
     rf"run universe {_SLUG}",

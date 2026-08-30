@@ -701,6 +701,13 @@
         }).join("");
   }
 
+  /* Read from Tally's derived log, never counted here: the log excludes dismissed and
+     expired candidates on purpose, and a second count on this page would quietly include
+     them and disagree. */
+  function unappraisedCount() {
+    var d = ((D.rank || {}).calibration || {}).denominators || {};
+    return d.unappraised == null ? 0 : d.unappraised;
+  }
   function homeView() {
     var sigs = (D.signals || []).slice().sort(function (a, b) {
       return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0);
@@ -713,7 +720,15 @@
          existed were both inside cortex drawers, two clicks and a graph node away. */
       seclabel("Run the intake") +
       "<div class='card runstrip'>" +
-      runButton("run radar", "sweeps the feed store and the calendar, triages candidates, writes 0-5 signal cards") +
+      runButton("run radar", "sweeps the feed store and the calendar, triages candidates, writes signal cards") +
+      runButton("run themes", "logs every occurrence on disk and clusters it into themes") +
+      /* The count is the argument for pressing it. An impact queue at one sixteenth
+         coverage is not ordering anything, and the number says so without a session
+         having to notice. */
+      (unappraisedCount() > 0
+        ? runButton("run impact --queue", "sizes the money behind the next 15 of " +
+            unappraisedCount() + " unappraised occurrences, in the log's own order")
+        : "") +
       "</div>" +
       seclabel("Signals — ranked by how unmapped they still are") +
       '<div class="siglist">' + (sigs.map(sigRow).join("") ||

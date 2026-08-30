@@ -15,6 +15,9 @@ Checks, each reported with the denominator it examined (Rule 21):
   8. an EMPTY day (a run that wrote 0 cards) proves it swept the feed: the scout log's
      feed_items_examined is > 0, so a scanner that silently stopped searching cannot pass as
      a quiet day
+  9. every UNCLAIMED SURGE in Tally's theme log is either claimed by a card or declined in
+     writing in the scout log, naming the theme. A cluster nobody has to answer for is a
+     report; one that obliges an answer is a lead
 
 Scope: checks 1, 2, 3, 5 and 6 only bind on a day that actually wrote a radar artifact.
 On a day with no radar run the gate reports NOT RUN TODAY and exits 0, rather than
@@ -204,6 +207,39 @@ def main() -> int:
         else:
             report(f"empty day: 0 cards written, but {examined} feed items examined -- a quiet "
                    f"day that showed its work, not a silent stop")
+
+    # 9. an UNCLAIMED SURGE obliges an answer. Tally's log computes, per theme per ISO week,
+    #    when volume is arriving with no signal card behind it. Before this check that was a
+    #    number on a page nobody had to look at, and the clustering was a report rather than
+    #    a discovery mechanism. So on a radar run day every unclaimed surge must be either
+    #    CLAIMED (a card now stands behind it) or DECLINED IN WRITING in the scout log,
+    #    naming the theme. Declining is a first-class answer -- most weeks most surges are
+    #    noise -- and silence is the only wrong one, which is the same rule the rest of this
+    #    machine applies to a taste filter and to an UNRANKED appraisal.
+    if radar_lines:
+        thm = read_json(data / "themes" / "themes.json", None)
+        surges = ((thm or {}).get("calibration") or {}).get("surges") or []
+        unclaimed = [s for s in surges if not s.get("claimed")]
+        answered, unanswered = [], []
+        spot = (log or {}).get("spot_tests") or []
+        notes = (log or {}).get("notes") or []
+        said = " ".join(
+            json.dumps(x) for x in spot + notes
+            if isinstance(x, dict) and str(x.get("ts") or "").startswith(today))
+        for srg in unclaimed:
+            tid = str(srg.get("theme_id") or "")
+            (answered if tid and tid in said else unanswered).append(tid)
+        if unanswered:
+            fail(f"radar ran today and {len(unanswered)} unclaimed surge(s) went unanswered: "
+                 f"{', '.join(unanswered)}. Volume is arriving under a theme with no signal "
+                 f"card behind it. Either write or update the card, or record in the scout "
+                 f"log why not, naming the theme id. Declining is a real answer; passing over "
+                 f"it in silence is what makes a cluster a report instead of a lead.")
+        if thm is None:
+            report("unclaimed surges: no theme store on disk, nothing to answer")
+        else:
+            report(f"unclaimed surges: {len(unclaimed)} of {len(surges)} surge(s) unclaimed, "
+                   f"{len(answered)} answered in today's scout log, {len(unanswered)} silent")
 
     print(f"check_radar: {today}")
     for ln in lines:

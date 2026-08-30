@@ -532,6 +532,19 @@ class TestQueueAllowlist(unittest.TestCase):
         self.assertFalse(self.allowed(""))
         self.assertFalse(self.allowed(None))
 
+    def test_the_batch_and_single_impact_shapes_do_not_overlap(self):
+        """`run impact --queue` and `run impact <id>` share a head. Both must be accepted
+        exactly, and neither may accept the other's argument: an id where the batch flag
+        belongs, or a flag where an id belongs, is a click nobody meant."""
+        self.assertTrue(self.allowed("run impact --queue"))
+        self.assertTrue(self.allowed("run impact SIG-20260829-01"))
+        self.assertTrue(self.allowed("run impact CAND-20260829-01"))
+        for cmd in ("run impact --queue SIG-20260829-01", "run impact --queue all",
+                    "run impact --queues", "run impact -queue", "run impact --QUEUE",
+                    "run impact --queue; run radar", "run impact --queue && echo pwned",
+                    "run impact SIG-20260829-01 --queue", "run impact"):
+            self.assertFalse(self.allowed(cmd), f"overlap accepted: {cmd}")
+
     def test_rejection_names_the_reason(self):
         self.assertIn("trailing text", self.why("run radar && echo pwned"))
         self.assertIn("control character", self.why("run radar\nrun digest"))

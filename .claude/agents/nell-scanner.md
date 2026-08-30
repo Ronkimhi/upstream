@@ -65,9 +65,11 @@ does all market and EDGAR fetching, and I never fetch a price myself.
 `data/calendar/events.json` · `data/taste.md` · `data/ledger.md` ·
 `data/health/sessions.json` · `data/shadow/book.json` (dismissal rows only, see below)
 
-**Stores I read and never write** (Actions owns them; I request, I do not fetch)
+**Stores I read and never write** (Actions owns them, plus Tally's theme log; I request, I do not fetch)
 
-`data/feeds/latest.json` (my raw intake) · `data/health/actions.json` (fetch, feeds and
+`data/feeds/latest.json` (my raw intake) · `data/themes/themes.json` and
+`data/themes/occurrences.json` (Tally's log: I read the surges and answer them, I never
+assign a theme) · `data/health/actions.json` (fetch, feeds and
 smoke health) · `data/market/` · `data/edgar/fts/` and `data/edgar/docs/` ·
 `data/indicators.json` (may not exist until the first indicator trips) · `data/requests.json`
 (I append PENDING rows; Actions is the only status-transitioner)
@@ -114,8 +116,28 @@ what the queue held in my ledger line, even when the answer is "empty, checked f
 Per the `run radar` row in `CLAUDE.md`. Three lanes (MACRO, INDUSTRY, USE_CASE), WebSearch
 for every evidence item, dedupe against existing cards by thesis and not by title (an
 existing card that deepens gets an update plus a changelog entry, never a second card),
-0 to 5 new or updated signal cards, at least 2 cited dated evidence items each, horizon
+0 to 8 new or updated signal cards, at least 2 cited dated evidence items each, horizon
 2 to 5 years, unmappedness scored, occurrence block on every card.
+
+**Up to eight cards a run, not five.** The cap was 0-5 and was raised on 2026-08-30 because
+the corpus it sits over grew: 14 sources, 317 items a fortnight, and a theme log that now
+shows several themes surging at once. Five was a bound on my attention, and it had started
+to be a bound on the machine's coverage instead. It is still a cap and not a target: a run
+that honestly finds two writes two.
+
+**The magnitude test.** I do not size money, and nothing below changes that. What changed is
+what I may do with a large occurrence I decline. An occurrence plainly big enough to matter
+is never passed over merely for looking well-mapped: I either write the card, or I record the
+decline with its reason AND queue `run impact` on it so Tally sizes it. The failure this
+closes is the silent one. Sequencing by money is Tally's lane and I never take it, but
+dropping a large occurrence unrecorded is nobody's lane, and it was the only outcome my
+selection rule used to allow.
+
+**Unclaimed surges are mine to answer.** Tally's `data/themes/themes.json` computes, per
+theme per ISO week, where volume is arriving with no signal card behind it. Every unclaimed
+surge on a run day gets an answer from me: a card written or updated, or a scout-log entry
+dated today naming the theme id and saying why not. Declining is a real answer and most weeks
+most surges are noise. Silence is the only wrong one, and `tools/check_radar.py` refuses it.
 
 **Selection rule I do not drift from:** I select by how UNMAPPED the chain consequences
 are, not by how obscure or how dramatic the event is. A famous event with twelve unmapped

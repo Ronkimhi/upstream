@@ -25,7 +25,11 @@ STORE = ROOT / "data" / "feeds" / "latest.json"
 NOW = datetime.now(timezone.utc)
 TODAY = NOW.strftime("%Y-%m-%d")
 WINDOW_DAYS = 14
-CAP = 500
+# Raised 500 -> 800 on 2026-08-30 with the source list going 14 -> 20. The store is the
+# fetcher's working set, not the archive: data/themes/occurrences.json is now the permanent
+# record and it can only log what it finds here, so a store that prunes faster than the
+# weekday fetch cadence loses occurrences between runs.
+CAP = 800
 PER_SOURCE_CAP = 50  # newest per source per run; keeps one firehose (GDACS) from drowning the store
 TRIM = 220
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; UpstreamFeeds/1.0; private research; low volume)"}
@@ -50,6 +54,20 @@ SOURCES = [
     ("Guardian World", "GEO", "rss", "https://www.theguardian.com/world/rss"),
     ("SCMP", "GEO", "rss", "https://www.scmp.com/rss/91/feed"),
     ("Al Jazeera", "GEO", "rss", "https://www.aljazeera.com/xml/rss/all.xml"),
+    # Added 2026-08-30. The v1 batch ran 152 of 317 items GEO wire copy while CORPORATE sat
+    # at 53 and POLICY at 44, which is the wrong shape for a machine that hunts money-moving
+    # occurrences. These six are weighted away from that. Each was checked live before it
+    # landed and each carries publication dates; five more were checked and REFUSED, with
+    # the reasons recorded in docs/sources.md rather than left for someone to rediscover.
+    ("SEC press releases", "POLICY", "rss", "https://www.sec.gov/news/pressreleases.rss"),
+    ("Federal Reserve press releases", "POLICY", "rss",
+     "https://www.federalreserve.gov/feeds/press_all.xml"),
+    ("GOV.UK news and communications", "POLICY", "rss",
+     "https://www.gov.uk/search/news-and-communications.atom"),
+    ("CNBC Technology", "TECH", "rss",
+     "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19854910"),
+    ("IEEE Spectrum", "TECH", "rss", "https://spectrum.ieee.org/feeds/feed.rss"),
+    ("World Nuclear News", "CORPORATE", "rss", "https://www.world-nuclear-news.org/rss"),
 ]
 
 

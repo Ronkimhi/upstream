@@ -27,6 +27,38 @@ Distilled 2026-08-29 from a line-level review of two OSINT aggregators (bigbodyc
 | SCMP (`www.scmp.com/rss/91/feed`) | GEO | RSS | China/Asia exposure, relevant to live chains (from shadowbroker) |
 | Al Jazeera (`www.aljazeera.com/xml/rss/all.xml`) | GEO | RSS | non-Western lens (both repos) |
 
+## ACTIONS sources (v2 additions, 2026-08-30)
+
+The v1 batch ran 152 of 317 items GEO wire copy against 53 CORPORATE and 44 POLICY. That is
+the wrong shape for a machine whose edge is money-moving occurrences, so v2 is weighted the
+other way. Every URL below was fetched and read before it landed, and every one carries
+publication dates: `tools/fetch/feeds.py:_item` falls back to the fetch date when an item has
+none, so an undated feed would stamp today on everything it carried.
+
+| Source | Family | Access | Notes |
+|---|---|---|---|
+| SEC press releases (`www.sec.gov/news/pressreleases.rss`) | POLICY | RSS | rulemaking and enforcement against named issuers; verified 22 items, dated |
+| Federal Reserve press releases (`www.federalreserve.gov/feeds/press_all.xml`) | POLICY | RSS | rate and supervision actions; verified 20 items, dated |
+| GOV.UK news and communications (`www.gov.uk/search/news-and-communications.atom`) | POLICY | Atom | non-US policy plane, thin in v1; verified 20 entries, dated |
+| CNBC Technology (`search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19854910`) | TECH | RSS | corporate tech rather than the enthusiast plane HN and The Verge cover; verified 30 items, dated |
+| IEEE Spectrum (`spectrum.ieee.org/feeds/feed.rss`) | TECH | RSS | engineering-plane signal ahead of the product plane; verified 6 items, dated |
+| World Nuclear News (`www.world-nuclear-news.org/rss`) | CORPORATE | RSS | capacity and project milestones in a chain-heavy sector; verified 16 items, dated |
+
+`CAP` rose 500 to 800 in the same change. The store is the fetcher's working set and
+`data/themes/occurrences.json` is the permanent record, but the log can only log what it
+finds in the store, so a store pruning faster than the weekday fetch cadence loses
+occurrences between runs.
+
+## Checked on 2026-08-30 and REFUSED (do not re-evaluate from scratch)
+
+| Source | Why not |
+|---|---|
+| FTC press releases (`www.ftc.gov/feeds/press-release.xml`) | HTTP 403 to a plain fetch. Wanted for merger and consumer-protection actions; revisit only with evidence it serves the Actions runner |
+| DOJ Office of Public Affairs (`www.justice.gov/feeds/opa/justice-news.xml`) | HTTP 403, same story. Antitrust dockets remain a SESSION beat instead |
+| EIA Today in Energy (`www.eia.gov/tools/rss/todayinenergy.xml`) | HTTP 404, the endpoint has moved or gone |
+| Semiconductor Engineering (`semiengineering.com/feed/`) | HTTP 403 |
+| Nikkei Asia (`asia.nikkei.com/rss/feed/nar`) | Live and rich, but the feed carries NO publication dates. `_item` would stamp the fetch date on every item, which is a date the source never published. An invented date at intake is the same defect class as an invented price |
+
 ## SESSION beats (radar WebSearches these each run)
 
 | Beat | Family | Why session-side |
@@ -51,4 +83,4 @@ Distilled 2026-08-29 from a line-level review of two OSINT aggregators (bigbodyc
 
 ## Change protocol
 
-Adding/removing an ACTIONS source = edit `tools/fetch/feeds.py` SOURCES list AND this file in the same commit. Dead feeds degrade silently in the pipeline (logged in the run entry) and get pruned here on the next `check health` that reports them.
+Adding/removing an ACTIONS source = edit `tools/fetch/feeds.py` SOURCES list AND this file in the same commit. Fetch the URL and read it first: a source that 403s, 404s or carries no dates is refused and the reason is recorded above, so nobody spends the same hour twice. Dead feeds degrade silently in the pipeline (logged in the run entry) and get pruned here on the next `check health` that reports them.
