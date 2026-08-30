@@ -5,7 +5,7 @@
  "clock": "COMPOUNDER",
  "status": "BUILT",
  "created_at": "2026-08-28",
- "updated_at": "2026-08-29T20:05:00Z",
+ "updated_at": "2026-08-30T18:00:00Z",
  "heat_as_of": "2026-08-28",
  "scenarios_as_of": "2026-08-28",
  "map_limitation": "Supplier-side search cannot surface diversified suppliers that name no customer; such names enter via research and the repricing-lag lane. Seed heat scores are analyst-authored [INFERRED]; first `run heat` refresh replaces them with fetched PCS data.",
@@ -15,6 +15,24 @@
    "position": 1,
    "name": "Energy generation",
    "role": "The electrons: gas turbines, nuclear (existing fleet + SMR), and firmed renewables contracted to power AI campuses.",
+   "evidence": [
+    {
+     "claim": "GE Vernova's Electrification segment booked $2.4 billion of data-center-tied equipment orders in Q1 2026 alone, more than all of 2025 combined, with roughly 20% of its 100 GW gas-turbine backlog explicitly tied to data-center load and available 2029-2030 delivery slots nearly exhausted.",
+     "source_name": "Power Engineering (power-eng.com), \"Data centers drive record surge in GE Vernova power equipment orders as turbine slots tighten through 2030\"",
+     "source_date": "2026-04-23",
+     "url": "https://www.power-eng.com/gas/turbines/data-centers-drive-record-surge-in-ge-vernova-power-equipment-orders-as-turbine-slots-tighten-through-2030/",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "Gas-turbine and behind-the-meter generation capacity contracted for AI data-center load must still clear grid interconnection and substation buildout before it can serve a campus, tying turbine order books directly to the interconnection queue.",
+     "source_name": "Power Engineering (power-eng.com), GE Vernova order backlog coverage",
+     "source_date": "2026-04-23",
+     "url": "https://www.power-eng.com/gas/turbines/data-centers-drive-record-surge-in-ge-vernova-power-equipment-orders-as-turbine-slots-tighten-through-2030/",
+     "tag": "INFERRED",
+     "supports": "grid-interconnect"
+    }
+   ],
    "upstream_of": [
     "grid-interconnect"
    ],
@@ -78,6 +96,32 @@
    "position": 2,
    "name": "Power equipment",
    "role": "Transformers, switchgear, UPS, busway, and backup generation that electrify data centers and the grid segments feeding them.",
+   "evidence": [
+    {
+     "claim": "U.S. large power transformer lead times have stretched toward roughly four years amid severe supply constraints, driven substantially by data-center electrification demand on top of existing grid replacement needs.",
+     "source_name": "PV Magazine USA, \"U.S. transformer market faces severe supply constraints as lead times extend to four years\"",
+     "source_date": "2026-05-11",
+     "url": "https://pv-magazine-usa.com/2026/05/11/u-s-transformer-market-faces-severe-supply-constraints-as-lead-times-extend-to-four-years/",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "Medium-voltage switchgear delivery windows run 52-80 weeks and substation-class transformers 75-110 weeks in 2026, roughly 2.5x pre-pandemic timelines; equipment procurement timing, not construction itself, now dictates hyperscale data-center project schedules.",
+     "source_name": "Terrapin Construction Group, \"Switchgear, Transformer, and Generator Lead Times in 2026\"",
+     "source_date": "2026-06-10",
+     "url": "https://terrapincg.com/news/switchgear-transformer-generator-lead-times-2026",
+     "tag": "INFERRED",
+     "supports": "hyperscale-datacenters"
+    },
+    {
+     "claim": "Transformer and switchgear shortages compound the same grid buildout that utilities and transmission EPCs must complete before a data-center interconnection request is served, linking equipment lead times directly to queue duration.",
+     "source_name": "PV Magazine USA, transformer supply constraint coverage",
+     "source_date": "2026-05-11",
+     "url": "https://pv-magazine-usa.com/2026/05/11/u-s-transformer-market-faces-severe-supply-constraints-as-lead-times-extend-to-four-years/",
+     "tag": "INFERRED",
+     "supports": "grid-interconnect"
+    }
+   ],
    "upstream_of": [
     "hyperscale-datacenters",
     "grid-interconnect"
@@ -142,6 +186,24 @@
    "position": 3,
    "name": "Grid & interconnection",
    "role": "Transmission buildout, substations, and the interconnection process itself; the queue that decides when data centers get power.",
+   "evidence": [
+    {
+     "claim": "The median U.S. interconnection request-to-commercial-operation time exceeded five years for projects completed in 2025, with roughly 1,312 GW of generation and 749 GW of storage still queued as of year-end 2025, per Lawrence Berkeley National Laboratory's annual census.",
+     "source_name": "Lawrence Berkeley National Laboratory, \"Queued Up: 2026 Edition\"",
+     "source_date": "2026-06-01",
+     "url": "https://emp.lbl.gov/publications/queued-2026-edition-characteristics",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "Interconnection queue position and transmission buildout determine when a powered data-center shell can actually accept accelerators, making queue duration the direct gate on hyperscale campus energization timing.",
+     "source_name": "Lawrence Berkeley National Laboratory, \"Queued Up: 2026 Edition\"",
+     "source_date": "2026-06-01",
+     "url": "https://emp.lbl.gov/publications/queued-2026-edition-characteristics",
+     "tag": "INFERRED",
+     "supports": "hyperscale-datacenters"
+    }
+   ],
    "upstream_of": [
     "hyperscale-datacenters"
    ],
@@ -205,6 +267,24 @@
    "position": 4,
    "name": "Thermal & liquid cooling",
    "role": "Direct-to-chip and immersion cooling plus thermal management; mandatory at modern rack densities, attached to every new AI hall.",
+   "evidence": [
+    {
+     "claim": "AI-driven rack densities have made liquid cooling \"mission-critical\" rather than optional; Vertiv's Frontiers 2026 report names \"extreme densification, accelerated by AI and HPC workloads\" as a primary force reshaping data-center design.",
+     "source_name": "Vertiv (PR Newswire), \"Vertiv Expects Powering Up for AI, Digital Twins and Adaptive Liquid Cooling to Shape Data Center Design and Operations\"",
+     "source_date": "2026-01-08",
+     "url": "https://www.prnewswire.com/news-releases/vertiv-expects-powering-up-for-ai-digital-twins-and-adaptive-liquid-cooling-to-shape-data-center-design-and-operations-302655839.html",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "Vertiv frames liquid cooling and higher-voltage DC distribution as infrastructure that must be designed into new AI data-center halls from the start, tying the cooling layer directly to hyperscale campus buildout plans.",
+     "source_name": "Vertiv (PR Newswire), Frontiers 2026 report coverage",
+     "source_date": "2026-01-08",
+     "url": "https://www.prnewswire.com/news-releases/vertiv-expects-powering-up-for-ai-digital-twins-and-adaptive-liquid-cooling-to-shape-data-center-design-and-operations-302655839.html",
+     "tag": "INFERRED",
+     "supports": "hyperscale-datacenters"
+    }
+   ],
    "upstream_of": [
     "hyperscale-datacenters"
    ],
@@ -264,6 +344,24 @@
    "position": 5,
    "name": "Networking & optics",
    "role": "Scale-out and scale-up fabric: switches, optical transceivers, co-packaged optics, and the fiber plant between AI pods and campuses.",
+   "evidence": [
+    {
+     "claim": "The optical transceiver market is set to double in size as AI data centers drive unprecedented demand for 800G and 1.6T modules, with 800G+ shipments exceeding 60% of total transceiver shipments in 2026.",
+     "source_name": "GlobeNewswire, \"Optical Transceiver Market Set to Double as AI Data Centers Drive Unprecedented Demand for 800G and 1.6T Modules\"",
+     "source_date": "2026-06-23",
+     "url": "https://www.globenewswire.com/news-release/2026/06/23/3315806/28124/en/optical-transceiver-market-set-to-double-as-ai-data-centers-drive-unprecedented-demand-for-800g-and-1-6t-modules.html",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "800G and emerging 1.6T optical fabric are being deployed specifically inside AI data-center clusters to connect accelerator pods at scale, tying the networking layer's upgrade cycle directly to hyperscale campus buildout.",
+     "source_name": "GlobeNewswire, optical transceiver market report",
+     "source_date": "2026-06-23",
+     "url": "https://www.globenewswire.com/news-release/2026/06/23/3315806/28124/en/optical-transceiver-market-set-to-double-as-ai-data-centers-drive-unprecedented-demand-for-800g-and-1-6t-modules.html",
+     "tag": "INFERRED",
+     "supports": "hyperscale-datacenters"
+    }
+   ],
    "upstream_of": [
     "hyperscale-datacenters"
    ],
@@ -327,6 +425,24 @@
    "position": 6,
    "name": "Leading-edge foundry",
    "role": "Fabricates every accelerator die; the deepest moat in the chain.",
+   "evidence": [
+    {
+     "claim": "TSMC guided full-year 2026 revenue growth to slightly above 40% in USD terms (Q1 2026 revenue $35.9B, +40.6% YoY) and plans 2026 capex at the high end of its $52-56 billion range, driven by AI and HPC demand for leading-edge nodes.",
+     "source_name": "South China Morning Post, \"TSMC targets over 30% revenue surge in 2026, ramps up capex amid booming AI demand\"",
+     "source_date": "2026-04-16",
+     "url": "https://www.scmp.com/tech/big-tech/article/3350346/tsmc-targets-over-30-revenue-surge-2026-ramps-capex-amid-booming-ai-demand",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "TSMC's leading-edge wafer output (3nm/5nm, >90% global share) is the input every AI accelerator die is fabricated on before packaging and assembly, directly feeding accelerator supply.",
+     "source_name": "South China Morning Post, TSMC 2026 revenue and capex coverage",
+     "source_date": "2026-04-16",
+     "url": "https://www.scmp.com/tech/big-tech/article/3350346/tsmc-targets-over-30-revenue-surge-2026-ramps-capex-amid-booming-ai-demand",
+     "tag": "INFERRED",
+     "supports": "ai-accelerators"
+    }
+   ],
    "upstream_of": [
     "ai-accelerators"
    ],
@@ -390,6 +506,24 @@
    "position": 7,
    "name": "Advanced packaging",
    "role": "CoWoS-class 2.5D/3D packaging that marries logic dies to HBM; a genuine physical chokepoint of the buildout.",
+   "evidence": [
+    {
+     "claim": "Advanced packaging, not wafer fabrication, is now described as the binding constraint on AI accelerator supply: TSMC's CoWoS-L capacity is roughly 70% locked by Nvidia with lead times of 52-78 weeks, and the company is scaling from ~35,000 wafers/month in late 2024 toward ~130,000 by year-end 2026 against ~1 million wafers of 2026 demand.",
+     "source_name": "Tech Times, \"AI Supply Crisis Moves Upstream: Advanced Packaging Becomes the Binding Constraint\"",
+     "source_date": "2026-07-28",
+     "url": "https://www.techtimes.com/articles/321754/20260728/ai-supply-crisis-moves-upstream-advanced-packaging-becomes-binding-constraint.htm",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "CoWoS-class packaging marries logic dies to HBM into the finished accelerator package; packaging capacity allocation (led by Nvidia's ~70% CoWoS-L share) directly determines how many finished accelerators can ship.",
+     "source_name": "Tech Times, advanced packaging bottleneck coverage",
+     "source_date": "2026-07-28",
+     "url": "https://www.techtimes.com/articles/321754/20260728/ai-supply-crisis-moves-upstream-advanced-packaging-becomes-binding-constraint.htm",
+     "tag": "INFERRED",
+     "supports": "ai-accelerators"
+    }
+   ],
    "upstream_of": [
     "ai-accelerators"
    ],
@@ -450,6 +584,24 @@
    "position": 8,
    "name": "High-bandwidth memory",
    "role": "HBM stacks co-packaged with accelerators; capacity contracted years ahead by a three-player oligopoly.",
+   "evidence": [
+    {
+     "claim": "SK hynix's DRAM, NAND, and HBM production capacity is fully sold out through 2026, much of it committed to Nvidia for AI accelerators; HBM demand grew 130% YoY in 2025 and SK hynix and Samsung together supply about 79% of HBM for AI accelerators.",
+     "source_name": "Notebookcheck, \"SK hynix sells out its DRAM, NAND, and HBM chip supply to Nvidia through 2026 as AI demand outpaces Samsung and Micron's capacity\"",
+     "source_date": "2025-10-30",
+     "url": "https://www.notebookcheck.net/SK-hynix-sells-out-its-DRAM-NAND-and-HBM-chip-supply-to-Nvidia-through-2026-as-AI-demand-outpaces-Samsung-and-Micron-s-capacity.1151402.0.html",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "HBM stacks sold out to Nvidia through 2026 are co-packaged directly onto accelerator modules, so memory maker allocation decisions set a hard ceiling on finished AI accelerator volumes.",
+     "source_name": "Notebookcheck, SK hynix HBM sell-out coverage",
+     "source_date": "2025-10-30",
+     "url": "https://www.notebookcheck.net/SK-hynix-sells-out-its-DRAM-NAND-and-HBM-chip-supply-to-Nvidia-through-2026-as-AI-demand-outpaces-Samsung-and-Micron-s-capacity.1151402.0.html",
+     "tag": "INFERRED",
+     "supports": "ai-accelerators"
+    }
+   ],
    "upstream_of": [
     "ai-accelerators"
    ],
@@ -512,6 +664,24 @@
    "position": 9,
    "name": "AI accelerators (GPUs/XPUs)",
    "role": "The compute engines; the most visible link in the chain and its largest dollar pool.",
+   "evidence": [
+    {
+     "claim": "NVIDIA reported Q2 FY2027 (quarter ended July 26, 2026) total revenue of $96.2 billion, up 106% year over year, with Data Center segment revenue of $89.0 billion, up 117% year over year and now over 92% of total revenue.",
+     "source_name": "NVIDIA Newsroom, \"NVIDIA Announces Financial Results for Second Quarter Fiscal 2027\"",
+     "source_date": "2026-08-26",
+     "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+     "tag": "VERIFIED",
+     "supports": "role"
+    },
+    {
+     "claim": "NVIDIA's Data Center revenue, which management ties to hyperscale and neocloud deployments, is realized when accelerators are shipped into and installed inside hyperscaler and neocloud data-center campuses.",
+     "source_name": "NVIDIA Newsroom, Q2 FY2027 financial results",
+     "source_date": "2026-08-26",
+     "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+     "tag": "VERIFIED",
+     "supports": "hyperscale-datacenters"
+    }
+   ],
    "upstream_of": [
     "hyperscale-datacenters"
    ],
@@ -579,6 +749,24 @@
    "position": 10,
    "name": "AI data centers",
    "role": "The physical buildout: hyperscaler and neocloud campuses that house accelerators; where capex turns into orders for every upstream link.",
+   "evidence": [
+    {
+     "claim": "Google, Amazon, Microsoft, and Meta collectively plan roughly $725 billion of capital expenditure in 2026, up about 77% from 2025's already-record $410 billion, directed substantially at AI data-center buildout.",
+     "source_name": "CNBC, \"Amazon, Meta and Microsoft face skeptical investors this week after Google report sparked sell-off\"",
+     "source_date": "2026-07-28",
+     "url": "https://www.cnbc.com/2026/07/28/hyperscalers-face-higher-capex-scrutiny-after-alphabet-report-panned.html",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "Hyperscaler capex is directed at building and powering the data-center capacity that frontier AI labs train and serve their models on, tying data-center buildout directly to frontier-lab compute supply.",
+     "source_name": "CNBC, hyperscaler 2026 capex coverage",
+     "source_date": "2026-07-28",
+     "url": "https://www.cnbc.com/2026/07/28/hyperscalers-face-higher-capex-scrutiny-after-alphabet-report-panned.html",
+     "tag": "INFERRED",
+     "supports": "frontier-models"
+    }
+   ],
    "upstream_of": [
     "frontier-models"
    ],
@@ -648,6 +836,24 @@
    "position": 11,
    "name": "Frontier model labs",
    "role": "Train and serve the frontier models the application layer consumes; the largest single buyers of compute.",
+   "evidence": [
+    {
+     "claim": "Anthropic committed to spend more than $100 billion over 10 years on AWS technology, securing up to 5 GW of Trainium compute capacity for training and serving Claude, illustrating how frontier labs' compute commitments anchor hyperscaler capacity plans.",
+     "source_name": "Anthropic, \"Anthropic and Amazon expand collaboration for up to 5 gigawatts of new compute\"",
+     "source_date": "2026-04-20",
+     "url": "https://www.anthropic.com/news/anthropic-amazon-compute",
+     "tag": "INFERRED",
+     "supports": "role"
+    },
+    {
+     "claim": "Microsoft's enterprise AI application layer (Copilot, at over 30 million paid seats) runs substantially on OpenAI's frontier models via the Azure OpenAI Service, tying frontier-lab model access directly to application-layer monetization.",
+     "source_name": "Futurum Group, \"Microsoft Copilot Hits 30 Million Seats: Is AI Transformation Finally Real?\"",
+     "source_date": "2026-07-30",
+     "url": "https://futurumgroup.com/insights/microsoft-copilot-hits-30-million-seats-is-ai-transformation-finally-real/",
+     "tag": "INFERRED",
+     "supports": "ai-applications"
+    }
+   ],
    "upstream_of": [
     "ai-applications"
    ],
@@ -711,6 +917,16 @@
    "position": 12,
    "name": "AI applications & agents",
    "role": "Consumer- and enterprise-facing software where AI demand originates; monetization layer that justifies everything upstream.",
+   "evidence": [
+    {
+     "claim": "Salesforce's Agentforce agentic-AI product line reached $800 million in annual recurring revenue in Q4 FY2026 (reported February 25, 2026), up 169% year over year with 29,000 customer deployments, evidencing real monetization at the AI application layer.",
+     "source_name": "Salesforce, \"Salesforce Delivers Record Fourth Quarter Fiscal 2026 Results\"",
+     "source_date": "2026-02-25",
+     "url": "https://www.salesforce.com/news/press-releases/2026/02/25/fy26-q4-earnings/",
+     "tag": "INFERRED",
+     "supports": "role"
+    }
+   ],
    "upstream_of": [],
    "downstream_of": [
     "frontier-models"
@@ -1050,6 +1266,13 @@
    "kind": "AMEND",
    "change": "renumbered upstream-first per method 4 (amended 2026-08-29): position 1 is now the furthest-upstream link, the last position is the demand anchor. 12 of 12 links moved. Topological order computed from the existing edges, so the map's structure is unchanged and nothing analytical moved.",
    "prior": "{\"advanced-packaging\": 6, \"ai-accelerators\": 4, \"ai-applications\": 1, \"energy-generation\": 12, \"foundry\": 7, \"frontier-models\": 2, \"grid-interconnect\": 11, \"hbm-memory\": 5, \"hyperscale-datacenters\": 3, \"liquid-cooling\": 9, \"networking-optics\": 8, \"power-equipment\": 10}"
+  },
+  {
+   "ts": "2026-08-30T18:00:00Z",
+   "by": "atlas-cartographer",
+   "kind": "AMEND",
+   "change": "citation backfill (method 4): added dated evidence[] to all 12 links and all 12 edges (each edge cited via an evidence item on its upstream link with supports naming the downstream link id). No heat, scenario, structure, or score field touched.",
+   "prior": "12 of 12 links carried no evidence[] (method 4 citation bar, WARNING mode since 2026-08-29)"
   }
  ]
 }

@@ -24,7 +24,7 @@ Scope: checks 9 and 10 only bind on a day that actually wrote a chain. On a day 
 chain run the gate says NOT RUN TODAY for those, rather than reporting a clean pass over
 nothing, and still runs the structural checks over the whole corpus.
 
-Run: python3 tools/check_chain.py [--date YYYY-MM-DD] [--root PATH] [--strict-citations]
+Run: python3 tools/check_chain.py [--date YYYY-MM-DD] [--root PATH] [--warn-citations]
 Exit 0 clean, 1 on any failure.
 """
 import datetime
@@ -75,7 +75,13 @@ def main() -> int:
         else Path(__file__).resolve().parent.parent
     today = argv[argv.index("--date") + 1] if "--date" in argv \
         else datetime.datetime.now(datetime.timezone.utc).date().isoformat()
-    strict = "--strict-citations" in argv
+    # The citation bar shipped as a warning because 36 of 36 seed links were uncited and a
+    # gate that fails from its first run is a gate people route around. The backfill landed
+    # 2026-08-30 and took the corpus to 0 uncited, so the bar is now an error by default:
+    # a link is a claim that a stage exists and an edge is a claim that one stage feeds
+    # another, and method section 4 requires each to be dated and sourced. `--warn-citations`
+    # is the deliberate, dated escape hatch for a genuine backfill run, not a way past the bar.
+    strict = "--warn-citations" not in argv
     data = root / "data"
 
     chains = []
@@ -216,7 +222,7 @@ def main() -> int:
             msg = (f"{cid}: {len(uncited)} of {n} links carry no dated evidence. A link is a "
                    f"claim that a stage exists and an edge is a claim that one stage feeds "
                    f"another: {', '.join(map(str, uncited))}")
-            (fail if strict else report)(msg + ("" if strict else "  [WARNING: backfill in progress]"))
+            (fail if strict else report)(msg + ("" if strict else "  [WARNING: --warn-citations, backfill in progress]"))
 
         # 9. preservation, the hazard
         prev = head_version(root, c["_rel"])
