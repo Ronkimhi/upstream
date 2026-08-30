@@ -2401,24 +2401,59 @@
     }).join("") + "</div>";
     return h;
   }
+  function cxUIHidden() {
+    try { return localStorage.getItem("upstream.cxUI") === "hidden"; } catch (e) { return false; }
+  }
+  /* The floating chrome clears the topbar by measurement, never by a guessed constant:
+     the topbar wraps to roughly twice its height under 760px, and anything pinned to a
+     hardcoded 64px disappears underneath it on a phone. */
+  var CX_TOP_OBS = null;
+  function cxMeasureTop() {
+    var tb = document.querySelector(".topbar");
+    if (!tb) return;
+    document.documentElement.style.setProperty("--cx-top", Math.round(tb.getBoundingClientRect().height) + 12 + "px");
+    // the webfonts land after first paint and change that height, so watch the bar
+    // itself rather than measuring once and trusting it
+    if (window.ResizeObserver) {
+      if (CX_TOP_OBS) CX_TOP_OBS.disconnect();
+      CX_TOP_OBS = new ResizeObserver(function () {
+        var b = document.querySelector(".topbar");
+        if (b) document.documentElement.style.setProperty("--cx-top", Math.round(b.getBoundingClientRect().height) + 12 + "px");
+      });
+      CX_TOP_OBS.observe(tb);
+    }
+  }
+  function cxToggleUI() {
+    var full = document.getElementById("cxFull");
+    if (!full) return;
+    var hid = full.classList.toggle("ui-hidden");
+    document.body.classList.toggle("cx-ui-hidden", hid);
+    var b = document.getElementById("cxUIBtn");
+    if (b) { b.textContent = hid ? "◱ SHOW UI" : "◲ HIDE UI"; b.setAttribute("aria-pressed", hid ? "true" : "false"); }
+    try { localStorage.setItem("upstream.cxUI", hid ? "hidden" : "shown"); } catch (e) {}
+  }
   function cortexView() {
-    return topbar("cortex") + "<main>" +
-      '<div class="pagehead cxhead"><h1>Cortex</h1>' +
-      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="what am I looking at?">' +
-      '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1.6 12S5.3 5.2 12 5.2 22.4 12 22.4 12 18.7 18.8 12 18.8 1.6 12 1.6 12Z"/><circle cx="12" cy="12" r="3.1"/></svg>' +
-      '<span>How to read this</span></button></div>' +
-      '<div class="cxinfo" id="cxInfo" hidden><p>The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Depth is time: past sinks away, the future comes toward you, the NOW ring marks today. Drag to orbit the field in 3D, scroll to fly closer (detail appears as you approach), shift-drag to pan, ⟲ ⟳ or Q / E to spin. Hover any dot for its story, click to open it. The ranked opportunities on the left fly you straight to them.</p></div>' +
-      '<div class="card cxpanel"><div class="cxframe">' +
-      '<div class="cx-rail-l">' + cxOppRail() + cxFilterRail() + cxRailLeft() + "</div>" +
+    var hid = cxUIHidden();
+    return topbar("cortex") +
+      '<div class="cxfull' + (hid ? " ui-hidden" : "") + '" id="cxFull">' +
       '<div class="cx-stage">' +
       '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
       '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
       cxTopRail() + cxPhaseBar() +
       "</div>" +
+      '<div class="cx-ovl-left">' +
+      '<div class="cx-head"><span class="cx-title">CORTEX</span>' +
+      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="what am I looking at?">' +
+      '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1.6 12S5.3 5.2 12 5.2 22.4 12 22.4 12 18.7 18.8 12 18.8 1.6 12 1.6 12Z"/><circle cx="12" cy="12" r="3.1"/></svg>' +
+      '<span>How to read this</span></button></div>' +
+      '<div class="cx-rail-l">' + cxOppRail() + cxFilterRail() + cxRailLeft() + "</div>" +
+      '<div class="cx-note">Analytical outputs from public data · not investment advice</div>' +
+      "</div>" +
+      '<div class="cxinfo" id="cxInfo" hidden><p>The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Depth is time: past sinks away, the future comes toward you, the NOW ring marks today. Drag to orbit the field in 3D, scroll to fly closer (detail appears as you approach), shift-drag to pan, ⟲ ⟳ or Q / E to spin. Hover any dot for its story, click to open it. The ranked opportunities on the left fly you straight to them. H hides the interface.</p></div>' +
       '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
-      "</div></div>" +
-      '<div class="card cx-mobile" style="margin-top:14px">' + cxRailLeft() + "</div>" +
-      "<div id='drawerHost'></div>" + footer() + "</main>";
+      '<button class="cx-uibtn" id="cxUIBtn" aria-pressed="' + (hid ? "true" : "false") + '" title="hide or show the interface (H)">' + (hid ? "◱ SHOW UI" : "◲ HIDE UI") + "</button>" +
+      "</div>" +
+      "<div id='drawerHost'></div>";
   }
 
   function cxShowDrawer(html) {
@@ -3123,7 +3158,8 @@
         focus = order2[idx]; setRead(focus);
       } else if (e.key === "Enter" || e.key === " ") {
         if (focus) { e.preventDefault(); cxShowDrawer(cxNodeDrawer(focus)); }
-      } else if (e.key === "q" || e.key === "Q") { e.preventDefault(); touched(); cam.yaw -= Math.PI / 30; }
+      } else if (e.key === "h" || e.key === "H") { e.preventDefault(); cxToggleUI(); }
+      else if (e.key === "q" || e.key === "Q") { e.preventDefault(); touched(); cam.yaw -= Math.PI / 30; }
       else if (e.key === "e" || e.key === "E") { e.preventDefault(); touched(); cam.yaw += Math.PI / 30; }
       else if (e.key === "+" || e.key === "=" ) { e.preventDefault(); touched(); cam.dist = Math.max(CX_F / 4, cam.dist * 0.8); }
       else if (e.key === "-") { e.preventDefault(); touched(); cam.dist = Math.min(3600, cam.dist * 1.25); }
@@ -3328,6 +3364,12 @@
     else if (p[0] === "shadow") html = shadowView();
     else html = cortexView();
     app.innerHTML = html;
+    // the cortex is the only full-viewport view: the page stops scrolling and the
+    // topbar joins the overlays floating on the field
+    var onCortex = !!document.getElementById("cxFull");
+    document.body.classList.toggle("cortex-page", onCortex);
+    document.body.classList.toggle("cx-ui-hidden", onCortex && cxUIHidden());
+    if (onCortex) cxMeasureTop();
     window.scrollTo(0, 0);
     wire();
   }
@@ -3388,6 +3430,8 @@
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
+    var cxUB = document.getElementById("cxUIBtn");
+    if (cxUB) cxUB.addEventListener("click", cxToggleUI);
     var cxIB = document.getElementById("cxInfoBtn");
     if (cxIB) {
       cxIB.addEventListener("click", function () {
@@ -3445,6 +3489,22 @@
     var saved = localStorage.getItem("upstream.theme");
     if (saved && saved !== "auto") document.documentElement.setAttribute("data-theme", saved);
   } catch (e) {}
+
+  /* H hides the interface from anywhere on the cortex page. Installed once, not per
+     route: wire() re-runs on every navigation, and a toggle bound N times toggles N
+     times. Skips the canvas (which handles H itself) and any text field. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "h" && e.key !== "H") return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target || {};
+    if (t.id === "cortexCanvas" || t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable) return;
+    if (!document.getElementById("cxFull")) return;
+    e.preventDefault(); cxToggleUI();
+  });
+
+  window.addEventListener("resize", function () {
+    if (document.getElementById("cxFull")) cxMeasureTop();
+  });
 
   window.addEventListener("hashchange", route);
   route();

@@ -399,27 +399,83 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 }
 
 /* ---------------- cortex ---------------- */
-/* The panel commits to its own dark ground in every theme: it is a map, not a card. */
-.cxpanel { padding: 0; overflow: hidden; background: #08080d; border-color: #1b1b26; }
-.cxframe {
-  position: relative; display: grid;
-  grid-template-columns: 186px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 26px;
-  grid-template-areas: "rail-l stage" "strip strip";
-  height: calc(100vh - 190px); min-height: 460px; background: #08080d;
+/* The map IS the page: the field fills the viewport and every piece of interface
+   floats over it, hideable in one keystroke. It commits to its own dark ground in
+   every theme, because it is a map, not a card. */
+body.cortex-page { overflow: hidden; }
+body.cortex-page .topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 6;
+  background: rgba(8, 8, 13, 0.72); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #16161f; color: #dde0ef;
 }
-.cx-rail-l { grid-area: rail-l; border-right: 1px solid #16161f; }
-.cx-rail-r { grid-area: rail-r; border-left: 1px solid #16161f; }
-.cx-rail-l, .cx-rail-r { overflow: hidden auto; padding: 12px 12px 10px; }
-.cx-stage { grid-area: stage; position: relative; min-width: 0; min-height: 0; }
+body.cortex-page .topbar .wordmark { color: #dde0ef; }
+body.cortex-page .topbar .nav a { color: #6e7288; }
+body.cortex-page .topbar .nav a:hover, body.cortex-page .topbar .nav a.on { color: #fff; background: #1b1b28; }
+body.cortex-page .topbar .tb-chip { background: rgba(20, 20, 29, 0.8); border-color: #232332; color: #9296ad; }
+body.cortex-page .topbar .tb-btn { color: #6e7288; }
+body.cortex-page .topbar .tb-btn:hover { color: #fff; background: #1b1b28; }
+body.cx-ui-hidden .topbar { display: none; }
+
+.cxfull { position: fixed; inset: 0; z-index: 1; background: #08080d; }
+.cxfull .cx-stage { position: absolute; inset: 0; }
 .cx-stage canvas { display: block; width: 100%; height: 100%; outline: none; cursor: grab; }
-.cx-strip { grid-area: strip; border-top: 1px solid #16161f; display: flex; align-items: center; gap: 16px; padding: 0 14px; overflow: hidden; }
-.cx-rail-l, .cx-rail-r, .cx-strip {
+
+/* left overlay: title, info button, ranked opportunities, filters, registers */
+/* --cx-top is measured from the real topbar at runtime: it wraps to ~109px on a phone,
+   and chrome pinned to a hardcoded 64px hides underneath it. */
+.cx-ovl-left {
+  position: absolute; z-index: 4; left: 12px; top: var(--cx-top, 64px); bottom: 52px; width: 208px;
+  display: flex; flex-direction: column; min-height: 0;
+  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
+  border: 1px solid #1b1b26; border-radius: 12px;
+}
+.cx-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none;
+  padding: 9px 10px 8px; border-bottom: 1px solid #16161f;
+}
+.cx-head .cx-title {
+  font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; color: #dde0ef;
+}
+.cx-rail-l { flex: 1; min-height: 0; overflow: hidden auto; padding: 10px 11px 12px; }
+.cx-note {
+  flex: none; padding: 6px 11px 7px; border-top: 1px solid #16161f;
+  font-family: "JetBrains Mono", monospace; font-size: 8px; line-height: 1.5;
+  letter-spacing: .04em; text-transform: uppercase; color: #43465a;
+}
+.cx-rail-l, .cx-strip {
   font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7;
   letter-spacing: .04em; color: #585c72; text-transform: uppercase;
 }
+.cxfull .cx-strip {
+  position: absolute; z-index: 4; left: 12px; right: 12px; bottom: 12px; height: 30px;
+  display: flex; align-items: center; gap: 16px; padding: 0 13px; overflow: hidden;
+  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
+  border: 1px solid #1b1b26; border-radius: 9px;
+}
 .cx-strip .cx-read { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9296ad; }
 .cx-strip .cx-s1 { color: #dde0ef; }
+.cx-uibtn {
+  position: absolute; z-index: 7; top: var(--cx-top, 64px); right: 12px; cursor: pointer;
+  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
+  border: 1px solid #232332; border-radius: 999px; padding: 5px 11px;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .1em;
+  color: #6e7288;
+}
+.cx-uibtn:hover { color: #dde0ef; border-color: #35354a; }
+.cx-uibtn:focus-visible { outline: 1px solid #8687f0; }
+.cxfull.ui-hidden .cx-ovl-left,
+.cxfull.ui-hidden .cx-strip,
+.cxfull.ui-hidden .cx-toprail,
+.cxfull.ui-hidden .cx-phase,
+.cxfull.ui-hidden .cxinfo { display: none; }
+.cxfull.ui-hidden .cx-uibtn { top: 12px; opacity: .35; }
+.cxfull.ui-hidden .cx-uibtn:hover { opacity: 1; }
+.cxfull .cxinfo {
+  position: absolute; z-index: 5; left: 232px; top: var(--cx-top, 64px); width: min(46ch, calc(100vw - 300px));
+  margin: 0; background: rgba(11, 11, 17, 0.92); backdrop-filter: blur(10px);
+  border: 1px solid #232332; border-radius: 10px; color: #9296ad; font-size: 12.5px;
+}
 .cx-brackets { position: absolute; inset: 8px; pointer-events: none; }
 .cx-brackets i { position: absolute; width: 18px; height: 18px; }
 .cx-brackets i:nth-child(1) { top: 0; left: 0; border-top: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
@@ -438,15 +494,15 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .cx-ev .k { font-weight: 600; }
 .cx-ev .s { display: block; color: #4c5065; text-transform: none; letter-spacing: 0; font-size: 9.5px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cx-mobile { display: none; }
-@media (max-width: 1080px) {
-  .cxframe { grid-template-columns: 168px minmax(0, 1fr); grid-template-areas: "rail-l stage" "strip strip"; }
-  .cx-rail-r { display: none; }
+@media (max-width: 860px) {
+  .cx-ovl-left { width: 178px; bottom: 48px; }
+  .cxfull .cxinfo { left: 12px; right: 12px; top: auto; bottom: 52px; width: auto; }
 }
-@media (max-width: 760px) {
-  .cxframe { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "strip"; height: calc(100vh - 150px); min-height: 380px; }
-  .cx-rail-l { display: none; }
-  .cx-mobile { display: block; }
+@media (max-width: 620px) {
+  /* a phone has no room for a side rail beside the field: it becomes a bottom sheet,
+     and the field keeps everything above it */
+  .cx-ovl-left { left: 10px; right: 10px; width: auto; top: auto; bottom: 50px; max-height: 42vh; }
+  .cxfull .cx-strip { left: 10px; right: 10px; bottom: 10px; }
 }
 /* cortex v4: hover card, filters, rotation controls */
 .cxcard {
@@ -586,9 +642,12 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
    Chrome floats over the field rather than boxing it in, so the map keeps the full stage.
    Like the panel itself these commit to the dark ground in every theme. */
 .cx-toprail {
-  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: var(--cx-top, 64px); left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 6px;
-  max-width: calc(100% - 96px); z-index: 3; pointer-events: none;
+  z-index: 3; pointer-events: none;
+  /* centred between two unequal gutters, so the bound is twice the larger one: the left
+     rail (208 + 12 margin + 12 gap) on one side, the hide-UI button on the other */
+  max-width: calc(100% - 470px);
 }
 .cx-famrow, .cx-subrail {
   display: flex; gap: 5px; align-items: center; max-width: 100%;
@@ -620,7 +679,7 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
   letter-spacing: .02em; padding: 0 6px; max-width: 460px; white-space: normal; line-height: 1.5;
 }
 .cx-phase {
-  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 10px; align-items: center; z-index: 3;
 }
 .cx-phbtn {
@@ -633,28 +692,28 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .cx-phbtn.on { background: #1d1d31; border-color: #8687f0; color: #fff; }
 .cx-phbtn[disabled] { opacity: .45; cursor: default; }
 @media (max-width: 860px) {
-  .cx-toprail { max-width: calc(100% - 24px); }
   .cx-subnone { max-width: 260px; }
-  .cx-phase { bottom: 10px; }
+  .cx-phase { bottom: 52px; }
+}
+@media (max-width: 620px) {
+  /* the rail is a bottom sheet here, so the top rail keeps only the button's gutter,
+     and the phase toggle moves up out of the sheet's way */
+  .cx-toprail { left: 12px; transform: none; align-items: flex-start; max-width: calc(100% - 116px); }
+  .cx-phase { bottom: auto; top: calc(var(--cx-top, 64px) + 46px); }
 }
 .cxopp.on { border-color: #8687f0; background: #1d1d31; }
 
 /* cortex: eye info button replaces the standing explainer paragraph */
-.pagehead.cxhead { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.pagehead.cxhead h1 { margin: 0; }
 .cxinfo-btn {
-  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
-  background: var(--surface-2); color: var(--ink-2);
-  border: 1px solid var(--border-strong); border-radius: 999px;
-  padding: 5px 12px 5px 10px; font: inherit; font-size: 12px; line-height: 1;
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; flex: none;
+  background: #14141d; color: #6e7288;
+  border: 1px solid #232332; border-radius: 999px;
+  padding: 4px 9px 4px 8px; font: inherit; font-size: 11px; line-height: 1;
 }
-.cxinfo-btn:hover { color: var(--ink); border-color: var(--accent-line); }
-.cxinfo-btn.on { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+.cxinfo-btn:hover { color: #dde0ef; border-color: #35354a; }
+.cxinfo-btn.on { color: #fff; border-color: #8687f0; background: #1d1d31; }
+.cxinfo-btn:focus-visible { outline: 1px solid #8687f0; }
 .cxinfo-btn svg { flex: none; }
-.cxinfo {
-  margin: 0 0 12px; padding: 12px 14px; border-radius: 10px;
-  background: var(--surface-2); border: 1px solid var(--border);
-  color: var(--ink-2); font-size: 13.5px; line-height: 1.6; max-width: 78ch;
-}
+.cxinfo { margin: 0 0 12px; padding: 12px 14px; border-radius: 10px; line-height: 1.6; }
 .cxinfo p { margin: 0; }
-@media (max-width: 760px) { .cxinfo-btn span { display: none; } }
+@media (max-width: 980px) { .cxinfo-btn span { display: none; } }
