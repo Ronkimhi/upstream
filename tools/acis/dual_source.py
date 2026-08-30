@@ -64,7 +64,14 @@ STOOQ_HEADERS = {
 
 
 def fetch_price_stooq(ticker):
-    """Returns (print|None, leg). See fetch_price_yf for why the leg exists."""
+    """Returns (print|None, leg). See fetch_price_yf for why the leg exists.
+
+    Kept as a fallback but expected to stay silent: as of 2026-08-30 stooq serves a
+    JavaScript proof-of-work challenge to every non-browser client, from residential IPs
+    as well as datacenter ones, so this is no longer a datacenter-only refusal. It is not
+    deleted because a leg that reports why it did not answer costs one request and is the
+    thing that made this whole class of failure visible.
+    """
     url = STOOQ_DAILY_CSV_URL.format(symbol=_stooq_symbol(ticker))
     try:
         resp = requests.get(url, timeout=30, headers=STOOQ_HEADERS)
@@ -104,19 +111,33 @@ def fetch_price_stockanalysis(ticker):
     with the primary to the cent on the same session (319.70 vs 319.70001, 2026-08-28),
     which is the property a second source exists to provide.
 
-    Two honest caveats, recorded because they bear on how much this print is worth:
-    the endpoint is undocumented, so it can change shape without notice — hence
-    selecting the row by MAX DATE rather than by position, after the bake-off's first
-    parser silently returned a year-old close that looked like corroboration — and the
-    terms of use for programmatic access are not explicit, so this stays at the repo's
-    natural volume (tens of requests on a weekday) and must not be scaled up without
-    Ron reading them. If it stops answering, `price_status` returns to SINGLE_SOURCE with
-    the reason on the file, which is exactly the behaviour that made stooq's decade-long
-    silence visible in the first place.
+    Independence is the property that matters and it is established, not assumed: their
+    published data-sources page names **Cboe and Nasdaq UTP** for prices, with no Yahoo
+    anywhere. Comparing this print to yfinance is therefore two tapes, not one tape twice.
+    Their robots.txt disallows only /e/ and /p/, and the terms of use carry no
+    anti-automation clause, so low-volume programmatic reads are not against a stated
+    rule; it still stays at the repo's natural volume (tens of requests on a weekday) and
+    should not be scaled up without reading the terms again.
+
+    `range` must be one of 1Y / 5Y / 10Y. An unrecognised value silently falls back to
+    1Y, and OMITTING it changes the response SHAPE (the rows nest one level deeper). This
+    asked for `1M` at first — a value that does not exist, which quietly returned a year
+    of rows and worked by accident. Code that gets the right answer for a reason it does
+    not state is the same defect as a number with no source.
+
+    `c` is the raw close, `a` the adjusted one. We read `c` because the primary leg calls
+    yfinance with auto_adjust=False, and comparing a raw close to an adjusted one would
+    manufacture a dispute on every ticker that has ever paid a dividend.
+
+    Rows come newest-first, but selection is by MAX DATE rather than position: an
+    undocumented endpoint owes us no ordering guarantee, and the bake-off's first parser
+    took the last element and returned a year-old close that looked like corroboration.
+    If it stops answering, `price_status` returns to SINGLE_SOURCE with the reason on the
+    file — the behaviour that made stooq's silence visible in the first place.
     """
     url = f"https://stockanalysis.com/api/symbol/s/{ticker.lower()}/history"
     try:
-        resp = requests.get(url, params={"range": "1M", "period": "Daily"},
+        resp = requests.get(url, params={"range": "1Y", "period": "Daily"},
                             headers={"User-Agent": STOOQ_USER_AGENT}, timeout=30)
         if resp.status_code != 200:
             return None, {"source": "stockanalysis", "answered": False,

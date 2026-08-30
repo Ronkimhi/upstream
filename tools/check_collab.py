@@ -421,7 +421,7 @@ def main() -> int:
             return 1
         return 0
 
-    today = datetime.date.today().isoformat()
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
     if args.rev_range:
         mode_range(args.rev_range, args.pusher)
     elif args.staged:

@@ -21,7 +21,11 @@ _argv = sys.argv[1:]
 ROOT = (Path(_argv[_argv.index("--root") + 1]).resolve() if "--root" in _argv
         else Path(__file__).resolve().parent.parent)
 DATA = ROOT / "data"
-TODAY = datetime.date.today().isoformat()
+# UTC, not local. Ledger lines are stamped in UTC (the `Z` in every line) and these
+# gates look for "a line dated today", so a session running between local midnight
+# and UTC midnight would search for a date the ledger will never carry and fail a
+# gate over a timezone. Cloud, local and Actions venues all agree on UTC.
+TODAY = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 
 LANES = {"MACRO", "INDUSTRY", "USE_CASE"}
 SIGNAL_STATUS = {"NEW", "CHAINED", "DISMISSED", "EXPIRED"}
@@ -66,7 +70,7 @@ CAND_STATUS = {"AMBIENT", "PROMOTED", "DISMISSED", "EXPIRED"}
 RULE_ORIGINS = {"METHOD", "PREFERENCE"}
 RULE_STATUS = {"PROPOSED", "HARDENED", "REJECTED"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-TODAY = datetime.date.today().isoformat()
+TODAY = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 
 # Evidence written on or after this date must be dated, and VERIFIED evidence must carry a
 # url. Same shape and same reason as OCCURRENCE_GATE above: 88 legacy evidence items carry
@@ -99,7 +103,8 @@ def warn(f: Path, msg: str) -> None:
 def _age_days(when):
     """Days between an ISO date/timestamp and today, or None if unparseable."""
     try:
-        return (datetime.date.today() - datetime.date.fromisoformat(str(when)[:10])).days
+        return (datetime.datetime.now(datetime.timezone.utc).date()
+                - datetime.date.fromisoformat(str(when)[:10])).days
     except (ValueError, TypeError):
         return None
 

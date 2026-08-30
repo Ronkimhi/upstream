@@ -199,7 +199,7 @@ def main() -> int:
     root = Path(argv[argv.index("--root") + 1]).resolve() if "--root" in argv \
         else Path(__file__).resolve().parent.parent
     today = argv[argv.index("--date") + 1] if "--date" in argv \
-        else datetime.date.today().isoformat()
+        else datetime.datetime.now(datetime.timezone.utc).date().isoformat()
     data = root / "data"
 
     # The schema-drift guard is an invariant of THIS checkout's code, not of whatever

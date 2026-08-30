@@ -269,7 +269,7 @@ def main() -> int:
     ap.add_argument("--root")
     args = ap.parse_args()
     root = Path(args.root).resolve() if args.root else Path(__file__).resolve().parent.parent
-    today = args.date or datetime.date.today().isoformat()
+    today = args.date or datetime.datetime.now(datetime.timezone.utc).date().isoformat()
     data = root / "data"
 
     screens = []
