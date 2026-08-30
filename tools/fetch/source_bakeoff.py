@@ -87,9 +87,17 @@ def c_nasdaq(t):
     """Nasdaq's own public quote API. No key. Genuinely independent of Yahoo — it is the
     exchange's own distribution — which is what makes it worth probing even though it is
     undocumented and known to be picky about headers."""
-    r = requests.get(f"https://api.nasdaq.com/api/quote/{t}/historical",
-                     params={"assetclass": "stocks", "limit": 5},
-                     headers={**UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    last_err = None
+    for _ in (1, 2):   # one read timeout is not evidence of a policy block
+        try:
+            r = requests.get(f"https://api.nasdaq.com/api/quote/{t}/historical",
+                             params={"assetclass": "stocks", "limit": 5},
+                             headers={**UA, "Accept": "application/json"}, timeout=TIMEOUT)
+            break
+        except requests.RequestException as e:
+            last_err = e
+    else:
+        return None, None, f"{type(last_err).__name__} twice: {str(last_err)[:90]}"
     if r.status_code != 200:
         return None, None, f"http {r.status_code}"
     rows = (((r.json() or {}).get("data") or {}).get("tradesTable") or {}).get("rows") or []
@@ -119,13 +127,26 @@ def c_stockanalysis(t):
     data = js.get("data") or js.get("result") or []
     if not isinstance(data, list) or not data:
         return None, None, f"unexpected shape: {json.dumps(js)[:120]}"
-    row = data[-1]
-    if isinstance(row, dict):
-        return _num(row.get("c") or row.get("close")), str(row.get("t") or row.get("date"))[:10], \
-            "no key; undocumented"
-    if isinstance(row, list) and len(row) >= 2:
-        return _num(row[-1]), str(row[0])[:10], "no key; undocumented"
-    return None, None, f"unexpected row: {str(row)[:80]}"
+    # Select by MAX DATE, never by array position. The first version of this took
+    # data[-1] and the 2026-08-30 bake-off duly reported a close of 232.56 dated
+    # 2025-08-28 — a year stale and 27% away from the real price, presented as a
+    # successful answer. An undocumented endpoint owes us no ordering guarantee, and a
+    # positional guess against one is how a wrong number gets to look like corroboration.
+    best = None
+    for row in data:
+        if isinstance(row, dict):
+            close, date = _num(row.get("c") or row.get("close")), str(row.get("t") or row.get("date"))[:10]
+        elif isinstance(row, list) and len(row) >= 2:
+            close, date = _num(row[-1]), str(row[0])[:10]
+        else:
+            continue
+        if close is None or not date:
+            continue
+        if best is None or date > best[1]:
+            best = (close, date)
+    if best is None:
+        return None, None, f"no dated close in {len(data)} row(s): {str(data[:1])[:100]}"
+    return best[0], best[1], "no key; undocumented"
 
 
 def c_alphavantage(t):
@@ -233,14 +254,27 @@ def main():
             close, date, note = fn(ticker)
         except Exception as e:  # noqa: BLE001
             close, date, note = None, None, f"{type(e).__name__}: {str(e)[:140]}"
-        out["candidates"][name] = {"answered": close is not None, "close": close,
-                                   "date": date, "needs_key": needs_key, "note": note}
-        print(f"{'ANSWERED' if close is not None else 'no       '}  {name:22} "
+        # A source that answers with a STALE price is the dangerous case: it looks like
+        # corroboration and is not. Anything older than a week is recorded as answered
+        # but not usable, with the age said out loud.
+        age = None
+        if date:
+            try:
+                age = (NOW.date() - datetime.strptime(date, "%Y-%m-%d").date()).days
+            except ValueError:
+                age = None
+        usable = close is not None and (age is None or age <= 7)
+        if close is not None and age is not None and age > 7:
+            note = f"STALE: answered with a close {age} days old — not usable as a second print"
+        out["candidates"][name] = {"answered": close is not None, "usable": usable,
+                                   "close": close, "date": date, "age_days": age,
+                                   "needs_key": needs_key, "note": note}
+        print(f"{('ANSWERED' if usable else 'STALE   ') if close is not None else 'no      '}  {name:22} "
               f"{('close ' + str(close) + ' @ ' + str(date)) if close is not None else ''} "
               f"{'' if close is not None else '— ' + str(note)[:110]}")
 
     answered = {k: v for k, v in out["candidates"].items()
-                if v["answered"] and not k.endswith("_CONTROL")}
+                if v.get("usable") and not k.endswith("_CONTROL")}
     out["summary"] = {
         "independent_sources_answering": sorted(answered),
         "count": len(answered),
