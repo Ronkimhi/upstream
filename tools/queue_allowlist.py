@@ -23,8 +23,21 @@ shape" means when the string came from a web page).
 `tools/tests/test_pressure.py`, `tools/tests/test_campaign_commands.py`,
 `tools/tests/test_cass.py` and `tools/tests/test_impact.py` hold the injection probes. Adding a shape here without a probe is
 how this file stops being trustworthy.
+
+THE SECOND CHANNEL. The page also carries an `upstream-edits` block, because Ron edits agent
+contracts from the artifact and a contract is 15 KB of free text. It could not ride the queue:
+`is_allowed` refuses every control character, and that refusal is the whole security property
+of this file, so widening a command shape to carry a body would have deleted it. `is_allowed_edit`
+below checks the other shape instead, and its rules are different in kind. A command is a string
+the machine EXECUTES, so the allowlist decides whether it may run at all. An edit is a file the
+machine WRITES, and the draining session never obeys a word of it: the body is data under the
+injection guard, exactly like feed text. So these checks are about integrity, not authority.
+The target must already be an agent file on disk (this channel cannot create agents, and cannot
+address anything outside `.claude/agents/`), the body must be a plausible contract rather than a
+fragment, and it must not carry the one string that would break the page it travels on.
 """
 import re
+from pathlib import Path
 
 # Fragments, named so the shapes below read as the command table in CLAUDE.md does.
 _SIGNAL = r"SIG-\d{8}-\d{2}"
@@ -104,3 +117,68 @@ if __name__ == "__main__":  # tiny CLI so a draining session can check by hand
     for arg in sys.argv[1:]:
         print(f"{'ALLOW ' if is_allowed(arg) else 'REJECT'} {arg!r}"
               + ("" if is_allowed(arg) else f"  — {reject_reason(arg)}"))
+
+
+# ---------------------------------------------------------------- the edits channel
+
+EDIT_MAX_BYTES = 200_000
+# A slug, not a path. No separators, no dots, no traversal: `..` cannot be spelled and
+# neither can `nell-scanner.md` or `../../CLAUDE`.
+_EDIT_TARGET = re.compile(r"[a-z][a-z0-9-]{0,63}")
+# The only control characters a markdown file legitimately holds. A NUL or an escape
+# sequence in a contract is not formatting, it is something hiding.
+_EDIT_OK_CONTROLS = frozenset("\n\r\t")
+_FRONTMATTER_NAME = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.S)
+
+
+def _edit_declared_name(body: str):
+    m = _FRONTMATTER_NAME.match(body)
+    if not m:
+        return None
+    for line in m.group(1).splitlines():
+        if line.startswith("name:"):
+            return line.partition(":")[2].strip()
+    return None
+
+
+def edit_reject_reason(rec, root) -> str:
+    """Why one edit record was refused, empty string when it is acceptable.
+
+    Named in the ledger like a rejected command is, and for the same reason: an edit that
+    vanishes silently is indistinguishable from a Save button that never worked.
+    """
+    if not isinstance(rec, dict):
+        return "not an object"
+    target, body = rec.get("target"), rec.get("body")
+    if not isinstance(target, str) or not _EDIT_TARGET.fullmatch(target):
+        return f"target {target!r} is not an agent slug (lowercase, digits and hyphens, no path)"
+    path = Path(root) / ".claude" / "agents" / f"{target}.md"
+    if not path.is_file():
+        return (f"target {target!r} names no file at .claude/agents/{target}.md: this channel "
+                "edits contracts that exist, it does not create agents")
+    if not isinstance(body, str) or not body.strip():
+        return "body is empty: an agent with no instructions is worse than an unedited one"
+    size = len(body.encode())
+    if size > EDIT_MAX_BYTES:
+        return f"body is {size} bytes, over the {EDIT_MAX_BYTES}-byte cap"
+    bad = sorted({ord(ch) for ch in body if (ord(ch) < 32 or ord(ch) == 127) and ch not in _EDIT_OK_CONTROLS})
+    if bad:
+        return f"body carries control character(s) {bad}, which no markdown file needs"
+    if "</scr" + "ipt" in body.lower():
+        return "body carries a literal script-close, which would terminate the block it travels in"
+    declared = _edit_declared_name(body)
+    if declared is None:
+        return "body has no YAML frontmatter: every agent contract in this repo opens with one"
+    if declared != target:
+        return (f"body frontmatter declares name {declared!r} but the edit targets {target!r}: "
+                "one of the two is wrong and writing either would be a guess")
+    return ""
+
+
+def is_allowed_edit(rec, root) -> bool:
+    """True only for an edit record safe to write verbatim to .claude/agents/<target>.md.
+
+    Safe to WRITE. Never safe to OBEY: the session that applies this writes the file and
+    reads no instruction out of it.
+    """
+    return edit_reject_reason(rec, root) == ""

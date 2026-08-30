@@ -87,6 +87,129 @@
   function fmtMoney(x) { return typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(x); }
   function seclabel(t) { return '<div class="seclabel">' + esc(t) + "</div>"; }
 
+  /* ---------------- agents ----------------
+     The eight contracts, shipped into the page by app/build.py through
+     tools/agent_registry.py. `owners` is the command-shape-to-agent map parsed out of
+     CLAUDE.md's command table by the same module Adam's machine audit uses, so the button
+     Ron presses and the audit that reports an unowned command can never disagree about who
+     owns what. `unowned` is the table's real backlog (refresh, request data, log trade,
+     note, run review): those buttons show no agent because no agent is accountable for
+     them, which is the honest rendering and not a gap in this code. */
+  var AX = D.agentix || { agents: [], owners: [], unowned: [] };
+  function agentBySlug(slug) {
+    for (var i = 0; i < AX.agents.length; i++) if (AX.agents[i].slug === slug) return AX.agents[i];
+    return null;
+  }
+  /* Longest key first (app/build.py sorts them), matched on a word boundary so
+     "run universe-audit x" cannot be claimed by the "run universe" key. */
+  function agentFor(cmd) {
+    var c = String(cmd || "");
+    for (var i = 0; i < AX.owners.length; i++) {
+      var k = AX.owners[i][0];
+      if (c === k || c.indexOf(k + " ") === 0) return agentBySlug(AX.owners[i][2]);
+    }
+    return null;
+  }
+  function agentChip(cmd) {
+    var a = agentFor(cmd);
+    if (!a) return "";
+    return '<a class="chip agent" href="#/agent/' + esc(a.slug) +
+      '" title="read ' + esc(a.name) + "'s instructions · " + esc(a.role) +
+      '">' + esc(a.name) + " ▸</a>";
+  }
+
+  /* A contract is 200-plus lines of markdown and reading it as one monospace wall is the
+     same as not shipping it. This renders the subset the contracts actually use. It runs
+     over ALREADY-ESCAPED text and only ever inserts tags written here, so nothing in a
+     contract body can become markup. Link targets are linkified only when they are http(s):
+     a relative path renders as code, because a contract is data and a data file does not
+     get to decide what the page navigates to. */
+  function mdInline(t) {
+    return t
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, function (_m, txt, href) {
+        return '<a href="' + href + '" rel="noreferrer noopener" target="_blank">' + txt + "</a>";
+      })
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, "$1 <code>$2</code>");
+  }
+  /* Split on UNESCAPED pipes only, and without a lookbehind: a cell like
+     `<SIG-id\|CAND-id>` carries an escaped pipe, and splitting on it shifts every later
+     cell by one. This is the same defect tools/agent_registry.py documents on the Python
+     side; the swap keeps it working on engines with no lookbehind support. */
+  var PIPE_SLOT = "\u0000P";
+  function mdRow(line) {
+    var cells = line.replace(/^\||\|$/g, "").replace(/\\\|/g, PIPE_SLOT).split("|");
+    return cells.map(function (c) { return c.split(PIPE_SLOT).join("|").trim(); });
+  }
+  function md(src) {
+    var lines = String(src || "").split("\n");
+    var out = [], list = null, table = null, fence = null, para = [], li = null;
+    /* These files hard-wrap at about 92 columns, so one line is NOT one paragraph.
+       Emitting a <p> per source line broke sentences mid-clause, which is worse than
+       showing the raw file: it reads as though the document itself is disjointed.
+       Consecutive lines join with a space and flush on a structural boundary. */
+    function flushPara() { if (para.length) { out.push("<p>" + mdInline(esc(para.join(" "))) + "</p>"); para = []; } }
+    function flushLi() { if (li !== null) { out.push("<li>" + mdInline(esc(li.join(" "))) + "</li>"); li = null; } }
+    function closeList() { flushLi(); if (list) { out.push("</" + list + ">"); list = null; } }
+    function closeTable() {
+      if (table) { out.push("<div class='mdtable'><table>" + table.join("") + "</table></div>"); table = null; }
+    }
+    function closeAll() { flushPara(); closeList(); closeTable(); }
+    for (var i = 0; i < lines.length; i++) {
+      var raw = lines[i], t = raw.trim();
+      if (fence !== null) {
+        if (t.indexOf("```") === 0) { out.push("<pre>" + esc(fence.join("\n")) + "</pre>"); fence = null; }
+        else fence.push(raw);
+        continue;
+      }
+      if (t.indexOf("```") === 0) { closeAll(); fence = []; continue; }
+      if (!t) { closeAll(); continue; }
+      if (/^(-{3,}|\*{3,}|_{3,})$/.test(t)) { closeAll(); out.push("<hr>"); continue; }
+      var h = /^(#{1,6})\s+(.*)$/.exec(t);
+      if (h) {
+        closeAll();
+        var lvl = Math.min(6, h[1].length + 1);
+        out.push("<h" + lvl + ">" + mdInline(esc(h[2])) + "</h" + lvl + ">");
+        continue;
+      }
+      if (t.charAt(0) === "|" && t.charAt(t.length - 1) === "|") {
+        flushPara(); closeList();
+        var cells = mdRow(t);
+        if (cells.every(function (c) { return /^:?-{2,}:?$/.test(c); })) continue;
+        var tag = table ? "td" : "th";
+        if (!table) table = [];
+        table.push("<tr>" + cells.map(function (c) {
+          return "<" + tag + ">" + mdInline(esc(c)) + "</" + tag + ">";
+        }).join("") + "</tr>");
+        continue;
+      }
+      closeTable();
+      var b = /^[-*]\s+(.*)$/.exec(t), n = /^\d+[.)]\s+(.*)$/.exec(t);
+      if (b || n) {
+        flushPara();
+        var want = b ? "ul" : "ol";
+        if (list !== want) { closeList(); list = want; out.push("<" + want + ">"); }
+        else flushLi();
+        li = [(b || n)[1]];
+        continue;
+      }
+      // A plain line inside a list is the wrapped tail of the bullet above it.
+      if (li !== null) { li.push(t); continue; }
+      para.push(t);
+    }
+    if (fence !== null) out.push("<pre>" + esc(fence.join("\n")) + "</pre>");
+    closeAll();
+    return out.join("");
+  }
+  /* The frontmatter is name + description and the view prints both as headings already;
+     rendering it twice reads as a bug. Returned separately so the EDITOR can put it back:
+     what Ron edits and what gets written to disk is the whole file, never this remainder. */
+  function contractBody(text) {
+    var m = /^---\r?\n[\s\S]*?\r?\n---\r?\n/.exec(String(text || ""));
+    return m ? text.slice(m[0].length) : text;
+  }
+
   /* ---------------- click queue (artifact capability) ----------------
      A Run click publishes a new version of this page with the command queued
      in the #upstream-queue block. Any live Claude session watching the
@@ -94,8 +217,24 @@
      republishes the page with the results baked in. Where queueing is
      unavailable (local preview, read-only viewer) the button degrades to a
      copy affordance automatically. */
+  var QUEUE_ID = "upstream-queue", EDITS_ID = "upstream-edits";
   var QUEUE = { v: 1, queue: [] };
-  try { QUEUE = JSON.parse(document.getElementById("upstream-queue").textContent) || QUEUE; } catch (e) {}
+  try { QUEUE = JSON.parse(document.getElementById(QUEUE_ID).textContent) || QUEUE; } catch (e) {}
+  /* The second channel. A command is a fixed grammar an allowlist can check with a
+     fullmatch; an agent contract is 15 KB of free text, and every shape in
+     tools/queue_allowlist.py refuses control characters precisely so a second command
+     cannot hide behind the first. Widening the queue to carry a body would delete that
+     property, so edits ride their own block and are checked by their own function
+     (queue_allowlist.is_allowed_edit): the target must be an agent file already on disk,
+     and the body is written verbatim and never obeyed. Same erase hazard as the queue,
+     for the same reason: app/build.py resets both on every build, so a session about to
+     republish drains or splices BOTH. */
+  var EDITS = { v: 1, edits: [] };
+  try { EDITS = JSON.parse(document.getElementById(EDITS_ID).textContent) || EDITS; } catch (e) {}
+  function pendingEditFor(slug) {
+    var list = (EDITS.edits || []).filter(function (e) { return e.target === slug; });
+    return list.length ? list[list.length - 1] : null;
+  }
   var QSTATE = { readonly: false, busy: false };
   var SCRIPT_END = "</scr" + "ipt>";
   function canQueue() { return !!(window.claude && typeof window.claude.use === "function") && !QSTATE.readonly; }
@@ -105,20 +244,27 @@
     document.body.appendChild(t);
     setTimeout(function () { t.remove(); }, ms || 5600);
   }
-  function fetchSelfSource() {
+  function fetchSelfSource(id) {
     function ok(r) { return r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status)); }
     return fetch("index.html", { cache: "no-store" }).then(ok)
       .catch(function () { return fetch(location.href.split("#")[0], { cache: "no-store" }).then(ok); })
       .then(function (src) {
-        if (src.indexOf('id="upstream-queue"') < 0) throw new Error("queue block not found in source");
+        if (src.indexOf('id="' + id + '"') < 0) throw new Error(id + " block not found in source");
         return src;
       });
   }
-  function replaceQueueBlock(src, queueObj) {
-    var open = src.indexOf('id="upstream-queue"');
+  function blockOf(src, id, fallback) {
+    try {
+      var o = src.indexOf('id="' + id + '"');
+      var start = src.indexOf(">", o) + 1;
+      return JSON.parse(src.slice(start, src.indexOf(SCRIPT_END, start))) || fallback;
+    } catch (e) { return fallback; }
+  }
+  function replaceBlock(src, id, obj) {
+    var open = src.indexOf('id="' + id + '"');
     var start = src.indexOf(">", open) + 1;
     var end = src.indexOf(SCRIPT_END, start);
-    return src.slice(0, start) + JSON.stringify(queueObj).replace(/<\//g, "<\\/") + src.slice(end);
+    return src.slice(0, start) + JSON.stringify(obj).replace(/<\//g, "<\\/") + src.slice(end);
   }
   function enqueue(cmd, btn) {
     if (QSTATE.busy) return;
@@ -133,19 +279,14 @@
     if (!canQueue()) return fail("Queueing unavailable in this view — copy the command into a Claude session instead.", false);
     window.claude.use("artifact").then(function (ns) {
       if (!ns) return fail("This view cannot queue — copy the command into a Claude session instead.", true);
-      return fetchSelfSource().then(function (src) {
-        var cur = { v: 1, queue: [] };
-        try {
-          var o = src.indexOf('id="upstream-queue"');
-          var s = src.indexOf(">", o) + 1;
-          cur = JSON.parse(src.slice(s, src.indexOf(SCRIPT_END, s))) || cur;
-        } catch (e) {}
+      return fetchSelfSource(QUEUE_ID).then(function (src) {
+        var cur = blockOf(src, QUEUE_ID, { v: 1, queue: [] });
         if ((cur.queue || []).some(function (q) { return q.cmd === cmd; })) {
           QSTATE.busy = false; QUEUE = cur; toast("Already queued: " + cmd); route(); return;
         }
         cur.queue = (cur.queue || []).concat([{ id: "q-" + Date.now(), cmd: cmd, ts: new Date().toISOString() }]);
         try { sessionStorage.setItem("upstream.justQueued", cmd); } catch (e) {}
-        return ns.publish(replaceQueueBlock(src, cur)).catch(function (err) {
+        return ns.publish(replaceBlock(src, QUEUE_ID, cur)).catch(function (err) {
           try { sessionStorage.removeItem("upstream.justQueued"); } catch (e) {}
           var code = (err && err.code) || "upstream_error";
           if (code === "conflict") { QSTATE.busy = false; return; } // view reloads to the winner; re-click there
@@ -158,6 +299,73 @@
       });
     }).catch(function () { fail("Queueing unavailable — use copy instead.", false); });
   }
+  /* Saving an edited contract. Ron chose apply-immediately: the next session that drains
+     writes the file with no diff step. So the checks that survive here are the ones about
+     INTEGRITY, not approval. An empty body, an oversize one, or one carrying a literal
+     script-close would break the page it rides on, and none of those is worth discovering
+     at drain time. `base_sha256` is the digest of the contract this edit was composed
+     against, so the ledger line can say whether the on-disk file had moved on. Note
+     crypto.subtle needs a secure context: where it is missing the field is null and the
+     draining session reports that it could not compare, which is the truth rather than a
+     silent pass. */
+  var EDIT_MAX_BYTES = 200000;
+  function sha256Hex(text) {
+    try {
+      if (!(window.crypto && window.crypto.subtle && window.TextEncoder)) return Promise.resolve(null);
+      return window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+        .then(function (buf) {
+          return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+            return ("0" + b.toString(16)).slice(-2);
+          }).join("");
+        }).catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+  function editByteLength(body) {
+    try { return new Blob([body]).size; } catch (e) { return body.length; }
+  }
+  function publishEdit(slug, body, base, btn) {
+    if (QSTATE.busy) return;
+    var bytes = editByteLength(body);
+    if (!body || !body.trim()) return toast("Refused: an empty contract would leave that agent with no instructions.", 6500);
+    if (bytes > EDIT_MAX_BYTES) return toast("Refused: " + bytes + " bytes is over the " + EDIT_MAX_BYTES + "-byte cap for one contract.", 6500);
+    if (body.indexOf("</scr" + "ipt") > -1) return toast("Refused: the body carries a literal script-close, which would break the page it travels on.", 6500);
+    QSTATE.busy = true;
+    var prev = btn ? btn.textContent : null;
+    if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+    var fail = function (msg, permanent) {
+      QSTATE.busy = false;
+      if (permanent) QSTATE.readonly = true;
+      if (btn) { btn.disabled = false; if (prev !== null) btn.textContent = prev; }
+      toast(msg, 6500);
+      route();
+    };
+    if (!canQueue()) return fail("This view cannot write back — edit .claude/agents/" + slug + ".md in the repo instead.", false);
+    sha256Hex(base).then(function (digest) {
+      return window.claude.use("artifact").then(function (ns) {
+        if (!ns) return fail("This view is read-only — edit the file in the repo instead.", true);
+        return fetchSelfSource(EDITS_ID).then(function (src) {
+          var cur = blockOf(src, EDITS_ID, { v: 1, edits: [] });
+          // One pending edit per agent: a second save supersedes the first rather than
+          // queueing two writes to one file whose order nobody controls.
+          cur.edits = (cur.edits || []).filter(function (e) { return e.target !== slug; })
+            .concat([{ id: "e-" + Date.now(), target: slug, body: body,
+                       base_sha256: digest, ts: new Date().toISOString() }]);
+          try { sessionStorage.setItem("upstream.justSaved", slug); } catch (e) {}
+          return ns.publish(replaceBlock(src, EDITS_ID, cur)).catch(function (err) {
+            try { sessionStorage.removeItem("upstream.justSaved"); } catch (e) {}
+            var code = (err && err.code) || "upstream_error";
+            if (code === "conflict") { QSTATE.busy = false; return; }
+            if (code === "not_writer" || code === "not_granted" || code === "not_declared" ||
+                code === "capability_disabled" || code === "capability_removed")
+              return fail("This view is read-only — edit the file in the repo instead.", true);
+            if (code === "rate_limited") return fail("Saving too fast — wait a minute and try again.", false);
+            return fail("Save failed (" + code + ") — the contract on disk is unchanged.", false);
+          });
+        });
+      });
+    }).catch(function () { fail("Save unavailable — the contract on disk is unchanged.", false); });
+  }
+
   var RUN_LABELS = [
     [/^run chain /, "Build chain"], [/^run heat /, "Score heat map"], [/^run scenarios /, "Write scenarios"],
     [/^run screen /, "Screen stocks"], [/^run deepdive /, "Run deep dive"], [/^run redteam /, "Red-team it"],
@@ -165,6 +373,11 @@
     [/^run campaign init/, "Start campaign"], [/^run universe-audit /, "Audit universe"],
     [/^run universe /, "Map issuers"], [/^run profile /, "Profile issuer"],
     [/^run selection /, "Select O1"],
+    // --queue before the parameterised shape: first match wins, and `run impact ` would
+    // otherwise claim `run impact --queue` and label a batch as one appraisal.
+    [/^run impact --queue/, "Appraise the queue"], [/^run impact /, "Size the money"],
+    [/^run themes/, "Cluster occurrences"], [/^run devil /, "Review this file"],
+    [/^check health/, "Check health"],
   ];
   function runLabel(cmd) {
     for (var i = 0; i < RUN_LABELS.length; i++) if (RUN_LABELS[i][0].test(cmd)) return RUN_LABELS[i][1];
@@ -173,18 +386,26 @@
   function cmdline(cmd) {
     return '<span class="cmdline"><code>' + esc(cmd) + '</code><button data-copy="' + esc(cmd) + '" title="copy command">copy</button></span>';
   }
+  /* Every Run button carries the chip of the agent that will execute it, linking to that
+     agent's full instructions. Placed HERE rather than at the twenty-odd call sites, so a
+     button added tomorrow inherits it and cannot be the one that quietly has no owner
+     shown. A command the table leaves unowned (refresh, request data) renders no chip,
+     which is the honest state and the same backlog check_machine.audit_owners reports.
+     The compact form drops the chip: it sits inside table rows where the owner is already
+     named by the section it is in, and a chip per row is noise, not information. */
   function runButton(cmd, caption, opts) {
     opts = opts || {};
+    var who = opts.compact ? "" : agentChip(cmd);
     if (isQueued(cmd)) {
       if (opts.compact) return '<button class="btn-run q" disabled>Queued ✓</button>';
-      return '<div class="runwrap"><button class="btn-run q" disabled>Queued ✓</button>' +
-        '<span class="cmdline">waiting for a live Claude session · ' + cmdline(cmd) + "</span></div>";
+      return '<div class="runwrap"><div class="runhead"><button class="btn-run q" disabled>Queued ✓</button>' + who +
+        '</div><span class="cmdline">waiting for a live Claude session · ' + cmdline(cmd) + "</span></div>";
     }
     var btn = canQueue()
       ? '<button class="btn-run" data-run="' + esc(cmd) + '">' + esc(runLabel(cmd)) + "</button>"
       : '<button class="btn-run" data-copyrun="' + esc(cmd) + '">' + esc(runLabel(cmd)) + (opts.compact ? "" : " — copy") + "</button>";
     if (opts.compact) return btn;
-    return '<div class="runwrap">' + btn +
+    return '<div class="runwrap"><div class="runhead">' + btn + who + "</div>" +
       '<span class="cmdline">' + esc(caption || (canQueue() ? "runs in a live Claude session; results land on this page" : "copies the command — paste into a Claude session on this repo")) +
       " · " + cmdline(cmd) + "</span></div>";
   }
@@ -223,6 +444,7 @@
       na("#/radar", "Radar", "radar") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
       na("#/campaign", "Campaign", "campaign") +
+      na("#/agents", "Agents", "agents") +
       na("#/book", "Book", "book") +
       na("#/shadow", "Shadow", "shadow") +
       "</nav>" +
@@ -486,6 +708,12 @@
     var sys = (D.ledger || []).slice(-3).reverse();
     return topbar("radar") + "<main>" +
       '<div class="hero">' + todayCard() + funnelCard() + "</div>" +
+      /* The screen called Radar could not start a radar. The two `run radar` buttons that
+         existed were both inside cortex drawers, two clicks and a graph node away. */
+      seclabel("Run the intake") +
+      "<div class='card runstrip'>" +
+      runButton("run radar", "sweeps the feed store and the calendar, triages candidates, writes 0-5 signal cards") +
+      "</div>" +
       seclabel("Signals — ranked by how unmapped they still are") +
       '<div class="siglist">' + (sigs.map(sigRow).join("") ||
         '<div class="emptystate">No signals yet — the weekday radar routine fills this.</div>') + "</div>" +
@@ -3415,6 +3643,105 @@
       return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
     }).join("") + "</div>";
   }
+  /* ---------------- agents ----------------
+     Eight agents run this machine and until now the page named two of them, in section
+     labels, with no way to read what either was told. These two views are the whole
+     answer to that: an index, and one page per contract that also EDITS it. */
+  function agentLedgerLine(name) {
+    var needle = String(name || "").toLowerCase();
+    var hits = (D.ledger || []).filter(function (l) { return l.toLowerCase().indexOf(needle) > -1; });
+    return hits.length ? hits[hits.length - 1] : null;
+  }
+  function agentCommandList(a, opts) {
+    opts = opts || {};
+    if (!a.commands.length) {
+      return "<div class='small'>No row in the command table names " + esc(a.name) +
+        ". Nothing routes work here, which is the state <span class='mono'>check_machine</span> calls silent.</div>";
+    }
+    return a.commands.map(function (c) {
+      if (c.runnable) return "<div class='cmdrow'>" + runButton(c.cmd, null, { compact: opts.compact }) +
+        " <code>" + esc(c.cmd) + "</code></div>";
+      /* Two different reasons a command has no button, and saying the wrong one is worse
+         than saying nothing: `run chain <signal-id>` needs an argument only the object it
+         acts on can supply, while `check health` takes none and is simply not one of the
+         shapes tools/queue_allowlist.py lets a web page queue. */
+      var why = /[<\[]/.test(c.cmd)
+        ? "takes an argument; run it from the object it acts on"
+        : "not a queueable shape; run it in a Claude session on this repo";
+      return "<div class='cmdrow'><code>" + esc(c.cmd.replace(/\\\|/g, "|")) + "</code>" +
+        "<span class='muted'>" + esc(why) + "</span></div>";
+    }).join("");
+  }
+  function agentsView() {
+    var list = AX.agents || [];
+    return topbar("agents") + "<main>" +
+      "<div class='pagehead'><h1>Agents</h1><div class='small'>Who runs what, and what each one was told. " +
+      "Every contract here is the file on disk in <span class='mono'>.claude/agents/</span>, shipped into this page by the build, " +
+      "so a page whose instructions have drifted from the repo fails CI rather than misleading you.</div></div>" +
+      (list.length ? "<div class='agentgrid'>" + list.map(function (a) {
+        var led = agentLedgerLine(a.name);
+        return "<div class='card agentcard' data-nav='#/agent/" + esc(a.slug) + "' tabindex='0' role='link'>" +
+          "<div class='row' style='justify-content:space-between;align-items:flex-start'>" +
+          "<h3>" + esc(a.name) + "</h3><span class='muted'>" + esc(Math.round(a.bytes / 1024)) + " KB</span></div>" +
+          "<div class='small'>" + esc(a.role) + "</div>" +
+          "<div class='agentcmds'><span data-stop>" + agentCommandList(a, { compact: true }) + "</span></div>" +
+          "<div class='muted' style='margin-top:10px'>" +
+          (led ? "last seen in the ledger " + esc(led.slice(0, 10)) : "no ledger line names " + esc(a.name) + " in the last 60") +
+          "</div></div>";
+      }).join("") + "</div>"
+        : "<div class='emptystate'>No agent contracts reached this build.</div>") +
+      ((AX.unowned || []).length
+        ? seclabel("Commands with no agent") +
+          "<div class='card'><div class='small'>These rows in the command table name no owner, so no contract stands behind their buttons. " +
+          "It is the same backlog <span class='mono'>tools/check_machine.py</span> reports.</div>" +
+          (AX.unowned || []).map(function (c) {
+            return "<div class='cmdrow'><code>" + esc(String(c).replace(/\\\|/g, "|")) + "</code></div>";
+          }).join("") + "</div>"
+        : "") +
+      footer() + "</main>";
+  }
+  var EDITING = null;
+  function agentView(slug) {
+    var a = agentBySlug(slug);
+    if (!a) return notFound("agent " + slug);
+    var led = agentLedgerLine(a.name);
+    var pend = pendingEditFor(a.slug);
+    var runnable = a.commands.filter(function (c) { return c.runnable; });
+    var editing = EDITING === a.slug;
+    var body = editing
+      ? "<div class='editwrap'>" +
+        "<div class='small'>Editing the whole file, frontmatter included. Saving publishes the new text to this page; " +
+        "the next Claude session on this repo writes it to <span class='mono'>.claude/agents/" + esc(a.slug) + ".md</span> verbatim, " +
+        "commits it, and rebuilds. The commit is the undo.</div>" +
+        "<textarea id='agentEdit' class='contractedit' spellcheck='false' aria-label='agent instructions'>" +
+        esc(a.body) + "</textarea>" +
+        "<div class='row' style='gap:8px;margin-top:10px'>" +
+        "<button class='btn-run' id='agentSave' data-slug='" + esc(a.slug) + "'>Save to repo</button>" +
+        "<button class='btn-ghost' id='agentCancel'>Cancel</button></div></div>"
+      : "<div class='card contract'>" + md(contractBody(a.body)) + "</div>";
+    return topbar("agents") + "<main>" +
+      "<div class='crumbs'><a href='#/agents'>Agents</a><span class='sep'>/</span><span class='here'>" + esc(a.name) + "</span></div>" +
+      "<div class='pagehead'><h1>" + esc(a.name) + "</h1>" +
+      "<div class='small'>" + esc(a.role) + " · <span class='mono'>.claude/agents/" + esc(a.slug) + ".md</span> · " +
+      esc(a.bytes) + " bytes</div></div>" +
+      (pend
+        ? "<div class='sysline'><span class='healthdot' style='background:var(--warn)'></span>An edit saved " +
+          esc(String(pend.ts).slice(0, 16).replace("T", " ")) + "Z is waiting for a Claude session to write it to the repo. " +
+          "What you see below is still the version on disk.</div>"
+        : "") +
+      seclabel("What " + a.name + " owns") +
+      "<div class='card'>" + agentCommandList(a, {}) + "</div>" +
+      seclabel("Instructions") +
+      "<div class='row' style='gap:8px;margin-bottom:10px'>" +
+      (editing ? "" : "<button class='btn-run' id='agentEditBtn' data-slug='" + esc(a.slug) + "'>Edit instructions</button>") +
+      "<span data-stop>" + runButton("run devil .claude/agents/" + a.slug + ".md",
+        "a fresh-context adversary reads this file and the diff behind it", { compact: true }) + "</span>" +
+      "</div>" +
+      body +
+      (led ? "<div class='sysline'><span class='mono'>" + esc(led) + "</span></div>" : "") +
+      footer() + "</main>";
+  }
+
   function notFound(what) {
     return topbar() + "<main><div class='emptystate' style='margin-top:40px'>Not found: " + esc(what) + '<br><br><a href="#/radar">back to radar</a></div>' + footer() + "</main>";
   }
@@ -3431,6 +3758,8 @@
     else if (p[0] === "chain") html = chainView(p[1], p[2]);
     else if (p[0] === "screen") html = screenView(p[1], p[2]);
     else if (p[0] === "stock") html = stockView(p[1], p[2]);
+    else if (p[0] === "agents") html = agentsView();
+    else if (p[0] === "agent") html = agentView(p[1]);
     else if (p[0] === "cortex") html = cortexView();
     else if (p[0] === "campaign") html = campaignView(p[1]);
     else if (p[0] === "book") html = bookView();
@@ -3502,6 +3831,19 @@
       }
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+    var aEdit = document.getElementById("agentEditBtn");
+    if (aEdit) aEdit.addEventListener("click", function () { EDITING = aEdit.getAttribute("data-slug"); route(); });
+    var aCancel = document.getElementById("agentCancel");
+    if (aCancel) aCancel.addEventListener("click", function () { EDITING = null; route(); });
+    var aSave = document.getElementById("agentSave");
+    if (aSave) aSave.addEventListener("click", function () {
+      var ta = document.getElementById("agentEdit");
+      var slug = aSave.getAttribute("data-slug");
+      var a = agentBySlug(slug);
+      if (!ta || !a) return;
+      if (ta.value === a.body) { toast("Nothing changed — the text is identical to the file on disk."); return; }
+      publishEdit(slug, ta.value, a.body, aSave);
     });
     var cxUB = document.getElementById("cxUIBtn");
     if (cxUB) cxUB.addEventListener("click", cxToggleUI);
@@ -3586,6 +3928,11 @@
     if (jq) {
       sessionStorage.removeItem("upstream.justQueued");
       toast("Queued: " + jq + " — a live Claude session runs it and this page refreshes with the result.");
+    }
+    var js = sessionStorage.getItem("upstream.justSaved");
+    if (js) {
+      sessionStorage.removeItem("upstream.justSaved");
+      toast("Saved: " + js + " — the next Claude session on this repo writes it to .claude/agents/ and rebuilds.");
     }
   } catch (e) {}
   setTimeout(stampVisit, 4000);

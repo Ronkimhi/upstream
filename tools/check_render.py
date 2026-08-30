@@ -75,8 +75,17 @@ REQUIRE = [
      "the Campaign route, including its truthful missing-data state"),
     ("app/build.py", r"def build_campaign_ix\(",
      "the bounded campaign projection that keeps evidence and profiles out of the page"),
+    ("app/templates/app.js", r"function agentView\(",
+     "the per-agent contract page, the only place the instructions an agent runs under "
+     "are readable and editable"),
+    ("app/templates/app.js", r"function agentChip\(",
+     "the owner chip on every Run button: it resolves the command to its agent through "
+     "the shipped registry, so no button can run an agent the reader cannot identify"),
     ("app/templates/shell.html", r'id="upstream-queue"',
      "the click-queue block every Run button appends to"),
+    ("app/templates/shell.html", r'id="upstream-edits"',
+     "the contract-edit block the agent editor publishes into; without it every Save "
+     "silently fails the same way a missing queue block kills every Run button"),
     ("app/templates/shell.html", r"window\.UPSTREAM_DATA = ",
      "the data blob marker app/build.py --check reads to compare the page against data/"),
 ]

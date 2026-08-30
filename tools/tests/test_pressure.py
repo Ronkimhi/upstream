@@ -535,6 +535,98 @@ class TestQueueAllowlist(unittest.TestCase):
         self.assertIn("control character", self.why("run radar\nrun digest"))
 
 
+class TestEditsChannel(unittest.TestCase):
+    """The second channel from the page: an agent contract Ron edited in the browser.
+
+    It exists because free text cannot ride the command queue -- `is_allowed` refuses every
+    control character, and that refusal is the whole reason the queue is trustworthy. So the
+    edits block gets its own validator, and these are its probes.
+
+    The distinction the probes encode: a queued COMMAND is executed, so the allowlist decides
+    whether it may run. An edit is a file WRITTEN verbatim and never obeyed, so what has to
+    hold is that it cannot address anything outside .claude/agents/, cannot invent an agent,
+    cannot smuggle a control character, and cannot carry the one string that would break the
+    block it travels in.
+    """
+
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "tools"))
+        from queue_allowlist import EDIT_MAX_BYTES, edit_reject_reason, is_allowed_edit
+        self.ok, self.why, self.cap = is_allowed_edit, edit_reject_reason, EDIT_MAX_BYTES
+        self.td = tempfile.TemporaryDirectory()
+        self.root = Path(self.td.name)
+        (self.root / ".claude" / "agents").mkdir(parents=True)
+        self.body = "---\nname: nell-scanner\ndescription: Nell.\n---\n\n# Nell\n\nI scan.\n"
+        (self.root / ".claude" / "agents" / "nell-scanner.md").write_text(self.body)
+
+    def tearDown(self):
+        self.td.cleanup()
+
+    def rec(self, **kw):
+        base = {"target": "nell-scanner", "body": self.body}
+        base.update(kw)
+        return base
+
+    def test_a_real_edit_of_a_real_contract_is_accepted(self):
+        edited = self.body.replace("I scan.", "I scan, and I now sweep two more sources.")
+        self.assertTrue(self.ok(self.rec(body=edited), self.root), self.why(self.rec(body=edited), self.root))
+
+    def test_the_target_cannot_escape_the_agents_directory(self):
+        for target in ("../../CLAUDE", "../hooks/radar-gate", "..", ".", "/etc/passwd",
+                       "nell-scanner/../../CLAUDE", "nell-scanner.md", "Nell-Scanner",
+                       "nell scanner", "nell-scanner\\x00", "nell-scanner\x00",
+                       "nell-scanner\n", " nell-scanner", "", None, 17):
+            self.assertFalse(self.ok(self.rec(target=target), self.root),
+                             f"target escaped the agents directory: {target!r}")
+
+    def test_the_channel_cannot_create_an_agent(self):
+        """A new file under .claude/agents/ is a new lane in the machine with no command
+        row, no gate and no contract review. Editing is not the same act as creating."""
+        r = self.rec(target="ninth-agent", body=self.body.replace("nell-scanner", "ninth-agent"))
+        self.assertFalse(self.ok(r, self.root))
+        self.assertIn("names no file", self.why(r, self.root))
+
+    def test_control_characters_cannot_hide_in_a_body(self):
+        for code in (0, 1, 7, 11, 12, 27, 31, 127):
+            r = self.rec(body=self.body + chr(code))
+            self.assertFalse(self.ok(r, self.root), f"control char {code} accepted")
+        # ... while the three a markdown file actually uses stay legal.
+        self.assertTrue(self.ok(self.rec(body=self.body + "\n\tindented\r\n"), self.root))
+
+    def test_a_script_close_cannot_break_out_of_the_block(self):
+        for probe in ("</scr" + "ipt>", "</SCR" + "IPT >", "text </scr" + "ipt foo"):
+            self.assertFalse(self.ok(self.rec(body=self.body + probe), self.root),
+                             f"script-close accepted: {probe!r}")
+
+    def test_frontmatter_must_agree_with_the_target(self):
+        """A body whose frontmatter names a different agent means one of the two is wrong,
+        and writing either one would be a guess about which."""
+        r = self.rec(body=self.body.replace("nell-scanner", "stocky"))
+        self.assertFalse(self.ok(r, self.root))
+        self.assertIn("frontmatter declares", self.why(r, self.root))
+        self.assertFalse(self.ok(self.rec(body="# Nell\n\nno frontmatter at all\n"), self.root))
+
+    def test_an_empty_or_oversize_body_is_refused(self):
+        for body in ("", "   \n\t ", None, 17):
+            self.assertFalse(self.ok(self.rec(body=body), self.root))
+        self.assertFalse(self.ok(self.rec(body="x" * (self.cap + 1)), self.root))
+
+    def test_a_command_string_is_not_an_edit(self):
+        """The two channels are validated by different functions on purpose. Neither may
+        accept the other's payload."""
+        self.assertFalse(self.ok("run radar", self.root))
+        self.assertFalse(self.ok(None, self.root))
+        self.assertIn("not an object", self.why("run radar", self.root))
+
+    def test_rejection_always_names_the_reason(self):
+        """A drop nobody can see is indistinguishable from a Save button that never
+        worked, which is the same rule reject_reason exists for on the command side."""
+        for r in (self.rec(target="../CLAUDE"), self.rec(body=""),
+                  self.rec(body="no frontmatter"), "run radar"):
+            self.assertTrue(self.why(r, self.root).strip(), f"silent refusal for {r!r}")
+        self.assertEqual("", self.why(self.rec(), self.root))
+
+
 class TestSecondSourceParsing(unittest.TestCase):
     """The second source (stockanalysis, adopted 2026-08-30) is an UNDOCUMENTED endpoint,
     so it owes us no ordering guarantee. The bake-off's first parser took the last array
