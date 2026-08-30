@@ -83,6 +83,51 @@ def c_yahoo_chart(t):
         "CONTROL ONLY — same provider as yfinance, not an independent second source"
 
 
+def c_nasdaq(t):
+    """Nasdaq's own public quote API. No key. Genuinely independent of Yahoo — it is the
+    exchange's own distribution — which is what makes it worth probing even though it is
+    undocumented and known to be picky about headers."""
+    r = requests.get(f"https://api.nasdaq.com/api/quote/{t}/historical",
+                     params={"assetclass": "stocks", "limit": 5},
+                     headers={**UA, "Accept": "application/json"}, timeout=TIMEOUT)
+    if r.status_code != 200:
+        return None, None, f"http {r.status_code}"
+    rows = (((r.json() or {}).get("data") or {}).get("tradesTable") or {}).get("rows") or []
+    if not rows:
+        return None, None, f"no rows: {json.dumps(r.json())[:120]}"
+    row = rows[0]
+    close = _num(str(row.get("close", "")).replace("$", "").replace(",", ""))
+    # Nasdaq returns MM/DD/YYYY.
+    d = str(row.get("date", ""))
+    iso = None
+    if d.count("/") == 2:
+        mm, dd, yy = d.split("/")
+        iso = f"{yy}-{mm.zfill(2)}-{dd.zfill(2)}"
+    return close, iso, "no key; exchange's own distribution"
+
+
+def c_stockanalysis(t):
+    """stockanalysis.com's JSON used by its own charts. No key. Independent aggregator.
+    Undocumented, so treated as best-effort: if it answers with a number that agrees with
+    the primary, it is a usable corroborating print; if it drifts or dies, the leg
+    diagnostics say so rather than the number silently vanishing."""
+    r = requests.get(f"https://stockanalysis.com/api/symbol/s/{t.lower()}/history",
+                     params={"range": "1M", "period": "Daily"}, headers=UA, timeout=TIMEOUT)
+    if r.status_code != 200:
+        return None, None, f"http {r.status_code}"
+    js = r.json() or {}
+    data = js.get("data") or js.get("result") or []
+    if not isinstance(data, list) or not data:
+        return None, None, f"unexpected shape: {json.dumps(js)[:120]}"
+    row = data[-1]
+    if isinstance(row, dict):
+        return _num(row.get("c") or row.get("close")), str(row.get("t") or row.get("date"))[:10], \
+            "no key; undocumented"
+    if isinstance(row, list) and len(row) >= 2:
+        return _num(row[-1]), str(row[0])[:10], "no key; undocumented"
+    return None, None, f"unexpected row: {str(row)[:80]}"
+
+
 def c_alphavantage(t):
     key = os.environ.get("ALPHAVANTAGE_API_KEY")
     if not key:
@@ -166,6 +211,8 @@ def c_fmp(t):
 
 CANDIDATES = [
     ("stooq", False, c_stooq),
+    ("nasdaq", False, c_nasdaq),
+    ("stockanalysis", False, c_stockanalysis),
     ("yahoo_chart_CONTROL", False, c_yahoo_chart),
     ("alphavantage", True, c_alphavantage),
     ("finnhub", True, c_finnhub),
