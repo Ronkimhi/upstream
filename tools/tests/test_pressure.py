@@ -269,6 +269,57 @@ class TestDiveQuoteVerifier(unittest.TestCase):
                              f"the two gates disagree on {probe!r}")
 
 
+class TestPriceSourceNoteStaysTrue(unittest.TestCase):
+    """G4: the first half of this rule — a dive on an unconfirmed price must SAY so — was
+    satisfied by a field no template rendered. Fixing that created the second half the
+    same hour: VRT's market file moved SINGLE_SOURCE to AGREED in a fetch that landed
+    mid-session, and the dive's note went on saying `one unconfirmed print` while now
+    rendering on the stock page. A dead field that is wrong costs nothing; a rendered
+    disclosure that is wrong costs the reader."""
+
+    def _run(self, pstatus, dive):
+        check_analyst.failures.clear()
+        check_analyst.lines.clear()
+        check_analyst.check_price_source_note("probe.json", "VRT", pstatus, dive)
+        return list(check_analyst.failures)
+
+    def test_single_source_with_no_note_is_a_failure(self):
+        f = self._run("SINGLE_SOURCE", {})
+        self.assertEqual(len(f), 1, f)
+        self.assertIn("needs a price_source_note", f[0])
+
+    def test_single_source_with_a_note_naming_it_passes(self):
+        self.assertEqual(self._run("SINGLE_SOURCE", {
+            "price_source_note": "the file is SINGLE_SOURCE: one unconfirmed print"}), [])
+
+    def test_a_note_that_outlived_its_condition_is_caught(self):
+        """The live defect, 2026-08-30. The price became AGREED; the note did not."""
+        f = self._run("AGREED", {
+            "price_source_note": "data/market/VRT.json is SINGLE_SOURCE: one print"})
+        self.assertEqual(len(f), 1, f)
+        self.assertIn("does not name AGREED", f[0])
+
+    def test_a_note_may_narrate_the_history_as_long_as_it_names_today(self):
+        """Amending a note by deleting its history would be worse than leaving it: the
+        levels were derived under the old condition and that is worth saying. Only the
+        CURRENT status is required to appear."""
+        self.assertEqual(self._run("AGREED", {
+            "price_source_note": "AGREED now; it was SINGLE_SOURCE when these levels were "
+                                 "derived and the second print matched"}), [])
+
+    def test_no_note_on_a_confirmed_price_is_fine(self):
+        self.assertEqual(self._run("AGREED", {}), [])
+
+    def test_a_fixture_is_exempt(self):
+        self.assertEqual(self._run("SINGLE_SOURCE", {"fixture": True}), [])
+
+    def test_an_unreadable_market_file_does_not_invent_a_verdict(self):
+        """pstatus None means the market file said nothing. Failing here would demand a
+        disclosure about a status nobody knows."""
+        self.assertEqual(self._run(None, {"price_source_note": "some claim"}), [])
+        self.assertEqual(self._run(None, {}), [])
+
+
 class TestGateRequiredFieldsAreRendered(unittest.TestCase):
     """G3: price_source_note was required by check_analyst.py on every dive resting on a
     single unconfirmed price print, and rendered by no template. The gate reported green

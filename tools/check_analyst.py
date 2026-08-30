@@ -162,6 +162,38 @@ def check_dive_quotes(data: Path, n: str, ticker, d) -> None:
            f"verified verbatim against data/edgar/docs/{ticker}.json")
 
 
+def check_price_source_note(n: str, ticker, pstatus, d) -> None:
+    """The price plane's disclosure, in both directions.
+
+    REQUIRED when the market file is SINGLE_SOURCE or DISPUTED: a dive whose every level
+    is a function of one unconfirmed print must say so on its own page. That half shipped
+    2026-08-29 and was satisfied by a field the renderer ignored, which is why
+    tools/check_render.py now insists every gate-named dive field has a template path.
+
+    ACCURATE whenever it exists, which is the half the first half created. The moment
+    price_source_note started rendering (2026-08-30) a stale one stopped being a dead
+    field and became a false statement carrying the authority of a disclosure — and it
+    went stale the same hour, when the dual-source leg landed and VRT moved SINGLE_SOURCE
+    to AGREED while the dive still said one unconfirmed print. So a note must name the
+    status the market file holds NOW. Naming the old status as well is fine and often
+    right: what is checked is that the current one is present, not that the history is
+    absent.
+    """
+    if d.get("fixture"):
+        return
+    note = str(d.get("price_source_note") or "").strip()
+    if pstatus in {"SINGLE_SOURCE", "DISPUTED"} and not note:
+        fail(f"{n}: data/market/{ticker}.json is {pstatus} (the price is not confirmed by a "
+             f"second source), so the dive needs a price_source_note saying the levels rest "
+             f"on it. See docs/method.md section 1 on the price plane")
+        return
+    if note and pstatus and pstatus not in note:
+        fail(f"{n}: price_source_note does not name {pstatus}, which is what "
+             f"data/market/{ticker}.json says today — the note has outlived the condition "
+             f"it describes and now renders on the stock page as a disclosure of something "
+             f"that is no longer true. Amend it, or drop it if the condition is gone")
+
+
 def main() -> int:
     argv = sys.argv[1:]
     root = Path(argv[argv.index("--root") + 1]).resolve() if "--root" in argv \
@@ -266,17 +298,8 @@ def main() -> int:
                 if isinstance(v, (int, float)) and last and not (0.3 * last <= v <= 2.0 * last):
                     fail(f"{n}: entry_zone.{key} {v} is outside 0.3x-2x the last close "
                          f"({last}) — check the number, not the thesis")
-        # The dual-source guarantee is currently unmet (stooq refuses the Actions venue,
-        # verified twice on 2026-08-29), so every price in this repo is SINGLE_SOURCE. That
-        # is acceptable for research and NOT acceptable silently: a dive resting on one
-        # unconfirmed print must say so on its own page.
         pstatus = (mkt or {}).get("price_status") if isinstance(mkt, dict) else None
-        if pstatus in {"SINGLE_SOURCE", "DISPUTED"} and not d.get("fixture"):
-            note = str(d.get("price_source_note") or "").strip()
-            if not note:
-                fail(f"{n}: data/market/{ticker}.json is {pstatus} (one unconfirmed print), "
-                     f"so the dive needs a price_source_note saying the levels rest on a "
-                     f"single source. See docs/method.md section 1 on the price plane")
+        check_price_source_note(n, ticker, pstatus, d)
 
         # 1d. see check_dive_quotes() — lifted to module level so it can be unit-tested
         # without building a whole dive tree, which is how the screen gate's own quote

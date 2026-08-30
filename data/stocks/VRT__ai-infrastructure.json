@@ -53,7 +53,7 @@
     "source": "data/market/VRT.json series.rows last close (yfinance)",
     "as_of": "2026-08-28"
   },
-  "price_source_note": "data/market/VRT.json carries price_status SINGLE_SOURCE: the 257.08 close of 2026-08-28 rests on ONE unconfirmed print from yfinance. The second leg (stooq) answered the Actions venue with an HTML robots page rather than CSV and has never answered in this repo's life, so no price here has been cross-checked against an independent source. Every level on this page, including the $141.66 re-entry arithmetic, inherits that single-source risk. See docs/method.md section 1 on the price plane.",
+  "price_source_note": "data/market/VRT.json carries price_status AGREED as of its 2026-08-30T00:15Z fetch: the 2026-08-28 close is confirmed by two same-session prints, yfinance at 257.0799865722656 and stockanalysis at 257.08, which agree to the cent. stooq was not attempted because stockanalysis answered first. This dive was reasoned and closed on 2026-08-29, when the same file read SINGLE_SOURCE and 257.08 was one unconfirmed yfinance print; every level here, including the 141.66 re-entry arithmetic, was derived under that condition. The confirmation matched the price they used, so no level moves. See docs/method.md section 1 on the price plane.",
   "what_is_priced_in": [
     {
       "expectation": "The price requires free cash flow to compound at 32.95% a year for five years, turning FY2025 free cash flow of $1,893.8M into $7,866M by 2030. RED TEAM AMENDMENT 2026-08-29: that rate is a property of the solve's five-year explicit period as much as of the price, and the row is downgraded from VERIFIED to INFERRED because of it. Holding the base, the enterprise value, the 9% discount rate and the 2.5% terminal growth exactly as the data plane states them and changing only the horizon to ten years returns 18.33%, which is inside this dive's own 15.7% to 18.3% defensible band. The assumptions block in data/market/VRT.json quality.reverse_dcf carries the tag SPECULATIVE on itself.",
@@ -481,6 +481,13 @@
       "by": "ron",
       "kind": "AMEND",
       "change": "Three workarounds removed, none of them analysis. This dive was written the day the gates were hardened and it papered over three renderer gaps in its own prose: the single-source price warning was repeated in notes[0] because price_source_note rendered nowhere; the three pre-mortem reasons were repeated at the end of red_team.amendments because red_team.pre_mortem rendered nowhere; and filing_evidence_note recorded that no dive gate enforced the verbatim rule. All three statements are now false: app/templates/app.js renders price_source_note, the pre-mortem, the chain-link attribution and the nine filing passages, and tools/check_analyst.py verifies every quoted passage against data/edgar/docs/VRT.json with check_screen's normalizer (9 of 9). The duplicates are removed so the page states each thing once; the removed note's substance survives verbatim in price_source_note, which is where a reader now sees it. No number, verdict, trigger or quote changed."
+    },
+    {
+      "ts": "2026-08-30T00:35:00Z",
+      "by": "ron",
+      "kind": "AMEND",
+      "change": "price_source_note amended: data/market/VRT.json moved from SINGLE_SOURCE to AGREED in the 2026-08-30T00:15Z fetch, which landed while the renderer fix for this very field was being written. Two same-session prints now confirm the 2026-08-28 close to the cent (yfinance 257.0799865722656, stockanalysis 257.08); stooq was not attempted because stockanalysis answered first. The note said one unconfirmed print and stooq has never answered, both true when written hours earlier and neither true now — and the field had just started RENDERING, so a stale warning would have read as a live disclosure of something false. No price, level, verdict or trigger changes: the second source agreed with the number this dive already used. tools/check_analyst.py now fails any dive whose price_source_note does not name its market file's current price_status, so this cannot go stale silently again.",
+      "prior": "data/market/VRT.json carries price_status SINGLE_SOURCE: the 257.08 close of 2026-08-28 rests on ONE unconfirmed print from yfinance. The second leg (stooq) answered the Actions ve [...]"
     }
   ],
   "confidence_audit": {
