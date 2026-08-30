@@ -1333,6 +1333,21 @@ def v_digest(f: Path) -> None:
         if "v8_reachable" in m and not isinstance(m["v8_reachable"], bool):
             err(f, "machine.v8_reachable must be a boolean: whether the v8 tree could be read "
                    "is a scope boundary and scope boundaries are findings, not footnotes")
+        # The deferred-work backlog triage rides in the machine block. Additive and optional while
+        # it is young (gates-not-promises), but shape-checked when present so a malformed block
+        # cannot read as a groomed backlog.
+        db = m.get("deferred_backlog")
+        if db is not None:
+            if not isinstance(db, dict):
+                err(f, "machine.deferred_backlog must be an object with an open count and buckets")
+            else:
+                op = db.get("open")
+                if not isinstance(op, int) or isinstance(op, bool) or op < 0:
+                    err(f, "machine.deferred_backlog.open must be a non-negative integer: the "
+                           "count of OPEN rows in tasks/backlog.md, a denominator not a footnote")
+                if "buckets" not in db or not isinstance(db["buckets"], (list, dict)):
+                    err(f, "machine.deferred_backlog.buckets must be a list or object (empty is "
+                           "allowed, absence is not): the OPEN rows grouped by concept")
         # Legacy total-only field is allowed beside findings_by_category but not instead of it.
         if isinstance(m.get("findings"), int) and not isinstance(m.get("findings_by_category"), dict):
             err(f, "machine.findings is a bare count with no machine.findings_by_category "

@@ -47,10 +47,11 @@ leverage by making a rule impossible to break, never by standing between an agen
 ## Required reading, in this order, every run
 
 0. **My record, first, always.** `tasks/lessons.md` (what this machine has already learned the
-   hard way, including what must never be rebuilt) and `docs/methodology-review.md` (what has
-   been adopted from v8 and what has been refused, with reasons). A refusal recorded there is
-   not re-litigated. I read my record before I read the world, the same duty every peer agent
-   discharges against its own log.
+   hard way, including what must never be rebuilt), `tasks/backlog.md` (the deferred-work findings
+   a mission captured rather than chased, waiting to be bucketed and groomed) and
+   `docs/methodology-review.md` (what has been adopted from v8 and what has been refused, with
+   reasons). A refusal recorded there is not re-litigated. I read my record before I read the
+   world, the same duty every peer agent discharges against its own log.
 1. `CLAUDE.md` in full: the command table, the postlude, the click-queue protocol.
 2. `docs/method.md` §9 (staleness and health) and whichever section a finding touches.
 3. `data/ledger.md`, recent lines. It is the only record of what actually ran.
@@ -168,6 +169,27 @@ the promise-ledger backlog, anything that changed since last week, and one named
 No separate routine, deliberately. The Saturday `upstream-digest` routine already fires and is
 evidenced LIVE; a third routine would be one more thing that can silently stop firing, and this
 repo already carries a smoke sentinel that has never fired once.
+
+### 6. Groom the deferred-work backlog
+
+`tasks/backlog.md` is mine, and grooming it is part of `run digest`, never a separate routine. The
+rule in `CLAUDE.md` ("Mission focus and the deferred-work backlog") sends every incidental,
+non-blocking finding there so a mission is not derailed the moment it trips over a defect. My job is
+the other half of that bargain: read the OPEN rows, group them by root cause into buckets, and
+promote a bucket only when it has earned it, the same two-failure criterion that governs every gate
+in this repo. One bucket of six findings with a single cause becomes one structural fix, not six
+patches that collide. I promote nothing on first sighting, I advance a row's status and never delete
+it, and the digest's `machine.deferred_backlog` block reports the open count and the buckets every
+week so the backlog can only go down or be seen not going down. A finding that blocks the current
+mission, or that must be contained now to stop a live corruption, is not backlog work by definition:
+it was handled in the run that found it. The backlog is for the real, non-blocking, off-mission
+finding that had nowhere to live before but a `result:` field nobody triaged.
+
+Under the stop-adding rule this store is complete: owner (me), trigger (the weekly `run digest`),
+output surface (the digest `machine.deferred_backlog` block), and its review is the two-failure
+promotion decision itself, made every time it is groomed. It ships as a rule, a file, and this duty,
+with no `tools/check_*.py` yet, on purpose. Hardening it into a gate is a later dated decision,
+earned the first time the discipline fails twice, exactly the posture of the citation-debt line.
 
 ---
 

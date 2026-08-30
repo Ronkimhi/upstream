@@ -94,6 +94,45 @@ The traffic is not one way. Upstream's three per-link scores are the thing v8 do
 every rubric in the invest playbook scores a ticker or a thesis, never a link, and there is no
 moat, pricing-power, or value-capture rubric anywhere in that tree. Noted, not acted on.
 
+## Adopted 2026-08-30: mission focus and the deferred-work backlog
+
+Ron's problem: a session given a mission stops to fix every defect it trips over, so one mission
+becomes ten and finishes none. The system's own doctrine caused it. In Ron's v8 tree the
+`autonomous-bug-fix` skill fires "the moment a bug is found... end to end without checking in" and
+treats a deferred phase as a skipped one. In this repo the same reflex showed up as ad-hoc "outside
+this build's scope" notes buried in `data/ledger.md` result fields, with no id, status, or owner.
+
+External survey, procedure adopted and vocabulary refused, the same standard as the BCG review
+above. Nothing was installed; the pattern was copied.
+
+- **Adopted, primary: the Ralph loop information architecture** (Anthropic's `ralph-wiggum` plugin,
+  and the Geocodio file-convention write-up). Its shape is a frozen mission spec, a priority-ordered
+  backlog file, and a rolling learnings log, driven by "read the backlog, do the single
+  highest-priority open item, log, loop." This repo already runs a loop, so its bash-and-Stop-hook
+  engine was refused and only the architecture was taken: the lazy funnel is the frozen mission,
+  `tasks/backlog.md` is the backlog file, `tasks/lessons.md` and `data/ledger.md` are the rolling
+  log.
+- **Adopted, the in-cycle scope rule** from FerroxLabs/agents-md: a change that does not serve the
+  current mission is reverted or, here, captured. Its "notice it, mention it in the summary"
+  disposition was rewired to "append it to the backlog", because a summary line is not a tracked
+  item.
+- **Adopted, the bucketing unit** from aihero's triage skill: one entry per CONCEPT, not per issue.
+  This is what makes Ron's fourth want work, ten findings with one root cause promote as one
+  structural fix, not ten patches that collide.
+
+- **Refused: the loop engine, the Stop hook, and `--max-iterations`.** This repo is not a
+  fixed-prompt bash loop, it is many sessions under command contracts. The engine would duplicate
+  what the funnel and the gates already do.
+- **Refused: a new claude.ai routine for triage.** The Saturday `run digest` already fires and is
+  evidenced LIVE, so grooming rides inside it. A third routine is one more thing that can silently
+  stop firing.
+- **Refused: a `tools/check_backlog.py` on day one.** Gates-not-promises: this ships as a rule, a
+  file, and a triage duty, and hardens into a gate only when the discipline has failed twice.
+
+Landed in: the `CLAUDE.md` section "Mission focus and the deferred-work backlog", `tasks/backlog.md`,
+`.claude/agents/adam-gm.md` duty 6, and the additive `machine.deferred_backlog` block validated in
+`tools/validate.py:v_digest`.
+
 ## Change protocol
 
 Same as `docs/sources.md`: adopting or refusing a method edits this file in the same commit as
