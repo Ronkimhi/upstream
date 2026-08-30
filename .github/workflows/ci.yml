@@ -24,6 +24,11 @@ jobs:
       # artifact is what actually gets read.
       - name: validate + build check
         run: python3 app/build.py --check
+      # tools/tests/test_pressure.py exercises acis/dual_source.py, which imports requests.
+      # Without it the whole test module fails to import and the suite reports one error
+      # instead of running -- a red CI that says nothing about the code.
+      - name: test deps
+        run: pip install --quiet requests
       - name: unit tests
         run: python3 -m unittest discover -s tools/tests -q
       # Structural gates that hold rules no schema can express. They are cheap, offline,
@@ -33,6 +38,14 @@ jobs:
         run: python3 tools/check_render.py
       - name: screen gate (verbatim earnings quotes)
         run: python3 tools/check_screen.py
+      # Each campaign gate returns success before its store exists, then blocks malformed
+      # campaign data. Separate steps keep their examined denominators visible in CI.
+      - name: issuer universe gate
+        run: python3 tools/check_map.py
+      - name: reusable profile gate
+        run: python3 tools/check_profile.py
+      - name: ten-theme campaign gate
+        run: python3 tools/check_campaign.py
       # Citation debt, reported but not blocking. It hardens to an error once the seed
       # corpus is backfilled; until then the number is printed every run so the backlog
       # stays visible instead of becoming invisible.
