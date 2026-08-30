@@ -779,24 +779,43 @@
         "<div class='small muted' style='margin-top:6px'>No published sizing was found. That is " +
         "a finding about how early this occurrence is, not a gap in the writeup.</div></div>";
     }
+    /* The four legs. app/build.py carries each leg's rationale only for appraisals a
+       signal card can reach, and NEVER carries the leg's `evidence` array: those hold the
+       verbatim source_excerpt spans method §1 requires, they exist so a machine can
+       cross-check the claim offline, and they were 259 KB of a page that rendered none of
+       them. What the page carries instead is the COUNT, printed here beside the file that
+       holds the excerpts — so a reader can see the leg is sourced and where, rather than
+       reading a rationale that looks unsupported. */
+    var file = a.id ? "data/impact/" + a.id + ".json" : "data/impact/";
+    if (a.legs_inlined === false) {
+      return seclabel("Financial impact") +
+        "<div class='card'><div class='row'>" + impactChip(a) +
+        chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) + "</div>" +
+        "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
+        "<div class='small muted' style='margin-top:8px'>The four scores are on this page; " +
+        "their written reasoning is not. It is in " + esc(file) + ".</div></div>";
+    }
     var legs = [
       ["Money at stake", (a.money_at_stake || {}).band, (a.money_at_stake || {}).rationale,
-       (a.money_at_stake || {}).basis],
+       (a.money_at_stake || {}).basis, (a.money_at_stake || {}).evidence_count],
       ["Public reach", num((a.public_reach || {}).score), (a.public_reach || {}).rationale,
-       (a.public_reach || {}).basis],
+       (a.public_reach || {}).basis, (a.public_reach || {}).evidence_count],
       ["Value capture", num((a.capture_odds || {}).score), (a.capture_odds || {}).rationale,
-       (a.capture_odds || {}).basis],
+       (a.capture_odds || {}).basis, (a.capture_odds || {}).evidence_count],
       ["Timing fit", num((a.timing_fit || {}).score), (a.timing_fit || {}).rationale,
-       (a.timing_fit || {}).basis]
+       (a.timing_fit || {}).basis, (a.timing_fit || {}).evidence_count]
     ].map(function (r) {
       return "<div class='evli'><b>" + esc(r[0]) + "</b> " + chip(num(r[1])) +
+        (r[4] == null ? "" : chip(r[4] + " cited", r[4] ? "neutral" : "stale")) +
         "<div class='small muted'>" + esc(r[2] || r[3] || "") + "</div></div>";
     }).join("");
     return seclabel("Financial impact") +
       "<div class='card'><div class='row'>" + impactChip(a) +
       chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) + "</div>" +
       "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
-      "<div style='margin-top:10px'>" + legs + "</div></div>";
+      "<div style='margin-top:10px'>" + legs + "</div>" +
+      "<div class='small muted' style='margin-top:10px'>Each source's verbatim excerpt stays in " +
+      esc(file) + "; this page carries the count, not the text.</div></div>";
   }
 
   function signalView(id) {
@@ -882,23 +901,106 @@
     if (!obj || obj.score == null) return '<div class="scorebar"><span class="lb">' + esc(name) + '</span><div class="tk"></div><span class="vl muted">—</span></div>';
     return '<div class="scorebar"><span class="lb">' + esc(name) + '</span><div class="tk"><i style="width:' + obj.score + "%;background:var(" + colorVar + ')"></i></div><span class="vl">' + obj.score + "</span></div>";
   }
-  function drawer(c, l) {
+  // The link click opens this near-fullscreen modal (~70% of the viewport): the heat
+  // analysis and its "why" on the left, the stocks screened onto THIS link with their
+  // fundamentals on the right. It replaced the narrow right-side drawer. Stock rows and
+  // their fundamentals come from the chain-wide screen (chainScreen), which app/build.py
+  // keeps whole; cap/price/52w ride on each row's valuation block (build.py attaches it
+  // from data/market, because project_market strips raw fundamentals off the page).
+  function linkModal(c, l) {
     var h = l.heat || {};
     function ev(o) { return ((o || {}).evidence || []).map(function (e) { return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) + (e.source_name ? " <span class='muted'>[" + esc(e.source_name) + "]</span>" : "") + "</div>"; }).join(""); }
     function block(title, o) {
       if (!o) return "";
       return "<h3>" + title + "</h3><div class='small'>" + esc(o.rationale || "") + "</div>" + ev(o);
     }
-    return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
-      '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + chip((l.bottleneck || {}).criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + ((l.bottleneck || {}).criticality || "").toLowerCase()) + "</div>" +
-      "<h2>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p>" +
+    var chips = '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + chip((l.bottleneck || {}).criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + ((l.bottleneck || {}).criticality || "").toLowerCase()) + "</div>";
+    var analysis =
       scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
       block("Impact", h.impact) + block("Crowdedness", h.crowdedness) + block("Value capture", h.capture) +
       (h.repricing_check && h.repricing_check.note ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) + "</div>" : "") +
-      "<h3>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
-      "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "—") + "</div>" +
-      "<h3>Example names</h3><div class='row'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div>" +
-      (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "scores every unscored link with fetched evidence") + "</div>") +
+      "<h3>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
+      "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
+      // The link's own citation bar, the one tools/check_chain.py enforces on every link
+      // and edge. app/build.py carries its COUNT, not its rows, so the count is printed
+      // with the file that holds the citations rather than rendering nowhere.
+      (l.evidence_count == null ? "" :
+        "<h3>Map citations</h3><div class='small'>" + l.evidence_count +
+        " dated source(s) behind this link, in data/chains/" + esc(c.id) + ".json</div>") +
+      (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "scores every unscored link with fetched evidence", { compact: true }) + "</div>");
+
+    var sc = chainScreen(c.id);
+    var rows = [];
+    if (sc) Object.keys(sc.buckets || {}).forEach(function (k) { (sc.buckets[k] || []).forEach(function (r) { if (r.link_id === l.id) rows.push({ r: r, bucket: k }); }); });
+    var seen = {};
+    rows.forEach(function (x) { seen[x.r.ticker] = 1; });
+    var stocks;
+    if (rows.length) {
+      stocks = rows.map(function (x) { return stockCard(c, x.r, x.bucket); }).join("");
+      var others = (l.example_tickers || []).filter(function (t) { return !seen[t]; });
+      if (others.length) stocks += "<div class='stk-more'><h4>Also named on this link</h4><div class='row'>" + others.map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small' style='margin-top:6px'>not screened yet, no fundamentals fetched</div></div>";
+    } else {
+      stocks = "<div class='stk-empty'>No stocks screened onto this link yet." +
+        ((l.example_tickers || []).length ? "<div class='row' style='margin:10px 0'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small'>example names only; run a screen to appraise them and fetch fundamentals</div>" : "") +
+        "<div style='margin-top:12px'>" + runButton("run screen " + c.id, "screens every link on this chain for listed names", { compact: true }) + "</div></div>";
+    }
+
+    return '<div class="scrim" data-closedrawer></div><div class="modal-card" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
+      '<div class="modal-head">' + chips + "<h2>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p></div>" +
+      '<div class="modal-body">' +
+        '<div class="modal-pane modal-analysis">' + analysis + "</div>" +
+        '<div class="modal-pane modal-stocks"><div class="stocks-h">Stocks on this link' + (rows.length ? " <span class='num'>" + rows.length + "</span>" : "") + "</div>" + stocks + "</div>" +
+      "</div></div>";
+  }
+
+  // One stock card in the modal's right pane. Fundamentals come from the screen row
+  // (curated, VERIFIED-tagged); cap/price/52w from row.valuation. Every figure renders
+  // only when it is really present: absent is a muted "n/a", never an invented number,
+  // and a legitimate 0 (a low Piotroski) renders as 0. See tools/check_render.py.
+  function stockCard(c, r, bucket) {
+    var f = (r.fundamentals && typeof r.fundamentals === "object") ? r.fundamentals : null;
+    var v = (r.valuation && typeof r.valuation === "object") ? r.valuation : null;
+    var BN = { pure_play: "Pure play", picks_and_shovels: "Picks and shovels", second_order: "Second order", hedge: "Hedge" };
+    function fval(x) { return (x && typeof x === "object" && "value" in x) ? x.value : (typeof x === "number" ? x : null); }
+    function bigMoney(n) {
+      if (typeof n !== "number") return null;
+      var a = Math.abs(n);
+      if (a >= 1e12) return "$" + (n / 1e12).toFixed(2) + "T";
+      if (a >= 1e9) return "$" + (n / 1e9).toFixed(1) + "B";
+      if (a >= 1e6) return "$" + (n / 1e6).toFixed(0) + "M";
+      return "$" + Math.round(n).toLocaleString();
+    }
+    function pct(x) { return (typeof x === "number") ? (x * 100).toFixed(0) + "%" : null; }
+    function price(n) { return (typeof n === "number") ? "$" + n.toFixed(2) : null; }
+    function stat(label, val) { return "<div class='sc-stat'><span class='sc-l'>" + esc(label) + "</span><span class='sc-v'>" + (val == null ? "<span class='muted'>n/a</span>" : val) + "</span></div>"; }
+
+    var cap = v ? bigMoney(v.market_cap) : null;
+    var px = v ? price(v.price) : null;
+    var w52 = (v && typeof v.week52_low === "number" && typeof v.week52_high === "number") ? ("$" + Math.round(v.week52_low) + " to $" + Math.round(v.week52_high)) : null;
+    var rev = f ? bigMoney(fval(f.revenue_fy)) : null;
+    var ni = f ? bigMoney(fval(f.net_income_fy)) : null;
+    var revg = f ? pct(fval(f.revenue_cagr_3y)) : null;
+    var fcf = f ? pct(fval(f.market_implied_fcf_cagr)) : null;
+    var pio = (f && typeof f.piotroski === "number") ? (f.piotroski + " / 9") : null;
+    var ben = (f && typeof f.beneish_state === "string") ? f.beneish_state : null;
+    var cwo = (r.crowdedness && typeof r.crowdedness === "object") ? r.crowdedness : null;
+    var cw = (cwo && cwo.state) ? chip(cwo.state + (typeof cwo.pcs_axis_a === "number" ? " " + Math.round(cwo.pcs_axis_a) : ""), cwo.state === "DARK" ? "UNDISCOVERED" : cwo.state === "CROWDED" ? "CROWDED" : "neutral") : "";
+    var nug = (r.earnings_nuggets || []).length ? "<details class='sc-nug'><summary>" + r.earnings_nuggets.length + " earnings nugget(s)</summary>" + r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + (n.url ? " · <a href='" + esc(n.url) + "' target='_blank' rel='noopener'>" + esc(n.accession || "filing") + "</a>" : "") + "</div></blockquote>"; }).join("") + "</details>" : "";
+    var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(c.id) + '">Full dive →</a>' :
+      r.status === "CANDIDATE" ? "<span data-stop>" + runButton("run deepdive " + r.ticker + " " + c.id, null, { compact: true }) + "</span>" :
+      (r.status ? chip(r.status) : "");
+
+    return "<div class='stockcard'>" +
+      "<div class='sc-head'><div class='sc-id'><span class='sc-tk'>" + esc(r.ticker) + "</span>" + (r.money_corner ? "<span class='star' title='money-corner link'>★</span>" : "") + tierChip(r.tier) + "<span class='sc-bkt'>" + esc(BN[bucket] || bucket) + "</span></div><div class='sc-co'>" + esc(r.name || "") + (r.exchange ? " · " + esc(r.exchange) : "") + "</div></div>" +
+      (r.thesis_1line ? "<div class='sc-thesis'>" + esc(r.thesis_1line) + "</div>" : "") +
+      "<div class='sc-grid'>" +
+        stat("Market cap", cap) + stat("Price", px) + stat("52 week", w52) +
+        stat("Revenue FY", rev) + stat("Rev 3y CAGR", revg) + stat("Net income", ni) +
+        stat("Implied FCF CAGR", fcf) + stat("Piotroski F", pio) + stat("Beneish", ben) +
+      "</div>" +
+      (cw ? "<div class='sc-cw'><span class='sc-l'>Crowdedness</span> " + cw + "</div>" : "") +
+      nug +
+      (act ? "<div class='sc-act'>" + act + "</div>" : "") +
       "</div>";
   }
   function linkName(c, id) { var l = byId(c.links, id); return l ? l.name : id; }
@@ -1163,7 +1265,17 @@
     }
     var bigval = "";
     if (mk && mk.series && (mk.series.rows || []).length) {
-      var sr = mk.series.rows, sn = sr.slice(-90);
+      /* The strip's window is a DATE range, not a row count. It used to slice the last 90
+         rows and label them as that many trading sessions, which held only while the page
+         carried every daily bar; app/build.py now carries an evenly-spaced subset, so the
+         last 90 rows could be three years rather than three months. Six months of dates
+         means six months whatever the sampling, and the label prints the date it starts
+         from rather than a point count the reader would read as trading days. */
+      var sr = mk.series.rows, lastDate = new Date(sr[sr.length - 1][0]);
+      lastDate.setDate(lastDate.getDate() - 182);
+      var cut = lastDate.toISOString().slice(0, 10);
+      var sn = sr.filter(function (r) { return r[0] >= cut; });
+      if (sn.length < 2) sn = sr.slice(-2);
       var svals = sn.map(function (r) { return r[1]; });
       var slo = Math.min.apply(null, svals), shi = Math.max.apply(null, svals);
       var rng = (shi - slo) || 1;
@@ -1172,11 +1284,15 @@
       }).join("");
       var lastRow = sr[sr.length - 1];
       var first = sn[0][1], chg = (first && sn.length > 1) ? ((lastRow[1] - first) / first) * 100 : null;
+      /* Anchored to the first point's DATE, never to a count of points. The page carries
+         an evenly-spaced subset of the file's series (see seriesNote), so "over 90
+         sessions" would have counted inlined points as trading days the moment the
+         series was downsampled — the hardcoded-window defect with an extra step. */
       bigval = '<div class="bigval"><div><span class="v">' + fmtMoney(lastRow[1]) + "</span>" +
         '<svg class="spark" viewBox="0 0 66 22" aria-hidden="true"><path d="' + sp + '" fill="none" stroke="' +
         (chg >= 0 ? "var(--und)" : "var(--ovr)") + '" stroke-width="1.6"/></svg></div>' +
         '<span class="l">last close · ' + esc(lastRow[0]) +
-        (chg == null ? "" : " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% over " + sn.length + " sessions") + "</span></div>";
+        (chg == null ? "" : " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% since " + esc(sn[0][0])) + "</span></div>";
     }
     var hero = bigval + '<div class="vhero ' + esc(st.verdict) + '">' +
       '<span class="vword"><span class="dot"></span>' + esc(st.verdict.replace("_", " ")) + "</span>" + zone +
@@ -1185,6 +1301,43 @@
       gradeChip(st.earnings_quality) +
       '<span class="muted">updated <span class="num">' + esc(st.updated_at) + '</span> · review <span class="num">' + esc(st.review_by) + "</span></span>" +
       staleChip(st.updated_at) + "</span></div>";
+    /* A finished dive is ~55 KB of prose and nearly all of it renders, so app/build.py
+       carries whole dives newest-first up to STOCK_DETAIL_BUDGET_BYTES and stops. This is
+       the page for one that did not fit. It shows the verdict, the clock, the levels, the
+       review date and the real price chart — everything the index row carries — and then
+       says plainly that the written case is in the file rather than drawing empty Bull,
+       Bear and Red team cards, which would read as "never written" instead of "not on
+       this page". */
+    if (st.detail_inlined === false) {
+      var cn = (D.carried || {}).stocks || {};
+      return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
+        '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
+        seclabel("Price") + "<div class='card'>" + priceChart(mk, st) + "</div>" +
+        seclabel("The case") +
+        '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
+        '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
+        ((st.red_team || {}).surviving_bear_case
+          ? "<div class='card redteam' style='margin-top:14px'><div class='rt-label'>Red team — attacked " +
+            esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") +
+            " · " + esc(st.red_team.challenge_count) + " challenge(s), not on this page</div>" +
+            "<div class='small' style='margin-top:10px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
+          : "") +
+        seclabel("The rest of the writeup") +
+        "<div class='card'><h3>Not carried on this page</h3><div class='small'>" +
+        "Everything above is this dive's own. " +
+        ((st.bull || []).length
+          ? "Its expectations gap, priced-in table, valuation lines, filing quotes, data gaps, red-team challenges and history are"
+          : "Its bull and bear cases, expectations gap, priced-in table, valuation lines, filing quotes, data gaps, red team and history are") +
+        " not on this page — they are in <span class='mono'>data/stocks/" +
+        esc(ticker) + "__" + esc(chainId) + ".json</span>.</div>" +
+        (cn.total ? "<div class='small muted' style='margin-top:8px'>Of " + esc(cn.total) +
+          " dives on file this build carried " + esc(cn.carried) + " in full, " +
+          esc(cn.summary) + " down to bull, bear and the surviving bear case, and " +
+          esc(cn.index_only) + " as verdict and levels only — " + esc(cn.order) +
+          ". A finished dive is tens of kilobytes of prose and the whole page has to " +
+          "open on a phone.</div>" : "") +
+        "</div>" + footer() + "</main>";
+    }
     var rt = st.red_team
       ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
         (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
@@ -1378,9 +1531,35 @@
     }
     return s + "</div>";
   }
+  /* What this page is holding of a price series, in the page's own words.
+     app/build.py inlines the full daily file only for tickers that have a dive, and
+     downsamples even those to method.page.series_points evenly spaced points — the chart
+     is 940px wide and drew 420 at most anyway. A downsample rendered as if it were the
+     whole file is the same defect class as an invented number, so every chart states
+     `inlined_rows` against `row_count` and names the file that has the rest. */
+  function seriesNote(mk, ticker) {
+    var s = (mk || {}).series;
+    if (!s || s.row_count == null) return "";
+    var path = "data/market/" + String(ticker || "").replace(/\./g, "-") + ".json";
+    if (s.sampling === "HEADER_ONLY") {
+      return s.row_count + " price points exist in " + path +
+        "; this page carries none of them — the series is inlined only for tickers with a dive";
+    }
+    if (s.sampling === "EVEN" && s.inlined_rows != null && s.inlined_rows < s.row_count) {
+      return s.inlined_rows + " of " + s.row_count + " price points, evenly spaced · full daily series in " + path;
+    }
+    return "all " + s.row_count + " price points on file";
+  }
   function priceChart(mk, st) {
-    if (!mk || !mk.series || !(mk.series.rows || []).length) {
+    if (!mk || !mk.series) {
       return '<div class="emptystate">No price series yet.<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
+    }
+    if (!(mk.series.rows || []).length) {
+      /* Two different states that must never be shown as one: the fetch has never run,
+         and the fetch has run but this build did not carry the series onto the page. */
+      return mk.series.row_count
+        ? '<div class="emptystate">This page is not carrying this price series.<div class="small muted" style="margin-top:8px">' + esc(seriesNote(mk, st.ticker)) + "</div></div>"
+        : '<div class="emptystate">No price series yet.<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
     }
     var rows = mk.series.rows;
     var step = Math.max(1, Math.floor(rows.length / 420));
@@ -1440,7 +1619,8 @@
     s += '<rect id="pxhover" x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
     s += "</svg></div>";
     s += '<div class="muted num" style="margin-top:8px">prices [' + esc(mk.series.source) + ", as of " + esc(mk.series.as_of) + "] · " + esc(mk.price_status) +
-      (mk.price_status === "DISPUTED" ? " — both prints kept in data/market, never averaged" : "") + "</div>";
+      (mk.price_status === "DISPUTED" ? " — both prints kept in data/market, never averaged" : "") +
+      " · " + esc(seriesNote(mk, st.ticker)) + "</div>";
     window.__px = { pts: pts, X: X, Y: Y, P: P, W: W };
     return s;
   }
@@ -2211,7 +2391,12 @@
       h += cxReg(f.toLowerCase(), fam[f]) + cxBar(items.length ? fam[f] / items.length : 0, CXP.fam[f] || CXP.ink3);
     });
     h += '<div class="cx-grp">SYSTEM</div>' +
-      cxReg("requests", pendingCount() + "P / " + failedCount() + "F", !pendingCount() && !failedCount()) +
+      /* The page carries only the PENDING and FAILED rows of data/requests.json — the two
+         states it filters for. `settled` is the count of the rows it did not carry, so
+         the register prints the whole store rather than implying 134 requests were 18. */
+      cxReg("requests", pendingCount() + "P / " + failedCount() + "F" +
+        ((D.requests || {}).settled ? " / " + D.requests.settled + " done" : ""),
+        !pendingCount() && !failedCount()) +
       cxReg("radar", (rs.radar || "?").toLowerCase()) + cxReg("digest", (rs.digest || "?").toLowerCase()) +
       cxReg("feeds", (fs.sources_ok != null ? fs.sources_ok + "/" + (fs.sources_ok + (fs.sources_failed || []).length) : "—") +
         (cxAgeDays((act.feeds || {}).last_run) != null ? " · " + cxAgeDays((act.feeds || {}).last_run) + "d" : "")) +
@@ -2799,7 +2984,7 @@
     if (n.kind === "sig") return cortexDrawer("sig", n.id);
     if (n.kind === "cand") return cortexDrawer("cand", n.id);
     if (n.kind === "evt") return cortexDrawer("evt", n.id);
-    if (n.kind === "link") { var c = byId(D.chains, n.chainId); return c ? drawer(c, o) : ""; }
+    if (n.kind === "link") { var c = byId(D.chains, n.chainId); return c ? linkModal(c, o) : ""; }
     if (n.kind === "dust") return cxDustDrawer(o);
     if (n.kind === "chain") {
       var money = (o.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
@@ -2931,9 +3116,12 @@
     } else if (n.kind === "shadow") {
       h = head("shadow row", o.ticker) + cxCardRow("origin", (o.origin || "").replace(/_/g, " ")) + cxCardRow("reprice at", o.review_at || "");
     } else if (n.kind === "cand") {
+      var ca = impactFor(o.id);
       h = head("ambient candidate", o.title) +
         "<div class='bd'>" + esc(cxTrim(o.why, 200)) + "</div>" +
         cxCardRow("family", (o.family || "") + " · " + (o.date || "")) +
+        (ca ? cxCardRow("impact", (ca.impact_band || "").toLowerCase() +
+          (ca.impact_score != null ? " " + ca.impact_score : "") + " · " + impactTitle(ca)) : "") +
         cxCardRow("source", cxTrim(o.source_name, 44));
     } else if (n.kind === "evt") {
       h = head("known future event", o.title) +
@@ -3636,8 +3824,12 @@
     if (isEvt) obj = byId(((D.calendar || {}).events || []), id);
     else obj = byId(((D.candidates || {}).candidates || []), id);
     if (!obj) return "";
+    /* An appraisal of a candidate had no reader before 2026-08-30: impactFor was only ever
+       called with a signal id, so 30 of 36 appraisals were inlined and rendered nowhere.
+       The chip fields are what the page keeps for them, so the page shows them here. */
     return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(obj.title) + '"><button class="x" data-closedrawer>✕</button>' +
-      '<div class="row">' + chip(isEvt ? obj.kind : obj.family) + chip(obj.date, "neutral") + chip(obj.status) + "</div>" +
+      '<div class="row">' + chip(isEvt ? obj.kind : obj.family) + chip(obj.date, "neutral") + chip(obj.status) +
+      (isEvt ? "" : impactChip(impactFor(obj.id))) + "</div>" +
       "<h2>" + esc(obj.title) + "</h2>" +
       "<p class='small'>" + esc(isEvt ? obj.why_it_matters : obj.why) + "</p>" +
       "<div class='muted small'>[" + esc(obj.source_name) + (obj.source_date ? ", " + esc(obj.source_date) : "") + "]" + (obj.window ? " · " + esc(obj.window) : "") + "</div>" +
@@ -3646,18 +3838,35 @@
   }
 
   /* ---------------- shared blocks ---------------- */
+  /* Notes and changelogs are append-only, so they grow without bound while the page only
+     ever shows a tail. app/build.py carries the last method.page.history_rows of each and
+     ships the full count beside it; these two print the denominator whenever the page is
+     holding fewer rows than the file does. Same rule as the ledger's 60 lines and the
+     occurrence log's 900 rows: truncating is fine, reporting the truncated count as the
+     total is not. */
+  function carriedTail(shown, total, unit, where) {
+    if (total == null || total <= shown) return "";
+    return "<div class='muted small' style='margin-top:6px'>showing the last " + shown +
+      " of " + total + " " + esc(unit) + " · the rest are in " + esc(where) + "</div>";
+  }
+  function objPath(obj) {
+    if (obj.ticker && obj.chain_id) return "data/stocks/" + obj.ticker + "__" + obj.chain_id + ".json";
+    if (obj.id) return "the object's file in data/";
+    return "data/";
+  }
   function notesBlock(obj) {
     var n = obj.notes || [];
     return seclabel("Notes") + (n.length ? n.map(function (x) {
       return '<div class="note"><span class="who">' + esc(x.by) + " · " + esc((x.ts || "").slice(0, 10)) + "</span><br>" + esc(x.text) + "</div>";
-    }).join("") : '<div class="muted">None — add one from any session: <span class="mono">note ' + esc(obj.id || obj.ticker || "") + ' "…"</span></div>');
+    }).join("") + carriedTail(n.length, obj.notes_total, "notes", objPath(obj))
+      : '<div class="muted">None — add one from any session: <span class="mono">note ' + esc(obj.id || obj.ticker || "") + ' "…"</span></div>');
   }
   function changelogBlock(obj) {
     var c = (obj.changelog || []).slice().reverse();
     if (!c.length) return "";
     return seclabel("History") + "<div class='timeline'>" + c.map(function (x) {
       return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
-    }).join("") + "</div>";
+    }).join("") + "</div>" + carriedTail(c.length, obj.changelog_total, "history entries", objPath(obj));
   }
   /* ---------------- themes: the occurrence log ----------------
      Everything this machine has SEEN, including the small things, clustered. The store
@@ -4026,7 +4235,7 @@
         var l = c && byId(c.links, n.getAttribute("data-drawer"));
         if (!l) return;
         var host = document.getElementById("drawerHost");
-        host.innerHTML = drawer(c, l);
+        host.innerHTML = linkModal(c, l);
         host.querySelectorAll("[data-closedrawer]").forEach(function (x) {
           x.addEventListener("click", function () { host.innerHTML = ""; });
         });

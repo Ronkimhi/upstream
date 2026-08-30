@@ -61,6 +61,27 @@ DENY = [
     (r"impact\s*≥\s*\d+|crowdedness\s*≤\s*\d+|capture\s*≥\s*\d+",
      "money-corner thresholds retyped in the UI duplicate tools/validate.py and can drift",
      "read them from D.method, which app/build.py injects"),
+    # --- added 2026-08-30 with the payload projections -----------------------------
+    # app/build.py stopped inlining every store at full fidelity: a market series is
+    # downsampled to MARKET_SERIES_POINTS and only carried for tickers with a dive,
+    # changelogs and notes are carried as a tail, impact evidence and link citations are
+    # carried as counts. Every one of those is a truthful cut ONLY while the page says so.
+    # These four rules are the ways the renderer could quietly un-say it.
+    (r"\.length\s*\+\s*\"\s*(sessions|trading days|days)\b",
+     "counting inlined series points as sessions lies the moment the series is "
+     "downsampled — the hardcoded-window defect with an extra step",
+     "anchor the window to a real date from the data (rows[0][0]), never to a point count"),
+    (r"(rows|items|notes|changelog|candidates|requests)\s*\|\|\s*\[\]\s*\)\s*\.length\s*\+\s*\"\s*(total|in all|on file|held)",
+     "printing the number of INLINED rows under a word that means the whole store is the "
+     "\"300 HELD\" defect: the page carries a tail, the store holds more",
+     "print the *_total / row_count / settled denominator app/build.py ships beside it"),
+    (r"series\.rows\s*\|\|\s*\[\]\s*\)\s*\.length\s*[^\n]*\bof\b\s*\d",
+     "comparing inlined price points against a literal asserts a series length nothing knows",
+     "use series.row_count and series.inlined_rows, which app/build.py writes"),
+    (r"evidence\s*\|\|\s*\[\]\s*\)\s*\.length[^\n]*impact",
+     "impact evidence arrays are no longer carried on the page; counting them here would "
+     "render 0 cited sources for a leg that has several",
+     "render the leg's evidence_count, which app/build.py projects"),
 ]
 
 # Structures whose absence silently degrades the page rather than breaking it.
@@ -88,6 +109,38 @@ REQUIRE = [
      "silently fails the same way a missing queue block kills every Run button"),
     ("app/templates/shell.html", r"window\.UPSTREAM_DATA = ",
      "the data blob marker app/build.py --check reads to compare the page against data/"),
+    # --- the projections must stay visible to the reader (added 2026-08-30) ---------
+    ("app/templates/app.js", r"function seriesNote\(",
+     "the price-series disclosure: how many points the page is carrying against how many "
+     "data/market/<T>.json holds, and the fact that a header-only ticker has none"),
+    ("app/templates/app.js", r"function carriedTail\(",
+     "the notes/history disclosure: the page carries a tail of an append-only list and "
+     "must print the full count beside it"),
+    ("app/templates/app.js", r"seriesNote\(mk, st\.ticker\)",
+     "the series disclosure actually rendered under the price chart — a helper nobody "
+     "calls is the same silence as no helper at all"),
+    ("app/templates/app.js", r"evidence_count",
+     "the count of impact-leg sources the page carries instead of their verbatim "
+     "excerpts; without it a sourced leg reads as an unsourced assertion"),
+    ("app/templates/app.js", r"st\.detail_inlined === false",
+     "the dive page for a writeup this build could not carry in full — without this "
+     "branch an uncarried dive draws empty Bull, Bear and Red team cards, which reads as "
+     "\"never written\" instead of \"not on this page\""),
+    ("app/build.py", r"def _elastic_stock_budgets\(",
+     "the rule that prices the rest of the page first and gives dives the change, so a "
+     "small repo carries every dive whole and a finished campaign still opens"),
+    ("app/templates/app.js", r"legs_inlined",
+     "the state where an appraisal is carried at chip fidelity only — the card must say "
+     "the reasoning is in the file, not draw a blank where it would go"),
+    ("app/build.py", r"def project_market\(",
+     "the market projection that keeps unrendered fundamentals, insider and prints blocks "
+     "off the page and windows the series to the tickers that draw one"),
+    ("app/build.py", r"def project_impact\(",
+     "the impact projection that keeps verbatim source_excerpt spans in data/impact/ and "
+     "carries their count instead"),
+    ("app/build.py", r"def build_payload\(",
+     "the payload builder, extracted from main() so the page's scale is testable at "
+     "campaign size instead of only at today's size"),
 ]
 
 

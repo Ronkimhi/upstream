@@ -18,7 +18,44 @@ DATA = ROOT / "data"
 TOOLS = ROOT / "tools"
 SIZE_WARN_MB = 2.0
 CAMPAIGN_PROJECTION_MAX_BYTES = 250_000
-OCCURRENCE_ROWS_INLINED = 900
+OCCURRENCE_ROWS_INLINED = 150
+# Price points carried per ticker that has a dive. data/market/<T>.json holds ~550 rows
+# (1d over 24 months, 1w before that); the chart is 940px wide and downsamples to 420 of
+# them anyway, so 180 evenly spaced points draw the same line. What must never happen is
+# the page presenting a downsample as the whole series: every projected series carries
+# `row_count` (what the file holds), `inlined_rows` (what the page got) and `sampling`,
+# and app.js prints all three under the chart. See tools/check_render.py.
+MARKET_SERIES_POINTS = 60  # 60 points across a 940px chart is one point every 14px
+# changelog/notes rows carried per object. Both are append-only, so an object's history
+# grows without bound while the page only ever shows the tail. Same rule as the ledger's
+# 60 lines and the occurrence log's 900 rows: carry the tail, print the denominator.
+HISTORY_ROWS_INLINED = 10
+LEDGER_LINES_INLINED = 25
+FEED_ITEMS_INLINED = 120
+# What each store may weigh inside the one file, measured on the projected payload.
+# These are NOT refusals: a store over its share prints a loud WARNING naming the knob,
+# and the build still produces a page. The repo's own rule for turning a warning into a
+# gate is two failures, not one (tasks/lessons.md, .claude/agents/adam-gm.md), and a
+# builder that refuses to build is worse than a page that is 40 KB heavy for a day.
+# The one exception is `stocks`, which is enforced, because dives are the one store that
+# provably cannot fit at campaign scale: see project_stocks.
+# Sized from a measured ten-theme campaign (tools/tests/test_page_scale.py), so a store
+# over its share is an anomaly worth a line, not the ordinary state of a full campaign.
+# They do not partition the page: SIZE_WARN_MB is the binding number, and these only say
+# which store to look at when it fires.
+STORE_SHARE_BYTES = {
+    "chains": 420_000,
+    "screens": 240_000,
+    "signals": 220_000,
+    "stocks": 260_000,
+    "market": 200_000,
+    "impact": 160_000,
+    "agentix": 140_000,
+    "themes": 110_000,
+    "candidates": 110_000,
+    "ledger": 60_000,
+    "campaign_ix": CAMPAIGN_PROJECTION_MAX_BYTES,
+}
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -32,6 +69,10 @@ from check_campaign import (  # noqa: E402
 # d3-force resolves the other three off that object at define time). Vetting record
 # and licence: app/templates/vendor/README.md and LICENSE-d3.txt.
 VENDOR_FILES = ["d3-quadtree.min.js", "d3-dispatch.min.js", "d3-timer.min.js", "d3-force.min.js"]
+
+
+class PayloadTooLarge(ValueError):
+    """A store outgrew the one-file artifact. Raised, never silently truncated."""
 
 
 def read_json_dir(folder: Path) -> list:
@@ -649,6 +690,446 @@ def build_campaign_ix(data_dir=DATA, chains=None, screens=None, stocks=None,
     return projection
 
 
+# --- store projections ------------------------------------------------------------
+#
+# One rule, applied store by store: THE PAGE CARRIES WHAT IT RENDERS, AND SAYS WHAT IT
+# DID NOT CARRY. build_campaign_ix above is the established form of it for the biggest
+# stores (mappings, companies); these are the same move for the rest.
+#
+# The reason this became urgent on 2026-08-30: the page was 2,636,580 bytes against a
+# 2,000,000-byte warn threshold, and a ten-theme campaign heading for 10 chains, ~200
+# profiles, 30-60 dives and several hundred tickers put it on a path to 15-20 MB against
+# a 16 MB artifact hard cap. Measured composition at the time: `impact` 727 KB (31%),
+# `market` 580 KB (25%).
+#
+# The discipline that makes this safe is tools/check_render.py's: a cut the reader cannot
+# see is the same defect as a number the data never had. So every projection below either
+# (a) drops something the renderer provably never reads, which is invisible because it was
+# already invisible, or (b) carries a count/denominator beside what it kept, which app.js
+# is required to print.
+
+
+def _history(doc: dict) -> dict:
+    """`changelog` and `notes` windowed to their tail, with the full count beside them.
+
+    Both are append-only. The page renders the timeline and the note list in full, so an
+    object worked on for a year carries a year of history into every reader's browser to
+    show the last few entries. Carry the tail and print the denominator, exactly as the
+    ledger (60 lines) and the occurrence log (900 rows) already do.
+    """
+    out = {}
+    for key in ("changelog", "notes"):
+        rows = doc.get(key)
+        if not isinstance(rows, list):
+            continue
+        out[key] = rows[-HISTORY_ROWS_INLINED:]
+        out[key + "_total"] = len(rows)
+    return out
+
+
+def _downsample(rows: list, limit: int):
+    """Evenly spaced subset of `rows` keeping the first and last row.
+
+    Index-spaced, like the chart's own x-axis, so the shape of the line is preserved:
+    dropping every other point cannot move a peak, only thin it. Returns
+    (points, sampling) where sampling is "COMPLETE" or "EVEN".
+    """
+    n = len(rows)
+    if n <= limit or limit < 2:
+        return list(rows), "COMPLETE"
+    keep = sorted({round(i * (n - 1) / (limit - 1)) for i in range(limit)})
+    return [rows[i] for i in keep], "EVEN"
+
+
+def project_market(market: dict, detail_tickers=(), quality_tickers=None) -> dict:
+    """Market files trimmed to what app.js reads, at the fidelity each surface needs.
+
+    app.js touches exactly four things in a market file: presence (a dot on the screen
+    table, a filled cortex node), `price_status` and `series.as_of` (the company drawer),
+    `pcs.axis_a.machine_admissible` (one cortex register), and — only inside stockView —
+    `series.rows` and `quality`. Everything else in the file (`fundamentals`, `insider`,
+    `prints`, `legs`, `week52`, `cik`, `fetched_at`, `tier`) reaches no template at all;
+    it was 92 KB of the page on 2026-08-30 and rendered nowhere.
+
+    So: every ticker gets the header. Only a ticker with a dive gets the series and the
+    quality block, because only stockView draws them, and that series is downsampled to
+    MARKET_SERIES_POINTS with `row_count`/`inlined_rows`/`sampling` alongside so the page
+    can state what it is showing. A downsample presented as a whole series would be the
+    check_render defect class in data form.
+    """
+    def norm(values):
+        return {str(t).strip().upper() for t in (values or ()) if str(t or "").strip()}
+
+    detail = norm(detail_tickers)
+    quality = detail if quality_tickers is None else norm(quality_tickers)
+    out = {}
+    for key in sorted(market):
+        doc = market[key] or {}
+        ticker = _ticker(doc.get("ticker")) or str(key).replace("-", ".").upper()
+        names = {ticker, str(key).upper()}
+        wants_series = bool(names & detail)
+        wants_quality = bool(names & quality)
+        row = {"ticker": doc.get("ticker"), "price_status": doc.get("price_status")}
+
+        pcs = doc.get("pcs")
+        if isinstance(pcs, dict) and isinstance(pcs.get("axis_a"), dict):
+            row["pcs"] = {"axis_a": {
+                "machine_admissible": pcs["axis_a"].get("machine_admissible")}}
+
+        series = doc.get("series")
+        if isinstance(series, dict):
+            rows = series.get("rows") if isinstance(series.get("rows"), list) else []
+            head = {"as_of": series.get("as_of"), "row_count": len(rows)}
+            if wants_series and rows:
+                # Only a chart needs the provenance line; a header-only ticker never draws
+                # one, and 400 copies of the same interval string is 40 KB of nothing.
+                head["source"] = series.get("source")
+                head["interval"] = series.get("interval")
+                if series.get("currency") is not None:
+                    head["currency"] = series["currency"]
+                kept, sampling = _downsample(rows, MARKET_SERIES_POINTS)
+                head["rows"] = kept
+                head["inlined_rows"] = len(kept)
+                head["sampling"] = sampling
+            else:
+                head["inlined_rows"] = 0
+                head["sampling"] = "HEADER_ONLY"
+            row["series"] = head
+
+        if wants_quality and isinstance(doc.get("quality"), dict):
+            row["quality"] = doc["quality"]
+        out[key] = row
+    return out
+
+
+def project_impact(appraisals: list, detail_ids=()) -> list:
+    """Impact appraisals trimmed to the two surfaces that render them.
+
+    The chip (signal row, cortex hover) reads `impact_band`, `impact_score`, the money
+    band and the three leg scores. The card (signal page) additionally reads each leg's
+    `rationale` or `basis`. Nothing renders the `evidence` arrays — which is where the
+    verbatim `source_excerpt` spans method §1 requires now live, 259 KB of the 2026-08-30
+    page — nor `notes`, `changelog`, `confidence_audit`, `ticker_refs` or `review_by`.
+
+    The excerpts exist so a machine can cross-check a claim offline against the file, and
+    data/impact/<id>.json stays canonical for that. The page carries the leg's evidence
+    COUNT instead, and app.js prints it beside the rationale with the file path, so the
+    reader can see there are sources and where they are rather than being left to assume
+    the rationale is unsourced.
+
+    `detail_ids` are the occurrence ids a signal card exists for; only those get the
+    rationales, because impactCard is only ever reached from a signal page. An appraisal
+    of a candidate is carried at chip fidelity and flagged `legs_inlined: false`, and
+    app.js says so rather than drawing an empty card.
+    """
+    detail = {str(i) for i in detail_ids if i}
+    legs = ("money_at_stake", "public_reach", "capture_odds", "timing_fit")
+    out = []
+    for doc in appraisals:
+        if not isinstance(doc, dict):
+            continue
+        full = str(doc.get("occurrence_id")) in detail
+        row = {
+            "id": doc.get("id"),
+            "occurrence_id": doc.get("occurrence_id"),
+            "impact_band": doc.get("impact_band"),
+            "impact_score": doc.get("impact_score"),
+            "as_of": doc.get("as_of"),
+            "legs_inlined": full,
+        }
+        if doc.get("unranked_reason") is not None:
+            row["unranked_reason"] = doc["unranked_reason"]
+        for name in legs:
+            block = doc.get(name)
+            if not isinstance(block, dict):
+                continue
+            leg = {}
+            if "score" in block:
+                leg["score"] = block.get("score")
+            if "band" in block:
+                leg["band"] = block.get("band")
+            evidence = block.get("evidence")
+            leg["evidence_count"] = len(evidence) if isinstance(evidence, list) else 0
+            if full:
+                if block.get("rationale") is not None:
+                    leg["rationale"] = block["rationale"]
+                if block.get("basis") is not None:
+                    leg["basis"] = block["basis"]
+            row[name] = leg
+        out.append(row)
+    return out
+
+
+def project_chains(chains: list) -> list:
+    """Chains with the link-level citation array replaced by its count.
+
+    `links[].evidence` is the citation bar tools/check_chain.py enforces (every link and
+    edge carries a dated cited source). No template reads it — the link drawer renders
+    the three HEAT legs' evidence, which is a different array — so it was 46 KB of
+    invisible page. The count is carried and the drawer prints it with the file path, so
+    the citation bar stops being a thing only the gate can see.
+
+    Heat evidence, scenarios, roles and rationales are untouched: the drawer renders them.
+    """
+    out = []
+    for chain in chains:
+        if not isinstance(chain, dict):
+            out.append(chain)
+            continue
+        doc = dict(chain)
+        doc.update(_history(chain))
+        links = []
+        for link in chain.get("links") or []:
+            if not isinstance(link, dict):
+                links.append(link)
+                continue
+            row = {k: v for k, v in link.items() if k != "evidence"}
+            evidence = link.get("evidence")
+            if isinstance(evidence, list):
+                row["evidence_count"] = len(evidence)
+            links.append(row)
+        if links or chain.get("links") is not None:
+            doc["links"] = links
+        out.append(doc)
+    return out
+
+
+def project_signals(signals: list) -> list:
+    """Signals with their history windowed. Evidence and prose are rendered, so they stay."""
+    out = []
+    for signal in signals:
+        if not isinstance(signal, dict):
+            out.append(signal)
+            continue
+        doc = dict(signal)
+        doc.update(_history(signal))
+        out.append(doc)
+    return out
+
+
+def _row_valuation(ticker, market):
+    """Compact valuation for a screen row's ticker, drawn from its market file.
+
+    The link modal shows market cap / price / 52-week range beside the screen's
+    fundamentals. Those live in data/market/<T>.json, but project_market() strips
+    `fundamentals` from every ticker and `quality` from every non-dived one, so a modal
+    that read D.market would find nothing for a screened-but-undived name (POWL, MYRG, …).
+    Carrying the four numbers on the screen row instead makes them survive that trimming:
+    the row is kept whole by project_screens, and this block is ~8 rows x 4 numbers.
+
+    Every field is None where the source is absent and is never fabricated — the two
+    foreign names (HPS-A.TO, ENR.DE) resolve week52 only, cap/price stay None. Returns
+    None when nothing at all resolved, so the payload carries no empty blocks.
+    """
+    if not ticker or not isinstance(market, dict):
+        return None
+    doc = market.get(str(ticker).replace(".", "-")) or market.get(str(ticker))
+    if not isinstance(doc, dict):
+        return None
+    q = doc.get("quality") or {}
+    derived = q.get("derived") or {}
+    price_used = q.get("price_used") or {}
+    week52 = doc.get("week52") or {}
+    val = {
+        "market_cap": derived.get("market_cap"),
+        "price": price_used.get("value"),
+        "price_as_of": price_used.get("as_of"),
+        "week52_low": week52.get("low"),
+        "week52_high": week52.get("high"),
+    }
+    if all(v is None for v in val.values()):
+        return None
+    return val
+
+
+def project_screens(screens: list, market=None) -> list:
+    out = []
+    for screen in screens:
+        if not isinstance(screen, dict):
+            out.append(screen)
+            continue
+        doc = dict(screen)
+        doc.update(_history(screen))
+        buckets = screen.get("buckets")
+        if isinstance(buckets, dict):
+            new_buckets = {}
+            for bname, rows in buckets.items():
+                if not isinstance(rows, list):
+                    new_buckets[bname] = rows
+                    continue
+                new_rows = []
+                for r in rows:
+                    if not isinstance(r, dict):
+                        new_rows.append(r)
+                        continue
+                    nr = dict(r)
+                    val = _row_valuation(nr.get("ticker"), market)
+                    if val is not None:
+                        nr["valuation"] = val
+                    new_rows.append(nr)
+                new_buckets[bname] = new_rows
+            doc["buckets"] = new_buckets
+        out.append(doc)
+    return out
+
+
+# A finished dive is ~55 KB of dense analytical prose and essentially all of it renders:
+# red team, expectations gap, priced-in table, filing quotes, data gaps, valuation lines.
+# There is no fat to cut. Sixty of them is 3.3 MB, which is more than the whole one-file
+# artifact may weigh, so the honest move is not to trim each dive into unreadability but
+# to carry whole dives up to a stated budget and SAY which ones did not fit. The page
+# still shows every dive's verdict, clock, tier, entry basis, review date and price chart:
+# what an uncarried dive loses is its written case, and it says so and names its file.
+# The floor, not the budget. build_payload gives dives whatever the rest of the page
+# leaves under SIZE_WARN_MB (see _elastic_stock_budgets); this is the minimum it will
+# hand over even when everything else has already eaten the file, so a page can never
+# reach zero carried dives without the size warning firing first and naming the store.
+STOCK_DETAIL_BUDGET_BYTES = 60_000
+# Headroom held back from SIZE_WARN_MB when pricing dive text. It has to be at least
+# STOCK_DETAIL_BUDGET_BYTES: the floor is spent even when there is no room for it, so the
+# worst case a build can reach is (SIZE_WARN_MB - this + the floor), and that must still
+# be under SIZE_WARN_MB or the guarantee this whole mechanism exists for is not one.
+PAGE_SAFETY_MARGIN_BYTES = 180_000
+# What every dive keeps at every fidelity: the fields the lists, the cortex, the book, the
+# shadow page and the dive hero read. No prose — the bull, bear and surviving-bear-case
+# paragraphs are the middle fidelity, in _stock_summary.
+STOCK_INDEX_FIELDS = (
+    "ticker", "name", "chain_id", "link_id", "issuer_id", "listing_id", "screen_ref",
+    "verdict", "clock", "tier", "status", "as_of", "created_at", "updated_at",
+    "review_by", "entry_zone", "no_entry_above", "watch_triggers", "shadow_ref",
+    "price_ref", "scenario_ids", "events",
+)
+
+
+def _stock_index(stock: dict) -> dict:
+    """A dive reduced to what every list, chip and hero on the page reads. No prose."""
+    index = {k: stock[k] for k in STOCK_INDEX_FIELDS if k in stock}
+    # The hero prints a WATCH dive's triggers as metric/direction/level. Each trigger's
+    # `basis` paragraph belongs to the writeup, which this row is not.
+    triggers = stock.get("watch_triggers")
+    if isinstance(triggers, list):
+        index["watch_triggers"] = [
+            {k: t.get(k) for k in ("metric", "direction", "level") if k in t}
+            for t in triggers if isinstance(t, dict)]
+    grade = stock.get("earnings_quality")
+    if isinstance(grade, dict) and "grade" in grade:
+        index["earnings_quality"] = {"grade": grade["grade"]}
+    index["detail_inlined"] = False
+    return index
+
+
+def _stock_summary(stock: dict) -> dict:
+    """The index plus the nine lines a reader reads first: three bull, three bear, and
+    the paragraph the red team could not kill."""
+    row = _stock_index(stock)
+    for key in ("bull", "bear"):
+        if isinstance(stock.get(key), list):
+            row[key] = stock[key]
+    red = stock.get("red_team")
+    if isinstance(red, dict) and red.get("surviving_bear_case"):
+        row["red_team"] = {
+            "attacked_at": red.get("attacked_at"),
+            "verdict_survived": red.get("verdict_survived"),
+            "surviving_bear_case": red.get("surviving_bear_case"),
+            "challenge_count": len(red.get("challenges") or []),
+        }
+    return row
+
+
+def project_stocks(stocks: list, full_budget=STOCK_DETAIL_BUDGET_BYTES,
+                   summary_budget=0) -> tuple:
+    """Three fidelities, newest-updated first, bounded by two byte budgets.
+
+    Whole dives while `full_budget` lasts, then bull/bear/surviving-bear summaries while
+    `summary_budget` lasts, then the index row. Returns (rows, note); the note is the
+    denominator app.js prints, so a reader is never left to infer that a dive with no red
+    team on the page was never attacked.
+
+    Both budgets are set by build_payload from what the rest of the page leaves (see
+    _elastic_stock_budgets), which is why they are parameters and not constants: today
+    every dive is carried whole, and the degradation only begins when the store outgrows
+    the file. The order is fixed and the budgets decide only WHAT is carried, never how
+    the rows come out — build_campaign_ix holds the same discipline.
+    """
+    ordered = sorted(
+        [s for s in stocks if isinstance(s, dict)],
+        key=lambda s: (str(s.get("updated_at") or s.get("as_of") or ""),
+                       str(s.get("ticker") or "")),
+        reverse=True,
+    )
+    full_spent = summary_spent = 0
+    rows, counts = [], {"full": 0, "summary": 0, "index": 0}
+    for stock in ordered:
+        doc = dict(stock)
+        doc.update(_history(stock))
+        size = len(json.dumps(doc, separators=(",", ":")).encode())
+        if full_spent + size <= full_budget:
+            doc["detail_inlined"] = True
+            full_spent += size
+            counts["full"] += 1
+            rows.append(doc)
+            continue
+        summary = _stock_summary(stock)
+        extra = (len(json.dumps(summary, separators=(",", ":")).encode())
+                 - len(json.dumps(_stock_index(stock), separators=(",", ":")).encode()))
+        if summary_spent + extra <= summary_budget:
+            summary_spent += extra
+            counts["summary"] += 1
+            rows.append(summary)
+        else:
+            counts["index"] += 1
+            rows.append(_stock_index(stock))
+    rows.sort(key=lambda s: (str(s.get("ticker") or ""), str(s.get("chain_id") or "")))
+    note = {"carried": counts["full"], "summary": counts["summary"],
+            "index_only": counts["index"], "total": len(ordered),
+            "budget_bytes": full_budget, "summary_budget_bytes": summary_budget,
+            "order": "most recently updated first"}
+    return rows, note
+
+
+def project_requests(requests: dict) -> dict:
+    """Only the rows the page can filter to, plus the denominator for the rest.
+
+    app.js reads data/requests.json for exactly two numbers: how many rows are PENDING
+    and how many are FAILED. Every FULFILLED row — 116 of 134 on 2026-08-30, 50 KB — was
+    inlined so that two counts could be computed over it. Keeping the open rows is
+    lossless for every filter the page runs; `settled` carries the rest as a number, and
+    the cortex register prints it beside the two counts.
+    """
+    rows = (requests or {}).get("requests") or []
+    keep = ("id", "kind", "ticker", "status", "requested_at", "by", "note")
+    open_rows = [{k: r[k] for k in keep if k in r} for r in rows
+                 if isinstance(r, dict) and r.get("status") in ("PENDING", "FAILED")]
+    return {"requests": open_rows, "total": len(rows),
+            "settled": len(rows) - len(open_rows)}
+
+
+def project_candidates(candidates: dict) -> dict:
+    """Ambient candidates trimmed to the cortex fields.
+
+    `campaign_record` is the selection audit `run campaign init` writes onto every
+    candidate it considered: 64 KB of the 88 KB candidate store on 2026-08-30, read by no
+    template. The campaign dashboard's own denominators come from build_campaign_ix over
+    data/campaigns/, never from here, so dropping it changes no number on the page. The
+    candidate `changelog` is not rendered either — there is no candidate page, only a
+    drawer — so it is carried as a count.
+    """
+    rows = (candidates or {}).get("candidates") or []
+    keep = ("id", "title", "status", "family", "why", "date", "source_name",
+            "source_date", "window", "promoted_signal_id")
+    out = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        projected = {k: row[k] for k in keep if k in row}
+        changelog = row.get("changelog")
+        if isinstance(changelog, list):
+            projected["changelog_total"] = len(changelog)
+        out.append(projected)
+    return {"as_of": (candidates or {}).get("as_of"), "candidates": out,
+            "total": len(rows)}
+
+
 BLOB_MARKER = "window.UPSTREAM_DATA = "
 
 
@@ -780,13 +1261,31 @@ def assemble_html(payload: dict) -> str:
                  .replace("{{UPSTREAM_DATA}}", blob))
 
 
-def main() -> int:
-    check = "--check" in sys.argv
+def store_sizes(payload: dict) -> dict:
+    """Serialized bytes of every top-level key, so the page's weight has a named owner."""
+    return {k: len(json.dumps(v, separators=(",", ":")).encode())
+            for k, v in payload.items()}
 
-    r = subprocess.run([sys.executable, str(ROOT / "tools" / "validate.py")])
-    if r.returncode != 0:
-        print("build: refused — validation failed (fix data/, then rebuild)")
-        return 1
+
+def store_overruns(payload: dict) -> list:
+    """(store, bytes, share) for every store over its STORE_SHARE_BYTES allowance."""
+    sizes = store_sizes(payload)
+    return [(store, sizes[store], share)
+            for store, share in sorted(STORE_SHARE_BYTES.items())
+            if store in sizes and sizes[store] > share]
+
+
+def build_payload(data_dir=DATA, root=ROOT):
+    """Read data/ and return the browser payload, projections applied.
+
+    Pulled out of main() on 2026-08-30 so the page's SCALE is testable. main() reads the
+    one real data/ and nothing could ask "what does this build look like at ten chains
+    and sixty dives?" — which is the question the campaign made urgent, and the one
+    tools/tests/test_campaign_ui.py::test_projected_campaign_scale_fits_the_page now
+    answers over a synthetic tree.
+    """
+    DATA = data_dir  # noqa: N806 — shadows the module default on purpose, see signature
+    ROOT = root  # noqa: N806
 
     market = {}
     mdir = DATA / "market"
@@ -846,7 +1345,7 @@ def main() -> int:
                            "items": [
                                {"t": (it.get("title") or "")[:110], "s": it.get("source"),
                                 "f": it.get("family"), "d": it.get("ts")}
-                               for it in _items[:300]]}
+                               for it in _items[:FEED_ITEMS_INLINED]]}
         except Exception:
             pass
 
@@ -888,24 +1387,41 @@ def main() -> int:
         DATA, chains=chains, screens=screens, stocks=stocks, requests=requests)
     campaign_size = len(json.dumps(campaign_ix, separators=(",", ":")).encode())
     if campaign_size > CAMPAIGN_PROJECTION_MAX_BYTES:
-        print("build: refused — compact campaign projection is "
-              f"{campaign_size:,} bytes (> {CAMPAIGN_PROJECTION_MAX_BYTES:,}); "
-              "do not inline profiles, market series, mapping evidence, or search logs")
-        return 1
+        raise PayloadTooLarge(
+            "compact campaign projection is "
+            f"{campaign_size:,} bytes (> {CAMPAIGN_PROJECTION_MAX_BYTES:,}); "
+            "do not inline profiles, market series, mapping evidence, or search logs")
+
+    # Fidelity follows the surface. A market series and a quality block are drawn only by
+    # stockView, so only a ticker with a dive carries them; an impact card is reached only
+    # from a signal page, so only a signal-backed appraisal carries its rationales.
+    dive_tickers = {_ticker(s.get("ticker")) for s in stocks
+                    if isinstance(s, dict) and s.get("ticker")}
+    dive_tickers.discard(None)
+    signal_ids = {str(s.get("id")) for s in signals
+                  if isinstance(s, dict) and s.get("id")}
+    # Pass one: the floor. Every dive at index fidelity and no quality blocks, which is
+    # the smallest honest page this data can make. Pass two below spends whatever
+    # SIZE_WARN_MB leaves on dive text — see _elastic_stock_budgets.
+    projected_stocks, stock_note = project_stocks(stocks, 0, 0)
+    quality_tickers = set()
 
     payload = {
         "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
-        "signals": signals,
-        "chains": chains,
-        "screens": screens,
-        "stocks": stocks,
-        "market": market,
+        "signals": project_signals(signals),
+        "chains": project_chains(chains),
+        "screens": project_screens(screens, market),
+        "stocks": projected_stocks,
+        # What this build did NOT carry, as numbers the page prints. A cut the reader
+        # cannot see is the same defect as a number the data never had.
+        "carried": {"stocks": stock_note},
+        "market": project_market(market, dive_tickers, quality_tickers),
         "shadow": {
             "book": json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
             "results": json.loads((DATA / "shadow" / "results.json").read_text()) if (DATA / "shadow" / "results.json").exists() else {},
         },
         "trades": trades,
-        "requests": requests,
+        "requests": project_requests(requests),
         "health": {
             "sessions": json.loads((DATA / "health" / "sessions.json").read_text()) if (DATA / "health" / "sessions.json").exists() else {},
             "actions": json.loads((DATA / "health" / "actions.json").read_text()) if (DATA / "health" / "actions.json").exists() else {},
@@ -915,13 +1431,15 @@ def main() -> int:
             # so rather than drawing an empty worklist.
             "board": json.loads((DATA / "health" / "board.json").read_text()) if (DATA / "health" / "board.json").exists() else None,
         },
-        "ledger": ledger_lines[-60:],
+        "ledger": ledger_lines[-LEDGER_LINES_INLINED:],
         "digests": digests[:4],
         "indicators": json.loads((DATA / "indicators.json").read_text()) if (DATA / "indicators.json").exists() else {"trips": []},
         "calendar": json.loads((DATA / "calendar" / "events.json").read_text()) if (DATA / "calendar" / "events.json").exists() else {"events": []},
         "feeds": feeds_store,
-        "candidates": json.loads((DATA / "radar" / "candidates.json").read_text()) if (DATA / "radar" / "candidates.json").exists() else {"candidates": []},
-        "impact": impact,
+        "candidates": project_candidates(
+            json.loads((DATA / "radar" / "candidates.json").read_text())
+            if (DATA / "radar" / "candidates.json").exists() else {"candidates": []}),
+        "impact": project_impact(impact, signal_ids),
         "rank": json.loads((DATA / "impact" / "_rank-log.json").read_text()) if (DATA / "impact" / "_rank-log.json").exists() else None,
         "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
         "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
@@ -954,18 +1472,87 @@ def main() -> int:
             # second copy of the threshold that decides it.
             "themes": {"surge_min_count": SURGE_MIN_COUNT, "surge_multiple": SURGE_MULTIPLE,
                        "baseline_weeks": BASELINE_WEEKS, "rows_inlined": OCCURRENCE_ROWS_INLINED},
+            # What this one file is and is not carrying, shipped so the page can say it in
+            # its own words instead of a reader assuming a store is empty when it is only
+            # unprojected. Every number here is the constant the projection actually used.
+            "page": {"series_points": MARKET_SERIES_POINTS,
+                     "history_rows": HISTORY_ROWS_INLINED,
+                     "ledger_lines": LEDGER_LINES_INLINED,
+                     "series_detail_rule": "tickers with a deep dive",
+                     "impact_detail_rule": "appraisals of an occurrence that has a signal card"},
         },
     }
 
+    # Pass two. Dives are the elastic store: a finished dive is ~55 KB of prose that all
+    # renders, sixty of them is more than the whole file may weigh, and every other store
+    # is either bounded by its own nature (eight agent contracts, sixty ledger lines) or
+    # projected above. So the rest of the page is priced first and dives get the change.
+    # Today that is the whole store at full text; at campaign scale it is as many whole
+    # dives as fit, then summaries, then index rows, and `carried` says which.
+    full_budget, summary_budget = _elastic_stock_budgets(payload)
+    projected_stocks, stock_note = project_stocks(stocks, full_budget, summary_budget)
+    quality_tickers = {_ticker(s.get("ticker")) for s in projected_stocks
+                       if s.get("detail_inlined") and s.get("ticker")}
+    quality_tickers.discard(None)
+    payload["stocks"] = projected_stocks
+    payload["carried"] = {"stocks": stock_note}
+    payload["market"] = project_market(market, dive_tickers, quality_tickers)
+    return payload
+
+
+def _elastic_stock_budgets(floor_payload: dict) -> tuple:
+    """(full, summary) byte budgets for dive text: what SIZE_WARN_MB leaves over.
+
+    `floor_payload` already carries every dive at index fidelity, so its assembled size is
+    the smallest page this data can make. Everything above that is spendable, and dive
+    text is what it is spent on. Measured against the assembled HTML rather than the raw
+    payload because the blob picks up JSON escaping on the way in and the shell, CSS,
+    app.js and the vendored d3 modules are real bytes in the same file.
+
+    Never below STOCK_DETAIL_BUDGET_BYTES: if the rest of the page has already eaten the
+    file, the honest outcome is a size WARNING naming the store that did it, not a page
+    that silently stops carrying the analysis it exists to show.
+    """
+    target = int(SIZE_WARN_MB * 1_000_000) - PAGE_SAFETY_MARGIN_BYTES
     try:
+        floor = len(assemble_html(floor_payload).encode())
+    except ValueError:
+        return STOCK_DETAIL_BUDGET_BYTES, 0
+    spare = max(target - floor, 0)
+    # A third to summaries, taken FIRST. A page of three complete writeups and fifty-seven
+    # verdict-only rows reads worse than one that also gives the rest their bull, their
+    # bear and the paragraph the red team could not kill: nine lines each, against 55 KB
+    # for a whole dive. The remainder goes to whole dives, never below the one-dive floor.
+    summary = int(spare * 0.35)
+    return max(spare - summary, STOCK_DETAIL_BUDGET_BYTES), summary
+
+
+def main() -> int:
+    check = "--check" in sys.argv
+
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "validate.py")])
+    if r.returncode != 0:
+        print("build: refused — validation failed (fix data/, then rebuild)")
+        return 1
+
+    try:
+        payload = build_payload()
         html = assemble_html(payload)
-    except ValueError as exc:
+    except (ValueError, PayloadTooLarge) as exc:
         print(f"build: refused — {exc}")
         return 1
 
     size_mb = len(html.encode()) / 1e6
+    # Report the denominator, not just the verdict: a size warning that says "the page is
+    # big" and not "which store made it big" is a check that names no next action. Every
+    # line here points at the constant that moves it.
+    for store, over, share in store_overruns(payload):
+        print(f"build: WARNING `{store}` is {over:,} bytes of the page, over its "
+              f"{share:,}-byte share — the knob is app/build.py's projection for it "
+              f"(see STORE_SHARE_BYTES)")
     if size_mb > SIZE_WARN_MB:
-        print(f"build: WARNING index.html is {size_mb:.1f} MB (> {SIZE_WARN_MB} MB) — consider pruning ARCHIVED series from the inline blob")
+        print(f"build: WARNING index.html is {size_mb:.1f} MB (> {SIZE_WARN_MB} MB) — "
+              "a store is over its share above, or a new store is unprojected")
 
     if check:
         drift = compare_committed(payload)
