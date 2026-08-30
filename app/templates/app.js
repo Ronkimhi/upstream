@@ -2415,7 +2415,6 @@
       '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
       cxTopRail() + cxPhaseBar() +
       "</div>" +
-      '<div class="cx-rail-r"><div class="cx-grp">EVENT LOG</div>' + cxLedgerRows() + "</div>" +
       '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
       "</div></div>" +
       '<div class="card cx-mobile" style="margin-top:14px">' + cxRailLeft() + "</div>" +
@@ -2672,8 +2671,8 @@
       c.width = c.height = s * 2;
       var x = c.getContext("2d");
       var gr = x.createRadialGradient(s, s, 0, s, s, s);
-      gr.addColorStop(0, color); gr.addColorStop(soft > 3 ? 0.2 : 0.5, color); gr.addColorStop(1, "rgba(0,0,0,0)");
-      x.globalAlpha = soft > 3 ? 0.5 : 1;
+      gr.addColorStop(0, color); gr.addColorStop(soft > 3 ? 0.12 : 0.5, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+      x.globalAlpha = soft > 3 ? 0.3 : 1;
       x.fillStyle = gr; x.fillRect(0, 0, s * 2, s * 2);
       spriteN++; sprites[key] = { c: c, s: s };
       return sprites[key];
@@ -2911,12 +2910,12 @@
         } else {
           if (R > 26) {
             var grd = ctx.createRadialGradient(x, y, 0, x, y, R * 3);
-            grd.addColorStop(0, n.color); grd.addColorStop(0.2, n.color); grd.addColorStop(1, "rgba(0,0,0,0)");
-            ctx.globalAlpha = a * 0.5; ctx.fillStyle = grd;
+            grd.addColorStop(0, n.color); grd.addColorStop(0.12, n.color); grd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.globalAlpha = a * 0.3; ctx.fillStyle = grd;
             ctx.beginPath(); ctx.arc(x, y, R * 3, 0, 7); ctx.fill();
             ctx.globalAlpha = a;
           } else {
-            var soft = n.kind === "sig" || n.kind === "chain" ? 6 : 4.2;
+            var soft = n.kind === "sig" || n.kind === "chain" ? 4.2 : 3.2;
             if (n._radial && M > 0.5) soft = 3.0;
             var halo = sprite(n.color, R, soft);
             ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
