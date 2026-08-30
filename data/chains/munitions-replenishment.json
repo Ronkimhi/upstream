@@ -1,0 +1,1002 @@
+{
+ "id": "munitions-replenishment",
+ "signal_id": "SIG-20260830-01",
+ "title": "Munitions replenishment: the delivery schedule is set at motors, energetics, metal parts and seekers, not at the primes",
+ "clock": "COMPOUNDER",
+ "status": "BUILT",
+ "created_at": "2026-08-30",
+ "updated_at": "2026-08-30T23:55:00Z",
+ "heat_as_of": null,
+ "scenarios_as_of": null,
+ "map_limitation": "Supplier-side EDGAR full-text search reaches only part of this chain: four of the eight links that carry tickers name non-SEC filers (BA.L, RHM.DE, 012450.KS, AVIO.MI), and the deepest four links (nitration-feedstocks, nozzle-ablatives, load-assemble-pack, dod-munitions-procurement) carry no example tickers at all because every operator the cited sources name at those stages is either a government plant (Holston, Radford, Iowa Army Ammunition Plant, Naval Surface Warfare Center Indian Head) or a private firm (Repkon USA, Eurenco, Poland's Nitro-Chem, Nammo, Anduril, X-Bow, Ursa Major, Firehawk, Castelion, Prometheus Energetics). Government-owned contractor-operated capacity is unreachable through a brokerage account and is separated out here rather than assumed away. Four further limits to carry forward. First, ticker collision: BA on this map is Boeing (PAC-3 MSE radar seeker) and BA.L is BAE Systems plc (THAAD infrared seeker, Holston operator); they are different issuers on two links. Second, the map cannot state content per interceptor: no cited source discloses what fraction of an interceptor's price lands at the motor, the seeker or the energetics, so the chain shows sequence and scarcity, not dollar shares. Third, the depletion figures that motivate the occurrence are analyst and official estimates, not audited inventory counts, so the demand side is directionally sourced and quantitatively soft. Fourth, and against the thesis this map was built to test: CSIS says explicitly that ammonium perchlorate, the most-cited single point of failure, is NOT currently the binding constraint because AMPAC's capacity outpaces demand by a significant margin. That link is mapped as HIGH rather than CHOKE_POINT on the strength of its own source.",
+ "links": [
+  {
+   "id": "nitration-feedstocks",
+   "position": 1,
+   "name": "Nitration feedstock chemistry (ammonia, nitric and acetic acid, cellulose)",
+   "role": "The commodity chemistry every military explosive and propellant is nitrated from: ammonia and nitric acid, acetic acid and acetic anhydride, and the cotton linters or wood pulp that become nitrocellulose, a plane where the largest producers sit in Asia rather than in the countries doing the replenishing.",
+   "upstream_of": [
+    "energetic-materials"
+   ],
+   "downstream_of": [],
+   "investability": "UNINVESTABLE",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "Global commodity capacity is large, so the constraint is location and qualification rather than tonnage. No listed producer in the cited sources discloses defence energetics as a business, which is why this link carries no example tickers."
+   },
+   "example_tickers": [],
+   "evidence": [
+    {
+     "claim": "Precursor chemistry for military energetics is concentrated in Asia: China alone now produces close to a third of the world's ammonia, and Asia, led by China, produces more than half of the world's acetic acid.",
+     "source_name": "Modern War Institute at West Point (Bazilian and Isler), An Explosive Problem: Energetics, Supply Chain Fragility, and US Military Readiness",
+     "source_date": "2026-08-18",
+     "url": "https://mwi.westpoint.edu/an-explosive-problem-energetics-supply-chain-fragility-and-us-military-readiness/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "China alone now produces close to a third of the world's ammonia",
+      "Asia, led by China, produces more than half of the world's acetic acid"
+     ]
+    },
+    {
+     "claim": "Nitrocellulose is the chemical backbone of modern artillery propellant, and much of the cotton linter trade that feeds European nitrocellulose flowed from China.",
+     "source_name": "European Policy Centre (Kremidas-Courtney), Running on empty: the chemical shortage undermining European defence",
+     "source_date": "2025-06-18",
+     "url": "https://www.epc.eu/publication/running-on-empty-the-chemical-shortage-undermining-european-defence/",
+     "tag": "INFERRED",
+     "supports": "energetic-materials",
+     "source_excerpt": [
+      "Nitrocellulose is the chemical backbone of modern artillery",
+      "much of this trade flowed from China, a country that is supporting Russia's war effort"
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "substitutability": "Wood pulp is being researched as a substitute for cotton linters in nitrocellulose, so the feedstock is not permanently fixed [European Policy Centre, as of 2025-06-18].",
+    "concentration": "China produces close to a third of world ammonia and Asia more than half of world acetic acid [Modern War Institute, as of 2026-08-18].",
+    "margin_posted_by": "NULL: no cited source attributes margin at this stage to a named listed producer."
+   }
+  },
+  {
+   "id": "energetic-materials",
+   "position": 2,
+   "name": "Energetic materials: RDX, HMX, IMX formulations, TNT and nitrocellulose",
+   "role": "The nitration and crystallisation step that turns commodity chemistry into explosive and propellant material, run in the United States from a single surviving RDX site and supplemented by allied TNT imports, which is where the replenishment clock is set before any shell or warhead is filled.",
+   "upstream_of": [
+    "load-assemble-pack",
+    "allied-rearmament-demand"
+   ],
+   "downstream_of": [
+    "nitration-feedstocks"
+   ],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "One US site makes RDX, domestic TNT production was absent for decades, and an Army study puts seven years on making an energetics line worker fully effective, so this link cannot be surged with money alone."
+   },
+   "example_tickers": [
+    "BA.L",
+    "RHM.DE",
+    "012450.KS"
+   ],
+   "evidence": [
+    {
+     "claim": "US commercial RDX production collapsed from five civilian plants with roughly 119 million pounds a year of capacity in 1980 to one site, Holston, producing under seven million pounds by 2006.",
+     "source_name": "Modern War Institute at West Point (Bazilian and Isler), An Explosive Problem: Energetics, Supply Chain Fragility, and US Military Readiness",
+     "source_date": "2026-08-18",
+     "url": "https://mwi.westpoint.edu/an-explosive-problem-energetics-supply-chain-fragility-and-us-military-readiness/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Commercial RDX production once existed at five civilian plants in the USA, with a combined national capacity of roughly 119 million pounds a year in 1980.",
+      "By 2006 all of that had come down to one site, Holston, producing under seven million pounds."
+     ]
+    },
+    {
+     "claim": "Holston is still the only place in the country that makes RDX.",
+     "source_name": "Modern War Institute at West Point (Bazilian and Isler), An Explosive Problem: Energetics, Supply Chain Fragility, and US Military Readiness",
+     "source_date": "2026-08-18",
+     "url": "https://mwi.westpoint.edu/an-explosive-problem-energetics-supply-chain-fragility-and-us-military-readiness/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Eighty years later, the same site is still the only place in the country that makes it."
+     ]
+    },
+    {
+     "claim": "BAE Systems has operated the Holston plant since 1999 and produces explosive fills such as RDX and HMX there for artillery and other munitions.",
+     "source_name": "BAE Systems, Finalizing Major Modernization at Holston Army Ammunition Plant",
+     "source_date": "2013-01-05",
+     "url": "https://www.baesystems.com/en-us/article/finalizing-major-modernization-at-holston-army-ammunition-plant",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "BAE Systems has been the operating contractor of the Holston plant since 1999",
+      "produces a range of explosive fills, such as RDX and HMX, for artillery and other munitions"
+     ]
+    },
+    {
+     "claim": "US TNT supply has run through allied producers, with Poland's Nitro-Chem in Bydgoszcz supplying the US military under a contract worth roughly $310 million.",
+     "source_name": "Modern War Institute at West Point (Bazilian and Isler), An Explosive Problem: Energetics, Supply Chain Fragility, and US Military Readiness",
+     "source_date": "2026-08-18",
+     "url": "https://mwi.westpoint.edu/an-explosive-problem-energetics-supply-chain-fragility-and-us-military-readiness/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Poland's Nitro-Chem, in Bydgoszcz, now supplies the US military under a contract worth roughly $310 million."
+     ]
+    },
+    {
+     "claim": "Explosive fill is packed into the shell at a facility separate from the metal parts factory that builds the projectile body.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "load-assemble-pack",
+     "source_excerpt": [
+      "Shell production requires first building the projectile at a metal parts factory, followed by packing the shell with explosives at another facility."
+     ]
+    },
+    {
+     "claim": "European nitrocellulose capacity of around 4,500 to 10,000 tonnes a year sits against a combined requirement near 20,000 tonnes, a shortfall of at least 10,000 and possibly upwards of 14,000 tonnes.",
+     "source_name": "European Policy Centre (Kremidas-Courtney), Running on empty: the chemical shortage undermining European defence",
+     "source_date": "2025-06-18",
+     "url": "https://www.epc.eu/publication/running-on-empty-the-chemical-shortage-undermining-european-defence/",
+     "tag": "INFERRED",
+     "supports": "allied-rearmament-demand",
+     "source_excerpt": [
+      "around 4,500 to 10,000 tonnes annually",
+      "20,000 tonnes",
+      "at least 10,000, and possibly upwards of 14,000 tonnes"
+     ]
+    },
+    {
+     "claim": "Hanwha is investing in a $1 billion US plant for Modular Charge Systems for 155mm howitzer ammunition, presented as giving the US Army a domestic source of triple-base propellant.",
+     "source_name": "Breaking Defense, Hanwha plans to build US facility to manufacture modular 155mm howitzer charges",
+     "source_date": "2025-12-11",
+     "url": "https://breakingdefense.com/2025/12/hanwha-plans-to-build-us-facility-to-manufacture-modular-155mm-howitzer-charges/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "South Korea's Hanwha is set to invest in a new $1 billion plant in the United States to produce Modular Charge Systems (MCS) for 155mm howitzer ammunition",
+      "By bringing this state-of-the-art manufacturing line to the US, we will be able to provide the US Army with a domestic source of triple-base propellant"
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "concentration": "One US site (Holston) makes RDX; commercial RDX capacity fell from five plants and roughly 119 million pounds a year in 1980 to under seven million pounds by 2006 [Modern War Institute, as of 2026-08-18].",
+    "substitutability": "IMX formulations were approved as a replacement for TNT in artillery, so the fill chemistry is substitutable while the nitration capacity behind it is not [BAE Systems, as of 2013-01-05].",
+    "qualification_or_logistics": "An Army munitions study puts the average line worker at two years to be fully effective and seven years for energetics [CSIS, as of 2026-06-12].",
+    "margin_posted_by": "NULL: Holston is a government-owned plant run under a facilities use contract, so no cited source shows who books the margin.",
+    "shared_bom_with": "load-assemble-pack and allied-rearmament-demand draw on the same nitration capacity, so they are not independent exposures."
+   }
+  },
+  {
+   "id": "perchlorate-oxidizer",
+   "position": 3,
+   "name": "Ammonium perchlorate and composite propellant oxidiser",
+   "role": "The non-substitutable oxidiser in the composite propellant of nearly every US and allied solid rocket motor, historically produced for defence by one qualified domestic manufacturer and now being expanded by its listed parent.",
+   "upstream_of": [
+    "solid-rocket-motors"
+   ],
+   "downstream_of": [],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "A textbook single point of failure that the best current source says is NOT the binding constraint: AMPAC's capacity outpaces demand by a significant margin, so the risk here is disruption and price setting, not throughput."
+   },
+   "example_tickers": [
+    "NEU",
+    "NOC"
+   ],
+   "evidence": [
+    {
+     "claim": "Ammonium perchlorate is a non-substitutable propellant ingredient for nearly all US and allied solid rocket motor systems, and in the past only one qualified domestic manufacturer, American Pacific Corporation, produced it for defence applications.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "solid-rocket-motors",
+     "source_excerpt": [
+      "AP is a non-substitutable propellant ingredient for nearly all U.S. and allied SRM systems and serves as a case for understanding challenges with single points of failure.",
+      "In the past, only one qualified domestic manufacturer, American Pacific Corporation (AMPAC), produced AP for defense applications."
+     ]
+    },
+    {
+     "claim": "Reliance on AMPAC alone is not currently a bottleneck in solid rocket motor production because the company's capacity outpaces demand by a significant margin, though a disruption could create industry-wide effects.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "While reliance on AMPAC alone for production of AP is not currently a bottleneck in the production of SRMs",
+      "the company's production capacity outpaces demand by a significant margin",
+      "A disruption to production of this oxidizer could create a bottleneck with industry-wide effects."
+     ]
+    },
+    {
+     "claim": "Rising prices after a change of AMPAC ownership in 2016 drove Northrop Grumman to start an internal production line, and Northrop became an alternative source for space launch applications after approval in 2021.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "In 2016, rising prices following a transition in AMPAC's ownership drove Northrop Grumman to begin the process of establishing an internal production line.",
+      "Northrop Grumman has become an alternative source for space launch applications following approval in 2021."
+     ]
+    },
+    {
+     "claim": "AMPAC, the leading North American manufacturer of critical performance additives used in solid rocket motors, is a subsidiary of NewMarket Corporation and approved a capital investment of up to $100 million to add a production line and raise ammonium perchlorate capacity by more than 50%.",
+     "source_name": "NewMarket Corporation news release, American Pacific Corporation Announces Production Expansion",
+     "source_date": "2025-04-21",
+     "url": "https://www.newmarket.com/news/2025/04/american-pacific-corporation-announces-production-expansion/",
+     "tag": "VERIFIED",
+     "supports": "role",
+     "source_excerpt": [
+      "AMPAC is the leading North American manufacturer of critical performance additives used in solid rocket motors for space launch and military defense applications.",
+      "AMPAC is a subsidiary of NewMarket Corporation (NYSE: NEU)",
+      "a capital investment of up to $100 million to expand its ammonium perchlorate production capabilities",
+      "construct an additional production line, increasing capacity by more than 50%"
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "concentration": "Historically one qualified domestic defence source; Northrop qualified as an alternative for space launch in 2021 [CSIS, as of 2026-06-12].",
+    "substitutability": "Non-substitutable for nearly all US and allied SRM systems; losing a sole ingredient source forces requalification of propellant, motor and missile [CSIS, as of 2026-06-12].",
+    "qualification_or_logistics": "Price-setting power was demonstrated after the 2016 ownership change [CSIS, as of 2026-06-12].",
+    "margin_posted_by": "NULL: AMPAC is a subsidiary of NewMarket (NYSE: NEU) and no cited source breaks out its margin."
+   }
+  },
+  {
+   "id": "nozzle-ablatives",
+   "position": 4,
+   "name": "Nozzle ablatives and insulation (rayon precursor and carbon materials)",
+   "role": "The heat-protection materials in the solid rocket motor nozzle, whose defence demand is too small and too cyclical to keep a commercial line open, which is why suppliers left the industry and the government has repeatedly had to stockpile or subsidise it.",
+   "upstream_of": [
+    "solid-rocket-motors"
+   ],
+   "downstream_of": [],
+   "investability": "MOSTLY_PRIVATE",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "Not a capacity choke point today, but the clearest case in the chain of a material whose supply depends on a commercial market that has walked away. No listed supplier is named in any source fetched for this map, so the ticker list is deliberately empty."
+   },
+   "example_tickers": [],
+   "evidence": [
+    {
+     "claim": "Rayon is a component of solid rocket motor nozzles that protects the aluminium structure from the heat of the expanding gases, and the industrial base has historically faced supply challenges with it.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "solid-rocket-motors",
+     "source_excerpt": [
+      "rayon, a component of SRM nozzles that helps protect the aluminum structure from the heat of the expanding gases",
+      "the industrial base has faced challenges with supply of rayon, a precursor to a component found in nozzles"
+     ]
+    },
+    {
+     "claim": "Rayon suppliers began to exit the industry in the 1990s once polyester displaced rayon commercially, prompting NASA to commission a stockpile of 2.5 million pounds of rayon fibre to support motor production through 2005.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Without an alternative source of demand, rayon suppliers began to exit the industry in the 1990s.",
+      "prompted NASA to commission a stockpile of 2.5 million pounds of rayon fiber to support SRM production through 2005"
+     ]
+    },
+    {
+     "claim": "Rayon demand for defence applications is relatively low and cyclical and is not alone sufficient to make production profitable, so manufacturers have relied on commercial sales to keep lines open.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Rayon demand for defense applications is relatively low and cyclical.",
+      "Alone, it is not sufficient to make production profitable, meaning that manufacturers have had to rely on commercial sales to keep lines open."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "substitutability": "Rayon could not be easily replaced in motors, which is why a stockpile rather than a substitute was the answer [CSIS, as of 2026-06-12].",
+    "margin_posted_by": "NULL: no listed supplier is named in any source fetched for this map."
+   }
+  },
+  {
+   "id": "metal-parts-and-forgings",
+   "position": 5,
+   "name": "Projectile metal parts, forgings and missile structural components",
+   "role": "The forged and machined hardware the explosive and the propellant go inside: artillery projectile bodies, motor cases, mid-body shells and the premium titanium and nickel structures behind them, which is the stage the Army's own numbers identify as the limiting factor on 155-mm output.",
+   "upstream_of": [
+    "solid-rocket-motors",
+    "missile-final-assembly",
+    "artillery-and-bulk-munitions"
+   ],
+   "downstream_of": [],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "Named as the limiting factor by name, not inferred: a $469 million purpose-built metal parts plant has produced no conforming projectile bodies, so this is a qualification and process problem that capital did not solve."
+   },
+   "example_tickers": [
+    "ATI",
+    "GD",
+    "NOC",
+    "RHM.DE"
+   ],
+   "evidence": [
+    {
+     "claim": "Projectile metal part production is the limiting factor for reaching the Army's goal of 100,000 rounds per month, against 36,000 rounds per month achieved as of March 2026.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "projectile metal part production is the limiting factor for reaching the 100,000 round-per-month goal",
+      "Despite a goal of 100,000 rounds per month by October 2025, the Army had only managed to produce 36,000 rounds per month as of March 2026"
+     ]
+    },
+    {
+     "claim": "At the Universal Artillery Projectile Lines facility in Mesquite, Texas, operated by General Dynamics Ordnance and Tactical Systems, the contractor has been unable to produce any projectile metal parts that meet contract specifications.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "artillery-and-bulk-munitions",
+     "source_excerpt": [
+      "The Universal Artillery Projectile Lines facility — operated by General Dynamics Ordnance and Tactical Systems",
+      "at a contractor-owned, contractor-operated facility in Mesquite, Texas, the contractor has been unable to produce any projectile metal parts that meet contract specifications"
+     ]
+    },
+    {
+     "claim": "Northrop Grumman will become a second supplier of rocket motors for the Patriot and increase structural component manufacturing, including mid-body shells, muzzle covers and rail car assemblies, for THAAD interceptors.",
+     "source_name": "DefenseScoop, Pentagon inks $3B framework agreement for Patriot, THAAD components",
+     "source_date": "2026-08-03",
+     "url": "https://defensescoop.com/2026/08/03/pentagon-inks-3b-framework-agreement-for-patriot-thaad-components/",
+     "tag": "INFERRED",
+     "supports": "missile-final-assembly",
+     "source_excerpt": [
+      "Northrop will now become a second supplier of rocket motors for the Patriot and increase structural component manufacturing",
+      "including mid-body shells, muzzle covers and rail car assemblies",
+      "for THAAD interceptors"
+     ]
+    },
+    {
+     "claim": "ATI supplies titanium and nickel products used in structural and propulsion applications for missile programmes including Tomahawk, Patriot Advanced Capability-3 and Terminal High Altitude Area Defense interceptors, and reported that first-quarter missile revenue doubled from a year earlier.",
+     "source_name": "Metalnomist, ATI Aerospace and Defense Demand Lifts 2026 Guidance",
+     "source_date": "2026-07-30",
+     "url": "https://www.metalnomist.com/2026/07/ati-aerospace-and-defense-demand-lifts.html",
+     "tag": "INFERRED",
+     "supports": "solid-rocket-motors",
+     "source_excerpt": [
+      "The company supplies titanium and nickel products used in structural and propulsion applications for missile programmes, including Tomahawk, Patriot Advanced Capability-3 and Terminal High Altitude Area Defense interceptors.",
+      "ATI said first-quarter missile revenue doubled from a year earlier",
+      "contractors increased production and replenished munitions inventories"
+     ]
+    },
+    {
+     "claim": "Industry commentary places the constraint not in generic metal supply but in premium alloys and forgings that meet mission-critical specifications and require long-term customer qualification.",
+     "source_name": "Metalnomist, ATI Aerospace and Defense Demand Lifts 2026 Guidance",
+     "source_date": "2026-07-30",
+     "url": "https://www.metalnomist.com/2026/07/ati-aerospace-and-defense-demand-lifts.html",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "The real bottleneck is not generic metal supply, but premium titanium, nickel alloys, zirconium, hafnium and forgings that meet mission-critical specifications.",
+      "Their use requires tight quality control, reliable processing and long-term customer qualification."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "substitutability": "Generic metal is available; the constraint is premium alloys and forgings meeting mission-critical specifications [Metalnomist, as of 2026-07-30].",
+    "qualification_or_logistics": "A purpose-built metal parts plant has produced no conforming projectile parts, so qualification and process control, not capital, is the gate [Defense News, as of 2026-07-14].",
+    "margin_posted_by": "ATI reports missile revenue doubling year over year alongside munitions replenishment [Metalnomist, as of 2026-07-30]. No margin figure is cited and none is asserted here."
+   }
+  },
+  {
+   "id": "seekers-and-terminal-guidance",
+   "position": 6,
+   "name": "Seekers and terminal guidance sensors",
+   "role": "The infrared and active radar seekers that make an interceptor hit rather than fly, each programme's seeker coming from one plant and one supplier, which is the sub-tier the Pentagon has had to sign multi-year framework agreements to widen.",
+   "upstream_of": [
+    "missile-final-assembly"
+   ],
+   "downstream_of": [],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "Single-facility, single-supplier by programme: every PAC-3 MSE radar seeker from one Boeing plant in Huntsville, the THAAD infrared seeker from BAE Systems in Nashua and Endicott. Delivered volumes are in the hundreds against interceptor goals in the thousands."
+   },
+   "example_tickers": [
+    "BA.L",
+    "BA"
+   ],
+   "evidence": [
+    {
+     "claim": "Every PAC-3 MSE active radar seeker comes from one Boeing facility in Huntsville, Alabama, which delivered only around 650 to 700 seekers in 2025.",
+     "source_name": "Foreign Policy Research Institute (Amoah, Bazilian and Matisek), Scaling Patriot Production: The Industrial Base Crisis Explained",
+     "source_date": "2026-05-18",
+     "url": "https://www.fpri.org/article/2026/05/scaling-patriot-production-the-industrial-base-crisis-explained/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Boeing produces the active radar seeker for every PAC-3 MSE from a single facility in Huntsville, Alabama, and in 2025 it delivered only around 650 to 700 seekers."
+     ]
+    },
+    {
+     "claim": "BAE Systems signed a seven-year framework agreement with the Department of War to quadruple production capacity and accelerate delivery of the infrared seeker for the THAAD interceptor missile.",
+     "source_name": "BAE Systems news release, BAE Systems and U.S. Department of War sign agreement to quadruple THAAD seeker production",
+     "source_date": "2026-03-25",
+     "url": "https://www.prnewswire.com/news-releases/bae-systems-and-us-department-of-war-sign-agreement-to-quadruple-thaad-seeker-production-302724094.html",
+     "tag": "INFERRED",
+     "supports": "missile-final-assembly",
+     "source_excerpt": [
+      "BAE Systems signed a landmark seven-year framework agreement with the Department of War to quadruple production capacity and accelerate delivery of the infrared seeker for the Terminal High Altitude Area Defense (THAAD) interceptor missile.",
+      "This new, multi-year agreement provides a long-term demand signal that gives us the confidence to further invest in expanding our capacity."
+     ]
+    },
+    {
+     "claim": "BAE Systems' work on the THAAD seeker takes place at the company's facilities in Nashua, New Hampshire, and Endicott, New York.",
+     "source_name": "BAE Systems news release, BAE Systems and U.S. Department of War sign agreement to quadruple THAAD seeker production",
+     "source_date": "2026-03-25",
+     "url": "https://www.prnewswire.com/news-releases/bae-systems-and-us-department-of-war-sign-agreement-to-quadruple-thaad-seeker-production-302724094.html",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "BAE Systems' work on the THAAD seeker takes place at the company's state-of-the-art facilities in Nashua, New Hampshire, and Endicott, New York."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "concentration": "One facility per programme: Boeing Huntsville for PAC-3 MSE, BAE Nashua and Endicott for THAAD [FPRI, as of 2026-05-18; BAE Systems, as of 2026-03-25].",
+    "substitutability": "A seeker is programme-specific and requalification-bound, so a second source is an agreement to build one, not a switch.",
+    "margin_posted_by": "NULL: both named seeker suppliers are diversified primes and no cited source breaks out seeker margin."
+   }
+  },
+  {
+   "id": "solid-rocket-motors",
+   "position": 7,
+   "name": "Solid rocket motor production",
+   "role": "The propulsion subassembly common to nearly every interceptor and cruise missile, made by two incumbents after the industry shrank from six suppliers to two, with a queue of venture-funded entrants that have not yet shown they can move from prototypes to lots.",
+   "upstream_of": [
+    "nondestructive-inspection",
+    "allied-rearmament-demand"
+   ],
+   "downstream_of": [
+    "perchlorate-oxidizer",
+    "nozzle-ablatives",
+    "metal-parts-and-forgings"
+   ],
+   "investability": "PARTIAL",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "The bottleneck the whole sector names out loud. Two incumbents sit inside diversified primes and the pure-play entrants are private, so the listed way to own this link is not the same thing as owning the constraint."
+   },
+   "example_tickers": [
+    "NOC",
+    "LHX",
+    "AVIO.MI",
+    "GD"
+   ],
+   "evidence": [
+    {
+     "claim": "Solid rocket motors remain a bottleneck across the US missile industrial base, and between 2000 and 2015 the domestic industry shrank from six suppliers to two, Aerojet Rocketdyne and Orbital ATK, now part of L3Harris and Northrop Grumman.",
+     "source_name": "SpaceNews, Missile production push runs into solid rocket motor bottleneck",
+     "source_date": "2026-06-14",
+     "url": "https://spacenews.com/missile-production-push-runs-into-solid-rocket-motor-bottleneck/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "solid rocket motors remain a bottleneck across the U.S. missile industrial base",
+      "Between 2000 and 2015, the domestic solid rocket motor industry shrank from six suppliers to two: Aerojet Rocketdyne and Orbital ATK. Those companies are now part of L3Harris and Northrop Grumman, respectively."
+     ]
+    },
+    {
+     "claim": "New solid rocket motor entrants named in reporting on the production push include X-Bow, Ursa Major, Firehawk, Castelion, Anduril, Nammo, Avio USA and Prometheus Energetics.",
+     "source_name": "SpaceNews, Missile production push runs into solid rocket motor bottleneck",
+     "source_date": "2026-06-14",
+     "url": "https://spacenews.com/missile-production-push-runs-into-solid-rocket-motor-bottleneck/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "X-Bow, Ursa Major, Firehawk, Castelion, Anduril, Nammo, Avio USA and Prometheus Energetics"
+     ]
+    },
+    {
+     "claim": "New entrants have not yet demonstrated they can transition from prototyping or limited production of small numbers of rocket motors to larger lots.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "they have not yet demonstrated they can transition from prototyping or limited production of small numbers of rocket motors to larger lots"
+     ]
+    },
+    {
+     "claim": "After assembly a motor undergoes extensive nondestructive inspection, particularly X-ray inspection to identify internal flaws that cannot be seen from the outside.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "nondestructive-inspection",
+     "source_excerpt": [
+      "After assembly, the motor undergoes extensive nondestructive inspection, particularly X-ray inspection",
+      "X-rays are used to identify internal flaws that cannot be seen from the outside"
+     ]
+    },
+    {
+     "claim": "Ammonium perchlorate is non-substitutable for nearly all US and allied solid rocket motor systems, and in 2025 Nammo raised concerns about the loss of a single-source provider for one of its propellant components.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "allied-rearmament-demand",
+     "source_excerpt": [
+      "nearly all U.S. and allied SRM systems",
+      "In 2025, Nammo raised concerns about the loss of a single-source provider for one of its other propellant components."
+     ]
+    },
+    {
+     "claim": "The Pentagon put $1 billion into L3Harris solid rocket motor production, and the motors are a critical input for the Patriot, THAAD, Tomahawk and Standard Missile programmes.",
+     "source_name": "Foreign Policy Research Institute (Amoah, Bazilian and Matisek), Scaling Patriot Production: The Industrial Base Crisis Explained",
+     "source_date": "2026-05-18",
+     "url": "https://www.fpri.org/article/2026/05/scaling-patriot-production-the-industrial-base-crisis-explained/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Pentagon's $1 billion investment in L3Harris solid rocket motor production",
+      "its motors are a critical input not just for the Patriot but for the THAAD, Tomahawk, and Standard Missile programs as well"
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "concentration": "Six domestic suppliers to two between 2000 and 2015 [SpaceNews, as of 2026-06-14].",
+    "substitutability": "Cross-programme: the same motors feed Patriot, THAAD, Tomahawk and Standard Missile, so a motor shortfall is not containable to one programme [FPRI, as of 2026-05-18].",
+    "qualification_or_logistics": "The hollowing out of the base in the 2000s left a small, aging workforce and no institutionalised knowledge base [CSIS, as of 2026-06-12].",
+    "shared_bom_with": "perchlorate-oxidizer, nozzle-ablatives and metal-parts-and-forgings all sit inside this one subassembly, and allied-rearmament-demand draws on the same motor base.",
+    "margin_posted_by": "NULL: both incumbents report inside diversified primes and no cited source gives motor-level margin."
+   }
+  },
+  {
+   "id": "nondestructive-inspection",
+   "position": 8,
+   "name": "Nondestructive inspection, test and requalification",
+   "role": "The acceptance stage that decides whether a finished motor may ship: X-ray and a tailored set of inspections and tests, plus the requalification burden that fires whenever any upstream ingredient changes, which is the mechanism that turns a single supplier loss into a multi-year delay.",
+   "upstream_of": [
+    "missile-final-assembly"
+   ],
+   "downstream_of": [
+    "solid-rocket-motors"
+   ],
+   "investability": "UNINVESTABLE",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "Runs inside the motor makers rather than as a purchasable service, so there is no listed way to own it. It matters because it converts an upstream substitution into a requalification of the propellant, the motor and the missile."
+   },
+   "example_tickers": [],
+   "evidence": [
+    {
+     "claim": "The solid rocket motor manufacturing process comprises eight steps: propellant mixing, curing, casting, assembly, X-ray inspection, testing, coating and painting.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "The SRM manufacturing process is comprised of eight steps, each involving complex and specialized materials and sub-processes: propellant mixing, curing, casting, assembly, X-ray inspection, testing, coating, and painting."
+     ]
+    },
+    {
+     "claim": "Before acceptance, solid rocket motors undergo a tailored set of inspections and tests, and internal defects can alter the burn pattern or create structural weaknesses.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "missile-final-assembly",
+     "source_excerpt": [
+      "Before acceptance, SRMs also undergo a tailored set of inspections and tests.",
+      "Internal defects can alter the burn pattern or create structural weaknesses."
+     ]
+    },
+    {
+     "claim": "A company representative described losing a sole source of one ingredient as forcing requalification of the propellant, potentially the rocket motor, and potentially the missile.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "I then have to requalify the propellant",
+      "I then have to requalify, potentially, the rocket motor, and I have to potentially requalify the missile"
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "substitutability": "None: acceptance testing is contractual, not optional.",
+    "qualification_or_logistics": "Requalification cascades from ingredient to propellant to motor to missile [CSIS, as of 2026-06-12].",
+    "margin_posted_by": "NULL: performed in-house by the motor makers, with no separate revenue line in any cited source."
+   }
+  },
+  {
+   "id": "load-assemble-pack",
+   "position": 9,
+   "name": "Load, assemble and pack (warhead and shell filling)",
+   "role": "The step that puts explosive into hardware, run for bulk munitions through Army ammunition plants and for interceptors through the warhead lines, and the place where two separate upstream flows, energetics and metal parts, have to arrive at the same time.",
+   "upstream_of": [
+    "missile-final-assembly",
+    "artillery-and-bulk-munitions"
+   ],
+   "downstream_of": [
+    "energetic-materials"
+   ],
+   "investability": "MOSTLY_PRIVATE",
+   "bottleneck": {
+    "criticality": "HIGH",
+    "note": "The capacity named in the cited sources is government plant capacity (Iowa Army Ammunition Plant plus two new facilities in Kansas and Arkansas), whose operators are not identified as listed issuers in any source fetched for this map."
+   },
+   "example_tickers": [],
+   "evidence": [
+    {
+     "claim": "Explosive fill is packed into the shell at a facility separate from the metal parts factory that builds the projectile body.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Shell production requires first building the projectile at a metal parts factory, followed by packing the shell with explosives at another facility."
+     ]
+    },
+    {
+     "claim": "The Army's load-assemble-pack plan rests on modernising the Iowa Army Ammunition Plant and creating two new facilities in Kansas and Arkansas, targeting 140,000 155-mm rounds by December 2027.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "artillery-and-bulk-munitions",
+     "source_excerpt": [
+      "By modernizing the Iowa Army Ammunition Plant and creating two new facilities in Kansas and Arkansas, the Army hopes to load, assemble and pack 140,000 155-mm rounds by December 2027."
+     ]
+    },
+    {
+     "claim": "Air and missile defence interceptors carry explosives in their warheads alongside propellants in their solid rocket motors, and both attract the safety and siting constraints that limit where this work can be done.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "missile-final-assembly",
+     "source_excerpt": [
+      "the safety hazards associated with many components of AMD interceptors, particularly in propellants for SRMs and explosives for warheads",
+      "Industry efforts to build additional capacity also face considerable federal environmental regulation as well as state and local siting and construction policy"
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "qualification_or_logistics": "Class 1 energetics handling, federal environmental regulation and state and local siting policy constrain where capacity can be added [CSIS, as of 2026-06-12].",
+    "margin_posted_by": "NULL: the plants named are government-owned and no operator margin is disclosed in any cited source.",
+    "shared_bom_with": "artillery-and-bulk-munitions and missile-final-assembly draw on the same fill capacity."
+   }
+  },
+  {
+   "id": "missile-final-assembly",
+   "position": 10,
+   "name": "Missile and interceptor final assembly (the primes)",
+   "role": "The stage that receives motors, seekers, structures and warheads and delivers a round, held by the three or four names every headline about replenishment is written about, and the stage whose output rate is set by whichever upstream link is shortest.",
+   "upstream_of": [
+    "dod-munitions-procurement"
+   ],
+   "downstream_of": [
+    "metal-parts-and-forgings",
+    "seekers-and-terminal-guidance",
+    "nondestructive-inspection",
+    "load-assemble-pack"
+   ],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "MEDIUM",
+    "note": "Not the constraint and not un-crowded. The contracts are enormous and public, and the delivery schedule underneath them belongs to positions 1 through 9."
+   },
+   "example_tickers": [
+    "LMT",
+    "RTX",
+    "NOC"
+   ],
+   "evidence": [
+    {
+     "claim": "The US government awarded Lockheed Martin a seven-year undefinitized contract action for up to $35 billion to quadruple production of THAAD interceptors.",
+     "source_name": "Lockheed Martin news release, $35 Billion THAAD Seven-Year Procurement Award Propels Acceleration of Critical Missile Defense Interceptor Production",
+     "source_date": "2026-06-24",
+     "url": "https://news.lockheedmartin.com/2026-06-24-35-Billion-THAAD-Seven-Year-Procurement-Award-Propels-Acceleration-of-Critical-Missile-Defense-Interceptor-Production",
+     "tag": "VERIFIED",
+     "supports": "role",
+     "source_excerpt": [
+      "a seven-year undefinitized contract action (UCA) for up to $35 billion to quadruple production of Terminal High Altitude Area Defense (THAAD) interceptors",
+      "Lockheed Martin (NYSE: LMT)"
+     ]
+    },
+    {
+     "claim": "Lockheed Martin frames the award as strengthening the resilience of its supply chain and deepening collaboration with suppliers, which is the prime acknowledging that its delivery rate is set upstream.",
+     "source_name": "Lockheed Martin news release, $35 Billion THAAD Seven-Year Procurement Award Propels Acceleration of Critical Missile Defense Interceptor Production",
+     "source_date": "2026-06-24",
+     "url": "https://news.lockheedmartin.com/2026-06-24-35-Billion-THAAD-Seven-Year-Procurement-Award-Propels-Acceleration-of-Critical-Missile-Defense-Interceptor-Production",
+     "tag": "VERIFIED",
+     "supports": "dod-munitions-procurement",
+     "source_excerpt": [
+      "Lockheed Martin is strengthening resilience of our supply chain, deepening collaboration with suppliers and driving innovation across operations",
+      "propels acceleration of production capacity, strengthen the defense industrial base and deliver critical missile defense capability at speed and scale"
+     ]
+    },
+    {
+     "claim": "During the war coalition forces expended Patriot rounds at an estimated 225 missiles per day while Lockheed's Camden facility produced 1.7 per day, a consumption-to-production ratio of roughly 132:1.",
+     "source_name": "Foreign Policy Research Institute (Amoah, Bazilian and Matisek), Scaling Patriot Production: The Industrial Base Crisis Explained",
+     "source_date": "2026-05-18",
+     "url": "https://www.fpri.org/article/2026/05/scaling-patriot-production-the-industrial-base-crisis-explained/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "coalition forces expended Patriot rounds at an estimated rate of 225 missiles per day, while Lockheed's Camden facility produced just 1.7 per day",
+      "a consumption-to-production ratio of roughly 132:1"
+     ]
+    },
+    {
+     "claim": "The Pentagon's $3 billion framework with Northrop Grumman for Patriot and THAAD components is stated to be intended to reduce sole-sourcing from defense prime contractors.",
+     "source_name": "DefenseScoop, Pentagon inks $3B framework agreement for Patriot, THAAD components",
+     "source_date": "2026-08-03",
+     "url": "https://defensescoop.com/2026/08/03/pentagon-inks-3b-framework-agreement-for-patriot-thaad-components/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "The Pentagon inked a combined $3 billion framework agreement with Northrop Grumman to boost production of critical components for Patriot and Terminal High Altitude Area Defense interceptors",
+      "Defense officials said the agreements are intended to boost long-term demand for interceptor component suppliers, multiply exquisite munition production and reduce sole-sourcing from defense prime contractors."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "concentration": "Sole-source by programme at the prime level, which the Pentagon is explicitly trying to reduce [DefenseScoop, as of 2026-08-03].",
+    "margin_posted_by": "NULL: the THAAD award is an undefinitized contract action with a ceiling, not a settled price [Lockheed Martin, as of 2026-06-24]."
+   }
+  },
+  {
+   "id": "artillery-and-bulk-munitions",
+   "position": 11,
+   "name": "Artillery and bulk munitions output",
+   "role": "The high-rate branch of the same industrial base: 155-mm and other bulk natures whose monthly rate is quoted publicly, which makes it the visible thermometer for whether the energetics and metal parts links behind it are actually widening.",
+   "upstream_of": [
+    "dod-munitions-procurement"
+   ],
+   "downstream_of": [
+    "metal-parts-and-forgings",
+    "load-assemble-pack"
+   ],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "MEDIUM",
+    "note": "Output is measured monthly and published, so this is the least hidden link in the chain and the best public read on upstream progress."
+   },
+   "example_tickers": [
+    "GD",
+    "012450.KS"
+   ],
+   "evidence": [
+    {
+     "claim": "The Army had produced 36,000 rounds per month as of March 2026 against a goal of 100,000 rounds per month by October 2025.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Despite a goal of 100,000 rounds per month by October 2025, the Army had only managed to produce 36,000 rounds per month as of March 2026"
+     ]
+    },
+    {
+     "claim": "Reaching the Army's monthly round goal is blocked at projectile metal parts, so bulk munitions output is a direct read on upstream capacity rather than on assembly.",
+     "source_name": "Defense News, Manufacturing woes hamper US 155-mm ammo production",
+     "source_date": "2026-07-14",
+     "url": "https://www.defensenews.com/news/your-military/2026/07/14/manufacturing-woes-hamper-us-155-mm-ammo-production/",
+     "tag": "INFERRED",
+     "supports": "dod-munitions-procurement",
+     "source_excerpt": [
+      "projectile metal part production is the limiting factor for reaching the 100,000 round-per-month goal",
+      "By modernizing the Iowa Army Ammunition Plant and creating two new facilities in Kansas and Arkansas, the Army hopes to load, assemble and pack 140,000 155-mm rounds by December 2027."
+     ]
+    },
+    {
+     "claim": "Hanwha's existing modular charge plant in Yeosu produces 1.2 million modules per year with plans to scale up to 1.6 million in 2028, alongside the planned US plant.",
+     "source_name": "Breaking Defense, Hanwha plans to build US facility to manufacture modular 155mm howitzer charges",
+     "source_date": "2025-12-11",
+     "url": "https://breakingdefense.com/2025/12/hanwha-plans-to-build-us-facility-to-manufacture-modular-155mm-howitzer-charges/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "The plant in Yeosu currently produces 1.2 million modules per year with plans to scale up to 1.6 million in 2028."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "margin_posted_by": "NULL: no cited source gives per-round economics for any listed operator.",
+    "shared_bom_with": "metal-parts-and-forgings and load-assemble-pack are shared with missile-final-assembly, so bulk and precision munitions compete for the same upstream."
+   }
+  },
+  {
+   "id": "allied-rearmament-demand",
+   "position": 12,
+   "name": "Allied and European rearmament demand",
+   "role": "The second order book pulling on the same energetics and motor capacity: European and Korean replenishment programmes that compete with the US for nitrocellulose, propellant and solid rocket motors, and that are investable in places the US programme is not.",
+   "upstream_of": [],
+   "downstream_of": [
+    "energetic-materials",
+    "solid-rocket-motors"
+   ],
+   "investability": "PURE_PLAYS_EXIST",
+   "bottleneck": {
+    "criticality": "MEDIUM",
+    "note": "Not a physical bottleneck but a demand claim on the bottlenecks: allied programmes draw on the same non-substitutable oxidiser and the same nitrocellulose plane."
+   },
+   "example_tickers": [
+    "RHM.DE",
+    "012450.KS",
+    "AVIO.MI"
+   ],
+   "evidence": [
+    {
+     "claim": "Rheinmetall received a major order for 155 mm artillery ammunition for Ukraine with contract value in the high double-digit millions of euros, delivery expected to be completed in the first quarter of 2027, and aims to produce around 1.5 million 155 mm artillery shells per year by 2030.",
+     "source_name": "Rheinmetall news release, Major order: Rheinmetall to supply 155mm artillery ammunition to Ukraine",
+     "source_date": "2026-06-30",
+     "url": "https://www.rheinmetall.com/en/media/news-watch/news/2026/06/2026-06-30-major-order-rheinmetall-to-supply-155mm-artillery-ammunition-to-ukraine",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "155 mm artillery ammunition to Ukraine",
+      "Contract value in the high double-digit millions of euros",
+      "Delivery is expected to be completed in the first quarter of 2027",
+      "Aims to produce around 1.5 million 155 mm artillery shells per year by 2030"
+     ]
+    },
+    {
+     "claim": "European nitrocellulose supply is the binding chemical constraint on the continent's artillery ambitions, with capacity of around 4,500 to 10,000 tonnes a year against a requirement near 20,000 tonnes.",
+     "source_name": "European Policy Centre (Kremidas-Courtney), Running on empty: the chemical shortage undermining European defence",
+     "source_date": "2025-06-18",
+     "url": "https://www.epc.eu/publication/running-on-empty-the-chemical-shortage-undermining-european-defence/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Nitrocellulose is the chemical backbone of modern artillery",
+      "around 4,500 to 10,000 tonnes annually",
+      "20,000 tonnes"
+     ]
+    },
+    {
+     "claim": "Ammonium perchlorate is non-substitutable for nearly all US and allied solid rocket motor systems, so allied motor programmes draw on the same oxidiser plane as the US replenishment.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "AP is a non-substitutable propellant ingredient for nearly all U.S. and allied SRM systems and serves as a case for understanding challenges with single points of failure."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "shared_bom_with": "energetic-materials and solid-rocket-motors, which is the point: allied demand is a claim on the same scarce upstream rather than an independent chain.",
+    "margin_posted_by": "NULL: no cited source gives programme-level margin for any allied producer."
+   }
+  },
+  {
+   "id": "dod-munitions-procurement",
+   "position": 13,
+   "name": "US munitions procurement and appropriations (the demand anchor)",
+   "role": "The order book every link above sells into: the multi-year interceptor and munitions programmes and the appropriations behind them, which set the schedule and can be read for timing but cannot be owned.",
+   "upstream_of": [],
+   "downstream_of": [
+    "missile-final-assembly",
+    "artillery-and-bulk-munitions"
+   ],
+   "investability": "UNINVESTABLE",
+   "bottleneck": {
+    "criticality": "CHOKE_POINT",
+    "note": "Nothing here is purchasable and everything downstream of it is contingent on it. The frameworks that dominate coverage are described by the analyst quoted in them as agreements to agree until appropriations arrive."
+   },
+   "example_tickers": [],
+   "evidence": [
+    {
+     "claim": "The Pentagon expects deliveries of more than 2,100 air and missile defense interceptors in calendar year 2027, a roughly 70% increase from nearly 1,300 in 2021, against production goals of roughly 5,000 interceptors a year across Army, Navy and Air Force programs.",
+     "source_name": "SpaceNews, Missile production push runs into solid rocket motor bottleneck",
+     "source_date": "2026-06-14",
+     "url": "https://spacenews.com/missile-production-push-runs-into-solid-rocket-motor-bottleneck/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "Pentagon expects deliveries of more than 2,100 air and missile defense interceptors in calendar year 2027, a roughly 70% increase from nearly 1,300 in 2021",
+      "production goals of roughly 5,000 interceptors a year across Army, Navy and Air Force programs"
+     ]
+    },
+    {
+     "claim": "The 2027 budget request includes more than $73 billion for missile programs.",
+     "source_name": "SpaceNews, Missile production push runs into solid rocket motor bottleneck",
+     "source_date": "2026-06-14",
+     "url": "https://spacenews.com/missile-production-push-runs-into-solid-rocket-motor-bottleneck/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "2027 budget request includes more than $73 billion for missile programs"
+     ]
+    },
+    {
+     "claim": "The analyst quoted on the component frameworks cautioned that until appropriations arrive none of it is real.",
+     "source_name": "DefenseScoop, Pentagon inks $3B framework agreement for Patriot, THAAD components",
+     "source_date": "2026-08-03",
+     "url": "https://defensescoop.com/2026/08/03/pentagon-inks-3b-framework-agreement-for-patriot-thaad-components/",
+     "tag": "INFERRED",
+     "supports": "role",
+     "source_excerpt": [
+      "I'm seeing a lot of cheerleading and a lot of premature celebration and until we get appropriations, none of it's real."
+     ]
+    }
+   ],
+   "heat": null,
+   "capture_inputs": {
+    "margin_posted_by": "NULL: this link is the customer, not a seller.",
+    "qualification_or_logistics": "Appropriations, not contract announcements, are the gate [DefenseScoop, as of 2026-08-03]."
+   }
+  }
+ ],
+ "scenarios": [],
+ "notes": [
+  {
+   "ts": "2026-08-30T23:55:00Z",
+   "by": "atlas-cartographer",
+   "text": "Thesis test, stated plainly because the map was built to test it rather than decorate it. The claim was that the choke point sits one and two tiers upstream of the primes. It does, but not evenly, and one of the four named candidates fails its own evidence. CONFIRMED as CHOKE_POINT with dated sources: solid rocket motors (six domestic suppliers to two between 2000 and 2015), projectile metal parts and forgings (named by Defense News as the limiting factor, with a $469 million purpose-built plant producing no conforming parts), seekers (one Boeing facility for every PAC-3 MSE radar seeker, 650 to 700 delivered in 2025), and energetic materials (one US RDX site, seven years to make an energetics line worker fully effective). NOT CONFIRMED: ammonium perchlorate. CSIS states that reliance on AMPAC alone is not currently a bottleneck because capacity outpaces demand by a significant margin, so it is mapped HIGH, as a disruption and price-setting risk, not as the gate. A map that had scored it CHOKE_POINT because the phrase sole source appears in the coverage would have been wrong on its best available source."
+  },
+  {
+   "ts": "2026-08-30T23:55:00Z",
+   "by": "atlas-cartographer",
+   "text": "Crowdedness caution for the heat stage, recorded as a structural observation and not as a score. Solid rocket motors are the most cited bottleneck in this whole corpus of sources: CSIS wrote a report about it, SpaceNews and Breaking Defense covered that report, and the Pentagon announced a $3bn framework whose stated purpose is to widen it. That is the definition of a discovered constraint. The links that no fetched source treats as a story in itself are nozzle ablatives (rayon, where the supply problem is that defence demand alone cannot keep a commercial line open), nondestructive inspection and requalification (the mechanism that converts one supplier loss into a multi-year delay), and load, assemble and pack. Two of those three carry no listed exposure at all, which is itself the finding rather than a gap in the search."
+  },
+  {
+   "ts": "2026-08-30T23:55:00Z",
+   "by": "atlas-cartographer",
+   "text": "Source dating note. The CSIS report cover shows JUNE 2026 with no day. The day used here, 2026-06-12, is taken from the publication's own filename on the CSIS server (260612_Rumbaugh_Rocket_Motors.pdf) rather than invented. The BAE Systems Holston article is dated 2013-01-05 and is cited only for the operator relationship and the product list, both of which the 2026 Modern War Institute piece independently corroborates for the single-site RDX claim. Two sources considered and NOT cited: the U.S. Army newsroom release on the domestic TNT contract returns HTTP 403, and CNBC's Rheinmetall propellant piece returns HTTP 403, so neither is evidence here and the TNT dependence claim rests on the Modern War Institute's Nitro-Chem contract figure instead."
+  },
+  {
+   "ts": "2026-08-30T23:55:00Z",
+   "by": "atlas-cartographer",
+   "text": "Archetypes applied, from data/chains/_archetypes.md. ARCH-001 (precision manufacturing capacity as the gating step) fires twice and is the spine of this map: metal-parts-and-forgings and nondestructive-inspection are both capacity-and-qualification gates rather than product links. ARCH-003 (the uninvestable order-book owner) fires on dod-munitions-procurement, zero tickers, CHOKE_POINT, never the trade and always the schedule. ARCH-004 (critical material input, criticality set by substitutability times logistics) fires three times, on perchlorate-oxidizer, nozzle-ablatives and nitration-feedstocks, and its instruction to record both inputs is what kept ammonium perchlorate off CHOKE_POINT. ARCH-006 (geopolitical counter-response as a first-class link) fires on allied-rearmament-demand, wired in as a second sink competing for the same energetics and motors rather than left as narrative; the archetype library flags this one as the corpus's most likely systematic miss, and on this chain it is where the non-US exposure lives. ARCH-002 (EPC volume without capture) was CHECKED and does NOT fire: there is no competitively bid construction link on this map, and the closest analogue, load-assemble-pack, is government plant capacity rather than contractor volume. ARCH-007 (the semis layer as a leaf) was CHECKED and deliberately NOT included: GaN and RF microelectronics sit behind the radars that cue these interceptors, but no source fetched for this map ties a semiconductor constraint to the replenishment schedule, and an uncited link added to reach a round number is exactly what the citation bar exists to stop. ARCH-005 (power and grid equipment) does not apply to this occurrence."
+  }
+ ],
+ "confidence_audit": {
+  "verified": 3,
+  "inferred": 46,
+  "speculative": 0,
+  "null": 0
+ },
+ "changelog": [
+  {
+   "ts": "2026-08-30T23:55:00Z",
+   "by": "atlas-cartographer",
+   "kind": "BUILD",
+   "change": "new chain from SIG-20260830-01 (US munitions depletion and the multi-year replenishment cycle, impact 74.8 PRIME). 13 links, upstream first, 16 edges, 5 CHOKE_POINT links. Every link and every edge carries dated cited evidence with a verbatim source_excerpt from a page fetched this run. heat is null on all 13 links and no scenarios are written: both belong to run heat and run scenarios.",
+   "prior": null
+  }
+ ]
+}

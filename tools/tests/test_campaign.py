@@ -916,6 +916,40 @@ class TestFrozenCampaignSelection(CampaignTree):
         self.assertTrue(any("alternates is not append-only" in finding
                             for finding in failures), failures)
 
+    def test_a_theme_may_acquire_its_first_chain_id(self):
+        """`run chain` fills a null chain_id, and freezing that was a funnel deadlock.
+
+        A theme is frozen at stage SELECTED with chain_id null -- the gate itself only
+        requires a chain to resolve once the stage is past SELECTED. Treating null -> value
+        as a frozen-field mutation meant no theme could ever be chained and the campaign
+        could never leave SELECTED. Same shape as the O1/O2 screen deadlock closed the same
+        day: a field frozen at the value the funnel exists to move it out of.
+        """
+        prior = self.campaign_manifest()
+        current = copy.deepcopy(prior)
+        prior["themes"][0]["chain_id"] = None
+        current["themes"][0]["chain_id"] = prior["themes"][0]["signal_id"] and "theme-a"
+        with mock.patch.object(check_campaign, "_head_json", return_value=prior):
+            failures = check_campaign.preservation_failures(
+                self.root, self.path, current)
+        self.assertFalse(any("frozen chain_id changed" in finding for finding in failures),
+                         failures)
+
+    def test_a_named_chain_id_still_cannot_be_rewritten_or_cleared(self):
+        """The narrow exemption is null -> value only. Both other transitions stay refused."""
+        for label, was, now in (("rewritten", "theme-a", "theme-b"),
+                                ("cleared", "theme-a", None)):
+            with self.subTest(transition=label):
+                prior = self.campaign_manifest()
+                current = copy.deepcopy(prior)
+                prior["themes"][0]["chain_id"] = was
+                current["themes"][0]["chain_id"] = now
+                with mock.patch.object(check_campaign, "_head_json", return_value=prior):
+                    failures = check_campaign.preservation_failures(
+                        self.root, self.path, current)
+                self.assertTrue(any("frozen chain_id changed" in finding
+                                    for finding in failures), failures)
+
 
 class TestExactFinalAttribution(CampaignTree):
     def _two_issuer_theme(self):

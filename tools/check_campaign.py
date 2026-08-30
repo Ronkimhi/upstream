@@ -703,9 +703,22 @@ def preservation_failures(root: Path, path: Path, current: dict) -> list[str]:
             failures.append("frozen selection_basis changed versus HEAD")
         for theme_id in set(old_themes) & set(new_themes):
             for field in ("signal_id", "chain_id", "title", "rank", "rationale"):
-                if old_themes[theme_id].get(field) != new_themes[theme_id].get(field):
-                    failures.append(
-                        f"theme {theme_id} frozen {field} changed versus HEAD")
+                was, now = old_themes[theme_id].get(field), new_themes[theme_id].get(field)
+                if was == now:
+                    continue
+                # `chain_id` is frozen against a REWRITE, not against being filled in. A theme
+                # is frozen at stage SELECTED with chain_id null (this gate permits exactly
+                # that above: a chain only has to resolve once the stage is past SELECTED), and
+                # `run chain <signal-id>` is the command that gives it one. Freezing null meant
+                # no theme could ever be chained and the campaign could never leave SELECTED --
+                # the same shape as the O1/O2 screen deadlock closed on 2026-08-30, where a
+                # field was frozen at a value the funnel exists to move it out of. Filling a
+                # null is the funnel working; changing a chain that was already named, or
+                # clearing one, is a slate rewrite and stays refused.
+                if field == "chain_id" and was is None and now is not None:
+                    continue
+                failures.append(
+                    f"theme {theme_id} frozen {field} changed versus HEAD")
     for field in ("alternates", "exclusions"):
         before = prior.get(field) or []
         after = current.get(field) or []
