@@ -2735,12 +2735,18 @@
       focus = lead || null; pinned = null;
       userView = true; CX_CACHE.userView = true; CX_CACHE.touched = true;
     }
-    function flyTo(n) {
+    function camHome() {
+      if (!cam) return;
+      cam = cxCam(g, canvas.clientWidth, canvas.clientHeight);
+      cam.tx = gc.x; cam.ty = gc.y;
+      focus = null; pinned = null; userView = false; CX_CACHE.userView = false;
+    }
+    function flyTo(n, dist) {
       if (!cam) return;
       fly = {
         t0: Date.now(), ms: 650,
         from: { tx: cam.tx, ty: cam.ty, tz: cam.tz, dist: cam.dist },
-        to: { tx: n.x, ty: n.y, tz: n.z || 0, dist: Math.max(300, CX_F / 1.7) },
+        to: { tx: n.x, ty: n.y, tz: n.z || 0, dist: dist || Math.max(300, CX_F / 1.7) },
         n: n
       };
       focus = n; pinned = null;
@@ -2762,7 +2768,12 @@
       if (!parked) sim.tick();
       if (parked && !settled) { settled = true; CX_CACHE.settled = true; if (!userView) { cam = cxCam(g, w, h); cam.tx = gc.x; cam.ty = gc.y; } }
       if (fly) {
+        // eased by wall clock, but with a per-frame floor: a throttled tab (hidden,
+        // battery saver) may render only a handful of frames during fly.ms, and a
+        // purely time-based ease then strands the camera mid-flight forever
         var ft = Math.min(1, (Date.now() - fly.t0) / fly.ms);
+        fly.fp = (fly.fp || 0) + 1 / 40;
+        if (fly.fp > ft) ft = Math.min(1, fly.fp);
         var e = ft < 0.5 ? 2 * ft * ft : 1 - Math.pow(-2 * ft + 2, 2) / 2;
         cam.tx = fly.from.tx + (fly.to.tx - fly.from.tx) * e;
         cam.ty = fly.from.ty + (fly.to.ty - fly.from.ty) * e;
@@ -3125,7 +3136,7 @@
         // one level at a time: the signal radial, then the family, then the bare field
         if (CX_MODE.sig) { CX_MODE.sig = null; CX_MODE.phase = "network"; refreshChrome(); }
         else if (CX_MODE.phase === "radial") { CX_MODE.phase = "network"; refreshChrome(); }
-        else if (CX_FILTER.fam) { CX_FILTER.fam = null; refreshChrome(); }
+        else if (CX_FILTER.fam) { CX_FILTER.fam = null; refreshChrome(); camHome(); }
       }
     });
 
@@ -3158,11 +3169,7 @@
           var SECT = { sig: 1, chain: 1, link: 1, scen: 1 };
           var sect = g.nodes.filter(function (n2) { return SECT[n2.kind] && cxMatch(n2); });
           flyToFit(sect, g.byKey["chain:" + CX_FILTER.chain]);
-        } else if (cam) {
-          cam = cxCam(g, canvas.clientWidth, canvas.clientHeight);
-          cam.tx = gc.x; cam.ty = gc.y;
-          focus = null; pinned = null; userView = false; CX_CACHE.userView = false;
-        }
+        } else camHome();
       });
     });
     function enterRadial(sigId) {
@@ -3187,6 +3194,35 @@
           CX_FILTER.fam = (!f || CX_FILTER.fam === f) ? null : f;
           if (!CX_FILTER.fam) { CX_MODE.sig = null; CX_MODE.phase = "network"; }
           refreshChrome();
+          // the click narrows AND focuses: fly to the family's members (signals, their
+          // chains, ambient candidates), or back out to the whole field on clear
+          if (CX_FILTER.fam) {
+            // the click makes a focal point, not just a filter: fly to the family's
+            // strongest member. Fitting every member is honest but useless here — a
+            // family's signals are laid out by time, so their fit is nearly the whole
+            // field and the camera barely moves. Its prioritized #1 IS its focal point;
+            // the sub-rail lists the rest. Memberless family: focus its halo arc.
+            var focal = null, bestUn = -2;
+            g.nodes.forEach(function (n2) {
+              if (n2.kind !== "sig" || !cxMatch(n2)) return;
+              var u2 = ((n2.ref || {}).unmappedness || {}).score;
+              if ((u2 == null ? -1 : u2) > bestUn) { bestUn = u2 == null ? -1 : u2; focal = n2; }
+            });
+            if (!focal) g.nodes.forEach(function (n2) {
+              if (!focal && n2.kind === "cand" && cxMatch(n2)) focal = n2;
+            });
+            if (focal) flyTo(focal, 1050);
+            else {
+              var arc = g.ring && g.ring.arcs && g.ring.arcs[CX_FILTER.fam];
+              var arcPts = [];
+              if (arc) for (var ai = 0; ai <= 6; ai++) {
+                var aa = arc.a0 + (arc.a1 - arc.a0) * (ai / 6);
+                var rr2 = g.ring.r0 + g.ring.band * 0.5;
+                arcPts.push({ x: g.ring.cx + rr2 * Math.cos(aa), y: g.ring.cy + rr2 * Math.sin(aa) * 0.92, z: 0 });
+              }
+              if (arcPts.length) flyToFit(arcPts, null);
+            }
+          } else camHome();
         });
       });
       document.querySelectorAll("[data-cxradial]").forEach(function (b) {
