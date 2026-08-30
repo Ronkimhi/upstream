@@ -48,6 +48,40 @@
   }
   function chip(text, cls) { return '<span class="chip ' + esc(cls || "neutral") + '">' + esc(text) + "</span>"; }
   function tierChip(t) { return t ? '<span class="chip tier">' + esc(t) + "</span>" : ""; }
+  /* The impact appraisal (method 0.2). Every value here is read, never derived: the band
+     is computed by tools/impact_score.py and the page prints what that wrote. A renderer
+     that re-derived the band from the legs would be a second implementation of the rule,
+     free to disagree with the gate that enforced it. */
+  function impactFor(occId) {
+    for (var i = 0; i < (D.impact || []).length; i++) {
+      if (D.impact[i].occurrence_id === occId) return D.impact[i];
+    }
+    return null;
+  }
+  function impactChip(a) {
+    if (!a || !a.impact_band) return "";
+    var b = a.impact_band;
+    var label = b === "UNRANKED" ? "unranked"
+      : b.toLowerCase() + (a.impact_score != null ? " " + a.impact_score : "");
+    return '<span class="chip impact-' + esc(b) + '" title="' + esc(impactTitle(a)) + '">'
+      + esc(label) + "</span>";
+  }
+  function impactTitle(a) {
+    if (!a) return "";
+    if (a.impact_band === "UNRANKED") {
+      return "Not appraised: " + (a.unranked_reason || "a leg is NULL");
+    }
+    var money = a.money_at_stake && a.money_at_stake.band ? a.money_at_stake.band : "no band";
+    return "money " + money
+      + " / reach " + num((a.public_reach || {}).score)
+      + " / capture " + num((a.capture_odds || {}).score)
+      + " / timing " + num((a.timing_fit || {}).score);
+  }
+  function opportunityChip(t) {
+    if (!t) return "";
+    var cls = t === "O1" ? "opp-O1" : t === "O2" ? "opp-O2" : t === "O3" ? "opp-O3" : "opp-none";
+    return '<span class="chip opportunity ' + cls + '">' + esc(t) + "</span>";
+  }
   function verdColor(v) { return { QUIET: "var(--quiet)", UNDISCOVERED: "var(--und)", EMERGING: "var(--emg)", CROWDED: "var(--crd)", OVER_CROWDED: "var(--ovr)" }[v] || "var(--border-strong)"; }
   function marketFor(t) { return (D.market || {})[String(t).replace(/\./g, "-")] || (D.market || {})[t] || null; }
   function fmtMoney(x) { return typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(x); }
@@ -185,6 +219,7 @@
       na("#/", "Cortex", "cortex") +
       na("#/radar", "Radar", "radar") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
+      na("#/campaign", "Campaign", "campaign") +
       na("#/book", "Book", "book") +
       na("#/shadow", "Shadow", "shadow") +
       "</nav>" +
@@ -286,6 +321,8 @@
     return '<div class="card today"><h2>' + (d.items.length ? "Since you last looked" : "Today") + "</h2>" +
       '<div class="when">' + esc(TODAY) + "</div>" + body +
       (dg ? '<div class="muted" style="margin-top:12px">Latest digest: <b>' + esc(dg.week || "") + "</b> — " + esc((dg.summary || "").slice(0, 140)) + "</div>" : "") +
+      (dg && dg.machine && dg.machine.next_action
+        ? '<div class="muted" style="margin-top:6px">Machine: ' + esc(dg.machine.next_action) + "</div>" : "") +
       "</div>";
   }
   function sigRow(s) {
@@ -311,6 +348,7 @@
       "</div>" +
       '<div class="right">' +
       '<span class="gauge" title="how unmapped this event\'s chain consequences are"><span class="track"><i style="width:' + (un || 0) + '%"></i></span><span class="num">' + esc(un) + "</span> unmapped</span>" +
+      impactChip(impactFor(s.id)) +
       "<span data-stop>" + cta + "</span>" +
       "</div></div>";
   }
@@ -471,6 +509,49 @@
   }
 
   /* ---------------- signal ---------------- */
+  /* The money half of the pair (method 0.2). Rendered NEXT TO unmappedness, never
+     instead of it: the queue orders by money and section 0 still selects by how unmapped
+     the chain is, and a page that showed only one of the two would quietly restate the
+     hunt. An occurrence with no appraisal says so and offers the command, rather than
+     rendering a blank where a score would go. */
+  function impactCard(s) {
+    var a = impactFor(s.id);
+    if (!a) {
+      return seclabel("Financial impact") +
+        "<div class='card'><div class='small muted'>Not appraised yet. Unmappedness says how " +
+        "unmapped this chain is; nothing here says how much investable money is behind it.</div>" +
+        "<div style='margin-top:10px'>" + runButton("run impact " + s.id,
+          "scores the money at stake, how much of it reaches listed issuers, whether it is " +
+          "kept as profit, and whether it moves inside the horizon") + "</div></div>";
+    }
+    if (a.impact_band === "UNRANKED") {
+      return seclabel("Financial impact") +
+        "<div class='card'><div class='row'>" + impactChip(a) + staleChip(a.as_of) + "</div>" +
+        "<div class='small' style='margin-top:8px'>" + esc(a.unranked_reason ||
+          "A leg could not be sourced.") + "</div>" +
+        "<div class='small muted' style='margin-top:6px'>No published sizing was found. That is " +
+        "a finding about how early this occurrence is, not a gap in the writeup.</div></div>";
+    }
+    var legs = [
+      ["Money at stake", (a.money_at_stake || {}).band, (a.money_at_stake || {}).rationale,
+       (a.money_at_stake || {}).basis],
+      ["Public reach", num((a.public_reach || {}).score), (a.public_reach || {}).rationale,
+       (a.public_reach || {}).basis],
+      ["Value capture", num((a.capture_odds || {}).score), (a.capture_odds || {}).rationale,
+       (a.capture_odds || {}).basis],
+      ["Timing fit", num((a.timing_fit || {}).score), (a.timing_fit || {}).rationale,
+       (a.timing_fit || {}).basis]
+    ].map(function (r) {
+      return "<div class='evli'><b>" + esc(r[0]) + "</b> " + chip(num(r[1])) +
+        "<div class='small muted'>" + esc(r[2] || r[3] || "") + "</div></div>";
+    }).join("");
+    return seclabel("Financial impact") +
+      "<div class='card'><div class='row'>" + impactChip(a) +
+      chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) + "</div>" +
+      "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
+      "<div style='margin-top:10px'>" + legs + "</div></div>";
+  }
+
   function signalView(id) {
     var s = byId(D.signals, id);
     if (!s) return notFound("signal " + id);
@@ -485,6 +566,7 @@
       "<div class='card'><h3>Why now</h3><div class='small'>" + esc(s.why_now) + "</div></div>" +
       "<div class='card'><h3>The retail gap</h3><div class='small'>" + esc(s.retail_gap) + "</div></div>" +
       "<div class='card'><div class='stat'><span class='v'>" + esc((s.unmappedness || {}).score) + "</span><span class='l'>unmapped / 100 — " + esc((s.unmappedness || {}).rationale) + "</span></div></div></div>" +
+      impactCard(s) +
       seclabel("Evidence") + "<div class='card'>" + (evid || "<div class='muted'>none</div>") + "</div>" +
       seclabel("Next step") +
       (s.chain_id ? "<a class='chip accent' href='#/chain/" + esc(s.chain_id) + "'>Open the value chain →</a>" :
@@ -1147,6 +1229,160 @@
       footer() + "</main>";
   }
 
+  /* ---------------- campaign ---------------- */
+  function campaignMetric(actual, target) {
+    var value = '<span class="num">' + esc(num(actual)) + "</span>";
+    return target != null ? value + '<span class="campaign-target"> / ' + esc(target) + "</span>" : value;
+  }
+  function campaignStatusChip(status) {
+    if (!status) return "";
+    var cls = status === "COMPLETE" || status === "TARGET_MET" ? "accent" :
+      status === "EXHAUSTED" ? "QUIET" :
+      status === "OPEN" || status === "PENDING_DATA" ? "stale" :
+      status === "BLOCKED" ? "verystale" :
+      status === "NOT_STARTED" ? "verystale" : "neutral";
+    return chip(status.replace(/_/g, " "), cls);
+  }
+  function campaignSummaryStat(value, label, target) {
+    return '<div class="card campaign-stat"><div class="stat"><span class="v">' +
+      campaignMetric(value, target) + '</span><span class="l">' + esc(label) + "</span></div></div>";
+  }
+  function campaignSelectionStamp(asOf) {
+    return asOf ? '<span class="muted">selected <span class="num">' + esc(asOf) + "</span></span>" : "";
+  }
+  function campaignBlockers(items) {
+    if (!(items || []).length) return "";
+    return '<div class="callout campaign-blockers"><b>Blockers</b><ul class="bullets bad">' +
+      items.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") +
+      "</ul></div>";
+  }
+  function campaignO1Queue(ix) {
+    var rows = ix.o1 || [];
+    if (!rows.length) {
+      return seclabel("O1 queue") +
+        '<div class="emptystate campaign-empty-small">No O1 names have been selected. The dashboard does not promote names from data tier alone.</div>';
+    }
+    var body = rows.map(function (row) {
+      var action, ticker = row.stock_ticker;
+      if (row.final && row.handoff_present && ticker) {
+        action = '<a href="#/stock/' + encodeURIComponent(ticker) + "/" + encodeURIComponent(row.chain_id) + '">' +
+          chip("FINAL", "accent") + "</a>";
+      } else if (row.pending) {
+        action = '<span class="pend"><span class="dot"></span>pending data</span>';
+      } else if (row.handoff_present && ticker) {
+        action = runButton("run deepdive " + ticker + " " + row.chain_id, null, { compact: true });
+      } else {
+        action = '<span class="muted">screen handoff unavailable</span>';
+      }
+      return "<tr><td class='num'>" + esc(num(row.rank)) + "</td>" +
+        "<td><div class='tk-name'>" + esc(ticker || row.issuer_id) + "</div><div class='tk-co'>" + esc(row.name) + "</div></td>" +
+        "<td><span class='tier-plane'><span class='plane-label'>data</span>" + tierChip(row.data_tier) + "</span></td>" +
+        "<td><span class='tier-plane'><span class='plane-label'>work</span>" + opportunityChip(row.opportunity_tier) + "</span></td>" +
+        "<td>" + (row.handoff_present
+          ? "<a href='#/campaign/" + encodeURIComponent(row.chain_id) + "'>" + esc(row.chain_id) + "</a><div class='tk-co'>" + esc(row.link_id) + "</div>"
+          : '<span class="muted">unresolved</span>') + "</td>" +
+        "<td>" + campaignStatusChip(row.profile_status) + staleChip(row.as_of) + "</td>" +
+        "<td>" + action + "</td></tr>";
+    }).join("");
+    return seclabel("O1 queue") +
+      '<div class="tablewrap campaign-o1"><table><thead><tr><th>Rank</th><th>Company</th><th>Data tier</th><th>Opportunity</th><th>Primary theme</th><th>Profile</th><th>Next step</th></tr></thead><tbody>' +
+      body + "</tbody></table></div>";
+  }
+  function campaignThemeCard(theme, profileTarget) {
+    var c = theme.counts || {};
+    var pct = profileTarget != null && profileTarget > 0
+      ? Math.min(100, (100 * c.profiles) / profileTarget) : null;
+    return '<article class="card campaign-theme">' +
+      '<div class="campaign-theme-head"><div><div class="row">' +
+      campaignStatusChip(theme.status) + staleChip(theme.coverage_as_of) +
+      campaignSelectionStamp(theme.selection_as_of) +
+      '</div><h3>' + esc(theme.title) + '</h3><div class="muted mono">' + esc(theme.id) + "</div></div>" +
+      '<a class="campaign-open" href="#/campaign/' + encodeURIComponent(theme.id) + '">link coverage →</a></div>' +
+      '<div class="coverage-line"><span>complete profiles</span><b>' + campaignMetric(c.profiles, profileTarget) + "</b></div>" +
+      '<div class="coverage-track"' + (pct == null ? ' data-empty="true"' : "") + ">" +
+      (pct == null ? "" : '<i style="width:' + pct.toFixed(1) + '%"></i>') + "</div>" +
+      '<div class="campaign-mini">' +
+      "<span><b class='num'>" + esc(num(c.links)) + "</b> links</span>" +
+      (theme.mapping_present
+        ? "<span><b class='num'>" + esc(num(c.mapped_issuers)) + "</b> mapped issuers</span>"
+        : "<span class='campaign-warn'>mapping unavailable</span>") +
+      "<span>" + opportunityChip("O1") + " <b class='num'>" + esc(num(c.o1)) + "</b></span>" +
+      "<span><b class='num'>" + esc(num(c.finals)) + " / " + esc(num(c.o1)) + "</b> O1 FINAL</span>" +
+      (c.pending ? "<span class='campaign-warn'><b class='num'>" + esc(c.pending) + "</b> pending</span>" : "") +
+      (c.blockers ? "<span class='campaign-bad'><b class='num'>" + esc(c.blockers) + "</b> blockers</span>" : "") +
+      "</div></article>";
+  }
+  function campaignThemeView(ix, id) {
+    var theme = byId(ix.themes, id);
+    if (!theme) return notFound("campaign theme " + id);
+    var c = theme.counts || {};
+    var rows = (theme.links || []).map(function (link) {
+      return "<tr><td class='num'>" + esc(num(link.position)) + "</td>" +
+        "<td><div class='tk-name'>" + esc(link.name) + "</div><div class='tk-co mono'>" + esc(link.id) + "</div></td>" +
+        "<td>" + (theme.mapping_present ? campaignStatusChip(link.status) : '<span class="muted">mapping unavailable</span>') + "</td>" +
+        "<td>" + (theme.mapping_present ? campaignMetric(link.mapped, link.target) : '<span class="muted">mapping unavailable</span>') + "</td>" +
+        "<td class='num'>" + esc(num(link.profiled)) + "</td>" +
+        "<td>" + opportunityChip("O1") + " <span class='num'>" + esc(num(link.o1)) + "</span></td>" +
+        "<td class='num'>" + esc(num(link.finals)) + "</td>" +
+        "<td>" + (link.pending ? '<span class="pend"><span class="dot"></span>' + esc(link.pending) + "</span>" : '<span class="muted">none</span>') + "</td>" +
+        "<td>" + (link.blocker ? '<span class="campaign-bad">' + esc(link.blocker) + "</span>" : '<span class="muted">none</span>') +
+        staleChip(link.coverage_as_of) + "</td></tr>";
+    }).join("");
+    return topbar("campaign") +
+      '<div class="crumbs"><a href="#/campaign">Campaign</a><span class="sep">/</span><span class="here">' + esc(theme.title) + "</span></div>" +
+      "<main><div class='pagehead'><div class='row'>" + campaignStatusChip(theme.status) + staleChip(theme.coverage_as_of) +
+      campaignSelectionStamp(theme.selection_as_of) +
+      "</div><h1>" + esc(theme.title) + "</h1><p class='sub'>Every value-chain link keeps its own issuer denominator. EXHAUSTED is shown as a finding, not filled with a proxy.</p></div>" +
+      '<div class="statgrid campaign-theme-stats">' +
+      campaignSummaryStat(c.links, "links") +
+      campaignSummaryStat(theme.mapping_present ? c.mapped_issuers : "mapping unavailable", "mapped issuers") +
+      campaignSummaryStat(c.profiles, "complete profiles", ix.targets.profiles_per_theme) +
+      campaignSummaryStat(c.o1, "O1 names") +
+      campaignSummaryStat(c.finals, "O1 FINAL", c.o1) +
+      campaignSummaryStat(c.pending, "pending data") +
+      "</div>" +
+      campaignBlockers(theme.blockers) +
+      seclabel("Per-link coverage") +
+      ((theme.links || []).length
+        ? '<div class="tablewrap campaign-links"><table><thead><tr><th>Pos</th><th>Link</th><th>Status</th><th>Mapped / target</th><th>Profiles</th><th>Opportunity</th><th>FINAL</th><th>Pending</th><th>Blocker / freshness</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
+        : '<div class="emptystate">No links are projected for this theme. A missing mapping store is not treated as zero coverage.</div>') +
+      "<div class='campaign-chain-link'><a href='#/chain/" + encodeURIComponent(theme.id) + "'>open value chain →</a></div>" +
+      footer() + "</main>";
+  }
+  function campaignView(themeId) {
+    var ix = D.campaign_ix || { present: false, themes: [], o1: [] };
+    if (!ix.present) {
+      return topbar("campaign") + "<main><div class='pagehead'><h1>Campaign</h1><p class='sub'>Ten-theme research coverage, from mappings through final verdicts.</p></div>" +
+        '<div class="emptystate campaign-empty"><b>No campaign data exists yet.</b><br>A campaign manifest must exist under <span class="mono">data/campaigns/</span> before mappings or company files are counted. Nothing has been inferred.</div>' +
+        footer() + "</main>";
+    }
+    if (themeId) return campaignThemeView(ix, themeId);
+    var c = ix.counts || {}, t = ix.targets || {};
+    var opportunityTarget = t.opportunity_min != null && t.opportunity_max != null
+      ? t.opportunity_min + "–" + t.opportunity_max : null;
+    return topbar("campaign") + "<main><div class='pagehead'><div class='row'>" +
+      campaignStatusChip(ix.status) + staleChip(ix.coverage_as_of) +
+      campaignSelectionStamp(ix.selection_as_of) +
+      "</div><h1>" + esc(ix.title || "Campaign") + "</h1><p class='sub'>Ten themes in one bounded view. Coverage counts come from saved mapping and company stores; raw evidence and full profiles stay out of this artifact.</p></div>" +
+      '<div class="statgrid campaign-summary">' +
+      campaignSummaryStat(c.themes, "themes", t.themes) +
+      campaignSummaryStat(c.links, "links") +
+      campaignSummaryStat(c.mapped_issuers, "mapped issuers") +
+      campaignSummaryStat(c.profiles, "complete profiles", t.profiles_min) +
+      campaignSummaryStat(c.o1, "O1 queue", opportunityTarget) +
+      campaignSummaryStat(c.finals, "O1 FINAL", c.o1) +
+      campaignSummaryStat(c.pending, "pending data") +
+      campaignSummaryStat(c.blockers, "blockers") +
+      "</div>" +
+      campaignBlockers(ix.blockers) +
+      seclabel("Theme coverage") +
+      ((ix.themes || []).length
+        ? '<div class="campaign-grid">' + ix.themes.map(function (theme) { return campaignThemeCard(theme, t.profiles_per_theme); }).join("") + "</div>"
+        : '<div class="emptystate">The campaign exists, but its theme slate is empty. No ten-theme target is claimed.</div>') +
+      campaignO1Queue(ix) +
+      footer() + "</main>";
+  }
+
   /* ---------------- cortex ---------------- */
   /* v3: the whole machine as one field. d3-force (vendored, ISC) lays out every
      research object — signals, chains, links, scenarios, screens, names, dives,
@@ -1245,6 +1481,9 @@
           color: h.verdict ? CXP.verd[h.verdict] : CXP.none,
           gold: !!h.money_corner, choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
           label: cxTrim(l.name, 22),
+          sub: (h.verdict ? h.verdict.replace(/_/g, " ").toLowerCase() : "unscored") +
+               (h.money_corner ? " · ★ money corner" : "") +
+               ((l.bottleneck || {}).criticality === "CHOKE_POINT" ? " · choke point" : ""),
           tip: l.name + (h.verdict ? " — " + h.verdict.replace("_", " ") : " — unscored") + (h.money_corner ? " · ★ money corner" : ""),
           x0: hx + 130 * Math.cos(a), y0: hy + 130 * Math.sin(a)
         });
@@ -1261,7 +1500,8 @@
         add({
           kind: "scen", id: c.id + "/" + s.id, ref: s, chainId: c.id,
           rSem: 4.5 + 7 * ((s.probability_pct || 0) / 100), color: col,
-          label: s.id, sub: cxTrim(s.title, 26), ty: CX_H * 0.16, tyw: 0.006,
+          label: cxTrim(s.title, 26), sub: s.id + (s.probability_pct != null ? " · " + s.probability_pct + "%" : " · unscored"),
+          ty: CX_H * 0.16, tyw: 0.006,
           tip: s.id + " · " + s.title + " — " + s.probability_pct + "%",
           x0: hx + (si2 - 1.5) * 90, y0: hy - 180 + (Math.random() - 0.5) * 40
         });
@@ -1457,6 +1697,11 @@
       if (!g.ring) return;
       for (var i = 0; i < ns.length; i++) {
         var n = ns[i];
+        if (n.kind === "cand" && n.hx != null) {
+          n.vx += (n.hx - n.x) * 0.05 * alpha;
+          n.vy += (n.hy - n.y) * 0.05 * alpha;
+          continue;
+        }
         if (n.kind !== "dust" || n.sx == null) continue;
         n.vx += (n.sx - n.x) * 0.08 * alpha;
         n.vy += (n.sy - n.y) * 0.08 * alpha;
@@ -1475,14 +1720,49 @@
     if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
     var cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
     var r0 = 0.62 * Math.max(maxX - minX, maxY - minY), band = 0.28 * r0;
-    g.ring = { cx: cx, cy: cy, r0: r0, band: band };
+    // one arc per family, sized by nothing but order: the halo reads as five labelled
+    // sectors so a headline's family is legible from its position, not only its colour.
+    var span = Math.PI * 2 / CX_FAMS.length, gap = 0.055;
+    var arcOf = {}, seen = {};
+    CX_FAMS.forEach(function (f, fi) {
+      arcOf[f] = { i: fi, a0: -Math.PI / 2 + fi * span + gap, a1: -Math.PI / 2 + (fi + 1) * span - gap, n: 0 };
+      seen[f] = 0;
+    });
+    g.nodes.forEach(function (n) { if (n.kind === "dust" && arcOf[(n.ref || {}).f]) arcOf[(n.ref || {}).f].n++; });
+    g.ring = { cx: cx, cy: cy, r0: r0, band: band, arcs: arcOf, span: span, gap: gap };
     g.nodes.forEach(function (n) {
       if (n.kind !== "dust") return;
-      var ang = n.seat * 2.399963 + 0.13;
-      var rad = r0 + band * ((n.seat * 0.6180339) % 1);
+      var f = (n.ref || {}).f, arc = arcOf[f], ang, rad;
+      if (arc && arc.n > 0) {
+        var j = seen[f]++;
+        ang = arc.a0 + (arc.a1 - arc.a0) * ((j + 0.5) / arc.n);
+        rad = r0 + band * ((j * 0.6180339) % 1);
+      } else {
+        // no family on the item: it keeps the old free seat rather than being filed by guess
+        ang = n.seat * 2.399963 + 0.13;
+        rad = r0 + band * ((n.seat * 0.6180339) % 1);
+      }
       n.sx = cx + rad * Math.cos(ang);
       n.sy = cy + rad * Math.sin(ang) * 0.92;
+      n.famArc = arc ? f : null;
     });
+    // ambient candidates ride the outer halo, named, in their own family's arc
+    var candSeen = {};
+    g.nodes.forEach(function (n) {
+      if (n.kind !== "cand") return;
+      var f = (n.ref || {}).family, arc = arcOf[f];
+      if (!arc) return;
+      var k = candSeen[f] = (candSeen[f] || 0) + 1;
+      var ang2 = arc.a0 + (arc.a1 - arc.a0) * (k / (1 + countCand(g, f)));
+      var rad2 = r0 + band * 1.32;
+      n.hx = cx + rad2 * Math.cos(ang2);
+      n.hy = cy + rad2 * Math.sin(ang2) * 0.92;
+    });
+  }
+  function countCand(g, f) {
+    var n = 0;
+    g.nodes.forEach(function (x) { if (x.kind === "cand" && (x.ref || {}).family === f) n++; });
+    return n;
   }
   function cxSim(g) {
     var sim = d3.forceSimulation(g.nodes)
@@ -1623,10 +1903,29 @@
       cxReg("pcs armed", pcsOk + "/" + nNames, !pcsOk) +
       cxReg("queued", (QUEUE.queue || []).length, !(QUEUE.queue || []).length) +
       cxReg("digest wk", ((D.digests || [])[0] || {}).week || "—") +
+      // Adam's sweep. Rendered ONLY when the digest actually carries it: an absent machine
+      // section must read as "not audited", never as a healthy zero. `machineReg` returns ""
+      // rather than a register showing 0 findings over nothing examined.
+      machineReg() +
       cxReg("stalest", stalest ? stalest + "d" : "—") +
       cxReg("since visit", deltaItems().items.length);
     return h;
   }
+  /* Adam's weekly machine sweep, surfaced from the latest digest (CLAUDE.md postlude 1i).
+     Two registers, never one: a finding count without the denominator it was found over is
+     exactly the unfalsifiable number method section 9 and Rule 21 forbid. When the digest has
+     no machine section this renders NOTHING, because "0 findings" over an unaudited machine
+     is the false all-clear the audit itself exists to catch. */
+  function machineReg() {
+    var m = (((D.digests || [])[0] || {}).machine) || null;
+    if (!m) return cxReg("machine", "not audited", true);
+    var ex = m.examined || {};
+    var denom = ex.commands != null ? ex.commands + " cmds" : "";
+    return cxReg("machine", (m.findings != null ? m.findings + " findings" : "—")
+                 + (denom ? " / " + denom : "")) +
+      cxReg("v8 tree", m.v8_reachable === true ? "read" : "unreachable", m.v8_reachable !== true);
+  }
+
   var CX_LTYPE = { RUN: "#8687f0", AMEND: "#e3b23c", RADAR: "#34c77e", "RADAR-DEGRADED": "#e97f4e", DIGEST: "#8687f0", NOTE: "#6a6e86" };
   function cxLedgerRows() {
     return (D.ledger || []).slice().reverse().slice(0, 26).map(function (line) {
@@ -1646,6 +1945,50 @@
         '<span class="s" style="color:' + (art.indexOf("skipped(") === 0 ? CXP.bad : "#3e4258") + '">' + esc(res.slice(0, 74)) + "</span></div>";
     }).join("");
   }
+  /* ---- v6 two-level focus: family census, then one signal's links ranked by heat ----
+     A family is a real field on feed items and ambient candidates (validate.py enforces it
+     there). It is NOT a field on a signal card, so a signal's family is DERIVED from the
+     candidate that promoted into it and is otherwise stated as unfiled. Never inferred from
+     the title: an invented tag would be the same defect class as an invented price. */
+  var CX_FAMS = ["GEO", "CORPORATE", "TECH", "POLICY", "PHYSICAL"];
+  function cxSigFamily(sigId) {
+    var cands = (D.candidates || {}).candidates || [];
+    for (var i = 0; i < cands.length; i++) {
+      if (cands[i].promoted_signal_id === sigId && cands[i].family) return cands[i].family;
+    }
+    return null;
+  }
+  function cxNodeFamily(n) {
+    if (n.kind === "sig") return cxSigFamily(n.id);
+    var cid = n.chainId || (n.kind === "chain" && n.id) || (n.kind === "sig" && n.sigChain) || null;
+    if (!cid) return null;
+    var c = byId(D.chains, cid);
+    return c && c.signal_id ? cxSigFamily(c.signal_id) : null;
+  }
+  function cxFamilies() {
+    var out = {}, i;
+    CX_FAMS.forEach(function (f) { out[f] = { fam: f, headlines: 0, cands: 0, sigs: 0 }; });
+    // counted over the whole feed store when the build carried those totals, so the
+    // chips agree with the HELD number beside them; else over what the page inlines
+    var ftot = (D.feeds || {}).families;
+    if (ftot) CX_FAMS.forEach(function (f) { if (ftot[f] != null) out[f].headlines = ftot[f]; });
+    else ((D.feeds || {}).items || []).forEach(function (it) { if (out[it.f]) out[it.f].headlines++; });
+    ((D.candidates || {}).candidates || []).forEach(function (c) {
+      if (c.status === "AMBIENT" && out[c.family]) out[c.family].cands++;
+    });
+    (D.signals || []).forEach(function (s) {
+      var f = cxSigFamily(s.id);
+      if (f && out[f]) out[f].sigs++;
+    });
+    return CX_FAMS.map(function (f) { return out[f]; })
+      .sort(function (a, b) { return b.headlines - a.headlines; });
+  }
+  function cxUnfiledSignals() {
+    return (D.signals || []).filter(function (s) {
+      return s.status !== "DISMISSED" && s.status !== "EXPIRED" && !cxSigFamily(s.id);
+    }).length;
+  }
+
   function cxOppRail() {
     var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; })
       .slice().sort(function (a, b) { return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0); });
@@ -1660,7 +2003,9 @@
     function row(s, i) {
       var un = (s.unmappedness || {}).score || 0;
       var m = moneyOf(s);
-      return '<button class="cxopp" data-cxfly="sig:' + esc(s.id) + '">' +
+      // a chained signal opens its own ranking; an unchained one can only be flown to
+      return '<button class="cxopp' + (CX_MODE.sig === s.id ? " on" : "") + '" ' +
+        (s.chain_id ? 'data-cxradial="' + esc(s.id) + '"' : 'data-cxfly="sig:' + esc(s.id) + '"') + ">" +
         '<span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(cxTrim(s.title, 26)) + '</span><span class="un">' + un + "</span>" +
         (m ? '<span class="mc">★ ' + esc(cxTrim(m, 30)) + "</span>" : '<span class="mc dim">' + esc((s.suggested_clock || "").toLowerCase()) + "</span>") +
         "</button>";
@@ -1676,6 +2021,375 @@
     h += '<div class="cx-tierlbl">LONG TAIL</div><div class="cx-tiernone">' + tail + " smaller signal(s) · " + nC + " candidates · " + nE + " future events · feed dust</div>";
     return h;
   }
+  /* ---- v6 phase 2: the radial ranking ----
+     The field answers "what is out there"; the radial answers "in what order".
+     Both are the same nodes: the morph blends each node from its projected position in
+     the 3D field to its seat on the circle, so nothing appears or disappears without
+     being watched moving. Every ring, bar and number below is read off the payload:
+     a score that is absent stays absent and says so. */
+  /* The halo is not decoration: each labelled arc is one family of raw headlines, and the
+     count beside it is how many the feed store actually holds for that family. */
+  function cxFamilyArcs(ctx, proj3, g, gc, M) {
+    var ring = g.ring;
+    if (!ring || !ring.arcs) return;
+    ctx.save();
+    CX_FAMS.forEach(function (f) {
+      var arc = ring.arcs[f];
+      if (!arc || !arc.n) return;
+      var col = CXP.fam[f] || CXP.ink3;
+      var dim = CX_FILTER.fam && CX_FILTER.fam !== f;
+      ctx.globalAlpha = (1 - M) * (dim ? 0.16 : 0.5);
+      ctx.strokeStyle = col; ctx.lineWidth = 1;
+      ctx.beginPath();
+      var started = false;
+      for (var i = 0; i <= 24; i++) {
+        var a = arc.a0 + (arc.a1 - arc.a0) * (i / 24);
+        var rr = ring.r0 + ring.band + 14;
+        var p = proj3(ring.cx + rr * Math.cos(a), ring.cy + rr * Math.sin(a) * 0.92, 0);
+        if (!p) { started = false; continue; }
+        if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+      var am = (arc.a0 + arc.a1) / 2, lr = ring.r0 + ring.band + 42;
+      var lp = proj3(ring.cx + lr * Math.cos(am), ring.cy + lr * Math.sin(am) * 0.92, 0);
+      if (!lp) return;
+      ctx.globalAlpha = (1 - M) * (dim ? 0.3 : 1);
+      ctx.font = "8.5px 'JetBrains Mono', monospace";
+      ctx.fillStyle = dim ? CXP.ink3 : col;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(f + " · " + arc.n, lp.x, lp.y);
+    });
+    ctx.restore();
+  }
+  /* One line that always says exactly what is being shown and how to leave it. */
+  function cxStatusLine(ctx, w, h, g) {
+    var pair = cxRadialChain();
+    var txt;
+    if (CX_MODE.phase === "radial" && pair) {
+      var fam = cxSigFamily(pair.sig.id);
+      txt = "FOCUSED · " + (fam ? fam + " ▸ " : "") + pair.sig.title.toUpperCase() +
+        " · " + (pair.chain.links || []).length + " LINKS RANKED BY HEAT · ESC TO CLEAR";
+    } else if (CX_MODE.phase === "radial") {
+      var ns = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; }).length;
+      txt = "RANKED · " + ns + " SIGNALS BY UNMAPPEDNESS · ESC FOR THE FIELD";
+    } else if (CX_FILTER.fam) {
+      var f = CX_FILTER.fam;
+      var shown = 0, links = 0, heads = 0;
+      (D.signals || []).forEach(function (s) {
+        if (cxSigFamily(s.id) !== f) return;
+        shown++;
+        var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+        if (c) links += (c.links || []).length;
+      });
+      var ft = (D.feeds || {}).families;
+      if (ft && ft[f] != null) heads = ft[f];
+      else ((D.feeds || {}).items || []).forEach(function (it) { if (it.f === f) heads++; });
+      txt = "FILTERED · " + f + " · " + shown + " SIGNALS · " + links + " LINKS · " +
+        heads + " HEADLINES · ESC TO CLEAR";
+    } else {
+      var held = ((D.feeds || {}).total != null) ? (D.feeds || {}).total : ((D.feeds || {}).items || []).length;
+      txt = "RAW FEED · " + held + " HELD · EACH DOT A HEADLINE · RUN RADAR TO TRIAGE";
+    }
+    ctx.save();
+    ctx.font = "8px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "rgba(88,92,114,.85)";
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.fillText(txt, w - 20, h - 22);
+    ctx.restore();
+  }
+
+  var CX_MODE = { phase: "network", sig: null, morph: 0 };
+  var CX_HEAT_ORDER = { UNDISCOVERED: 0, EMERGING: 1, CROWDED: 2, OVER_CROWDED: 3, QUIET: 4 };
+  var CX_FACTORS = [["impact", "IMPACT", "#8687f0"], ["crowdedness", "CROWDEDNESS", "#e97f4e"], ["capture", "CAPTURE", "#34c77e"]];
+  function cxHeatRank(l) {
+    var v = (l.heat || {}).verdict;
+    return CX_HEAT_ORDER[v] != null ? CX_HEAT_ORDER[v] : 5;
+  }
+  function cxScore(l, leg) {
+    var h = l.heat || {}, f = h[leg];
+    return f && f.score != null ? f.score : null;
+  }
+  function cxRadialChain() {
+    if (!CX_MODE.sig) return null;
+    var s = byId(D.signals, CX_MODE.sig);
+    if (!s || !s.chain_id) return null;
+    var c = byId(D.chains, s.chain_id);
+    return c ? { sig: s, chain: c } : null;
+  }
+  /* Screen-space seats for the current radial. Returns {targets, draw} where draw()
+     paints the rings, spokes, meters and labels at the given alpha. */
+  function cxRadial(g, w, h, ctx) {
+    var pair = cxRadialChain();
+    // the circle is sized so its labels fit inside the stage: a name that runs off the
+    // edge is worse than a smaller ring, and the read-out is the point of the ranking
+    var gutter = Math.min(250, Math.max(150, w * 0.27));
+    var cx = w / 2, cy = h * 0.52;
+    var R = Math.max(80, Math.min(w * 0.5 - gutter, h * 0.5 - 66));
+    var lblMax = Math.max(10, Math.round((gutter - 30) / 6.6));
+    var targets = {};
+    function seat(key, x, y, r) { targets[key] = { x: x, y: y, r: r }; }
+
+    if (pair) {
+      var links = (pair.chain.links || []).slice().sort(function (a, b) {
+        var d = cxHeatRank(a) - cxHeatRank(b);
+        if (d) return d;
+        var ia = cxScore(a, "impact"), ib = cxScore(b, "impact");
+        return (ib == null ? -1 : ib) - (ia == null ? -1 : ia);
+      });
+      var n = links.length || 1;
+      var scens = pair.chain.scenarios || [];
+      links.forEach(function (l, i) {
+        var a = -Math.PI / 2 + i * 2 * Math.PI / n;
+        var imp = cxScore(l, "impact");
+        // radius reads impact; an unscored link gets the floor size, never an invented one
+        var rr = imp == null ? 3.2 : 4 + 12 * Math.pow(Math.max(0, imp - 45) / 50, 1.2);
+        l._ca = a;
+        seat("link:" + pair.chain.id + "/" + l.id, cx + R * 0.86 * Math.cos(a), cy + R * 0.86 * Math.sin(a), rr);
+      });
+      scens.forEach(function (s, j) {
+        var a2 = [-Math.PI * 0.11, Math.PI * 0.89, -Math.PI * 0.89, Math.PI * 0.11, -Math.PI * 0.5, Math.PI * 0.5][j % 6];
+        var p = s.probability_pct;
+        seat("scen:" + pair.chain.id + "/" + s.id, cx + R * 0.34 * Math.cos(a2), cy + R * 0.34 * Math.sin(a2),
+             p == null ? 2.4 : 2.5 + 4 * p / 50);
+        s._ca = a2;
+      });
+      seat("sig:" + pair.sig.id, cx, cy, 11);
+      seat("chain:" + pair.chain.id, cx, cy, 0);
+
+      return { targets: targets, focus: pair, draw: function (al) {
+        ctx.save(); ctx.globalAlpha = al;
+        ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(88,92,114,0.38)"; ctx.lineWidth = 1;
+        [0.34, 0.86].forEach(function (f) { ctx.beginPath(); ctx.arc(cx, cy, R * f, 0, 7); ctx.stroke(); });
+        ctx.setLineDash([]);
+        ctx.font = "7.5px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(88,92,114,0.85)";
+        ctx.fillText("LINKS · RANKED BY HEAT", cx, cy - R * 0.86 - 24);
+        if (scens.length) ctx.fillText("SCENARIOS", cx, cy - R * 0.34 - 12);
+        // per-link factor meters, rank numbers and read-out
+        links.forEach(function (l, i) {
+          var a = l._ca, ca = Math.cos(a), sa = Math.sin(a);
+          var t = targets["link:" + pair.chain.id + "/" + l.id];
+          var b0 = R * 0.48, b1 = R * 0.78;
+          ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "round";
+          CX_FACTORS.forEach(function (f, q) {
+            var v = cxScore(l, f[0]), off = (q - 1) * 6;
+            ctx.strokeStyle = "#16161f"; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b1, off); ctx.stroke();
+            if (v == null) return;             // no fill for an unscored leg: the empty track is the statement
+            ctx.strokeStyle = f[2];
+            ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b0 + (b1 - b0) * v / 100, off); ctx.stroke();
+          });
+          ctx.restore();
+          if (!t) return;
+          ctx.font = "8.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3; ctx.textAlign = "center";
+          ctx.fillText((i < 9 ? "0" : "") + (i + 1), cx + R * 0.42 * ca, cy + R * 0.42 * sa - 10);
+          var side = ca >= 0 ? 1 : -1, align = side > 0 ? "left" : "right";
+          var lx = t.x + (t.r + 13) * side;
+          var vd = (l.heat || {}).verdict, col = vd ? CXP.verd[vd] : CXP.none;
+          var choke = (l.bottleneck || {}).criticality === "CHOKE_POINT";
+          ctx.textAlign = align;
+          ctx.font = "600 12px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
+          ctx.fillText(cxTrim(l.name, lblMax) + ((l.heat || {}).money_corner ? " ★" : ""), lx, t.y - 13);
+          ctx.font = "7.5px 'JetBrains Mono', monospace";
+          ctx.fillStyle = choke ? CXP.bad : col;
+          ctx.fillText((vd ? vd.replace(/_/g, " ") : "UNSCORED") + (choke ? " · CHOKE POINT" : ""), lx, t.y);
+          ctx.fillStyle = CXP.ink3; ctx.font = "7px 'JetBrains Mono', monospace";
+          ctx.fillText("IMP " + num(cxScore(l, "impact")) + " · CRW " + num(cxScore(l, "crowdedness")) +
+                       " · CAP " + num(cxScore(l, "capture")), lx, t.y + 12);
+        });
+        // scenarios by their real names
+        scens.forEach(function (s) {
+          var t2 = targets["scen:" + pair.chain.id + "/" + s.id];
+          if (!t2) return;
+          var ca2 = Math.cos(s._ca), align2 = ca2 >= 0 ? "left" : "right";
+          ctx.font = "7.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2; ctx.textAlign = align2;
+          ctx.fillText(cxTrim(s.title, 28).toUpperCase() + " " + num(s.probability_pct, "unscored") +
+                       (s.probability_pct == null ? "" : "%"), t2.x + 14 * (ca2 >= 0 ? 1 : -1), t2.y);
+        });
+        cxRadialCore(ctx, cx, cy, R, pair, links.length, al);
+        cxRadialLegend(ctx, w, h, al, true);
+        ctx.restore();
+      } };
+    }
+
+    // global radial: every live signal ranked by how unmapped it still is
+    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; })
+      .slice().sort(function (a, b) {
+        var ua = (a.unmappedness || {}).score, ub = (b.unmappedness || {}).score;
+        return (ub == null ? -1 : ub) - (ua == null ? -1 : ua);
+      });
+    var m = sigs.length || 1;
+    sigs.forEach(function (s, i) {
+      var a = -Math.PI / 2 + (i + 0.5) * 2 * Math.PI / m;
+      var un = (s.unmappedness || {}).score;
+      s._ca = a;
+      seat("sig:" + s.id, cx + R * 0.93 * Math.cos(a), cy + R * 0.93 * Math.sin(a),
+           un == null ? 4.5 : 5 + 7 * un / 100);
+      var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+      if (!c) return;
+      seat("chain:" + c.id, cx + R * 0.72 * Math.cos(a), cy + R * 0.72 * Math.sin(a), 0);
+      var ls = (c.links || []).slice().sort(function (p, q) { return cxHeatRank(p) - cxHeatRank(q); });
+      var ln = ls.length || 1, spread = (2 * Math.PI / m) * 0.78;
+      ls.forEach(function (l, j) {
+        var la = a + (j - (ln - 1) / 2) * spread / ln;
+        var lr = R * (0.50 + (j % 2) * 0.06);
+        seat("link:" + c.id + "/" + l.id, cx + lr * Math.cos(la), cy + lr * Math.sin(la), 3.4);
+      });
+      (c.scenarios || []).forEach(function (sc, j, arr) {
+        var sa2 = a + (j - (arr.length - 1) / 2) * 0.30;
+        var sr = R * (j % 2 ? 0.30 : 0.24);
+        var p = sc.probability_pct;
+        seat("scen:" + c.id + "/" + sc.id, cx + sr * Math.cos(sa2), cy + sr * Math.sin(sa2),
+             p == null ? 2.2 : 2.2 + 3.5 * p / 50);
+      });
+    });
+    return { targets: targets, focus: null, draw: function (al) {
+      ctx.save(); ctx.globalAlpha = al;
+      ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(88,92,114,0.38)"; ctx.lineWidth = 1;
+      [[0.27, "SCENARIOS"], [0.54, "LINKS"], [0.97, "SIGNALS"]].forEach(function (r) {
+        ctx.beginPath(); ctx.arc(cx, cy, R * r[0], 0, 7); ctx.stroke();
+      });
+      ctx.setLineDash([]);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      [[0.27, "SCENARIOS"], [0.54, "LINKS"], [0.97, "SIGNALS"]].forEach(function (r) {
+        var ly = cy - R * r[0];
+        ctx.fillStyle = "rgba(8,8,13,0.85)"; ctx.fillRect(cx - 32, ly - 6, 64, 12);
+        ctx.font = "7.5px 'JetBrains Mono', monospace"; ctx.fillStyle = "rgba(88,92,114,0.8)";
+        ctx.fillText(r[1], cx, ly);
+      });
+      sigs.forEach(function (s, i) {
+        var a = s._ca, ca = Math.cos(a), sa = Math.sin(a), t = targets["sig:" + s.id];
+        var un = (s.unmappedness || {}).score;
+        var b0 = R * 0.60, b1 = R * 0.84;
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "round";
+        ctx.strokeStyle = "#16161f"; ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(b0, 0); ctx.lineTo(b1, 0); ctx.stroke();
+        if (un != null) {
+          ctx.strokeStyle = CXP.accent; ctx.lineWidth = 4.5;
+          ctx.beginPath(); ctx.moveTo(b0, 0); ctx.lineTo(b0 + (b1 - b0) * un / 100, 0); ctx.stroke();
+        }
+        ctx.restore();
+        if (!t) return;
+        var side = ca >= 0 ? 1 : -1, align = side > 0 ? "left" : "right";
+        var lx = t.x + (t.r + 13) * side;
+        var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+        ctx.textAlign = align; ctx.textBaseline = "middle";
+        ctx.font = "600 12.5px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
+        ctx.fillText(cxTrim(s.title, lblMax), lx, t.y - 8);
+        ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
+        ctx.fillText((i < 9 ? "0" : "") + (i + 1) + " · UN " + num(un, "unscored") + " · " +
+                     (c ? (c.links || []).length + " LINKS" : "UNCHAINED"), lx, t.y + 9);
+      });
+      ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); ctx.stroke();
+      ctx.textAlign = "center";
+      ctx.font = "600 14px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
+      ctx.fillText("UPSTREAM", cx, cy + 56);
+      var nl = 0;
+      (D.chains || []).forEach(function (c) { nl += (c.links || []).length; });
+      ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
+      ctx.fillText(sigs.length + " SIGNALS · " + nl + " LINKS · NOW", cx, cy + 72);
+      cxRadialLegend(ctx, w, h, al, false);
+      ctx.restore();
+    } };
+  }
+  function cxRadialCore(ctx, cx, cy, R, pair, nLinks, al) {
+    ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); ctx.stroke();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "600 14px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
+    ctx.fillText(cxTrim(pair.sig.title, 34), cx, cy + 52);
+    var un = (pair.sig.unmappedness || {}).score;
+    var fam = cxSigFamily(pair.sig.id);
+    ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
+    ctx.fillText((fam ? fam + " ▸ " : "") + "UN " + num(un, "unscored") + " · " + nLinks +
+                 " LINKS · " + pair.sig.id, cx, cy + 68);
+  }
+  function cxRadialLegend(ctx, w, h, al, factors) {
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    if (factors) {
+      ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = "#3e4258";
+      ctx.fillText("FACTORS · PER LINK", 20, h - 96);
+      CX_FACTORS.forEach(function (f, q) {
+        var ly = h - 76 + q * 17;
+        ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(20, ly); ctx.lineTo(42, ly); ctx.stroke();
+        ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2;
+        ctx.fillText(f[1], 50, ly + 0.5);
+      });
+      ctx.fillStyle = CXP.ink2; ctx.fillText("DOT SIZE — IMPACT", 20, h - 22);
+    }
+    // verdict legend, bottom right
+    var keys = ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"];
+    ctx.textAlign = "right";
+    ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = "#3e4258";
+    ctx.fillText("HEAT", w - 20, h - 96);
+    keys.forEach(function (k, q) {
+      var ly = h - 76 + q * 15;
+      ctx.fillStyle = CXP.verd[k];
+      ctx.beginPath(); ctx.arc(w - 26, ly, 3.2, 0, 7); ctx.fill();
+      ctx.fillStyle = CXP.ink2; ctx.textAlign = "right";
+      ctx.fillText(k.replace(/_/g, " "), w - 34, ly + 0.5);
+    });
+  }
+
+  function cxTopRail() {
+    var fams = cxFamilies();
+    var h = '<div class="cx-toprail"><div class="cx-famrow">';
+    h += '<button class="cx-famchip' + (CX_FILTER.fam ? "" : " on") + '" data-cxfam="">ALL</button>';
+    fams.forEach(function (f) {
+      var on = CX_FILTER.fam === f.fam;
+      h += '<button class="cx-famchip' + (on ? " on" : "") + '" data-cxfam="' + esc(f.fam) + '"' +
+        (on ? ' style="border-color:' + (CXP.fam[f.fam] || CXP.ink3) + '"' : "") + '>' +
+        '<i class="dot" style="background:' + (CXP.fam[f.fam] || CXP.ink3) + '"></i>' +
+        esc(f.fam) + " " + f.headlines + (on ? " ✕" : "") + "</button>";
+    });
+    h += "</div>" + cxSubRail() + "</div>";
+    return h;
+  }
+  function cxSubRail() {
+    var f = CX_FILTER.fam;
+    if (!f) return "";
+    var sigs = (D.signals || []).filter(function (s) {
+      return s.status !== "DISMISSED" && s.status !== "EXPIRED" && cxSigFamily(s.id) === f;
+    }).sort(function (a, b) {
+      var ua = (a.unmappedness || {}).score, ub = (b.unmappedness || {}).score;
+      return (ub == null ? -1 : ub) - (ua == null ? -1 : ua);
+    });
+    var cands = ((D.candidates || {}).candidates || []).filter(function (c) {
+      return c.status === "AMBIENT" && c.family === f;
+    });
+    var h = '<div class="cx-subrail"><span class="lbl" style="color:' + (CXP.fam[f] || CXP.ink3) + '">IN ' + esc(f) + " · PRIORITIZED</span>";
+    if (sigs.length) {
+      sigs.forEach(function (s, i) {
+        var un = (s.unmappedness || {}).score;
+        var chained = !!s.chain_id;
+        h += '<button class="cx-subchip' + (CX_MODE.sig === s.id ? " on" : "") + '"' +
+          (chained ? ' data-cxradial="' + esc(s.id) + '"' : ' data-cxfly="sig:' + esc(s.id) + '"') +
+          ' title="' + esc(s.title) + '">' +
+          (i < 9 ? "0" : "") + (i + 1) + " " + esc(cxTrim(s.title, 26).toUpperCase()) +
+          " · " + (un == null ? "unscored" : un) + (CX_MODE.sig === s.id ? " ✕" : "") + "</button>";
+      });
+    } else {
+      h += '<span class="cx-subnone">no signal is filed to ' + esc(f) +
+        " · a signal takes its family from the candidate it was promoted from, and " +
+        cxUnfiledSignals() + " of " + (D.signals || []).length + " are unfiled</span>";
+    }
+    cands.forEach(function (c) {
+      h += '<button class="cx-subchip dim" data-cxfly="cand:' + esc(c.id) + '" title="' + esc(c.title) + '">' +
+        esc(cxTrim(c.title, 24).toUpperCase()) + "</button>";
+    });
+    return h + "</div>";
+  }
+  function cxPhaseBar() {
+    var s = CX_MODE.sig ? byId(D.signals, CX_MODE.sig) : null;
+    return '<div class="cx-phase">' +
+      '<button class="cx-phbtn' + (CX_MODE.phase === "network" ? " on" : "") + '" data-cxphase="network">◉ NETWORK</button>' +
+      '<button class="cx-phbtn' + (CX_MODE.phase === "radial" ? " on" : "") + '" data-cxphase="radial"' +
+      ' title="every signal ranked by unmappedness; click a chained signal for its own ranking">◎ RADIAL' +
+      (s ? " · " + esc(cxTrim(s.title, 22).toUpperCase()) : "") + "</button></div>";
+  }
+
   function cxFilterRail() {
     var h = '<div class="cx-grp">FILTER <button id="cxFReset" class="cxfreset" title="clear all filters">reset</button></div>';
     h += '<input id="cxSearch" class="cxsearch" type="text" placeholder="search the field…" aria-label="search the field">';
@@ -1684,9 +2398,6 @@
     }).join("") + "</div>";
     h += '<div class="cxchips">' + (D.chains || []).map(function (c) {
       return '<button class="cxfchip sel' + (CX_FILTER.chain === c.id ? " on" : "") + '" data-cxchain="' + esc(c.id) + '">' + esc(cxTrim(c.id.replace(/-/g, " "), 18)) + "</button>";
-    }).join("") + "</div>";
-    h += '<div class="cxchips">' + ["GEO", "CORPORATE", "TECH", "POLICY", "PHYSICAL"].map(function (f) {
-      return '<button class="cxfchip sel' + (CX_FILTER.fam === f ? " on" : "") + '" data-cxfam="' + f + '" style="border-bottom-color:' + (CXP.fam[f] || CXP.ink3) + '">' + f.toLowerCase() + "</button>";
     }).join("") + "</div>";
     return h;
   }
@@ -1698,6 +2409,7 @@
       '<div class="cx-stage">' +
       '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
       '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
+      cxTopRail() + cxPhaseBar() +
       "</div>" +
       '<div class="cx-rail-r"><div class="cx-grp">EVENT LOG</div>' + cxLedgerRows() + "</div>" +
       '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
@@ -1901,7 +2613,10 @@
       else if (ch !== CX_FILTER.chain) return false;
     }
     if (CX_FILTER.fam) {
-      var f = n.kind === "dust" ? (n.ref || {}).f : n.kind === "cand" ? (n.ref || {}).family : n.kind === "evt" ? (n.ref || {}).kind : null;
+      var f = n.kind === "dust" ? (n.ref || {}).f
+        : n.kind === "cand" ? (n.ref || {}).family
+        : n.kind === "evt" ? (n.ref || {}).kind
+        : cxNodeFamily(n);
       if (f !== CX_FILTER.fam) return false;
     }
     if (CX_FILTER.q) {
@@ -1991,7 +2706,34 @@
       }
       return best;
     }
+    /* Frame a whole section (a chain and everything hanging off it) rather than a point:
+       a 12-link chain read at the field's default distance is a pile of overlapping names. */
+    function flyToFit(ns, lead) {
+      var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9, minZ = 1e9, maxZ = -1e9, k = 0;
+      ns.forEach(function (n) {
+        if (!n || n.x == null) return;
+        k++;
+        if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+        if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
+        var z = n.z || 0;
+        if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+      });
+      if (!k || !cam) return;
+      var w2 = canvas.clientWidth, h2 = canvas.clientHeight;
+      var gw = Math.max(maxX - minX, 120), gh = Math.max(maxY - minY, 100);
+      var sc = Math.min((w2 * 0.62) / gw, (h2 * 0.62) / gh);
+      fly = {
+        t0: Date.now(), ms: 700,
+        from: { tx: cam.tx, ty: cam.ty, tz: cam.tz, dist: cam.dist },
+        to: { tx: (minX + maxX) / 2, ty: (minY + maxY) / 2, tz: (minZ + maxZ) / 2,
+              dist: Math.max(240, Math.min(3600, CX_F / Math.max(0.2, sc))) },
+        n: lead || null
+      };
+      focus = lead || null; pinned = null;
+      userView = true; CX_CACHE.userView = true; CX_CACHE.touched = true;
+    }
     function flyTo(n) {
+      if (!cam) return;
       fly = {
         t0: Date.now(), ms: 650,
         from: { tx: cam.tx, ty: cam.ty, tz: cam.tz, dist: cam.dist },
@@ -2029,11 +2771,23 @@
       }
       setT(w, h);
 
+      // phase morph: nodes travel between the field and the circle, never teleport
+      var mTarget = CX_MODE.phase === "radial" ? 1 : 0;
+      if (REDUCED) CX_MODE.morph = mTarget;
+      else if (CX_MODE.morph !== mTarget) {
+        var step = 0.055;
+        CX_MODE.morph += Math.sign(mTarget - CX_MODE.morph) * step;
+        if (Math.abs(mTarget - CX_MODE.morph) < step) CX_MODE.morph = mTarget;
+      }
+      var M = CX_MODE.morph, RAD = M > 0.001 ? cxRadial(g, w, h, ctx) : null;
+
       var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.72);
       bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
       ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
       // NOW plane (translucent disc at z = 0) + the time axis with year ticks
+      ctx.globalAlpha = 1 - M;
+      if (M < 0.995) {
       var planeR = (g.ring ? g.ring.r0 * 1.02 : 520);
       ctx.strokeStyle = "rgba(134,135,240,0.20)"; ctx.lineWidth = 1;
       ctx.beginPath();
@@ -2074,6 +2828,10 @@
       ctx.fillStyle = CXP.ink3; ctx.font = "9px 'JetBrains Mono', monospace";
       if (pA) ctx.fillText("« PAST", pA.x, pA.y + 12);
       if (pB) ctx.fillText("FUTURE »", pB.x, pB.y + 12);
+      cxFamilyArcs(ctx, proj3, g, gc, M);
+      }
+      ctx.globalAlpha = 1;
+      if (RAD) RAD.draw(M);
 
       // project all nodes
       g.nodes.forEach(function (n, ni) {
@@ -2081,7 +2839,20 @@
         if (!pp) { n._px = null; return; }
         n._px = pp.x + (n.kind === "dust" || REDUCED ? 0 : Math.sin(t * 0.4 + ni));
         n._py = pp.y + (n.kind === "dust" || REDUCED ? 0 : Math.cos(t * 0.33 + ni * 2) * 0.8);
-        n._s = pp.s; n._d = pp.d;
+        n._s = pp.s; n._d = pp.d; n._fade = 1;
+        if (!RAD) return;
+        var tg = RAD.targets[n.key];
+        if (tg) {
+          var e2 = M < 0.5 ? 2 * M * M : 1 - Math.pow(-2 * M + 2, 2) / 2;
+          n._px += (tg.x - n._px) * e2;
+          n._py += (tg.y - n._py) * e2;
+          n._s += (tg.r / Math.max(0.001, n.r) - n._s) * e2;
+          n._radial = true;
+        } else {
+          // nothing on the circle to become: it dims out rather than snapping to the middle
+          n._fade = 1 - M;
+          n._radial = false;
+        }
       });
 
       var hi = hover || focus;
@@ -2092,6 +2863,7 @@
       function nodeAlpha(n) {
         var base = n.kind === "dust" ? 0.34 + 0.14 * Math.sin(t * 0.8 + n.seat * 1.7) : n.kind === "co" ? 0.72 : n.kind === "socket" ? 0.32 : 0.92;
         base *= fog(n);
+        base *= n._fade == null ? 1 : n._fade;
         if (anyFilter && !cxMatch(n)) base *= 0.07;
         if (!hi) return base;
         return (n === hi || (hadj && hadj[n.key])) ? Math.max(base, anyFilter && !cxMatch(n) ? 0.3 : 0.95) : base * 0.2;
@@ -2103,7 +2875,7 @@
         if (e.source._px == null || e.target._px == null) return;
         var near = hi && (e.source === hi || e.target === hi);
         var a = !hi ? e.alpha : near ? Math.min(0.55, e.alpha * 5) : e.alpha * 0.2;
-        a *= Math.max(0.3, Math.min(1.1, cam.dist / ((e.source._d + e.target._d) / 2)));
+        a *= Math.max(0.3, Math.min(1.1, cam.dist / ((e.source._d + e.target._d) / 2))) * (1 - M);
         if (anyFilter && (!cxMatch(e.source) || !cxMatch(e.target))) a *= 0.12;
         var b = Math.max(1, Math.round(a * 40));
         (buckets[b] = buckets[b] || []).push(e);
@@ -2140,7 +2912,9 @@
             ctx.beginPath(); ctx.arc(x, y, R * 3, 0, 7); ctx.fill();
             ctx.globalAlpha = a;
           } else {
-            var halo = sprite(n.color, R, n.kind === "sig" || n.kind === "chain" ? 6 : 4.2);
+            var soft = n.kind === "sig" || n.kind === "chain" ? 6 : 4.2;
+            if (n._radial && M > 0.5) soft = 3.0;
+            var halo = sprite(n.color, R, soft);
             ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
           }
           if (n.hollow) {
@@ -2183,26 +2957,32 @@
           if (ramp3 <= 0.03 || dustLabels > 60 || !matched) continue;
           if (hi && n !== hi) continue;
           dustLabels++;
-          ctx.globalAlpha = ramp3 * 0.55;
+          ctx.globalAlpha = ramp3 * 0.55 * (n._fade == null ? 1 : n._fade);
           ctx.font = "9px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
           ctx.fillText(cxTrim((n.ref || {}).t, 30), n._px, n._py + 10);
           continue;
         }
         if (!n.label) continue;
+        if (n._radial && M > 0.35) continue;
         var major = n.tier === "MAJOR", mid = n.tier === "MID";
         var big = n.kind === "sig" || n.kind === "chain";
         var base = major ? 1 : mid ? 0.9 : big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.55, rampN) : n.kind === "co" ? Math.max(0, rampN - 0.35) : Math.max(0, rampN - 0.1);
+        // focus spells the section out: a filtered-to link is named at any zoom, because
+        // the point of narrowing the field is to read what survived, not to hunt for it
+        if (anyFilter && matched && (n.kind === "link" || n.kind === "scen") && rampN > 0.12) base = 1;
         var la = (n === hi) ? 1 : base * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1) * (matched ? 1 : 0.07) * Math.max(0.4, Math.min(1, fog(n)));
+        // a node with no seat on the circle takes its label with it as it fades out
+        la *= n._fade == null ? 1 : n._fade;
         if (la <= 0.03) continue;
         ctx.globalAlpha = la;
         ctx.font = (major ? "700 14px" : big ? "600 12px" : "500 10.5px") + " 'Baloo 2', 'JetBrains Mono', sans-serif";
         ctx.fillStyle = n === hi ? "#ffffff" : big ? CXP.ink : CXP.ink2;
         ctx.fillText(n.label, n._px, n._py + n._R + (big ? 19 : 13));
-        if (n.sub && (big || n === hi)) {
+        if (n.sub && (big || n === hi || (anyFilter && matched && n.kind === "link"))) {
           ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
           ctx.fillText(n.sub, n._px, n._py + n._R + (major ? 35 : 32));
         }
-        if ((major || ramp2 > 0.25 || n === hi) && n.kind !== "socket") {
+        if ((major || ramp2 > 0.25 || n === hi || (anyFilter && matched && n.kind === "link")) && n.kind !== "socket") {
           var info = cxInfo(n);
           if (info) {
             ctx.globalAlpha = la * (major ? 0.85 : Math.max(0.4, ramp2));
@@ -2222,6 +3002,7 @@
         if (ly < 8) ly = 8; if (ly + 260 > innerHeight) ly = innerHeight - 268;
         card.style.left = lx + "px"; card.style.top = ly + "px";
       }
+      cxStatusLine(ctx, w, h, g);
       if (zoomEl) zoomEl.textContent = "ZOOM " + T.k.toFixed(2) + "× · YAW " + Math.round(cam.yaw * 180 / Math.PI) % 360 + "°";
       raf = requestAnimationFrame(draw);
     }
@@ -2297,7 +3078,12 @@
           sim.alphaTarget(0);
           if (drag.alt) { n.pinned = true; } else { n.fx = null; n.fy = null; n.pinned = false; }
         }
-        if (quick) { card.style.display = "none"; cxShowDrawer(cxNodeDrawer(n)); }
+        if (quick) {
+          card.style.display = "none";
+          // a chained signal unfolds into its own ranking; everything else opens its record
+          if (n.kind === "sig" && (n.ref || {}).chain_id && CX_MODE.phase !== "radial") enterRadial(n.id);
+          else cxShowDrawer(cxNodeDrawer(n));
+        }
         drag = null;
       }
       orbit = null; panMove = null;
@@ -2331,7 +3117,13 @@
         e.preventDefault();
         cam = cxCam(g, canvas.clientWidth, canvas.clientHeight); cam.tx = gc.x; cam.ty = gc.y;
         userView = false; CX_CACHE.userView = false; pinned = null; sim.alpha(0.2);
-      } else if (e.key === "Escape") { focus = null; pinned = null; card.style.display = "none"; setRead(null); }
+      } else if (e.key === "Escape") {
+        focus = null; pinned = null; card.style.display = "none"; setRead(null);
+        // one level at a time: the signal radial, then the family, then the bare field
+        if (CX_MODE.sig) { CX_MODE.sig = null; CX_MODE.phase = "network"; refreshChrome(); }
+        else if (CX_MODE.phase === "radial") { CX_MODE.phase = "network"; refreshChrome(); }
+        else if (CX_FILTER.fam) { CX_FILTER.fam = null; refreshChrome(); }
+      }
     });
 
     // opportunities register: fly the camera to a ranked node
@@ -2342,6 +3134,7 @@
       });
     });
     // filter rail wiring (state lives in CX_FILTER; rail re-renders per view)
+    function bindRail() {
     document.querySelectorAll("[data-cxk]").forEach(function (b) {
       b.addEventListener("click", function () {
         var k = b.getAttribute("data-cxk");
@@ -2354,18 +3147,68 @@
         var c = b.getAttribute("data-cxchain");
         CX_FILTER.chain = CX_FILTER.chain === c ? null : c;
         document.querySelectorAll("[data-cxchain]").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-cxchain") === CX_FILTER.chain); });
+        // narrowing to a section is only useful if you can read it: fly in, or fly back out
+        if (CX_FILTER.chain) {
+          // frame the chain's own structure. Its screened names and dives are seated
+          // across the width of the field, and including them frames everything, which
+          // is the same as framing nothing.
+          var SECT = { sig: 1, chain: 1, link: 1, scen: 1 };
+          var sect = g.nodes.filter(function (n2) { return SECT[n2.kind] && cxMatch(n2); });
+          flyToFit(sect, g.byKey["chain:" + CX_FILTER.chain]);
+        } else if (cam) {
+          cam = cxCam(g, canvas.clientWidth, canvas.clientHeight);
+          cam.tx = gc.x; cam.ty = gc.y;
+          focus = null; pinned = null; userView = false; CX_CACHE.userView = false;
+        }
       });
     });
-    document.querySelectorAll("[data-cxfam]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var f = b.getAttribute("data-cxfam");
-        CX_FILTER.fam = CX_FILTER.fam === f ? null : f;
-        document.querySelectorAll("[data-cxfam]").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-cxfam") === CX_FILTER.fam); });
+    function enterRadial(sigId) {
+      CX_MODE.sig = CX_MODE.sig === sigId ? null : sigId;
+      CX_MODE.phase = CX_MODE.sig ? "radial" : "network";
+      focus = null; pinned = null; card.style.display = "none";
+      refreshChrome();
+    }
+    function refreshChrome() {
+      var top = document.querySelector(".cx-toprail");
+      if (top) top.outerHTML = cxTopRail();
+      var opp = document.querySelector(".cx-rail-l");
+      if (opp) { opp.innerHTML = cxOppRail() + cxFilterRail() + cxRailLeft(); bindRail(); }
+      var ph = document.querySelector(".cx-phase");
+      if (ph) ph.outerHTML = cxPhaseBar();
+      bindChrome();
+    }
+    function bindChrome() {
+      document.querySelectorAll(".cx-toprail [data-cxfam]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var f = b.getAttribute("data-cxfam");
+          CX_FILTER.fam = (!f || CX_FILTER.fam === f) ? null : f;
+          if (!CX_FILTER.fam) { CX_MODE.sig = null; CX_MODE.phase = "network"; }
+          refreshChrome();
+        });
       });
-    });
+      document.querySelectorAll("[data-cxradial]").forEach(function (b) {
+        b.addEventListener("click", function () { enterRadial(b.getAttribute("data-cxradial")); });
+      });
+      document.querySelectorAll("[data-cxphase]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          if (b.hasAttribute("disabled")) return;
+          CX_MODE.phase = b.getAttribute("data-cxphase");
+          refreshChrome();
+        });
+      });
+      document.querySelectorAll(".cx-toprail [data-cxfly]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var n2 = g.byKey[b.getAttribute("data-cxfly")];
+          if (n2) { CX_MODE.phase = "network"; refreshChrome(); flyTo(n2); }
+        });
+      });
+    }
+    bindChrome();
     var cxReset = document.getElementById("cxFReset");
     if (cxReset) cxReset.addEventListener("click", function () {
       CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
+      CX_MODE.sig = null; CX_MODE.phase = "network";
+      refreshChrome();
       var si0 = document.getElementById("cxSearch"); if (si0) si0.value = "";
       document.querySelectorAll("[data-cxk]").forEach(function (x) { x.classList.remove("off"); });
       document.querySelectorAll("[data-cxchain],[data-cxfam]").forEach(function (x) { x.classList.remove("on"); });
@@ -2375,6 +3218,8 @@
       si.value = CX_FILTER.q;
       si.addEventListener("input", function () { CX_FILTER.q = si.value.trim().toLowerCase(); });
     }
+    }
+    bindRail();
     document.querySelectorAll("[data-crot]").forEach(function (b) {
       b.addEventListener("click", function () { touched(); cam.yaw += parseInt(b.getAttribute("data-crot"), 10) * Math.PI / 12; });
     });
@@ -2439,6 +3284,7 @@
     else if (p[0] === "screen") html = screenView(p[1], p[2]);
     else if (p[0] === "stock") html = stockView(p[1], p[2]);
     else if (p[0] === "cortex") html = cortexView();
+    else if (p[0] === "campaign") html = campaignView(p[1]);
     else if (p[0] === "book") html = bookView();
     else if (p[0] === "shadow") html = shadowView();
     else html = cortexView();

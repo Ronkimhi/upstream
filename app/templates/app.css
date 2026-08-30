@@ -126,7 +126,25 @@ h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01
 .chip.QUIET { background: var(--quiet-bg); color: var(--quiet-ink); }
 .chip.stale { background: var(--emg-bg); color: var(--emg-ink); text-transform: none; letter-spacing: 0; }
 .chip.verystale { background: var(--ovr-bg); color: var(--ovr-ink); text-transform: none; letter-spacing: 0; }
-.chip.tier { background: var(--surface-2); color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
+.chip.tier { background: transparent; color: var(--ink-2); border: 1px solid var(--border-strong);
+  border-radius: 4px; font-family: "JetBrains Mono", monospace; }
+.chip.opportunity { border-radius: 999px; border: 1px solid currentColor;
+  font-family: "JetBrains Mono", monospace; font-weight: 700; letter-spacing: .08em; }
+.chip.opp-O1 { background: var(--accent-soft); color: var(--accent-ink); }
+.chip.opp-O2 { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.opp-O3 { background: var(--quiet-bg); color: var(--quiet-ink); }
+.chip.opp-none { background: var(--surface-2); color: var(--ink-3); }
+/* Impact bands (method 0.2). Reuses the existing heat palette rather than introducing a
+   second colour language for the same idea: PRIME reads like UNDISCOVERED because both mean
+   "worth owning and nobody is there", LEAKY and COMPETED read like OVER_CROWDED because both
+   mean "the money does not end up yours", and UNRANKED is deliberately colourless so an
+   un-appraised occurrence never looks like a scored one. */
+.chip.impact-PRIME { background: var(--und-bg); color: var(--und-ink); }
+.chip.impact-REACHABLE { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.impact-COMPETED, .chip.impact-LEAKY { background: var(--ovr-bg); color: var(--ovr-ink); }
+.chip.impact-THIN { background: var(--quiet-bg); color: var(--quiet-ink); }
+.chip.impact-UNRANKED { background: transparent; color: var(--ink-3);
+  border: 1px dashed var(--border-strong); }
 .num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
 .muted { color: var(--ink-3); font-size: 12px; }
 .small { font-size: 12.5px; color: var(--ink-2); }
@@ -340,6 +358,46 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .emptystate .runwrap { align-items: center; margin-top: 14px; }
 .footer { margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--ink-3); max-width: 90ch; }
 
+/* ================= campaign ================= */
+.campaign-summary { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin: 18px 0 8px; }
+.campaign-stat { padding: 14px 16px; }
+.campaign-stat .stat .v { font-size: 23px; }
+.campaign-target { color: var(--ink-3); font-size: .58em; font-weight: 500; }
+.campaign-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.campaign-theme { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.campaign-theme-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.campaign-theme h3 { font-size: 15px; margin: 8px 0 0; }
+.campaign-open { flex: none; font-size: 11.5px; }
+.coverage-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  color: var(--ink-3); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.coverage-line b { color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.coverage-track { height: 5px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.coverage-track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.coverage-track[data-empty="true"] { border: 1px dashed var(--border-strong); background: transparent; }
+.campaign-mini { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 14px;
+  padding-top: 2px; color: var(--ink-3); font-size: 11.5px; }
+.campaign-mini span { display: inline-flex; align-items: center; gap: 5px; }
+.campaign-mini b { color: var(--ink-2); font-weight: 600; }
+.campaign-warn { color: var(--emg-ink) !important; }
+.campaign-bad { color: var(--ovr-ink) !important; }
+.campaign-blockers { margin: 14px 0; border-left-color: var(--ovr); }
+.campaign-blockers .bullets { margin-top: 7px; }
+.campaign-theme-stats { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); margin: 18px 0; }
+.campaign-links td:nth-child(n+3) { white-space: nowrap; }
+.campaign-links td:last-child { min-width: 190px; white-space: normal; }
+.campaign-links .chip.stale, .campaign-links .chip.verystale { display: flex; width: max-content; margin-top: 5px; }
+.campaign-chain-link { margin-top: 16px; font-size: 12.5px; }
+.campaign-o1 .btn-run { padding: 5px 9px; font-size: 11.5px; border-radius: 7px; white-space: nowrap; }
+.campaign-o1 .chip.stale, .campaign-o1 .chip.verystale { display: flex; width: max-content; margin-top: 5px; }
+.tier-plane { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.plane-label { font-size: 8.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; }
+.campaign-empty b { color: var(--ink); }
+.campaign-empty-small { padding: 24px 18px; text-align: left; }
+@media (max-width: 760px) {
+  .campaign-grid { grid-template-columns: 1fr; }
+  .campaign-theme-head { align-items: baseline; }
+}
+
 /* ---------------- cortex ---------------- */
 /* The panel commits to its own dark ground in every theme: it is a map, not a card. */
 .cxpanel { padding: 0; overflow: hidden; background: #08080d; border-color: #1b1b26; }
@@ -523,3 +581,60 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .gaptable td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 .gaptable tr:last-child td { border-bottom: 0; }
 .gaptable td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* --- cortex v6 (2026-08-30): two-level focus — family rail, sub-rail, phase toggle ---
+   Chrome floats over the field rather than boxing it in, so the map keeps the full stage.
+   Like the panel itself these commit to the dark ground in every theme. */
+.cx-toprail {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  max-width: calc(100% - 96px); z-index: 3; pointer-events: none;
+}
+.cx-famrow, .cx-subrail {
+  display: flex; gap: 5px; align-items: center; max-width: 100%;
+  overflow-x: auto; scrollbar-width: none; pointer-events: auto;
+  border-radius: 999px; border: 1px solid #1e1e2c;
+}
+.cx-famrow::-webkit-scrollbar, .cx-subrail::-webkit-scrollbar { display: none; }
+.cx-famrow { padding: 5px 7px; background: rgba(16, 16, 26, .88); }
+.cx-subrail { padding: 4px 7px; background: rgba(16, 16, 26, .75); }
+.cx-famchip, .cx-subchip {
+  display: inline-flex; align-items: center; gap: 5px; flex: none; white-space: nowrap;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .04em;
+  padding: 3px 9px; border-radius: 999px; background: #14141d; border: 1px solid #232332;
+  color: #585c72; cursor: pointer;
+}
+.cx-famchip .dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.cx-famchip:hover, .cx-subchip:hover { color: #dde0ef; border-color: #34344a; }
+.cx-famchip.on { background: #1d1d31; color: #fff; font-weight: 600; }
+.cx-famchip:focus-visible, .cx-subchip:focus-visible, .cx-phbtn:focus-visible { outline: 1px solid #8687f0; }
+.cx-subchip { font-size: 8.5px; padding: 2.5px 8px; color: #dde0ef; }
+.cx-subchip.dim { color: #9296ad; }
+.cx-subchip.on { background: #1d1d31; border-color: #8687f0; color: #fff; font-weight: 600; }
+.cx-subrail .lbl {
+  font-family: "JetBrains Mono", monospace; font-size: 8px; font-weight: 500;
+  letter-spacing: .12em; padding: 0 4px; white-space: nowrap; flex: none;
+}
+.cx-subnone {
+  font-family: "JetBrains Mono", monospace; font-size: 8px; color: #585c72;
+  letter-spacing: .02em; padding: 0 6px; max-width: 460px; white-space: normal; line-height: 1.5;
+}
+.cx-phase {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; align-items: center; z-index: 3;
+}
+.cx-phbtn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 600;
+  letter-spacing: .12em; color: #585c72; cursor: pointer; white-space: nowrap;
+}
+.cx-phbtn:hover:not([disabled]) { color: #dde0ef; border-color: #34344a; }
+.cx-phbtn.on { background: #1d1d31; border-color: #8687f0; color: #fff; }
+.cx-phbtn[disabled] { opacity: .45; cursor: default; }
+@media (max-width: 860px) {
+  .cx-toprail { max-width: calc(100% - 24px); }
+  .cx-subnone { max-width: 260px; }
+  .cx-phase { bottom: 10px; }
+}
+.cxopp.on { border-color: #8687f0; background: #1d1d31; }
