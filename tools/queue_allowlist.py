@@ -57,6 +57,7 @@ _SHA = r"[0-9a-f]{7,40}"
 SHAPES = (
     r"run radar",
     r"run digest",
+    r"run themes",
     r"run campaign init",
     rf"run selection {_CAMPAIGN}",
     rf"run impact (?:{_SIGNAL}|{_CANDIDATE})",

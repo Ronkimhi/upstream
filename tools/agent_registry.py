@@ -18,6 +18,8 @@ it, never to the process that displays it.
 import re
 from pathlib import Path
 
+from queue_allowlist import is_allowed
+
 GATE_RE = re.compile(r"tools/(check_[a-z_]+)\.py")
 # The command table's first column: `run heat <chain>` / `check health` in backticks.
 COMMAND_RE = re.compile(r"^\|\s*`([a-z]+ [^`]*)`")
@@ -118,8 +120,12 @@ def agents(root: Path) -> list:
         slug = fm.get("name") or path.stem
         name = given_name(path.stem)
         desc = fm.get("description", "")
+        # `runnable` is decided by the click-queue allowlist itself, never by looking for
+        # angle brackets here. A button that queues a string the allowlist will refuse is
+        # indistinguishable, from the browser, from a button that does nothing.
         cmds = [
-            {"cmd": cmd, "key": command_key(cmd), "verify": verify}
+            {"cmd": cmd, "key": command_key(cmd), "verify": verify,
+             "runnable": bool(is_allowed(cmd))}
             for cmd, agent, verify in rows if agent == name
         ]
         out.append({

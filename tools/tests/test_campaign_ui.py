@@ -13,7 +13,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROJECTION_SCALE_BUDGET = 120_000
-HTML_SCALE_BUDGET = 1_500_000
+# Read from app/build.py rather than kept as a second number here. The two had already
+# drifted: build.py warned at 2.0 MB while this asserted 1.5 MB, so a page between the two
+# passed a real build with no warning and failed a test with no explanation. One threshold,
+# owned by the file that actually enforces it during a build. Raised past 1.5 MB on
+# 2026-08-30 when the eight agent contracts (109 KB) and the occurrence log (133 KB) were
+# inlined; both are payload the page now renders, and the campaign projection this test
+# stresses is still capped separately by CAMPAIGN_PROJECTION_MAX_BYTES.
 
 
 def _load_build():
@@ -24,6 +30,7 @@ def _load_build():
 
 
 build = _load_build()
+HTML_SCALE_BUDGET = int(build.SIZE_WARN_MB * 1_000_000)
 
 
 def public_listing(issuer_id, issuer_name, listing_id, ticker, exchange):
@@ -677,7 +684,13 @@ class TestCampaignProjection(unittest.TestCase):
         html = build.assemble_html(payload)
         self.assertIn(build.BLOB_MARKER, html)
         self.assertNotIn(fixture.RAW_MARKER, html)
-        self.assertLess(len(html.encode()), HTML_SCALE_BUDGET)
+        self.assertLess(len(html.encode()), HTML_SCALE_BUDGET,
+                        f"page is {len(html.encode()):,} bytes against build.py's own "
+                        f"{HTML_SCALE_BUDGET:,}-byte warn threshold")
+        # The thing this test is actually about: a campaign at full scale must not be
+        # what blows the page up, whatever else the payload is carrying.
+        self.assertLess(len(json.dumps(projection, separators=(",", ":")).encode()),
+                        build.CAMPAIGN_PROJECTION_MAX_BYTES)
 
 
 class TestCampaignRendererContract(unittest.TestCase):

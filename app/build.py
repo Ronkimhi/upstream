@@ -18,10 +18,12 @@ DATA = ROOT / "data"
 TOOLS = ROOT / "tools"
 SIZE_WARN_MB = 2.0
 CAMPAIGN_PROJECTION_MAX_BYTES = 250_000
+OCCURRENCE_ROWS_INLINED = 900
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from agent_registry import agents_payload  # noqa: E402
+from theme_calibrate import BASELINE_WEEKS, SURGE_MIN_COUNT, SURGE_MULTIPLE  # noqa: E402
 from check_campaign import (  # noqa: E402
     canonical_mapped_placements,
     validated_public_listings,
@@ -848,6 +850,40 @@ def main() -> int:
         except Exception:
             pass
 
+    # The occurrence log, trimmed the same way the feed dust ring is and for the same
+    # reason: `total` is the whole store, `rows` is what the page can afford to carry. The
+    # UI must never print len(rows) where the corpus size belongs -- that exact mistake put
+    # "300 HELD" on a page whose store held 317.
+    themes_store = None
+    tf, of = DATA / "themes" / "themes.json", DATA / "themes" / "occurrences.json"
+    if tf.exists() and of.exists():
+        try:
+            _t = json.loads(tf.read_text())
+            _o = json.loads(of.read_text())
+            _rows = [r for r in _o.get("occurrences", []) if isinstance(r, dict)]
+            _rows.sort(key=lambda r: (str(r.get("ts") or ""), str(r.get("id") or "")), reverse=True)
+            themes_store = {
+                "as_of": _t.get("as_of"),
+                "themes": [{k: v for k, v in t.items() if k != "changelog"}
+                           for t in _t.get("themes", [])],
+                "calibration": _t.get("calibration") or {},
+                "total": len(_o.get("occurrences", [])),
+                # Short keys and only the fields the page renders. `origin_ref` rides
+                # along only for the origins the page can link to; every feed id on the
+                # page would be 355 dead strings, since the store they point into prunes.
+                "rows": [{"i": r.get("id"), "t": (r.get("title") or "")[:130],
+                          "s": r.get("source"), "u": r.get("url"), "d": r.get("ts"),
+                          "o": r.get("origin"),
+                          "r": r.get("origin_ref") if r.get("origin") != "feed" else None,
+                          "f": r.get("family"), "th": r.get("theme_id"),
+                          "b": (r.get("theme_basis") or "")[:120],
+                          "by": (r.get("theme_by") if not str(r.get("theme_by") or "")
+                                 .startswith("rule:") else None)}
+                         for r in _rows[:OCCURRENCE_ROWS_INLINED]],
+            }
+        except Exception:
+            themes_store = None
+
     campaign_ix = build_campaign_ix(
         DATA, chains=chains, screens=screens, stocks=stocks, requests=requests)
     campaign_size = len(json.dumps(campaign_ix, separators=(",", ":")).encode())
@@ -898,6 +934,7 @@ def main() -> int:
         # showing. A contract body is DATA here, exactly like feed text: it instructs the
         # agent that runs under it, never the process that renders it.
         "agentix": agents_payload(ROOT),
+        "themes": themes_store,
         # The scoring thresholds, shipped to the page instead of retyped in it. app.js
         # had 60/40/60 and the band edges written as literals, duplicating
         # tools/validate.py — they agreed on the day they were written and nothing kept
@@ -912,6 +949,11 @@ def main() -> int:
             "impact": {"reach_min": 60, "capture_min": 40, "prime_capture_min": 60,
                        "money_bands": {"LT_1B": 15, "B1_10": 40, "B10_100": 70,
                                        "GT_100B": 90}},
+            # Same reason again: the surge rule lives in tools/theme_calibrate.py and is
+            # shipped here, so the page can say what "surging" means without owning a
+            # second copy of the threshold that decides it.
+            "themes": {"surge_min_count": SURGE_MIN_COUNT, "surge_multiple": SURGE_MULTIPLE,
+                       "baseline_weeks": BASELINE_WEEKS, "rows_inlined": OCCURRENCE_ROWS_INLINED},
         },
     }
 

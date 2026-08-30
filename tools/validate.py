@@ -1402,6 +1402,105 @@ def v_trades(f: Path) -> None:
             err(f, f"line {i + 1}: action {t['action']!r} not in {sorted(TRADE_ACTIONS)}")
 
 
+# ---- themes: the occurrence log and its clustering
+
+OCCURRENCE_ORIGINS = {"feed", "candidate", "signal", "calendar"}
+
+
+def v_occurrence_log(f: Path) -> None:
+    """data/themes/occurrences.json. Append-only, one row per occurrence ever seen.
+
+    Deliberately does NOT require origin_ref to resolve. The whole reason this store
+    exists is that the things it references go away: the feed store prunes at 500 items
+    over 14 days, candidates get dismissed, ids are content hashes. A log of what the
+    machine saw whose rows vanished when the referent did would be no log at all.
+    """
+    obj = load(f)
+    if obj is None:
+        return
+    need(f, obj, ["as_of", "occurrences", "changelog"], "occurrence log")
+    check_date(f, obj.get("as_of"), "as_of")
+    rows = obj.get("occurrences")
+    if not isinstance(rows, list):
+        err(f, "occurrences must be a list")
+        return
+    ids, keys = set(), set()
+    for i, r in enumerate(rows):
+        if not isinstance(r, dict):
+            err(f, f"occurrences[{i}] is not an object")
+            continue
+        rid = r.get("id")
+        ctx = f"occurrences[{i}] ({rid})"
+        need(f, r, ["id", "origin", "origin_ref", "title", "first_seen"], ctx)
+        if not isinstance(rid, str) or not re.fullmatch(r"OCC-\d{8}-\d{3,}", str(rid or "")):
+            err(f, f"{ctx}: id must look like OCC-YYYYMMDD-NNN")
+        elif rid in ids:
+            err(f, f"{ctx}: duplicate occurrence id")
+        else:
+            ids.add(rid)
+        check_enum(f, r.get("origin"), OCCURRENCE_ORIGINS, f"{ctx} origin")
+        key = (r.get("origin"), r.get("origin_ref"))
+        if key in keys:
+            err(f, f"{ctx}: a second row for {key}. One occurrence is one row, or every "
+                   f"count over this store double-counts")
+        keys.add(key)
+        check_date(f, r.get("first_seen"), f"{ctx} first_seen")
+        if r.get("ts"):
+            check_date(f, r.get("ts"), f"{ctx} ts")
+        if r.get("theme_id") and not str(r.get("theme_basis") or "").strip():
+            err(f, f"{ctx}: assigned to {r['theme_id']} with no theme_basis. A tag with no "
+                   f"stated basis is the same defect class as an invented number")
+    check_mini_changelog(f, obj.get("changelog"), "changelog")
+
+
+def v_themes(f: Path) -> None:
+    """data/themes/themes.json. Tally's clusters and the machine half beneath them."""
+    obj = load(f)
+    if obj is None:
+        return
+    need(f, obj, ["as_of", "themes", "calibration", "changelog"], "themes")
+    check_date(f, obj.get("as_of"), "as_of")
+    themes = obj.get("themes")
+    if not isinstance(themes, list):
+        err(f, "themes must be a list")
+        return
+    seen = set()
+    for i, t in enumerate(themes):
+        if not isinstance(t, dict):
+            err(f, f"themes[{i}] is not an object")
+            continue
+        tid = t.get("id")
+        ctx = f"themes[{i}] ({tid})"
+        need(f, t, ["id", "label", "definition", "created_at", "match", "changelog"], ctx)
+        if not re.fullmatch(r"THM-\d{2,}", str(tid or "")):
+            err(f, f"{ctx}: id must look like THM-NN")
+        elif tid in seen:
+            err(f, f"{ctx}: duplicate theme id")
+        else:
+            seen.add(tid)
+        if not str(t.get("definition") or "").strip():
+            err(f, f"{ctx}: empty definition. Without one nobody can say whether the next "
+                   f"occurrence belongs in it, and the cluster stops being falsifiable")
+        m = t.get("match")
+        if not isinstance(m, dict):
+            err(f, f"{ctx}: match must be an object of term lists")
+        else:
+            for k in ("any", "all", "not"):
+                if k in m and not isinstance(m[k], list):
+                    err(f, f"{ctx}: match.{k} must be a list")
+        check_mini_changelog(f, t.get("changelog"), f"{ctx} changelog")
+    cal = obj.get("calibration")
+    if not isinstance(cal, dict):
+        err(f, "calibration must be an object written by tools/theme_calibrate.py")
+        return
+    need(f, cal, ["generated_at", "denominators", "per_theme", "surges", "weeks"],
+         "calibration")
+    for tid in (cal.get("per_theme") or {}):
+        if tid not in seen:
+            err(f, f"calibration.per_theme names {tid}, which is not a theme in this file")
+    check_mini_changelog(f, obj.get("changelog"), "changelog")
+
+
 def main() -> int:
     counts = {}
     plans = [
@@ -1453,6 +1552,12 @@ def main() -> int:
     if (DATA / "impact" / "_rank-log.json").exists():
         counts["rank-log"] = 1
         v_rank_log(DATA / "impact" / "_rank-log.json")
+    if (DATA / "themes" / "occurrences.json").exists():
+        counts["occurrences"] = 1
+        v_occurrence_log(DATA / "themes" / "occurrences.json")
+    if (DATA / "themes" / "themes.json").exists():
+        counts["themes"] = 1
+        v_themes(DATA / "themes" / "themes.json")
     if (DATA / "radar" / "scout-log.json").exists():
         counts["scout-log"] = 1
         v_scout_log(DATA / "radar" / "scout-log.json")

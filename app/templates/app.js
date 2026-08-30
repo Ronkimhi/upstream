@@ -444,6 +444,7 @@
       na("#/radar", "Radar", "radar") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
       na("#/campaign", "Campaign", "campaign") +
+      na("#/themes", "Log", "themes") +
       na("#/agents", "Agents", "agents") +
       na("#/book", "Book", "book") +
       na("#/shadow", "Shadow", "shadow") +
@@ -3643,6 +3644,195 @@
       return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
     }).join("") + "</div>";
   }
+  /* ---------------- themes: the occurrence log ----------------
+     Everything this machine has SEEN, including the small things, clustered. The store
+     behind it is append-only for a reason worth repeating here: data/feeds/latest.json
+     prunes at 500 items over 14 days and its ids are content hashes, so anything radar did
+     not promote was gone within a fortnight and nothing could be looked back at. */
+  var TH = D.themes || null;
+  var THM = (METHOD.themes || { surge_min_count: 8, surge_multiple: 2, baseline_weeks: 4 });
+  function thByIdList() { return (TH && TH.themes) || []; }
+  function thById(id) {
+    var list = thByIdList();
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+  function thCal() { return (TH && TH.calibration) || {}; }
+  function thRows(themeId) {
+    var rows = (TH && TH.rows) || [];
+    if (themeId === "__unassigned") return rows.filter(function (r) { return !r.th; });
+    if (!themeId) return rows;
+    return rows.filter(function (r) { return r.th === themeId; });
+  }
+  var ORIGIN_LABEL = { feed: "feed", candidate: "candidate", signal: "signal card", calendar: "calendar" };
+  function originChip(o) {
+    return '<span class="chip origin o-' + esc(o || "none") + '">' + esc(ORIGIN_LABEL[o] || o || "?") + "</span>";
+  }
+  /* Cell shading is relative to the busiest cell in the grid, not to an absolute scale:
+     the question the grid answers is "which week piled up under which theme", which is a
+     comparison inside this table and nothing else. */
+  function thCell(n, peak) {
+    if (!n) return '<td class="thc zero">·</td>';
+    var a = peak > 0 ? Math.min(1, 0.12 + 0.88 * (n / peak)) : 0.12;
+    return '<td class="thc" style="background:color-mix(in srgb, var(--accent) ' +
+      Math.round(a * 100) + '%, transparent)">' + esc(n) + "</td>";
+  }
+  function thGrid() {
+    var cal = thCal(), weeks = cal.weeks || [], per = cal.per_theme || {};
+    if (!weeks.length) return "";
+    var peak = 0;
+    Object.keys(per).forEach(function (id) {
+      weeks.forEach(function (w) { peak = Math.max(peak, (per[id].by_week || {})[w] || 0); });
+    });
+    var unas = cal.unassigned_by_week || {};
+    weeks.forEach(function (w) { peak = Math.max(peak, unas[w] || 0); });
+    var body = thByIdList().map(function (t) {
+      var v = per[t.id] || { by_week: {}, total: 0 };
+      return '<tr><th class="thname"><a href="#/themes/' + esc(t.id) + '">' + esc(t.label) + "</a>" +
+        (v.surging ? '<span class="chip surge">surging</span>' : "") +
+        (v.surging && !v.claimed ? '<span class="chip unclaimed">unclaimed</span>' : "") +
+        "</th>" +
+        weeks.map(function (w) { return thCell((v.by_week || {})[w] || 0, peak); }).join("") +
+        '<td class="thtot">' + esc(v.total) + "</td></tr>";
+    }).join("");
+    var unrow = '<tr class="unassigned"><th class="thname"><a href="#/themes/__unassigned">Unassigned</a>' +
+      '<span class="muted"> no theme claims these</span></th>' +
+      weeks.map(function (w) { return thCell(unas[w] || 0, peak); }).join("") +
+      '<td class="thtot">' + esc((cal.denominators || {}).unassigned) + "</td></tr>";
+    return '<div class="mdtable"><table class="thgrid"><tr><th></th>' +
+      weeks.map(function (w) { return "<th>" + esc(String(w).replace(/^\d{4}-/, "")) + "</th>"; }).join("") +
+      "<th>all</th></tr>" + body + unrow + "</table></div>";
+  }
+  function thSurges() {
+    var cal = thCal(), surges = cal.surges || [];
+    var unclaimed = surges.filter(function (s) { return !s.claimed; });
+    if (!surges.length) {
+      return "<div class='card'><div class='small'>No theme cleared the surge bar in " +
+        esc(cal.current_week || "this week") + ". A surge is at least " + esc(THM.surge_min_count) +
+        " occurrences in one ISO week AND at least " + esc(THM.surge_multiple) +
+        "x the mean of the previous " + esc(THM.baseline_weeks) + " weeks.</div></div>";
+    }
+    return "<div class='card'>" +
+      "<div class='small'>A surge is at least " + esc(THM.surge_min_count) +
+      " occurrences in one ISO week AND at least " + esc(THM.surge_multiple) +
+      "x the mean of the previous " + esc(THM.baseline_weeks) +
+      " weeks. Unclaimed means no signal card stands behind it yet.</div>" +
+      surges.map(function (s) {
+        return '<div class="evli"><a href="#/themes/' + esc(s.theme_id) + '"><b>' + esc(s.label) + "</b></a> " +
+          esc(s.count) + " in " + esc(s.week) + " against a baseline of " + esc(s.baseline) +
+          (s.claimed
+            ? ' <span class="chip claimed">claimed by ' + esc((s.signal_refs || []).join(", ")) + "</span>"
+            : ' <span class="chip unclaimed">unclaimed</span>') +
+          "</div>";
+      }).join("") +
+      (unclaimed.length
+        ? "<div class='small' style='margin-top:10px'>" + esc(unclaimed.length) +
+          " unclaimed: volume is arriving and no signal card has been written for it. " +
+          "That is the question <span class='mono'>run radar</span> answers.</div>"
+        : "") +
+      "</div>";
+  }
+  function thOccRow(r) {
+    var t = r.u
+      ? '<a href="' + esc(r.u) + '" rel="noreferrer noopener" target="_blank">' + esc(r.t) + "</a>"
+      : esc(r.t);
+    return '<div class="occrow"><div class="occmeta">' + originChip(r.o) +
+      '<span class="mono">' + esc(r.d || "undated") + "</span>" +
+      (r.s ? "<span>" + esc(r.s) + "</span>" : "") +
+      (r.f ? chip(r.f) : "") + "</div>" +
+      '<div class="occtitle">' + t + "</div>" +
+      (r.b ? '<div class="muted occbasis">' + esc(r.b) + "</div>" : "") + "</div>";
+  }
+  function thHead() {
+    var cal = thCal(), d = cal.denominators || {};
+    return "<div class='pagehead'><h1>Occurrence log</h1>" +
+      "<div class='small'>Everything this machine has seen, including the small things, " +
+      "clustered into themes. Every row is snapshotted when it is first seen: the feed store " +
+      "prunes at 500 items over 14 days and its ids are content hashes, so without this log " +
+      "anything the radar did not promote is gone within a fortnight.</div>" +
+      "<div class='small' style='margin-top:8px'><span class='mono'>" +
+      esc(num(d.occurrences_logged)) + " logged · " + esc(num(d.assigned)) + " assigned · " +
+      esc(num(d.unassigned)) + " unassigned · " + esc(num(d.themes)) + " themes</span> " +
+      "over " + esc(num(d.feed_items_on_disk)) + " feed items, " + esc(num(d.candidates_on_disk)) +
+      " candidates, " + esc(num(d.signals_on_disk)) + " signal cards and " +
+      esc(num(d.calendar_on_disk)) + " calendar entries currently on disk." +
+      ((TH && TH.total > (TH.rows || []).length)
+        ? " This page carries the newest " + esc((TH.rows || []).length) + " of " +
+          esc(TH.total) + " rows; the counts above are over the whole store."
+        : "") +
+      "</div></div>";
+  }
+  function themesView(themeId) {
+    if (!TH) {
+      return topbar("themes") + "<main>" +
+        "<div class='pagehead'><h1>Occurrence log</h1></div>" +
+        "<div class='emptystate'>No occurrence log yet. <span class='mono'>run themes</span> " +
+        "ingests every occurrence on disk and clusters it." +
+        "<div class='runwrap'>" + runButton("run themes") + "</div></div>" +
+        footer() + "</main>";
+    }
+    if (themeId) return themeView(themeId);
+    return topbar("themes") + "<main>" + thHead() +
+      seclabel("Run the clustering") +
+      "<div class='card runstrip'>" +
+      runButton("run themes", "ingests every occurrence on disk, applies each theme's match rule, recomputes the weeks") +
+      "</div>" +
+      seclabel("Surges in " + ((thCal().current_week) || "this week")) + thSurges() +
+      seclabel("Occurrences by theme and ISO week") + thGrid() +
+      "<div class='small'>" + esc((thCal().note) || "") + "</div>" +
+      footer() + "</main>";
+  }
+  function themeView(themeId) {
+    var unassigned = themeId === "__unassigned";
+    var t = unassigned ? null : thById(themeId);
+    if (!t && !unassigned) return notFound("theme " + themeId);
+    var v = unassigned ? null : (thCal().per_theme || {})[themeId];
+    var rows = thRows(themeId);
+    var m = (t && t.match) || {};
+    return topbar("themes") + "<main>" +
+      "<div class='crumbs'><a href='#/themes'>Occurrence log</a><span class='sep'>/</span>" +
+      "<span class='here'>" + esc(unassigned ? "Unassigned" : t.label) + "</span></div>" +
+      "<div class='pagehead'><h1>" + esc(unassigned ? "Unassigned" : t.label) + "</h1>" +
+      "<div class='small'>" + esc(unassigned
+        ? "Occurrences no theme's rule claims. A large number here is not a defect: most of what a wire feed carries has no investable chain behind it, and filing it under a theme anyway would be the invention this log exists to avoid."
+        : t.definition) + "</div></div>" +
+      (v
+        ? "<div class='statgrid'><div class='card'><h3>This week</h3><div class='scrow'>" +
+          mapStat(num(v.current_week), "in " + esc(thCal().current_week || "?")) +
+          mapStat(num(v.baseline), "weekly baseline") +
+          mapStat(num(v.total), "logged all-time") +
+          "</div><div class='small'>" +
+          (v.surging ? "Surging" : "Not surging") + " · " +
+          (v.claimed ? "claimed by " + esc((v.signal_refs || []).join(", ")) : "no signal card stands behind it") +
+          " · baseline computed over " + esc(num(v.baseline_weeks)) + " prior week(s)</div></div>" +
+          "<div class='card'><h3>Where it came from</h3><div class='scrow'>" +
+          Object.keys(v.origins || {}).map(function (o) {
+            return mapStat(v.origins[o], ORIGIN_LABEL[o] || o);
+          }).join("") + "</div></div></div>"
+        : "") +
+      (t
+        ? "<div class='card'><h3>Match rule</h3><div class='small'>An occurrence joins this " +
+          "theme when its own snapshotted title or source carries one of these terms as a " +
+          "whole word. The rule is written here so an assignment can be re-run and " +
+          "disagreed with, rather than being an impression nobody can check.</div>" +
+          "<div class='cmdrow' style='margin-top:8px'>" +
+          ((m.any || []).map(function (x) { return "<code>" + esc(x) + "</code>"; }).join(" ") || "<span class='muted'>none</span>") +
+          "</div>" +
+          ((m.not || []).length
+            ? "<div class='small' style='margin-top:6px'>excluded when it also carries: " +
+              (m.not || []).map(function (x) { return "<code>" + esc(x) + "</code>"; }).join(" ") + "</div>"
+            : "") +
+          (t.limitation ? "<div class='small' style='margin-top:8px'>" + esc(t.limitation) + "</div>" : "") +
+          "</div>"
+        : "") +
+      seclabel(rows.length + " occurrence" + (rows.length === 1 ? "" : "s") +
+        (TH.total > (TH.rows || []).length ? " on this page" : "")) +
+      (rows.length
+        ? "<div class='occlist'>" + rows.map(thOccRow).join("") + "</div>"
+        : "<div class='emptystate'>Nothing logged under this theme yet.</div>") +
+      footer() + "</main>";
+  }
+
   /* ---------------- agents ----------------
      Eight agents run this machine and until now the page named two of them, in section
      labels, with no way to read what either was told. These two views are the whole
@@ -3758,6 +3948,7 @@
     else if (p[0] === "chain") html = chainView(p[1], p[2]);
     else if (p[0] === "screen") html = screenView(p[1], p[2]);
     else if (p[0] === "stock") html = stockView(p[1], p[2]);
+    else if (p[0] === "themes") html = themesView(p[1]);
     else if (p[0] === "agents") html = agentsView();
     else if (p[0] === "agent") html = agentView(p[1]);
     else if (p[0] === "cortex") html = cortexView();
