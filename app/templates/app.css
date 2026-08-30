@@ -406,7 +406,7 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
   grid-template-columns: 186px minmax(0, 1fr) 214px;
   grid-template-rows: minmax(0, 1fr) 26px;
   grid-template-areas: "rail-l stage rail-r" "strip strip strip";
-  height: min(720px, 82vh); background: #08080d;
+  height: calc(100vh - 190px); min-height: 460px; background: #08080d;
 }
 .cx-rail-l { grid-area: rail-l; border-right: 1px solid #16161f; }
 .cx-rail-r { grid-area: rail-r; border-left: 1px solid #16161f; }
@@ -444,7 +444,7 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
   .cx-rail-r { display: none; }
 }
 @media (max-width: 760px) {
-  .cxframe { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "strip"; height: min(560px, 70vh); }
+  .cxframe { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "strip"; height: calc(100vh - 150px); min-height: 380px; }
   .cx-rail-l { display: none; }
   .cx-mobile { display: block; }
 }
@@ -638,3 +638,23 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
   .cx-phase { bottom: 10px; }
 }
 .cxopp.on { border-color: #8687f0; background: #1d1d31; }
+
+/* cortex: eye info button replaces the standing explainer paragraph */
+.pagehead.cxhead { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.pagehead.cxhead h1 { margin: 0; }
+.cxinfo-btn {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  background: var(--surface-2); color: var(--ink-2);
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  padding: 5px 12px 5px 10px; font: inherit; font-size: 12px; line-height: 1;
+}
+.cxinfo-btn:hover { color: var(--ink); border-color: var(--accent-line); }
+.cxinfo-btn.on { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+.cxinfo-btn svg { flex: none; }
+.cxinfo {
+  margin: 0 0 12px; padding: 12px 14px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--ink-2); font-size: 13.5px; line-height: 1.6; max-width: 78ch;
+}
+.cxinfo p { margin: 0; }
+@media (max-width: 760px) { .cxinfo-btn span { display: none; } }

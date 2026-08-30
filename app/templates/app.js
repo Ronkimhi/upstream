@@ -2403,7 +2403,11 @@
   }
   function cortexView() {
     return topbar("cortex") + "<main>" +
-      '<div class="pagehead"><h1>Cortex</h1><p class="sub">The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Depth is time: past sinks away, the future comes toward you, the NOW ring marks today. Drag to orbit the field in 3D, scroll to fly closer (detail appears as you approach), shift-drag to pan, ⟲ ⟳ or Q / E to spin. Hover any dot for its story, click to open it. The ranked opportunities on the left fly you straight to them.</p></div>' +
+      '<div class="pagehead cxhead"><h1>Cortex</h1>' +
+      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="what am I looking at?">' +
+      '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1.6 12S5.3 5.2 12 5.2 22.4 12 22.4 12 18.7 18.8 12 18.8 1.6 12 1.6 12Z"/><circle cx="12" cy="12" r="3.1"/></svg>' +
+      '<span>How to read this</span></button></div>' +
+      '<div class="cxinfo" id="cxInfo" hidden><p>The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Depth is time: past sinks away, the future comes toward you, the NOW ring marks today. Drag to orbit the field in 3D, scroll to fly closer (detail appears as you approach), shift-drag to pan, ⟲ ⟳ or Q / E to spin. Hover any dot for its story, click to open it. The ranked opportunities on the left fly you straight to them.</p></div>' +
       '<div class="card cxpanel"><div class="cxframe">' +
       '<div class="cx-rail-l">' + cxOppRail() + cxFilterRail() + cxRailLeft() + "</div>" +
       '<div class="cx-stage">' +
@@ -3349,6 +3353,24 @@
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
+    var cxIB = document.getElementById("cxInfoBtn");
+    if (cxIB) {
+      cxIB.addEventListener("click", function () {
+        var panel = document.getElementById("cxInfo");
+        if (!panel) return;
+        var open = panel.hasAttribute("hidden");
+        if (open) panel.removeAttribute("hidden"); else panel.setAttribute("hidden", "");
+        cxIB.setAttribute("aria-expanded", open ? "true" : "false");
+        cxIB.classList.toggle("on", open);
+        try { localStorage.setItem("upstream.cxInfo", open ? "1" : "0"); } catch (e) {}
+      });
+      try {
+        if (localStorage.getItem("upstream.cxInfo") === "1") {
+          document.getElementById("cxInfo").removeAttribute("hidden");
+          cxIB.setAttribute("aria-expanded", "true"); cxIB.classList.add("on");
+        }
+      } catch (e) {}
+    }
     if (document.getElementById("cortexCanvas")) initCortex();
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { var host = document.getElementById("drawerHost"); if (host) host.innerHTML = ""; }
