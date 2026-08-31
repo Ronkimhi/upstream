@@ -137,6 +137,34 @@ def _campaign_themes(campaign: dict) -> list:
     return themes
 
 
+def _unauditable_links(mapping) -> list:
+    """link_coverage rows a fresh-context audit has nothing to sample yet.
+
+    Mirrors check_map.py's own requirement that `audit.sampled_checks` cover every
+    link_coverage row exactly: a row with zero placements and no EXHAUSTED search record
+    can never appear in that sample, so `run universe-audit` fails on it every time,
+    deterministically. Recommending the audit anyway reproduces that failure instead of
+    naming the real prerequisite, `run universe`, which is what actually closes the row.
+    """
+    if not isinstance(mapping, dict):
+        return []
+    coverage = [row for row in mapping.get("link_coverage") or [] if isinstance(row, dict)]
+    placed_links = {
+        row.get("link_id") for row in mapping.get("placements") or []
+        if isinstance(row, dict) and row.get("link_id")
+    }
+    out = []
+    for row in coverage:
+        link_id = row.get("link_id")
+        if link_id in placed_links:
+            continue
+        if row.get("status") == "EXHAUSTED" and row.get("searches"):
+            continue
+        if link_id:
+            out.append(str(link_id))
+    return sorted(out)
+
+
 def _mapping_state(mapping) -> dict:
     """Status, audit state, and whether the PASS audit still covers current content."""
     if not isinstance(mapping, dict):
@@ -280,6 +308,13 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
                 "MAPPING_AUDIT_FAIL",
                 f"mapping audit FAIL with {mapping_state['amendments']} amendment(s) "
                 f"required; `run universe` corrects it, the audit cannot"))
+        elif mapping_state["status"] == "ACTIVE" and _unauditable_links(mapping):
+            untouched = _unauditable_links(mapping)
+            blockers.append(_blocker(
+                "MAPPING_LINK_UNTOUCHED",
+                f"link_coverage row(s) {untouched} have no placement and no EXHAUSTED "
+                "search; a fresh-context audit has nothing to sample there, so `run "
+                "universe` must close them before `run universe-audit` can pass"))
         elif mapping_state["status"] == "ACTIVE":
             blockers.append(_blocker(
                 "MAPPING_AWAITING_AUDIT",
@@ -337,15 +372,20 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
         if why:
             blockers.append(_blocker("BAD_CHAIN_ID", why))
     elif stage == "SCENARIOS":
+        unauditable = _unauditable_links(mapping) if mapping_state["present"] else []
         if mapping_state["present"] and mapping_state["status"] == "ACTIVE" and \
-                mapping_state["audit"] != "FAIL":
+                mapping_state["audit"] != "FAIL" and not unauditable:
             command, why = _checked(f"run universe-audit {chain_id}")
             reason = "a fresh-context audit decides COMPLETE"
         else:
             command, why = _checked(f"run universe {chain_id}")
-            reason = ("author correction after a FAIL audit"
-                      if mapping_state["audit"] == "FAIL"
-                      else "no COMPLETE issuer mapping for this chain")
+            if mapping_state["audit"] == "FAIL":
+                reason = "author correction after a FAIL audit"
+            elif unauditable:
+                reason = (f"link_coverage row(s) {unauditable} have no placement or "
+                          "EXHAUSTED search yet; not audit-ready")
+            else:
+                reason = "no COMPLETE issuer mapping for this chain"
         if why:
             blockers.append(_blocker("BAD_CHAIN_ID", why))
     elif stage == "MAPPED":

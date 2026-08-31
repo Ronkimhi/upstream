@@ -300,6 +300,32 @@ class TestBlockersComeFromDisk(unittest.TestCase):
         self.assertEqual(row["next_command"], "run universe-audit chain-a")
         self.assertIn("MAPPING_AWAITING_AUDIT", blocker_kinds(row))
 
+    def test_mapping_with_an_untouched_link_recommends_universe_not_audit(self):
+        """A link_coverage row with zero placements and no EXHAUSTED search can never be
+        sampled by a fresh-context audit (check_map.py requires sampled_checks to cover
+        every link_coverage row exactly). Recommending `run universe-audit` for such a
+        mapping reproduces that failure deterministically instead of naming the actual
+        prerequisite. Regression for the 2026-08-31 munitions-replenishment deadlock,
+        where four consecutive routine fires re-hit this exact wall."""
+        with tempfile.TemporaryDirectory() as td:
+            tree = Tree(td)
+            tree.signal()
+            tree.chain("chain-a", links=("l-one", "l-two"), heat=True, scenarios=True)
+            tree.mapping("chain-a", issuers=[("ISS-00", "TK00")],
+                         status="ACTIVE", audit=None)
+            doc = json.loads((tree.data / "mappings/chain-a.json").read_text())
+            doc["link_coverage"].append(
+                {"link_id": "l-two", "status": "OPEN", "distinct_issuer_count": 0})
+            tree.write("mappings/chain-a.json", doc)
+            row = tree.row()
+        self.assertEqual(row["stage"], "SCENARIOS")
+        self.assertEqual(row["next_command"], "run universe chain-a")
+        self.assertIn("MAPPING_LINK_UNTOUCHED", blocker_kinds(row))
+        self.assertNotIn("MAPPING_AWAITING_AUDIT", blocker_kinds(row))
+        untouched = next(b for b in row["blockers"]
+                          if b["kind"] == "MAPPING_LINK_UNTOUCHED")
+        self.assertIn("l-two", untouched["detail"])
+
     def test_mapping_audit_fail_routes_back_to_the_author(self):
         with tempfile.TemporaryDirectory() as td:
             tree = Tree(td)

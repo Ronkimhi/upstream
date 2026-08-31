@@ -2,7 +2,7 @@
  "id": "MAP-munitions-replenishment",
  "chain_id": "munitions-replenishment",
  "created_at": "2026-08-30T21:40:00Z",
- "updated_at": "2026-08-30T21:40:00Z",
+ "updated_at": "2026-08-31T18:22:00Z",
  "as_of": "2026-08-30",
  "status": "ACTIVE",
  "target_issuers_per_link": 10,
@@ -1291,6 +1291,23 @@
     }
    ],
    "status": "ACTIVE"
+  },
+  {
+   "chain_id": "munitions-replenishment",
+   "link_id": "perchlorate-oxidizer",
+   "issuer_id": "NORTHROP-GRUMMAN",
+   "role": "Operates an internal ammonium perchlorate production line established after 2016 AMPAC pricing changes, and became an approved alternative oxidizer source for space launch applications following 2021 qualification, making it a second producer alongside AMPAC/NewMarket.",
+   "evidence": [
+    {
+     "claim": "Rising prices after a change of AMPAC ownership in 2016 drove Northrop Grumman to start an internal production line, and Northrop became an alternative source for space launch applications after approval in 2021.",
+     "source_name": "CSIS Missile Defense Project (Rumbaugh and Karako), Solid Rocket Motors for Missile Defense: Challenges and Opportunities for Expanding the Industrial Base",
+     "source_date": "2026-06-12",
+     "url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+     "tag": "INFERRED",
+     "source_excerpt": "In 2016, rising prices following a transition in AMPAC's ownership drove Northrop Grumman to begin the process of establishing an internal production line. Northrop Grumman has become an alternative source for space launch applications following approval in 2021."
+    }
+   ],
+   "status": "ACTIVE"
   }
  ],
  "link_coverage": [
@@ -1463,7 +1480,7 @@
   {
    "link_id": "perchlorate-oxidizer",
    "status": "OPEN",
-   "distinct_issuer_count": 0
+   "distinct_issuer_count": 1
   },
   {
    "link_id": "nozzle-ablatives",
@@ -1768,6 +1785,13 @@
    "by": "atlas-cartographer",
    "kind": "BUILD",
    "change": "Created the issuer census for all 13 munitions-replenishment links. allied-rearmament-demand closed TARGET_MET at 12 distinct public issuers; nitration-feedstocks, nondestructive-inspection and dod-munitions-procurement closed EXHAUSTED on proved multi-source censuses; the remaining ten links stay OPEN because source access, not the world's supply, capped their counts.",
+   "prior": null
+  },
+  {
+   "ts": "2026-08-31T18:22:00Z",
+   "by": "atlas-cartographer",
+   "kind": "AMEND",
+   "change": "Closed perchlorate-oxidizer's link_coverage row from untouched (0 placements, 0 EXHAUSTED searches) to 1 ACTIVE placement: Northrop Grumman, on evidence already cited by the chain's own perchlorate-oxidizer link (CSIS Missile Defense Project report, dated 2026-06-12, reused verbatim rather than re-fetched). WebFetch to every candidate primary source (sec.gov, newmarket.com) was EGRESS_BLOCKED this run, the fourth occurrence of that failure mode today, so NewMarket Corporation/AMPAC itself (NYSE: NEU) was NOT added as a listed issuer despite the chain's own VERIFIED 2025-04-21 NewMarket press release naming it: that press release supports the placement's role but not a fresh official identity_evidence record for a brand-new listing, and the identity bar is not waived for a blocked fetch. Status stays OPEN (1/10, genuinely short of target, not EXHAUSTED); this closes the audit-blocking gap without claiming a coverage level the research does not support.",
    "prior": null
   }
  ]
