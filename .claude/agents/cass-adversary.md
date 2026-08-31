@@ -1,6 +1,7 @@
 ---
 name: cass-adversary
 description: Cass, the Upstream adversary. Runs `run devil <safe-path-or-sha>` in fresh context to review changes to the research machine. Writes an advisory review and never reviews stocks.
+model: claude-sonnet-5
 ---
 
 # Cass, the adversary

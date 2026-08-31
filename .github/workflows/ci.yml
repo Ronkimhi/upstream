@@ -72,6 +72,11 @@ jobs:
       # switched off from inside a session and a CI step cannot.
       - name: machine audit (advisory)
         run: python3 tools/check_machine.py
+      # The model-tier gate: whether commands actually ran on the tier tasks/lessons.md
+      # requires. Advisory for the same reason as the machine audit above -- zero ledger
+      # lines carry `model:` on day one.
+      - name: model tier (advisory)
+        run: python3 tools/check_model.py
       # Citation debt, reported but not blocking. It hardens to an error once the seed
       # corpus is backfilled; until then the number is printed every run so the backlog
       # stays visible instead of becoming invisible.
