@@ -43,8 +43,15 @@ FEED_ITEMS_INLINED = 120
 # over its share is an anomaly worth a line, not the ordinary state of a full campaign.
 # They do not partition the page: SIZE_WARN_MB is the binding number, and these only say
 # which store to look at when it fires.
+# `chains` and `stocks` are the two ELASTIC stores: _elastic_page_budgets gives them
+# whatever the rest of the page leaves under SIZE_WARN_MB, so their real knob is that
+# function and their share here is only a backstop for "this store ate the page in a way
+# the elastic rule did not intend". Their shares are therefore the most the elastic rule
+# can hand them on a page this size, not a measured campaign figure: on today's small
+# store chains legitimately take 680 KB, and at the ten-theme scale they take 419 KB
+# because nine of the ten have been reduced to navigation.
 STORE_SHARE_BYTES = {
-    "chains": 420_000,
+    "chains": 720_000,
     "screens": 240_000,
     "signals": 220_000,
     "stocks": 260_000,
@@ -860,38 +867,259 @@ def project_impact(appraisals: list, detail_ids=()) -> list:
     return out
 
 
-def project_chains(chains: list) -> list:
-    """Chains with the link-level citation array replaced by its count.
+# --- chains: the second elastic store ---------------------------------------------
+#
+# A finished chain is ~200 KB on disk and ~140 KB after the trims below, and essentially
+# all of that renders: three heat legs per link each with a rationale and cited evidence,
+# a repricing check, five scenarios with narratives, moved links, leading indicators and
+# invalidation signs. Ten of them is 1.4 MB, which is 70% of the whole file's budget on
+# its own, so chains get the same treatment dives already had: whole chains up to a stated
+# budget, then reduced ones, and the page SAYS which and names the file.
+#
+# The order is the campaign manifest's theme rank (data/campaigns/CAMP-*.json), not
+# alphabetical and not by size: that ranking is Nell's evidence-backed selection order, it
+# already exists, and using it means the highest-impact themes keep their analysis longest.
+# A chain the campaign never ranked sorts after every ranked one, by id.
+CHAIN_FULL = "FULL"
+CHAIN_SUMMARY = "SUMMARY"
+CHAIN_INDEX = "INDEX"
+# Exactly the three fields `linkModal`'s ev() draws. `url` and `source_date` were carried
+# on the theory that they make a citation checkable, but the modal never prints either, so
+# a reader could not check anything with them; they were 77 KB of invisible page. The
+# chain file stays canonical and the modal names it.
+HEAT_EVIDENCE_FIELDS = ("tag", "claim", "source_name")
+HEAT_EVIDENCE_INLINED = 3
+HEAT_LEGS = ("impact", "crowdedness", "capture")
 
-    `links[].evidence` is the citation bar tools/check_chain.py enforces (every link and
-    edge carries a dated cited source). No template reads it — the link drawer renders
-    the three HEAT legs' evidence, which is a different array — so it was 46 KB of
-    invisible page. The count is carried and the drawer prints it with the file path, so
-    the citation bar stops being a thing only the gate can see.
 
-    Heat evidence, scenarios, roles and rationales are untouched: the drawer renders them.
+def _heat_leg(leg: dict, keep_evidence: bool, keep_rationale: bool) -> dict:
+    """One heat leg at a stated fidelity, always carrying its denominators.
+
+    `evidence_total` and `excerpts_held` are written at every fidelity, including the ones
+    that carry no evidence rows at all, because a leg whose sources vanished silently
+    reads as an unsourced assertion. app.js prints them and names data/chains/<slug>.json.
     """
-    out = []
-    for chain in chains:
-        if not isinstance(chain, dict):
-            out.append(chain)
-            continue
-        doc = dict(chain)
-        doc.update(_history(chain))
-        links = []
-        for link in chain.get("links") or []:
-            if not isinstance(link, dict):
-                links.append(link)
-                continue
-            row = {k: v for k, v in link.items() if k != "evidence"}
-            evidence = link.get("evidence")
-            if isinstance(evidence, list):
-                row["evidence_count"] = len(evidence)
-            links.append(row)
-        if links or chain.get("links") is not None:
-            doc["links"] = links
-        out.append(doc)
+    items = leg.get("evidence")
+    out = {k: v for k, v in leg.items() if k not in ("evidence", "rationale")}
+    if keep_rationale and leg.get("rationale") is not None:
+        out["rationale"] = leg["rationale"]
+    if isinstance(items, list):
+        out["evidence"] = [
+            {k: v for k, v in item.items() if k in HEAT_EVIDENCE_FIELDS}
+            if isinstance(item, dict) else item
+            for item in (items[:HEAT_EVIDENCE_INLINED] if keep_evidence else [])
+        ]
+        out["evidence_total"] = len(items)
+        out["excerpts_held"] = sum(1 for item in items
+                                   if isinstance(item, dict) and item.get("source_excerpt"))
     return out
+
+
+def _project_link(link: dict, fidelity: str) -> dict:
+    """One chain link at one of three fidelities.
+
+    Dropped at EVERY fidelity, because no template reads them and they were 110 KB of the
+    2026-08-30 page: `evidence` (the map citation bar tools/check_chain.py enforces, 46 KB),
+    `capture_inputs` (66 KB), `heat.repricing_check.legs` and its per-leg `basis` prose
+    (45 KB), and `source_excerpt` on every heat evidence item (77 KB). Each leaves a count
+    behind and app.js prints all of them beside the file that holds the text.
+
+    SUMMARY additionally drops the heat evidence ROWS (keeping their counts) and the
+    bottleneck note. INDEX additionally drops the three heat rationales, which is the
+    link's written analysis: everything the flow strip, the heat scatter, the cortex and
+    the modal header draw survives, and the modal says the reasoning is in the file.
+    """
+    full = fidelity == CHAIN_FULL
+    row = {k: v for k, v in link.items()
+           if k not in ("evidence", "capture_inputs", "heat", "bottleneck")}
+
+    evidence = link.get("evidence")
+    if isinstance(evidence, list):
+        row["evidence_count"] = len(evidence)
+    inputs = link.get("capture_inputs")
+    if isinstance(inputs, dict):
+        row["capture_inputs_count"] = len(inputs)
+    elif isinstance(inputs, list):
+        row["capture_inputs_count"] = len(inputs)
+
+    bottleneck = link.get("bottleneck")
+    if isinstance(bottleneck, dict):
+        keep = dict(bottleneck) if full else {
+            k: v for k, v in bottleneck.items() if k not in ("note", "basis")}
+        if not full and (bottleneck.get("note") or bottleneck.get("basis")):
+            keep["note_held"] = True
+        row["bottleneck"] = keep
+    elif bottleneck is not None:
+        row["bottleneck"] = bottleneck
+
+    heat = link.get("heat")
+    if isinstance(heat, dict):
+        trimmed = {k: v for k, v in heat.items()
+                   if k not in HEAT_LEGS and k != "repricing_check"}
+        for leg in HEAT_LEGS:
+            block = heat.get(leg)
+            if isinstance(block, dict):
+                trimmed[leg] = _heat_leg(block, keep_evidence=full,
+                                         keep_rationale=fidelity != CHAIN_INDEX)
+            elif leg in heat:
+                trimmed[leg] = block
+        check = heat.get("repricing_check")
+        if isinstance(check, dict):
+            legs = check.get("legs")
+            slim = {k: v for k, v in check.items()
+                    if k not in ("legs", "list", "method")}
+            if isinstance(legs, list):
+                slim["legs_detail_held"] = len(legs)
+            trimmed["repricing_check"] = slim
+        elif "repricing_check" in heat:
+            trimmed["repricing_check"] = check
+        row["heat"] = trimmed
+    elif heat is not None:
+        row["heat"] = heat
+    return row
+
+
+def _project_scenario(scenario: dict, fidelity: str) -> dict:
+    """One scenario at one of three fidelities.
+
+    `evidence` is dropped at every fidelity (no template reads it) and its count carried.
+    SUMMARY and INDEX drop the per-moved-link `why` and each indicator's `check_basis`,
+    both of which are prose that reaches no template today. The narrative, the moved
+    links, the indicators with their armed/tripped state and the invalidation signs
+    survive at every fidelity: scenTab, the cortex scenario drawer and the activity feed
+    all read them, and a scenario without them is a title and a percentage.
+    """
+    full = fidelity == CHAIN_FULL
+    row = {k: v for k, v in scenario.items()
+           if k not in ("evidence", "links_moved", "leading_indicators")}
+    evidence = scenario.get("evidence")
+    if isinstance(evidence, list):
+        row["evidence_count"] = len(evidence)
+
+    moved = scenario.get("links_moved")
+    if isinstance(moved, list):
+        row["links_moved"] = [
+            (dict(m) if full else {k: v for k, v in m.items() if k != "why"})
+            if isinstance(m, dict) else m for m in moved]
+        if not full:
+            row["why_held"] = sum(1 for m in moved
+                                  if isinstance(m, dict) and m.get("why"))
+    elif "links_moved" in scenario:
+        row["links_moved"] = moved
+
+    indicators = scenario.get("leading_indicators")
+    if isinstance(indicators, list):
+        row["leading_indicators"] = [
+            (dict(i) if full else {k: v for k, v in i.items() if k != "check_basis"})
+            if isinstance(i, dict) else i for i in indicators]
+    elif "leading_indicators" in scenario:
+        row["leading_indicators"] = indicators
+    return row
+
+
+def _project_chain(chain: dict, fidelity: str) -> dict:
+    """One chain at one of three fidelities, always stamped with which one it is."""
+    doc = {k: v for k, v in chain.items() if k not in ("links", "scenarios", "notes")}
+    doc.update(_history(chain))
+    if fidelity == CHAIN_INDEX:
+        # The notes are the chain's hand-written margin, ~7 KB a chain. At index fidelity
+        # they go; `notes_total` stays so app.js prints "N note(s), not on this page"
+        # rather than the "None — add one" empty state, which would read as never written.
+        doc.pop("notes", None)
+    links = chain.get("links")
+    if isinstance(links, list):
+        doc["links"] = [_project_link(l, fidelity) if isinstance(l, dict) else l
+                        for l in links]
+    elif "links" in chain:
+        doc["links"] = links
+    scenarios = chain.get("scenarios")
+    if isinstance(scenarios, list):
+        doc["scenarios"] = [_project_scenario(s, fidelity) if isinstance(s, dict) else s
+                            for s in scenarios]
+    elif "scenarios" in chain:
+        doc["scenarios"] = scenarios
+    doc["chain_fidelity"] = fidelity
+    return doc
+
+
+def campaign_chain_order(data_dir=DATA) -> list:
+    """Chain ids in the campaign manifest's theme-rank order, best first.
+
+    The manifest freezes a rank per theme with a written rationale (`run campaign init`,
+    method §6A). Reusing it here means the elastic budget below spends the page on the
+    themes the campaign already argued are worth the most, instead of on whichever chain
+    happens to sort first. Returns [] when there is no manifest, and the caller then falls
+    back to chain id order, which is at least stable across builds.
+    """
+    campaigns = read_json_dir(Path(data_dir) / "campaigns")
+    if not campaigns:
+        return []
+    campaigns.sort(key=lambda c: (str(c.get("as_of") or ""), str(c.get("id") or "")))
+    active = [c for c in campaigns if c.get("status") == "ACTIVE"]
+    campaign = (active or campaigns)[-1]
+    ranked = []
+    for i, theme in enumerate(_campaign_descriptors(campaign)):
+        chain_id = theme.get("chain_id")
+        if not chain_id:
+            continue
+        rank = theme.get("rank")
+        ranked.append(((rank if isinstance(rank, int) else 10_000 + i), str(chain_id)))
+    ranked.sort()
+    out = []
+    for _, chain_id in ranked:
+        if chain_id not in out:
+            out.append(chain_id)
+    return out
+
+
+def project_chains(chains: list, full_budget=None, summary_budget=0, order=()) -> tuple:
+    """Three fidelities in campaign theme-rank order, bounded by two byte budgets.
+
+    Whole chains while `full_budget` lasts, then chains with their heat rationales and
+    scenario prose but no evidence rows while `summary_budget` lasts, then the navigation
+    row: links, positions, edges, verdicts, scores, scenarios and indicators, with every
+    denominator attached and no written analysis.
+
+    Returns (rows, note). The note is what app.js prints on the chain page and in the
+    cortex, so a reader never has to infer from an empty Impact block that a link was
+    never scored. Rows come back in chain-id order however the budget fell, exactly as
+    project_stocks does: the order decides WHAT is carried, never how the rows come out.
+
+    `full_budget=None` means unbounded, which is what a caller outside build_payload
+    (a test, a one-off measurement) almost always wants.
+    """
+    docs = [c for c in chains if isinstance(c, dict)]
+    rank = {cid: i for i, cid in enumerate(order or ())}
+    ordered = sorted(docs, key=lambda c: (rank.get(str(c.get("id")), len(rank)),
+                                          str(c.get("id") or "")))
+    full_spent = summary_spent = 0
+    rows, counts = [], {"full": 0, "summary": 0, "index": 0}
+    for chain in ordered:
+        doc = _project_chain(chain, CHAIN_FULL)
+        size = len(json.dumps(doc, separators=(",", ":")).encode())
+        if full_budget is None or full_spent + size <= full_budget:
+            full_spent += size
+            counts["full"] += 1
+            rows.append(doc)
+            continue
+        summary = _project_chain(chain, CHAIN_SUMMARY)
+        index = _project_chain(chain, CHAIN_INDEX)
+        extra = (len(json.dumps(summary, separators=(",", ":")).encode())
+                 - len(json.dumps(index, separators=(",", ":")).encode()))
+        if summary_spent + extra <= summary_budget:
+            summary_spent += extra
+            counts["summary"] += 1
+            rows.append(summary)
+        else:
+            counts["index"] += 1
+            rows.append(index)
+    rows.sort(key=lambda c: str(c.get("id") or ""))
+    note = {"carried": counts["full"], "summary": counts["summary"],
+            "index_only": counts["index"], "total": len(ordered),
+            "budget_bytes": full_budget or 0,
+            "summary_budget_bytes": summary_budget,
+            "order": ("campaign theme rank" if order else "chain id")}
+    return rows, note
 
 
 def project_signals(signals: list) -> list:
@@ -985,11 +1213,16 @@ def project_screens(screens: list, market=None) -> list:
 # hand over even when everything else has already eaten the file, so a page can never
 # reach zero carried dives without the size warning firing first and naming the store.
 STOCK_DETAIL_BUDGET_BYTES = 60_000
-# Headroom held back from SIZE_WARN_MB when pricing dive text. It has to be at least
-# STOCK_DETAIL_BUDGET_BYTES: the floor is spent even when there is no room for it, so the
-# worst case a build can reach is (SIZE_WARN_MB - this + the floor), and that must still
-# be under SIZE_WARN_MB or the guarantee this whole mechanism exists for is not one.
-PAGE_SAFETY_MARGIN_BYTES = 180_000
+# The same floor for chains: one whole chain. A projected campaign-era chain measured
+# 133 KB (glp1-fill-finish) and the campaign-scale fixture's is 140 KB, so this is one of
+# the biggest and it guarantees that the top-ranked theme is always readable in full.
+CHAIN_DETAIL_BUDGET_BYTES = 140_000
+# Headroom held back from SIZE_WARN_MB when pricing chain and dive text. It has to be at
+# least the sum of every floor spent when there is no room for it — today
+# CHAIN_DETAIL_BUDGET_BYTES + STOCK_DETAIL_BUDGET_BYTES — so the worst case a build can
+# reach is (SIZE_WARN_MB - this + those floors), and that must still be under SIZE_WARN_MB
+# or the guarantee this whole mechanism exists for is not one.
+PAGE_SAFETY_MARGIN_BYTES = 200_000
 # What every dive keeps at every fidelity: the fields the lists, the cortex, the book, the
 # shadow page and the dive hero read. No prose — the bull, bear and surviving-bear-case
 # paragraphs are the middle fidelity, in _stock_summary.
@@ -1400,21 +1633,23 @@ def build_payload(data_dir=DATA, root=ROOT):
     dive_tickers.discard(None)
     signal_ids = {str(s.get("id")) for s in signals
                   if isinstance(s, dict) and s.get("id")}
-    # Pass one: the floor. Every dive at index fidelity and no quality blocks, which is
-    # the smallest honest page this data can make. Pass two below spends whatever
-    # SIZE_WARN_MB leaves on dive text — see _elastic_stock_budgets.
+    # Pass one: the floor. Every chain and every dive at index fidelity and no quality
+    # blocks, which is the smallest honest page this data can make. Pass two below spends
+    # whatever SIZE_WARN_MB leaves on chain and dive text — see _elastic_page_budgets.
+    chain_order = campaign_chain_order(DATA)
+    projected_chains, chain_note = project_chains(chains, 0, 0, chain_order)
     projected_stocks, stock_note = project_stocks(stocks, 0, 0)
     quality_tickers = set()
 
     payload = {
         "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%MZ"),
         "signals": project_signals(signals),
-        "chains": project_chains(chains),
+        "chains": projected_chains,
         "screens": project_screens(screens, market),
         "stocks": projected_stocks,
         # What this build did NOT carry, as numbers the page prints. A cut the reader
         # cannot see is the same defect as a number the data never had.
-        "carried": {"stocks": stock_note},
+        "carried": {"stocks": stock_note, "chains": chain_note},
         "market": project_market(market, dive_tickers, quality_tickers),
         "shadow": {
             "book": json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
@@ -1483,48 +1718,130 @@ def build_payload(data_dir=DATA, root=ROOT):
         },
     }
 
-    # Pass two. Dives are the elastic store: a finished dive is ~55 KB of prose that all
-    # renders, sixty of them is more than the whole file may weigh, and every other store
-    # is either bounded by its own nature (eight agent contracts, sixty ledger lines) or
-    # projected above. So the rest of the page is priced first and dives get the change.
-    # Today that is the whole store at full text; at campaign scale it is as many whole
-    # dives as fit, then summaries, then index rows, and `carried` says which.
-    full_budget, summary_budget = _elastic_stock_budgets(payload)
-    projected_stocks, stock_note = project_stocks(stocks, full_budget, summary_budget)
+    # Pass two. Chains and dives are the two elastic stores: a finished chain is ~140 KB
+    # of projected analysis and a finished dive ~60 KB, both of which render essentially
+    # in full, and ten chains plus sixty dives is 5 MB against a 2 MB file. Every other
+    # store is either bounded by its own nature (eight agent contracts, twenty-five ledger
+    # lines) or projected above, so the rest of the page is priced first and these two
+    # split the change between them. Today that is both stores at full text; at campaign
+    # scale it is as many whole objects as fit, then reduced ones, and `carried` says
+    # which, for each store, with the file that holds the rest.
+    chain_full, chain_summary, stock_full, stock_summary = _elastic_page_budgets(
+        payload, chains, stocks, chain_order)
+    projected_chains, chain_note = project_chains(chains, chain_full, chain_summary,
+                                                  chain_order)
+    projected_stocks, stock_note = project_stocks(stocks, stock_full, stock_summary)
     quality_tickers = {_ticker(s.get("ticker")) for s in projected_stocks
                        if s.get("detail_inlined") and s.get("ticker")}
     quality_tickers.discard(None)
+    payload["chains"] = projected_chains
     payload["stocks"] = projected_stocks
-    payload["carried"] = {"stocks": stock_note}
+    payload["carried"] = {"stocks": stock_note, "chains": chain_note}
     payload["market"] = project_market(market, dive_tickers, quality_tickers)
     return payload
 
 
-def _elastic_stock_budgets(floor_payload: dict) -> tuple:
-    """(full, summary) byte budgets for dive text: what SIZE_WARN_MB leaves over.
+def _page_spare_bytes(floor_payload: dict) -> int:
+    """Bytes SIZE_WARN_MB leaves over once the floor page is priced.
 
-    `floor_payload` already carries every dive at index fidelity, so its assembled size is
-    the smallest page this data can make. Everything above that is spendable, and dive
-    text is what it is spent on. Measured against the assembled HTML rather than the raw
-    payload because the blob picks up JSON escaping on the way in and the shell, CSS,
-    app.js and the vendored d3 modules are real bytes in the same file.
-
-    Never below STOCK_DETAIL_BUDGET_BYTES: if the rest of the page has already eaten the
-    file, the honest outcome is a size WARNING naming the store that did it, not a page
-    that silently stops carrying the analysis it exists to show.
+    `floor_payload` already carries every chain and every dive at index fidelity, so its
+    assembled size is the smallest page this data can make. Everything above that is
+    spendable, and analytical text is what it is spent on. Measured against the assembled
+    HTML rather than the raw payload because the blob picks up JSON escaping on the way in
+    and the shell, CSS, app.js and the vendored d3 modules are real bytes in the same file.
     """
     target = int(SIZE_WARN_MB * 1_000_000) - PAGE_SAFETY_MARGIN_BYTES
     try:
         floor = len(assemble_html(floor_payload).encode())
     except ValueError:
-        return STOCK_DETAIL_BUDGET_BYTES, 0
-    spare = max(target - floor, 0)
-    # A third to summaries, taken FIRST. A page of three complete writeups and fifty-seven
-    # verdict-only rows reads worse than one that also gives the rest their bull, their
-    # bear and the paragraph the red team could not kill: nine lines each, against 55 KB
-    # for a whole dive. The remainder goes to whole dives, never below the one-dive floor.
-    summary = int(spare * 0.35)
-    return max(spare - summary, STOCK_DETAIL_BUDGET_BYTES), summary
+        return 0
+    return max(target - floor, 0)
+
+
+def _split(share: int, need: int, floor: int) -> tuple:
+    """(full, summary) inside one store's share of the spare bytes.
+
+    When the share covers everything the store wants at full fidelity, it all goes to full
+    fidelity and no summary slice is reserved — reserving one there would push objects
+    down a fidelity for no reason. When it does not, 35% is taken for summaries FIRST: a
+    page of three complete writeups and fifty-seven verdict-only rows reads worse than one
+    that also gives the rest their headline analysis. The remainder goes to whole objects,
+    never below the store's one-object floor.
+    """
+    if share >= need:
+        return max(share, floor), 0
+    summary = int(share * 0.35)
+    return max(share - summary, floor), summary
+
+
+def _elastic_stock_budgets(floor_payload: dict, share=None, need=None) -> tuple:
+    """(full, summary) byte budgets for dive text.
+
+    Never below STOCK_DETAIL_BUDGET_BYTES: if the rest of the page has already eaten the
+    file, the honest outcome is a size WARNING naming the store that did it, not a page
+    that silently stops carrying the analysis it exists to show.
+
+    Called with no share by anything that wants dives priced on their own — which is what
+    it did before chains became elastic too, and what the tests that call it directly
+    still expect.
+    """
+    if share is None:
+        share = _page_spare_bytes(floor_payload)
+    if need is None:
+        need = share + 1  # unknown need: behave as if the store wants more than it has
+    return _split(int(share), int(need), STOCK_DETAIL_BUDGET_BYTES)
+
+
+def _elastic_chain_budgets(floor_payload: dict, share=None, need=None) -> tuple:
+    """(full, summary) byte budgets for chain analysis, same contract as dives above.
+
+    Never below CHAIN_DETAIL_BUDGET_BYTES, so the campaign's top-ranked theme is readable
+    in full on any page that builds at all.
+    """
+    if share is None:
+        share = _page_spare_bytes(floor_payload)
+    if need is None:
+        need = share + 1
+    return _split(int(share), int(need), CHAIN_DETAIL_BUDGET_BYTES)
+
+
+def _elastic_page_budgets(floor_payload: dict, chains: list, stocks: list,
+                          chain_order=()) -> tuple:
+    """(chain_full, chain_summary, stock_full, stock_summary).
+
+    The two elastic stores split the spare bytes in proportion to what each would need at
+    full fidelity. Proportional-to-need, rather than a fixed ratio, because the two stores
+    are wildly different sizes and that ratio changes as the campaign fills: a repo with
+    one dive and eleven chains should not hand dives half the page, and a repo with sixty
+    dives and one chain should not hand chains half of it. Both degrade at the same rate,
+    which is the property a fixed split cannot give.
+
+    When the spare covers both stores whole, each simply gets its need and nothing is cut.
+    """
+    spare = _page_spare_bytes(floor_payload)
+    chain_need = sum(len(json.dumps(_project_chain(c, CHAIN_FULL),
+                                    separators=(",", ":")).encode())
+                     for c in chains if isinstance(c, dict))
+    stock_need = 0
+    for s in stocks:
+        if not isinstance(s, dict):
+            continue
+        doc = dict(s)
+        doc.update(_history(s))
+        stock_need += len(json.dumps(doc, separators=(",", ":")).encode())
+    total_need = chain_need + stock_need
+    if total_need <= 0:
+        chain_share = stock_share = 0
+    elif total_need <= spare:
+        chain_share, stock_share = chain_need, stock_need
+    else:
+        chain_share = int(spare * chain_need / total_need)
+        stock_share = spare - chain_share
+    chain_full, chain_summary = _elastic_chain_budgets(floor_payload, chain_share,
+                                                       chain_need)
+    stock_full, stock_summary = _elastic_stock_budgets(floor_payload, stock_share,
+                                                       stock_need)
+    return chain_full, chain_summary, stock_full, stock_summary
 
 
 def main() -> int:

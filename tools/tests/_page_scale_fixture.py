@@ -1,21 +1,47 @@
 """A synthetic data/ tree at the finished campaign's scale, for the page-weight test.
 
 Not a mock: every object here is padded to the byte size of the equivalent real object in
-this repo, measured on 2026-08-30 with json.dumps(separators=(",", ":")). A fixture whose
+this repo, RE-MEASURED on 2026-08-30 with json.dumps(separators=(",", ":")). A fixture whose
 dives are 5 KB would prove that a 5 KB dive fits, which nobody doubted. The whole point of
-tools/tests/test_page_scale.py is that a REAL dive is ~55 KB and sixty of them do not, so
-the sizes below are the load-bearing part of the file and the assertions in
-TestFixtureIsRealisticallySized keep them honest as the real objects move.
+tools/tests/test_page_scale.py is that a REAL dive is ~60 KB and a REAL chain ~200 KB and
+sixty plus ten of those do not fit, so the sizes below are the load-bearing part of the
+file and the assertions in TestFixtureIsRealisticallySized keep them honest as the real
+objects move.
 
-Measured, per object:
-    dive     55,440   data/stocks/VRT__ai-infrastructure.json (FINAL, red-teamed)
-    chain    39,955   data/chains/ai-infrastructure.json (11 links + 4 scenarios)
-    market   30,602   data/market/VRT.json (551 series rows + fundamentals + insider)
-    impact   19,764   mean of data/impact/*.json (four legs with evidence)
-    screen   19,880   mean of data/screens/*.json (12 rows)
-    signal    9,270   mean of data/signals/*.json
+Measured, per object (2026-08-30, second pass):
+    chain   200,005   mean of the 9 data/chains/*.json that carry full heat AND scenarios
+                      (range 135,806 humanoid-actuators .. 239,104 glp1-fill-finish; the
+                      mean over all 11 files on disk is 172,434, dragged down by
+                      ai-infrastructure and tibet-mega-dam, which were mapped before the
+                      evidence bar and are not what a campaign chain now looks like)
+    dive     59,665   data/stocks/VRT__ai-infrastructure.json (FINAL, red-teamed)
+    market   25,909   mean of data/market/*.json over 281 files (max 47,328, VRT.json)
+    impact   21,257   mean of data/impact/*.json over 36 files
+    screen   19,880   mean of data/screens/*.json measured 2026-08-30 first pass; today's
+                      three files mean 16,518 (max 23,700) and the higher figure is kept,
+                      because the fixture may overstate and must never understate
+    signal   10,205   mean of data/signals/*.json over 12 files
     candidate 2,750   mean row of data/radar/candidates.json (with campaign_record)
     occurrence  359   mean row of data/themes/occurrences.json
+
+The first pass of this file measured a chain at 39,955 bytes — data/chains/ai-infrastructure
+.json as it stood BEFORE heat blocks and scenarios existed. That single stale number is why
+the forward projection reported "1.9 MB at full campaign scale, 91 KB under budget" while
+the real page was already 2,112,067 bytes with the campaign two-thirds built. A chain is
+now the heaviest object in the repo by a factor of three, so it is built here field by
+field at the real per-field sizes rather than padded in one lump: the elastic projection in
+app/build.py cuts SPECIFIC fields, and a chain whose weight all sits in `map_limitation`
+would make any cut look free.
+
+Per-link and per-scenario field sizes, measured over those same 9 chains (115 links,
+45 scenarios) and reproduced by the generators below:
+
+    link.evidence          2,502   heat.<leg>.rationale     ~580 each
+    link.capture_inputs      575   heat.<leg>.evidence     ~1,321/item, ~2 items/leg
+    link.bottleneck          352   heat.repricing_check       473
+    link.role                270   scen.leading_indicators  2,014
+    scen.links_moved       1,441   scen.narrative             742
+    scen.invalidation_signs  356   scen.evidence              297
 
 Deterministic: pad() reseeds per call, so the same fixture is byte-identical every run.
 """
@@ -42,13 +68,21 @@ def sz(v):
 def fit(doc, target, field):
     """Pad one prose field until the document serializes to at least `target` bytes.
 
-    Only grows. A generator already over target is left alone and the size assertions in
-    the test report it, which is the outcome that matters: the fixture must never be
-    SMALLER than the real thing, because then the budget it proves is not the real one.
+    Only grows, and only ever REPLACES the field with something longer. A generator
+    already over target keeps the field it built, because the field is real content the
+    page renders (`map_limitation` is drawn in the cortex chain drawer) and blanking it to
+    hit a byte target would make the fixture lie in the one direction that matters. The
+    size assertions in the test then report the overshoot, which is the outcome we want:
+    the fixture must never be SMALLER than the real thing, or the budget it proves is not
+    the real one.
     """
+    original = doc.get(field)
     doc[field] = ""
     gap = target - sz(doc)
-    doc[field] = pad(field + str(target), max(gap - 2, 1))
+    if gap <= 2:
+        doc[field] = original
+        return doc
+    doc[field] = pad(field + str(target), gap - 2)
     return doc
 
 def ev(seed, n, chars=260):
@@ -56,23 +90,77 @@ def ev(seed, n, chars=260):
              "source_name": f"source {i}", "source_date": "2026-08-20",
              "url": f"https://example.invalid/{seed}/{i}"} for i in range(n)]
 
-def series_rows(n=551):
+def cited(seed, n, claim=446, excerpt=466, name=166, url=201):
+    """Evidence at the 2026-08-30 bar: a verbatim `source_excerpt` beside every claim.
+
+    A heat evidence item measured 1,321 bytes across the nine mature chains, of which the
+    excerpt is 466 and the claim 446. `ev()` above predates the excerpt rule and is kept
+    for the stores that never carried one; every chain generator below uses this.
+    """
+    return [{"claim": pad(f"{seed}-c{i}", claim),
+             "source_excerpt": pad(f"{seed}-x{i}", excerpt),
+             "tag": "VERIFIED",
+             "source_name": pad(f"{seed}-n{i}", name),
+             "source_date": "2026-08-20",
+             "url": "https://example.invalid/" + pad(f"{seed}-u{i}", url).replace(" ", "/")}
+            for i in range(n)]
+
+def series_rows(n=559):
     rows, price = [], 40.0
     for i in range(n):
         price = round(price * (1 + ((i * 7919) % 41 - 20) / 1000.0), 2)
         rows.append([f"20{23 + i // 260:02d}-{1 + (i // 22) % 12:02d}-{1 + i % 28:02d}", price])
     return rows
 
-CHAIN_BYTES = 43_000
-SIGNAL_BYTES = 9_270
+# Re-measured 2026-08-30 (see the module docstring for provenance and for why the first
+# CHAIN_BYTES was wrong by a factor of five).
+CHAIN_BYTES = 200_005
+SIGNAL_BYTES = 10_205
 SCREEN_BYTES = 19_880
-DIVE_BYTES = 55_440
-IMPACT_BYTES = 19_764
+DIVE_BYTES = 59_665
+IMPACT_BYTES = 21_257
+MARKET_BYTES = 25_909
 
 
-def write(root, *, themes=10, links_per_chain=12, profiles=200, dives=60, tickers=400,
+def _market_doc(t, i, rows, insider_rows):
+    """One data/market/<T>.json. `insider_rows` is the only size knob and it is a block
+    project_market strips, so the raw store grows to its real mean and the page does not."""
+    return {
+        "ticker": t, "cik": f"{i:010d}", "fetched_at": "2026-08-30T00:00:00Z",
+        "price_status": "SINGLE_SOURCE", "tier": "T1",
+        "prints": [{"close": rows[-1][1], "date": rows[-1][0], "source": "yfinance"}],
+        "week52": {"high": 300, "low": 30},
+        "series": {"as_of": rows[-1][0], "interval": "1d(24mo)+1w(prior)",
+                   "source": "yfinance", "rows": rows},
+        "fundamentals": {k: [[f"20{18 + n}-12-31", 1000000 * (n + 1)] for n in range(8)]
+                         for k in ("revenue_fy", "net_income_fy", "operating_income_fy",
+                                   "cost_of_revenue_fy", "operating_cashflow_fy",
+                                   "capex_fy", "depreciation_fy", "sga_fy",
+                                   "total_assets_fy", "equity_fy", "shares_fy")},
+        "insider": {"window": ["2025-08-29", "2026-08-29"],
+                    "rows": [{"filing_date": "2026-06-26", "insider": f"Person {k}",
+                              "code": "A", "transaction_type": "award",
+                              "security_title": "Class A common"}
+                             for k in range(insider_rows)]},
+        "pcs": {"axis_a": {"machine_admissible": True, "flags": []}},
+        "legs": {"a": pad(t + "legs", 300)},
+        "quality": {"piotroski": {"score": 6, "state": "SCORED"},
+                    "beneish": {"score": -2.4, "state": "CLEAN"},
+                    "altman": {"score": 8.8, "state": "SAFE"},
+                    "reverse_dcf": {"implied_fcf_cagr": 0.32, "state": "SOLVED",
+                                    "assumptions": {"discount_rate": 0.09,
+                                                    "terminal_growth": 0.025,
+                                                    "horizon_years": 5}},
+                    "health": {"statement_fields_found": 18,
+                               "statement_fields_needed": 20,
+                               "periods_available": ["2018-12-31"]},
+                    "as_of": "2026-08-30", "formulas": "piotroski/beneish/altman"},
+    }
+
+
+def write(root, *, themes=10, links_per_chain=13, profiles=200, dives=60, tickers=400,
           signals=30, screens=20, impacts=200, candidates=200, occurrences=900,
-          ledger_lines=200, requests=2400):
+          ledger_lines=200, requests=2400, scenarios_per_chain=5):
     data = Path(root) / "data"
     for d in ("signals", "impact", "chains", "screens", "stocks", "market", "campaigns",
               "mappings", "companies", "radar", "themes", "feeds", "health", "calendar",
@@ -82,44 +170,80 @@ def write(root, *, themes=10, links_per_chain=12, profiles=200, dives=60, ticker
     tick = lambda i: "T" + f"{i:04d}"
     chain_ids = [f"theme-{i:02d}" for i in range(themes)]
 
-    # --- chains: 12 links, each with heat legs (evidence + rationale) and scenarios
+    # --- chains: the heaviest object in the repo. 13 links (real mean 12.8) each carrying
+    # three heat legs with a rationale and ~2 cited-and-excerpted evidence items, a
+    # repricing check, capture inputs and a bottleneck note; then 5 scenarios (real mean
+    # 5.0) each carrying leading indicators with their check_basis prose, links_moved with
+    # a `why` per moved link, a narrative, invalidation signs and scenario evidence. Every
+    # field size below is the measured per-object mean in the docstring. Built field by
+    # field rather than padded in one lump BECAUSE app/build.py's elastic projection cuts
+    # named fields: a chain whose bulk sat in one padded string would make every cut look
+    # free and would prove nothing about the real store.
     for ci, cid in enumerate(chain_ids):
         links = []
         for li in range(links_per_chain):
             lid = f"link-{li:02d}"
-            leg = lambda name: {"score": 40 + (li * 7 + ci) % 55,
-                                "rationale": pad(f"{cid}{lid}{name}", 95),
-                                "evidence": ev(f"{cid}{lid}{name}", 2, 80)}
+            # 2 items/leg at ~1,321 bytes each is the measured shape (impact 2.14,
+            # crowdedness 1.89, capture 1.80 items per leg).
+            leg = lambda name, r, c=446, x=466: {
+                "score": 40 + (li * 7 + ci) % 55,
+                "rationale": pad(f"{cid}{lid}{name}", r),
+                "evidence": cited(f"{cid}{lid}{name}", 2, claim=c, excerpt=x)}
             links.append({
-                "id": lid, "position": li + 1, "name": f"Link {li}",
-                "role": pad(f"{cid}{lid}role", 200),
+                "id": lid, "position": li + 1, "name": pad(f"{cid}{lid}nm", 40),
+                "role": pad(f"{cid}{lid}role", 270),
                 "upstream_of": [f"link-{li + 1:02d}"] if li < links_per_chain - 1 else [],
                 "downstream_of": [f"link-{li - 1:02d}"] if li else [],
                 "investability": "PURE_PLAYS_EXIST",
                 "bottleneck": {"criticality": "CHOKE_POINT" if li % 5 == 0 else "MODERATE",
-                               "basis": pad(f"{cid}{lid}bn", 150)},
+                               "note": pad(f"{cid}{lid}bn", 320)},
                 "example_tickers": [tick(ci * 20 + li), tick(ci * 20 + li + 1)],
-                "evidence": ev(f"{cid}{lid}map", 2, 110),
+                "evidence": cited(f"{cid}{lid}map", 2, claim=400, excerpt=420,
+                                  name=120, url=150),
+                "capture_inputs": {k: pad(f"{cid}{lid}{k}", 166) for k in
+                                   ("supply_concentration", "substitutability",
+                                    "who_posted_the_margin")},
                 "heat": {"verdict": "UNDISCOVERED", "money_corner": li == 2,
-                         "as_of": "2026-08-29", "impact": leg("i"),
-                         "crowdedness": leg("c"), "capture": leg("v")},
+                         "as_of": "2026-08-29",
+                         "ticker_refs": [tick(ci * 20 + li)],
+                         "repricing_check": {
+                             "legs_met": 2, "note": pad(f"{cid}{lid}rcn", 90),
+                             "legs": [{"leg": f"leg_{k}", "met": k % 2 == 0,
+                                       "basis": pad(f"{cid}{lid}rc{k}", 55)}
+                                      for k in range(4)]},
+                         "impact": leg("i", 581),
+                         "crowdedness": leg("c", 623, c=400, x=400),
+                         "capture": leg("v", 544, c=380, x=370)},
             })
-        scen = [{"id": f"S{n}", "title": f"Scenario {n}", "status": "OPEN",
-                 "probability_pct": 20, "narrative": pad(f"{cid}s{n}", 420),
-                 "links_moved": [{"link_id": "link-01", "direction": "UP",
-                                  "magnitude": "LARGE", "why": pad(f"{cid}w{n}", 300)}],
-                 "leading_indicators": [{"text": pad(f"{cid}li{n}{k}", 160), "armed": False}
-                                        for k in range(3)],
-                 "invalidation": pad(f"{cid}inv{n}", 200)} for n in range(1, 5)]
+        scen = [{"id": f"S{n}", "title": pad(f"{cid}t{n}", 45), "status": "OPEN",
+                 "clock": "STRUCTURAL", "as_of": "2026-08-29",
+                 "probability_pct": 20, "narrative": pad(f"{cid}s{n}", 800),
+                 "links_moved": [{"link_id": f"link-{k:02d}", "direction": "UP",
+                                  "magnitude": "LARGE", "why": pad(f"{cid}w{n}{k}", 130)}
+                                 for k in range(6)],
+                 "leading_indicators": [{"signal": pad(f"{cid}li{n}{k}", 130),
+                                         "where_to_watch": pad(f"{cid}lw{n}{k}", 39),
+                                         "check": None, "armed": False,
+                                         "check_basis": pad(f"{cid}lb{n}{k}", 300)}
+                                        for k in range(4)],
+                 "invalidation_signs": [pad(f"{cid}inv{n}{k}", 110) for k in range(3)],
+                 "evidence": cited(f"{cid}se{n}", 1, claim=120, excerpt=100, name=30,
+                                   url=30),
+                 } for n in range(1, scenarios_per_chain + 1)]
         chain_doc = {
             "id": cid, "signal_id": f"SIG-20260801-{ci:02d}", "title": f"Theme {ci}",
             "clock": "STRUCTURAL", "heat_as_of": "2026-08-29",
-            "scenarios_as_of": "2026-08-29", "map_limitation": pad(f"{cid}ml", 450),
+            "scenarios_as_of": "2026-08-29", "map_limitation": pad(f"{cid}ml", 2_588),
+            "status": "SCENARIOS",
+            "heat_health": {"examined": links_per_chain, "scored": links_per_chain,
+                            "pending": 0, "errors": 0},
+            "scenario_health": {"written": scenarios_per_chain, "armed": 0},
+            "confidence_audit": {"verified": 30, "inferred": 12, "speculative": 0},
             "links": links, "scenarios": scen,
             "changelog": [{"ts": "2026-08-2%dT00:00:00Z" % (k % 10), "by": "ron",
                            "change": pad(f"{cid}cl{k}", 180)} for k in range(10)],
             "notes": [{"ts": "2026-08-20T00:00:00Z", "by": "ron",
-                       "text": pad(f"{cid}n{k}", 200)} for k in range(5)],
+                       "text": pad(f"{cid}n{k}", 1_350)} for k in range(5)],
         }
         (data / "chains" / f"{cid}.json").write_text(
             json.dumps(fit(chain_doc, CHAIN_BYTES, "map_limitation")))
@@ -168,40 +292,21 @@ def write(root, *, themes=10, links_per_chain=12, profiles=200, dives=60, ticker
         doc["money_at_stake"]["basis"] = pad(iid + "b", max(gap - 2, 1))
         (data / "impact" / f"{iid}.json").write_text(json.dumps(doc))
 
-    # --- market: 400 tickers, ~550 rows each plus the blocks the page never reads
+    # --- market: 400 tickers, ~559 rows each plus the blocks the page never reads.
+    # The pad-to-MARKET_BYTES field is `insider`, deliberately: it is one of the blocks
+    # project_market strips entirely, so growing the fixture to the real 25,909-byte mean
+    # makes the RAW store honest without inflating the page by a single byte. Padding a
+    # projected field instead would let the fixture flatter the projection.
     rows = series_rows()
     for i in range(tickers):
         t = tick(i)
-        (data / "market" / f"{t}.json").write_text(json.dumps({
-            "ticker": t, "cik": f"{i:010d}", "fetched_at": "2026-08-30T00:00:00Z",
-            "price_status": "SINGLE_SOURCE", "tier": "T1",
-            "prints": [{"close": rows[-1][1], "date": rows[-1][0], "source": "yfinance"}],
-            "week52": {"high": 300, "low": 30},
-            "series": {"as_of": rows[-1][0], "interval": "1d(24mo)+1w(prior)",
-                       "source": "yfinance", "rows": rows},
-            "fundamentals": {k: [[f"20{18 + n}-12-31", 1000000 * (n + 1)] for n in range(8)]
-                             for k in ("revenue_fy", "net_income_fy", "operating_income_fy",
-                                       "cost_of_revenue_fy", "operating_cashflow_fy",
-                                       "capex_fy", "depreciation_fy", "sga_fy",
-                                       "total_assets_fy", "equity_fy", "shares_fy")},
-            "insider": {"window": ["2025-08-29", "2026-08-29"],
-                        "rows": [{"filing_date": "2026-06-26", "insider": f"Person {k}",
-                                  "code": "A", "transaction_type": "award",
-                                  "security_title": "Class A common"} for k in range(40)]},
-            "pcs": {"axis_a": {"machine_admissible": True, "flags": []}},
-            "legs": {"a": pad(t + "legs", 300)},
-            "quality": {"piotroski": {"score": 6, "state": "SCORED"},
-                        "beneish": {"score": -2.4, "state": "CLEAN"},
-                        "altman": {"score": 8.8, "state": "SAFE"},
-                        "reverse_dcf": {"implied_fcf_cagr": 0.32, "state": "SOLVED",
-                                        "assumptions": {"discount_rate": 0.09,
-                                                        "terminal_growth": 0.025,
-                                                        "horizon_years": 5}},
-                        "health": {"statement_fields_found": 18,
-                                   "statement_fields_needed": 20,
-                                   "periods_available": ["2018-12-31"]},
-                        "as_of": "2026-08-30", "formulas": "piotroski/beneish/altman"},
-        }))
+        insider_rows = 40
+        while True:
+            doc = _market_doc(t, i, rows, insider_rows)
+            if sz(doc) >= MARKET_BYTES or insider_rows > 400:
+                break
+            insider_rows += 10
+        (data / "market" / f"{t}.json").write_text(json.dumps(doc))
 
     # --- screens
     for i in range(screens):

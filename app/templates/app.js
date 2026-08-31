@@ -840,7 +840,32 @@
       notesBlock(s) + changelogBlock(s) + footer() + "</main>";
   }
 
-  /* ---------------- chain ---------------- */
+  /* ---------------- chain ----------------
+     A finished chain is ~200 KB on disk and ~140 KB projected, and ten of them is 70% of
+     the whole file's budget, so app/build.py made chains elastic the way dives already
+     were: whole chains in the campaign manifest's theme-rank order while the budget
+     lasts, then chains without their cited evidence rows, then a navigation row with no
+     written analysis at all. Everything the flow strip, the heat scatter, the scenario
+     cards and the cortex draw survives at every fidelity — what a reduced chain loses is
+     prose. These two say which, per chain, and name the file that holds the rest, the
+     same rule seriesNote() and carriedTail() follow. */
+  function chainPath(c) { return "data/chains/" + ((c && c.id) || "") + ".json"; }
+  function chainFidelityNote(c) {
+    var f = c && c.chain_fidelity;
+    if (!f || f === "FULL") return "";
+    var cn = (D.carried || {}).chains || {};
+    var lost = f === "SUMMARY"
+      ? "The heat reasoning behind every score is here. What is not: the cited evidence rows under each score, each link's bottleneck note, and each scenario's per-link reasoning."
+      : "This chain is carried as navigation only — links, order, verdicts, scores, scenarios, indicators and invalidation signs. What is not on this page: the written reasoning behind every heat score, the cited evidence rows under it, the bottleneck notes, each scenario's per-link reasoning, and this chain's own notes.";
+    var across = cn.total
+      ? " Across " + cn.total + " chains this build carried " + cn.carried +
+        " in full, " + cn.summary + " without evidence rows and " + cn.index_only +
+        " as navigation only, in " + (cn.order || "chain id") + " order."
+      : "";
+    return "<div class='card' style='margin-top:14px'><h3>Reduced fidelity on this page</h3>" +
+      "<div class='small'>" + esc(lost) + " It is all in <span class='mono'>" +
+      esc(chainPath(c)) + "</span>." + esc(across) + "</div></div>";
+  }
   var chainTab = "flow";
   function chainView(id, tab) {
     var c = byId(D.chains, id);
@@ -855,9 +880,10 @@
         scored.length + " of " + links.length + " links scored, as of " + (c.heat_as_of || "—") + "."
       : "Chain mapped; heat not scored yet.";
     return topbar("chain") + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
-      '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) + "</div>" +
+      '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) +
+      (c.chain_fidelity && c.chain_fidelity !== "FULL" ? chip("reduced fidelity", "CROWDED") : "") + "</div>" +
       "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
-      chainScreenAction(c) + mapCard(c.id) +
+      chainFidelityNote(c) + chainScreenAction(c) + mapCard(c.id) +
       '<div class="seg">' +
       [["flow", "Flow"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
@@ -909,16 +935,54 @@
   // from data/market, because project_market strips raw fundamentals off the page).
   function linkModal(c, l) {
     var h = l.heat || {};
-    function ev(o) { return ((o || {}).evidence || []).map(function (e) { return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) + (e.source_name ? " <span class='muted'>[" + esc(e.source_name) + "]</span>" : "") + "</div>"; }).join(""); }
+    // The page carries the first few evidence items per leg, not all of them, and it says so.
+    // A silent window is the defect check_render.py exists to catch: a reader counting three
+    // sources under a score would otherwise believe three is all there is.
+    function ev(o) {
+      var items = (o || {}).evidence || [];
+      var total = (o || {}).evidence_total;
+      var rows = items.map(function (e) { return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) + (e.source_name ? " <span class='muted'>[" + esc(e.source_name) + "]</span>" : "") + "</div>"; }).join("");
+      if (typeof total === "number" && total > items.length) {
+        /* Two different states, and printing them the same way would be the "300 HELD"
+           defect again: a windowed leg (3 of 7 carried) and a leg carried at reduced
+           chain fidelity with none of its rows on the page at all. The second one has to
+           say the sources exist, or a scored leg reads as an unsourced assertion. */
+        rows += '<div class="evli muted">' + (items.length
+          ? "showing " + items.length + " of " + total + " cited source(s)"
+          : "none of this leg's " + total + " cited source(s) are carried on this page") +
+          "; the rest, with each one's verbatim excerpt, are in <span class='mono'>" +
+          esc(chainPath(c)) + "</span></div>";
+      }
+      return rows;
+    }
     function block(title, o) {
       if (!o) return "";
-      return "<h3>" + title + "</h3><div class='small'>" + esc(o.rationale || "") + "</div>" + ev(o);
+      /* `esc(o.rationale || "")` drew an empty paragraph for a leg whose reasoning this
+         build did not carry, which reads as "nobody wrote one". A scored leg with no
+         rationale on the page says so and names the file. */
+      var why = o.rationale != null
+        ? "<div class='small'>" + esc(o.rationale) + "</div>"
+        : (o.score != null
+          ? "<div class='small muted'>Scored " + o.score +
+            "/100. The written reasoning for this score is not on this page — it is in <span class='mono'>" +
+            esc(chainPath(c)) + "</span>.</div>"
+          : "");
+      return "<h3>" + title + "</h3>" + why + ev(o);
     }
     var chips = '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + chip((l.bottleneck || {}).criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + ((l.bottleneck || {}).criticality || "").toLowerCase()) + "</div>";
     var analysis =
       scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
       block("Impact", h.impact) + block("Crowdedness", h.crowdedness) + block("Value capture", h.capture) +
-      (h.repricing_check && h.repricing_check.note ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) + "</div>" : "") +
+      (h.repricing_check && h.repricing_check.note ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) +
+        (h.repricing_check.legs_detail_held ? " <span class='muted'>· the " + h.repricing_check.legs_detail_held + " per-leg basis note(s) are in <span class='mono'>" + esc(chainPath(c)) + "</span></span>" : "") + "</div>" : "") +
+      /* The three capture judgments Ember records per link (supply concentration,
+         substitutability, who posted the margin). They reach no template and were 66 KB
+         of the 2026-08-30 page, so app/build.py carries the count; without this line a
+         reader would have no way to know the capture score rests on anything written. */
+      (l.capture_inputs_count ? "<h3>Capture inputs</h3><div class='small muted'>" +
+        l.capture_inputs_count + " recorded judgment(s) behind the capture score, in <span class='mono'>" +
+        esc(chainPath(c)) + "</span></div>" : "") +
+      (((l.bottleneck || {}).note_held) ? "<div class='small muted' style='margin-top:8px'>The bottleneck note for this link is not on this page — it is in <span class='mono'>" + esc(chainPath(c)) + "</span>.</div>" : "") +
       "<h3>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
       "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
       // The link's own citation bar, the one tools/check_chain.py enforces on every link
@@ -1070,6 +1134,12 @@
       "Quiet links with <b>small dots</b> are the trap: ignored because capture is capped, not because the market missed them.</div>";
     return s;
   }
+  // method section 5 and check_scenarios.py both accept an indicator keyed `signal` OR
+  // `indicator`, and the corpus uses both: 141 of 173 on disk are `signal`. app.js read only
+  // `.indicator`, so 141 of them rendered as an empty <li> with a stray "(where to watch)"
+  // beside it. The data was never wrong; the page was reading one of two valid shapes.
+  function indText(i) { return (i && (i.indicator || i.signal || i.name)) || ""; }
+
   function scenTab(c) {
     var scens = c.scenarios || [];
     if (!scens.length) return '<div class="emptystate">No scenarios yet.<div class="runwrap">' + runButton("run scenarios " + c.id) + "</div></div>";
@@ -1079,11 +1149,11 @@
       }).join("");
       var inds = (s.leading_indicators || []).map(function (i) {
         var trip = ((D.indicators || {}).trips || []).filter(function (t) {
-          return t.chain === c.id && t.scenario === s.id && t.indicator === i.indicator;
+          return t.chain === c.id && t.scenario === s.id && t.indicator === indText(i);
         })[0];
         var trippedAt = i.tripped_at || (trip && trip.tripped_at);
         var badge = trippedAt ? chip("tripped " + trippedAt, "OVER_CROWDED") : i.armed ? chip("armed", "accent") : "";
-        return "<li>" + esc(i.indicator) + " <span class='muted'>(" + esc(i.where_to_watch) + ")</span> " + badge + "</li>";
+        return "<li>" + esc(indText(i)) + (i.where_to_watch ? " <span class='muted'>(" + esc(i.where_to_watch) + ")</span>" : "") + " " + badge + "</li>";
       }).join("");
       return '<div class="card scen"><div class="head"><span class="t">' + esc(s.id) + " — " + esc(s.title) + "</span>" +
         chip(s.status, s.status === "SCREENED" ? "accent" : "neutral") + (s.clock && s.clock !== c.clock ? chip(s.clock) : "") +
@@ -1091,8 +1161,16 @@
         '<div class="pbar"><i style="width:' + esc(s.probability_pct) + '%"></i></div>' +
         "<div class='small'>" + esc(s.narrative) + "</div>" +
         "<div style='margin:10px 0 2px'>" + mv + "</div>" +
+        /* At reduced chain fidelity the per-moved-link `why` and each indicator's
+           check basis are not carried. Say it, rather than showing a shorter scenario
+           that looks like a thinner one. */
+        (s.why_held ? "<div class='muted small'>the reason each of these " + s.why_held +
+          " link move(s) was written down is in <span class='mono'>" + esc(chainPath(c)) + "</span></div>" : "") +
         "<details><summary>Leading indicators & invalidation</summary><div class='body'><ul class='bullets'>" + inds + "</ul>" +
-        "<div class='small' style='margin-top:8px'><b>Invalidation:</b> " + (s.invalidation_signs || []).map(esc).join(" · ") + "</div></div></details>" +
+        "<div class='small' style='margin-top:8px'><b>Invalidation:</b> " + (s.invalidation_signs || []).map(esc).join(" · ") + "</div>" +
+        (s.evidence_count ? "<div class='muted small' style='margin-top:8px'>" + s.evidence_count +
+          " cited source(s) behind this scenario, in <span class='mono'>" + esc(chainPath(c)) + "</span></div>" : "") +
+        "</div></details>" +
         "<div style='margin-top:14px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">Open stock screen →</a>' : runButton("run screen " + c.id + " " + s.id, "screens stocks for this scenario, bucketed and tiered")) + "</div></div>";
     }).join("");
   }
@@ -2993,6 +3071,8 @@
         "<p class='small'>" + (o.links || []).length + " links · " + (o.scenarios || []).length + " scenarios" +
         (money.length ? " · ★ money corner: " + esc(money.map(function (l) { return l.name; }).join(", ")) : "") + "</p>" +
         (o.map_limitation ? "<div class='muted small'>" + esc(o.map_limitation) + "</div>" : "") +
+        (o.chain_fidelity && o.chain_fidelity !== "FULL"
+          ? "<div class='muted small' style='margin-top:8px'>Reduced fidelity on this page — the written analysis is in <span class='mono'>" + esc(chainPath(o)) + "</span>.</div>" : "") +
         '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/chain/' + esc(o.id) + '">Open chain →</a>' +
         '<a class="chip accent" href="#/chain/' + esc(o.id) + '/heat">Heat map →</a>' +
         '<a class="chip accent" href="#/chain/' + esc(o.id) + '/scen">Scenarios →</a></div>');
@@ -3851,11 +3931,21 @@
   }
   function objPath(obj) {
     if (obj.ticker && obj.chain_id) return "data/stocks/" + obj.ticker + "__" + obj.chain_id + ".json";
+    if (obj.links) return chainPath(obj);
     if (obj.id) return "the object's file in data/";
     return "data/";
   }
   function notesBlock(obj) {
     var n = obj.notes || [];
+    /* Three states, not two. A chain carried at reduced fidelity has its notes dropped
+       and `notes_total` kept: printing the "None — add one" empty state over that would
+       tell the reader nobody has ever annotated the chain, which is the opposite of what
+       the data says. */
+    if (!n.length && obj.notes_total) {
+      return seclabel("Notes") + "<div class='muted'>" + obj.notes_total +
+        " note(s) on this object, none carried on this page — they are in <span class='mono'>" +
+        esc(objPath(obj)) + "</span>.</div>";
+    }
     return seclabel("Notes") + (n.length ? n.map(function (x) {
       return '<div class="note"><span class="who">' + esc(x.by) + " · " + esc((x.ts || "").slice(0, 10)) + "</span><br>" + esc(x.text) + "</div>";
     }).join("") + carriedTail(n.length, obj.notes_total, "notes", objPath(obj))

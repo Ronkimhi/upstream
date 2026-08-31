@@ -82,10 +82,35 @@ DENY = [
      "impact evidence arrays are no longer carried on the page; counting them here would "
      "render 0 cited sources for a leg that has several",
      "render the leg's evidence_count, which app/build.py projects"),
+    # --- added 2026-08-30 with the elastic CHAIN projection -------------------------
+    # app/build.py now carries whole chains only while a budget lasts (theme-rank order),
+    # then chains without their evidence rows, then navigation-only chains. A link's heat
+    # leg can therefore arrive with a score and no rationale, and with an evidence_total
+    # and no evidence rows. Both are truthful only while the page says so; these are the
+    # ways the renderer could quietly un-say it.
+    (r"rationale\s*\|\|\s*([\"'])\1",
+     "`rationale || \"\"` draws an empty paragraph under a scored heat leg whose reasoning "
+     "this build did not carry, which reads as an analysis nobody wrote",
+     "test `rationale != null` and, when it is absent, say the reasoning is in "
+     "data/chains/<slug>.json"),
+    (r"(heat|h)\.(impact|crowdedness|capture)\.evidence\s*\|\|\s*\[\]\s*\)?\s*\.length",
+     "counting the heat-leg evidence rows this page CARRIES reads as zero sources for a "
+     "leg carried at reduced chain fidelity, where the rows are dropped and only the "
+     "count survives (signal evidence is different — that store is carried whole)",
+     "print evidence_total, the count app/build.py ships beside the rows it kept"),
+    (r"\.capture_inputs(?!_count)\b",
+     "`capture_inputs` is not carried on the page — the three capture judgments live in "
+     "data/chains/<slug>.json — so reading it here renders nothing where a reader would "
+     "read an absence as 'the capture score rests on nothing written'",
+     "render capture_inputs_count and name the file, the way the map-citation count does"),
 ]
 
 # Structures whose absence silently degrades the page rather than breaking it.
 REQUIRE = [
+    ("app/templates/app.js", r"function indText\(",
+     "the one helper that resolves an indicator keyed `signal` OR `indicator`. Method "
+     "section 5 and check_scenarios.py accept both and 141 of 173 on disk use `signal`, "
+     "so reading only `.indicator` rendered most indicators as an empty list row"),
     ("app/templates/app.js", r"function num\(", "the num() zero-vs-null helper"),
     ("app/templates/app.js", r"function isPlottable\(",
      "the single definition of a plottable link (the scatter and the not-scored list "
@@ -141,6 +166,34 @@ REQUIRE = [
     ("app/build.py", r"def build_payload\(",
      "the payload builder, extracted from main() so the page's scale is testable at "
      "campaign size instead of only at today's size"),
+    # --- the elastic chain projection must stay visible too (added 2026-08-30) ------
+    ("app/build.py", r"def _elastic_chain_budgets\(",
+     "the chain half of the elastic rule: ten finished chains are 1.26 MB of a 2 MB "
+     "file, so chains get the change the same way dives do"),
+    ("app/build.py", r"def _elastic_page_budgets\(",
+     "the split between the two elastic stores, proportional to what each needs at full "
+     "fidelity, so chains and dives degrade at the same rate instead of one starving"),
+    ("app/build.py", r"def campaign_chain_order\(",
+     "the campaign manifest's theme rank as the order chains keep their fidelity in — "
+     "an evidence-backed ordering that already exists, rather than alphabetical"),
+    ("app/templates/app.js", r"function chainFidelityNote\(",
+     "the chain page's own disclosure: which fidelity this chain was carried at, what "
+     "that dropped, and the file that still holds it"),
+    ("app/templates/app.js", r"chainFidelityNote\(c\) \+",
+     "that disclosure actually rendered on the chain page — a helper nobody calls is the "
+     "same silence as no helper at all"),
+    ("app/templates/app.js", r"function chainPath\(",
+     "the data/chains/<slug>.json path every chain-level disclosure names; without it "
+     "the reader is told something is missing and not where it is"),
+    ("app/templates/app.js", r"capture_inputs_count",
+     "the count of capture judgments behind a link's capture score, carried instead of "
+     "their text; without it a scored capture leg reads as resting on nothing written"),
+    ("app/templates/app.js", r"evidence_total",
+     "the heat leg's full source count, carried beside the rows the page kept — the "
+     "difference between 'showing 3 of 7' and 'none of 7 on this page'"),
+    ("app/templates/app.js", r"!n\.length && obj\.notes_total",
+     "the third notes state: an object whose notes exist but were not carried must not "
+     "draw the \"None — add one\" empty state, which says nobody ever annotated it"),
 ]
 
 
