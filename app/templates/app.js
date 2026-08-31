@@ -2692,6 +2692,9 @@
   var CX_FACTORS = [["impact", "IMPACT", "#8687f0"], ["crowdedness", "CROWDEDNESS", "#e97f4e"], ["capture", "CAPTURE", "#34c77e"]];
   // stacking order for the global radial's spoke bars: most investable innermost
   var CX_MIX_ORDER = ["UNDISCOVERED", "EMERGING", "QUIET", "CROWDED", "OVER_CROWDED"];
+  // screen-space geometry of the global radial's spoke bars, refreshed every frame the
+  // radial draws, so mousemove can hit-test the bars themselves (they are not nodes)
+  var CX_RADHIT = null;
   function cxHeatRank(l) {
     var v = (l.heat || {}).verdict;
     return CX_HEAT_ORDER[v] != null ? CX_HEAT_ORDER[v] : 5;
@@ -2759,6 +2762,7 @@
       });
       seat("sig:" + pair.sig.id, cx, cy, 11);
       seat("chain:" + pair.chain.id, cx, cy, 0);
+      CX_RADHIT = null;                     // the focused ranking has no spoke bars
 
       return { targets: targets, focus: pair, draw: function (al) {
         ctx.save(); ctx.globalAlpha = al;
@@ -2847,6 +2851,8 @@
              p == null ? 2.2 : 2.2 + 3.5 * p / 50);
       });
     });
+    CX_RADHIT = { cx: cx, cy: cy, r0: R * 0.60, r1: R * 0.84,
+                  spokes: sigs.map(function (s) { return { a: s._ca, id: s.id }; }) };
     return { targets: targets, focus: null, draw: function (al) {
       ctx.save(); ctx.globalAlpha = al;
       ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(88,92,114,0.38)"; ctx.lineWidth = 1;
@@ -3198,6 +3204,37 @@
     return "";
   }
   function cxCardRow(k, v) { return "<div class='r'><span class='k'>" + esc(k) + "</span><span>" + esc(v) + "</span></div>"; }
+  /* The spec card for a spoke bar in the global radial: what each segment is, counted
+     from the chain's links on disk — the same arithmetic that sized the segments. */
+  function cxSpokeCard(sigId) {
+    var s = byId(D.signals, sigId) || {};
+    var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+    var links = c ? (c.links || []) : [];
+    var h = "<div class='hd'><span class='pip' style='background:" + CXP.accent + "'></span>" +
+            "<span class='kind'>spoke bar · link mix by heat verdict</span></div>" +
+            "<div class='tt'>" + esc(s.title || sigId) + "</div>";
+    if (!links.length) return h + "<div class='bd'>unchained — no links to score yet, so the bar stays an empty track</div>";
+    var n = links.length, seen = 0;
+    h += "<div class='bd'>each segment is the share of this chain's " + n + " links at that heat verdict, most investable at the center</div>";
+    CX_MIX_ORDER.forEach(function (k) {
+      var cnt = links.filter(function (l) { return (l.heat || {}).verdict === k; }).length;
+      if (!cnt) return;
+      seen += cnt;
+      h += "<div class='r'><span class='k'><span class='pip' style='background:" + CXP.verd[k] + "'></span> " +
+           esc(k.replace(/_/g, " ")) + "</span><span>" + cnt + " of " + n + " · " + Math.round(100 * cnt / n) + "%</span></div>";
+    });
+    if (seen < n) {
+      h += "<div class='r'><span class='k'><span class='pip' style='background:#3a3a4a'></span> UNSCORED</span>" +
+           "<span>" + (n - seen) + " of " + n + " · dark remainder</span></div>";
+    }
+    var hm = cxChainMeans(c);
+    if (hm.impact != null || hm.crowdedness != null || hm.capture != null) {
+      h += cxCardRow("mean scores", "impact " + num(hm.impact == null ? null : Math.round(hm.impact)) +
+                     " · crowded " + num(hm.crowdedness == null ? null : Math.round(hm.crowdedness)) +
+                     " · capture " + num(hm.capture == null ? null : Math.round(hm.capture)));
+    }
+    return h;
+  }
   function cxHoverCard(n) {
     var o = n.ref || {}, h = "";
     function head(kind, title, color) {
@@ -3721,8 +3758,8 @@
       if (!readEl) return;
       readEl.textContent = n ? (n.kind.toUpperCase() + " · " + (n.tip || n.label || "")) : "";
     }
-    function showCard(n, cx2, cy2) {
-      card.innerHTML = cxHoverCard(n);
+    function placeCard(html, cx2, cy2) {
+      card.innerHTML = html;
       card.style.display = "block";
       var cw = card.offsetWidth || 300, chh = card.offsetHeight || 120;
       var lx = cx2 + 16, ly = cy2 - 12;
@@ -3730,6 +3767,22 @@
       if (ly + chh > innerHeight - 8) ly = innerHeight - chh - 8;
       if (ly < 8) ly = 8;
       card.style.left = lx + "px"; card.style.top = ly + "px";
+    }
+    function showCard(n, cx2, cy2) { placeCard(cxHoverCard(n), cx2, cy2); }
+    /* Hit-test the global radial's spoke bars: inside the bar's radial band and within
+       a few pixels of the nearest spoke's ray. Bars are drawn geometry, not nodes, so
+       pick() cannot see them. */
+    function pickSpoke(px2, py2) {
+      var H = CX_RADHIT;
+      if (!H || CX_MODE.phase !== "radial" || CX_MODE.morph < 0.95) return null;
+      var dx = px2 - H.cx, dy = py2 - H.cy, r = Math.sqrt(dx * dx + dy * dy);
+      if (r < H.r0 - 7 || r > H.r1 + 7) return null;
+      var ang = Math.atan2(dy, dx), best = null, bd = 1e9;
+      H.spokes.forEach(function (sp) {
+        var d = Math.abs(Math.atan2(Math.sin(ang - sp.a), Math.cos(ang - sp.a)));
+        if (d < bd) { bd = d; best = sp; }
+      });
+      return best && bd * r <= 9 ? best : null;
     }
     function touched() { CX_CACHE.touched = true; userView = true; CX_CACHE.userView = true; }
 
@@ -3757,9 +3810,11 @@
         return;
       }
       hover = pick(px, py);
-      canvas.style.cursor = hover ? "pointer" : "grab";
+      var spoke = hover ? null : pickSpoke(px, py);
+      canvas.style.cursor = hover ? "pointer" : spoke ? "default" : "grab";
       setRead(hover || focus);
       if (hover) { pinned = null; showCard(hover, e.clientX, e.clientY); }
+      else if (spoke) { pinned = null; placeCard(cxSpokeCard(spoke.id), e.clientX, e.clientY); }
       else if (!pinned) card.style.display = "none";
     });
     canvas.addEventListener("mousedown", function (e) {
