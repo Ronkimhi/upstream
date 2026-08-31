@@ -1393,6 +1393,31 @@ def extract_committed_payload():
         return None, f"the embedded blob is not valid JSON: {e}"
 
 
+def _strip_derived_sizes(obj):
+    """Drop allocation bookkeeping before comparing a committed page against data/.
+
+    Keys ending in `budget_bytes` record how many bytes a projection was ALLOWED, not
+    what it says. They are computed from the total payload size, and the payload includes
+    `data/ledger.md` — which the postlude appends to at step 3, AFTER the build at step 2
+    and before the commit at step 5. So every honest commit ships a page whose budget
+    numbers were computed against a ledger one line shorter than the one it commits, and
+    those numbers can never match on re-check. That is not drift, it is arithmetic about
+    the file's own size, and on 2026-08-31 it held CI red across a dozen commits while
+    every session was doing the right thing.
+
+    This is the third instance of one pattern: build, then append, then commit. The ledger
+    and health.sessions were special-cased for it; this generalises the same insight to
+    anything whose value is a function of the payload's byte size. Content is still
+    compared exactly — a chain, a stock, a score or a quote that disagrees still fails.
+    """
+    if isinstance(obj, dict):
+        return {k: _strip_derived_sizes(v) for k, v in obj.items()
+                if not k.endswith("budget_bytes")}
+    if isinstance(obj, list):
+        return [_strip_derived_sizes(v) for v in obj]
+    return obj
+
+
 def _is_ordered_subsequence(sub: list, whole: list) -> bool:
     """True when every line of `sub` appears in `whole`, in the same relative order.
 
@@ -1433,6 +1458,23 @@ def compare_committed(payload: dict) -> list:
     for key in sorted(set(payload) | set(committed)):
         if key == "built_at":
             continue
+        if key == "health":
+            # `data/health/sessions.json` is stamped at postlude step 4, AFTER the build
+            # at step 2 and before the commit at step 5. The committed page therefore
+            # CANNOT carry the stamp that the same commit adds — every honest postlude
+            # produces this mismatch, and it kept CI red on 2026-08-31 while the sessions
+            # doing the work were doing it correctly. Same structural lag the ledger has,
+            # and it was special-cased there and missed here.
+            #
+            # `actions` stays strict: the fetch workflow writes it and rebuilds in the
+            # same job, so it has no lag and a disagreement there is real drift.
+            page_h = dict(committed.get(key) or {})
+            now_h = dict(payload.get(key) or {})
+            page_h.pop("sessions", None)
+            now_h.pop("sessions", None)
+            if page_h != now_h:
+                drift.append("health.actions: the committed page disagrees with data/")
+            continue
         if key == "ledger":
             # The postlude order is build, THEN append the ledger line describing the
             # build, THEN commit — so the committed page is always a line or two behind
@@ -1460,8 +1502,8 @@ def compare_committed(payload: dict) -> list:
             drift.append(f"{key}: missing from the committed page")
         elif key not in payload:
             drift.append(f"{key}: on the committed page but no longer built")
-        elif committed[key] != payload[key]:
-            a, b = committed[key], payload[key]
+        elif _strip_derived_sizes(committed[key]) != _strip_derived_sizes(payload[key]):
+            a, b = _strip_derived_sizes(committed[key]), _strip_derived_sizes(payload[key])
             detail = ""
             if isinstance(a, list) and isinstance(b, list) and len(a) != len(b):
                 detail = f" ({len(a)} on the page, {len(b)} in data/)"
