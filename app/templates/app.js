@@ -2690,6 +2690,8 @@
   var CX_MODE = { phase: "network", sig: null, morph: 0 };
   var CX_HEAT_ORDER = { UNDISCOVERED: 0, EMERGING: 1, CROWDED: 2, OVER_CROWDED: 3, QUIET: 4 };
   var CX_FACTORS = [["impact", "IMPACT", "#8687f0"], ["crowdedness", "CROWDEDNESS", "#e97f4e"], ["capture", "CAPTURE", "#34c77e"]];
+  // stacking order for the global radial's spoke bars: most investable innermost
+  var CX_MIX_ORDER = ["UNDISCOVERED", "EMERGING", "QUIET", "CROWDED", "OVER_CROWDED"];
   function cxHeatRank(l) {
     var v = (l.heat || {}).verdict;
     return CX_HEAT_ORDER[v] != null ? CX_HEAT_ORDER[v] : 5;
@@ -2863,19 +2865,27 @@
         var a = s._ca, ca = Math.cos(a), sa = Math.sin(a), t = targets["sig:" + s.id];
         var un = (s.unmappedness || {}).score;
         var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
-        // three factor meters per spoke — the chain's mean impact / crowdedness /
-        // capture over its scored links, same encoding as the per-link view
         var hm = cxChainMeans(c);
+        // the spoke bar is the chain's link mix by heat verdict, stacked most-investable
+        // first: factor MEANS cluster in a 43-77 band and every spoke looked identical,
+        // while the verdict mix is what actually differs chain to chain. The dark
+        // remainder at the outer end is the unscored share, never an invented segment.
         var b0 = R * 0.60, b1 = R * 0.84;
-        ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "round";
-        CX_FACTORS.forEach(function (f, q) {
-          var v = hm[f[0]], off = (q - 1) * 6;
-          ctx.strokeStyle = "#16161f"; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b1, off); ctx.stroke();
-          if (v == null) return;             // unscored leg: the empty track is the statement
-          ctx.strokeStyle = f[2];
-          ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b0 + (b1 - b0) * v / 100, off); ctx.stroke();
-        });
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "butt";
+        ctx.strokeStyle = "#16161f"; ctx.lineWidth = 4.5;
+        ctx.beginPath(); ctx.moveTo(b0, 0); ctx.lineTo(b1, 0); ctx.stroke();
+        var links2 = c ? (c.links || []) : [];
+        if (links2.length) {
+          var span = b1 - b0, x0 = b0;
+          CX_MIX_ORDER.forEach(function (k) {
+            var cnt = links2.filter(function (l) { return (l.heat || {}).verdict === k; }).length;
+            if (!cnt) return;
+            var seg = span * cnt / links2.length;
+            ctx.strokeStyle = CXP.verd[k];
+            ctx.beginPath(); ctx.moveTo(x0 + 0.75, 0); ctx.lineTo(x0 + seg - 0.75, 0); ctx.stroke();
+            x0 += seg;
+          });
+        }
         ctx.restore();
         if (!t) return;
         var side = ca >= 0 ? 1 : -1, align = side > 0 ? "left" : "right";
@@ -2903,7 +2913,10 @@
       (D.chains || []).forEach(function (c) { nl += (c.links || []).length; });
       ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
       ctx.fillText(sigs.length + " SIGNALS · " + nl + " LINKS · NOW", cx, cy + 72);
-      cxRadialLegend(ctx, w, h, al, "FACTORS · CHAIN MEAN", "DOT SIZE — UNMAPPEDNESS");
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2;
+      ctx.fillText("SPOKE — SHARE OF LINKS BY HEAT VERDICT", 20, h - 40);
+      cxRadialLegend(ctx, w, h, al, null, "DOT SIZE — UNMAPPEDNESS");
       ctx.restore();
     } };
   }
@@ -2931,6 +2944,9 @@
         ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2;
         ctx.fillText(f[1], 50, ly + 0.5);
       });
+    }
+    if (sizeLabel) {
+      ctx.font = "8px 'JetBrains Mono', monospace";
       ctx.fillStyle = CXP.ink2; ctx.fillText(sizeLabel, 20, h - 22);
     }
     // verdict legend, bottom right
