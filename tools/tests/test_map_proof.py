@@ -788,5 +788,96 @@ class TestMapProof(MapProofTree):
             )
 
 
+class TestDatedGateHardenings(MapProofTree):
+    """The two 2026-08-31 hardenings: token-anchored short-code excerpt matching and
+    control_probe required whenever control_probe_passed is asserted. Both bind only
+    records dated on or after check_map.TOKEN_MATCH_CUTOFF; older records keep the
+    old behavior and are counted as loud debt, because a probe record cannot be
+    honestly invented after the fact (backlog 2026-08-31, gate rows)."""
+
+    def setUp(self):
+        super().setUp()
+        check_map.LEGACY_TOKEN_DEBT.clear()
+        check_map.LEGACY_UNPROBED_DEBT.clear()
+
+    def _refingerprint(self, mapping):
+        mapping["audit"]["mapping_fingerprint"] = check_map.mapping_fingerprint(mapping)
+
+    def test_post_cutoff_short_code_cannot_pass_on_substring_luck(self):
+        """The audit's exact finding: 'LSE' satisfied by 'islse' in the excerpt."""
+        mapping = self.mapping()
+        evidence = mapping["listings"][0]["identity_evidence"][0]
+        name = evidence["legal_issuer"]
+        exchange = evidence["exchange"]
+        evidence["source_excerpt"] = (
+            f'{name} venue MAINMARKET.SET1.{exchange}UK "is{exchange.lower()}": true '
+            f'symbol {evidence["ticker"]}.'
+        )
+        evidence["source_date"] = check_map.TOKEN_MATCH_CUTOFF
+        self._refingerprint(mapping)
+        failures = self.failures(mapping)
+        self.assertTrue(
+            any("exact exchange" in finding for finding in failures), failures
+        )
+
+    def test_pre_cutoff_short_code_keeps_substring_test_and_counts_debt(self):
+        mapping = self.mapping()
+        evidence = mapping["listings"][0]["identity_evidence"][0]
+        name = evidence["legal_issuer"]
+        exchange = evidence["exchange"]
+        evidence["source_excerpt"] = (
+            f'{name} venue MAINMARKET.SET1.{exchange}UK "is{exchange.lower()}": true '
+            f'symbol {evidence["ticker"]}.'
+        )
+        evidence["source_date"] = "2026-08-28"
+        self._refingerprint(mapping)
+        failures = self.failures(mapping)
+        self.assertFalse(
+            any("exact exchange" in finding for finding in failures), failures
+        )
+        self.assertTrue(check_map.LEGACY_TOKEN_DEBT)
+
+    def test_undated_evidence_is_strict(self):
+        mapping = self.mapping()
+        evidence = mapping["listings"][0]["identity_evidence"][0]
+        exchange = evidence["exchange"]
+        evidence["source_excerpt"] = (
+            f'{evidence["legal_issuer"]} venue SET1.{exchange}UK '
+            f'symbol {evidence["ticker"]}.'
+        )
+        evidence.pop("source_date", None)
+        evidence.pop("accessed_at", None)
+        self._refingerprint(mapping)
+        failures = self.failures(mapping)
+        self.assertTrue(
+            any("exact exchange" in finding for finding in failures), failures
+        )
+
+    def test_post_cutoff_asserted_flag_demands_probe_record(self):
+        mapping = self.mapping()
+        exhausted = next(
+            row for row in mapping["link_coverage"]
+            if row.get("status") == "EXHAUSTED"
+        )
+        search = exhausted["searches"][0]
+        self.assertNotIn("control_probe", search)
+        self.assertTrue(search.get("hits_examined", 0) > 0)
+        search["source_date"] = check_map.TOKEN_MATCH_CUTOFF
+        self._refingerprint(mapping)
+        failures = self.failures(mapping)
+        self.assertTrue(
+            any("control_probe" in finding for finding in failures), failures
+        )
+
+    def test_pre_cutoff_asserted_flag_is_counted_debt_not_failure(self):
+        mapping = self.mapping()
+        failures = self.failures(mapping)
+        self.assertFalse(
+            any("control_probe must document" in finding for finding in failures),
+            failures,
+        )
+        self.assertTrue(check_map.LEGACY_UNPROBED_DEBT)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -704,18 +704,28 @@ def main() -> int:
                     fail(f"{n}: confidence_audit claims 0 {tag} but the file uses it "
                          f"{actual} time(s)")
 
-    # 10. the ledger line
+    # 10. the ledger line. Matched on the COMMAND field (split on |, field index 2),
+    # never on the whole line: a bare substring test treated any NOTE whose prose
+    # mentioned "deepdive" as a dive line, then demanded verdict:/clock:/grade: of it,
+    # masking a correct dive line earlier the same day (backlog 2026-08-31,
+    # unanchored-ledger-matchers, second failure — promoted per the two-failure rule).
+    # Every matching line is checked, not just the last, for the same reason.
     ledger = (data / "ledger.md").read_text() if (data / "ledger.md").exists() else ""
     todays = [ln for ln in ledger.splitlines() if ln.startswith(today)]
-    dive_lines = [ln for ln in todays if "deepdive" in ln or "redteam" in ln]
+    dive_lines = []
+    for ln in todays:
+        parts = ln.split("|")
+        cmd = parts[2].strip() if len(parts) > 2 else ""
+        if re.match(r"^(run )?(deepdive|redteam)\b", cmd):
+            dive_lines.append(ln)
     if not dive_lines:
-        fail(f"no ledger line dated {today} naming deepdive or redteam")
+        fail(f"no ledger line dated {today} whose command field names deepdive or redteam")
     else:
-        last = dive_lines[-1]
-        for token, what in (("verdict:", "the verdict"), ("clock:", "the clock"),
-                            ("grade:", "the earnings grade")):
-            if token not in last:
-                fail(f"ledger line must name {what} as `{token}<value>`: {last[:120]}")
+        for line in dive_lines:
+            for token, what in (("verdict:", "the verdict"), ("clock:", "the clock"),
+                                ("grade:", "the earnings grade")):
+                if token not in line:
+                    fail(f"ledger line must name {what} as `{token}<value>`: {line[:120]}")
 
     report(f"dives: {len(touched)} updated today of {len(dives)} total")
     report(f"shadow book: {len(shadow_ids)} row(s) available for TOO_LATE refs")

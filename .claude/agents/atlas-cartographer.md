@@ -182,8 +182,9 @@ evidence. Any real universe below ten closes as `EXHAUSTED`, including MOSTLY_PR
 UNINVESTABLE links. EXHAUSTED is a proved multi-source census on one shared
 `qualification_boundary`, not a label. Each search records query, source, date, URL,
 `source_type`, `link_scope`, hits examined, accepted and rejected names, `result_status`,
-`control_probe_passed: true`, and a link-specific exhaustion conclusion. Zero-hit searches
-also carry a same-domain, same-type `control_probe`. The link needs at least two distinct
+`control_probe_passed: true`, and a link-specific exhaustion conclusion. Every search that
+asserts `control_probe_passed` also carries the same-domain, same-type `control_probe`
+record that substantiates it, zero-hit or not (method amendment 2026-08-31). The link needs at least two distinct
 source domains, two distinct source types including one official exchange or registry and
 one primary issuer or credible industry source, plus `combined_search_scope` matching the
 searches run. `accepted_names` must resolve exactly to counted placements. An empty list,

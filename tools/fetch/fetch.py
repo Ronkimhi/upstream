@@ -10,8 +10,9 @@ Duties:
      run the shadow +90d sweep, prune old FULFILLED requests.
   3. verified_zero discipline: an empty result is written only when a control probe
      ON THE SAME DATA PLANE succeeded in the same run; otherwise the request FAILS.
-     Prices use the stooq probe; every EDGAR surface (fundamentals, FTS, insider) uses
-     its own edgar_*_ok() probe, because a price probe cannot certify EDGAR reachability.
+     Prices use a yfinance probe (the plane prices actually come from); every EDGAR
+     surface (fundamentals, FTS, insider) uses its own edgar_*_ok() probe, because a
+     price probe cannot certify EDGAR reachability.
 
 No Anthropic calls, no absolute paths, loud degradation. Stdlib + requests
 (+ yfinance best-effort via acis.dual_source).
@@ -76,28 +77,29 @@ _control = {"checked": False, "ok": False, "reason": None}
 
 
 def control_ok():
-    """One stooq AAPL probe per run: proves the price plumbing is alive so an
-    empty result elsewhere can be stamped verified_zero instead of lying.
+    """One AAPL probe per run on the yfinance plane: proves the price plumbing is
+    alive so an empty result elsewhere can be stamped verified_zero instead of lying.
 
-    Sends STOOQ_USER_AGENT, not SEC_HEADERS. It used to send the EDGAR agent, which
-    stooq answers with an HTML robots page — so this probe reported FAILED for reasons
-    that had nothing to do with whether prices were reachable, and the one-word FAILED
-    said nothing about why. It fails closed either way (a zero can never be certified by
-    a probe that did not pass), which is why the breakage stayed invisible: the safe
-    direction is also the silent one.
+    Probes yfinance because that is the plane prices are actually fetched from (the
+    primary print leg and the only series leg on disk). The stooq probe this replaces
+    (2026-09-01) could never pass once stooq began serving a JS proof-of-work challenge
+    to every non-browser client, so any ticker where all legs came back empty failed as
+    "price sources unreachable" even while yfinance was healthy — plain-US MMC among
+    the casualties. Same lesson as the EDGAR probes: a zero is certified on the plane
+    it was read from, and a dead probe fails closed, which is also why its breakage
+    stays invisible until someone looks.
     """
     if not _control["checked"]:
         _control["checked"] = True
         try:
-            r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol="aapl.us"),
-                             headers={"User-Agent": STOOQ_USER_AGENT}, timeout=30)
-            _control["ok"] = r.status_code == 200 and r.text.startswith("Date") and len(r.text) > 2000
-            _control["reason"] = None if _control["ok"] else (
-                f"http {r.status_code}, body starts {r.text.strip()[:60]!r}")
+            import yfinance as yf
+            hist = yf.Ticker("AAPL").history(period="5d")
+            _control["ok"] = hist is not None and not hist.empty and "Close" in hist.columns
+            _control["reason"] = None if _control["ok"] else "yfinance AAPL history came back empty"
         except Exception as e:  # noqa: BLE001
             _control["ok"] = False
             _control["reason"] = f"{type(e).__name__}: {str(e)[:120]}"
-        print(f"control probe (stooq AAPL): {'OK' if _control['ok'] else 'FAILED'}"
+        print(f"control probe (yfinance AAPL): {'OK' if _control['ok'] else 'FAILED'}"
               + (f" — {_control['reason']}" if _control.get("reason") else ""))
     return _control["ok"]
 
@@ -168,20 +170,53 @@ def edgar_forms_ok():
 
 # ---------------------------------------------------------------- tickers/cik
 _company_tickers = None
+_cik_overrides = {}
+
+
+def register_cik_override(ticker, cik):
+    """An explicit `cik` on a request row wins over any table lookup. This is how a
+    legitimate ADR-linked foreign listing (BP.L -> BP plc's 20-F filer) keeps its SEC
+    leg now that a suffixed ticker can no longer infer one: the link is asserted by
+    the session that queued the row, with evidence, never guessed from a prefix."""
+    try:
+        _cik_overrides[str(ticker).upper()] = int(cik)
+    except (TypeError, ValueError):
+        print(f"  ignoring non-numeric cik override for {ticker}: {cik!r}")
 
 
 def cik_for(ticker):
+    """SEC CIK for a ticker, or None.
+
+    A dotted ticker is either a US share class (BRK.B — the SEC table spells it
+    BRK-B) or a foreign listing's exchange suffix (ENR.DE). Only the exact
+    class-share spelling may match. The old code stripped everything after the
+    first "." and matched the stub against the SEC's US ticker table, so a foreign
+    listing silently adopted an unrelated US filer's CIK (ENR.DE -> Energizer,
+    BA.L -> Boeing) and do_fundamentals then wrote ANOTHER COMPANY's companyfacts
+    into the foreign listing's file, tagged VERIFIED (backlog 2026-08-31,
+    listing-identity-normalization). A suffixed ticker now resolves only via an
+    explicit request-row `cik` override; with none, it gets no CIK and the vendor
+    leg — the posture method §6 prescribes for T3 names.
+    """
     global _company_tickers
-    base = ticker.split(".")[0].upper().replace("-", "")
+    t = str(ticker).upper()
+    if t in _cik_overrides:
+        return _cik_overrides[t]
     if _company_tickers is None:
         edgar_wait()
         try:
             r = requests.get(SEC_COMPANY_TICKERS_URL, headers=SEC_HEADERS, timeout=60)
-            _company_tickers = {v["ticker"].upper().replace("-", ""): v["cik_str"]
-                                for v in r.json().values()} if r.status_code == 200 else {}
+            _company_tickers = {}
+            if r.status_code == 200:
+                for v in r.json().values():
+                    tk = v["ticker"].upper()
+                    _company_tickers[tk] = v["cik_str"]                    # raw: BRK-B
+                    _company_tickers.setdefault(tk.replace("-", ""), v["cik_str"])  # BRKB
         except Exception:
             _company_tickers = {}
-    return _company_tickers.get(base) or _company_tickers.get(ticker.upper().replace(".", "-"))
+    if "." in t:
+        return _company_tickers.get(t.replace(".", "-"))
+    return _company_tickers.get(t) or _company_tickers.get(t.replace("-", ""))
 
 
 def tier_for(ticker, cik):
@@ -271,10 +306,15 @@ def do_prices(ticker):
     prev = jload(DATA / "market" / f"{safe_name(ticker)}.json", {})
     if status == "NO_DATA":
         if not control_ok():
-            raise RuntimeError("price sources unreachable and control probe failed")
+            legs = ds.get("detail", {}).get("legs", {})
+            leg_notes = "; ".join(f"{name}: {str(leg.get('note') or leg.get('status') or leg)[:80]}"
+                                  for name, leg in legs.items()) or "no leg detail"
+            raise RuntimeError(f"no price leg returned data ({leg_notes}) "
+                               f"and the control probe failed ({_control.get('reason')})")
         update = {"ticker": ticker, "fetched_at": NOW.isoformat(), "tier": tier_for(ticker, cik),
                   "price_status": "VERIFIED_ZERO",
-                  "probe": {"control_ticker": "AAPL", "control_ok": True, "checked_at": NOW.isoformat()},
+                  "probe": {"control_ticker": "AAPL", "plane": "yfinance",
+                            "control_ok": True, "checked_at": NOW.isoformat()},
                   "prints": [], "series": None}
         jdump(DATA / "market" / f"{safe_name(ticker)}.json", merge_price_update(prev, update))
         return [f"data/market/{safe_name(ticker)}.json"]
@@ -1217,6 +1257,13 @@ def main():
     counts = {"processed": 0, "fulfilled": 0, "failed": 0, "refreshed": 0, "errors": 0,
               "retried": 0}
     trips = []
+
+    # Explicit CIK assertions first, from every row in the file, so an override on
+    # any row for a ticker governs every kind fetched for it this run (quality reads
+    # what fundamentals wrote; prices and pcs stamp the same identity).
+    for req in reqs.get("requests", []):
+        if req.get("ticker") and req.get("cik"):
+            register_cik_override(req["ticker"], req["cik"])
 
     for req in reqs.get("requests", []):
         if not request_due(req, is_cron):

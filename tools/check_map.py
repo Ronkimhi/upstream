@@ -118,6 +118,27 @@ def _utc_datetime(value):
     return parsed
 
 
+# Dated cutoff for the two 2026-08-31 gate hardenings (token-anchored short-code
+# matching in identity excerpts; control_probe required whenever the flag is
+# asserted). Records dated before the cutoff keep the old behavior and are counted
+# loudly below — the debt can only be cleared by a real re-verification or a new
+# universe pass, never by a session inventing a probe record after the fact.
+TOKEN_MATCH_CUTOFF = "2026-09-01"
+LEGACY_TOKEN_DEBT: list[str] = []
+LEGACY_UNPROBED_DEBT: list[str] = []
+
+
+def _strict_since_cutoff(record: dict) -> bool:
+    """True when this evidence/search record is bound by the 2026-08-31 hardenings.
+
+    Keyed on the record's own dates (accessed_at for evidence, source_date either
+    way); a record with no date at all is strict, because an undated record cannot
+    claim grandfathering.
+    """
+    stamp = str(record.get("accessed_at") or record.get("source_date") or "9999")
+    return stamp[:10] >= TOKEN_MATCH_CUTOFF
+
+
 def mapping_fingerprint(mapping: dict) -> str:
     """SHA-256 over the mapping content whose semantic audit can approve.
 
@@ -757,8 +778,30 @@ def _listing_identity_failures(
         )
     else:
         normalized_excerpt = _normalized_name(excerpt)
+        strict_tokens = _strict_since_cutoff(item)
         for field, value in expected.items():
-            if _normalized_name(value) not in normalized_excerpt:
+            norm_value = _normalized_name(value)
+            if field in ("exchange", "ticker") and strict_tokens:
+                # Short codes match as whole tokens, never raw substrings: "LSE"
+                # passed via the venue code "MAINMARKET.SET1.LSEUK" and the field
+                # name "islse" on a fetched page (backlog 2026-08-31, gate row),
+                # so a two- or three-letter code could be satisfied by an
+                # unrelated token. legal_issuer stays a substring test: long,
+                # punctuation-variable names are what substring matching is for.
+                # Evidence accessed before TOKEN_MATCH_CUTOFF keeps the substring
+                # test and is counted in LEGACY_TOKEN_DEBT — the citation-debt
+                # posture: strict from the dated cutoff, loud on the backlog,
+                # exemption lost the moment the item is re-verified.
+                pattern = rf"(?<![0-9a-z]){re.escape(norm_value)}(?![0-9a-z])"
+                found = bool(re.search(pattern, normalized_excerpt))
+            else:
+                found = norm_value in normalized_excerpt
+                if (field in ("exchange", "ticker") and found and not strict_tokens
+                        and not re.search(
+                            rf"(?<![0-9a-z]){re.escape(norm_value)}(?![0-9a-z])",
+                            normalized_excerpt)):
+                    LEGACY_TOKEN_DEBT.append(f"{where}.{field}")
+            if not found:
                 out.append(
                     f"{where}.source_excerpt must state the exact {field} "
                     f"claimed by the listing"
@@ -1144,10 +1187,23 @@ def validate_mapping(root: Path, path: Path, obj=None) -> list[str]:
                             f"{sw}.result_status must be {expected_status!r} for its "
                             "accepted/rejected names"
                         )
-                    if hits == 0:
+                    # The probe record is demanded whenever the flag is asserted, not
+                    # only on zero-hit searches. Demanding it only at hits == 0 made
+                    # control_probe_passed: true a free, unfalsifiable self-assertion
+                    # for any author who never recorded a zero-hit search — all 10
+                    # EXHAUSTED searches on munitions-replenishment asserted it with
+                    # no probe on record (backlog 2026-08-31, gate row). Searches
+                    # recorded before TOKEN_MATCH_CUTOFF keep the zero-hit-only rule
+                    # (a probe cannot be honestly invented after the fact) and are
+                    # counted in LEGACY_UNPROBED_DEBT.
+                    strict_probe = _strict_since_cutoff(search)
+                    if hits == 0 or (control_probe_passed is True and strict_probe):
                         failures.extend(
                             _zero_control_probe_failures(search, sw, source_domain)
                         )
+                    elif (control_probe_passed is True
+                          and not isinstance(search.get("control_probe"), dict)):
+                        LEGACY_UNPROBED_DEBT.append(sw)
                     if not str(search.get("exhaustion_conclusion") or "").strip():
                         failures.append(
                             f"{sw}.exhaustion_conclusion must state why this link's "
@@ -1470,6 +1526,13 @@ def main() -> int:
     print(f"check_map: {len(paths)} maps, {links} links, {active_pairs}/{placements} "
           f"ACTIVE distinct issuer placements ({active_placements} ACTIVE rows), "
           f"{exhausted_links} EXHAUSTED links examined")
+    if LEGACY_TOKEN_DEBT or LEGACY_UNPROBED_DEBT:
+        print(f"  WARNING  pre-{TOKEN_MATCH_CUTOFF} gate debt: "
+              f"{len(LEGACY_TOKEN_DEBT)} short-code excerpt match(es) passing on the old "
+              f"substring test, {len(LEGACY_UNPROBED_DEBT)} EXHAUSTED search(es) asserting "
+              f"control_probe_passed with no probe record. Cleared only by re-verification "
+              f"or the next run universe pass on the affected map; strict for anything "
+              f"dated on or after the cutoff.")
     if failures:
         for finding in failures:
             print(f"  FAIL  {finding}")
