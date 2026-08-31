@@ -2698,6 +2698,19 @@
     var h = l.heat || {}, f = h[leg];
     return f && f.score != null ? f.score : null;
   }
+  /* Chain-level factor read: the mean of each heat leg over the links that actually
+     scored it. A leg no link has scored stays null, and an unchained signal returns
+     all nulls — the empty track is the statement, never an invented midpoint. */
+  function cxChainMeans(c) {
+    var out = { impact: null, crowdedness: null, capture: null };
+    if (!c) return out;
+    CX_FACTORS.forEach(function (f) {
+      var vs = (c.links || []).map(function (l) { return cxScore(l, f[0]); })
+        .filter(function (v) { return v != null; });
+      if (vs.length) out[f[0]] = vs.reduce(function (a, b) { return a + b; }, 0) / vs.length;
+    });
+    return out;
+  }
   function cxRadialChain() {
     if (!CX_MODE.sig) return null;
     var s = byId(D.signals, CX_MODE.sig);
@@ -2796,7 +2809,7 @@
                        (s.probability_pct == null ? "" : "%"), t2.x + 14 * (ca2 >= 0 ? 1 : -1), t2.y);
         });
         cxRadialCore(ctx, cx, cy, R, pair, links.length, al);
-        cxRadialLegend(ctx, w, h, al, true);
+        cxRadialLegend(ctx, w, h, al, "FACTORS · PER LINK", "DOT SIZE — IMPACT");
         ctx.restore();
       } };
     }
@@ -2849,19 +2862,24 @@
       sigs.forEach(function (s, i) {
         var a = s._ca, ca = Math.cos(a), sa = Math.sin(a), t = targets["sig:" + s.id];
         var un = (s.unmappedness || {}).score;
+        var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+        // three factor meters per spoke — the chain's mean impact / crowdedness /
+        // capture over its scored links, same encoding as the per-link view
+        var hm = cxChainMeans(c);
         var b0 = R * 0.60, b1 = R * 0.84;
         ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "round";
-        ctx.strokeStyle = "#16161f"; ctx.lineWidth = 7;
-        ctx.beginPath(); ctx.moveTo(b0, 0); ctx.lineTo(b1, 0); ctx.stroke();
-        if (un != null) {
-          ctx.strokeStyle = CXP.accent; ctx.lineWidth = 4.5;
-          ctx.beginPath(); ctx.moveTo(b0, 0); ctx.lineTo(b0 + (b1 - b0) * un / 100, 0); ctx.stroke();
-        }
+        CX_FACTORS.forEach(function (f, q) {
+          var v = hm[f[0]], off = (q - 1) * 6;
+          ctx.strokeStyle = "#16161f"; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b1, off); ctx.stroke();
+          if (v == null) return;             // unscored leg: the empty track is the statement
+          ctx.strokeStyle = f[2];
+          ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b0 + (b1 - b0) * v / 100, off); ctx.stroke();
+        });
         ctx.restore();
         if (!t) return;
         var side = ca >= 0 ? 1 : -1, align = side > 0 ? "left" : "right";
         var lx = t.x + (t.r + 13) * side;
-        var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
         ctx.textAlign = align; ctx.textBaseline = "middle";
         ctx.font = "600 12.5px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
         ctx.fillText(cxTrim(s.title, lblMax), lx, t.y - 8);
@@ -2878,7 +2896,7 @@
       (D.chains || []).forEach(function (c) { nl += (c.links || []).length; });
       ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
       ctx.fillText(sigs.length + " SIGNALS · " + nl + " LINKS · NOW", cx, cy + 72);
-      cxRadialLegend(ctx, w, h, al, false);
+      cxRadialLegend(ctx, w, h, al, "FACTORS · CHAIN MEAN", "DOT SIZE — UNMAPPEDNESS");
       ctx.restore();
     } };
   }
@@ -2894,11 +2912,11 @@
     ctx.fillText((fam ? fam + " ▸ " : "") + "UN " + num(un, "unscored") + " · " + nLinks +
                  " LINKS · " + pair.sig.id, cx, cy + 68);
   }
-  function cxRadialLegend(ctx, w, h, al, factors) {
+  function cxRadialLegend(ctx, w, h, al, factorsLabel, sizeLabel) {
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
-    if (factors) {
+    if (factorsLabel) {
       ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = "#3e4258";
-      ctx.fillText("FACTORS · PER LINK", 20, h - 96);
+      ctx.fillText(factorsLabel, 20, h - 96);
       CX_FACTORS.forEach(function (f, q) {
         var ly = h - 76 + q * 17;
         ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
@@ -2906,7 +2924,7 @@
         ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2;
         ctx.fillText(f[1], 50, ly + 0.5);
       });
-      ctx.fillStyle = CXP.ink2; ctx.fillText("DOT SIZE — IMPACT", 20, h - 22);
+      ctx.fillStyle = CXP.ink2; ctx.fillText(sizeLabel, 20, h - 22);
     }
     // verdict legend, bottom right
     var keys = ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"];
