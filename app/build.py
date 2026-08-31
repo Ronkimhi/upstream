@@ -1393,24 +1393,31 @@ def extract_committed_payload():
         return None, f"the embedded blob is not valid JSON: {e}"
 
 
-def _is_contiguous_run(sub: list, whole: list) -> bool:
-    """True when `sub` appears in `whole` as a run of consecutive items.
+def _is_ordered_subsequence(sub: list, whole: list) -> bool:
+    """True when every line of `sub` appears in `whole`, in the same relative order.
 
-    Both are windows on the tail of data/ledger.md, so the page's window may start
-    earlier than the current one; a page line that is not in the current window at all
-    is only a problem if the page's run is not a suffix-aligned slice of it. Comparing
-    on the overlap keeps this honest without failing on a slid window.
+    This was `_is_contiguous_run` and required the page's lines to be CONSECUTIVE in the
+    ledger. That assumption was wrong and it blocked CI on 2026-08-31 with a false
+    positive: the page carried ledger lines 151-171 and 173-176, skipping 172, so the
+    contiguity test failed and reported "the page shows entries the ledger does not
+    have". It showed no such thing — every line on the page was a real ledger line, and
+    the page was MISSING one, which is the opposite complaint.
+
+    The cause is that `data/ledger.md` is append-only but not strictly ordered. Several
+    sessions write to it concurrently, timestamps arrive out of order, and a conflict
+    resolved by union-and-sort inserts a line into the MIDDLE of the file. A page built
+    before that insert legitimately holds lines on both sides of it. The build also caps
+    the ledger payload by byte budget, which can drop a line from the middle of a window.
+    Neither is a defect, and a gate that fails on both trains its reader to ignore it.
+
+    The invariant that actually matters is unchanged and is what this now tests: the page
+    may LAG the ledger or omit lines from it, but it may never show a line the ledger does
+    not contain, and never in a different order. Invention and reordering still fail.
     """
     if not sub:
         return True
-    for i in range(len(whole) - 1, -1, -1):
-        if whole[i] == sub[-1]:
-            n = min(len(sub), i + 1)
-            if sub[-n:] == whole[i + 1 - n:i + 1]:
-                return True
-    # The page's last line may have slid out of the current 60-line window entirely.
-    # Then the only check available is that every page line is a real ledger line.
-    return all(s in whole for s in sub)
+    it = iter(whole)
+    return all(any(w == s for w in it) for s in sub)
 
 
 def compare_committed(payload: dict) -> list:
@@ -1432,11 +1439,22 @@ def compare_committed(payload: dict) -> list:
             # by construction. Requiring equality here would fail every honest commit.
             # What must hold is that the page invented nothing and dropped nothing: its
             # lines are a contiguous run of the real ledger, in order.
-            page_lines, now_lines = committed.get(key) or [], payload.get(key) or []
-            if page_lines and not _is_contiguous_run(page_lines, now_lines):
-                drift.append("ledger: the committed page's lines are not a contiguous run "
-                             "of data/ledger.md — the page shows entries the ledger does "
-                             "not have, or in a different order")
+            # Compare against the WHOLE ledger file, not the payload's window. Both the
+            # page's list and the payload's are byte-capped tails of data/ledger.md, and
+            # the two windows are cut at different points, so a line present on the page
+            # can be absent from today's window while being a perfectly real ledger line.
+            # Checking page-against-window reported invention where there was none and
+            # kept CI red on 2026-08-31 even after the contiguity bug was fixed. The file
+            # is the truth; the window is just what the page had room for.
+            page_lines = committed.get(key) or []
+            try:
+                now_lines = [ln.strip() for ln in (DATA / "ledger.md").read_text().splitlines()
+                             if ln[:2].isdigit() and "|" in ln]
+            except Exception:  # noqa: BLE001
+                now_lines = payload.get(key) or []
+            if page_lines and not _is_ordered_subsequence(page_lines, now_lines):
+                drift.append("ledger: the committed page shows line(s) that data/ledger.md does "
+                             "not contain, or shows them in a different order")
             continue
         if key not in committed:
             drift.append(f"{key}: missing from the committed page")

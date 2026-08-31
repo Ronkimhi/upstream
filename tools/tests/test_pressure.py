@@ -402,12 +402,26 @@ class TestPayloadDiff(unittest.TestCase):
     def test_ledger_may_lag_by_lines_appended_after_the_build(self):
         """The postlude builds, THEN appends the ledger line describing the build, THEN
         commits — so the page is always a line behind by construction. Requiring equality
-        would fail every honest commit; requiring a contiguous run catches invention."""
-        self.assertTrue(build._is_contiguous_run(["a", "b"], ["a", "b", "c"]))
-        self.assertTrue(build._is_contiguous_run([], ["a"]))
+        would fail every honest commit."""
+        self.assertTrue(build._is_ordered_subsequence(["a", "b"], ["a", "b", "c"]))
+        self.assertTrue(build._is_ordered_subsequence([], ["a"]))
+
+    def test_a_line_inserted_mid_ledger_is_not_drift(self):
+        """data/ledger.md is append-only but NOT strictly ordered: sessions write to it
+        concurrently, timestamps arrive out of order, and a conflict resolved by
+        union-and-sort inserts a line into the middle. The build also caps the ledger
+        payload by byte budget and can drop one from a window. This required contiguity
+        and blocked CI on 2026-08-31 over exactly that, reporting invented lines when the
+        page had merely skipped one."""
+        self.assertTrue(build._is_ordered_subsequence(["a", "c"], ["a", "b", "c"]))
+        self.assertTrue(build._is_ordered_subsequence(["a", "d"], ["a", "b", "c", "d"]))
 
     def test_a_page_line_that_is_not_in_the_ledger_is_drift(self):
-        self.assertFalse(build._is_contiguous_run(["a", "INVENTED"], ["a", "b", "c"]))
+        self.assertFalse(build._is_ordered_subsequence(["a", "INVENTED"], ["a", "b", "c"]))
+
+    def test_reordering_and_lost_ledger_lines_are_drift(self):
+        self.assertFalse(build._is_ordered_subsequence(["c", "a"], ["a", "b", "c"]))
+        self.assertFalse(build._is_ordered_subsequence(["a", "b", "c"], ["a", "c"]))
 
 
 def _drift_between(committed: dict, current: dict) -> list:
