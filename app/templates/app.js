@@ -1964,14 +1964,23 @@
      shadow rows, candidates, known future events — plus a dust halo of raw feed
      headlines. One graph<->screen transform; zoom, pan, drag, neighbour-dim. */
   var CXP = {
-    bg0: "#08080d", bg1: "#14141c",
-    ink: "#dde0ef", ink2: "#9296ad", ink3: "#585c72",
+    bg0: "#08080d", bg1: "#0f0f16",
+    ink: "#dde0ef", ink2: "#9296ad", ink3: "#7a7e99",
     accent: "#8687f0",
     verd: { QUIET: "#7b8496", UNDISCOVERED: "#34c77e", EMERGING: "#e3b23c", CROWDED: "#e97f4e", OVER_CROWDED: "#c14a62" },
     dive: { INVESTABLE: "#34c77e", WATCH: "#e3b23c", TOO_LATE: "#c14a62" },
     none: "#6a6e86", gold: "#d4a017", bad: "#e05a72",
     fam: { POLICY: "#e3b23c", CORPORATE: "#8687f0", TECH: "#34c77e", PHYSICAL: "#e97f4e", GEO: "#c14a62", MACRO: "#e3b23c", LEGAL: "#e3b23c" }
   };
+  // In the radial, a node with no seat on the ranked circle used to fade to nothing, so
+  // companies, verdicts and the raw feed vanished the moment you ranked. These kinds keep a
+  // faint resting opacity instead, so the ranking still shows the field it ranks. Structural
+  // kinds (sig/chain/link/scen) are absent here → floor 0, so a FOCUSED radial still
+  // collapses to its one chain.
+  // Floor multiplies each kind's own base node alpha, so it is calibrated per base to land
+  // every backdrop kind at roughly the same faint level: dust's base is ~0.4 (needs a high
+  // floor to read), a verdict's is 0.92 (needs less).
+  var CX_RADIAL_FLOOR = { co: 0.30, dive: 0.26, screen: 0.16, shadow: 0.15, cand: 0.13, evt: 0.17, dust: 0.42 };
   var CX_W = 1200, CX_H = 760, CX_NOWX = 720, CX_CLAMP = 1460;
   var CX_CHARGE = { sig: -900, chain: -700, scen: -420, screen: -380, dive: -320, shadow: -260, link: -180, evt: -110, cand: -70, co: -60, socket: 0, dust: -3 };
   var CX_EDGE = {
@@ -2773,7 +2782,7 @@
           ctx.font = "7.5px 'JetBrains Mono', monospace";
           ctx.fillStyle = choke ? CXP.bad : col;
           ctx.fillText((vd ? vd.replace(/_/g, " ") : "UNSCORED") + (choke ? " · CHOKE POINT" : ""), lx, t.y);
-          ctx.fillStyle = CXP.ink3; ctx.font = "7px 'JetBrains Mono', monospace";
+          ctx.fillStyle = CXP.ink3; ctx.font = "8px 'JetBrains Mono', monospace";
           ctx.fillText("IMP " + num(cxScore(l, "impact")) + " · CRW " + num(cxScore(l, "crowdedness")) +
                        " · CAP " + num(cxScore(l, "capture")), lx, t.y + 12);
         });
@@ -3291,8 +3300,8 @@
       c.width = c.height = s * 2;
       var x = c.getContext("2d");
       var gr = x.createRadialGradient(s, s, 0, s, s, s);
-      gr.addColorStop(0, color); gr.addColorStop(soft > 3 ? 0.12 : 0.5, color); gr.addColorStop(1, "rgba(0,0,0,0)");
-      x.globalAlpha = soft > 3 ? 0.3 : 1;
+      gr.addColorStop(0, color); gr.addColorStop(soft > 3 ? 0.34 : 0.5, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+      x.globalAlpha = soft > 3 ? 0.18 : 1;
       x.fillStyle = gr; x.fillRect(0, 0, s * 2, s * 2);
       spriteN++; sprites[key] = { c: c, s: s };
       return sprites[key];
@@ -3470,22 +3479,45 @@
       // project all nodes
       g.nodes.forEach(function (n, ni) {
         var pp = proj3(n.x, n.y, n.z || 0);
-        if (!pp) { n._px = null; return; }
+        var tg = RAD ? RAD.targets[n.key] : null;
+        if (!pp) {
+          // Clipped by the near plane. A node holding a seat on the ring still has a
+          // place to be: the seat is screen-space and owes nothing to the camera, so a
+          // camera drift that carries a node behind the eye must not delete it from the
+          // ranking. Without this the idle yaw ate the radial one node at a time.
+          if (!tg) { n._px = null; return; }
+          n._px = tg.x; n._py = tg.y;
+          n._s = tg.r / Math.max(0.001, n.r); n._d = cam.dist;
+          n._fade = M;                     // arrives with the morph instead of popping
+          n._radial = true;
+          return;
+        }
         n._px = pp.x + (n.kind === "dust" || REDUCED ? 0 : Math.sin(t * 0.4 + ni));
         n._py = pp.y + (n.kind === "dust" || REDUCED ? 0 : Math.cos(t * 0.33 + ni * 2) * 0.8);
         n._s = pp.s; n._d = pp.d; n._fade = 1;
         if (!RAD) return;
-        var tg = RAD.targets[n.key];
         if (tg) {
           var e2 = M < 0.5 ? 2 * M * M : 1 - Math.pow(-2 * M + 2, 2) / 2;
           n._px += (tg.x - n._px) * e2;
           n._py += (tg.y - n._py) * e2;
           n._s += (tg.r / Math.max(0.001, n.r) - n._s) * e2;
+          // depth travels with the node. Alpha is fogged by _d, and a seat that kept the
+          // field's depth kept the field's fog: idle camera drift swung a ring node's
+          // world position away, fog hit its 0.3 floor, and the dot faded to nothing
+          // while sitting still on the circle. The ring is a flat screen-space read-out,
+          // so at full morph every seat is lit the same.
+          n._d += (cam.dist - n._d) * e2;
           n._radial = true;
         } else {
-          // nothing on the circle to become: it dims out rather than snapping to the middle
-          n._fade = 1 - M;
+          // no seat on the circle: ambient kinds (co/dive/dust/…) settle at a faint floor
+          // rather than snapping to the middle or vanishing; structural kinds floor at 0
+          var fl = CX_RADIAL_FLOOR[n.kind] || 0;
+          n._fade = Math.max(fl, 1 - M);
           n._radial = false;
+          if (fl && M > 0.001) {                       // recede in place: shrink to a small backdrop dot
+            var e3 = M < 0.5 ? 2 * M * M : 1 - Math.pow(-2 * M + 2, 2) / 2;
+            n._s += (n._s * 0.6 - n._s) * e3;
+          }
         }
       });
 
@@ -3540,14 +3572,14 @@
           ctx.drawImage(sp.c, x - sp.s / 2, y - sp.s / 2, sp.s, sp.s);
         } else {
           if (R > 26) {
-            var grd = ctx.createRadialGradient(x, y, 0, x, y, R * 3);
-            grd.addColorStop(0, n.color); grd.addColorStop(0.12, n.color); grd.addColorStop(1, "rgba(0,0,0,0)");
-            ctx.globalAlpha = a * 0.3; ctx.fillStyle = grd;
-            ctx.beginPath(); ctx.arc(x, y, R * 3, 0, 7); ctx.fill();
+            var grd = ctx.createRadialGradient(x, y, 0, x, y, R * 2);
+            grd.addColorStop(0, n.color); grd.addColorStop(0.28, n.color); grd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.globalAlpha = a * 0.15; ctx.fillStyle = grd;
+            ctx.beginPath(); ctx.arc(x, y, R * 2, 0, 7); ctx.fill();
             ctx.globalAlpha = a;
           } else {
-            var soft = n.kind === "sig" || n.kind === "chain" ? 4.2 : 3.2;
-            if (n._radial && M > 0.5) soft = 3.0;
+            var soft = n.kind === "sig" || n.kind === "chain" ? 3.4 : 2.8;
+            if (n._radial && M > 0.5) soft = 2.8;
             var halo = sprite(n.color, R, soft);
             ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
           }
@@ -3555,7 +3587,7 @@
             ctx.strokeStyle = n.color; ctx.lineWidth = 1.2;
             ctx.beginPath(); ctx.arc(x, y, Math.max(2, R * 0.8), 0, 7); ctx.stroke();
           } else if (!n.socket) {
-            var core = sprite(n.kind === "sig" || n.kind === "chain" ? "#eceefc" : n.color, Math.max(1, quant(R * 0.62)), 2.6);
+            var core = sprite(n.kind === "sig" || n.kind === "chain" ? "#c9cde0" : n.color, Math.max(1, quant(R * 0.56)), 2.6);
             ctx.drawImage(core.c, x - core.s / 2, y - core.s / 2, core.s, core.s);
           }
           if (n.gold) { ctx.strokeStyle = CXP.gold; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, R + 3, 0, 7); ctx.stroke(); }
@@ -3588,7 +3620,7 @@
         var ramp2 = Math.min(1, Math.max((n._s - 1.9) / 1.1, 0));
         if (n.kind === "dust") {
           var ramp3 = Math.min(1, Math.max((n._s - 2.6) / 1.2, 0));
-          if (ramp3 <= 0.03 || dustLabels > 60 || !matched) continue;
+          if (ramp3 <= 0.03 || dustLabels > 60 || !matched || (M > 0.35 && n !== hi)) continue;
           if (hi && n !== hi) continue;
           dustLabels++;
           ctx.globalAlpha = ramp3 * 0.55 * (n._fade == null ? 1 : n._fade);
@@ -3598,6 +3630,9 @@
         }
         if (!n.label) continue;
         if (n._radial && M > 0.35) continue;
+        // ambient kinds floored back into the radial keep their dot but not their label,
+        // unless hovered — the ranking's own labels stay the ones that read
+        if (!n._radial && M > 0.35 && n !== hi) continue;
         var major = n.tier === "MAJOR", mid = n.tier === "MID";
         var big = n.kind === "sig" || n.kind === "chain";
         var base = major ? 1 : mid ? 0.9 : big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.55, rampN) : n.kind === "co" ? Math.max(0, rampN - 0.35) : Math.max(0, rampN - 0.1);
