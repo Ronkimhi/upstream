@@ -2882,10 +2882,17 @@
         var lx = t.x + (t.r + 13) * side;
         ctx.textAlign = align; ctx.textBaseline = "middle";
         ctx.font = "600 12.5px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
-        ctx.fillText(cxTrim(s.title, lblMax), lx, t.y - 8);
+        ctx.fillText(cxTrim(s.title, lblMax), lx, t.y - 13);
         ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
         ctx.fillText((i < 9 ? "0" : "") + (i + 1) + " · UN " + num(un, "unscored") + " · " +
-                     (c ? (c.links || []).length + " LINKS" : "UNCHAINED"), lx, t.y + 9);
+                     (c ? (c.links || []).length + " LINKS" : "UNCHAINED"), lx, t.y);
+        // the chain means cluster in a narrow band, so the bars alone read as identical:
+        // print the numbers, the same read-out the per-link view carries
+        if (hm.impact != null || hm.crowdedness != null || hm.capture != null) {
+          ctx.fillText("IMP " + num(hm.impact == null ? null : Math.round(hm.impact)) +
+                       " · CRW " + num(hm.crowdedness == null ? null : Math.round(hm.crowdedness)) +
+                       " · CAP " + num(hm.capture == null ? null : Math.round(hm.capture)), lx, t.y + 12);
+        }
       });
       ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); ctx.stroke();
