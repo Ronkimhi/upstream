@@ -3,33 +3,59 @@
  "chain_id": "ai-infrastructure",
  "scenario_id": null,
  "created_at": "2026-08-29",
- "as_of": "2026-08-29",
- "universe_note": "Chain-level screen: every name the chain touches, built PER LINK in method section 6 priority order (money corner first, then CHOKE_POINT, then by impact). Four of twelve links are worked here: power-equipment (the money corner, 5 names), grid-interconnect, liquid-cooling and energy-generation. The eight remaining links are named in data_gaps as searched-or-not-searched rather than left silent: foundry and advanced-packaging are CHOKE_POINT links and rank above the worked non-money-corner links, but their example tickers are non-US (2330.TW, BESI.AS, ASX) or already-crowded US names, and no market or EDGAR data has been fetched for any of them, so working them now would produce rows with nothing in them. That is a coverage gap in the fetch plane, not a finding about those links. Every number on every row is read from data/market/<T>.json or computed from it; every quote is verified verbatim against data/edgar/docs/<T>.json by tools/check_screen.py.",
+ "as_of": "2026-08-31",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null). Every row is an exact selection-handoff candidate resolved through data/mappings/ai-infrastructure.json (status COMPLETE, audit PASS, fingerprint current) to one ACTIVE, role-evidenced placement, one official mapped listing, and one COMPLETE O2 profile under data/companies/. 6 rows across 4 of the chain's 12 links: power-equipment 3 (ETN, GEV, POWL), liquid-cooling 1 (VRT), grid-interconnect 1 (MYRG), energy-generation 1 (CEG). THE MONEY CORNER IS COVERED: power-equipment is this chain's only money-corner link and it carries the most rows here, three of six, all with verbatim-verified earnings quotes. A name is listed ONCE, under the link that surfaced it (method section 6); its other ACTIVE placements are recorded on the row in secondary_links rather than as duplicate rows, so ETN also sits on liquid-cooling, VRT also on the money-corner power-equipment link, and GEV on energy-generation and grid-interconnect as well. VRT is deliberately kept on liquid-cooling rather than promoted to the money corner, because that is the link the existing FINAL dive data/stocks/VRT__ai-infrastructure.json is attributed to and moving it would orphan that attribution. WHAT IS NOT HERE, named rather than left silent: eight links produced no row (networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters, frontier-models, ai-applications). This is a PROFILE gap, not a census gap and not a finding about those links: the mapping places 10 issuers on each of them, but a campaign-v1 row requires a COMPLETE O2 profile and only six exist in the whole repo. foundry and advanced-packaging are CHOKE_POINT links and outrank three of the four worked links on priority; they are unworked purely because their issuers are unprofiled and mostly non-SEC (2330.TW, 005930.KS, 000660.KS, 600584.SS, 002156.SZ, 6239.TW). TWO NAMES WERE MOVED OUT, NOT DELETED: HPS-A.TO (Hammond Power Solutions) and ENR.DE (Siemens Energy) are preserved whole in superseded_rows with their reasons; both are mapped with ACTIVE placements and neither has a profile yet, and ENR.DE additionally carried another company's CIK. Every number on every row is read from data/market/<T>.json or computed from it and names its field; every quote is verified verbatim against data/edgar/docs/<T>.json by tools/check_screen.py.",
  "queries_run": [
   {
-   "query": "chain-map link membership (example_tickers per link, money corner first)",
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/ai-infrastructure.json carrying an ACTIVE status and role evidence, joined to its official listing",
    "forms": null,
-   "hits_examined": 12,
-   "names_extracted": 8
+   "hits_examined": 105,
+   "names_extracted": 10
   },
   {
-   "query": "EDGAR earnings documents for every T1 name in the worked links",
-   "forms": "8-K item 2.02",
+   "query": "COMPLETE O1/O2 profiles under data/companies/ whose placements name chain ai-infrastructure",
+   "forms": null,
    "hits_examined": 6,
    "names_extracted": 6
+  },
+  {
+   "query": "EDGAR earnings documents on disk for every admitted name, re-verified this run",
+   "forms": "8-K item 2.02 / EX-99",
+   "hits_examined": 6,
+   "names_extracted": 6
+  },
+  {
+   "query": "re-read of data/edgar/docs/CEG.json after the fetch plane replaced the financial supplement with the Q2 2026 earnings conference-call exhibit; CEG becomes quotable for the first time",
+   "forms": "8-K EX-99.2",
+   "hits_examined": 1,
+   "names_extracted": 1
   }
  ],
  "buckets": {
   "pure_play": [
    {
+    "issuer_id": "VERTIV-HOLDINGS",
+    "listing_id": "NYSE-VRT",
     "ticker": "VRT",
-    "name": "Vertiv Holdings",
+    "market_ticker": "VRT",
+    "chain_id": "ai-infrastructure",
+    "link_id": "liquid-cooling",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/VERTIV-HOLDINGS.json",
+    "data_tier": "T1",
+    "name": "Vertiv Holdings Co",
     "exchange": "NYSE",
     "tier": "T1",
     "cik": 1674101,
-    "link_id": "liquid-cooling",
     "money_corner": false,
-    "thesis_1line": "Power and thermal management for data centers; the density transition is its product cycle, and the July 8-K raises full-year guidance on capacity expansion.",
+    "secondary_links": [
+     {
+      "link_id": "power-equipment",
+      "money_corner": true,
+      "basis": "Mapping placement (ai-infrastructure, power-equipment, VERTIV-HOLDINGS) is ACTIVE with role evidence: PowerNexus pairs Trinergy UPS with PowerBoard switchgear. Not written as a second row: method section 6 lists a name once, under one link. The row is kept on liquid-cooling, the link that surfaced it and the link data/stocks/VRT__ai-infrastructure.json is attributed to, so the existing FINAL dive keeps its attribution."
+     }
+    ],
+    "thesis_1line": "Power and thermal management for AI data centers; the density transition is its product cycle. Sits on liquid-cooling (this row) and also on the money-corner power-equipment link, where its PowerNexus UPS-plus-switchgear block is placed in the mapping.",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "Vertiv does not disclose an AI-attributable revenue percentage; the 8-K describes demand qualitatively. Undisclosed, not estimated.",
@@ -43,28 +69,32 @@
      "revenue_fy": {
       "value": 10229900000,
       "source": "data/market/VRT.json fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "net_income_fy": {
       "value": 1332800000,
       "source": "data/market/VRT.json fundamentals.net_income_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
       "value": 0.3295,
       "state": "SOLVED",
+      "horizon_spread": 0.1462,
       "source": "data/market/VRT.json quality.reverse_dcf",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "piotroski": 6,
+     "piotroski_state": "MIDDLING",
      "beneish_state": "CLEAN",
+     "beneish_score": -2.438,
+     "quality_basis": "Piotroski and Beneish both computed from complete inputs (9/9 and 12/12); no coverage gap on this filer.",
      "revenue_cagr_3y": {
       "value": 0.2159,
-      "source": "computed from fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "source": "computed from data/market/VRT.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-08-31",
       "tag": "INFERRED"
      }
     },
@@ -78,8 +108,12 @@
       "stocktwits": 5,
       "media": null
      },
+     "pcs_axis_b_band": "SATURATED",
+     "analyst_count": 26,
+     "held_pct_institutions": 0.84446,
+     "source": "data/market/VRT.json pcs",
      "as_of": "2026-08-29",
-     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "caveat": "PCS Axis A is ADVISORY per method section 3 and this row-set is the standing evidence for why: it reads ETN, a mega-cap electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a widely-held large cap is a coverage artifact, not an attention gap. Axis B is reported beside it precisely because it disagrees: all six rows read SATURATED on institutional coverage. Context only; no row here rests on it.",
      "tag": "INFERRED"
     },
     "earnings_nuggets": [
@@ -103,14 +137,22 @@
     "status": "DIVED"
    },
    {
+    "issuer_id": "POWELL-INDUSTRIES",
+    "listing_id": "NASDAQ-POWL",
     "ticker": "POWL",
-    "name": "Powell Industries",
+    "market_ticker": "POWL",
+    "chain_id": "ai-infrastructure",
+    "link_id": "power-equipment",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/POWELL-INDUSTRIES.json",
+    "data_tier": "T1",
+    "name": "Powell Industries, Inc.",
     "exchange": "NASDAQ",
     "tier": "T1",
     "cik": 80420,
-    "link_id": "power-equipment",
     "money_corner": true,
-    "thesis_1line": "Custom switchgear and electrical distribution; small cap sitting on the chain's money corner, with a record order book in the quarter.",
+    "secondary_links": [],
+    "thesis_1line": "Custom switchgear and bus systems on the chain's money corner; a small cap with a record order book and the only row here whose reverse DCF prices NEGATIVE forward FCF growth.",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "Powell reports by end market (petrochemical, LNG, utility, commercial including data centers) but does not break out a data-center revenue percentage in this 8-K. Undisclosed.",
@@ -124,28 +166,32 @@
      "revenue_fy": {
       "value": 1104318000,
       "source": "data/market/POWL.json fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "net_income_fy": {
       "value": 180747000,
       "source": "data/market/POWL.json fundamentals.net_income_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
       "value": -0.0734,
       "state": "SOLVED",
+      "horizon_spread": 0.0391,
       "source": "data/market/POWL.json quality.reverse_dcf",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
      "beneish_state": "CLEAN",
+     "beneish_score": -2.163,
+     "quality_basis": "Piotroski PENDING_DATA: data/market/POWL.json quality.piotroski reports only 1 common fiscal period across its 9 inputs and the change legs need at least 2. Beneish is complete at 12/12.",
      "revenue_cagr_3y": {
       "value": 0.2752,
-      "source": "computed from fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "source": "computed from data/market/POWL.json fundamentals.revenue_fy, 3-year CAGR to 2025-09-30",
+      "as_of": "2026-08-31",
       "tag": "INFERRED"
      }
     },
@@ -159,8 +205,12 @@
       "stocktwits": 13,
       "media": null
      },
+     "pcs_axis_b_band": "SATURATED",
+     "analyst_count": 4,
+     "held_pct_institutions": 0.9351,
+     "source": "data/market/POWL.json pcs",
      "as_of": "2026-08-29",
-     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "caveat": "PCS Axis A is ADVISORY per method section 3 and this row-set is the standing evidence for why: it reads ETN, a mega-cap electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a widely-held large cap is a coverage artifact, not an attention gap. Axis B is reported beside it precisely because it disagrees: all six rows read SATURATED on institutional coverage. Context only; no row here rests on it.",
      "tag": "INFERRED"
     },
     "earnings_nuggets": [
@@ -186,17 +236,31 @@
   ],
   "picks_and_shovels": [
    {
+    "issuer_id": "EATON",
+    "listing_id": "NYSE-ETN",
     "ticker": "ETN",
-    "name": "Eaton",
+    "market_ticker": "ETN",
+    "chain_id": "ai-infrastructure",
+    "link_id": "power-equipment",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/EATON.json",
+    "data_tier": "T1",
+    "name": "Eaton Corporation plc",
     "exchange": "NYSE",
     "tier": "T1",
     "cik": 1551182,
-    "link_id": "power-equipment",
     "money_corner": true,
-    "thesis_1line": "Diversified electrical major on the money-corner link; data centers are the stated growth driver but the name is large and widely held, so the attention gap is thin.",
+    "secondary_links": [
+     {
+      "link_id": "liquid-cooling",
+      "money_corner": false,
+      "basis": "Mapping placement (ai-infrastructure, liquid-cooling, EATON) is ACTIVE via the Boyd Thermal acquisition. Listed once under power-equipment, the money corner and the higher-priority link."
+     }
+    ],
+    "thesis_1line": "Diversified electrical major on the money corner; data centers are the stated growth driver and backlog is up 33% year over year, but the name is large, widely held and covered by 25 analysts, so the attention gap is thin. Also placed on liquid-cooling via Boyd Thermal.",
     "theme_revenue_exposure": {
      "pct": null,
-     "basis": "Eaton names data centers as a growth driver without a disclosed revenue percentage in this 8-K. Undisclosed.",
+     "basis": "Eaton names data centers as a key growth driver without a disclosed revenue percentage in this 8-K. Undisclosed.",
      "quote": null,
      "accession": null,
      "url": null,
@@ -207,28 +271,32 @@
      "revenue_fy": {
       "value": 27448000000,
       "source": "data/market/ETN.json fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "net_income_fy": {
       "value": 4087000000,
       "source": "data/market/ETN.json fundamentals.net_income_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
       "value": 0.2958,
       "state": "SOLVED",
+      "horizon_spread": 0.1287,
       "source": "data/market/ETN.json quality.reverse_dcf",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
      "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski and Beneish both PENDING_DATA: data/market/ETN.json quality reports 0 common fiscal periods across the 9 and 12 inputs respectively, so no year-over-year leg can be computed. Inputs are present but do not overlap on a shared fiscal year.",
      "revenue_cagr_3y": {
       "value": 0.0977,
-      "source": "computed from fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "source": "computed from data/market/ETN.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-08-31",
       "tag": "INFERRED"
      }
     },
@@ -242,8 +310,12 @@
       "stocktwits": 13,
       "media": null
      },
+     "pcs_axis_b_band": "SATURATED",
+     "analyst_count": 25,
+     "held_pct_institutions": 0.88107,
+     "source": "data/market/ETN.json pcs",
      "as_of": "2026-08-29",
-     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "caveat": "PCS Axis A is ADVISORY per method section 3 and this row-set is the standing evidence for why: it reads ETN, a mega-cap electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a widely-held large cap is a coverage artifact, not an attention gap. Axis B is reported beside it precisely because it disagrees: all six rows read SATURATED on institutional coverage. Context only; no row here rests on it.",
      "tag": "INFERRED"
     },
     "earnings_nuggets": [
@@ -265,40 +337,37 @@
      }
     ],
     "status": "CANDIDATE"
-   },
-   {
-    "ticker": "HPS-A.TO",
-    "name": "Hammond Power Solutions",
-    "exchange": "TSX",
-    "tier": "T3",
-    "cik": null,
-    "link_id": "power-equipment",
-    "money_corner": true,
-    "thesis_1line": "Dry-type transformers on the money-corner link; the small non-US listing the attention gap is supposed to hide.",
-    "theme_revenue_exposure": {
-     "pct": null,
-     "basis": "T3 local listing with no SEC CIK: no companyfacts, no EDGAR document, so no verbatim quote is possible from this plane. Fundamentals must come from filings or IR via web with INFERRED tags per method section 6.",
-     "quote": null,
-     "accession": null,
-     "url": null,
-     "tag": "NULL"
-    },
-    "fundamentals": "PENDING_DATA",
-    "crowdedness": "PENDING_DATA",
-    "earnings_nuggets": [],
-    "status": "CANDIDATE"
    }
   ],
   "second_order": [
    {
+    "issuer_id": "GE-VERNOVA",
+    "listing_id": "NYSE:GEV",
     "ticker": "GEV",
-    "name": "GE Vernova",
+    "market_ticker": "GEV",
+    "chain_id": "ai-infrastructure",
+    "link_id": "power-equipment",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/GE-VERNOVA.json",
+    "data_tier": "T1",
+    "name": "GE Vernova Inc.",
     "exchange": "NYSE",
     "tier": "T1",
     "cik": 1996810,
-    "link_id": "power-equipment",
     "money_corner": true,
-    "thesis_1line": "Gas turbines and grid equipment in one ticker; sits on power-equipment and energy-generation, filed under the money-corner link per method section 6.",
+    "secondary_links": [
+     {
+      "link_id": "energy-generation",
+      "money_corner": false,
+      "basis": "ACTIVE placement: gas turbines and nuclear technology supplying firm power."
+     },
+     {
+      "link_id": "grid-interconnect",
+      "money_corner": false,
+      "basis": "ACTIVE placement: high-voltage grid equipment and grid automation for interconnection projects."
+     }
+    ],
+    "thesis_1line": "Gas turbines plus grid equipment in one ticker, filed under the money-corner power-equipment link. Also placed on energy-generation and grid-interconnect, so it is the single name touching three of this chain's four worked links; no balance sheet in companyfacts, so it has no market-implied growth column.",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "GE Vernova reports segment revenue (Power, Wind, Electrification) but no data-center-attributable percentage. Undisclosed.",
@@ -312,28 +381,32 @@
      "revenue_fy": {
       "value": 38068000000,
       "source": "data/market/GEV.json fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "net_income_fy": {
       "value": 4884000000,
       "source": "data/market/GEV.json fundamentals.net_income_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
       "value": null,
       "state": "PENDING_DATA",
+      "horizon_spread": null,
       "source": "data/market/GEV.json quality.reverse_dcf",
-      "as_of": "2026-08-29",
-      "tag": "VERIFIED"
+      "as_of": "2026-08-31",
+      "tag": "NULL"
      },
      "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
      "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "All three quality measures PENDING_DATA: data/market/GEV.json quality names long_term_debt_fy missing for Piotroski, ppe_net_fy and long_term_debt_fy for Beneish, and enterprise_value for the reverse DCF. GE Vernova has no balance sheet in companyfacts, so GEV carries no market-implied growth column and cannot support a dive gap table yet.",
      "revenue_cagr_3y": {
       "value": 0.0868,
-      "source": "computed from fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "source": "computed from data/market/GEV.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-08-31",
       "tag": "INFERRED"
      }
     },
@@ -347,8 +420,12 @@
       "stocktwits": 5,
       "media": null
      },
+     "pcs_axis_b_band": "SATURATED",
+     "analyst_count": 33,
+     "held_pct_institutions": 0.81661004,
+     "source": "data/market/GEV.json pcs",
      "as_of": "2026-08-29",
-     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "caveat": "PCS Axis A is ADVISORY per method section 3 and this row-set is the standing evidence for why: it reads ETN, a mega-cap electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a widely-held large cap is a coverage artifact, not an attention gap. Axis B is reported beside it precisely because it disagrees: all six rows read SATURATED on institutional coverage. Context only; no row here rests on it.",
      "tag": "INFERRED"
     },
     "earnings_nuggets": [
@@ -372,36 +449,22 @@
     "status": "CANDIDATE"
    },
    {
-    "ticker": "ENR.DE",
-    "name": "Siemens Energy",
-    "exchange": "XETRA",
-    "tier": "T2",
-    "cik": 1632790,
-    "link_id": "power-equipment",
-    "money_corner": true,
-    "thesis_1line": "European mirror of GEV on the money-corner link: grid technologies plus gas services backlog, thin US retail attention.",
-    "theme_revenue_exposure": {
-     "pct": null,
-     "basis": "T2 foreign listing: a CIK resolves but no US earnings document was fetched on this plane, so no verbatim quote is available. Cite from the annual report via web with INFERRED tags.",
-     "quote": null,
-     "accession": null,
-     "url": null,
-     "tag": "NULL"
-    },
-    "fundamentals": "PENDING_DATA",
-    "crowdedness": "PENDING_DATA",
-    "earnings_nuggets": [],
-    "status": "CANDIDATE"
-   },
-   {
+    "issuer_id": "MYR-GROUP",
+    "listing_id": "NASDAQ-MYRG",
     "ticker": "MYRG",
-    "name": "MYR Group",
+    "market_ticker": "MYRG",
+    "chain_id": "ai-infrastructure",
+    "link_id": "grid-interconnect",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/MYR-GROUP.json",
+    "data_tier": "T1",
+    "name": "MYR Group Inc.",
     "exchange": "NASDAQ",
     "tier": "T1",
     "cik": 700923,
-    "link_id": "grid-interconnect",
     "money_corner": false,
-    "thesis_1line": "Transmission and distribution EPC; volume winner on the grid link, but capture is the open question the chain flags at 40 (bid-competed margins).",
+    "secondary_links": [],
+    "thesis_1line": "Transmission and distribution EPC on the slowest link in the chain; the volume winner, but capture is the open question the chain flags at 40 because margins are bid-competed. Cheapest expectations bar on the sheet at 7.0% implied FCF CAGR.",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "MYR reports T&D and C&I segment backlog, not a data-center-attributable percentage. Undisclosed.",
@@ -415,28 +478,32 @@
      "revenue_fy": {
       "value": 3657889000,
       "source": "data/market/MYRG.json fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "net_income_fy": {
       "value": 118416000,
       "source": "data/market/MYRG.json fundamentals.net_income_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
       "value": 0.07,
       "state": "SOLVED",
+      "horizon_spread": 0.0195,
       "source": "data/market/MYRG.json quality.reverse_dcf",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "piotroski": 8,
+     "piotroski_state": "STRONG",
      "beneish_state": "CLEAN",
+     "beneish_score": -2.206,
+     "quality_basis": "Piotroski and Beneish both computed from complete inputs (9/9 and 12/12); no coverage gap on this filer.",
      "revenue_cagr_3y": {
       "value": 0.0673,
-      "source": "computed from fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "source": "computed from data/market/MYRG.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-08-31",
       "tag": "INFERRED"
      }
     },
@@ -450,8 +517,12 @@
       "stocktwits": 13,
       "media": null
      },
+     "pcs_axis_b_band": "SATURATED",
+     "analyst_count": 5,
+     "held_pct_institutions": 1.03798,
+     "source": "data/market/MYRG.json pcs",
      "as_of": "2026-08-29",
-     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "caveat": "PCS Axis A is ADVISORY per method section 3 and this row-set is the standing evidence for why: it reads ETN, a mega-cap electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a widely-held large cap is a coverage artifact, not an attention gap. Axis B is reported beside it precisely because it disagrees: all six rows read SATURATED on institutional coverage. Context only; no row here rests on it.",
      "tag": "INFERRED"
     },
     "earnings_nuggets": [
@@ -477,17 +548,25 @@
   ],
   "hedge": [
    {
+    "issuer_id": "CONSTELLATION-ENERGY",
+    "listing_id": "NASDAQ-CEG",
     "ticker": "CEG",
-    "name": "Constellation Energy",
+    "market_ticker": "CEG",
+    "chain_id": "ai-infrastructure",
+    "link_id": "energy-generation",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/CONSTELLATION-ENERGY.json",
+    "data_tier": "T1",
+    "name": "Constellation Energy Corporation",
     "exchange": "NASDAQ",
     "tier": "T1",
     "cik": 1868275,
-    "link_id": "energy-generation",
     "money_corner": false,
-    "thesis_1line": "Existing nuclear fleet with hyperscaler PPAs; earns if power is scarce and cushions the basket if equipment orders disappoint.",
+    "secondary_links": [],
+    "thesis_1line": "Existing nuclear fleet contracting firm power under long-dated PPAs; earns if power is scarce and cushions the basket if equipment orders disappoint. Carries the most demanding expectations bar here at 46.1% implied FCF CAGR.",
     "theme_revenue_exposure": {
      "pct": null,
-     "basis": "The document fetched for CEG is the quarterly financial supplement, whose prose is footnotes and methodology rather than management narrative, so no thematic quote is available from it. A press-release exhibit would be needed. Not estimated.",
+     "basis": "The document on disk for CEG is now the Q2 2026 earnings conference-call exhibit (EX-99.2, accession 0001868275-26-000097), which replaced the financial supplement this screen cited on 2026-08-29. It discloses contracted nuclear volumes in megawatts and the share of baseload clean generation under long-term agreement, but no data-center-attributable revenue percentage. Undisclosed, not estimated.",
      "quote": null,
      "accession": null,
      "url": null,
@@ -498,28 +577,32 @@
      "revenue_fy": {
       "value": 22663000000,
       "source": "data/market/CEG.json fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "net_income_fy": {
       "value": 2319000000,
       "source": "data/market/CEG.json fundamentals.net_income_fy",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
       "value": 0.4611,
       "state": "SOLVED",
+      "horizon_spread": 0.2171,
       "source": "data/market/CEG.json quality.reverse_dcf",
-      "as_of": "2026-08-29",
+      "as_of": "2026-08-31",
       "tag": "VERIFIED"
      },
      "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
      "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski PENDING_DATA on cost_of_revenue_fy; Beneish PENDING_DATA on cost_of_revenue_fy and sga_fy, per data/market/CEG.json quality. Reverse DCF solved.",
      "revenue_cagr_3y": {
       "value": 0.0166,
-      "source": "computed from fundamentals.revenue_fy",
-      "as_of": "2026-08-29",
+      "source": "computed from data/market/CEG.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-08-31",
       "tag": "INFERRED"
      }
     },
@@ -533,51 +616,93 @@
       "stocktwits": 5,
       "media": null
      },
+     "pcs_axis_b_band": "SATURATED",
+     "analyst_count": 20,
+     "held_pct_institutions": 0.83123,
+     "source": "data/market/CEG.json pcs",
      "as_of": "2026-08-29",
-     "caveat": "PCS is ADVISORY per method section 3 and this run shows why: it reads ETN, a mega-cap electrical major, as DARK on three retail-attention fields with media null. Axis A measures RETAIL chatter, not institutional coverage, so a DARK read on a widely-held large cap is a coverage artifact and is not evidence that the name is un-crowded. Treated as context only; no verdict here rests on it.",
+     "caveat": "PCS Axis A is ADVISORY per method section 3 and this row-set is the standing evidence for why: it reads ETN, a mega-cap electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a widely-held large cap is a coverage artifact, not an attention gap. Axis B is reported beside it precisely because it disagrees: all six rows read SATURATED on institutional coverage. Context only; no row here rests on it.",
      "tag": "INFERRED"
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "Signed ~920 MWs of long-term nuclear PPAs",
+      "accession": "0001868275-26-000097",
+      "url": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000097/ceg-20260806992.htm",
+      "form": "8-K",
+      "filing_date": "2026-08-06",
+      "tag": "VERIFIED"
+     },
+     {
+      "quote": "~30% of Expected Baseload Clean Generation MWhs under Long-Term Agreement by 2032",
+      "accession": "0001868275-26-000097",
+      "url": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000097/ceg-20260806992.htm",
+      "form": "8-K",
+      "filing_date": "2026-08-06",
+      "tag": "VERIFIED"
+     }
+    ],
     "status": "CANDIDATE"
    }
   ]
  },
  "data_gaps": [
-  "Links not worked, with the reason: networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters, frontier-models, ai-applications — no market or EDGAR data fetched for their example tickers, most of which are non-US listings the SEC plane cannot reach (2330.TW, 000660.KS, 005930.KS, BESI.AS, 5803.T, 7011.T).",
-  "HPS-A.TO (T3) and ENR.DE (T2): no EDGAR earnings document on this plane, so no verbatim quote is possible and fundamentals stay PENDING_DATA. Method section 6 allows these to be cited from filings or IR via web with INFERRED tags; that has not been done yet.",
-  "CEG: the fetched document is the quarterly financial supplement, not the press release, so no thematic management quote is available.",
-  "GEV: quality.reverse_dcf is PENDING_DATA, so GEV has no market-implied growth column and cannot support a dive gap table yet.",
-  "theme_revenue_exposure is null on all 8 rows: not one of these filers discloses a data-center-attributable revenue percentage in the fetched document. Undisclosed, never estimated (method section 6)."
+  "Eight of twelve links produced no row: networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters, frontier-models, ai-applications. The mapping places ten issuers on each; none of those issuers has a COMPLETE profile, which a campaign-v1 row requires. Unblocked by run profile --campaign CAMP-20260830-01, not by more screening.",
+  "HAMMOND-POWER-SOLUTIONS (listing TSX-HPS.A, ticker HPS.A) is moved to superseded_rows: no COMPLETE profile, and the legacy row carried the vendor symbol HPS-A.TO rather than the mapped listing ticker. ACTIVE money-corner placement; a live candidate, not a rejection.",
+  "SIEMENS-ENERGY (listing XETRA-ENR, ticker ENR) is moved to superseded_rows: no COMPLETE profile, and its recorded cik 1632790 belonged to a different, US, filer. Siemens Energy AG is not an SEC filer on this plane and has no CIK here, so no verbatim quote is reachable and fundamentals must come from the annual report via web with INFERRED tags per method section 6. That work is not done.",
+  "GEV has no balance sheet in companyfacts: Piotroski (long_term_debt_fy), Beneish (ppe_net_fy, long_term_debt_fy) and the reverse DCF (enterprise_value) are all PENDING_DATA, so GEV alone carries no market-implied growth column and cannot support a dive gap table.",
+  "Piotroski is PENDING_DATA on four of six rows (ETN, GEV, POWL, CEG) and Beneish on three (ETN, GEV, CEG). Each row names the exact missing companyfacts field in quality_basis. These are input-coverage gaps in data/market/, not earnings-quality findings.",
+  "theme_revenue_exposure is null on all six rows: not one of these filers discloses a data-center-attributable revenue percentage in the document on disk. Undisclosed, never estimated (method section 6).",
+  "PCS Axis A is a retail-attention measure and reads DARK on five of six rows while Axis B reads SATURATED on all six (analyst_count 4 to 33, institutional holding 82% to 104%). The two axes disagree and Axis A is advisory; nothing here rests on it. MYRG's held_pct_institutions of 1.03798 exceeds 100%, which is a vendor artifact and is reported as fetched rather than clipped."
  ],
  "taste_filtered": [
   {
    "ticker": "(none filtered)",
-   "rule": "TASTE-001 rare-earth miners and TASTE-002 Taiwan concentration were both applied to the 8-name universe; neither matched. TASTE-002 would have filtered a foundry-link name had that link been worked, which is one more reason the unworked links are named explicitly above."
+   "rule": "TASTE-001 rare-earth miners and TASTE-002 Taiwan concentration were applied to all eight names considered (the six admitted plus the two superseded); neither matched. TASTE-002 would filter foundry-link and advanced-packaging-link names once those links become screenable, which is one more reason the unworked links are named explicitly in universe_note."
   }
  ],
  "health": {
   "tickers_examined": 8,
+  "rows_written": 6,
   "fully_scored": 6,
-  "pending": 2,
+  "pending": 0,
   "errors": 0,
+  "rows_superseded": 2,
+  "rows_with_quality_gaps": 4,
   "links_worked": 4,
   "links_total": 12,
-  "quotes_verified": 10
+  "money_corner_links_total": 1,
+  "money_corner_links_covered": 1,
+  "quotes_verified": 12,
+  "distinct_issuers": 6,
+  "profiles_available_repo_wide": 6
  },
  "notes": [
   {
    "ts": "2026-08-29T23:55:00Z",
    "by": "ron",
    "text": "PCS crowdedness is reported on every row and is load-bearing for nothing. This run is the clearest evidence yet that it should not be: Axis A reads ETN, a widely-held electrical major, as DARK at 100.0 on three retail-attention fields with media null. Axis A measures RETAIL chatter, so a DARK read on a large cap is a coverage artifact, not an attention gap. method section 3 already prints PCS as ADVISORY; this row-set is why that matters."
+  },
+  {
+   "ts": "2026-08-31T01:20:00Z",
+   "by": "ron",
+   "text": "The eight unworked links are not a judgment about those links. Six COMPLETE profiles exist in the entire repository and all six sit on four links, so link coverage here is exactly a mirror of profile coverage. Reading this file as 'the chain's other eight links found nothing' would be the wrong inference; the census placed ten issuers on each of them and nobody has profiled one yet."
   }
  ],
  "confidence_audit": {
-  "verified": 10,
-  "inferred": 6,
+  "verified": 29,
+  "inferred": 12,
   "speculative": 0,
-  "null": 8
+  "null": 7
  },
  "changelog": [
+  {
+   "ts": "2026-08-31T01:20:00Z",
+   "by": "ron",
+   "kind": "AMEND",
+   "change": "Upgraded to identity_schema campaign-v1 in one pass, which is one-way: this file leaves the pre-2026-08-31 legacy allowlist permanently and every future row must carry full campaign identity. All six remaining rows now carry issuer_id, listing_id, ticker, market_ticker, chain_id, link_id, mapping_ref, profile_ref and data_tier resolving to the COMPLETE PASS-audited mapping and to the six COMPLETE O2 profiles written the same day; no row carries opportunity_tier, which belongs on the profile. Link attributions are unchanged from 2026-08-29 and were re-confirmed against the mapping placements; each row's other ACTIVE placements are recorded in a new secondary_links field rather than as duplicate rows. TWO ROWS WERE MOVED, NOT DELETED: HPS-A.TO and ENR.DE are preserved whole in a new superseded_rows array because neither issuer has a COMPLETE profile, and ENR.DE additionally carried cik 1632790, which is a US filer's CIK that reached the row through the fetch.py cik_for() suffix-stripping defect and is another company's. That CIK is quarantined out of buckets so nothing can key on it. CEG gained its first two verbatim quotes: the document on disk changed from the financial supplement to the Q2 2026 earnings conference-call exhibit (accession 0001868275-26-000097), and the row's old basis text, which said no thematic quote was available, was false as of this run and is rewritten. Fundamentals were re-read from data/market/ rather than carried forward: ETN's Piotroski and POWL's are now stated as PENDING_DATA with the missing input named instead of a bare null, GEV's null reverse DCF is tagged NULL instead of VERIFIED, and every row gained horizon_spread, beneish_score, quality_basis and the PCS Axis B institutional read that contradicts Axis A.",
+   "prior": "8 legacy rows with no campaign identity, on the pre-cutoff legacy allowlist"
+  },
   {
    "ts": "2026-08-29T23:55:00Z",
    "by": "ron",
@@ -591,6 +716,69 @@
    "kind": "AMEND",
    "change": "VRT row status CANDIDATE -> DIVED: data/stocks/VRT__ai-infrastructure.json written (verdict TOO_LATE, COMPOUNDER, earnings grade B, status DRAFT pending red team). No other field on the row was touched, and the row's liquid-cooling link_id was left as the screen assigned it even though the dive records the attribution as a partial fit.",
    "prior": "VRT status CANDIDATE"
+  }
+ ],
+ "identity_schema": "campaign-v1",
+ "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
+ "mapping_ref": "data/mappings/ai-infrastructure.json",
+ "superseded_rows": [
+  {
+   "ticker": "HPS-A.TO",
+   "name": "Hammond Power Solutions",
+   "exchange": "TSX",
+   "tier": "T3",
+   "cik": null,
+   "link_id": "power-equipment",
+   "money_corner": true,
+   "thesis_1line": "Dry-type transformers on the money-corner link; the small non-US listing the attention gap is supposed to hide.",
+   "theme_revenue_exposure": {
+    "pct": null,
+    "basis": "T3 local listing with no SEC CIK: no companyfacts, no EDGAR document, so no verbatim quote is possible from this plane. Fundamentals must come from filings or IR via web with INFERRED tags per method section 6.",
+    "quote": null,
+    "accession": null,
+    "url": null,
+    "tag": "NULL"
+   },
+   "fundamentals": "PENDING_DATA",
+   "crowdedness": "PENDING_DATA",
+   "earnings_nuggets": [],
+   "status": "CANDIDATE",
+   "superseded": {
+    "ts": "2026-08-31T01:20:00Z",
+    "by": "ron",
+    "from_bucket": "picks_and_shovels",
+    "reason": "No COMPLETE profile exists for HAMMOND-POWER-SOLUTIONS. The mapping resolves this name to listing TSX-HPS.A whose official ticker is 'HPS.A', not the 'HPS-A.TO' vendor symbol this legacy row carried, and a campaign-v1 row must carry the mapped listing ticker exactly. The placement (ai-infrastructure, power-equipment, HAMMOND-POWER-SOLUTIONS) is ACTIVE and the name remains a live money-corner candidate; it returns to buckets the moment data/companies/HAMMOND-POWER-SOLUTIONS.json is COMPLETE at O2.",
+    "readmission_condition": "A COMPLETE O2 profile at data/companies/<issuer_id>.json plus a row rewritten to campaign-v1 identity carrying the mapped listing ticker."
+   }
+  },
+  {
+   "ticker": "ENR.DE",
+   "name": "Siemens Energy",
+   "exchange": "XETRA",
+   "tier": "T2",
+   "cik": 1632790,
+   "link_id": "power-equipment",
+   "money_corner": true,
+   "thesis_1line": "European mirror of GEV on the money-corner link: grid technologies plus gas services backlog, thin US retail attention.",
+   "theme_revenue_exposure": {
+    "pct": null,
+    "basis": "T2 foreign listing: a CIK resolves but no US earnings document was fetched on this plane, so no verbatim quote is available. Cite from the annual report via web with INFERRED tags.",
+    "quote": null,
+    "accession": null,
+    "url": null,
+    "tag": "NULL"
+   },
+   "fundamentals": "PENDING_DATA",
+   "crowdedness": "PENDING_DATA",
+   "earnings_nuggets": [],
+   "status": "CANDIDATE",
+   "superseded": {
+    "ts": "2026-08-31T01:20:00Z",
+    "by": "ron",
+    "from_bucket": "second_order",
+    "reason": "No COMPLETE profile exists for SIEMENS-ENERGY, and this row's recorded cik 1632790 IS ANOTHER COMPANY'S. It is a US filer's CIK that reached the row through a fetch defect: tools/fetch/fetch.py cik_for() strips the exchange suffix and matches the stub against SEC's US ticker table, so 'ENR.DE' resolved to the US issuer trading as ENR. Siemens Energy AG is not an SEC filer on this plane and has no CIK here. The wrong CIK is retained inside this preserved record ONLY as the evidence of the defect and is quarantined out of buckets so no request, screen row or dive can key on it. The mapping resolves the name to listing XETRA-ENR, ticker 'ENR'. Its placements on power-equipment, energy-generation and grid-interconnect are ACTIVE and the name stays a live candidate.",
+    "readmission_condition": "A COMPLETE O2 profile at data/companies/<issuer_id>.json plus a row rewritten to campaign-v1 identity carrying the mapped listing ticker."
+   }
   }
  ]
 }
