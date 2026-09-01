@@ -1,6 +1,6 @@
 {
  "ticker": "SCCO",
- "fetched_at": "2026-08-30T00:27:49.991253+00:00",
+ "fetched_at": "2026-09-01T09:26:33.104584+00:00",
  "tier": "T1",
  "cik": 1001838,
  "price_status": "AGREED",
@@ -2936,5 +2936,107 @@
     "total_liabilities"
    ]
   }
+ },
+ "quality": {
+  "as_of": "2026-09-01",
+  "source": "sec-companyfacts",
+  "fundamentals_as_of": "2026-08-30",
+  "piotroski": {
+   "score": null,
+   "state": "PENDING_DATA",
+   "missing": [
+    "only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2"
+   ],
+   "inputs_found": 9,
+   "inputs_needed": 9,
+   "common_periods": [],
+   "proxies": {
+    "shares": "share-count increase clipped at zero; companyfacts lacks reliable issuance proceeds"
+   }
+  },
+  "beneish": {
+   "score": null,
+   "state": "PENDING_DATA",
+   "missing": [
+    "only 0 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio"
+   ],
+   "inputs_found": 12,
+   "inputs_needed": 12,
+   "common_periods": []
+  },
+  "altman": {
+   "score": null,
+   "state": "PENDING_DATA",
+   "missing": [
+    "total_liabilities_fy"
+   ],
+   "inputs_found": 7,
+   "inputs_needed": 8
+  },
+  "reverse_dcf": {
+   "implied_fcf_cagr": 0.3445,
+   "state": "SOLVED",
+   "base_fcf": 3426800000.0,
+   "enterprise_value": 187918480000.0,
+   "implied_by_horizon": {
+    "5": 0.3445,
+    "7": 0.2541,
+    "10": 0.1904
+   },
+   "horizon_spread": 0.1541,
+   "horizon_note": "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon shows the same solve over other explicit-period lengths; where the spread is wide, a gap against the headline number is a statement about the horizon convention as much as about the price, and a dive must say which it means.",
+   "assumptions": {
+    "discount_rate": 0.09,
+    "terminal_growth": 0.025,
+    "horizon_years": 5,
+    "method": "bisection on FCF CAGR",
+    "tag": "SPECULATIVE"
+   }
+  },
+  "derived": {
+   "fcf": 3426800000.0,
+   "market_cap": 185589080000.0,
+   "enterprise_value": 187918480000.0
+  },
+  "health": {
+   "statement_fields_found": 19,
+   "statement_fields_needed": 20,
+   "periods_available": [
+    "2007-12-31",
+    "2008-12-31",
+    "2009-12-31",
+    "2010-12-31",
+    "2011-12-31",
+    "2012-12-31",
+    "2013-12-31",
+    "2014-12-31",
+    "2015-12-31",
+    "2016-12-31",
+    "2017-12-31",
+    "2018-12-31",
+    "2019-12-31",
+    "2020-12-31",
+    "2021-12-31",
+    "2022-12-31",
+    "2023-12-31",
+    "2024-12-31",
+    "2025-12-31"
+   ]
+  },
+  "formulas": "financetoolkit.models (MIT); see docs/analyst-sources.md",
+  "currency_note": null,
+  "official_source": true,
+  "source_tag": "VERIFIED",
+  "price_used": {
+   "value": 209.8,
+   "source": "yfinance",
+   "as_of": "2026-08-28"
+  },
+  "shares_used": {
+   "value": 884600000,
+   "as_of": "2025-12-31",
+   "source": "fundamentals.shares_fy"
+  },
+  "state": "SCORED"
  }
 }
