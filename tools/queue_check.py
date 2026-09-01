@@ -94,6 +94,23 @@ def ledger_republish_times(root: Path) -> list:
     return out
 
 
+def behind_origin(root: Path) -> int:
+    """How many commits origin/main is ahead of HEAD, or -1 when git cannot say.
+
+    This check reads the LOCAL ledger, so a session that has not fetched cannot see a
+    republish another session already recorded and will refuse to attribute one that is
+    plainly ours. That is the safe direction, but the caller deserves to be told the
+    difference between "read the page" and "you are simply stale".
+    """
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", str(root), "rev-list", "--count",
+                              "HEAD..origin/main"], capture_output=True, text=True, timeout=15)
+        return int(out.stdout.strip()) if out.returncode == 0 else -1
+    except Exception:  # noqa: BLE001
+        return -1
+
+
 def check(version_id: str, root: Path, slack: int):
     pub = publish_time(version_id)
     if pub is None:
@@ -117,7 +134,11 @@ def check(version_id: str, root: Path, slack: int):
                        f"(If a line IS there, check its artifact: field: only the canonical "
                        f"'artifact: republished' counts. 'pending', 'republishing' and "
                        f"'republish after push' are intentions, and an append-only ledger "
-                       f"never comes back to say whether an intention happened.)")
+                       f"never comes back to say whether an intention happened.)"
+                       + (f" NOTE: origin/main is {behind} commit(s) ahead of this checkout, "
+                          f"so the republish may be recorded upstream and not here. Fetch and "
+                          f"re-run before spending the read." if (behind := behind_origin(root)) > 0
+                          else ""))
     return True, (f"ATTRIBUTED: published {when}, {int(delta)}s after this repo built "
                   f"app/index.html at {stamp}Z, and the ledger records that republish. "
                   f"app/build.py writes an empty queue and an empty edits block into every "
