@@ -50,7 +50,14 @@ jobs:
           for i in 1 2 3; do
             git push && exit 0
             echo "push attempt $i failed, rebasing"
-            git pull --rebase || { git checkout --theirs app/index.html && python3 app/build.py && git add app/index.html && GIT_EDITOR=true git rebase --continue; }
+            # Conflict recovery used to know exactly one path (app/index.html); a peer's
+            # concurrent EDGAR push left markers in ~29 data files, validate counted 61
+            # errors, and run 33457972947 discarded a successful 385-item feed batch.
+            # tools/resolve_conflicts.py holds the per-file-class rules as code (ledger
+            # UNION via .gitattributes, requests union-by-id, fetcher stores
+            # newest-fetched, index.html either-side-then-rebuild) and refuses, loudly,
+            # any path it has no rule for.
+            git pull --rebase || python3 tools/resolve_conflicts.py --continue-rebase --rebuild
             sleep $((i * 7))
           done
           exit 1
