@@ -54,6 +54,14 @@ COMMAND_TIER = {
     "run deepdive": "strong",
     "run redteam": "strong",
     "run devil": "strong",
+    # Owners named 2026-09-01 (contract audit, Ron): bookkeeping and reporting shapes,
+    # mechanical by construction. `refresh` inherits the judgment of the stage it re-runs,
+    # but the command shape itself is contract-explicit.
+    "refresh": "fast",
+    "request data": "fast",
+    "log trade": "fast",
+    "note": "fast",
+    "run review": "fast",
 }
 
 COMMAND_MODEL = {cmd: TIER_MODEL[tier] for cmd, tier in COMMAND_TIER.items()}
