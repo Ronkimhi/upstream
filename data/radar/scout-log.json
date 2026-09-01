@@ -86,6 +86,18 @@
    "rule": "dismissal-writes-a-shadow-row",
    "verdict": "PASS",
    "note": "Stated the duty and the reason: without the row the rejection is unfalsifiable and false negatives never enter the denominator."
+  },
+  {
+   "ts": "2026-09-01T01:45:00Z",
+   "rule": "TASTE-001",
+   "verdict": "PASS",
+   "note": "Examined against the new AI-chip-cloud-export card (SIG-20260901-01) and the Larak Island update to SIG-20260829-04: no rare-earth-miner name appears in either thesis. Does not bind."
+  },
+  {
+   "ts": "2026-09-01T01:45:00Z",
+   "rule": "TASTE-002",
+   "verdict": "PASS",
+   "note": "Conflict named rather than silently resolved either way. SIG-20260901-01 (AI chip export control moves from silicon to cloud) sits close enough to TASTE-002's letter (an eight-month-old, exhaustively covered chip-geopolitics macro story) that the rule's spirit was checked, not just its text. It does not bind on the letter: TASTE-002 names TSMC fab-concentration diversification specifically, and this occurrence is export-control enforcement at the compute-access layer, a different mechanism. Recorded here rather than silently applied or silently overridden because the two are close enough that a future run should re-examine the pairing rather than assume this run's read was obviously right; the card's own retail_gap section carries the same reasoning for whoever re-checks it."
   }
  ],
  "repairs": [
@@ -115,6 +127,20 @@
    "finding": "the scanner contract had zero mentions of the click queue while its own postlude republishes the artifact, and a republish clears the queue: a hand-invoked run could silently delete Ron's unclaimed clicks",
    "action": "added a 'What I can reach' section naming every tool, store, script and observer, with the click queue called out as the one thing she can destroy; also wired the feeds.sources_failed evidence pointer and the DISMISSED-writes-a-shadow-row duty",
    "prevention": "tools/check_radar.py now fails a radar run whose ledger line does not say what the click queue held, and fails a signal dismissed without a shadow row; both fixture-tested in all three states",
+   "escalated": false
+  },
+  {
+   "ts": "2026-09-01T01:45:00Z",
+   "finding": "6 candidates (CAND-20260830-17, -07, -05, -03, -10, and CAND-20260829-08) were folded into signal cards SIG-20260830-01/02/03/05/06/04 on 2026-08-30, but the promotion was never written back to candidates.json: they sat AMBIENT with no promoted_signal_id, so channel 4 (intake latency) could not resolve them and the impact rank-log's outcome tracking showed 'chained: false' for occurrences that were in fact already chained under their promoted signal id",
+   "action": "backfilled status PROMOTED + promoted_signal_id on all 6, each with a changelog entry naming the signal, confirming the match by comparing thesis text and dates before writing, and flagging CAND-20260829-08 as a partial/secondary promotion (its Michigan angle is folded into the broader SIG-20260830-04 synthesis rather than being a 1:1 source)",
+   "prevention": "none shipped this run (a machine check that a PROMOTED signal's originating candidate, if any, carries a matching promoted_signal_id would close this class, but it requires the signal->candidate link to be declared at write time, which today's convention does not enforce); flagged here so the next candidate-promotion is checked by hand against this list rather than repeating the gap",
+   "escalated": false
+  },
+  {
+   "ts": "2026-09-01T01:45:00Z",
+   "finding": "data/health/actions.json shows feeds.last_run frozen at 2026-08-29T14:01:53Z, more than two days stale as of this run (2026-09-01T01:08Z). tools/fetch/fetch.py only calls run_feeds() when GITHUB_EVENT_NAME == schedule or workflow_dispatch (fetch.py:1337-1338), never on the data/requests.json push trigger; the weekday cron (fetch.yml, 30 21 * * 1-5) should have fired 2026-08-31 (Monday) and did not touch the feeds key, only the fetch/market key, per every '[fetch]' commit since 2026-08-29 being event:push. This is not a source failure (feeds.sources_failed is empty), it is the whole feeds job appearing not to have run on schedule at all",
+   "action": "none taken this run: this is Actions-owned health data I read and never write, and my own sweep used direct WebSearch against the SESSION beats rather than the stale ACTIONS feed store, so the mission was not blocked. Not escalated to docs/method.md or CLAUDE.md, since no constitution or protocol text needs to change, only a workflow-trigger question",
+   "prevention": "flagged for check_health / run digest rather than fixed here: worth confirming whether the 2026-08-31 weekday cron actually fired in GitHub's scheduler (cron reliability on low-activity repos is a known GH Actions quirk) or whether run_feeds() is silently raising and being swallowed by fetch.py's own try/except (fetch.py:1344-1346 prints 'feeds: run FAILED' but that message was not seen in the runs examined, which argues for the cron simply not firing rather than a swallowed exception)",
    "escalated": false
   }
  ],
@@ -153,6 +179,16 @@
    "ts": "2026-08-30T15:43:56.254719+00:00",
    "by": "nell-scanner",
    "text": "UNCLAIMED SURGE THM-10: DECLINED on method section 0, and this is the same shape as TASTE-002. US primaries, endorsements, campaign finance and the midterm cycle is a standing macro story with continuous coverage and no dated occurrence whose chain consequences are unmapped. The retail-gap test fails outright: there is no link here that is un-crowded because nobody has looked. A specific dated act inside that world, an enacted rule or an appropriation with a named effective date, would be in scope and would be triaged on its own merits. The cycle itself is not."
+  },
+  {
+   "ts": "2026-09-01T01:45:00Z",
+   "by": "nell-scanner",
+   "text": "UNCLAIMED SURGES: zero to answer. data/themes/themes.json's most recent calibration (generated_at 2026-08-31T00:06:29Z, current_week 2026-W36, 361 occurrences logged, 194 assigned) computes surges: [] -- the seven surges live in the prior 2026-W35 window rolled to none when the ISO week turned, per that store's own note. Nothing was silently passed over; there was nothing to answer."
+  },
+  {
+   "ts": "2026-09-01T01:45:00Z",
+   "by": "nell-scanner",
+   "text": "Click q-1788224711345 (this run's own trigger) was independently claimed by at least four sessions within about 20 seconds around 2026-09-01 01:06Z (fd9a0ea first, then e09d000, f4f901d, 7c5376c), because the shared working tree lets every concurrent session read the same empty ledger tail before any of the claims land. Two of the four (e09d000, and a second session per commit d6d1381) have since ceded to fd9a0ea's first-committed claim, in the ledger. This session was launched by the orchestrator that holds the fd9a0ea claim and told me the drain-claim was already pushed; I did not re-verify which literal commit hash my orchestrator owns, and I am not the one serializing the commit for this run's writes. Recording this by name rather than silently proceeding, per the click-queue protocol's own duplicate-claim rule: an unexplained pile of claims on one entry reads as unresolved contention even when it resolves itself a few commits later."
   }
  ],
  "confidence_audit": {
@@ -235,26 +271,44 @@
    "by": "scout_calibrate",
    "change": "recomputed calibration from data/ (amend)",
    "prior": "2026-08-31T11:54:32Z"
+  },
+  {
+   "ts": "2026-09-01T01:25:48Z",
+   "by": "scout_calibrate",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-08-31T11:55:57Z"
+  },
+  {
+   "ts": "2026-09-01T01:26:26Z",
+   "by": "scout_calibrate",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-01T01:25:48Z"
+  },
+  {
+   "ts": "2026-09-01T01:26:55Z",
+   "by": "scout_calibrate",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-01T01:26:26Z"
   }
  ],
- "as_of": "2026-08-31",
- "updated_at": "2026-08-31T11:55:57Z",
+ "as_of": "2026-09-01",
+ "updated_at": "2026-09-01T01:26:55Z",
  "calibration": {
-  "generated_at": "2026-08-31T11:55:57Z",
+  "generated_at": "2026-09-01T01:26:55Z",
   "conversion": {
    "candidates_triaged": 32,
-   "promoted": 1,
+   "promoted": 7,
    "dismissed": 0,
    "expired": 0,
-   "ambient": 31,
-   "promote_rate": 0.031
+   "ambient": 25,
+   "promote_rate": 0.219
   },
   "per_family": {
    "POLICY": {
     "triaged": 11,
-    "promoted": 0,
-    "reached_chain": 0,
-    "reached_money_corner": 0
+    "promoted": 3,
+    "reached_chain": 3,
+    "reached_money_corner": 2
    },
    "CORPORATE": {
     "triaged": 4,
@@ -270,15 +324,15 @@
    },
    "PHYSICAL": {
     "triaged": 3,
-    "promoted": 0,
-    "reached_chain": 0,
-    "reached_money_corner": 0
+    "promoted": 2,
+    "reached_chain": 2,
+    "reached_money_corner": 1
    },
    "GEO": {
     "triaged": 9,
-    "promoted": 1,
-    "reached_chain": 1,
-    "reached_money_corner": 1
+    "promoted": 2,
+    "reached_chain": 2,
+    "reached_money_corner": 2
    }
   },
   "per_source": {
@@ -304,18 +358,18 @@
    },
    "Politico politics": {
     "items_seen": 25,
-    "triaged": 0,
-    "promoted": 0
+    "triaged": 1,
+    "promoted": 1
    },
    "CNBC Top News": {
     "items_seen": 23,
     "triaged": 2,
-    "promoted": 0
+    "promoted": 1
    },
    "Ars Technica": {
     "items_seen": 20,
     "triaged": 3,
-    "promoted": 0
+    "promoted": 1
    },
    "Hacker News front page": {
     "items_seen": 20,
@@ -325,7 +379,7 @@
    "Bloomberg Markets": {
     "items_seen": 20,
     "triaged": 3,
-    "promoted": 0
+    "promoted": 2
    },
    "Federal Register significant docs": {
     "items_seen": 19,
@@ -345,7 +399,7 @@
    "The Verge": {
     "items_seen": 10,
     "triaged": 1,
-    "promoted": 0
+    "promoted": 1
    },
    "USGS significant quakes": {
     "items_seen": 3,
@@ -354,13 +408,13 @@
    },
    "_no_feed_source_key": {
     "items_seen": null,
-    "triaged": 15,
+    "triaged": 14,
     "promoted": 0,
     "note": "candidates with no feed_source: session beats, or triaged before the key existed"
    }
   },
   "funnel_depth": {
-   "signals_total": 12,
+   "signals_total": 13,
    "reached_chain": 11,
    "reached_screen": 2,
    "reached_dive": 1,
@@ -374,6 +428,54 @@
     "first_feed_ts": "2026-08-26",
     "signal_created_at": "2026-08-29",
     "days_late": 3
+   },
+   {
+    "signal_id": "SIG-20260830-01",
+    "candidate_id": "CAND-20260830-17",
+    "first_feed_item_id": "ea8860c8db64cdba",
+    "first_feed_ts": "2026-08-29",
+    "signal_created_at": "2026-08-30",
+    "days_late": 1
+   },
+   {
+    "signal_id": "SIG-20260830-02",
+    "candidate_id": "CAND-20260830-07",
+    "first_feed_item_id": "6f8e85c3f78dad5d",
+    "first_feed_ts": "2026-08-29",
+    "signal_created_at": "2026-08-30",
+    "days_late": 1
+   },
+   {
+    "signal_id": "SIG-20260830-03",
+    "candidate_id": "CAND-20260830-05",
+    "first_feed_item_id": "bfe8745a427698a0",
+    "first_feed_ts": "2026-08-28",
+    "signal_created_at": "2026-08-30",
+    "days_late": 2
+   },
+   {
+    "signal_id": "SIG-20260830-04",
+    "candidate_id": "CAND-20260829-08",
+    "first_feed_item_id": "8e674bc05c4b435c",
+    "first_feed_ts": "2026-08-20",
+    "signal_created_at": "2026-08-30",
+    "days_late": 10
+   },
+   {
+    "signal_id": "SIG-20260830-05",
+    "candidate_id": "CAND-20260830-03",
+    "first_feed_item_id": "8879f7b13cc5cc31",
+    "first_feed_ts": "2026-08-28",
+    "signal_created_at": "2026-08-30",
+    "days_late": 2
+   },
+   {
+    "signal_id": "SIG-20260830-06",
+    "candidate_id": "CAND-20260830-10",
+    "first_feed_item_id": "f7ac9ee5d2c816de",
+    "first_feed_ts": "2026-08-21",
+    "signal_created_at": "2026-08-30",
+    "days_late": 9
    }
   ],
   "latency_unmatched": [
@@ -398,27 +500,7 @@
     "reason": "no candidate promoted into this signal"
    },
    {
-    "signal_id": "SIG-20260830-01",
-    "reason": "no candidate promoted into this signal"
-   },
-   {
-    "signal_id": "SIG-20260830-02",
-    "reason": "no candidate promoted into this signal"
-   },
-   {
-    "signal_id": "SIG-20260830-03",
-    "reason": "no candidate promoted into this signal"
-   },
-   {
-    "signal_id": "SIG-20260830-04",
-    "reason": "no candidate promoted into this signal"
-   },
-   {
-    "signal_id": "SIG-20260830-05",
-    "reason": "no candidate promoted into this signal"
-   },
-   {
-    "signal_id": "SIG-20260830-06",
+    "signal_id": "SIG-20260901-01",
     "reason": "no candidate promoted into this signal"
    }
   ],
@@ -437,12 +519,12 @@
    "calendar_passed_unpromoted": []
   },
   "denominators": {
-   "signals_examined": 12,
+   "signals_examined": 13,
    "candidates_examined": 32,
-   "calendar_examined": 2,
+   "calendar_examined": 16,
    "feed_items_examined": 317,
    "chains_examined": 13,
-   "notes_examined": 28
+   "notes_examined": 32
   }
  }
 }
