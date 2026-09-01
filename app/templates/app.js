@@ -2701,7 +2701,7 @@
   // TIMELINE mode: a flat screen-space layout where a node's distance from the field
   // center is |time from today| and the side is the sign — past left, future right —
   // so one ring is year +k on its right half and year -k on its left half.
-  var CX_TL_MODE = false, CX_TL = 0;
+  var CX_TL_MODE = false, CX_TL = 0, CX_TL_K0 = null;
   var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1, labels: 0.7 };
   var CX_GAIN = (function () {
     var d = {};
@@ -3083,10 +3083,12 @@
   function cxPhaseBar() {
     var s = CX_MODE.sig ? byId(D.signals, CX_MODE.sig) : null;
     return '<div class="cx-phase">' +
-      '<button class="cx-phbtn' + (CX_MODE.phase === "network" ? " on" : "") + '" data-cxphase="network">◉ NETWORK</button>' +
+      '<button class="cx-phbtn' + (CX_MODE.phase === "network" && !CX_TL_MODE ? " on" : "") + '" data-cxphase="network">◉ NETWORK</button>' +
       '<button class="cx-phbtn' + (CX_MODE.phase === "radial" ? " on" : "") + '" data-cxphase="radial"' +
       ' title="every signal ranked by unmappedness; click a chained signal for its own ranking">◎ RADIAL' +
-      (s ? " · " + esc(cxTrim(s.title, 22).toUpperCase()) : "") + "</button></div>";
+      (s ? " · " + esc(cxTrim(s.title, 22).toUpperCase()) : "") + "</button>" +
+      '<button class="cx-phbtn' + (CX_MODE.phase === "network" && CX_TL_MODE ? " on" : "") + '" data-cxphase="timeline"' +
+      ' title="flat time rings: distance from center is time from today, past on the left, future on the right">◔ TIMELINE</button></div>';
   }
 
   function cxFilterRail() {
@@ -3150,11 +3152,6 @@
       row("intake", "INTAKE", "candidates and calendar events") +
       row("dust", "FEED", "raw feed dust") +
       row("labels", "LABELS", "label density: left shows only the most important names, right shows everything") +
-      '<div class="lbl" style="margin-top:8px">VIEW</div>' +
-      '<div class="btns">' +
-      '<button class="vw" data-cxviewmode="field" title="the default orbit">FIELD</button>' +
-      '<button class="vw" data-cxviewmode="timeline" title="flat time rings: distance from center is time from today, past on the left, future on the right">TIMELINE</button>' +
-      "</div>" +
       '<button class="rst" id="cxGainReset" title="back to defaults">RESET</button></div>';
   }
   function cortexView() {
@@ -3607,7 +3604,12 @@
         if (Math.abs(tlTarget - CX_TL) < tstep) CX_TL = tlTarget;
       }
       var TL = CX_TL;
-      var tlCx = w / 2, tlCy = h * 0.52, tlR = Math.min(w, h) * 0.44;
+      // the timeline layout is screen-space, so the camera zoom must scale it by hand:
+      // otherwise scrolling only fattens the dots while the layout stays condensed
+      if (TL > 0.001 && CX_TL_K0 == null) CX_TL_K0 = T.k;
+      if (TL <= 0.001) CX_TL_K0 = null;
+      var tlZoom = CX_TL_K0 ? Math.max(0.4, T.k / CX_TL_K0) : 1;
+      var tlCx = w / 2, tlCy = h * 0.52, tlR = Math.min(w, h) * 0.44 * tlZoom;
 
       var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.72);
       bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
@@ -3650,33 +3652,13 @@
         var zz = Math.sqrt(Math.abs(dxDays) / CX_CLAMP) * 480 * (dxDays < 0 ? -1 : 1);
         var tp = proj3(gc.x, gc.y, zz);
         if (!tp) continue;
-        // a ring in the field's plane at this year's depth: the axis itself is often
-        // foreshortened by the camera, so the rings are what make the past/future
-        // spread readable — nodes sit visibly between them
-        ctx.strokeStyle = "rgba(134,135,240,0.34)"; ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        var rf = true, ringEdge = null;
-        for (var ri = 0; ri <= 48; ri++) {
-          var ra = ri * Math.PI * 2 / 48;
-          var rp = proj3(gc.x + planeR * 0.82 * Math.cos(ra), gc.y + planeR * 0.82 * Math.sin(ra), zz);
-          if (!rp) { rf = true; continue; }
-          if (ri === 24) ringEdge = rp;   // the -x edge: the left side, clear of the gauge rail
-          if (rf) { ctx.moveTo(rp.x, rp.y); rf = false; } else ctx.lineTo(rp.x, rp.y);
-        }
-        ctx.stroke();
+        // year ticks on the axis only — the in-field year rings looked like clutter
+        // and were removed (Ron, 2026-09-01); the TIMELINE phase carries the ring
+        // read-out instead
         ctx.fillStyle = "rgba(167,168,246,0.95)";
         ctx.fillRect(tp.x - 2.5, tp.y - 2.5, 5, 5);
         ctx.font = "600 10.5px 'JetBrains Mono', monospace";
         ctx.fillText(String(yy), tp.x, tp.y - 9);
-        // the year again at the ring's LEFT edge with a dark backing, so it reads over
-        // the field and never hides under the gauge rail on the right
-        if (ringEdge) {
-          ctx.textAlign = "right"; ctx.textBaseline = "middle";
-          ctx.fillStyle = "rgba(8,8,13,0.8)"; ctx.fillRect(ringEdge.x - 40, ringEdge.y - 7, 36, 14);
-          ctx.fillStyle = "rgba(167,168,246,0.9)";
-          ctx.fillText(String(yy), ringEdge.x - 8, ringEdge.y);
-          ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-        }
       }
       ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.font = "600 11px 'JetBrains Mono', monospace";
       if (pA) ctx.fillText("« PAST", pA.x, pA.y + 14);
@@ -4158,7 +4140,17 @@
       document.querySelectorAll("[data-cxphase]").forEach(function (b) {
         b.addEventListener("click", function () {
           if (b.hasAttribute("disabled")) return;
-          CX_MODE.phase = b.getAttribute("data-cxphase");
+          var ph = b.getAttribute("data-cxphase");
+          if (ph === "timeline") {
+            // timeline is the network phase in its flat time layout
+            touched();                              // stop the idle drift fighting the view
+            CX_MODE.phase = "network"; CX_TL_MODE = true; CX_TL_K0 = null;
+            viewTween = { yaw: 0, pitch: 0 };       // face-on: the flat rings are the read-out
+          } else {
+            if (CX_TL_MODE && ph === "network") viewTween = { yaw: -0.45, pitch: -0.22 };
+            CX_TL_MODE = false;
+            CX_MODE.phase = ph;
+          }
           refreshChrome();
         });
       });
@@ -4194,21 +4186,6 @@
     if (gRst) gRst.addEventListener("click", function () {
       Object.keys(CX_GAIN_DEF).forEach(function (k) { CX_GAIN[k] = CX_GAIN_DEF[k]; });
       syncGaugeUI(); cxSaveGain();
-    });
-    document.querySelectorAll("[data-cxviewmode]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var mode = b.getAttribute("data-cxviewmode");
-        document.querySelectorAll("[data-cxviewmode]").forEach(function (x) { x.classList.toggle("on", x === b); });
-        if (mode === "timeline") {
-          touched();                              // stop the idle drift fighting the view
-          CX_TL_MODE = true;
-          CX_MODE.phase = "network";
-          viewTween = { yaw: 0, pitch: 0 };       // face-on: the flat rings are the read-out
-        } else {
-          CX_TL_MODE = false;
-          viewTween = { yaw: -0.45, pitch: -0.22 };
-        }
-      });
     });
     var cxReset = document.getElementById("cxFReset");
     if (cxReset) cxReset.addEventListener("click", function () {
