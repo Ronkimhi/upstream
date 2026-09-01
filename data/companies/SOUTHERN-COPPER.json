@@ -1,0 +1,224 @@
+{
+  "issuer_id": "SOUTHERN-COPPER",
+  "issuer_name": "Southern Copper Corporation",
+  "as_of": "2026-09-01",
+  "created_at": "2026-09-01T09:19:47Z",
+  "updated_at": "2026-09-01T09:19:47Z",
+  "generated_by": "sieve-profiler",
+  "listing_refs": [
+    "NYSE:SCCO"
+  ],
+  "listings": [
+    {
+      "listing_id": "NYSE:SCCO",
+      "ticker": "SCCO",
+      "exchange": "NYSE",
+      "market_ticker": "SCCO",
+      "cik": 1001838,
+      "mapping_ref": "data/mappings/tibet-mega-dam.json"
+    }
+  ],
+  "placements": [
+    {
+      "chain_id": "tibet-mega-dam",
+      "link_id": "copper-conductors",
+      "link_name": "Copper & conductors",
+      "link_position": 1,
+      "role": "Produces mined and refined copper that feeds the global conductor supply pool.",
+      "placement_status": "ACTIVE",
+      "money_corner": false,
+      "link_heat": "QUIET",
+      "mapping_ref": "data/mappings/tibet-mega-dam.json",
+      "role_evidence": [
+        {
+          "claim": "Southern Copper reported mined, smelted, and refined copper production for 2025 and identifies itself as an integrated copper producer.",
+          "source_name": "Southern Copper 2025 results",
+          "source_date": "2026-01-27",
+          "url": "https://southerncoppercorp.com/eng/wp-content/uploads/sites/2/2026/01/pr260127.pdf",
+          "tag": "INFERRED"
+        }
+      ]
+    }
+  ],
+  "status": "COMPLETE",
+  "data_tier": "T1",
+  "data_tier_basis": "US SEC filer, CIK 1001838: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent at 209.80 on 2026-08-28) and SEC companyfacts fundamentals (real revenue/income/balance-sheet series through fiscal 2025), though companyfacts carries no quality block for Southern Copper and its net_income_fy series stops at fiscal year 2011, which the metrics below flag field by field. PENDING quality request REQ-20260901-141 queued this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "Written COMPLETE at O2 by run profile --campaign CAMP-20260830-01 on 2026-09-01. Not examined by run selection; O1 is a later, separate command per method section 6A.",
+  "sources": {
+    "mapping": "data/mappings/tibet-mega-dam.json",
+    "mapping_audit": {
+      "status": "PASS",
+      "audited_at": "2026-08-30T13:32:53Z",
+      "mapping_status": "COMPLETE"
+    },
+    "chain": "data/chains/tibet-mega-dam.json",
+    "market": "data/market/SCCO.json",
+    "market_fetched_at": "2026-08-30T00:00:00Z"
+  },
+  "business_summary": "Southern Copper Corporation is a US, NYSE-listed (SCCO) integrated copper producer with mining, smelting and refining operations across Peru, Mexico and Chile. It identifies mined and refined copper production as its core business, which is the mapped exposure to the tibet-mega-dam chain's copper-conductors link, though as a global commodity producer its revenue is not tied to any single project.",
+  "exposure_summary": {
+    "narrative": "Southern Copper sits on copper-conductors, scored QUIET. The company's own 2025 results describe it as an integrated copper producer, but the link's own bottleneck note calls copper a global commodity where this project moves sentiment more than physical balances; no Tibet-basin-specific revenue percentage is disclosed or sourced.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "no revenue percentage tied to the tibet-mega-dam exposure is sourced for Southern Copper this run; see data_gaps."
+    }
+  },
+  "crowdedness_caveats": [
+    "Southern Copper sits on a link scored QUIET with LOW bottleneck criticality (see placements above): copper is a global commodity and this project is not material to supply-demand balance.",
+    "data/market/SCCO.json carries no pcs (positioning/crowdedness-signal) block, so this profile cannot independently corroborate the link-level crowdedness score with issuer-level analyst-coverage or institutional-ownership figures."
+  ],
+  "catalysts": [
+    {
+      "claim": "Southern Copper reported mined, smelted, and refined copper production for 2025 and identifies itself as an integrated copper producer, positioning it as a scale supplier into any structural increase in global copper conductor demand.",
+      "source_name": "Southern Copper 2025 results",
+      "source_date": "2026-01-27",
+      "url": "https://southerncoppercorp.com/eng/wp-content/uploads/sites/2/2026/01/pr260127.pdf",
+      "tag": "INFERRED",
+      "basis": "Mapping placement role_evidence carried into this profile; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Companyfacts coverage for Southern Copper returns a net_income_fy series that stops at fiscal year 2011, so profitability-based ratios referencing net income cannot be computed from this store even though revenue, operating income and cash-flow trends are current through fiscal 2025.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-01",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "data_gaps": [
+    "Net income is stale: companyfacts returns a net_income_fy series ending in fiscal year 2011 for Southern Copper, so operating_cash_flow_to_net_income and price_to_earnings cannot be computed; fcf_margin is used instead for cash conversion.",
+    "Quality (piotroski, beneish_state) is NULL: data/market/SCCO.json carries no quality block at all.",
+    "Reverse DCF (implied_fcf_cagr, horizon_spread) is NULL: no quality.reverse_dcf block exists locally, which depends on the same missing quality computation.",
+    "No Tibet-basin-specific revenue percentage is disclosed or sourced for Southern Copper; copper is fungible and the link's own heat note calls capture, not availability, the real question.",
+    "PENDING quality request REQ-20260901-141 queued this run so a future run can compute piotroski, beneish and reverse_dcf from the fundamentals and price already on file."
+  ],
+  "metrics": {
+    "revenue": {
+      "latest_fy": {
+        "value": 13420000000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
+      }
+    },
+    "growth": {
+      "revenue_cagr_3y": {
+        "value": 0.1013,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Three-year compound annual revenue growth computed as (13420000000 / 10047900000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31."
+      }
+    },
+    "margins": {
+      "operating_margin": {
+        "value": 0.5217,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Operating income 7001700000 divided by revenue 13420000000 for the fiscal year ended 2025-12-31, both from companyfacts."
+      }
+    },
+    "cash_conversion": {
+      "fcf_margin": {
+        "value": 0.2554,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Operating cash flow 4752100000 minus capital expenditure 1325300000, divided by revenue 13420000000, for the fiscal year ended 2025-12-31, all from companyfacts. operating_cash_flow_to_net_income is omitted (not written as NULL) because the schema requires only one of the two cash-conversion fields and this one is measurable; companyfacts returns a net_income_fy series that stops at fiscal year 2011 for Southern Copper, too stale to pair with FY2025 operating cash flow."
+      }
+    },
+    "leverage": {
+      "net_debt_to_ebitda": {
+        "value": 0.296,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Net debt (total_debt 7994400000 minus cash 5665000000, both as of the same balance-sheet date 2026-06-30) divided by EBITDA (operating income 7001700000 plus depreciation 868400000, both for fiscal year ended 2025-12-31), all from companyfacts. The balance-sheet inputs are an interim date roughly six months after the income-statement fiscal year-end, a smaller mismatch than would block the figure but flagged here explicitly, matching the treatment used elsewhere in this batch for the same kind of date gap."
+      }
+    },
+    "quality": {
+      "piotroski": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Piotroski F-score is not computable for Southern Copper: data/market/SCCO.json carries no quality block at all, so no F-score inputs have been assembled locally"
+      },
+      "beneish_state": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Beneish M-score is not computable for Southern Copper: data/market/SCCO.json carries no quality block at all, so no M-score inputs have been assembled locally"
+      }
+    },
+    "valuation": {
+      "market_cap": {
+        "value": 185589082699.58,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Shares outstanding 884600000 (constant across every fiscal year 2018 through 2025 in companyfacts, read as the current count) multiplied by the AGREED closing price 209.80 on 2026-08-28 from data/market/SCCO.json."
+      },
+      "price_to_sales": {
+        "value": 13.83,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SCCO.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001001838.json",
+        "basis": "Market capitalization 185589082699.58 divided by latest-fiscal-year revenue 13420000000."
+      }
+    },
+    "reverse_dcf": {
+      "implied_fcf_cagr": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "reverse-DCF implied FCF CAGR cannot be solved for Southern Copper: data/market/SCCO.json carries no quality.reverse_dcf block, so no enterprise-value or base-FCF solve exists locally"
+      },
+      "horizon_spread": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "reverse-DCF horizon spread cannot be computed for Southern Copper with the base solve unavailable for the reason above"
+      }
+    }
+  },
+  "disposition": {
+    "state": "RETAIN",
+    "basis": "Complete medium profile on copper-conductors (QUIET) with a real, filing-referenced role and a computed revenue/growth/margin/cash-conversion/leverage/valuation set from SEC companyfacts, but quality and reverse-DCF are NULL because data/market/SCCO.json has never had its quality computation run. Retained rather than advanced because four of ten canonical fields are NULL, and because copper is a global commodity whose link is scored QUIET with LOW bottleneck criticality. A PENDING quality request is queued this run to close the gap. Selection is a separate command and is not run here.",
+    "as_of": "2026-09-01"
+  },
+  "confidence_audit": {
+    "verified": 1,
+    "inferred": 4,
+    "speculative": 0,
+    "null": 4,
+    "canonical_fields_written": 10,
+    "basis": "Counts cover the canonical metric fields only (cash_conversion writes only fcf_margin). VERIFIED is the one figure read directly off SEC companyfacts as reported (latest_fy revenue). INFERRED covers figures computed from companyfacts with the derivation named in each basis (growth, margins, cash_conversion, leverage, valuation x2). NULL covers both quality scores and both reverse-DCF fields, traced to the absence of a quality block in data/market/SCCO.json."
+  },
+  "notes": [
+    "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
+    "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other.",
+    "This run computed leverage (net_debt_to_ebitda) by pairing a balance-sheet total_debt/cash reading (2026-06-30) against a fiscal-year-2025 income-statement EBITDA; the roughly six-month period mismatch is named in the field's own basis rather than treated as disqualifying, consistent with the same treatment applied to FREEPORT-MCMORAN in an earlier batch on this theme."
+  ],
+  "changelog": [
+    {
+      "ts": "2026-09-01T09:19:47Z",
+      "by": "sieve-profiler",
+      "kind": "BUILD",
+      "change": "created COMPLETE profile for SOUTHERN-COPPER from the COMPLETE PASS-audited tibet-mega-dam mapping and real SEC companyfacts fundamentals in data/market/SCCO.json; status COMPLETE, data tier T1, opportunity tier O2, 6 of 10 canonical fields populated (revenue, growth, margins, cash_conversion, leverage, valuation x2), 4 NULL (quality x2, reverse_dcf x2) on a missing local quality computation; PENDING quality request REQ-20260901-141 queued. run profile --campaign CAMP-20260830-01."
+    }
+  ]
+}
