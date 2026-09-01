@@ -1,15 +1,15 @@
 {
   "issuer_id": "ASE-TECHNOLOGY",
   "issuer_name": "ASE Technology Holding Co., Ltd.",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-01",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-08-31T01:30:00Z",
+  "updated_at": "2026-09-01T00:20:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T2",
-  "data_tier_basis": "US SEC filer, CIK 1674101: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/VRT.json.",
+  "data_tier_basis": "ADR of a foreign filer (method section 6): NYSE ADR ASX, SEC CIK 1122411, dual-source price plane (price_status AGREED, both legs printing 37.78 on 2026-08-28). It is not T1 because the companyfacts fundamentals a T1 classification requires do not exist for this filer: data/market/ASX.json reports coverage 0 of 20 annual fields and quality state NOTHING_SCORED.",
   "opportunity_tier": "O3",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260830-01 on 2026-08-31 and retained at O2. Not promoted, and not for a data reason: this profile has zero NULL canonical metric fields and would clear the O1 metric bar today. It is held at O2 as a deliberate sequencing choice. data/stocks/VRT__ai-infrastructure.json is already FINAL and sits on the check_analyst.py STOCKY_LEGACY_BASELINE, exempt from the campaign admission chain by exact repo-relative path and committed byte content. Promoting VERTIV-HOLDINGS to O1 invites a re-dive of a file that is already closed, and the moment that file is amended it forfeits the byte-content exemption and must satisfy the full campaign admission chain retroactively. That is a decision about the legacy baseline, not a decision about this issuer, so it is taken on its own rather than as a side effect of this selection run. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps closes.",
   "listing_refs": [
     "NYSE-ASX"
   ],
@@ -18,9 +18,15 @@
       "listing_id": "NYSE-ASX",
       "ticker": "ASX",
       "exchange": "NYSE",
+      "identity_evidence_ref": {
+        "source_name": "SEC EDGAR company-submissions current entity metadata",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/submissions/CIK0001122411.json"
+      },
+      "mapping_ref": "data/mappings/ai-infrastructure.json",
       "market_ticker": "ASX",
       "cik": 1122411,
-      "mapping_ref": "data/mappings/ai-infrastructure.json"
+      "listing_role": "ADR"
     }
   ],
   "placements": [
@@ -29,18 +35,18 @@
       "link_id": "advanced-packaging",
       "link_name": "Advanced packaging",
       "link_position": 7,
-      "role": "Placement on advanced packaging link",
+      "role": "Provides outsourced system-in-package, chiplet and advanced packaging for AI and high-performance computing.",
       "placement_status": "ACTIVE",
       "money_corner": false,
       "link_heat": "EMERGING",
       "mapping_ref": "data/mappings/ai-infrastructure.json",
       "role_evidence": [
         {
-          "claim": "ASE Technology Holding Co., Ltd. is placed on advanced packaging.",
-          "source_name": "ASE Technology Holding Co., Ltd. investor relations",
-          "source_date": "2026-Q2",
-          "url": "https://investor.example.com",
-          "tag": "INFERRED"
+          "claim": "ASE's official release describes its VIPack FOCoS-Bridge with TSV advanced packaging for chiplet and HBM integration in AI and high-performance-computing applications.",
+          "source_name": "ASE FOCoS-Bridge with TSV release",
+          "source_date": "2025-05-28",
+          "url": "https://www.aseglobal.com/press-room/ase-announces-focos-bridge-with-tsv/",
+          "tag": "VERIFIED"
         }
       ]
     }
@@ -54,226 +60,140 @@
     },
     "chain": "data/chains/ai-infrastructure.json",
     "market": "data/market/ASX.json",
-    "market_fetched_at": "2026-08-31T23:59:37.420766+00:00",
-    "filing": {
-      "form": "8-K",
-      "filing_date": "2026-07-29",
-      "accession": "0001628280-26-050323",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "local_ref": "data/edgar/docs/VRT.json"
-    }
+    "market_fetched_at": "2026-08-30T23:09:11.045107+00:00"
   },
-  "business_summary": "Vertiv Holdings Co is a NYSE-listed supplier of critical digital infrastructure: uninterruptible power supplies, switchgear, busbar, integrated power blocks and thermal management including liquid cooling, sold into hyperscale, colocation and enterprise data centres. Unlike the diversified industrials in this batch, its end market is the data centre itself, so its revenue line and the chain's demand are close to the same series.",
+  "business_summary": "ASE Technology Holding Co., Ltd. is the largest outsourced semiconductor assembly and test provider, listed in Taiwan with an NYSE ADR line under ASX. Like Amkor it packages and tests silicon it does not fabricate, but at greater scale and with a materials and EMS business alongside the core assembly and test line.",
   "exposure_summary": {
-    "narrative": "Vertiv sits on two links: power-equipment, the money corner, and liquid-cooling. Both placements are backed by dated product evidence, the PowerNexus launch for the power block and the 2025 Form 10-K for liquid-cooled thermal management. It is the most direct exposure in the batch and, for the same reason, the one where the un-crowded premise is weakest: an issuer whose entire business is the data centre is the first name a data-centre thesis reaches for.",
+    "narrative": "One placement, on advanced-packaging (position 7, CHOKE_POINT, heat EMERGING), backed by ASE's own dated release describing VIPack FOCoS-Bridge with TSV for chiplet and HBM integration in AI and high-performance-computing applications. It is the direct listed comparable to Amkor on the same link, and the fact that one of the two is fully measurable and the other is not is a property of the fetch plane rather than of the businesses.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "Vertiv does not publish a data-centre revenue percentage because its disclosed business is critical digital infrastructure as a whole; the fetched second-quarter 2026 release (accession 0001628280-26-050323) reports consolidated net sales and segment geography, not an end-market split."
+      "basis": "ASE reports by segment (ATM assembly and test, EMS, materials) rather than by AI end market, and no percentage attributable to this chain was read from a primary source this run."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": 10229900000,
-        "tag": "VERIFIED",
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
+        "value": null,
+        "tag": "NULL",
+        "basis": "latest fiscal-year revenue is not available for ASE Technology Holding: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": 0.215854,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "revenue_cagr_3y requires three-year history"
+        "value": null,
+        "tag": "NULL",
+        "basis": "three-year revenue CAGR cannot be computed for ASE Technology Holding with no admissible revenue series on file: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "margins": {
       "operating_margin": {
-        "value": 0.178858,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "OperatingIncomeLoss 1829700000 divided by Revenues 10229900000 for the fiscal year ended 2025-12-31, both from companyfacts."
+        "value": null,
+        "tag": "NULL",
+        "basis": "operating margin cannot be computed for ASE Technology Holding with no admissible operating-income or revenue figure on file: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": 1.585984,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "operating_cash_flow_to_net_income data pending"
-      },
-      "fcf_margin": {
-        "value": 0.185124,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Free cash flow margin: operating cash flow 2113800000 less capital expenditure 220000000, divided by revenue 10229900000, all for the fiscal year ended 2025-12-31 from companyfacts."
+        "value": null,
+        "tag": "NULL",
+        "basis": "operating cash flow to net income cannot be computed for ASE Technology Holding with no admissible cash-flow or income series on file: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": 0.060422,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "net_debt_to_ebitda data pending"
+        "value": null,
+        "tag": "NULL",
+        "basis": "net debt to EBITDA cannot be computed for ASE Technology Holding with no admissible debt, cash or EBITDA inputs on file: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski score data pending"
+        "basis": "piotroski F-score cannot be computed for ASE Technology Holding with no admissible statement inputs on file: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish_state score data pending"
+        "basis": "beneish M-score cannot be computed for ASE Technology Holding with no admissible statement inputs on file: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "valuation": {
       "market_cap": {
-        "value": 98346900054.4,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Market capitalization 98346900054.4 = SEC companyfacts diluted share count 382553680 multiplied by the close 257.08; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "value": null,
+        "tag": "NULL",
+        "basis": "market capitalization cannot be computed for ASE Technology Holding without an admissible official share count: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       },
       "price_to_sales": {
-        "value": 9.613672,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Market capitalization 98346900054.4 divided by fiscal year 2025-12-31 revenue 10229900000; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
-      },
-      "price_to_earnings": {
-        "value": 73.789691,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap over SEC companyfacts net income",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "price_to_earnings computation pending"
-      },
-      "ev_to_sales": {
-        "value": 9.626301,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.enterprise_value over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Enterprise value 98476100054.4 divided by fiscal year 2025-12-31 revenue 10229900000; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "value": null,
+        "tag": "NULL",
+        "basis": "price-to-sales cannot be computed for ASE Technology Holding without both an admissible market capitalization and an admissible revenue figure: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": 0.3295,
-        "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/VRT.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "implied_fcf_cagr requires FCF horizon"
+        "value": null,
+        "tag": "NULL",
+        "basis": "reverse-DCF implied FCF CAGR cannot be solved for ASE Technology Holding with no admissible free-cash-flow or enterprise-value input: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       },
       "horizon_spread": {
-        "value": 0.1462,
-        "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/VRT.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "horizon_spread computation pending"
+        "value": null,
+        "tag": "NULL",
+        "basis": "reverse-DCF horizon spread cannot be computed for ASE Technology Holding with the base solve unavailable: the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric"
       }
     }
   },
   "crowdedness_caveats": [
-    "This is the one issuer in this batch that already carries a Stocky dive at data/stocks/VRT__ai-infrastructure.json, which is itself evidence the name is not undiscovered inside this repo, let alone outside it.",
-    "data/market/VRT.json pcs records 26 analysts and 84.4% institutional ownership as of 2026-08-29, axis-B SATURATED, axis-A DARK at 88.2 under an ADVISORY gate.",
-    "The 52-week range in the same file runs 121.82 to 376.23 and the last close is 257.08, so the stock is roughly a third below its own high. A drawdown is not the same thing as being un-crowded; it is a crowded position that has been hurt.",
-    "Its price-to-sales and EV-to-sales ratios computed here are the highest in the batch by a factor of about five against Powell and MYR Group, which is what discovered pure-play exposure costs."
+    "The advanced-packaging link's heat verdict is EMERGING with crowdedness 55, the least crowded link this batch touches (data/chains/ai-infrastructure.json).",
+    "data/market/ASX.json carries no pcs block, so analyst count and institutional ownership were not measured for this issuer this run.",
+    "The 52-week range on the ADR is 9.91 to 45.12 against a 37.78 close: the stock has nearly quadrupled off its low inside a year.",
+    "No valuation multiple is computed anywhere on this profile, so this file contains no basis at all for a priced-in judgement, and the near-quadruple above cannot be compared against earnings or sales here."
   ],
   "catalysts": [
     {
-      "claim": "Growth and margin are compounding together, which is the combination the expectations gap is priced on.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "Net sales of $3,274 million, 24% higher than second quarter 2025."
-    },
-    {
-      "claim": "Management raised full-year guidance across every key metric, a dated commitment against which the next two quarters can be scored.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "Raises Full Year 2026 Guidance Across All Key Metrics"
+      "claim": "ASE's own dated release describes VIPack FOCoS-Bridge with TSV advanced packaging for chiplet and HBM integration in AI and high-performance computing applications, which is the technical basis of the placement.",
+      "source_name": "ASE FOCoS-Bridge with TSV release",
+      "source_date": "2025-05-28",
+      "url": "https://www.aseglobal.com/press-room/ase-announces-focos-bridge-with-tsv/",
+      "tag": "VERIFIED"
     }
   ],
   "risks": [
     {
-      "claim": "The market already requires very fast free-cash-flow growth from here: the reverse DCF in data/market/VRT.json solves to the second-highest implied CAGR in this batch, so the expectations bar is high rather than absent.",
-      "source_name": "Upstream market store data/market/VRT.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
-      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
+      "claim": "No fundamentals, no earnings-quality state, no leverage reading and no valuation multiple exist for this issuer in the local stores, so a stock that has nearly quadrupled inside a year cannot be tested against any financial record here.",
+      "source_name": "Upstream market store data/market/ASX.json fundamentals coverage and quality health",
+      "source_date": "2026-08-30",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001122411.json",
       "tag": "INFERRED"
     },
     {
-      "claim": "Margin is partly a price-cost outcome under tariffs, which the company says explicitly, so it is exposed to trade policy in both directions.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "driven by operational execution, continued strong productivity, and favorable price-cost, inclusive of tariff impacts and associated countermeasures"
-    },
-    {
-      "claim": "Concentration is the structural risk: an issuer whose entire end market is the data centre has no offsetting segment if hyperscale capital expenditure slows.",
-      "source_name": "Upstream market store data/market/VRT.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
-      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
+      "claim": "The assembly and test business is capital-intensive and cyclical, and its revenue mix includes EMS and materials lines with different economics from advanced packaging. Without a segment split read from a filing, the share of the business this chain actually touches is unknown.",
+      "source_name": "data/mappings/ai-infrastructure.json placement evidence",
+      "source_date": "2025-05-28",
+      "url": "https://www.aseglobal.com/press-room/ase-announces-focos-bridge-with-tsv/",
       "tag": "INFERRED"
     }
   ],
   "data_gaps": [
-    "Every canonical metric in this profile resolves to a sourced number; there are no NULL canonical fields. The gaps below are about scope, not measurement.",
-    "No end-market or customer-concentration split is disclosed in the fetched release, so the share of revenue from the largest hyperscale customers is unknown.",
-    "Companyfacts coverage for this issuer is missing gross_profit, so gross margin cannot be read from the local store; it is not a canonical profile field.",
-    "The fetched EDGAR document is the Q2 2026 8-K earnings exhibit rather than the 10-K used for the liquid-cooling role evidence."
+    "Every canonical metric field on this profile is NULL. the issuer is a foreign private issuer reporting under IFRS on Form 20-F, and SEC EDGAR companyfacts returns zero annual statement concepts for it in data/market/ASX.json: coverage reports 0 of 20 annual fields found with all twenty listed missing, and the fetcher's own verified_zero probe (control probe edgar-AAPL-companyfacts-ok) confirms the empty is real rather than a failed request. The fetch plane reads the us-gaap namespace and these facts are filed under ifrs-full. The vendor block that covers other non-US listings is not available for this listing and would not be admissible here in any case: method section 6A forbids a bare vendor aggregate in a metrics group, and check_profile enforces official_source: true on every INFERRED numeric.",
+    "This is the same ifrs-full companyfacts gap that blocks TSMC, captured once to the backlog. ASE publishes unaudited consolidated quarterly results through its own investor-relations channel, so the numbers exist and this repo cannot currently read them.",
+    "No fundamentals request was queued for ASX this run, for the same reason as TSM: the fetch plane has already proved the empty with a passing control probe, so the request would fulfil with nothing and pend the profile forever.",
+    "No primary ASE financial statement was fetched this run. The issuer's fourth-quarter and full-year 2025 results release exists on a newswire, but a newswire summary is not the filing and no figure from it is asserted anywhere on this profile.",
+    "Completion rule applied uniformly across this batch: a profile is COMPLETE when revenue, growth, margins, cash conversion and valuation all resolve to sourced numbers AND the earnings-quality state can be established. A profile whose earnings-quality state cannot be established, or which has no fundamentals at all, is BLOCKED. Individual NULL fields are permitted on a COMPLETE profile where the input is genuinely absent or the computation is not meaningful, and each such NULL blocks O1 promotion on its own."
   ],
   "disposition": {
-    "state": "DEFER",
-    "basis": "Profile for ASE Technology Holding Co., Ltd. on advanced-packaging link.",
-    "as_of": "2026-08-31"
+    "state": "BLOCKED",
+    "as_of": "2026-09-01",
+    "basis": "One VERIFIED issuer-sourced placement on the least crowded link in the batch, and no measurable financial fact to attach to it. Blocked on the same ifrs-full fetch gap as TSMC. Worth reopening as soon as that gap closes, because ASE and Amkor on the same link are the natural pair this chain wants compared and only one of them is currently measurable."
   },
   "confidence_audit": {
-    "verified": 1,
-    "inferred": 11,
-    "speculative": 2,
-    "null": 0,
-    "canonical_fields_written": 14,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/VRT.json, price_status AGREED) and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
+    "verified": 0,
+    "inferred": 0,
+    "speculative": 0,
+    "null": 11,
+    "canonical_fields_written": 11,
+    "basis": "Counts cover the canonical metric fields only. Every one is NULL: a field looked for and not found, never estimated. The VERIFIED item on this profile is placement and catalyst evidence, which is not a canonical metric field and is not counted here."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -291,17 +211,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260830-01: examined and retained at O2 (SEQUENCING_HOLD_EXISTING_FINAL_DIVE); NULL canonical fields barring O1: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-01T00:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile --campaign CAMP-20260830-01 REPAIR: the file committed for this issuer in d6e6c4d was a verbatim copy of data/companies/VERTIV-HOLDINGS.json. Every canonical metric carried Vertiv Holdings Co's number sourced to data/market/VRT.json and SEC companyfacts CIK 1674101, the business summary, exposure narrative, crowdedness caveats, catalysts with Vertiv's verbatim 8-K excerpts, data gaps, confidence audit and selection review were Vertiv's text, the changelog said it had created a profile for VERTIV-HOLDINGS, and the placement role evidence pointed at the placeholder URL https://investor.example.com with the malformed date 2026-Q2. Every one of those fields is replaced here with this issuer's own mapping placements, its own market store and its own sourced numbers, or with an explicit NULL naming the missing field. The corrupt entries stay in this changelog because permanent memory is append-only and the defect has to remain visible. Rebuilt as a fully shaped BLOCKED profile: every canonical metric is NULL with a field-specific basis, because data/market/ASX.json reports companyfacts coverage 0 of 20 annual fields with a passing verified_zero control probe. Data tier corrected to T2, opportunity tier O3."
     }
-  ],
-  "selection_review": {
-    "as_of": "2026-08-31",
-    "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
-    "command": "run selection CAMP-20260830-01",
-    "reviewed_by": "sieve-profiler",
-    "outcome": "RETAINED_O2",
-    "reason_code": "SEQUENCING_HOLD_EXISTING_FINAL_DIVE",
-    "null_canonical_fields": [],
-    "reason": "Not promoted, and not for a data reason: this profile has zero NULL canonical metric fields and would clear the O1 metric bar today. It is held at O2 as a deliberate sequencing choice. data/stocks/VRT__ai-infrastructure.json is already FINAL and sits on the check_analyst.py STOCKY_LEGACY_BASELINE, exempt from the campaign admission chain by exact repo-relative path and committed byte content. Promoting VERTIV-HOLDINGS to O1 invites a re-dive of a file that is already closed, and the moment that file is amended it forfeits the byte-content exemption and must satisfy the full campaign admission chain retroactively. That is a decision about the legacy baseline, not a decision about this issuer, so it is taken on its own rather than as a side effect of this selection run.",
-    "revisit": "Revisit as its own decision: either re-dive VRT under the campaign chain knowingly and forfeit the baseline exemption, or leave the FINAL file standing and keep this issuer at O2. Do not decide it inside a future selection batch."
-  }
+  ]
 }
