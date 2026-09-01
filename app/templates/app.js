@@ -2698,6 +2698,10 @@
   // viewer-tuned render gains: per-type size multipliers plus a contrast exponent that
   // makes big nodes bigger and small ones smaller. Per-viewer convenience only — it
   // never touches the data, and a cleared localStorage just restores the defaults.
+  // TIMELINE mode: a flat screen-space layout where a node's distance from the field
+  // center is |time from today| and the side is the sign — past left, future right —
+  // so one ring is year +k on its right half and year -k on its left half.
+  var CX_TL_MODE = false, CX_TL = 0;
   var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1, labels: 0.7 };
   var CX_GAIN = (function () {
     var d = {};
@@ -2963,6 +2967,40 @@
     ctx.fillText((fam ? fam + " ▸ " : "") + "UN " + num(un, "unscored") + " · " + nLinks +
                  " LINKS · " + pair.sig.id, cx, cy + 68);
   }
+  /* The flat TIMELINE read-out: concentric screen-space rings around the field center,
+     one per year of distance from today, with the vertical NOW line through the middle.
+     A ring reads as year +k on its right half and year -k on its left half, which is
+     the whole trick: distance is |time|, the side is the sign. */
+  function cxTimeRings(ctx, w, h, cx, cy, Rmax, al) {
+    if (al <= 0.01) return;
+    ctx.save(); ctx.globalAlpha = al;
+    var y0 = parseInt(TODAY.slice(0, 4), 10);
+    // NOW: the vertical axis
+    ctx.strokeStyle = "rgba(167,168,246,0.6)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy - Rmax - 18); ctx.lineTo(cx, cy + Rmax + 18); ctx.stroke();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "600 11px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "rgba(8,8,13,0.85)"; ctx.fillRect(cx - 24, cy - Rmax - 34, 48, 14);
+    ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.fillText("N O W", cx, cy - Rmax - 27);
+    ctx.font = "600 10px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "rgba(134,135,240,0.7)";
+    ctx.fillText("« PAST", cx - Rmax * 0.55, cy + Rmax + 12);
+    ctx.fillText("FUTURE »", cx + Rmax * 0.55, cy + Rmax + 12);
+    for (var k = 1; k <= 3; k++) {
+      var rr = Math.sqrt(Math.min(365 * k, CX_CLAMP) / CX_CLAMP) * Rmax;
+      ctx.strokeStyle = "rgba(134,135,240," + (k === 1 ? 0.34 : 0.24) + ")";
+      ctx.lineWidth = k === 1 ? 1.6 : 1.2;
+      ctx.beginPath(); ctx.arc(cx, cy, rr, 0, 7); ctx.stroke();
+      // the same ring is a future year on the right and its mirror past year on the left
+      ctx.font = "600 10.5px 'JetBrains Mono', monospace";
+      [[cx + rr, y0 + k], [cx - rr, y0 - k]].forEach(function (lab) {
+        ctx.fillStyle = "rgba(8,8,13,0.85)"; ctx.fillRect(lab[0] - 18, cy - 8, 36, 15);
+        ctx.fillStyle = "rgba(167,168,246,0.9)"; ctx.fillText(String(lab[1]), lab[0], cy);
+      });
+    }
+    ctx.textBaseline = "alphabetic";
+    ctx.restore();
+  }
   function cxRadialLegend(ctx, w, h, al, factorsLabel, sizeLabel) {
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
     if (factorsLabel) {
@@ -3115,7 +3153,7 @@
       '<div class="lbl" style="margin-top:8px">VIEW</div>' +
       '<div class="btns">' +
       '<button class="vw" data-cxviewmode="field" title="the default orbit">FIELD</button>' +
-      '<button class="vw" data-cxviewmode="timeline" title="look along the field: time runs bottom to top, year rings stack">TIMELINE</button>' +
+      '<button class="vw" data-cxviewmode="timeline" title="flat time rings: distance from center is time from today, past on the left, future on the right">TIMELINE</button>' +
       "</div>" +
       '<button class="rst" id="cxGainReset" title="back to defaults">RESET</button></div>';
   }
@@ -3560,14 +3598,25 @@
         if (Math.abs(mTarget - CX_MODE.morph) < step) CX_MODE.morph = mTarget;
       }
       var M = CX_MODE.morph, RAD = M > 0.001 ? cxRadial(g, w, h, ctx) : null;
+      // timeline morph, same easing pattern as the radial phase
+      var tlTarget = CX_TL_MODE && CX_MODE.phase !== "radial" ? 1 : 0;
+      if (REDUCED) CX_TL = tlTarget;
+      else if (CX_TL !== tlTarget) {
+        var tstep = 0.055;
+        CX_TL += Math.sign(tlTarget - CX_TL) * tstep;
+        if (Math.abs(tlTarget - CX_TL) < tstep) CX_TL = tlTarget;
+      }
+      var TL = CX_TL;
+      var tlCx = w / 2, tlCy = h * 0.52, tlR = Math.min(w, h) * 0.44;
 
       var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.72);
       bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
       ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
 
       // NOW plane (translucent disc at z = 0) + the time axis with year ticks
-      ctx.globalAlpha = 1 - M;
-      if (M < 0.995) {
+      // (the 3D read-out; it yields to the flat TIMELINE rings as they morph in)
+      ctx.globalAlpha = (1 - M) * (1 - TL);
+      if (M < 0.995 && TL < 0.995) {
       var planeR = (g.ring ? g.ring.r0 * 1.02 : 520);
       ctx.strokeStyle = "rgba(134,135,240,0.38)"; ctx.lineWidth = 1.4;
       ctx.beginPath();
@@ -3636,26 +3685,52 @@
       }
       ctx.globalAlpha = 1;
       if (RAD) RAD.draw(M);
+      if (TL > 0.001) cxTimeRings(ctx, w, h, tlCx, tlCy, tlR, TL * (1 - M));
 
       // project all nodes
       g.nodes.forEach(function (n, ni) {
         var pp = proj3(n.x, n.y, n.z || 0);
         var tg = RAD ? RAD.targets[n.key] : null;
+        // TIMELINE seat: radius = |time from today|, side = its sign. The node keeps
+        // its layout direction, folded into the correct half so past stays left and
+        // future right; one ring is +k years on the right and -k on the left.
+        var tls = null;
+        if (TL > 0.001 && !RAD) {
+          var rt = Math.min(1, Math.abs(n.z || 0) / 480) * tlR;
+          var dxL = (n.x - gc.x) || 0.001, dyL = (n.y - gc.y) || 0.001;
+          var nL = Math.sqrt(dxL * dxL + dyL * dyL);
+          var ux = Math.abs(dxL / nL) * ((n.z || 0) >= 0 ? 1 : -1), uy = dyL / nL;
+          tls = { x: tlCx + rt * ux, y: tlCy + rt * uy };
+        }
         if (!pp) {
           // Clipped by the near plane. A node holding a seat on the ring still has a
           // place to be: the seat is screen-space and owes nothing to the camera, so a
           // camera drift that carries a node behind the eye must not delete it from the
           // ranking. Without this the idle yaw ate the radial one node at a time.
-          if (!tg) { n._px = null; return; }
-          n._px = tg.x; n._py = tg.y;
-          n._s = tg.r / Math.max(0.001, n.r); n._d = cam.dist;
-          n._fade = M;                     // arrives with the morph instead of popping
-          n._radial = true;
-          return;
+          if (tg) {
+            n._px = tg.x; n._py = tg.y;
+            n._s = tg.r / Math.max(0.001, n.r); n._d = cam.dist;
+            n._fade = M;                   // arrives with the morph instead of popping
+            n._radial = true;
+            return;
+          }
+          if (tls) {                       // a timeline seat also owes nothing to the camera
+            n._px = tls.x; n._py = tls.y;
+            n._s = T.k; n._d = cam.dist; n._fade = TL; n._radial = false;
+            return;
+          }
+          n._px = null; return;
         }
         n._px = pp.x + (n.kind === "dust" || REDUCED ? 0 : Math.sin(t * 0.4 + ni));
         n._py = pp.y + (n.kind === "dust" || REDUCED ? 0 : Math.cos(t * 0.33 + ni * 2) * 0.8);
         n._s = pp.s; n._d = pp.d; n._fade = 1;
+        if (tls) {
+          var eT = TL < 0.5 ? 2 * TL * TL : 1 - Math.pow(-2 * TL + 2, 2) / 2;
+          n._px += (tls.x - n._px) * eT;
+          n._py += (tls.y - n._py) * eT;
+          n._d += (cam.dist - n._d) * eT;  // flat read-out: even fog at full morph
+          n._radial = false;
+        }
         if (!RAD) return;
         if (tg) {
           var e2 = M < 0.5 ? 2 * M * M : 1 - Math.pow(-2 * M + 2, 2) / 2;
@@ -4126,8 +4201,11 @@
         document.querySelectorAll("[data-cxviewmode]").forEach(function (x) { x.classList.toggle("on", x === b); });
         if (mode === "timeline") {
           touched();                              // stop the idle drift fighting the view
-          viewTween = { yaw: 0, pitch: 0.95 };    // look along the field: past sinks, future rises
+          CX_TL_MODE = true;
+          CX_MODE.phase = "network";
+          viewTween = { yaw: 0, pitch: 0 };       // face-on: the flat rings are the read-out
         } else {
+          CX_TL_MODE = false;
           viewTween = { yaw: -0.45, pitch: -0.22 };
         }
       });
