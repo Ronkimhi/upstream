@@ -1,15 +1,15 @@
 {
   "issuer_id": "INTEL",
   "issuer_name": "Intel Corporation",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-01",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-08-31T01:30:00Z",
+  "updated_at": "2026-09-01T00:20:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US SEC filer, CIK 1674101: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/VRT.json.",
+  "data_tier_basis": "US SEC filer, CIK 50863: dual-source price plane (price_status AGREED, both legs printing 89.47 on 2026-08-28), SEC companyfacts fundamentals with coverage 19 of 20 annual fields (total_liabilities missing), and a SCORED quality block in data/market/INTC.json with Piotroski and Beneish both computed on full inputs.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260830-01 on 2026-08-31 and retained at O2. Not promoted, and not for a data reason: this profile has zero NULL canonical metric fields and would clear the O1 metric bar today. It is held at O2 as a deliberate sequencing choice. data/stocks/VRT__ai-infrastructure.json is already FINAL and sits on the check_analyst.py STOCKY_LEGACY_BASELINE, exempt from the campaign admission chain by exact repo-relative path and committed byte content. Promoting VERTIV-HOLDINGS to O1 invites a re-dive of a file that is already closed, and the moment that file is amended it forfeits the byte-content exemption and must satisfy the full campaign admission chain retroactively. That is a decision about the legacy baseline, not a decision about this issuer, so it is taken on its own rather than as a side effect of this selection run. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "COMPLETE profiles are O2 until run selection promotes them (method section 6A). Selection is a separate command and was not run here. Four canonical fields are NULL on this profile, and O1 forbids a NULL canonical field, so this issuer cannot be promoted while they stand.",
   "listing_refs": [
     "NASDAQ-INTC"
   ],
@@ -18,9 +18,14 @@
       "listing_id": "NASDAQ-INTC",
       "ticker": "INTC",
       "exchange": "NASDAQ",
+      "identity_evidence_ref": {
+        "source_name": "SEC EDGAR company-submissions current entity metadata",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/submissions/CIK0000050863.json"
+      },
+      "mapping_ref": "data/mappings/ai-infrastructure.json",
       "market_ticker": "INTC",
-      "cik": 50863,
-      "mapping_ref": "data/mappings/ai-infrastructure.json"
+      "cik": 50863
     }
   ],
   "placements": [
@@ -29,37 +34,37 @@
       "link_id": "advanced-packaging",
       "link_name": "Advanced packaging",
       "link_position": 7,
-      "role": "Placement on advanced packaging link",
+      "role": "Provides EMIB 2.5D and Foveros 3D packaging for AI and high-performance-computing systems.",
       "placement_status": "ACTIVE",
       "money_corner": false,
       "link_heat": "EMERGING",
       "mapping_ref": "data/mappings/ai-infrastructure.json",
       "role_evidence": [
         {
-          "claim": "Intel Corporation is placed on advanced packaging.",
-          "source_name": "Intel Corporation investor relations",
-          "source_date": "2026-Q2",
-          "url": "https://investor.example.com",
-          "tag": "INFERRED"
+          "claim": "Intel Foundry says its advanced-packaging portfolio includes EMIB-T for future high-bandwidth-memory needs and Foveros Direct 3D hybrid bonding.",
+          "source_name": "Intel Foundry Direct Connect release",
+          "source_date": "2025-04-29",
+          "url": "https://newsroom.intel.com/intel-foundry/intel-foundry-gathers-customers-partners-outlines-priorities",
+          "tag": "VERIFIED"
         }
       ]
     },
     {
       "chain_id": "ai-infrastructure",
       "link_id": "ai-accelerators",
-      "link_name": "AI accelerators",
+      "link_name": "AI accelerators (GPUs/XPUs)",
       "link_position": 9,
-      "role": "Placement on ai accelerators link",
+      "role": "Designs Gaudi accelerators for data-center AI training and inference.",
       "placement_status": "ACTIVE",
       "money_corner": false,
-      "link_heat": "EMERGING",
+      "link_heat": "OVER_CROWDED",
       "mapping_ref": "data/mappings/ai-infrastructure.json",
       "role_evidence": [
         {
-          "claim": "Intel Corporation is placed on ai accelerators.",
-          "source_name": "Intel Corporation investor relations",
-          "source_date": "2026-Q2",
-          "url": "https://investor.example.com",
+          "claim": "Current AI-chip research identifies Intel's Gaudi product line as a data-center AI accelerator.",
+          "source_name": "CNBC AI chips comparison",
+          "source_date": "2025-11-21",
+          "url": "https://www.cnbc.com/2025/11/21/nvidia-gpus-google-tpus-aws-trainium-comparing-the-top-ai-chips.html",
           "tag": "INFERRED"
         }
       ]
@@ -74,86 +79,71 @@
     },
     "chain": "data/chains/ai-infrastructure.json",
     "market": "data/market/INTC.json",
-    "market_fetched_at": "2026-08-31T23:59:37.420766+00:00",
-    "filing": {
-      "form": "8-K",
-      "filing_date": "2026-07-29",
-      "accession": "0001628280-26-050323",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "local_ref": "data/edgar/docs/VRT.json"
-    }
+    "market_fetched_at": "2026-08-31T01:00:23.952979+00:00"
   },
-  "business_summary": "Vertiv Holdings Co is a NYSE-listed supplier of critical digital infrastructure: uninterruptible power supplies, switchgear, busbar, integrated power blocks and thermal management including liquid cooling, sold into hyperscale, colocation and enterprise data centres. Unlike the diversified industrials in this batch, its end market is the data centre itself, so its revenue line and the chain's demand are close to the same series.",
+  "business_summary": "Intel Corporation is a NASDAQ-listed integrated device manufacturer that designs and fabricates its own silicon and, since the foundry separation, sells manufacturing and advanced packaging to third parties. For this chain it is two different businesses: a packaging supplier through EMIB and Foveros, and an accelerator vendor through Gaudi. It is also the only issuer in this batch that is currently loss-making at the operating line.",
   "exposure_summary": {
-    "narrative": "Vertiv sits on two links: power-equipment, the money corner, and liquid-cooling. Both placements are backed by dated product evidence, the PowerNexus launch for the power block and the 2025 Form 10-K for liquid-cooled thermal management. It is the most direct exposure in the batch and, for the same reason, the one where the un-crowded premise is weakest: an issuer whose entire business is the data centre is the first name a data-centre thesis reaches for.",
+    "narrative": "Two placements of unequal strength. advanced-packaging (position 7, heat EMERGING) is backed by Intel Foundry's own dated release describing EMIB-T and Foveros Direct 3D hybrid bonding, and is the placement that matters here. ai-accelerators (position 9, heat OVER_CROWDED at crowdedness 92) rests on the Gaudi line and is the weakest evidence in this batch: the mapping tags that placement INFERRED from third-party AI-chip research rather than VERIFIED from an issuer source, which is a materially weaker basis than every other placement carried here.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "Vertiv does not publish a data-centre revenue percentage because its disclosed business is critical digital infrastructure as a whole; the fetched second-quarter 2026 release (accession 0001628280-26-050323) reports consolidated net sales and segment geography, not an end-market split."
+      "basis": "Intel reports an Intel Foundry segment but does not break out advanced packaging or AI accelerator revenue within it, so no disclosed percentage of revenue attributable to either placement exists in a source read this run."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": 10229900000,
+        "value": 52853000000,
         "tag": "VERIFIED",
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INTC.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Revenues for the fiscal year ended 2025-12-27 as reported to SEC XBRL."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": 0.215854,
+        "value": -0.057129,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "revenue_cagr_3y requires three-year history"
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INTC.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Three-year compound annual revenue growth computed as (52853000000 / 63054000000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-27. Revenue has declined in each of the last three fiscal years."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": 0.178858,
+        "value": -0.04189,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "OperatingIncomeLoss 1829700000 divided by Revenues 10229900000 for the fiscal year ended 2025-12-31, both from companyfacts."
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INTC.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "OperatingIncomeLoss -2214000000 divided by Revenues 52853000000 for the fiscal year ended 2025-12-27, both from companyfacts. The margin is negative: Intel lost money at the operating line in fiscal 2025, an improvement on the -11678000000 operating loss of fiscal 2024."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": 1.585984,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "operating_cash_flow_to_net_income data pending"
+        "value": null,
+        "tag": "NULL",
+        "basis": "operating cash flow to net income is not a meaningful ratio for Intel in fiscal 2025: net income is -267000000, so operating cash flow 9697000000 divided by it returns -36.3, a number whose sign and magnitude describe the loss rather than the conversion. The inputs are both present and sourced; the ratio is withheld because it would mislead, and fcf_margin carries this group instead."
       },
       "fcf_margin": {
-        "value": 0.185124,
+        "value": -0.093637,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Free cash flow margin: operating cash flow 2113800000 less capital expenditure 220000000, divided by revenue 10229900000, all for the fiscal year ended 2025-12-31 from companyfacts."
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INTC.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Free cash flow margin: operating cash flow 9697000000 less capital expenditure 14646000000, divided by revenue 52853000000, all for the fiscal year ended 2025-12-27 from companyfacts. It is negative: Intel spent 4949000000 more on capital than it generated from operations."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": 0.060422,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "net_debt_to_ebitda data pending"
+        "value": null,
+        "tag": "NULL",
+        "basis": "net debt to EBITDA cannot be computed for Intel. The numerator is available and sourced, net debt 35675000000 (total debt 48549000000 less cash 12874000000, both as of 2026-06-27), but the denominator is not: the companyfacts depreciation series in data/market/INTC.json ends at fiscal 2019-12-28 with a value of 200000000 that is inconsistent with Intel's scale, so no fiscal 2025 depreciation and amortisation figure exists to build an EBITDA proxy on, and fiscal 2025 operating income is negative in any case."
       }
     },
     "quality": {
@@ -161,147 +151,133 @@
         "value": 6,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/VRT.json quality.piotroski."
+        "source_name": "Upstream market store data/market/INTC.json quality, computed in the Actions venue over SEC EDGAR companyfacts",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/INTC.json quality.piotroski, 9 of 9 inputs found. Operating cash flow, change in return on assets, accruals, change in leverage, current ratio and gross margin all pass; return on assets, share count and asset turnover fail. Six of nine on a loss-making year is the score of a business improving from a low base, not a healthy one."
       },
       "beneish_state": {
-        "value": -2.438,
+        "value": -2.758,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Beneish M-score -2.438, earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/VRT.json quality.beneish. A more negative M-score is the non-manipulator reading."
+        "source_name": "Upstream market store data/market/INTC.json quality, computed in the Actions venue over SEC EDGAR companyfacts",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Beneish M-score -2.758 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/INTC.json quality.beneish, 12 of 12 inputs found. A more negative M-score is the non-manipulator reading."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": 98346900054.4,
+        "value": 446813180000.0,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Market capitalization 98346900054.4 = SEC companyfacts diluted share count 382553680 multiplied by the close 257.08; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "source_name": "Upstream market store data/market/INTC.json quality.derived.market_cap",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Market capitalization 446813180000 = SEC companyfacts diluted share count 4994000000 as of 2025-12-27 multiplied by the close 89.47 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own dual-source market plane (data/market/INTC.json, price_status AGREED), not an issuer document."
       },
       "price_to_sales": {
-        "value": 9.613672,
+        "value": 8.453885,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Market capitalization 98346900054.4 divided by fiscal year 2025-12-31 revenue 10229900000; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
-      },
-      "price_to_earnings": {
-        "value": 73.789691,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap over SEC companyfacts net income",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "price_to_earnings computation pending"
+        "source_name": "Upstream market store data/market/INTC.json quality.derived.market_cap over SEC companyfacts revenue",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Market capitalization 446813180000 divided by fiscal year 2025-12-27 revenue 52853000000. The share count is official SEC companyfacts; the close 89.47 of 2026-08-28 is the repo's own market plane, not an issuer document."
       },
       "ev_to_sales": {
-        "value": 9.626301,
+        "value": 9.12887,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.enterprise_value over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Enterprise value 98476100054.4 divided by fiscal year 2025-12-31 revenue 10229900000; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "source_name": "Upstream market store data/market/INTC.json quality.derived.enterprise_value over SEC companyfacts revenue",
+        "source_date": "2026-08-31",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
+        "basis": "Enterprise value 482488180000 divided by fiscal year 2025-12-27 revenue 52853000000. Enterprise value exceeds market capitalization because net debt is 35675000000."
+      },
+      "price_to_earnings": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "price-to-earnings is not defined for Intel in fiscal 2025: GAAP net income is -267000000, so the ratio against a market capitalization of 446813180000 would be a negative number with no interpretation. Price to sales and enterprise value to sales carry the valuation group instead."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": 0.3295,
-        "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/VRT.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "implied_fcf_cagr requires FCF horizon"
+        "value": null,
+        "tag": "NULL",
+        "basis": "reverse-DCF implied FCF CAGR cannot be solved for Intel: data/market/INTC.json quality.reverse_dcf reports state NOT_APPLICABLE with the reason that base-year free cash flow is not positive. Free cash flow for fiscal 2025 is -4949000000, and a growth rate on a negative base is meaningless. This is a determinate finding about the issuer, not a missing fetch."
       },
       "horizon_spread": {
-        "value": 0.1462,
-        "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/VRT.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "horizon_spread computation pending"
+        "value": null,
+        "tag": "NULL",
+        "basis": "reverse-DCF horizon spread cannot be computed for Intel because the base implied FCF CAGR solve is NOT_APPLICABLE on negative free cash flow, so there is no set of per-horizon solves to take a spread across."
       }
     }
   },
   "crowdedness_caveats": [
-    "This is the one issuer in this batch that already carries a Stocky dive at data/stocks/VRT__ai-infrastructure.json, which is itself evidence the name is not undiscovered inside this repo, let alone outside it.",
-    "data/market/VRT.json pcs records 26 analysts and 84.4% institutional ownership as of 2026-08-29, axis-B SATURATED, axis-A DARK at 88.2 under an ADVISORY gate.",
-    "The 52-week range in the same file runs 121.82 to 376.23 and the last close is 257.08, so the stock is roughly a third below its own high. A drawdown is not the same thing as being un-crowded; it is a crowded position that has been hurt.",
-    "Its price-to-sales and EV-to-sales ratios computed here are the highest in the batch by a factor of about five against Powell and MYR Group, which is what discovered pure-play exposure costs."
+    "data/market/INTC.json carries no pcs block, so analyst count and institutional ownership were not measured for this issuer this run.",
+    "The ai-accelerators link is the most crowded in the whole chain: crowdedness 92, capture 90, verdict OVER_CROWDED (data/chains/ai-infrastructure.json). Intel's placement on it is also the weakest-evidenced placement in this batch.",
+    "The 52-week range is 24.00 to 140.94 against an 89.47 close. The stock has moved nearly six-fold off its low inside a year, which is a repriced position rather than an overlooked one.",
+    "Price to sales of 8.5 on a business with three consecutive years of declining revenue and a negative operating margin is the crowdedness reading that matters here: the multiple is being paid for the foundry and packaging turnaround, not for the current income statement."
   ],
   "catalysts": [
     {
-      "claim": "Growth and margin are compounding together, which is the combination the expectations gap is priced on.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
+      "claim": "Intel's own second-quarter 2026 release reports revenue of 16.1 billion dollars, up 25% year over year, with Intel Foundry revenue of 5.8 billion dollars up 31%. The chief executive names advanced packaging explicitly as one of the franchises the company expects to capture growth across.",
+      "source_name": "Intel Corporation second-quarter 2026 results release",
+      "source_date": "2026-07-23",
+      "url": "https://www.intc.com/news-events/press-releases/detail/1776/intel-reports-second-quarter-2026-financial-results",
       "tag": "VERIFIED",
-      "source_excerpt": "Net sales of $3,274 million, 24% higher than second quarter 2025."
+      "source_excerpt": "AI is driving unprecedented demand for compute, and as we continue to execute, Intel is well-positioned to capture sustainable growth across our CPU franchise, ASICs, advanced packaging and vast wafer foundry network."
     },
     {
-      "claim": "Management raised full-year guidance across every key metric, a dated commitment against which the next two quarters can be scored.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "Raises Full Year 2026 Guidance Across All Key Metrics"
+      "claim": "Intel Foundry's own dated release establishes EMIB-T for future high-bandwidth-memory needs and Foveros Direct 3D hybrid bonding, which is the technical basis of the advanced-packaging placement.",
+      "source_name": "Intel Foundry Direct Connect release",
+      "source_date": "2025-04-29",
+      "url": "https://newsroom.intel.com/intel-foundry/intel-foundry-gathers-customers-partners-outlines-priorities",
+      "tag": "VERIFIED"
     }
   ],
   "risks": [
     {
-      "claim": "The market already requires very fast free-cash-flow growth from here: the reverse DCF in data/market/VRT.json solves to the second-highest implied CAGR in this batch, so the expectations bar is high rather than absent.",
-      "source_name": "Upstream market store data/market/VRT.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
-      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
+      "claim": "The same second-quarter 2026 release records an Intel Foundry operating loss of 2.089 billion dollars on that 5.8 billion dollars of revenue. The segment this chain cares about grows and loses money at the same time.",
+      "source_name": "Intel Corporation second-quarter 2026 results release",
+      "source_date": "2026-07-23",
+      "url": "https://www.intc.com/news-events/press-releases/detail/1776/intel-reports-second-quarter-2026-financial-results",
+      "tag": "VERIFIED"
+    },
+    {
+      "claim": "Free cash flow was -4949000000 in fiscal 2025 and the three-year revenue CAGR is -5.7%. The reverse DCF cannot even be posed against a negative base, so there is no expectations reading to test the price against.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INTC.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-08-31",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000050863.json",
       "tag": "INFERRED"
     },
     {
-      "claim": "Margin is partly a price-cost outcome under tariffs, which the company says explicitly, so it is exposed to trade policy in both directions.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "driven by operational execution, continued strong productivity, and favorable price-cost, inclusive of tariff impacts and associated countermeasures"
-    },
-    {
-      "claim": "Concentration is the structural risk: an issuer whose entire end market is the data centre has no offsetting segment if hyperscale capital expenditure slows.",
-      "source_name": "Upstream market store data/market/VRT.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
-      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
+      "claim": "The ai-accelerators placement is INFERRED from third-party AI-chip research rather than from an issuer source, and sits on the chain's most crowded link. It should not be treated as equivalent to the packaging placement.",
+      "source_name": "data/mappings/ai-infrastructure.json placement evidence",
+      "source_date": "2025-11-21",
+      "url": "https://www.cnbc.com/2025/11/21/nvidia-gpus-google-tpus-aws-trainium-comparing-the-top-ai-chips.html",
       "tag": "INFERRED"
     }
   ],
   "data_gaps": [
-    "Every canonical metric in this profile resolves to a sourced number; there are no NULL canonical fields. The gaps below are about scope, not measurement.",
-    "No end-market or customer-concentration split is disclosed in the fetched release, so the share of revenue from the largest hyperscale customers is unknown.",
-    "Companyfacts coverage for this issuer is missing gross_profit, so gross margin cannot be read from the local store; it is not a canonical profile field.",
-    "The fetched EDGAR document is the Q2 2026 8-K earnings exhibit rather than the 10-K used for the liquid-cooling role evidence."
+    "Four canonical fields are NULL: operating_cash_flow_to_net_income, net_debt_to_ebitda, price_to_earnings and both reverse_dcf fields. Each names its own cause in its basis, and all but one are determinate findings about a loss-making year rather than missing data.",
+    "The one genuine data gap is the EBITDA denominator: the companyfacts depreciation series in data/market/INTC.json ends at fiscal 2019-12-28 with a value inconsistent with Intel's scale, which is a concept-mapping gap in the fetch plane and is captured to the backlog. companyfacts coverage also misses total_liabilities, which is not a canonical profile field.",
+    "No advanced-packaging or accelerator revenue split is disclosed within the Intel Foundry segment, so the share of revenue attributable to either placement is unknown.",
+    "data/edgar/docs/INTC.json does not exist, so no filing document was available locally to verify a quote against. The second-quarter 2026 excerpt above was fetched directly from the issuer's own investor-relations release this run and is reproduced verbatim from it.",
+    "Completion rule applied uniformly across this batch: a profile is COMPLETE when revenue, growth, margins, cash conversion and valuation all resolve to sourced numbers AND the earnings-quality state can be established. A profile whose earnings-quality state cannot be established, or which has no fundamentals at all, is BLOCKED. Individual NULL fields are permitted on a COMPLETE profile where the input is genuinely absent or the computation is not meaningful, and each such NULL blocks O1 promotion on its own."
   ],
   "disposition": {
     "state": "DEFER",
-    "basis": "Profile for Intel Corporation on advanced-packaging link.",
-    "as_of": "2026-08-31"
+    "as_of": "2026-09-01",
+    "basis": "The packaging placement is real and issuer-sourced, and the earnings-quality state is established and clean. Deferred because the valuation case cannot be posed on this record: negative operating margin, negative free cash flow, a three-year revenue decline and no reverse-DCF solve to test 8.5 times sales against. Deferred is a statement about what is measurable, not a verdict; selection is a separate command that was not run."
   },
   "confidence_audit": {
     "verified": 1,
-    "inferred": 11,
-    "speculative": 2,
-    "null": 0,
-    "canonical_fields_written": 14,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/VRT.json, price_status AGREED) and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
+    "inferred": 7,
+    "speculative": 0,
+    "null": 4,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is computed from SEC companyfacts with the derivation named in its basis; where a market price enters the computation the basis says so. There is no SPECULATIVE figure because the reverse-DCF solve is not applicable on negative base free cash flow. NULL is a field looked for and not found or not meaningful, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -319,17 +295,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260830-01: examined and retained at O2 (SEQUENCING_HOLD_EXISTING_FINAL_DIVE); NULL canonical fields barring O1: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-01T00:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile --campaign CAMP-20260830-01 REPAIR: the file committed for this issuer in d6e6c4d was a verbatim copy of data/companies/VERTIV-HOLDINGS.json. Every canonical metric carried Vertiv Holdings Co's number sourced to data/market/VRT.json and SEC companyfacts CIK 1674101, the business summary, exposure narrative, crowdedness caveats, catalysts with Vertiv's verbatim 8-K excerpts, data gaps, confidence audit and selection review were Vertiv's text, the changelog said it had created a profile for VERTIV-HOLDINGS, and the placement role evidence pointed at the placeholder URL https://investor.example.com with the malformed date 2026-Q2. Every one of those fields is replaced here with this issuer's own mapping placements, its own market store and its own sourced numbers, or with an explicit NULL naming the missing field. The corrupt entries stay in this changelog because permanent memory is append-only and the defect has to remain visible. Rebuilt from data/market/INTC.json (fundamentals as_of 2026-08-31, coverage 19/20; quality as_of 2026-08-31, state SCORED) over SEC companyfacts CIK 50863, plus the issuer's own second-quarter 2026 results release of 2026-07-23 fetched this run. Status COMPLETE, data tier T1, opportunity tier O2; 8 of 12 canonical fields sourced, 4 NULL."
     }
-  ],
-  "selection_review": {
-    "as_of": "2026-08-31",
-    "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
-    "command": "run selection CAMP-20260830-01",
-    "reviewed_by": "sieve-profiler",
-    "outcome": "RETAINED_O2",
-    "reason_code": "SEQUENCING_HOLD_EXISTING_FINAL_DIVE",
-    "null_canonical_fields": [],
-    "reason": "Not promoted, and not for a data reason: this profile has zero NULL canonical metric fields and would clear the O1 metric bar today. It is held at O2 as a deliberate sequencing choice. data/stocks/VRT__ai-infrastructure.json is already FINAL and sits on the check_analyst.py STOCKY_LEGACY_BASELINE, exempt from the campaign admission chain by exact repo-relative path and committed byte content. Promoting VERTIV-HOLDINGS to O1 invites a re-dive of a file that is already closed, and the moment that file is amended it forfeits the byte-content exemption and must satisfy the full campaign admission chain retroactively. That is a decision about the legacy baseline, not a decision about this issuer, so it is taken on its own rather than as a side effect of this selection run.",
-    "revisit": "Revisit as its own decision: either re-dive VRT under the campaign chain knowingly and forfeit the baseline exemption, or leave the FINAL file standing and keep this issuer at O2. Do not decide it inside a future selection batch."
-  }
+  ]
 }

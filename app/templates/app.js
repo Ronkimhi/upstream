@@ -2698,14 +2698,14 @@
   // viewer-tuned render gains: per-type size multipliers plus a contrast exponent that
   // makes big nodes bigger and small ones smaller. Per-viewer convenience only — it
   // never touches the data, and a cleared localStorage just restores the defaults.
-  var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1 };
+  var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1, labels: 0.7 };
   var CX_GAIN = (function () {
     var d = {};
     Object.keys(CX_GAIN_DEF).forEach(function (k) { d[k] = CX_GAIN_DEF[k]; });
     try {
       var s = JSON.parse(localStorage.getItem("upstream.cxGain") || "null");
       if (s && typeof s === "object") Object.keys(CX_GAIN_DEF).forEach(function (k) {
-        if (typeof s[k] === "number" && s[k] >= 0.2 && s[k] <= 3) d[k] = s[k];
+        if (typeof s[k] === "number" && s[k] >= 0 && s[k] <= 3) d[k] = s[k];
       });
     } catch (e) {}
     return d;
@@ -3095,7 +3095,9 @@
   }
   function cxGaugeRail() {
     function row(key, label, title) {
-      var v = CX_GAIN[key], lo = key === "contrast" ? 0.6 : 0.3, hi2 = key === "contrast" ? 1.8 : 2.5;
+      var v = CX_GAIN[key];
+      var lo = key === "contrast" ? 0.6 : key === "labels" ? 0 : 0.3;
+      var hi2 = key === "contrast" ? 1.8 : key === "labels" ? 1 : 2.5;
       return '<div class="row" title="' + esc(title) + '"><label for="cxg-' + key + '">' + esc(label) + "</label>" +
         '<input type="range" id="cxg-' + key + '" data-cxgain="' + key + '" min="' + lo + '" max="' + hi2 +
         '" step="0.05" value="' + v + '">' +
@@ -3109,6 +3111,12 @@
       row("co", "COMPANIES", "companies, dives, shadow rows") +
       row("intake", "INTAKE", "candidates and calendar events") +
       row("dust", "FEED", "raw feed dust") +
+      row("labels", "LABELS", "label density: left shows only the most important names, right shows everything") +
+      '<div class="lbl" style="margin-top:8px">VIEW</div>' +
+      '<div class="btns">' +
+      '<button class="vw" data-cxviewmode="field" title="the default orbit">FIELD</button>' +
+      '<button class="vw" data-cxviewmode="timeline" title="look along the field: time runs bottom to top, year rings stack">TIMELINE</button>' +
+      "</div>" +
       '<button class="rst" id="cxGainReset" title="back to defaults">RESET</button></div>';
   }
   function cortexView() {
@@ -3394,6 +3402,7 @@
       CX_CACHE = { builtAt: D.built_at, g: g, sim: sim, cam: null };
     }
     var hover = null, focus = null, drag = null, orbit = null, panMove = null, raf = 0, frames = 0;
+    var viewTween = null;   // eased yaw/pitch target for the FIELD / TIMELINE view buttons
     var pinned = null, fly = null;
     var userView = !!(CX_CACHE && CX_CACHE.userView), settled = !!(CX_CACHE && CX_CACHE.settled);
     var card = document.getElementById("cxcard");
@@ -3533,6 +3542,13 @@
       } else if (!CX_CACHE.touched && !REDUCED && !hover && !focus) {
         cam.yaw += 0.0012; // idle drift until first touch
       }
+      if (viewTween) {
+        cam.yaw += (viewTween.yaw - cam.yaw) * 0.12;
+        cam.pitch += (viewTween.pitch - cam.pitch) * 0.12;
+        if (Math.abs(cam.yaw - viewTween.yaw) < 0.004 && Math.abs(cam.pitch - viewTween.pitch) < 0.004) {
+          cam.yaw = viewTween.yaw; cam.pitch = viewTween.pitch; viewTween = null;
+        }
+      }
       setT(w, h);
 
       // phase morph: nodes travel between the field and the circle, never teleport
@@ -3588,14 +3604,14 @@
         // a ring in the field's plane at this year's depth: the axis itself is often
         // foreshortened by the camera, so the rings are what make the past/future
         // spread readable — nodes sit visibly between them
-        ctx.strokeStyle = "rgba(134,135,240,0.20)"; ctx.lineWidth = 1.1;
+        ctx.strokeStyle = "rgba(134,135,240,0.34)"; ctx.lineWidth = 1.5;
         ctx.beginPath();
         var rf = true, ringEdge = null;
         for (var ri = 0; ri <= 48; ri++) {
           var ra = ri * Math.PI * 2 / 48;
           var rp = proj3(gc.x + planeR * 0.82 * Math.cos(ra), gc.y + planeR * 0.82 * Math.sin(ra), zz);
           if (!rp) { rf = true; continue; }
-          if (ri === 0) ringEdge = rp;
+          if (ri === 24) ringEdge = rp;   // the -x edge: the left side, clear of the gauge rail
           if (rf) { ctx.moveTo(rp.x, rp.y); rf = false; } else ctx.lineTo(rp.x, rp.y);
         }
         ctx.stroke();
@@ -3603,11 +3619,14 @@
         ctx.fillRect(tp.x - 2.5, tp.y - 2.5, 5, 5);
         ctx.font = "600 10.5px 'JetBrains Mono', monospace";
         ctx.fillText(String(yy), tp.x, tp.y - 9);
-        // the year again at the ring's edge, where it survives any camera angle
+        // the year again at the ring's LEFT edge with a dark backing, so it reads over
+        // the field and never hides under the gauge rail on the right
         if (ringEdge) {
-          ctx.fillStyle = "rgba(134,135,240,0.55)"; ctx.textAlign = "left";
-          ctx.fillText(String(yy), ringEdge.x + 8, ringEdge.y);
-          ctx.textAlign = "center";
+          ctx.textAlign = "right"; ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(8,8,13,0.8)"; ctx.fillRect(ringEdge.x - 40, ringEdge.y - 7, 36, 14);
+          ctx.fillStyle = "rgba(167,168,246,0.9)";
+          ctx.fillText(String(yy), ringEdge.x - 8, ringEdge.y);
+          ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
         }
       }
       ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.font = "600 11px 'JetBrains Mono', monospace";
@@ -3767,8 +3786,10 @@
         var matched = !anyFilter || cxMatch(n);
         var rampN = Math.min(1, Math.max((n._s - 1) / 3.75, 0));
         var ramp2 = Math.min(1, Math.max((n._s - 1.9) / 1.1, 0));
+        var lden = typeof CX_GAIN.labels === "number" ? CX_GAIN.labels : 1;
         if (n.kind === "dust") {
           var ramp3 = Math.min(1, Math.max((n._s - 2.6) / 1.2, 0));
+          if (n !== hi && lden < 0.85) continue;   // dust headlines are the first to go
           if (ramp3 <= 0.03 || dustLabels > 60 || !matched || (M > 0.35 && n !== hi)) continue;
           if (hi && n !== hi) continue;
           dustLabels++;
@@ -3784,6 +3805,14 @@
         if (!n._radial && M > 0.35 && n !== hi) continue;
         var major = n.tier === "MAJOR", mid = n.tier === "MID";
         var big = n.kind === "sig" || n.kind === "chain";
+        // the LABELS gauge is a priority cut, not a fade: at the left end only the
+        // most important names survive, at the right end everything current shows.
+        // Hovered nodes and filtered-to links are always named — narrowing the field
+        // exists to read what survived.
+        if (n !== hi && !(anyFilter && matched && (n.kind === "link" || n.kind === "scen"))) {
+          var pri = major ? 1 : big ? 0.85 : mid ? 0.7 : n.kind === "dive" ? 0.6 : n.kind === "co" ? 0.45 : 0.25;
+          if (pri < 1 - lden) continue;
+        }
         var base = major ? 1 : mid ? 0.9 : big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.55, rampN) : n.kind === "co" ? Math.max(0, rampN - 0.35) : Math.max(0, rampN - 0.1);
         // focus spells the section out: a filtered-to link is named at any zoom, because
         // the point of narrowing the field is to read what survived, not to hunt for it
@@ -4090,6 +4119,18 @@
     if (gRst) gRst.addEventListener("click", function () {
       Object.keys(CX_GAIN_DEF).forEach(function (k) { CX_GAIN[k] = CX_GAIN_DEF[k]; });
       syncGaugeUI(); cxSaveGain();
+    });
+    document.querySelectorAll("[data-cxviewmode]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var mode = b.getAttribute("data-cxviewmode");
+        document.querySelectorAll("[data-cxviewmode]").forEach(function (x) { x.classList.toggle("on", x === b); });
+        if (mode === "timeline") {
+          touched();                              // stop the idle drift fighting the view
+          viewTween = { yaw: 0, pitch: 0.95 };    // look along the field: past sinks, future rises
+        } else {
+          viewTween = { yaw: -0.45, pitch: -0.22 };
+        }
+      });
     });
     var cxReset = document.getElementById("cxFReset");
     if (cxReset) cxReset.addEventListener("click", function () {

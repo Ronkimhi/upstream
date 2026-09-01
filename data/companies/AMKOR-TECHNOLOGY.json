@@ -1,15 +1,15 @@
 {
   "issuer_id": "AMKOR-TECHNOLOGY",
   "issuer_name": "Amkor Technology, Inc.",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-01",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-08-31T01:30:00Z",
+  "updated_at": "2026-09-01T00:20:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US SEC filer, CIK 1674101: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/VRT.json.",
+  "data_tier_basis": "US SEC filer, CIK 1047127: dual-source price plane (price_status AGREED, both legs printing 47.88 on 2026-08-28), complete SEC companyfacts fundamentals (coverage 20 of 20 annual fields, no missing concepts) and a fully SCORED quality block in data/market/AMKR.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260830-01 on 2026-08-31 and retained at O2. Not promoted, and not for a data reason: this profile has zero NULL canonical metric fields and would clear the O1 metric bar today. It is held at O2 as a deliberate sequencing choice. data/stocks/VRT__ai-infrastructure.json is already FINAL and sits on the check_analyst.py STOCKY_LEGACY_BASELINE, exempt from the campaign admission chain by exact repo-relative path and committed byte content. Promoting VERTIV-HOLDINGS to O1 invites a re-dive of a file that is already closed, and the moment that file is amended it forfeits the byte-content exemption and must satisfy the full campaign admission chain retroactively. That is a decision about the legacy baseline, not a decision about this issuer, so it is taken on its own rather than as a side effect of this selection run. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "COMPLETE profiles are O2 until run selection promotes them (method section 6A). Selection is a separate command and was not run here. Every canonical field on this profile resolves to a sourced number, so nothing on the data side bars a later O1.",
   "listing_refs": [
     "NASDAQ-AMKR"
   ],
@@ -18,9 +18,14 @@
       "listing_id": "NASDAQ-AMKR",
       "ticker": "AMKR",
       "exchange": "NASDAQ",
+      "identity_evidence_ref": {
+        "source_name": "SEC EDGAR company-submissions current entity metadata",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/submissions/CIK0001047127.json"
+      },
+      "mapping_ref": "data/mappings/ai-infrastructure.json",
       "market_ticker": "AMKR",
-      "cik": 1047127,
-      "mapping_ref": "data/mappings/ai-infrastructure.json"
+      "cik": 1047127
     }
   ],
   "placements": [
@@ -29,18 +34,18 @@
       "link_id": "advanced-packaging",
       "link_name": "Advanced packaging",
       "link_position": 7,
-      "role": "Placement on advanced packaging link",
+      "role": "Provides outsourced advanced packaging and test for high-performance-compute and AI semiconductors.",
       "placement_status": "ACTIVE",
       "money_corner": false,
       "link_heat": "EMERGING",
       "mapping_ref": "data/mappings/ai-infrastructure.json",
       "role_evidence": [
         {
-          "claim": "Amkor Technology, Inc. is placed on advanced packaging.",
-          "source_name": "Amkor Technology, Inc. investor relations",
-          "source_date": "2026-Q2",
-          "url": "https://investor.example.com",
-          "tag": "INFERRED"
+          "claim": "Amkor's official release says it provides advanced packaging and test, including turnkey services for TSMC customers using advanced wafer fabrication.",
+          "source_name": "Amkor and TSMC advanced-packaging release",
+          "source_date": "2024-10-03",
+          "url": "https://ir.amkor.com/news-releases/news-release-details/amkor-and-tsmc-expand-partnership-and-collaborate-advanced",
+          "tag": "VERIFIED"
         }
       ]
     }
@@ -54,226 +59,214 @@
     },
     "chain": "data/chains/ai-infrastructure.json",
     "market": "data/market/AMKR.json",
-    "market_fetched_at": "2026-08-31T23:59:37.420766+00:00",
-    "filing": {
-      "form": "8-K",
-      "filing_date": "2026-07-29",
-      "accession": "0001628280-26-050323",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "local_ref": "data/edgar/docs/VRT.json"
-    }
+    "market_fetched_at": "2026-08-30T23:09:11.045107+00:00"
   },
-  "business_summary": "Vertiv Holdings Co is a NYSE-listed supplier of critical digital infrastructure: uninterruptible power supplies, switchgear, busbar, integrated power blocks and thermal management including liquid cooling, sold into hyperscale, colocation and enterprise data centres. Unlike the diversified industrials in this batch, its end market is the data centre itself, so its revenue line and the chain's demand are close to the same series.",
+  "business_summary": "Amkor Technology, Inc. is a NASDAQ-listed outsourced semiconductor assembly and test provider: it packages and tests other companies' silicon rather than fabricating it. That makes it a toll-taker on unit volume and on packaging complexity, not on wafer pricing. Its exposure to this chain is the advanced-packaging step, where 2.5D, high-density fan-out and system-in-package capacity has repeatedly been the gate on accelerator output rather than wafer starts.",
   "exposure_summary": {
-    "narrative": "Vertiv sits on two links: power-equipment, the money corner, and liquid-cooling. Both placements are backed by dated product evidence, the PowerNexus launch for the power block and the 2025 Form 10-K for liquid-cooled thermal management. It is the most direct exposure in the batch and, for the same reason, the one where the un-crowded premise is weakest: an issuer whose entire business is the data centre is the first name a data-centre thesis reaches for.",
+    "narrative": "One placement, on advanced-packaging, position 7 of the chain and a CHOKE_POINT link whose heat verdict is EMERGING rather than CROWDED. Amkor is the purest listed way to hold the outsourced side of that step: unlike TSMC, Intel or the memory makers it has no fab and no design business diluting the packaging line. The placement is backed by Amkor's own dated release on its TSMC turnkey partnership.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "Vertiv does not publish a data-centre revenue percentage because its disclosed business is critical digital infrastructure as a whole; the fetched second-quarter 2026 release (accession 0001628280-26-050323) reports consolidated net sales and segment geography, not an end-market split."
+      "basis": "Amkor reports by end market (communications, computing, automotive and industrial, consumer), not by packaging technology, so no disclosed percentage of revenue attributable to AI or high-performance-computing advanced packaging exists in a source read this run."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": 10229900000,
+        "value": 6707981000,
         "tag": "VERIFIED",
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": 0.215854,
+        "value": -0.018366,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "revenue_cagr_3y requires three-year history"
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Three-year compound annual revenue growth computed as (6707981000 / 7091585000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. It is negative: Amkor's revenue has not recovered its 2022 peak."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": 0.178858,
+        "value": 0.069676,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "OperatingIncomeLoss 1829700000 divided by Revenues 10229900000 for the fiscal year ended 2025-12-31, both from companyfacts."
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "OperatingIncomeLoss 467385000 divided by Revenues 6707981000 for the fiscal year ended 2025-12-31, both from companyfacts."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": 1.585984,
+        "value": 2.93025,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "operating_cash_flow_to_net_income data pending"
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Net cash provided by operating activities 1095606000 divided by net income 373895000 for the fiscal year ended 2025-12-31, both from companyfacts. The ratio is high because depreciation on a capital-intensive packaging estate is a large non-cash charge against a thin net margin."
       },
       "fcf_margin": {
-        "value": 0.185124,
+        "value": 0.028472,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Free cash flow margin: operating cash flow 2113800000 less capital expenditure 220000000, divided by revenue 10229900000, all for the fiscal year ended 2025-12-31 from companyfacts."
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Free cash flow margin: operating cash flow 1095606000 less capital expenditure 904614000, divided by revenue 6707981000, all for the fiscal year ended 2025-12-31 from companyfacts."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": 0.060422,
+        "value": 0.122565,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VRT.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "net_debt_to_ebitda data pending"
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Net debt 135973000 (total debt 1257156000 less cash 1121183000, both as of 2026-03-31) divided by an EBITDA proxy 1109393000 (operating income 467385000 plus depreciation 642008000 for the fiscal year ended 2025-12-31). The balance sheet instant is more recent than the income statement, so the ratio mixes the latest instant against the last full fiscal year."
       }
     },
     "quality": {
       "piotroski": {
-        "value": 6,
+        "value": 4,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/VRT.json quality.piotroski."
+        "source_name": "Upstream market store data/market/AMKR.json quality, computed in the Actions venue over SEC EDGAR companyfacts",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Piotroski F-score 4 (state MIDDLING) computed over SEC companyfacts statements in data/market/AMKR.json quality.piotroski, 9 of 9 inputs found. The four passing criteria are return on assets, operating cash flow, accruals and current ratio; change in return on assets, change in leverage, share count, gross margin and asset turnover all fail."
       },
       "beneish_state": {
-        "value": -2.438,
+        "value": -2.725,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Beneish M-score -2.438, earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/VRT.json quality.beneish. A more negative M-score is the non-manipulator reading."
+        "source_name": "Upstream market store data/market/AMKR.json quality, computed in the Actions venue over SEC EDGAR companyfacts",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Beneish M-score -2.725 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/AMKR.json quality.beneish, 12 of 12 inputs found. A more negative M-score is the non-manipulator reading."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": 98346900054.4,
+        "value": 11840867640.0,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Market capitalization 98346900054.4 = SEC companyfacts diluted share count 382553680 multiplied by the close 257.08; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "source_name": "Upstream market store data/market/AMKR.json quality.derived.market_cap",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Market capitalization 11840867640 = SEC companyfacts diluted share count 247303000 as of 2025-12-31 multiplied by the close 47.88 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own dual-source market plane (data/market/AMKR.json, price_status AGREED), not an issuer document."
       },
       "price_to_sales": {
-        "value": 9.613672,
+        "value": 1.765191,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Market capitalization 98346900054.4 divided by fiscal year 2025-12-31 revenue 10229900000; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "source_name": "Upstream market store data/market/AMKR.json quality.derived.market_cap over SEC companyfacts revenue",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Market capitalization 11840867640 divided by fiscal year 2025-12-31 revenue 6707981000. The share count is official SEC companyfacts; the close 47.88 of 2026-08-28 is the repo's own market plane, not an issuer document."
       },
       "price_to_earnings": {
-        "value": 73.789691,
+        "value": 31.668965,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.market_cap over SEC companyfacts net income",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "price_to_earnings computation pending"
+        "source_name": "Upstream market store data/market/AMKR.json quality.derived.market_cap over SEC companyfacts net income",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Market capitalization 11840867640 divided by fiscal year 2025-12-31 GAAP net income 373895000. The share count is official SEC companyfacts; the close 47.88 of 2026-08-28 is the repo's own market plane, not an issuer document."
       },
       "ev_to_sales": {
-        "value": 9.626301,
+        "value": 1.785461,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/VRT.json quality.derived.enterprise_value over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "Enterprise value 98476100054.4 divided by fiscal year 2025-12-31 revenue 10229900000; share count 382553680 as of 2025-12-31 is the official SEC companyfacts figure; the close 257.08 of 2026-08-28 is the repo's own market plane (data/market/VRT.json, price_status AGREED), not an issuer document."
+        "source_name": "Upstream market store data/market/AMKR.json quality.derived.enterprise_value over SEC companyfacts revenue",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Enterprise value 11976840640 divided by fiscal year 2025-12-31 revenue 6707981000. The share count is official SEC companyfacts; the close 47.88 of 2026-08-28 is the repo's own market plane, not an issuer document."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": 0.3295,
+        "value": 0.3832,
         "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/VRT.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "implied_fcf_cagr requires FCF horizon"
+        "source_name": "Upstream market store data/market/AMKR.json quality.reverse_dcf",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 11976840640 implies over a 5-year explicit period on base FCF 190992000, solved by bisection at a 0.09 discount rate and 0.025 terminal growth. The discount rate and terminal growth are assumed, so this is an assumption-dependent expectation reading, not a reported figure. The base FCF is small relative to enterprise value, which is what drives the high solve."
       },
       "horizon_spread": {
-        "value": 0.1462,
+        "value": 0.1747,
         "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/VRT.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-        "basis": "horizon_spread computation pending"
+        "source_name": "Upstream market store data/market/AMKR.json quality.reverse_dcf",
+        "source_date": "2026-08-30",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.3832, '7': 0.2804, '10': 0.2085}). It measures how much of the expectation reading is a horizon convention rather than a statement about price, and inherits the same assumed discount rate and terminal growth."
       }
     }
   },
   "crowdedness_caveats": [
-    "This is the one issuer in this batch that already carries a Stocky dive at data/stocks/VRT__ai-infrastructure.json, which is itself evidence the name is not undiscovered inside this repo, let alone outside it.",
-    "data/market/VRT.json pcs records 26 analysts and 84.4% institutional ownership as of 2026-08-29, axis-B SATURATED, axis-A DARK at 88.2 under an ADVISORY gate.",
-    "The 52-week range in the same file runs 121.82 to 376.23 and the last close is 257.08, so the stock is roughly a third below its own high. A drawdown is not the same thing as being un-crowded; it is a crowded position that has been hurt.",
-    "Its price-to-sales and EV-to-sales ratios computed here are the highest in the batch by a factor of about five against Powell and MYR Group, which is what discovered pure-play exposure costs."
+    "data/market/AMKR.json carries no pcs block, so analyst count and institutional ownership were not measured for this issuer this run; crowdedness here rests on the chain link's heat, not on a coverage reading of the stock.",
+    "The advanced-packaging link's heat verdict is EMERGING with crowdedness 55 and capture 60 (data/chains/ai-infrastructure.json), the least crowded of the four links this batch touches. That is a statement about the link, not about this ticker.",
+    "The 52-week range is 23.80 to 93.55 against a 47.88 close: the stock has roughly halved from its own high. A drawdown is not evidence of being un-crowded.",
+    "Three-year revenue CAGR is negative. An issuer whose revenue is below its 2022 level is not obviously the same story as the AI packaging bottleneck, and the gap between those two facts is the thing a dive would have to close."
   ],
   "catalysts": [
     {
-      "claim": "Growth and margin are compounding together, which is the combination the expectations gap is priced on.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "Net sales of $3,274 million, 24% higher than second quarter 2025."
+      "claim": "Amkor's own dated release establishes a turnkey advanced-packaging relationship with TSMC, which is the mechanism by which outsourced packaging capacity is attached to leading-edge wafer supply.",
+      "source_name": "Amkor and TSMC advanced-packaging release",
+      "source_date": "2024-10-03",
+      "url": "https://ir.amkor.com/news-releases/news-release-details/amkor-and-tsmc-expand-partnership-and-collaborate-advanced",
+      "tag": "VERIFIED"
     },
     {
-      "claim": "Management raised full-year guidance across every key metric, a dated commitment against which the next two quarters can be scored.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "Raises Full Year 2026 Guidance Across All Key Metrics"
+      "claim": "Cash conversion is strong: operating cash flow is 2.93x net income for fiscal 2025, so the business funds a heavy capital programme from operations rather than from the balance sheet.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-08-30",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+      "tag": "INFERRED"
     }
   ],
   "risks": [
     {
-      "claim": "The market already requires very fast free-cash-flow growth from here: the reverse DCF in data/market/VRT.json solves to the second-highest implied CAGR in this batch, so the expectations bar is high rather than absent.",
-      "source_name": "Upstream market store data/market/VRT.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
-      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
+      "claim": "Free-cash-flow margin is 2.8% for fiscal 2025 because capital expenditure 904614000 absorbs 83% of operating cash flow 1095606000. Packaging capacity is bought, not rented, and the expectations solve rests on that thin base.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AMKR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-08-30",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
       "tag": "INFERRED"
     },
     {
-      "claim": "Margin is partly a price-cost outcome under tariffs, which the company says explicitly, so it is exposed to trade policy in both directions.",
-      "source_name": "Vertiv Holdings Co Form 8-K exhibit, 2026-07-29",
-      "source_date": "2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026050323/q22026exhibit991vrt07292026.htm",
-      "accession": "0001628280-26-050323",
-      "tag": "VERIFIED",
-      "source_excerpt": "driven by operational execution, continued strong productivity, and favorable price-cost, inclusive of tariff impacts and associated countermeasures"
+      "claim": "Piotroski is 4 of 9, with change in return on assets, gross margin and asset turnover all failing. The quality signal does not corroborate an improving-business reading.",
+      "source_name": "Upstream market store data/market/AMKR.json quality, computed in the Actions venue over SEC EDGAR companyfacts",
+      "source_date": "2026-08-30",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+      "tag": "INFERRED"
     },
     {
-      "claim": "Concentration is the structural risk: an issuer whose entire end market is the data centre has no offsetting segment if hyperscale capital expenditure slows.",
-      "source_name": "Upstream market store data/market/VRT.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
-      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001674101.json",
-      "tag": "INFERRED"
+      "claim": "The reverse DCF solves to a 38% implied free-cash-flow CAGR at the 5-year horizon, so the price already requires a large step change from the current free-cash-flow base. The expectations bar is high, not absent.",
+      "source_name": "Upstream market store data/market/AMKR.json quality.reverse_dcf",
+      "source_date": "2026-08-30",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001047127.json",
+      "tag": "SPECULATIVE"
     }
   ],
   "data_gaps": [
-    "Every canonical metric in this profile resolves to a sourced number; there are no NULL canonical fields. The gaps below are about scope, not measurement.",
-    "No end-market or customer-concentration split is disclosed in the fetched release, so the share of revenue from the largest hyperscale customers is unknown.",
-    "Companyfacts coverage for this issuer is missing gross_profit, so gross margin cannot be read from the local store; it is not a canonical profile field.",
-    "The fetched EDGAR document is the Q2 2026 8-K earnings exhibit rather than the 10-K used for the liquid-cooling role evidence."
+    "Every canonical metric on this profile resolves to a sourced number; there are no NULL canonical fields. The gaps below are about scope, not measurement.",
+    "No AI or high-performance-computing revenue percentage is disclosed by the issuer, so the share of revenue attributable to this chain is unknown.",
+    "data/edgar/docs/AMKR.json does not exist, so no filing document was available locally to quote verbatim. The issuer's own second-quarter 2026 release could not be fetched from this session (ir.amkor.com and businesswire both dropped the connection, and www.sec.gov returns 403 to this session's fetch tool), so no quarterly figure is asserted anywhere in this profile.",
+    "data/market/AMKR.json carries no pcs block, so no crowdedness reading on the stock itself was available.",
+    "Completion rule applied uniformly across this batch: a profile is COMPLETE when revenue, growth, margins, cash conversion and valuation all resolve to sourced numbers AND the earnings-quality state can be established. A profile whose earnings-quality state cannot be established, or which has no fundamentals at all, is BLOCKED. Individual NULL fields are permitted on a COMPLETE profile where the input is genuinely absent or the computation is not meaningful, and each such NULL blocks O1 promotion on its own."
   ],
   "disposition": {
     "state": "RETAIN",
-    "basis": "Profile for Amkor Technology, Inc. on advanced-packaging link.",
-    "as_of": "2026-08-31"
+    "as_of": "2026-09-01",
+    "basis": "The only fully measured issuer in this batch: all fourteen canonical fields sourced, Piotroski and Beneish both scored, on the least crowded link the batch touches and with the purest exposure to it. Retained rather than advanced because the fundamental record contradicts the narrative in one place that matters, a negative three-year revenue CAGR against a bottleneck story, and because selection is a separate command that was not run."
   },
   "confidence_audit": {
     "verified": 1,
@@ -281,7 +274,7 @@
     "speculative": 2,
     "null": 0,
     "canonical_fields_written": 14,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/VRT.json, price_status AGREED) and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is computed from SEC companyfacts with the derivation named in its basis; where a market price enters the computation the basis says so, because the price leg is the repo's own dual-source market plane and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -299,17 +292,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260830-01: examined and retained at O2 (SEQUENCING_HOLD_EXISTING_FINAL_DIVE); NULL canonical fields barring O1: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-01T00:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile --campaign CAMP-20260830-01 REPAIR: the file committed for this issuer in d6e6c4d was a verbatim copy of data/companies/VERTIV-HOLDINGS.json. Every canonical metric carried Vertiv Holdings Co's number sourced to data/market/VRT.json and SEC companyfacts CIK 1674101, the business summary, exposure narrative, crowdedness caveats, catalysts with Vertiv's verbatim 8-K excerpts, data gaps, confidence audit and selection review were Vertiv's text, the changelog said it had created a profile for VERTIV-HOLDINGS, and the placement role evidence pointed at the placeholder URL https://investor.example.com with the malformed date 2026-Q2. Every one of those fields is replaced here with this issuer's own mapping placements, its own market store and its own sourced numbers, or with an explicit NULL naming the missing field. The corrupt entries stay in this changelog because permanent memory is append-only and the defect has to remain visible. Rebuilt from data/market/AMKR.json (fundamentals as_of 2026-08-30, coverage 20/20; quality as_of 2026-08-30, state SCORED) over SEC companyfacts CIK 1047127. Status COMPLETE, data tier T1, opportunity tier O2; 14 of 14 canonical fields sourced, 0 NULL."
     }
-  ],
-  "selection_review": {
-    "as_of": "2026-08-31",
-    "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
-    "command": "run selection CAMP-20260830-01",
-    "reviewed_by": "sieve-profiler",
-    "outcome": "RETAINED_O2",
-    "reason_code": "SEQUENCING_HOLD_EXISTING_FINAL_DIVE",
-    "null_canonical_fields": [],
-    "reason": "Not promoted, and not for a data reason: this profile has zero NULL canonical metric fields and would clear the O1 metric bar today. It is held at O2 as a deliberate sequencing choice. data/stocks/VRT__ai-infrastructure.json is already FINAL and sits on the check_analyst.py STOCKY_LEGACY_BASELINE, exempt from the campaign admission chain by exact repo-relative path and committed byte content. Promoting VERTIV-HOLDINGS to O1 invites a re-dive of a file that is already closed, and the moment that file is amended it forfeits the byte-content exemption and must satisfy the full campaign admission chain retroactively. That is a decision about the legacy baseline, not a decision about this issuer, so it is taken on its own rather than as a side effect of this selection run.",
-    "revisit": "Revisit as its own decision: either re-dive VRT under the campaign chain knowingly and forfeit the baseline exemption, or leave the FINAL file standing and keep this issuer at O2. Do not decide it inside a future selection batch."
-  }
+  ]
 }

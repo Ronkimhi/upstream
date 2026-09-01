@@ -3,8 +3,8 @@
  "chain_id": "ai-infrastructure",
  "scenario_id": null,
  "created_at": "2026-08-29",
- "as_of": "2026-08-31",
- "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null). Every row is an exact selection-handoff candidate resolved through data/mappings/ai-infrastructure.json (status COMPLETE, audit PASS, fingerprint current) to one ACTIVE, role-evidenced placement, one official mapped listing, and one COMPLETE O2 profile under data/companies/. 6 rows across 4 of the chain's 12 links: power-equipment 3 (ETN, GEV, POWL), liquid-cooling 1 (VRT), grid-interconnect 1 (MYRG), energy-generation 1 (CEG). THE MONEY CORNER IS COVERED: power-equipment is this chain's only money-corner link and it carries the most rows here, three of six, all with verbatim-verified earnings quotes. A name is listed ONCE, under the link that surfaced it (method section 6); its other ACTIVE placements are recorded on the row in secondary_links rather than as duplicate rows, so ETN also sits on liquid-cooling, VRT also on the money-corner power-equipment link, and GEV on energy-generation and grid-interconnect as well. VRT is deliberately kept on liquid-cooling rather than promoted to the money corner, because that is the link the existing FINAL dive data/stocks/VRT__ai-infrastructure.json is attributed to and moving it would orphan that attribution. WHAT IS NOT HERE, named rather than left silent: eight links produced no row (networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters, frontier-models, ai-applications). This is a PROFILE gap, not a census gap and not a finding about those links: the mapping places 10 issuers on each of them, but a campaign-v1 row requires a COMPLETE O2 profile and only six exist in the whole repo. foundry and advanced-packaging are CHOKE_POINT links and outrank three of the four worked links on priority; they are unworked purely because their issuers are unprofiled and mostly non-SEC (2330.TW, 005930.KS, 000660.KS, 600584.SS, 002156.SZ, 6239.TW). TWO NAMES WERE MOVED OUT, NOT DELETED: HPS-A.TO (Hammond Power Solutions) and ENR.DE (Siemens Energy) are preserved whole in superseded_rows with their reasons; both are mapped with ACTIVE placements and neither has a profile yet, and ENR.DE additionally carried another company's CIK. Every number on every row is read from data/market/<T>.json or computed from it and names its field; every quote is verified verbatim against data/edgar/docs/<T>.json by tools/check_screen.py.",
+ "as_of": "2026-09-01",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), AMENDED under a bounded TEST Ron ordered on 2026-09-01: the analytical shortlist is built per LINK for the chain's 10 HIGHEST-PRIORITY LINKS ONLY -- the same 10 the 00:03Z run profile --campaign batch targeted (chain positions 1-10: energy-generation, power-equipment, grid-interconnect, liquid-cooling, networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters). THE REMAINING TWO LINKS ARE NOT SCREENED THIS RUN, named rather than left silent: frontier-models (position 11) and ai-applications (position 12) sit outside the 10-link test scope; they are not searched-and-empty, they are simply out of bounds for this run. Every row is an exact selection-handoff candidate resolved through data/mappings/ai-infrastructure.json (status COMPLETE, audit PASS, fingerprint current) to one ACTIVE, role-evidenced placement, one official mapped listing, and one COMPLETE O2 profile under data/companies/. \n\nOF THE 10 TARGET LINKS, 7 PRODUCED AT LEAST ONE ROW and 3 produced none, and the reason for all 3 empty links is identical and structural: no profiled issuer sits on them. foundry, networking-optics, and hyperscale-datacenters each have ACTIVE mapping placements (foundry's sole candidate is TSMC, which is BLOCKED at O3 on the T2/foreign-filer plane) but zero COMPLETE O1/O2 profiles, so a campaign-v1 row cannot be written for any name on them -- this is a PROFILE gap, not a census gap and not a finding about those links' economics. THE MONEY CORNER IS COVERED: power-equipment is this chain's only money-corner link and carries 5 primary rows (EATON, GE-VERNOVA, POWELL-INDUSTRIES, HUBBELL, NVENT-ELECTRIC) plus VERTIV-HOLDINGS attributed here as a secondary link. BOTH CHOKE_POINT LINKS ARE NOW COVERED for the first time this run: advanced-packaging carries 3 primary rows (AMKOR-TECHNOLOGY, INTEL, MICRON-TECHNOLOGY); foundry remains uncovered (TSMC BLOCKED, no other profiled issuer). \n\nA name is listed ONCE, under the higher-priority link (money-corner, then CHOKE_POINT, then the rest by impact score, per method section 6): GE-VERNOVA, EATON, HUBBELL and NVENT-ELECTRIC are all primary under power-equipment with their other ACTIVE placements recorded in secondary_links; INTEL and MICRON-TECHNOLOGY are both primary under advanced-packaging (a CHOKE_POINT link outranks a non-choke-point link even when the non-choke-point link's impact score is higher -- INTEL's ai-accelerators placement scores impact 90 against advanced-packaging's 82, and MICRON's hbm-memory placement scores impact 85, yet both are listed under advanced-packaging) with the second placement noted as secondary. VRT is kept on liquid-cooling rather than moved to power-equipment, unchanged from the prior run, because that is the link the existing FINAL dive data/stocks/VRT__ai-infrastructure.json is attributed to and moving it would orphan that attribution. \n\nWHAT IS NOT VERIFIABLE THIS RUN: none of the 8 newly admitted names (AMKR, HUBB, INTC, MTZ, MU, NVT, PRIM, PWR) has an EDGAR document on disk (data/edgar/docs/), so none carries an earnings_nuggets entry -- an unverifiable quote is dropped, not fabricated, per method section 1. Their profiles' catalysts and risks were themselves written INFERRED from search-engine synthesis because this session's WebFetch calls to sec.gov and newswire hosts returned EGRESS_BLOCKED (the same organization-level block recorded across today's ledger for other agents); this screen does not carry that unverified narrative content into a screen-row quote object, and every row's theme_revenue_exposure is NULL with that basis stated. 8 edgar_doc requests and 8 pcs requests are queued (REQ-20260901-01 through REQ-20260901-16) so both gaps are backed by pending work, not silently left open. \n\nTWO NAMES REMAIN MOVED OUT, UNCHANGED FROM THE PRIOR RUN: HPS-A.TO (Hammond Power Solutions) and ENR.DE (Siemens Energy) are preserved whole in superseded_rows; both are mapped with ACTIVE placements and neither has a COMPLETE profile yet (both remain BLOCKED at O3). \n\nEvery number on every row is read from data/market/<T>.json or computed from it and names its field; every quote on the original 6 rows remains verified verbatim against data/edgar/docs/<T>.json by tools/check_screen.py; the 8 new rows carry zero quotes rather than an unverifiable one.",
  "queries_run": [
   {
    "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/ai-infrastructure.json carrying an ACTIVE status and role evidence, joined to its official listing",
@@ -29,6 +29,18 @@
    "forms": "8-K EX-99.2",
    "hits_examined": 1,
    "names_extracted": 1
+  },
+  {
+   "query": "bounded 10-highest-priority-link test (run screen ai-infrastructure, chain-level, no scenario): mapping placement resolution joined to the 8 additional COMPLETE O2 profiles written since the prior screen run (data/companies/_profile-log.json now carries 14 COMPLETE profiles, up from 6) -- AMKOR-TECHNOLOGY, HUBBELL, INTEL, MASTEC, MICRON-TECHNOLOGY, NVENT-ELECTRIC, PRIMORIS-SERVICES, QUANTA-SERVICES",
+   "forms": null,
+   "hits_examined": 8,
+   "names_extracted": 8
+  },
+  {
+   "query": "EDGAR document check for all 8 newly admitted names: data/edgar/docs/ contains no document for AMKR, HUBB, INTC, MTZ, MU, NVT, PRIM, PWR, so no verbatim earnings nugget is written for any of them this run; theme_revenue_exposure is NULL with basis on all 8 and edgar_doc requests are queued",
+   "forms": "8-K item 2.02 / EX-99 (targeted, not yet fetched)",
+   "hits_examined": 8,
+   "names_extracted": 0
   }
  ],
  "buckets": {
@@ -232,6 +244,138 @@
      }
     ],
     "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "AMKOR-TECHNOLOGY",
+    "listing_id": "NASDAQ-AMKR",
+    "ticker": "AMKR",
+    "market_ticker": "AMKR",
+    "chain_id": "ai-infrastructure",
+    "link_id": "advanced-packaging",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/AMKOR-TECHNOLOGY.json",
+    "data_tier": "T1",
+    "name": "Amkor Technology, Inc.",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 1047127,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Pure outsourced advanced-packaging and test play on the chain's other CHOKE_POINT link; no fab or design business to dilute the exposure, with a dated TSMC turnkey-packaging partnership as its mapping role evidence. Revenue has not yet recovered its 2022 peak (3y CAGR -1.8%).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/AMKR.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 6707981000,
+      "source": "data/market/AMKR.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 373895000,
+      "source": "data/market/AMKR.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.3832,
+      "state": "SOLVED",
+      "horizon_spread": 0.1747,
+      "source": "data/market/AMKR.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "piotroski": 4,
+     "piotroski_state": "MIDDLING",
+     "beneish_state": "CLEAN",
+     "beneish_score": -2.725,
+     "quality_basis": "Piotroski F-score 4 (MIDDLING, 9/9 inputs found: return on assets, operating cash flow, accruals and current ratio pass). Beneish -2.725, CLEAN (12/12 inputs).",
+     "revenue_cagr_3y": {
+      "value": -0.018366,
+      "source": "computed from data/market/AMKR.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "MICRON-TECHNOLOGY",
+    "listing_id": "NASDAQ-MU",
+    "ticker": "MU",
+    "market_ticker": "MU",
+    "chain_id": "ai-infrastructure",
+    "link_id": "advanced-packaging",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/MICRON-TECHNOLOGY.json",
+    "data_tier": "T1",
+    "name": "Micron Technology, Inc.",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 723125,
+    "money_corner": false,
+    "secondary_links": [
+     {
+      "link_id": "hbm-memory",
+      "money_corner": false,
+      "basis": "Mapping placement (ai-infrastructure, hbm-memory, MICRON-TECHNOLOGY) is ACTIVE: Micron's HBM4 36GB 12H entered high-volume production and volume shipment for NVIDIA Vera Rubin in Q1 2026. Listed once under advanced-packaging, this issuer's other CHOKE_POINT placement (Singapore HBM packaging facility, 2026 start, meaningful capacity from 2027), per the same priority ordering."
+     }
+    ],
+    "thesis_1line": "The chain's only profiled HBM-memory name, placed on both memory-layer CHOKE_POINT links via dated official releases. Reverse DCF is OUT_OF_RANGE (price implies >100% FCF CAGR on a $1.02T enterprise value against $1.67B base FCF) -- the most extreme priced-in read on this sheet, on any tier.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/MU.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-08-28",
+     "revenue_fy": {
+      "value": 37378000000,
+      "source": "data/market/MU.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 8539000000,
+      "source": "data/market/MU.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": null,
+      "state": "OUT_OF_RANGE",
+      "horizon_spread": null,
+      "source": "data/market/MU.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "NULL"
+     },
+     "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
+     "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski and Beneish both PENDING_DATA: the long_term_debt and ppe_net companyfacts series stop at fiscal 2012 and 2019 respectively while the rest run to fiscal 2025, leaving 0 common fiscal periods for either year-over-year leg despite full input coverage. Reverse DCF is OUT_OF_RANGE: the price implies FCF growth above a 100% CAGR on base FCF of $1.67B against enterprise value of $1.02T, itself a finding about how much is priced in.",
+     "revenue_cagr_3y": {
+      "value": 0.067135,
+      "source": "computed from data/market/MU.json fundamentals.revenue_fy, 3-year CAGR to 2025-08-28",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
    }
   ],
   "picks_and_shovels": [
@@ -336,6 +480,213 @@
       "tag": "VERIFIED"
      }
     ],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "HUBBELL",
+    "listing_id": "NYSE-HUBB",
+    "ticker": "HUBB",
+    "market_ticker": "HUBB",
+    "chain_id": "ai-infrastructure",
+    "link_id": "power-equipment",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/HUBBELL.json",
+    "data_tier": "T1",
+    "name": "Hubbell Incorporated",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 48898,
+    "money_corner": true,
+    "secondary_links": [
+     {
+      "link_id": "grid-interconnect",
+      "money_corner": false,
+      "basis": "Mapping placement (ai-infrastructure, grid-interconnect, HUBBELL) is ACTIVE: Hubbell's 2025 Form 10-K names transmission, substation and distribution components as enabling grid capacity additions. Listed once under power-equipment, the money corner and higher-priority link."
+     }
+    ],
+    "thesis_1line": "Utility transmission, substation and distribution equipment on the money corner; its own Q2 2026 release (not independently fetched this run, egress-blocked) attributes roughly 65% YoY data-center sales growth to capacity and content gains, with management guiding to about 50% full-year data-center sales growth. Also placed on grid-interconnect.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/HUBB.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued. The issuer's own release cites a data-center sales GROWTH RATE (not a revenue percentage or dollar figure) per the profile's INFERRED, search-synthesized catalyst; that growth rate is not itself a disclosed revenue-exposure percentage and is not carried here.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 5844600000,
+      "source": "data/market/HUBB.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 887100000,
+      "source": "data/market/HUBB.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.1792,
+      "state": "SOLVED",
+      "horizon_spread": 0.0703,
+      "source": "data/market/HUBB.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "piotroski": 6,
+     "piotroski_state": "MIDDLING",
+     "beneish_state": "CLEAN",
+     "beneish_score": -2.465,
+     "quality_basis": "Piotroski and Beneish both computed from complete inputs (9/9 and 12/12); no coverage gap on this filer.",
+     "revenue_cagr_3y": {
+      "value": 0.0571,
+      "source": "computed from data/market/HUBB.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "INTEL",
+    "listing_id": "NASDAQ-INTC",
+    "ticker": "INTC",
+    "market_ticker": "INTC",
+    "chain_id": "ai-infrastructure",
+    "link_id": "advanced-packaging",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/INTEL.json",
+    "data_tier": "T1",
+    "name": "Intel Corporation",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 50863,
+    "money_corner": false,
+    "secondary_links": [
+     {
+      "link_id": "ai-accelerators",
+      "money_corner": false,
+      "basis": "Mapping placement (ai-infrastructure, ai-accelerators, INTEL) is ACTIVE: Gaudi accelerators for data-center AI training and inference (role evidence tagged INFERRED, sourced to third-party AI-chip comparison coverage rather than an Intel filing). Listed once under advanced-packaging, this issuer's other CHOKE_POINT placement, which outranks a non-choke-point link under the money-corner-then-choke-point-then-impact priority order regardless of that link's higher impact score."
+     }
+    ],
+    "thesis_1line": "EMIB 2.5D and Foveros 3D advanced packaging plus Gaudi AI accelerators in one ticker, spanning both target links via a dated Intel Foundry release. Structurally declining and loss-making at the operating line in fiscal 2025 (revenue 3y CAGR -5.7%, operating margin -4.2%); reverse DCF is NOT_APPLICABLE because base free cash flow is negative, so this sheet's only unpriceable name on either metric.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/INTC.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-27",
+     "revenue_fy": {
+      "value": 52853000000,
+      "source": "data/market/INTC.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": -267000000,
+      "source": "data/market/INTC.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": null,
+      "state": "NOT_APPLICABLE",
+      "horizon_spread": null,
+      "source": "data/market/INTC.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "NULL"
+     },
+     "piotroski": 6,
+     "piotroski_state": "MIDDLING",
+     "beneish_state": "CLEAN",
+     "beneish_score": -2.758,
+     "quality_basis": "Piotroski 6 (MIDDLING, 9/9 inputs) on a loss-making year: operating cash flow, change in return on assets, accruals, change in leverage, current ratio and gross margin pass; return on assets, share count and asset turnover fail. Beneish -2.758, CLEAN (12/12 inputs). Reverse DCF is NOT_APPLICABLE: fiscal 2025 free cash flow is negative (-$4.9B), so no forward CAGR is solvable on this base.",
+     "revenue_cagr_3y": {
+      "value": -0.057129,
+      "source": "computed from data/market/INTC.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-27",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "NVENT-ELECTRIC",
+    "listing_id": "NYSE-NVT",
+    "ticker": "NVT",
+    "market_ticker": "NVT",
+    "chain_id": "ai-infrastructure",
+    "link_id": "power-equipment",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/NVENT-ELECTRIC.json",
+    "data_tier": "T1",
+    "name": "nVent Electric plc",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1720635,
+    "money_corner": true,
+    "secondary_links": [
+     {
+      "link_id": "liquid-cooling",
+      "money_corner": false,
+      "basis": "Mapping placement (ai-infrastructure, liquid-cooling, NVENT-ELECTRIC) is ACTIVE: nVent's manufacturing-expansion release describes new US production capacity (a third liquid-cooling expansion in three years, a 160,000-square-foot Blaine, Minnesota facility) for data-center liquid-cooling solutions. Listed once under power-equipment, the money corner and higher-priority link."
+     }
+    ],
+    "thesis_1line": "Power-equipment name on the money corner via the Electrical Products Group acquisition (control buildings, switchgear, bus systems for utilities and data centers), also on liquid-cooling via new US manufacturing capacity. Its own Q2 2026 release (not independently fetched this run, egress-blocked) guides total data-center sales to exceed $2B in 2026, more than double the 2025 level.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/NVT.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued. The issuer's own cited release discloses an absolute data-center sales dollar figure (>$2B guided for 2026), not a percentage of total company revenue.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 3893100000,
+      "source": "data/market/NVT.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 710200000,
+      "source": "data/market/NVT.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.4072,
+      "state": "SOLVED",
+      "horizon_spread": 0.1876,
+      "source": "data/market/NVT.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "piotroski": 6,
+     "piotroski_state": "MIDDLING",
+     "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski 6 (MIDDLING, 9/9 inputs). Beneish PENDING_DATA: receivables_fy missing from companyfacts coverage, 11 of 12 required inputs found.",
+     "revenue_cagr_3y": {
+      "value": 0.1926,
+      "source": "computed from data/market/NVT.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
     "status": "CANDIDATE"
    }
   ],
@@ -544,6 +895,195 @@
      }
     ],
     "status": "DIVED"
+   },
+   {
+    "issuer_id": "MASTEC",
+    "listing_id": "NYSE-MTZ",
+    "ticker": "MTZ",
+    "market_ticker": "MTZ",
+    "chain_id": "ai-infrastructure",
+    "link_id": "grid-interconnect",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/MASTEC.json",
+    "data_tier": "T1",
+    "name": "MasTec, Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 15615,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Transmission and substation EPC on the chain's slowest link; its own Q2 2026 release (not independently fetched this run, egress-blocked) reports Power Delivery revenue up nearly 20% YoY with EBITDA up 24% and a record $6.3B segment backlog, up nearly $1.3B YoY, driven by utility transmission and reliability spending of which data centers are one named but unquantified contributor.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/MTZ.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued. Even the issuer's own cited release names data centers as one contributor to broad utility transmission and reliability demand, not a quantified share of it.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 14299171000,
+      "source": "data/market/MTZ.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 399042000,
+      "source": "data/market/MTZ.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.3229,
+      "state": "SOLVED",
+      "horizon_spread": 0.1427,
+      "source": "data/market/MTZ.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
+     "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski and Beneish both PENDING_DATA: data/market/MTZ.json quality reports 0 common fiscal periods across the 9 and 12 required inputs respectively, so no year-over-year leg computes despite full input coverage.",
+     "revenue_cagr_3y": {
+      "value": 0.1351,
+      "source": "computed from data/market/MTZ.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "PRIMORIS-SERVICES",
+    "listing_id": "NYSE-PRIM",
+    "ticker": "PRIM",
+    "market_ticker": "PRIM",
+    "chain_id": "ai-infrastructure",
+    "link_id": "grid-interconnect",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/PRIMORIS-SERVICES.json",
+    "data_tier": "T1",
+    "name": "Primoris Services Corporation",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1361538,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Grid EPC with a company-record $13.9B total backlog (up ~$2.2B from Q1) including ~$1.5B of new utility-segment awards, even as consolidated revenue fell 10.7% YoY and the company posted a net loss on weaker Energy-segment margins in the same release (not independently fetched this run, egress-blocked) -- the bid-competed capture concern the chain names for this link, visible in the numbers rather than just asserted.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/PRIM.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued. No Utilities-segment-specific margin or data-center revenue percentage is disclosed in the located coverage; only company-wide and Energy-segment figures are public.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 7574900000,
+      "source": "data/market/PRIM.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 274900000,
+      "source": "data/market/PRIM.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": -0.016,
+      "state": "SOLVED",
+      "horizon_spread": 0.017,
+      "source": "data/market/PRIM.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "piotroski": 6,
+     "piotroski_state": "MIDDLING",
+     "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski 6 (MIDDLING, 9/9 inputs). Beneish PENDING_DATA: only 1 common fiscal period across the 12 required inputs.",
+     "revenue_cagr_3y": {
+      "value": 0.1966,
+      "source": "computed from data/market/PRIM.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "QUANTA-SERVICES",
+    "listing_id": "NYSE-PWR",
+    "ticker": "PWR",
+    "market_ticker": "PWR",
+    "chain_id": "ai-infrastructure",
+    "link_id": "grid-interconnect",
+    "mapping_ref": "data/mappings/ai-infrastructure.json",
+    "profile_ref": "data/companies/QUANTA-SERVICES.json",
+    "data_tier": "T1",
+    "name": "Quanta Services, Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1050915,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Largest grid-interconnect name here by revenue; its own Q2 2026 release (not independently fetched this run, egress-blocked) reports consolidated revenue up 41.1% YoY to $9.56B, Electric Infrastructure Solutions revenue up 43.6% YoY to $7.84B (~82% of the quarter's total), a record $53.4B backlog, and full-year 2026 guidance raised across revenue, EBITDA and EPS.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "data/edgar/docs/PWR.json does not exist: no EDGAR document has been fetched for this issuer, so no verbatim quote is available this screen run to support a data-center revenue percentage or dollar figure. Undisclosed/unverifiable, not estimated. An edgar_doc request is queued. The 82% figure in the issuer's own cited release is the Electric Infrastructure Solutions segment's total revenue share, not a data-center share within it.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "latest_fy": "2025-12-31",
+     "revenue_fy": {
+      "value": 28479697000,
+      "source": "data/market/PWR.json fundamentals.revenue_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "net_income_fy": {
+      "value": 1028378000,
+      "source": "data/market/PWR.json fundamentals.net_income_fy",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "market_implied_fcf_cagr": {
+      "value": 0.3527,
+      "state": "SOLVED",
+      "horizon_spread": 0.1584,
+      "source": "data/market/PWR.json quality.reverse_dcf",
+      "as_of": "2026-09-01",
+      "tag": "VERIFIED"
+     },
+     "piotroski": null,
+     "piotroski_state": "PENDING_DATA",
+     "beneish_state": "PENDING_DATA",
+     "beneish_score": null,
+     "quality_basis": "Piotroski and Beneish both PENDING_DATA: 0 and 1 common fiscal periods respectively across their required inputs in data/market/PWR.json quality.",
+     "revenue_cagr_3y": {
+      "value": 0.186,
+      "source": "computed from data/market/PWR.json fundamentals.revenue_fy, 3-year CAGR to 2025-12-31",
+      "as_of": "2026-09-01",
+      "tag": "INFERRED"
+     }
+    },
+    "crowdedness": "PENDING_DATA",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
    }
   ],
   "hedge": [
@@ -647,13 +1187,15 @@
   ]
  },
  "data_gaps": [
-  "Eight of twelve links produced no row: networking-optics, foundry, advanced-packaging, hbm-memory, ai-accelerators, hyperscale-datacenters, frontier-models, ai-applications. The mapping places ten issuers on each; none of those issuers has a COMPLETE profile, which a campaign-v1 row requires. Unblocked by run profile --campaign CAMP-20260830-01, not by more screening.",
-  "HAMMOND-POWER-SOLUTIONS (listing TSX-HPS.A, ticker HPS.A) is moved to superseded_rows: no COMPLETE profile, and the legacy row carried the vendor symbol HPS-A.TO rather than the mapped listing ticker. ACTIVE money-corner placement; a live candidate, not a rejection.",
-  "SIEMENS-ENERGY (listing XETRA-ENR, ticker ENR) is moved to superseded_rows: no COMPLETE profile, and its recorded cik 1632790 belonged to a different, US, filer. Siemens Energy AG is not an SEC filer on this plane and has no CIK here, so no verbatim quote is reachable and fundamentals must come from the annual report via web with INFERRED tags per method section 6. That work is not done.",
-  "GEV has no balance sheet in companyfacts: Piotroski (long_term_debt_fy), Beneish (ppe_net_fy, long_term_debt_fy) and the reverse DCF (enterprise_value) are all PENDING_DATA, so GEV alone carries no market-implied growth column and cannot support a dive gap table.",
-  "Piotroski is PENDING_DATA on four of six rows (ETN, GEV, POWL, CEG) and Beneish on three (ETN, GEV, CEG). Each row names the exact missing companyfacts field in quality_basis. These are input-coverage gaps in data/market/, not earnings-quality findings.",
-  "theme_revenue_exposure is null on all six rows: not one of these filers discloses a data-center-attributable revenue percentage in the document on disk. Undisclosed, never estimated (method section 6).",
-  "PCS Axis A is a retail-attention measure and reads DARK on five of six rows while Axis B reads SATURATED on all six (analyst_count 4 to 33, institutional holding 82% to 104%). The two axes disagree and Axis A is advisory; nothing here rests on it. MYRG's held_pct_institutions of 1.03798 exceeds 100%, which is a vendor artifact and is reported as fetched rather than clipped."
+  "Three of the 10 target links produced no row -- foundry, networking-optics, hyperscale-datacenters -- because no issuer on any of them has a COMPLETE profile. foundry is a CHOKE_POINT link whose sole mapped candidate, TSMC, is BLOCKED at O3 (T2 foreign-filer gap). networking-optics and hyperscale-datacenters have ACTIVE mapping placements but none of their issuers has been profiled at all. Unblocked by run profile --campaign CAMP-20260830-01 targeting those issuers, not by more screening.",
+  "frontier-models and ai-applications (chain positions 11-12) are outside this run's declared 10-link test scope entirely -- not searched, not empty, simply not worked this run.",
+  "None of the 8 newly admitted names (AMKR, HUBB, INTC, MTZ, MU, NVT, PRIM, PWR) has an EDGAR document on disk: earnings_nuggets is empty on all 8 rows and theme_revenue_exposure is NULL with basis on all 8. 8 edgar_doc requests queued this run.",
+  "None of the 8 newly admitted names has a pcs (crowdedness) block in its data/market/<T>.json: crowdedness reads the literal PENDING_DATA sentinel on all 8 rows. 8 pcs requests queued this run.",
+  "INTEL and MICRON-TECHNOLOGY have identity_conflict business_summary / exposure_summary / catalysts fields copy-pasted from VERTIV-HOLDINGS' profile (a run profile --campaign batch defect, not this screen's error): this screen's thesis_1line and quality_basis text for both rows was written independently from each issuer's own mapping role_evidence and data/market/<T>.json, not from the corrupted profile narrative, so the defect is NOT carried into these rows. Flagged separately for a profile-content fix (out of this screen's scope).",
+  "Reverse DCF is unsolvable for 2 of the 8 new names for reasons that are themselves findings, not gaps: INTC is NOT_APPLICABLE (fiscal 2025 free cash flow is negative) and MU is OUT_OF_RANGE (price implies >100% FCF CAGR).",
+  "Piotroski and/or Beneish are PENDING_DATA on 6 of the 8 new rows (all but HUBB and NVT's Piotroski) on coverage-gap grounds named in each row's quality_basis, mirroring the pattern already documented on 4 of the original 6 rows.",
+  "theme_revenue_exposure is null on all 14 rows now on this sheet: not one filer discloses a data-center-attributable revenue PERCENTAGE in a source this run could verify; several (HUBB, NVT) disclose growth rates or absolute dollar figures instead, named in thesis_1line but not treated as a verified percentage.",
+  "PCS Axis A is a retail-attention measure and reads DARK on five of the original six rows while Axis B reads SATURATED on all six; the 8 new rows carry no PCS data of either axis at all pending the queued pcs requests."
  ],
  "taste_filtered": [
   {
@@ -662,20 +1204,33 @@
   }
  ],
  "health": {
-  "tickers_examined": 8,
-  "rows_written": 6,
+  "tickers_examined": 10,
+  "rows_written": 14,
   "fully_scored": 6,
-  "pending": 0,
+  "pending": 8,
   "errors": 0,
   "rows_superseded": 2,
-  "rows_with_quality_gaps": 4,
-  "links_worked": 4,
+  "rows_with_quality_gaps": 10,
+  "links_worked": 5,
   "links_total": 12,
+  "target_links_this_run": 10,
+  "target_links_covered": 5,
+  "target_links_not_screened_this_run": [
+   "frontier-models",
+   "ai-applications"
+  ],
+  "target_links_no_profiled_issuer": [
+   "foundry",
+   "networking-optics",
+   "hyperscale-datacenters"
+  ],
   "money_corner_links_total": 1,
   "money_corner_links_covered": 1,
+  "choke_point_links_total": 2,
+  "choke_point_links_covered": 1,
   "quotes_verified": 12,
-  "distinct_issuers": 6,
-  "profiles_available_repo_wide": 6
+  "distinct_issuers": 14,
+  "profiles_available_repo_wide": 14
  },
  "notes": [
   {
@@ -687,15 +1242,27 @@
    "ts": "2026-08-31T01:20:00Z",
    "by": "ron",
    "text": "The eight unworked links are not a judgment about those links. Six COMPLETE profiles exist in the entire repository and all six sit on four links, so link coverage here is exactly a mirror of profile coverage. Reading this file as 'the chain's other eight links found nothing' would be the wrong inference; the census placed ten issuers on each of them and nobody has profiled one yet."
+  },
+  {
+   "ts": "2026-09-01T00:15:00Z",
+   "by": "ron",
+   "text": "Bounded TEST run: 10-highest-priority-link scope (the 00:03Z profile batch's own 10 links), 8 new campaign-v1 rows added from the 8 profiles that batch completed (AMKOR-TECHNOLOGY, HUBBELL, INTEL, MASTEC, MICRON-TECHNOLOGY, NVENT-ELECTRIC, PRIMORIS-SERVICES, QUANTA-SERVICES), bringing total distinct issuers on this screen to 14 -- exactly the count of COMPLETE profiles in the entire repository as of this run. The original 6 rows (VRT, POWL, ETN, GEV, MYRG, CEG) are UNCHANGED: their DIVED status, dates, and content are preserved exactly per the amend-never-recreate rule, since moving MYRG or VRT to a different primary link on this pass would orphan an existing FINAL/DRAFT dive attribution. frontier-models and ai-applications (chain positions 11-12) are explicitly out of scope for this run, not silently absent."
   }
  ],
  "confidence_audit": {
-  "verified": 29,
-  "inferred": 12,
+  "verified": 39,
+  "inferred": 20,
   "speculative": 0,
-  "null": 7
+  "null": 31
  },
  "changelog": [
+  {
+   "ts": "2026-09-01T00:20:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "Bounded TEST (Ron): amended to the 10-highest-priority-link scope (the same 10 chain positions 1-10 the 00:03Z run profile --campaign batch targeted; frontier-models and ai-applications, positions 11-12, explicitly out of scope). Added 8 campaign-v1 rows for the 8 issuers newly COMPLETE at O2 (AMKOR-TECHNOLOGY, HUBBELL, INTEL, MASTEC, MICRON-TECHNOLOGY, NVENT-ELECTRIC, PRIMORIS-SERVICES, QUANTA-SERVICES), taking total distinct issuers on this screen to 14 of 14 COMPLETE profiles repo-wide. Both CHOKE_POINT links are now attributed (advanced-packaging carries 3 primary rows; foundry stays uncovered, TSMC BLOCKED). No row was verbatim-quoted for the 8 new names: no EDGAR document exists on disk for any of them, so earnings_nuggets is empty and theme_revenue_exposure is NULL with basis on all 8; 8 edgar_doc and 8 pcs requests queued (REQ-20260901-01..16). The original 6 rows (VRT DIVED/liquid-cooling, MYRG DIVED/grid-interconnect, ETN/GEV/POWL/CEG CANDIDATE) are byte-for-byte unchanged. Found but not fixed here (out of this screen's scope, flagged separately): INTEL.json and MICRON-TECHNOLOGY.json carry business_summary/exposure_summary/catalysts fields copy-pasted from VERTIV-HOLDINGS.json by the profiling batch; this screen's thesis_1line and quality_basis for both rows were written independently from mapping role_evidence and data/market/, not from the corrupted narrative.",
+   "prior": "6 rows across 4 links (VRT, POWL, ETN, GEV, MYRG, CEG); 6 COMPLETE profiles repo-wide"
+  },
   {
    "ts": "2026-08-31T01:50:00Z",
    "by": "stocky",
