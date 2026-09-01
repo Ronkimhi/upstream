@@ -15,7 +15,7 @@ it already had, and never comes from a build.
 So the question "is there a click waiting" reduces to "did our own build produce these
 bytes", which is answerable from the repo:
 
-  1. the committed `app/index.html` carries a `built_at` stamped by the same build, and
+  1. `app/index.html` carries a `built_at` stamped by the same build, and
   2. a `data/ledger.md` line records that republish at that minute.
 
 Both true means the published bytes are the build's bytes and the blocks are empty. Either
@@ -50,7 +50,14 @@ def publish_time(version_id: str):
 
 
 def page_built_at(root: Path):
-    """The `built_at` inside the committed page, as a UTC datetime, or None."""
+    """The `built_at` inside app/index.html, as a UTC datetime, or None.
+
+    Deliberately the WORKING TREE file, not the committed one. The postlude builds, then
+    commits, then pushes, then republishes last, so at the moment of a publish the built
+    page is usually still uncommitted; reading the committed copy would refuse to attribute
+    a publish that had just happened. The ledger-line requirement is what stops a purely
+    local rebuild, published by nobody, from attributing someone else's publish.
+    """
     p = root / "app" / "index.html"
     try:
         m = BUILT_AT_RE.search(p.read_text(errors="replace"))
