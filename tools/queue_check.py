@@ -113,7 +113,11 @@ def check(version_id: str, root: Path, slack: int):
     if not in_ledger:
         return False, (f"published {when} and the committed page was built {stamp}Z, but no "
                        f"ledger line within {slack}s of the publish records a republish. An "
-                       f"unattributed publish is the shape a click has. Read the live page")
+                       f"unattributed publish is the shape a click has. Read the live page. "
+                       f"(If a line IS there, check its artifact: field: only the canonical "
+                       f"'artifact: republished' counts. 'pending', 'republishing' and "
+                       f"'republish after push' are intentions, and an append-only ledger "
+                       f"never comes back to say whether an intention happened.)")
     return True, (f"ATTRIBUTED: published {when}, {int(delta)}s after this repo built "
                   f"app/index.html at {stamp}Z, and the ledger records that republish. "
                   f"app/build.py writes an empty queue and an empty edits block into every "
