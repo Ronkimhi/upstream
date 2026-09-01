@@ -180,7 +180,15 @@ The shared artifact (https://claude.ai/code/artifact/21b67061-261c-4b9a-85a2-b10
 
 ## Routine registration protocol
 
-Two claude.ai routines exist by design: `upstream-radar` (weekdays) and `upstream-digest` (Saturdays); their prompts live in `docs/routines.md`. Registration is not execution: on creation set `data/health/sessions.json routine_status.<name> = "REGISTERED"`; only a session that OBSERVES an evidenced first fire (the routine's ledger line + its commit in git log) flips it to `"LIVE"` with the commit hash. `check health` and the weekly smoke sentinel treat REGISTERED-but-never-fired as a loud finding.
+Three claude.ai routines exist by design: `upstream-radar` (weekdays), `upstream-digest` (Saturdays) and `upstream-campaign` (every 3 hours until the campaign closes); their prompts live in `docs/routines.md`. Registration is not execution: on creation set `data/health/sessions.json routine_status.<name> = "REGISTERED"`; only a session that OBSERVES an evidenced first fire (the routine's ledger line + its commit in git log) flips it to `"LIVE"` with the commit hash. `check health` and the weekly smoke sentinel treat REGISTERED-but-never-fired as a loud finding. The fourth state is `PAUSED`, below.
+
+### PAUSED: radar and campaign do not run (Ron's decision, 2026-09-01)
+
+**`upstream-radar` and `upstream-campaign` are PAUSED. `upstream-digest` (Saturdays) is the only routine that runs.** Ron's instruction, 2026-09-01: this week's token spend was too high, so one routine, once a week, and nothing fires before Saturday 2026-09-05.
+
+**A radar or campaign fire that reaches this line stands down immediately.** Append ONE ledger NOTE naming the routine and `paused-by: ron 2026-09-01`, and take no other action: do not drain the click queue, do not run a stage, do not rebuild the page, do not republish. Standing down IS the whole fire, and it is a correct outcome, not a degraded one. Every routine prompt reads this file first, so the pause binds even while the routines are still enabled on claude.ai; disabling them there additionally saves the stand-down.
+
+This is a pause, not a deregistration. `routine_status` reads `PAUSED (ron 2026-09-01)`, `routine_evidence` is untouched, and the smoke sentinel arms only on `LIVE` (`tools/fetch/smoke_probe.py:p_radar_sentinel`) so a paused radar raises no false silence alarm. Lifting it is a dated line here plus a flip back to `LIVE`. The GitHub Actions fetch workflow is unaffected and keeps running on weekdays: it makes no Anthropic calls and costs no tokens.
 
 ## Not advice
 
