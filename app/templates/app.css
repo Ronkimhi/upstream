@@ -520,6 +520,7 @@ body.cx-ui-hidden .topbar { display: none; }
 .cxfull.ui-hidden .cx-strip,
 .cxfull.ui-hidden .cx-toprail,
 .cxfull.ui-hidden .cx-phase,
+.cxfull.ui-hidden .cx-gaugerail,
 .cxfull.ui-hidden .cxinfo { display: none; }
 .cxfull.ui-hidden .cx-uibtn { top: 12px; opacity: .35; }
 .cxfull.ui-hidden .cx-uibtn:hover { opacity: 1; }
@@ -853,3 +854,28 @@ body.cx-ui-hidden .topbar { display: none; }
   font-size: 11px; color: var(--ink-3); margin-bottom: 3px; }
 .occtitle { font-size: 13px; color: var(--ink); line-height: 1.45; }
 .occbasis { font-size: 11.5px; margin-top: 3px; }
+
+/* cortex: right-side gauges — per-type size and visibility, viewer-local */
+.cx-gaugerail {
+  position: absolute; right: 14px; top: calc(var(--cx-top, 64px) + 46px); z-index: 3;
+  width: 178px; padding: 10px 12px 12px;
+  background: rgba(14, 14, 20, .86); border: 1px solid #262635; border-radius: 12px;
+  font-family: "JetBrains Mono", monospace;
+}
+.cx-gaugerail .lbl { font-size: 8px; font-weight: 600; letter-spacing: .12em;
+  color: #585c72; margin-bottom: 8px; }
+.cx-gaugerail .row { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+.cx-gaugerail label { font-size: 8px; letter-spacing: .08em; color: #9296ad;
+  flex: none; width: 58px; }
+.cx-gaugerail input[type="range"] { flex: 1; min-width: 0; height: 3px;
+  accent-color: #8687f0; cursor: pointer; }
+.cx-gaugerail .val { font-size: 8px; color: #585c72; flex: none; width: 34px;
+  text-align: right; }
+.cx-gaugerail .rst {
+  margin-top: 8px; width: 100%; padding: 5px 0;
+  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: 8.5px; font-weight: 600;
+  letter-spacing: .12em; color: #585c72; cursor: pointer;
+}
+.cx-gaugerail .rst:hover { color: #dde0ef; border-color: #34344a; }
+@media (max-width: 860px) { .cx-gaugerail { display: none; } }

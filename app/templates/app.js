@@ -2695,6 +2695,31 @@
   // screen-space geometry of the global radial's spoke bars, refreshed every frame the
   // radial draws, so mousemove can hit-test the bars themselves (they are not nodes)
   var CX_RADHIT = null;
+  // viewer-tuned render gains: per-type size multipliers plus a contrast exponent that
+  // makes big nodes bigger and small ones smaller. Per-viewer convenience only — it
+  // never touches the data, and a cleared localStorage just restores the defaults.
+  var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1 };
+  var CX_GAIN = (function () {
+    var d = {};
+    Object.keys(CX_GAIN_DEF).forEach(function (k) { d[k] = CX_GAIN_DEF[k]; });
+    try {
+      var s = JSON.parse(localStorage.getItem("upstream.cxGain") || "null");
+      if (s && typeof s === "object") Object.keys(CX_GAIN_DEF).forEach(function (k) {
+        if (typeof s[k] === "number" && s[k] >= 0.2 && s[k] <= 3) d[k] = s[k];
+      });
+    } catch (e) {}
+    return d;
+  })();
+  function cxSaveGain() { try { localStorage.setItem("upstream.cxGain", JSON.stringify(CX_GAIN)); } catch (e) {} }
+  function cxGainOf(kind) {
+    var k = kind === "sig" || kind === "chain" ? "sig"
+      : kind === "link" ? "link"
+      : kind === "scen" || kind === "screen" ? "scen"
+      : kind === "co" || kind === "dive" || kind === "shadow" ? "co"
+      : kind === "cand" || kind === "evt" ? "intake"
+      : kind === "dust" ? "dust" : null;
+    return k ? CX_GAIN[k] : 1;
+  }
   function cxHeatRank(l) {
     var v = (l.heat || {}).verdict;
     return CX_HEAT_ORDER[v] != null ? CX_HEAT_ORDER[v] : 5;
@@ -3068,6 +3093,24 @@
     if (b) { b.textContent = hid ? "◱ SHOW UI" : "◲ HIDE UI"; b.setAttribute("aria-pressed", hid ? "true" : "false"); }
     try { localStorage.setItem("upstream.cxUI", hid ? "hidden" : "shown"); } catch (e) {}
   }
+  function cxGaugeRail() {
+    function row(key, label, title) {
+      var v = CX_GAIN[key], lo = key === "contrast" ? 0.6 : 0.3, hi2 = key === "contrast" ? 1.8 : 2.5;
+      return '<div class="row" title="' + esc(title) + '"><label for="cxg-' + key + '">' + esc(label) + "</label>" +
+        '<input type="range" id="cxg-' + key + '" data-cxgain="' + key + '" min="' + lo + '" max="' + hi2 +
+        '" step="0.05" value="' + v + '">' +
+        '<span class="val" id="cxgv-' + key + '">×' + v.toFixed(2) + "</span></div>";
+    }
+    return '<div class="cx-gaugerail" id="cxGauges"><div class="lbl">GAUGES · SIZE &amp; VISIBILITY</div>' +
+      row("contrast", "CONTRAST", "above 1: the biggest nodes grow, the smallest shrink; below 1 they even out") +
+      row("sig", "SIGNALS", "signals and their chain hubs") +
+      row("link", "LINKS", "value-chain links") +
+      row("scen", "SCENARIOS", "scenarios and screens") +
+      row("co", "COMPANIES", "companies, dives, shadow rows") +
+      row("intake", "INTAKE", "candidates and calendar events") +
+      row("dust", "FEED", "raw feed dust") +
+      '<button class="rst" id="cxGainReset" title="back to defaults">RESET</button></div>';
+  }
   function cortexView() {
     var hid = cxUIHidden();
     return topbar("cortex") +
@@ -3075,7 +3118,7 @@
       '<div class="cx-stage">' +
       '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
       '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
-      cxTopRail() + cxPhaseBar() +
+      cxTopRail() + cxPhaseBar() + cxGaugeRail() +
       "</div>" +
       '<div class="cx-ovl-left">' +
       '<div class="cx-head"><span class="cx-title">CORTEX</span>' +
@@ -3510,7 +3553,7 @@
       ctx.globalAlpha = 1 - M;
       if (M < 0.995) {
       var planeR = (g.ring ? g.ring.r0 * 1.02 : 520);
-      ctx.strokeStyle = "rgba(134,135,240,0.20)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(134,135,240,0.38)"; ctx.lineWidth = 1.4;
       ctx.beginPath();
       var first = true, topPt = null;
       for (var ai = 0; ai <= 64; ai++) {
@@ -3528,11 +3571,12 @@
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       });
       ctx.stroke(); ctx.setLineDash([]);
-      ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
-      if (topPt) { ctx.fillStyle = "rgba(134,135,240,0.8)"; ctx.fillText("N O W", topPt.x, topPt.y - 6); }
-      // time axis through the center: year ticks along z
+      ctx.font = "600 11px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
+      if (topPt) { ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.fillText("N O W", topPt.x, topPt.y - 7); }
+      // time axis through the center: year rings and ticks along z. This is the depth
+      // read-out for the whole field, so it is drawn to be seen, not inferred.
       var y0 = parseInt(TODAY.slice(0, 4), 10);
-      ctx.strokeStyle = "rgba(134,135,240,0.14)";
+      ctx.strokeStyle = "rgba(134,135,240,0.65)"; ctx.lineWidth = 2.5;
       var pA = proj3(gc.x, gc.y, -480), pB = proj3(gc.x, gc.y, 480);
       if (pA && pB) { ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.stroke(); }
       for (var yy = y0 - 3; yy <= y0 + 3; yy++) {
@@ -3541,14 +3585,34 @@
         var zz = Math.sqrt(Math.abs(dxDays) / CX_CLAMP) * 480 * (dxDays < 0 ? -1 : 1);
         var tp = proj3(gc.x, gc.y, zz);
         if (!tp) continue;
-        ctx.fillStyle = "rgba(88,92,114,0.8)";
-        ctx.fillRect(tp.x - 1.5, tp.y - 1.5, 3, 3);
-        ctx.font = "9px 'JetBrains Mono', monospace";
-        ctx.fillText(String(yy), tp.x, tp.y - 6);
+        // a ring in the field's plane at this year's depth: the axis itself is often
+        // foreshortened by the camera, so the rings are what make the past/future
+        // spread readable — nodes sit visibly between them
+        ctx.strokeStyle = "rgba(134,135,240,0.20)"; ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        var rf = true, ringEdge = null;
+        for (var ri = 0; ri <= 48; ri++) {
+          var ra = ri * Math.PI * 2 / 48;
+          var rp = proj3(gc.x + planeR * 0.82 * Math.cos(ra), gc.y + planeR * 0.82 * Math.sin(ra), zz);
+          if (!rp) { rf = true; continue; }
+          if (ri === 0) ringEdge = rp;
+          if (rf) { ctx.moveTo(rp.x, rp.y); rf = false; } else ctx.lineTo(rp.x, rp.y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = "rgba(167,168,246,0.95)";
+        ctx.fillRect(tp.x - 2.5, tp.y - 2.5, 5, 5);
+        ctx.font = "600 10.5px 'JetBrains Mono', monospace";
+        ctx.fillText(String(yy), tp.x, tp.y - 9);
+        // the year again at the ring's edge, where it survives any camera angle
+        if (ringEdge) {
+          ctx.fillStyle = "rgba(134,135,240,0.55)"; ctx.textAlign = "left";
+          ctx.fillText(String(yy), ringEdge.x + 8, ringEdge.y);
+          ctx.textAlign = "center";
+        }
       }
-      ctx.fillStyle = CXP.ink3; ctx.font = "9px 'JetBrains Mono', monospace";
-      if (pA) ctx.fillText("« PAST", pA.x, pA.y + 12);
-      if (pB) ctx.fillText("FUTURE »", pB.x, pB.y + 12);
+      ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.font = "600 11px 'JetBrains Mono', monospace";
+      if (pA) ctx.fillText("« PAST", pA.x, pA.y + 14);
+      if (pB) ctx.fillText("FUTURE »", pB.x, pB.y + 14);
       cxFamilyArcs(ctx, proj3, g, gc, M);
       }
       ctx.globalAlpha = 1;
@@ -3608,6 +3672,8 @@
         var base = n.kind === "dust" ? 0.34 + 0.14 * Math.sin(t * 0.8 + n.seat * 1.7) : n.kind === "co" ? 0.72 : n.kind === "socket" ? 0.32 : 0.92;
         base *= fog(n);
         base *= n._fade == null ? 1 : n._fade;
+        var gv = cxGainOf(n.kind);
+        if (gv < 1) base *= Math.max(0.08, 0.35 + 0.65 * gv);   // a turned-down type also fades
         if (anyFilter && !cxMatch(n)) base *= 0.07;
         if (!hi) return base;
         return (n === hi || (hadj && hadj[n.key])) ? Math.max(base, anyFilter && !cxMatch(n) ? 0.3 : 0.95) : base * 0.2;
@@ -3642,7 +3708,12 @@
       order.forEach(function (n) {
         var x = n._px, y = n._py;
         if (x < -80 || x > w + 80 || y < -80 || y > h + 80) return;
-        var R = quant(Math.max(n.kind === "dust" ? 0.9 : 2.2, n.r * n._s));
+        // viewer gauges: per-type size gain, then the contrast exponent around a 5px
+        // pivot so big nodes grow while small ones shrink (or the reverse under 1)
+        var gain = cxGainOf(n.kind);
+        var rr = n.r * gain;
+        if (CX_GAIN.contrast !== 1) rr = 5 * Math.pow(Math.max(0.1, rr) / 5, CX_GAIN.contrast);
+        var R = quant(Math.max((n.kind === "dust" ? 0.9 : 2.2) * Math.min(1, gain), 0.4, rr * n._s));
         var a = nodeAlpha(n);
         ctx.globalAlpha = a;
         if (n.kind === "dust") {
@@ -3995,6 +4066,31 @@
       });
     }
     bindChrome();
+    // gauge rail: bound once — refreshChrome never rebuilds it, so the sliders keep
+    // their positions and these listeners never stack
+    function syncGaugeUI() {
+      document.querySelectorAll("[data-cxgain]").forEach(function (sl) {
+        var k = sl.getAttribute("data-cxgain");
+        sl.value = CX_GAIN[k];
+        var el = document.getElementById("cxgv-" + k);
+        if (el) el.textContent = "×" + CX_GAIN[k].toFixed(2);
+      });
+    }
+    document.querySelectorAll("[data-cxgain]").forEach(function (sl) {
+      sl.addEventListener("input", function () {
+        var k = sl.getAttribute("data-cxgain"), v = parseFloat(sl.value);
+        if (isNaN(v)) return;
+        CX_GAIN[k] = v;
+        var el = document.getElementById("cxgv-" + k);
+        if (el) el.textContent = "×" + v.toFixed(2);
+        cxSaveGain();
+      });
+    });
+    var gRst = document.getElementById("cxGainReset");
+    if (gRst) gRst.addEventListener("click", function () {
+      Object.keys(CX_GAIN_DEF).forEach(function (k) { CX_GAIN[k] = CX_GAIN_DEF[k]; });
+      syncGaugeUI(); cxSaveGain();
+    });
     var cxReset = document.getElementById("cxFReset");
     if (cxReset) cxReset.addEventListener("click", function () {
       CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
