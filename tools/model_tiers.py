@@ -18,7 +18,14 @@ manual escalation Ron asks for in the turn that needs it -- defaulting to the bi
 available is exactly the failure this file exists to close.
 """
 
-FAST = "claude-haiku-4-5-20251001"
+# FAST == STRONG == sonnet by Ron's decision, 2026-09-01 ("Work only with Sonnet.
+# That's it!"), after the 10-link test: the haiku profile batch shipped five profiles
+# carrying VERTIV's numbers under other issuers' names (caught and rebuilt at 665cf63,
+# gate gap in tasks/backlog.md), and its three failed rounds plus the repair cost more
+# tokens than one sonnet run doing the job correctly once. The two-tier structure and
+# the command table stay, so a future cheaper-model decision is one line here, dated.
+# Opus and Fable remain manual-escalation-only, unchanged.
+FAST = "claude-sonnet-5"
 STRONG = "claude-sonnet-5"
 
 TIER_MODEL = {"fast": FAST, "strong": STRONG}
