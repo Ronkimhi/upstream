@@ -3,7 +3,7 @@
   "issuer_name": "Trimble Inc.",
   "as_of": "2026-09-01",
   "created_at": "2026-09-01T09:19:47Z",
-  "updated_at": "2026-09-01T09:19:47Z",
+  "updated_at": "2026-09-01T10:15:00Z",
   "generated_by": "sieve-profiler",
   "listing_refs": [
     "NASDAQ:TRMB"
@@ -14,7 +14,7 @@
       "ticker": "TRMB",
       "exchange": "NASDAQ",
       "market_ticker": "TRMB",
-      "cik": null,
+      "cik": 864749,
       "mapping_ref": "data/mappings/tibet-mega-dam.json"
     }
   ],
@@ -40,106 +40,192 @@
       ]
     }
   ],
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-domestic NASDAQ-listed issuer (undotted ticker TRMB); no data/market/TRMB.json has been fetched yet, so this classifies the filer type per the pull-data skill glossary rather than an observed fetch result. PENDING requests queued this run: REQ-20260901-137 prices, REQ-20260901-138 fundamentals, REQ-20260901-139 quality. Once fulfilled, fundamentals should resolve through the official sec-companyfacts leg (this issuer files with the SEC), which method section 6A permits to populate canonical fields directly, unlike the vendor-only leg used for foreign listings.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
-  "business_summary": "Trimble Inc. - profile blocked on data availability.",
-  "exposure_summary": {
-    "narrative": "Trimble Inc. has 1 placement(s) on tibet-mega-dam chain. See placements below."
+  "data_tier_basis": "US SEC filer, CIK 864749: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent at 59.94 on 2026-08-31) and full SEC companyfacts fundamentals (20 of 20 annual statement fields found) plus a computed quality block (Piotroski, Beneish, Altman, reverse DCF all SOLVED/SCORED) in data/market/TRMB.json. PENDING requests REQ-20260901-137/138/139 queued in an earlier batch were fulfilled between that run and this one.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "Written COMPLETE at O2 by run profile --campaign CAMP-20260830-01 on 2026-09-01. Not examined by run selection; O1 is a later, separate command per method section 6A.",
+  "sources": {
+    "mapping": "data/mappings/tibet-mega-dam.json",
+    "mapping_audit": {
+      "status": "PASS",
+      "audited_at": "2026-08-30T13:32:53Z",
+      "mapping_status": "COMPLETE"
+    },
+    "chain": "data/chains/tibet-mega-dam.json",
+    "market": "data/market/TRMB.json",
+    "market_fetched_at": "2026-09-01T00:00:00Z"
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "business_summary": "Trimble Inc. is a US, NASDAQ-listed (TRMB) positioning and field-technology company whose Unity Remote Monitoring and Raven-Eye radar flowmeter products measure water flow and level in real time. That product line is the mapped exposure to the tibet-mega-dam chain's riparian-risk-monitoring link, sold as flood- and overflow-monitoring infrastructure rather than as a project-specific supplier to the dam itself.",
+  "exposure_summary": {
+    "narrative": "Trimble sits on riparian-risk-monitoring, scored QUIET. The company's own 2020 product release documents real-time water-flow and level monitoring aimed at reducing flooding and sewer overflows, matching the link's own note that demand is real (India built new monitoring posts post-announcement) but revenue concentration per listed name is unproven; no Tibet-basin-specific or dam-specific revenue is disclosed or sourced, and this is one product line inside a much larger positioning and field-technology business.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "no revenue percentage tied to the tibet-mega-dam exposure is sourced for Trimble this run; the flow-monitoring product line is not broken out in companyfacts segment data. See data_gaps."
+    }
+  },
+  "crowdedness_caveats": [
+    "Trimble sits on a link scored QUIET (see placements above); the link's own note flags unproven per-name revenue concentration across the whole link.",
+    "data/market/TRMB.json carries no pcs (positioning/crowdedness-signal) block, so this profile cannot independently corroborate the link-level crowdedness score with issuer-level analyst-coverage or institutional-ownership figures.",
+    "Water-flow monitoring is a small, undisclosed slice of Trimble's much larger positioning, agriculture, and construction-technology business; the metrics below are company-wide, not segment-specific."
+  ],
+  "catalysts": [
+    {
+      "claim": "Trimble's Raven-Eye 2 and Unity Remote Monitoring system measures water flow and level in real time and provides alerts and situational awareness intended to reduce flooding and overflows.",
+      "source_name": "Trimble Raven-Eye 2 release",
+      "source_date": "2020-10-07",
+      "url": "https://news.trimble.com/2020-10-07-Trimbles-New-Flowmeter-Enables-Utilities-to-Monitor-Sewer-Networks-in-Real-Time-to-Reduce-Flooding-and-Overflows",
+      "tag": "INFERRED",
+      "basis": "Mapping placement role_evidence carried into this profile; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Trimble's fiscal 2026 (year ended 2026-01-02) revenue of 3,587,300,000 is below fiscal 2023's 3,798,700,000, and net income of 424,000,000 is well below fiscal 2025's 1,504,400,000, a large swing companyfacts does not explain, suggesting a non-operating item in one year makes year-over-year net-income comparisons unreliable without reading the underlying filing.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TRMB.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-01",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+      "tag": "INFERRED"
+    },
+    {
+      "claim": "Piotroski F-score 4 (state MIDDLING): the model fails five of nine criteria (year-over-year ROA change, accruals quality, leverage change, current-ratio change, asset turnover), a mixed quality read rather than a strong one.",
+      "source_name": "Upstream market store data/market/TRMB.json quality.piotroski, computed over SEC companyfacts with financetoolkit.models",
+      "source_date": "2026-09-01",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Price, fundamentals and quality: not yet on disk, PENDING requests REQ-20260901-137/REQ-20260901-138/REQ-20260901-139 queued this run"
+    "No Tibet-basin-specific or flood-monitoring-segment revenue percentage is disclosed or sourced for Trimble; companyfacts reports company-wide figures only.",
+    "The large FY2025-to-FY2026 net-income swing (1,504,400,000 to 424,000,000) is not explained by any line item in the local store; a filing read would be needed to attribute it."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 3587300000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TRMB.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Revenues for the fiscal year ended 2026-01-02 as reported to SEC XBRL."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": -0.0081,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TRMB.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Three-year compound annual revenue growth computed as (3587300000 / 3676300000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-30 to fiscal year ended 2026-01-02. Revenue is essentially flat to slightly down over the window (peaked at 3798700000 in fiscal 2023)."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 0.165,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TRMB.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Operating income 592000000 divided by revenue 3587300000 for the fiscal year ended 2026-01-02, both from companyfacts."
       }
     },
     "cash_conversion": {
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "FCF margin is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 0.1006,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TRMB.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Operating cash flow 386200000 minus capital expenditure 25300000, divided by revenue 3587300000, for the fiscal year ended 2026-01-02, all from companyfacts. operating_cash_flow_to_net_income (0.911) is omitted as redundant given the schema requires only one of the two fields; fcf_margin is the more standard cross-issuer comparison."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 1.5513,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TRMB.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Net debt 1228500000 (total debt 1442900000 as of 2026-07-03 less cash 214400000 as of 2026-07-03) divided by an EBITDA proxy 791900000 (operating income 592000000 plus depreciation 199900000 for the fiscal year ended 2026-01-02). The debt/cash reading is a later quarterly point than the FY-end EBITDA inputs it is netted against."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 4,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/TRMB.json quality, computed over SEC EDGAR companyfacts with financetoolkit.models",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Piotroski F-score 4 (state MIDDLING, 9 of 9 inputs found), computed over SEC companyfacts statements in data/market/TRMB.json quality.piotroski."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": -2.24,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/TRMB.json quality, computed over SEC EDGAR companyfacts with financetoolkit.models",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Beneish M-score -2.24 against the -1.78 threshold, earnings-manipulation state CLEAN (12 of 12 inputs found), computed over SEC companyfacts statements in data/market/TRMB.json quality.beneish. A more negative M-score is the non-manipulator reading."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 14145840000.0,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/TRMB.json quality.derived.market_cap",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Market capitalization 14145840000.0 = SEC companyfacts share count 236000000 (fiscal year ended 2026-01-02) multiplied by the close 59.94 of 2026-08-31; the close is the repo's own dual-source market plane (data/market/TRMB.json, price_status AGREED), not an issuer document."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price to sales is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 3.9433,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/TRMB.json quality.derived.market_cap over SEC companyfacts revenue",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Market capitalization 14145840000.0 divided by fiscal year 2026-01-02 revenue 3587300000."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 0.2742,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/TRMB.json quality.reverse_dcf",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 15374340000.0 implies over a 5-year explicit period on base FCF 360900000, solved by bisection at a 0.09 discount rate and 0.025 terminal growth. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "reverse-DCF horizon spread is not available for Trimble Inc.: no market file has ever been fetched for TRMB (data/market/TRMB.json does not exist)"
+        "value": 0.1176,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/TRMB.json quality.reverse_dcf",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000864749.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods (5y: 0.2742, 7y: 0.2055, 10y: 0.1566) in quality.reverse_dcf.implied_by_horizon; inherits the same assumed discount rate and terminal growth."
       }
     }
   },
   "disposition": {
-    "state": "BLOCKED",
-    "basis": "Real, evidence-backed placement on the tibet-mega-dam chain, but no market data (price, fundamentals, or quality) has ever been fetched for TRMB. PENDING requests queued this run. Revisit once the fetch workflow fulfills them.",
+    "state": "RETAIN",
+    "basis": "Complete medium profile on riparian-risk-monitoring (QUIET) with a real, filing-referenced role and a full revenue/growth/margin/cash-conversion/leverage/quality/valuation/reverse-DCF set from SEC companyfacts and the repo's own dual-source price plane. Retained rather than advanced (RETAIN, not ADVANCE) because water-flow monitoring is an undisclosed, likely small slice of a much larger positioning and field-technology business, so these company-wide metrics say little about the specific dam-linked exposure; the link itself is QUIET. Selection is a separate command and is not run here.",
     "as_of": "2026-09-01"
   },
   "confidence_audit": {
-    "verified": 0,
-    "inferred": 0,
-    "speculative": 0,
-    "null": 10,
+    "verified": 1,
+    "inferred": 8,
+    "speculative": 2,
+    "null": 0,
     "canonical_fields_written": 10,
-    "basis": "All canonical fields NULL: no market data has ever been fetched for this issuer."
+    "basis": "Counts cover the canonical metric fields only (cash_conversion writes only fcf_margin, valuation writes market_cap and price_to_sales). VERIFIED is the one figure read directly off SEC companyfacts as reported (latest_fy revenue). INFERRED covers figures computed from companyfacts or the market store's quality block with the derivation named in each basis (growth, margins, cash_conversion, leverage, quality x2, valuation x2). SPECULATIVE covers the two reverse-DCF fields, which rest on an assumed discount rate and terminal growth rather than a reported figure. No canonical field is NULL."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -151,6 +237,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for TRIMBLE (no market data on disk; PENDING requests REQ-20260901-137/REQ-20260901-138/REQ-20260901-139 queued for TRMB). run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-01T10:15:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Advanced BLOCKED to COMPLETE (T1, O2) now that data/market/TRMB.json carries full SEC companyfacts fundamentals (20/20 fields) and a computed quality block (Piotroski 4 MIDDLING, Beneish -2.24 CLEAN, reverse DCF SOLVED at 27.42% over 5y / 15.66% over 10y). All 10 canonical fields populated: revenue, growth, margins, cash_conversion, leverage, quality x2, valuation x2, reverse_dcf x2. run profile --campaign CAMP-20260830-01."
     }
   ]
 }

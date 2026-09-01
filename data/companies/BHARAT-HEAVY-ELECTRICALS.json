@@ -3,11 +3,11 @@
   "issuer_name": "Bharat Heavy Electricals Limited",
   "as_of": "2026-09-01",
   "created_at": "2026-09-01T00:16:21.161770Z",
-  "updated_at": "2026-09-01T00:16:21.161770Z",
+  "updated_at": "2026-09-01T10:15:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): NSE primary listing. No safe fundamentals source is available locally for this non-US issuer due to the cik_for() suffix-stripping defect with non-US tickers (see task instructions). Per task constraints, fundamentals are not requested for non-US listings.",
+  "data_tier_basis": "Local-only listing (method section 6): T3, BHEL.NS. CORRECTED 2026-09-01T10:15Z: the 2026-09-01T00:16Z batch withheld fundamentals here citing the cik_for() exchange-suffix-stripping defect (a dotted foreign ticker silently adopting an unrelated US filer's CIK) as an active blocker. That defect was CLOSED 2026-08-31: tools/fetch/fetch.py:cik_for() now returns no CIK for a dotted ticker outside the exact class-share spelling absent an explicit request-row cik override, so a suffixed foreign ticker safely falls to the vendor leg (yfinance-statements) instead of mis-attributing another company's companyfacts. Verified against the current fetch.py source this run, and against sibling tibet-mega-dam issuers (TBEA, NARI-TECHNOLOGY, CHINA-XD-ELECTRIC, NHPC) that already carry vendor fundamentals with cik:null on disk from the 2026-09-01T03:30Z batch. This run queues REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 (prices, fundamentals, quality for BHEL.NS) rather than continuing to withhold them. Every canonical field still stays NULL regardless of that fetch's outcome: the vendor leg is tagged INFERRED with official_source:false, and method section 6A forbids a bare vendor number from populating a canonical profile metric directly. Official local filings or IR material tagged INFERRED with official_source:true would unblock this, and needs a WebFetch-capable (local) session; this cloud venue has WebSearch only.",
   "opportunity_tier": "O3",
   "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
   "listing_refs": [
@@ -73,84 +73,85 @@
   "catalysts": [],
   "risks": [],
   "data_gaps": [
-    "Fundamentals: no safe source available for non-US listing"
+    "Fundamentals: no safe source available for non-US listing",
+    "PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run (BHEL.NS: prices, fundamentals, quality) after correcting the stale cik_for()-defect withholding basis; the defect was CLOSED 2026-08-31. Even fulfilled, canonical fields stay NULL pending an official-source (not vendor) fundamentals path per method section 6A."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
         "value": null,
         "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no safe fundamentals source exists for this non-US listing (cik_for() suffix-stripping defect prevents use of local market data)"
+        "basis": "Latest fiscal-year revenue: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run (prices, fundamentals, quality). Once fulfilled the fundamentals will resolve through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating this canonical field directly, so this field is expected to remain NULL even after the fetch; only official-source IR/filing data (needs a local WebFetch-capable session) would unblock it."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
         "value": null,
         "tag": "NULL",
-        "basis": "3-year revenue CAGR: cannot compute without safe revenue series for non-US listing"
+        "basis": "3-year revenue CAGR: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run (prices, fundamentals, quality). Once fulfilled the fundamentals will resolve through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating this canonical field directly, so this field is expected to remain NULL even after the fetch; only official-source IR/filing data (needs a local WebFetch-capable session) would unblock it."
       }
     },
     "margins": {
       "operating_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating margin: no safe fundamentals source exists for this non-US listing"
+        "basis": "Operating margin: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run (prices, fundamentals, quality). Once fulfilled the fundamentals will resolve through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating this canonical field directly, so this field is expected to remain NULL even after the fetch; only official-source IR/filing data (needs a local WebFetch-capable session) would unblock it."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating cash flow to net income: no safe fundamentals source exists for this non-US listing"
+        "basis": "Operating cash flow to net income: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. The vendor leg that will fulfill them (yfinance-statements, official_source:false) cannot populate this canonical field per method section 6A, so it is expected to stay NULL after the fetch too; only official-source IR/filing data would unblock it."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "Net debt to EBITDA: no safe fundamentals source exists for this non-US listing"
+        "basis": "Net debt to EBITDA: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run (prices, fundamentals, quality). Once fulfilled the fundamentals will resolve through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating this canonical field directly, so this field is expected to remain NULL even after the fetch; only official-source IR/filing data (needs a local WebFetch-capable session) would unblock it."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score: cannot compute without safe companyfacts-equivalent statement inputs for non-US listing"
+        "basis": "Piotroski F-score: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. The fetch will compute a real quality block from vendor statements (usable for this field under method 6A's quality/official_source_equivalent allowance only if re-derived from an official source; the vendor score itself is official_source:false and does not satisfy the standard piotroski/beneish_state pair), so this field may still need a T2/T3 official_source_equivalent path or official IR data to close."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: cannot compute without safe companyfacts-equivalent statement inputs for non-US listing"
+        "basis": "Beneish M-score: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. The fetch will compute a real quality block from vendor statements (usable for this field under method 6A's quality/official_source_equivalent allowance only if re-derived from an official source; the vendor score itself is official_source:false and does not satisfy the standard piotroski/beneish_state pair), so this field may still need a T2/T3 official_source_equivalent path or official IR data to close."
       }
     },
     "valuation": {
       "market_cap": {
         "value": null,
         "tag": "NULL",
-        "basis": "Market capitalization: cannot compute without sourced share count for non-US listing"
+        "basis": "market cap: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. A vendor-fed price/share-count read may populate data/market/BHEL.NS.json's quality.derived block after the fetch, but method section 6A still requires an official-source basis for a canonical field written from INFERRED data, so this is expected to need further sourcing even once the fetch lands."
       },
       "price_to_sales": {
         "value": null,
         "tag": "NULL",
-        "basis": "Price-to-sales: cannot compute without safe market cap and revenue for non-US listing"
+        "basis": "price to sales: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. A vendor-fed price/share-count read may populate data/market/BHEL.NS.json's quality.derived block after the fetch, but method section 6A still requires an official-source basis for a canonical field written from INFERRED data, so this is expected to need further sourcing even once the fetch lands."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "Reverse-DCF implied FCF CAGR: cannot solve without free-cash-flow inputs for non-US listing"
+        "basis": "implied fcf cagr: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. Even once fulfilled, the reverse-DCF solve in data/market/BHEL.NS.json would rest on vendor (official_source:false) fundamentals, which method section 6A forbids from populating this canonical field directly."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "Reverse-DCF horizon spread: cannot compute without implied FCF CAGR for non-US listing"
+        "basis": "horizon spread: no market file has been fetched for BHEL.NS as of this basis correction; PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 queued this run. Even once fulfilled, the reverse-DCF solve in data/market/BHEL.NS.json would rest on vendor (official_source:false) fundamentals, which method section 6A forbids from populating this canonical field directly."
       }
     }
   },
   "disposition": {
     "state": "DEFER",
-    "basis": "Real, evidence-backed placements on tibet-mega-dam chain(s), but every canonical metric field is NULL because no safe fundamentals source exists for this non-US listing due to the cik_for() suffix-stripping defect (see task instructions). DEFER rather than DRAFT because the placements and roles are real and sourced; only the numeric layer is missing and correctly gated. Revisit once the cik_for() defect is fixed or once official-source filings are manually derived from BHARAT-HEAVY-ELECTRICALS own investor relations materials."
+    "basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL: no market file exists for BHEL.NS yet. CORRECTED this run: the prior basis wrongly cited the cik_for() exchange-suffix defect (CLOSED 2026-08-31) as the reason to withhold fundamentals requests; that defect no longer applies, so PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 are queued now. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and even the pending vendor fetch will not by itself complete this profile per method section 6A's official-source rule for canonical fields."
   },
   "confidence_audit": {
     "VERIFIED": 0,
@@ -164,9 +165,15 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for BHARAT-HEAVY-ELECTRICALS due to non-US data tier constraint."
+    },
+    {
+      "ts": "2026-09-01T10:15:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Corrected stale data_tier_basis/disposition/NULL bases that wrongly cited the cik_for() exchange-suffix defect (CLOSED 2026-08-31) as an active reason to withhold fundamentals for BHARAT-HEAVY-ELECTRICALS (BHEL.NS). Queued REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 (prices, fundamentals, quality). Status remains BLOCKED/O3/T3: canonical fields stay NULL either way per method section 6A's official-source rule on vendor-tagged INFERRED data. run profile --campaign CAMP-20260830-01."
     }
   ],
-  "disposition_basis": "Non-US listing with no safe fundamentals source available locally (cik_for() suffix-stripping defect); revisit once the defect is fixed or when official-source filings are manually sourced.",
+  "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL: no market file exists for BHEL.NS yet. CORRECTED this run: the prior basis wrongly cited the cik_for() exchange-suffix defect (CLOSED 2026-08-31) as the reason to withhold fundamentals requests; that defect no longer applies, so PENDING requests REQ-20260901-145, REQ-20260901-146, REQ-20260901-147 are queued now. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and even the pending vendor fetch will not by itself complete this profile per method section 6A's official-source rule for canonical fields.",
   "sources": {
     "mapping": "data/mappings/tibet-mega-dam.json",
     "mapping_audit": {

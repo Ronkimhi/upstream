@@ -3,7 +3,7 @@
   "issuer_name": "Satellogic Inc.",
   "as_of": "2026-09-01",
   "created_at": "2026-09-01T09:19:47Z",
-  "updated_at": "2026-09-01T09:19:47Z",
+  "updated_at": "2026-09-01T10:15:00Z",
   "generated_by": "sieve-profiler",
   "listing_refs": [
     "NASDAQ:SATL"
@@ -14,7 +14,7 @@
       "ticker": "SATL",
       "exchange": "NASDAQ",
       "market_ticker": "SATL",
-      "cik": null,
+      "cik": 1874315,
       "mapping_ref": "data/mappings/tibet-mega-dam.json"
     }
   ],
@@ -40,106 +40,173 @@
       ]
     }
   ],
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-domestic NASDAQ-listed issuer (undotted ticker SATL); no data/market/SATL.json has been fetched yet, so this classifies the filer type per the pull-data skill glossary rather than an observed fetch result. PENDING requests queued this run: REQ-20260901-134 prices, REQ-20260901-135 fundamentals, REQ-20260901-136 quality. Once fulfilled, fundamentals should resolve through the official sec-companyfacts leg (this issuer files with the SEC), which method section 6A permits to populate canonical fields directly, unlike the vendor-only leg used for foreign listings.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
-  "business_summary": "Satellogic Inc. - profile blocked on data availability.",
-  "exposure_summary": {
-    "narrative": "Satellogic Inc. has 1 placement(s) on tibet-mega-dam chain. See placements below."
+  "data_tier_basis": "US-domestic NASDAQ-listed issuer, CIK 1874315: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent at 4.87 on 2026-08-31) and SEC companyfacts fundamentals (17 of 20 annual fields found; gross_profit, cost_of_revenue and long_term_debt missing, and only 3 fiscal years of revenue history on file) in data/market/SATL.json. PENDING requests REQ-20260901-134/135/136 queued in an earlier batch were fulfilled between that run and this one.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "Written COMPLETE at O2 by run profile --campaign CAMP-20260830-01 on 2026-09-01. Not examined by run selection; O1 is a later, separate command per method section 6A.",
+  "sources": {
+    "mapping": "data/mappings/tibet-mega-dam.json",
+    "mapping_audit": {
+      "status": "PASS",
+      "audited_at": "2026-08-30T13:32:53Z",
+      "mapping_status": "COMPLETE"
+    },
+    "chain": "data/chains/tibet-mega-dam.json",
+    "market": "data/market/SATL.json",
+    "market_fetched_at": "2026-09-01T00:00:00Z"
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "business_summary": "Satellogic Inc. is a US, NASDAQ-listed (SATL) Earth-observation company operating a constellation of small satellites for low-latency multispectral imagery. Its documented rapid-response imagery, used after floods and the 2023 Derna dam collapse in Libya, is the mapped exposure to the tibet-mega-dam chain's riparian-risk-monitoring link.",
+  "exposure_summary": {
+    "narrative": "Satellogic sits on riparian-risk-monitoring, scored QUIET. The company's own case material documents post-flood and post-dam-collapse rapid-response imagery, matching the link's own note that demand is real but revenue concentration per listed name is unproven; no Tibet-basin-specific revenue is sourced.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "no revenue percentage tied to the tibet-mega-dam exposure is sourced for Satellogic this run; see data_gaps."
+    }
+  },
+  "crowdedness_caveats": [
+    "Satellogic sits on a link scored QUIET (see placements above); the link's own note flags unproven per-name revenue concentration across the whole link.",
+    "data/market/SATL.json carries no pcs (positioning/crowdedness-signal) block, so this profile cannot independently corroborate the link-level crowdedness score with issuer-level analyst-coverage or institutional-ownership figures.",
+    "companyfacts carries only 3 fiscal years of revenue (2023-2025) and is missing gross_profit, cost_of_revenue and long_term_debt, so growth (revenue_cagr_3y), leverage, Piotroski and Beneish cannot be computed this run (see data_gaps)."
+  ],
+  "catalysts": [
+    {
+      "claim": "Satellogic documents rapid-response imagery used after floods and the Derna dam collapse to support disaster response.",
+      "source_name": "Satellogic rapid-response case note",
+      "source_date": "2023-12-13",
+      "url": "https://satellogic.com/2023/12/13/low-latency-satellite-imagery-for-rapid-response/",
+      "tag": "INFERRED",
+      "basis": "Mapping placement role_evidence carried into this profile; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Satellogic's fiscal 2025 net loss (-4783000) narrowed sharply from fiscal 2024's -116272000 while operating cash flow stayed negative both years (-26886000 in fiscal 2025), so the improvement rests on a large non-operating or non-cash item companyfacts does not itemize; equity swung from -53032000 (fiscal 2024) to positive 60526000 (fiscal 2025), consistent with a capital raise rather than operating improvement.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SATL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-01",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+      "tag": "INFERRED"
+    },
+    {
+      "claim": "Altman Z-score 0.75 (state DISTRESS, 8 of 8 inputs found).",
+      "source_name": "Upstream market store data/market/SATL.json quality.altman, computed over SEC companyfacts with financetoolkit.models",
+      "source_date": "2026-09-01",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Price, fundamentals and quality: not yet on disk, PENDING requests REQ-20260901-134/REQ-20260901-135/REQ-20260901-136 queued this run"
+    "Growth (revenue_cagr_3y) is NULL: companyfacts carries only 3 fiscal years of revenue (2023, 2024, 2025) for Satellogic, one short of the 4 data points a 3-year CAGR needs; computing it would require inventing an intermediate figure.",
+    "Leverage (net_debt_to_ebitda) is NULL: companyfacts returns total_debt: None for SATL, so no debt figure exists locally to net against cash.",
+    "Piotroski (piotroski) and Beneish (beneish_state) are NULL: data/market/SATL.json quality both read state PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 and 10 of 12 inputs found respectively).",
+    "Reverse DCF (implied_fcf_cagr, horizon_spread) is NULL: data/market/SATL.json quality.reverse_dcf reads state PENDING_DATA, missing enterprise_value, which depends on the same missing total_debt figure.",
+    "No Tibet-basin-specific or dam-specific revenue percentage is disclosed or sourced for Satellogic."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "value": 17707000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SATL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+        "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
         "value": null,
         "tag": "NULL",
-        "basis": "3-year revenue CAGR is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "basis": "3-year revenue CAGR is not computable for Satellogic: data/market/SATL.json fundamentals.revenue_fy carries only 3 fiscal years (2023, 2024, 2025), one short of the 4 data points needed, and computing it would require inventing an intermediate figure."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "value": -1.7518,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SATL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+        "basis": "Operating income -31019000 divided by revenue 17707000 for the fiscal year ended 2025-12-31, both from companyfacts."
       }
     },
     "cash_conversion": {
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "FCF margin is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "value": -1.9349,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SATL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+        "basis": "Operating cash flow -26886000 minus capital expenditure 7376000, divided by revenue 17707000, for the fiscal year ended 2025-12-31, all from companyfacts. The result (-34262000 free cash flow) matches data/market/SATL.json quality.derived.fcf exactly."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "net debt to EBITDA is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "basis": "net debt to EBITDA cannot be computed for Satellogic: companyfacts returns total_debt: None for SATL in data/market/SATL.json fundamentals, so no debt figure exists locally to net against cash."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "basis": "Piotroski F-score is PENDING_DATA in data/market/SATL.json quality: 7 of 9 required inputs found, missing long_term_debt_fy and cost_of_revenue_fy."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "basis": "Beneish M-score is PENDING_DATA in data/market/SATL.json quality: 10 of 12 required inputs found, missing cost_of_revenue_fy and long_term_debt_fy."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "value": 653233875.42,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/SATL.json quality.derived.market_cap",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+        "basis": "Market capitalization 653233875.42 = SEC companyfacts share count 134134266 (fiscal year ended 2025-12-31) multiplied by the close 4.87 of 2026-08-31; the close is the repo's own dual-source market plane (data/market/SATL.json, price_status AGREED), not an issuer document."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price to sales is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "value": 36.8913,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/SATL.json quality.derived.market_cap over SEC companyfacts revenue",
+        "source_date": "2026-09-01",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001874315.json",
+        "basis": "Market capitalization 653233875.42 divided by fiscal year 2025-12-31 revenue 17707000. A high multiple consistent with a small, fast-growing, pre-profit satellite-imagery issuer."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "basis": "reverse-DCF implied FCF CAGR is PENDING_DATA in data/market/SATL.json quality.reverse_dcf: missing enterprise_value, which depends on the same missing total_debt figure as leverage."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF horizon spread is not available for Satellogic Inc.: no market file has ever been fetched for SATL (data/market/SATL.json does not exist)"
+        "basis": "reverse-DCF horizon spread cannot be computed for Satellogic with the base solve unavailable for the reason above (enterprise_value missing)."
       }
     }
   },
   "disposition": {
-    "state": "BLOCKED",
-    "basis": "Real, evidence-backed placement on the tibet-mega-dam chain, but no market data (price, fundamentals, or quality) has ever been fetched for SATL. PENDING requests queued this run. Revisit once the fetch workflow fulfills them.",
+    "state": "RETAIN",
+    "basis": "Complete medium profile on riparian-risk-monitoring (QUIET) with a real, filing-referenced role and a computed revenue/margin/cash-conversion/valuation set from SEC companyfacts and the repo's own dual-source price plane. Retained rather than advanced because growth, leverage, both quality scores and both reverse-DCF fields are NULL on genuine local-store gaps (only 3 fiscal years on file; total_debt, long_term_debt and cost_of_revenue all missing from companyfacts) rather than judgement, and the Altman read (DISTRESS) plus a large unexplained net-income swing are real cautions on a QUIET link. Selection is a separate command and is not run here.",
     "as_of": "2026-09-01"
   },
   "confidence_audit": {
-    "verified": 0,
-    "inferred": 0,
+    "verified": 1,
+    "inferred": 4,
     "speculative": 0,
-    "null": 10,
+    "null": 5,
     "canonical_fields_written": 10,
-    "basis": "All canonical fields NULL: no market data has ever been fetched for this issuer."
+    "basis": "Counts cover the canonical metric fields only (cash_conversion writes only fcf_margin, valuation writes market_cap and price_to_sales). VERIFIED is the one figure read directly off SEC companyfacts as reported (latest_fy revenue). INFERRED covers figures computed from companyfacts or the market store's quality.derived block with the derivation named in each basis (margins, cash_conversion, valuation x2). NULL covers growth (only 3 fiscal years on file), leverage, both quality scores and both reverse-DCF fields, all traced to a missing total_debt, long_term_debt or cost_of_revenue field in companyfacts rather than judgement."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -151,6 +218,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for SATELLOGIC (no market data on disk; PENDING requests REQ-20260901-134/REQ-20260901-135/REQ-20260901-136 queued for SATL). run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-01T10:15:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Advanced BLOCKED to COMPLETE (T1, O2) now that data/market/SATL.json carries SEC companyfacts fundamentals (17/20 fields, 3 fiscal years) and a partial quality block (Altman 0.75 DISTRESS; growth, Piotroski, Beneish and reverse DCF PENDING_DATA on missing history/debt/cost_of_revenue fields). 5 of 10 canonical fields populated (revenue, margins, cash_conversion, valuation x2); growth, leverage, quality x2 and reverse_dcf x2 stay NULL on genuine local-store gaps. run profile --campaign CAMP-20260830-01."
     }
   ]
 }
