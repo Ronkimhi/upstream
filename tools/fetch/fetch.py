@@ -1213,11 +1213,32 @@ def shadow_sweep():
 
 
 def refresh_dive_tickers(counts):
+    """Keep every live dive's price series fresh on the cron.
+
+    Skips underscore-prefixed files, which are AGENT STORES and not dives:
+    `data/stocks/_dive-log.json` is Stocky's record and carries no `ticker`. Without the
+    skip this raised KeyError and killed the whole cron run AFTER the feed batch had
+    already fetched 385 items, so the feeds were discarded and the intake corpus sat
+    frozen from 2026-08-29 to 2026-09-01 while every push-triggered run passed, because
+    this function only runs on the cron. Every other reader in the repo already skips
+    them (`app/build.py:read_json_dir`, `validate.py`'s plans loop,
+    `impact_calibrate.appraisals`); this one did not.
+
+    A dive missing its `ticker` is now skipped and named rather than fatal: one malformed
+    file must never cost a whole scheduled run.
+    """
     tickers = set()
     for sf in sorted((DATA / "stocks").glob("*.json")):
+        if sf.name.startswith("_"):
+            continue
         st = jload(sf, {})
-        if st.get("status") != "ARCHIVED" and not st.get("fixture"):
-            tickers.add(st["ticker"])
+        if st.get("status") == "ARCHIVED" or st.get("fixture"):
+            continue
+        t = st.get("ticker")
+        if not t:
+            print(f"  cron refresh: {sf.name} has no ticker, skipped")
+            continue
+        tickers.add(t)
     tickers.add("SPY")  # shadow benchmark stays fresh
     for t in sorted(tickers):
         try:
