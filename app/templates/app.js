@@ -3640,29 +3640,9 @@
       ctx.stroke(); ctx.setLineDash([]);
       ctx.font = "600 11px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
       if (topPt) { ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.fillText("N O W", topPt.x, topPt.y - 7); }
-      // time axis through the center: year rings and ticks along z. This is the depth
-      // read-out for the whole field, so it is drawn to be seen, not inferred.
-      var y0 = parseInt(TODAY.slice(0, 4), 10);
-      ctx.strokeStyle = "rgba(134,135,240,0.65)"; ctx.lineWidth = 2.5;
-      var pA = proj3(gc.x, gc.y, -480), pB = proj3(gc.x, gc.y, 480);
-      if (pA && pB) { ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.stroke(); }
-      for (var yy = y0 - 3; yy <= y0 + 3; yy++) {
-        var dxDays = daysBetween(TODAY, yy + "-01-01");
-        if (Math.abs(dxDays) > CX_CLAMP) continue;
-        var zz = Math.sqrt(Math.abs(dxDays) / CX_CLAMP) * 480 * (dxDays < 0 ? -1 : 1);
-        var tp = proj3(gc.x, gc.y, zz);
-        if (!tp) continue;
-        // year ticks on the axis only — the in-field year rings looked like clutter
-        // and were removed (Ron, 2026-09-01); the TIMELINE phase carries the ring
-        // read-out instead
-        ctx.fillStyle = "rgba(167,168,246,0.95)";
-        ctx.fillRect(tp.x - 2.5, tp.y - 2.5, 5, 5);
-        ctx.font = "600 10.5px 'JetBrains Mono', monospace";
-        ctx.fillText(String(yy), tp.x, tp.y - 9);
-      }
-      ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.font = "600 11px 'JetBrains Mono', monospace";
-      if (pA) ctx.fillText("« PAST", pA.x, pA.y + 14);
-      if (pB) ctx.fillText("FUTURE »", pB.x, pB.y + 14);
+      // The 3D time axis (year ticks + PAST/FUTURE labels through the field center)
+      // was removed at Ron's request (2026-09-01), after the in-field year rings went
+      // the same way earlier that day. The opt-in TIMELINE view is the time read-out.
       cxFamilyArcs(ctx, proj3, g, gc, M);
       }
       ctx.globalAlpha = 1;
