@@ -3,13 +3,13 @@
   "issuer_name": "Schneider Electric SE",
   "as_of": "2026-09-02",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-02T15:16:47Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): Euronext Paris, T3. data/market/SU-PA.json now carries a vendor-aggregate fundamentals block (source yfinance-statements, tag INFERRED, official_source false; 2 fiscal years, 2024-2025) and a scored quality block (REQ-20260902-135/136 FULFILLED), which under the 2026-09-01 method section 6A vendor-aggregate decision may populate T2/T3 canonical metrics directly.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring but not yet selected for Stocky; method section 6A: a COMPLETE profile is O2 unless explicit selection promotes it to O1. This run performs no selection.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Prerequisite: run screen ai-infrastructure. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "EURONEXT:SU"
   ],
@@ -302,6 +302,23 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "REQ-20260902-135/136 (SU.PA fundamentals, quality) FULFILLED. Filled seven of eight canonical metric fields from data/market/SU-PA.json fundamentals (2 FY revenue series) and quality (piotroski, beneish, reverse_dcf SOLVED) blocks, tagged INFERRED/official_source:false per the 2026-09-01 vendor-aggregate decision; revenue_cagr_3y stays NULL (only 2 fiscal years on file, 4 needed). Status BLOCKED -> COMPLETE, opportunity tier O3 -> O2. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-02T15:16:47Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). NULL canonical fields: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "NO_SCREEN_ROW_NO_HANDOFF",
+    "null_canonical_fields": [],
+    "reason": "Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Prerequisite: run screen ai-infrastructure.",
+    "revisit": "Re-run run selection CAMP-20260901-01 after run screen ai-infrastructure has written a campaign-v1 row for this issuer on the in-scope link."
+  }
 }

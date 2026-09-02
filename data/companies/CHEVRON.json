@@ -3,13 +3,13 @@
   "issuer_name": "Chevron Corp",
   "as_of": "2026-09-02",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T14:30:00Z",
+  "updated_at": "2026-09-02T15:16:47Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:CVX carries a real SEC CIK (93410) with sec-companyfacts fundamentals in data/market/CVX.json; the series has no operating_income_fy tag and its cash/total_debt series stopped updating years apart from each other, a real companyfacts coverage gap.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE medium profile as of this run (run profile --campaign CAMP-20260901-01, 2026-09-02); O2 per method section 6A until an explicit run selection examines it for O1.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on hormuz-maritime/bunker-and-voyage-services (Bunker fuel and the longer voyage, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 6 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: margins.operating_margin, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NYSE-CVX"
   ],
@@ -234,6 +234,30 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for CHEVRON from data/mappings/hormuz-maritime.json (ACTIVE, no PASS audit yet: theme is MAPPED under DEPTH scope) and data/market/CVX.json (sec-companyfacts, T1). Both ACTIVE placements included (bunker-and-voyage-services, non-gulf-energy-substitution). 6 of 12 canonical fields filled; 6 NULL on real companyfacts coverage gaps (no operating_income_fy tag; total_debt frozen since 2018), not an unexamined field. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T15:16:47Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['margins.operating_margin', 'leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+    "null_canonical_fields": [
+      "margins.operating_margin",
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski",
+      "quality.beneish_state",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "reason": "Sits on hormuz-maritime/bunker-and-voyage-services (Bunker fuel and the longer voyage, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 6 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: margins.operating_margin, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed.",
+    "revisit": "Revisit once the named canonical fields carry a sourced value (a fetch or an official-source cross-check), then re-run run selection CAMP-20260901-01."
+  }
 }

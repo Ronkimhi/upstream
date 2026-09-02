@@ -3,13 +3,13 @@
   "issuer_name": "China Petroleum & Chemical Corporation",
   "as_of": "2026-09-02",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T14:30:00Z",
+  "updated_at": "2026-09-02T15:16:47Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): T3, 0386.HK (Hong Kong Stock Exchange), no SEC CIK. data/market/0386-HK.json was already on disk (fetched_at 2026-08-30T23:09:11Z) with a full 20/20-field yfinance-statements vendor fundamentals block and a SCORED quality block; the batch's initial scan wrongly checked the mapping's bare exchange code (00386) instead of its own suffixed market_ticker (0386.HK), corrected before commit (tools/check_profile.py's stale-market-claim gate caught the mismatch). Statement currency CNY differs from price currency HKD with no FX source on disk, so market_cap/enterprise_value/reverse_dcf stay NULL per method section 6A rather than mixed-currency arithmetic; the other 8 canonical fields fill from the CNY-denominated statement series directly (no currency mixing needed for pure statement ratios).",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE medium profile as of this run (run profile --campaign CAMP-20260901-01, 2026-09-02); O2 per method section 6A until an explicit run selection examines it for O1.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on russian-diesel-ban/refinery-capacity-response (New conversion capacity outside Russia, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 4 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "THE-STOCK-EXCHANGE-OF-HONG-KONG-LIMITED:00386"
   ],
@@ -222,6 +222,28 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for CHINA-PETROLEUM-AND-CHEMICAL from data/mappings/russian-diesel-ban.json (ACTIVE, no PASS audit yet: theme is MAPPED under DEPTH scope) and data/market/0386-HK.json (yfinance-statements vendor, T3), which was already on disk: the initial batch scan wrongly checked the bare exchange code 00386 instead of the mapping's own suffixed market_ticker 0386.HK, caught by tools/check_profile.py's stale-market-claim gate before commit. 8 of 12 canonical fields filled; valuation and reverse_dcf (4 fields) NULL on a real CNY/HKD currency mismatch (method section 6A). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T15:16:47Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['valuation.market_cap', 'valuation.price_to_sales', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+    "null_canonical_fields": [
+      "valuation.market_cap",
+      "valuation.price_to_sales",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "reason": "Sits on russian-diesel-ban/refinery-capacity-response (New conversion capacity outside Russia, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 4 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed.",
+    "revisit": "Revisit once the named canonical fields carry a sourced value (a fetch or an official-source cross-check), then re-run run selection CAMP-20260901-01."
+  }
 }

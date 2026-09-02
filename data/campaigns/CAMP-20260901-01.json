@@ -2104,7 +2104,780 @@
   "kept_work_outside_the_slate": "SIG-20260829-03 (humanoid-actuators) carries a complete chain, heat on all 13 links and 5 scenarios on disk and still falls outside the ten on score, three points below the tenth slot. The work is kept and stays visible in the app; the slot is not. Letting sunk work buy a slot is the bias the impact stage exists to remove.",
   "stage_honesty": "Themes 1 and 6 are written at MAPPED, which is exactly what tools/check_campaign.py:_actual_theme_stage computes from disk: chain present, heat verdict on every link, scenarios present, mapping status COMPLETE, and then fewer than 10 completed profiles for the chain, which stops the advance. The other eight are SELECTED with chain_id null, the only stage the gate permits without a resolved chain.",
   "what_initialization_did_not_do": "No chain was built, no issuer mapped, no company profiled, no name screened, no opportunity tier assigned, and no verdict written. The manifest is the only object this run creates.",
-  "ron-2026-09-02T00:04:52Z": "DEPTH mode (method 6A, Ron 2026-09-01). Same ten-theme slate, selection_basis, alternates and exclusions as CAMP-20260830-01, carried forward verbatim; only targets change. Per theme: census the money-corner and UNDISCOVERED links to 5 issuers, profile those, select 1-3 O1, dive them. Done at 10-20 FINAL verdicts."
+  "ron-2026-09-02T00:04:52Z": "DEPTH mode (method 6A, Ron 2026-09-01). Same ten-theme slate, selection_basis, alternates and exclusions as CAMP-20260830-01, carried forward verbatim; only targets change. Per theme: census the money-corner and UNDISCOVERED links to 5 issuers, profile those, select 1-3 O1, dive them. Done at 10-20 FINAL verdicts.",
+  "selection_preview": {
+   "as_of": "2026-09-02",
+   "written_by": "sieve-profiler",
+   "command": "run selection CAMP-20260901-01",
+   "what_this_is": "A ranked shortlist per theme of the COMPLETE issuers this run WOULD promote to O1, with the seven-dimension basis drafted in advance. It is not a promotion and no profile was moved to O1 by it. Method section 6A requires an O1 profile to carry screen_handoff{screen_ref,chain_id,link_id,listing_id} resolving to a campaign-v1 screen row, and tools/check_profile.py enforces that: 'O1 screen handoff does not resolve to the issuer's mapping placement' / 'screen_handoff.screen_ref does not resolve in data/screens/'. Three of these four themes have no screen at all and the fourth has no row on any in-scope link, so no handoff can be written today. Each entry names the exact prerequisite command. This block is append-only and touches no frozen field.",
+   "depth_scope_note": "targets.links_in_scope is ['money_corner','UNDISCOVERED'], so a theme's O1 budget of 1-3 is spent on links whose heat says the money is. Every candidate below sits on such a link. Link names, verdicts and capture scores are read from the chain files, not restated from memory.",
+   "themes": {
+    "tibet-mega-dam": {
+     "chain_id": "tibet-mega-dam",
+     "prerequisite": "run screen tibet-mega-dam",
+     "prerequisite_state": "data/mappings/tibet-mega-dam.json is COMPLETE with a current PASS audit (2026-08-30T13:32:53Z, fingerprint still matching), so a census-scoped campaign-v1 screen may be written today with no further audit. The existing data/screens/tibet-mega-dam.json carries 7 rows, all on copper-conductors and riparian-risk-monitoring, both QUIET and both outside targets.links_in_scope; it has no row on any in-scope link. The money-corner link global-hydro-spillover was recorded empty on 2026-09-02T00:19Z because its 10 placements were BLOCKED at O3; 10 of them are COMPLETE as of this run, which is exactly what the screen re-run now has to consume.",
+     "in_scope_links": [
+      {
+       "link_id": "global-hydro-spillover",
+       "position": 4,
+       "verdict": "UNDISCOVERED",
+       "money_corner": true,
+       "impact": 70,
+       "crowdedness": 30,
+       "capture": 65,
+       "complete_profiles": 10
+      },
+      {
+       "link_id": "tunneling-tbm",
+       "position": 6,
+       "verdict": "UNDISCOVERED",
+       "money_corner": false,
+       "impact": null,
+       "capture": 55,
+       "complete_profiles": 12
+      },
+      {
+       "link_id": "india-counter-buildout",
+       "position": 10,
+       "verdict": "UNDISCOVERED",
+       "money_corner": false,
+       "capture": 45,
+       "complete_profiles": 0,
+       "note": "No COMPLETE profile on this link yet; nothing to shortlist."
+      }
+     ],
+     "shortlist": [
+      {
+       "rank": 1,
+       "issuer_id": "ANDRITZ",
+       "listing_id": "VIE:ANDR",
+       "ticker": "ANDR.VI",
+       "data_tier": "T3",
+       "link_id": "global-hydro-spillover",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_EVIDENCED_PCT_UNDISCLOSED",
+         "basis": "One ACTIVE placement on the chain's money corner, role 'Supplies global hydropower projects from the non-Chinese equipment capacity pool.' The mapped evidence is an ANDRITZ press release of 2025-05-20 (tag INFERRED) recording a Turkish water-to-wire turbine-generator contract and ANDRITZ describing itself as a leading global hydropower equipment supplier. This is the one name on the link the chain's own role text names by company, which is why it leads.",
+         "disclosed_theme_revenue_pct": {
+          "value": null,
+          "tag": "NULL",
+          "basis": "No Medog- or China-capacity-attributable revenue share is disclosed; the exposure argument rests on role, not on a measured share."
+         },
+         "source_refs": [
+          "data/mappings/tibet-mega-dam.json",
+          "data/chains/tibet-mega-dam.json"
+         ]
+        },
+        "capture": {
+         "link_capture_score": 65,
+         "link_investability": "PARTIAL",
+         "operating_margin": 0.074324,
+         "basis": "The chain scores global-hydro-spillover capture 65 on 'Western hydro equipment is an Andritz/Voith/GE Vernova oligopoly with decades-long service annuities'. ANDRITZ's own operating margin of 7.43 percent (vendor block, INFERRED) is the honest counterweight: an oligopoly on paper that earns a project-engineering margin, not an equipment-vendor margin. This is the dimension a dive must attack first.",
+         "what_would_change_it": "A disclosed hydro-division margin or backlog price escalator, neither on disk today."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": true,
+         "heat_as_of": "2026-08-29",
+         "scores": {
+          "impact": 70,
+          "crowdedness": 30,
+          "capture": 65
+         },
+         "basis": "Ember: impact 70 ('China's domestic mega-demand absorbs Chinese supplier capacity exactly as the global hydro/pumped-storage cycle inflects'), crowdedness 30 ('Andritz-class names are covered as boring European industrials, not as beneficiaries of Chinese capacity absorption; zero retail narrative'). The crowdedness rationale names this issuer class explicitly, which is the strongest un-crowdedness evidence on the theme.",
+         "bottleneck_criticality": "MEDIUM"
+        },
+        "quality": {
+         "piotroski": 4,
+         "beneish_state": -2.42,
+         "revenue_cagr_3y": 0.014813,
+         "fcf_margin": 0.057668,
+         "operating_cash_flow_to_net_income": 1.430419,
+         "net_debt_to_ebitda": -0.097762,
+         "basis": "Zero NULL canonical fields. Net cash (net debt / EBITDA -0.10) and cash conversion 1.43x are the strengths; Piotroski 4 and a 1.5 percent three-year revenue CAGR are the weaknesses, and they are what a dive has to reconcile with a thesis of tightening demand. Beneish -2.42 is below the -1.78 manipulation threshold. Every figure here is the yfinance-statements vendor block, INFERRED and official_source false.",
+         "weakest_link": "Piotroski 4 on a name whose thesis is an upcycle."
+        },
+        "expectations_gap": {
+         "price_to_sales": 1.035544,
+         "market_cap": 8163299540.2,
+         "implied_fcf_cagr": 0.053,
+         "horizon_spread": 0.0121,
+         "basis": "Price/sales 1.04 and a reverse-DCF implied FCF CAGR of 5.3 percent with a 1.21 point horizon spread: the market is not pricing a hydro upcycle into this name. That is the gap. Both reverse-DCF figures are tagged SPECULATIVE in the profile and stay that way until an official-source cross-check lands.",
+         "caveat": "Market cap and P/S rest on the vendor block; the currency check in method 6A applies."
+        },
+        "evidence_confidence": {
+         "state": "PLACEMENT_EVIDENCE_INFERRED_CENSUS_AUDITED",
+         "basis": "The placement evidence item is tagged INFERRED, not VERIFIED, so this row can only be screened under the census audit, which tibet-mega-dam currently has (PASS, fingerprint current). Every canonical metric is a vendor aggregate at official_source false, so the O1 official cross-check in method 6A binds: revenue.latest_fy (EUR 7,883,100,000) and the cash-conversion field must be re-sourced to ANDRITZ's own annual report or IR page before promotion. That is web work and needs a local session per the venue split.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "No duplication with any current O1. Within this link, HITACHI and MITSUBISHI-ELECTRIC are the same economic asset twice (both own Hitachi Mitsubishi Hydro) and MITSUBISHI-HEAVY-INDUSTRIES is a third Japanese heavy conglomerate on the same pool; ANDRITZ is the only candidate whose hydro exposure is not diluted inside a group an order of magnitude larger."
+        }
+       },
+       "cross_check_required": [
+        "metrics.revenue.latest_fy",
+        "metrics.cash_conversion.fcf_margin or .operating_cash_flow_to_net_income"
+       ],
+       "null_canonical_fields": []
+      },
+      {
+       "rank": 2,
+       "issuer_id": "MITSUBISHI-HEAVY-INDUSTRIES",
+       "listing_id": "TSE:7011",
+       "ticker": "7011.T",
+       "data_tier": "T3",
+       "link_id": "global-hydro-spillover",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_EVIDENCED_PCT_UNDISCLOSED",
+         "basis": "Two ACTIVE in-scope placements on this one theme: global-hydro-spillover ('Supplies global hydro manufacturing capacity through HM Hydro', MHI hydropower product page retrieved 2026-08-29, INFERRED) and tunneling-tbm ('Owns 40% of JIM Technology, which manufactures open and shield-type hard-rock TBMs', MHI integration release 2016-10-03, INFERRED). Two in-scope links on one chain is the broadest exposure any candidate has here.",
+         "disclosed_theme_revenue_pct": {
+          "value": null,
+          "tag": "NULL",
+          "basis": "Neither hydro nor TBM revenue is separately disclosed inside a JPY 4.36 trillion group; the dilution is the case against, and it is stated rather than argued away."
+         }
+        },
+        "capture": {
+         "link_capture_score": 65,
+         "operating_margin": 0.081991,
+         "basis": "Capture 65 on the money corner, 55 on tunneling-tbm. MHI's 8.20 percent operating margin is the group's, not the hydro unit's, and HM Hydro is a joint venture, so the economics reaching the listed line are a minority of a minority. That is the honest capture weakness.",
+         "what_would_change_it": "Segment disclosure separating HM Hydro or JIM Technology economics."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": true,
+         "heat_as_of": "2026-08-29",
+         "scores": {
+          "impact": 70,
+          "crowdedness": 30,
+          "capture": 65
+         },
+         "basis": "Same money-corner heat as rank 1, plus a second UNDISCOVERED link (tunneling-tbm, capture 55) that is genuinely un-narrated as a Medog consequence."
+        },
+        "quality": {
+         "piotroski": 7,
+         "beneish_state": -2.623,
+         "revenue_cagr_3y": 0.012403,
+         "fcf_margin": 0.058254,
+         "operating_cash_flow_to_net_income": 1.597147,
+         "net_debt_to_ebitda": -0.796002,
+         "basis": "Zero NULL canonical fields, Piotroski 7 and net cash: the best quality profile of the money-corner candidates. Revenue CAGR 1.24 percent is flat, which argues the hydro/defense mix has not yet inflected.",
+         "weakest_link": "Flat top line."
+        },
+        "expectations_gap": {
+         "price_to_sales": 2.971014,
+         "market_cap": 12956967215040.0,
+         "implied_fcf_cagr": 0.2775,
+         "horizon_spread": 0.1192,
+         "basis": "Price/sales 2.97 and an implied FCF CAGR of 27.75 percent: the market already demands a lot here, and the defense re-rating is the likely reason. The expectations gap is the WEAKEST of the three tibet candidates and is why this is rank 2, not rank 1."
+        },
+        "evidence_confidence": {
+         "state": "PLACEMENT_EVIDENCE_INFERRED_CENSUS_AUDITED",
+         "basis": "Both placements carry INFERRED evidence and one of them rests on a 2016 corporate release plus a product page, which is thin for a 2026 thesis. Vendor-aggregate metrics throughout, so the same O1 official cross-check binds on revenue.latest_fy and cash conversion.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "Real and recorded: HITACHI and MITSUBISHI-ELECTRIC jointly own Hitachi Mitsubishi Hydro and MHI runs HM Hydro, so at most ONE Japanese heavy name may be promoted on this link. MHI is chosen over the other two because it is the least diluted (JPY 4.36trn revenue against Hitachi's JPY 10.59trn) and because Hitachi and Mitsubishi Electric would be the same JV counted twice."
+        }
+       },
+       "cross_check_required": [
+        "metrics.revenue.latest_fy",
+        "metrics.cash_conversion.fcf_margin or .operating_cash_flow_to_net_income"
+       ],
+       "null_canonical_fields": []
+      },
+      {
+       "rank": 3,
+       "issuer_id": "EPIROC",
+       "listing_id": null,
+       "ticker": null,
+       "data_tier": "T3",
+       "link_id": "tunneling-tbm",
+       "listing_note": "listing_id and ticker to be read from data/mappings/tibet-mega-dam.json at promotion; not restated from memory here.",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_EVIDENCED_PCT_UNDISCLOSED",
+         "basis": "One ACTIVE placement on tunneling-tbm, role 'Supplies automated face-drilling, grouting, and rock-reinforcement equipment for drill-and-blast tunneling', evidenced by an Epiroc press release of 2025-03-31 describing the Total Tunneling offering (INFERRED). The Medog scheme is predominantly tunnelled, which is what puts this link in scope.",
+         "disclosed_theme_revenue_pct": {
+          "value": null,
+          "tag": "NULL",
+          "basis": "No project-attributable share disclosed."
+         }
+        },
+        "capture": {
+         "link_capture_score": 55,
+         "operating_margin": 0.201539,
+         "basis": "Capture 55 is mid-band, but Epiroc's 20.15 percent operating margin is the highest of any tibet candidate and is consumables-and-aftermarket shaped rather than project shaped. Where ANDRITZ has the better link and the worse margin, this name is the reverse."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": false,
+         "heat_as_of": "2026-08-29",
+         "scores": {
+          "capture": 55
+         },
+         "basis": "tunneling-tbm is UNDISCOVERED and therefore in DEPTH scope, but it is NOT the money corner; rank 3 reflects that."
+        },
+        "quality": {
+         "piotroski": 5,
+         "revenue_cagr_3y": 0.076526,
+         "basis": "Zero NULL canonical fields, Piotroski 5, three-year revenue CAGR 7.65 percent, the best growth of the tibet shortlist. Vendor block throughout."
+        },
+        "expectations_gap": {
+         "basis": "To be stated from the profile's valuation and reverse-DCF group at promotion; the profile carries both non-null today, so no field is missing. Not restated here because this run did not re-read the price file."
+        },
+        "evidence_confidence": {
+         "state": "PLACEMENT_EVIDENCE_INFERRED_CENSUS_AUDITED",
+         "basis": "INFERRED placement evidence under a current PASS census audit; vendor-aggregate metrics, so the O1 official cross-check binds on revenue.latest_fy and cash conversion.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "SANDVIK is the same economic exposure (Swedish rock-excavation equipment into the same tunnelling spend, Piotroski 8, operating margin 17.38 percent) and is the immediate alternate if Epiroc's cross-check fails; only one of the two may be promoted. KOMATSU and XCMG-MACHINERY are broader earthmoving and are a third expression of the same construction spend."
+        }
+       },
+       "cross_check_required": [
+        "metrics.revenue.latest_fy",
+        "metrics.cash_conversion.fcf_margin or .operating_cash_flow_to_net_income"
+       ],
+       "null_canonical_fields": []
+      }
+     ],
+     "alternates": [
+      {
+       "issuer_id": "SANDVIK",
+       "link_id": "tunneling-tbm",
+       "reason": "Piotroski 8, operating margin 17.38 percent, zero NULLs; held as the direct substitute for EPIROC because promoting both would be one exposure twice."
+      },
+      {
+       "issuer_id": "BHARAT-HEAVY-ELECTRICALS",
+       "link_id": "global-hydro-spillover",
+       "reason": "Piotroski 8 and 13.5 percent revenue CAGR, but net debt / EBITDA 3.70 and price/sales 4.59 make it the most expensive and most levered of the money-corner set, and its role evidence is regional Indian hydro rather than the non-Chinese global pool the link describes."
+      },
+      {
+       "issuer_id": "MITSUBISHI-ELECTRIC",
+       "link_id": "global-hydro-spillover",
+       "reason": "Zero NULLs and Piotroski 7, excluded only by the duplicate-exposure rule against MITSUBISHI-HEAVY-INDUSTRIES and HITACHI on the same JV."
+      },
+      {
+       "issuer_id": "HITACHI",
+       "link_id": "global-hydro-spillover",
+       "reason": "Same Hitachi Mitsubishi Hydro JV as MITSUBISHI-ELECTRIC and the most diluted of the three (JPY 10.59trn revenue)."
+      },
+      {
+       "issuer_id": "KOMATSU",
+       "link_id": "tunneling-tbm",
+       "reason": "Zero NULLs, Piotroski 5; broader earthmoving rather than a tunnelling-specific expression."
+      },
+      {
+       "issuer_id": "XCMG-MACHINERY",
+       "link_id": "tunneling-tbm",
+       "reason": "Zero NULLs and Piotroski 8, but a Chinese domestic construction-equipment maker is the crowded side of this occurrence, not the un-crowded one."
+      }
+     ],
+     "barred_now": [
+      {
+       "issuer_id": "GE-VERNOVA",
+       "reason": "5 NULL canonical fields (leverage, both quality fields, both reverse-DCF fields); the only T1 filer on the money corner and the best cross-check position, so closing those NULLs would make it a genuine rank-1 contender."
+      },
+      {
+       "issuer_id": "DONGFANG-ELECTRIC",
+       "reason": "4 NULL canonical fields (market cap, price/sales, both reverse-DCF)."
+      },
+      {
+       "issuer_id": "HARBIN-ELECTRIC",
+       "reason": "6 NULL canonical fields."
+      },
+      {
+       "issuer_id": "FUJI-ELECTRIC",
+       "reason": "quality.beneish_state NULL."
+      },
+      {
+       "issuer_id": "ZHEFU-HOLDING-GROUP",
+       "reason": "both reverse-DCF fields NULL."
+      }
+     ],
+     "existing_screen_rows_examined": {
+      "count": 7,
+      "finding": "Every one of the 7 campaign-v1 rows on data/screens/tibet-mega-dam.json was examined against the seven-dimension bar and NONE clears it, for two independent reasons. First, all 7 sit on copper-conductors (QUIET, capture 45) or riparian-risk-monitoring (QUIET, capture 40), neither of which is in targets.links_in_scope, so promoting one would spend the theme's O1 budget outside the scope the campaign froze. Second, 6 of the 7 carry NULL canonical metric fields and are barred from O1 outright by method section 6A: FREEPORT-MCMORAN 6, PLANET-LABS-PBC 7, SATELLOGIC 6, BLACKSKY-TECHNOLOGY 5, SOUTHERN-COPPER 4, SPIRE-GLOBAL 3. Only TRIMBLE has zero NULLs, and its link is QUIET, its theme_revenue_exposure is NULL with basis, and its Tibet-basin exposure is a fraction of a diversified positioning business. Supporting facts: the screen's own health block reads fully_scored 0 of 7 with crowdedness PENDING_DATA on every row, and the four riparian names are one smallsat-imagery exposure counted four times while FCX and SCCO are one copper exposure counted twice.",
+      "outcome": "PROMOTE_NONE"
+     }
+    },
+    "munitions-replenishment": {
+     "chain_id": "munitions-replenishment",
+     "prerequisite": "run screen munitions-replenishment",
+     "prerequisite_state": "data/mappings/munitions-replenishment.json is ACTIVE with audit FAIL (2026-08-31T20:58:00Z), so a census-scoped screen is refused by tools/check_screen.py. The GENERAL-DYNAMICS placement carries a single VERIFIED evidence item, so a row on it IS admissible today under audit_scope: 'PLACEMENT' (Ron, 2026-09-01). No universe-audit re-run is needed first for this one name.",
+     "in_scope_links": [
+      {
+       "link_id": "load-assemble-pack",
+       "position": 9,
+       "verdict": "UNDISCOVERED",
+       "money_corner": false,
+       "impact": 72,
+       "crowdedness": 25,
+       "capture": 28,
+       "complete_profiles": 1
+      }
+     ],
+     "shortlist": [
+      {
+       "rank": 1,
+       "issuer_id": "GENERAL-DYNAMICS",
+       "listing_id": "NYSE-GD",
+       "ticker": "GD",
+       "data_tier": "T1",
+       "link_id": "load-assemble-pack",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "DISCLOSED_ROLE_VERIFIED_PCT_UNDISCLOSED",
+         "basis": "One ACTIVE placement, role 'Operates and is expanding artillery projectile and propelling charge load, assemble and pack lines', evidenced VERIFIED from the General Dynamics 2025 Form 10-K, Ordnance and Tactical Systems business description: 'To meet growing demand, OTS across multiple locations is expanding production capacity and capabilities, including artillery-projectile and propelling-charge load, assemble and pack lines'. This is the only filing-verified placement on the link and the only COMPLETE profile on it.",
+         "disclosed_theme_revenue_pct": {
+          "value": null,
+          "tag": "NULL",
+          "basis": "No LAP-line revenue is separately disclosed inside Ordnance and Tactical Systems, itself a segment of a USD 52.55bn revenue group."
+         }
+        },
+        "capture": {
+         "link_capture_score": 28,
+         "link_investability": "MOSTLY_PRIVATE",
+         "operating_margin": 0.101922,
+         "basis": "This is the dimension that may sink the promotion, and it is stated first rather than last. Ember scores capture 28: 'Government-owned capacity with no disclosed operator margin and a cost structure the customer sets.' The capacity named in coverage is the Iowa Army Ammunition Plant plus new plants in Kansas and Arkansas, government-owned. A contractor operating government plant on a cost-set structure captures volume, not margin, which is exactly method section 4's volume-without-capture trap.",
+         "what_would_change_it": "Disclosed facility-level margin or a fixed-price expansion contract in GD's own filings."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": false,
+         "heat_as_of": "2026-08-30",
+         "scores": {
+          "impact": 72,
+          "crowdedness": 25,
+          "capture": 28
+         },
+         "bottleneck_criticality": "HIGH",
+         "basis": "Impact 72 and crowdedness 25: genuinely un-narrated, and HIGH bottleneck criticality because two upstream flows, energetics and metal parts, must arrive at the same time. But Ember's own crowdedness rationale says it is 'quiet because there is nothing to own', and the link carries no example tickers. An un-crowded link with nothing to own is a no-candidate finding, not a cheap O1."
+        },
+        "quality": {
+         "piotroski": 2,
+         "beneish_state": -2.44,
+         "revenue_cagr_3y": 0.100694,
+         "operating_cash_flow_to_net_income": 1.216152,
+         "fcf_margin": 0.075338,
+         "net_debt_to_ebitda": 0.414809,
+         "basis": "Zero NULL canonical fields and a T1 SEC filer, the cleanest data position of any candidate in this preview. Piotroski 2 is the flag: on a name with 10.07 percent three-year revenue growth and 1.22x cash conversion, a score that low needs explaining before a dive, not after.",
+         "weakest_link": "Piotroski 2."
+        },
+        "expectations_gap": {
+         "price_to_sales": 1.951746,
+         "market_cap": 102564243383.88,
+         "implied_fcf_cagr": 0.1506,
+         "horizon_spread": 0.0566,
+         "basis": "Price/sales 1.95 on a USD 102.6bn defense prime with an implied FCF CAGR of 15.06 percent. The market is already paying for the rearmament cycle; there is no visible gap specific to the LAP line, because the LAP line is invisible inside the group."
+        },
+        "evidence_confidence": {
+         "state": "VERIFIED_PLACEMENT_T1_FILER",
+         "basis": "The strongest evidence position in this preview: VERIFIED placement evidence from the issuer's own 10-K, revenue.latest_fy VERIFIED with official_source true, and cash conversion INFERRED with official_source true. The O1 official cross-check in method 6A is already satisfied. The weakness is the census audit FAIL, which confines a screen row to placement scope.",
+         "blocking": false
+        },
+        "duplicate_exposure": {
+         "basis": "No duplication: it is the only COMPLETE profile on the only in-scope link of this theme. GD also appears on other munitions links, so the screen must place it on load-assemble-pack and carry any second link as secondary_links on one row, never as a second row."
+        }
+       },
+       "cross_check_required": [],
+       "null_canonical_fields": []
+      }
+     ],
+     "honest_alternative": "This theme may legitimately close with a sourced no_candidate_finding rather than an O1. The link's capture score is 28 because the capacity is government-owned, and a USD 102.6bn diversified prime is a weak expression of a single ammunition-plant line. If the dive cannot show margin actually reaching the listed line, the DEPTH-correct outcome is the no-candidate finding method section 6A provides for, not a padded verdict.",
+     "barred_now": []
+    },
+    "hormuz-maritime": {
+     "chain_id": "hormuz-maritime",
+     "prerequisite": "run universe-audit hormuz-maritime, then run screen hormuz-maritime",
+     "prerequisite_state": "TWO prerequisites, not one. data/mappings/hormuz-maritime.json is ACTIVE with NO audit block at all, so a census-scoped screen is refused; and all three broker placements carry a single INFERRED evidence item (one Insurance Journal article of 2026-03-06 for all three), so the placement-scope escape hatch is also refused, which requires every evidence item on the placement to be VERIFIED. Either the census is audited to PASS, or the three placements are re-evidenced to VERIFIED against the brokers' own filings or releases. Separately, all three candidates carry NULL canonical fields today and none could be promoted even with a screen row.",
+     "in_scope_links": [
+      {
+       "link_id": "specialty-marine-broking",
+       "position": 4,
+       "verdict": "UNDISCOVERED",
+       "money_corner": true,
+       "impact": 62,
+       "crowdedness": 30,
+       "capture": 62,
+       "complete_profiles": 3
+      },
+      {
+       "link_id": "bunker-and-voyage-services",
+       "position": 7,
+       "verdict": "UNDISCOVERED",
+       "money_corner": false,
+       "capture": 35,
+       "complete_profiles": 3,
+       "note": "BP (8 NULLs), CHEVRON (6) and WORLD-KINECT (2) all carry NULL canonical fields; capture 35 also makes it the weaker link."
+      },
+      {
+       "link_id": "maritime-risk-and-protection",
+       "complete_profiles": 0
+      },
+      {
+       "link_id": "crew-and-warlike-area-manning",
+       "complete_profiles": 0
+      },
+      {
+       "link_id": "hormuz-bypass-pipelines",
+       "complete_profiles": 0
+      }
+     ],
+     "shortlist": [
+      {
+       "rank": 1,
+       "issuer_id": "MARSH-MCLENNAN",
+       "listing_id": "NYSE-MRSH",
+       "ticker": "MRSH",
+       "data_tier": "T1",
+       "link_id": "specialty-marine-broking",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_EVIDENCED_RATE_SETTER",
+         "basis": "One ACTIVE placement on the chain's money corner, role 'Specialty marine broker quoting and placing hull war cover for Gulf transits; its marine hull UK war leader sets the rating range the market is quoting', evidenced from Insurance Journal, 'Maritime Insurance Premiums Surge as Iran Conflict Widens', 2026-03-06 (INFERRED). It is ranked first of the three brokers because its mapped role is rate-SETTER, not commentator: the other two placements evidence executives describing the market, this one evidences the war leader setting the range.",
+         "disclosed_theme_revenue_pct": {
+          "value": null,
+          "tag": "NULL",
+          "basis": "Marine war broking commission is not separately disclosed inside a USD 26.98bn revenue broker; the Gulf marine war book is small in absolute terms, which Ember's own impact rationale says explicitly."
+         }
+        },
+        "capture": {
+         "link_capture_score": 62,
+         "operating_margin": 0.230644,
+         "fcf_margin": 0.185353,
+         "basis": "Ember: 'The broker takes a share of premium and none of the claim, which in this specific event is the difference between a fee on a repriced base and an aggregate loss. The shipowner can move between brokers but not around them for a Lloyd's placement.' A 23.06 percent operating margin and 18.54 percent FCF margin are consistent with fee capture rather than risk capture, which is exactly the link's thesis."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": true,
+         "heat_as_of": "2026-08-30",
+         "scores": {
+          "impact": 62,
+          "crowdedness": 30,
+          "capture": 62
+         },
+         "basis": "The single best un-crowdedness rationale on any theme in this campaign: 'The brokers appear all over this occurrence as quoted market commentators and nowhere as the trade. Every cited rate figure on this map is sourced to a broker executive, and not one cited source frames a listed broker as a beneficiary.' That is un-crowdedness demonstrated by the evidence corpus itself."
+        },
+        "quality": {
+         "piotroski": null,
+         "beneish_state": null,
+         "revenue_cagr_3y": 0.092,
+         "operating_cash_flow_to_net_income": 1.272115,
+         "net_debt_to_ebitda": 2.611027,
+         "basis": "BLOCKING TODAY: quality.piotroski and quality.beneish_state are both NULL, and method section 6A forbids an O1 profile retaining a NULL canonical field. Everything else is filled: 9.2 percent three-year revenue CAGR, 1.27x cash conversion, 2.61x net debt / EBITDA. Two fields stand between this name and O1 eligibility, the fewest of the three brokers.",
+         "blocking": true
+        },
+        "expectations_gap": {
+         "price_to_sales": 3.411771,
+         "market_cap": 92053000000.0,
+         "implied_fcf_cagr": 0.1022,
+         "horizon_spread": 0.034,
+         "basis": "Price/sales 3.41 with an implied FCF CAGR of 10.22 percent: a quality compounder priced as one. The gap is not in the multiple, it is in whether a war-risk commission cycle is in the multiple at all, and Ember's crowdedness rationale says it is not."
+        },
+        "evidence_confidence": {
+         "state": "PLACEMENT_EVIDENCE_INFERRED_NO_CENSUS_AUDIT",
+         "basis": "Weakest evidence position in this preview and the reason for the two-command prerequisite: one INFERRED trade-press article carries all three broker placements, and the mapping has no audit block at all. revenue.latest_fy is VERIFIED and both cash-conversion fields are INFERRED with official_source true, so the O1 cross-check itself is satisfied; the problem is the placement, not the metric.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "Material: AON and ARTHUR-J-GALLAGHER are the same economic exposure on the same link, and WILLIS-TOWERS-WATSON is a fourth placement on it (BLOCKED at O3). At most one broker should be promoted; three would be one trade counted three times and would consume the theme's entire DEPTH O1 budget on a single idea."
+        }
+       },
+       "cross_check_required": [],
+       "null_canonical_fields": [
+        "quality.piotroski",
+        "quality.beneish_state"
+       ]
+      },
+      {
+       "rank": 2,
+       "issuer_id": "AON",
+       "listing_id": "NYSE-AON",
+       "ticker": "AON",
+       "data_tier": "T1",
+       "link_id": "specialty-marine-broking",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_EVIDENCED_COMMENTATOR",
+         "basis": "Role 'Global insurance broker whose marine practice places hull war cover for vessels transiting high-risk Gulf waters', evidenced by the same 2026-03-06 Insurance Journal article quoting Aon's head of marine for Asia (INFERRED). A weaker mapped role than rank 1: describing the market, not setting the range."
+        },
+        "capture": {
+         "link_capture_score": 62,
+         "operating_margin": 0.252837,
+         "fcf_margin": 0.1873,
+         "basis": "Highest operating margin of the three brokers at 25.28 percent, on the same link capture score of 62."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": true,
+         "scores": {
+          "impact": 62,
+          "crowdedness": 30,
+          "capture": 62
+         },
+         "basis": "Identical link heat to rank 1; the ranking between them is decided on role evidence and on how many NULL fields stand in the way."
+        },
+        "quality": {
+         "basis": "BLOCKING: 7 NULL canonical fields (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread). Five more than rank 1.",
+         "blocking": true
+        },
+        "expectations_gap": {
+         "basis": "Cannot be stated: valuation.market_cap, valuation.price_to_sales and both reverse-DCF fields are NULL. The dimension is empty for a data reason and is recorded as such rather than filled with a guess.",
+         "blocking": true
+        },
+        "evidence_confidence": {
+         "state": "PLACEMENT_EVIDENCE_INFERRED_NO_CENSUS_AUDIT",
+         "basis": "Same single INFERRED trade-press item and same missing census audit as rank 1.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "Same economic exposure as rank 1 and rank 3; only one broker may be promoted."
+        }
+       },
+       "cross_check_required": [],
+       "null_canonical_fields": [
+        "leverage.net_debt_to_ebitda",
+        "quality.piotroski",
+        "quality.beneish_state",
+        "valuation.market_cap",
+        "valuation.price_to_sales",
+        "reverse_dcf.implied_fcf_cagr",
+        "reverse_dcf.horizon_spread"
+       ]
+      },
+      {
+       "rank": 3,
+       "issuer_id": "ARTHUR-J-GALLAGHER",
+       "listing_id": "NYSE-AJG",
+       "ticker": "AJG",
+       "data_tier": "T1",
+       "link_id": "specialty-marine-broking",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_EVIDENCED_COMMENTATOR",
+         "basis": "Role 'Major insurance broker whose marine division quotes war-risk rates that change daily by vessel type for Gulf transits', from the same 2026-03-06 article quoting Gallagher's marine divisional director (INFERRED)."
+        },
+        "capture": {
+         "link_capture_score": 62,
+         "basis": "Same link capture 62, but the issuer's own operating margin is NULL, so no issuer-level capture evidence can be stated."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": true,
+         "scores": {
+          "impact": 62,
+          "crowdedness": 30,
+          "capture": 62
+         },
+         "basis": "Identical link heat to ranks 1 and 2."
+        },
+        "quality": {
+         "basis": "BLOCKING: 6 NULL canonical fields including margins.operating_margin and cash_conversion.fcf_margin, so two of the seven dimensions cannot be evidenced at all.",
+         "blocking": true
+        },
+        "expectations_gap": {
+         "price_to_sales": 4.93207,
+         "market_cap": 68762920000.0,
+         "basis": "Price/sales 4.93 is the most expensive of the three brokers, and both reverse-DCF fields are NULL, so no implied-growth read is available.",
+         "blocking": true
+        },
+        "evidence_confidence": {
+         "state": "PLACEMENT_EVIDENCE_INFERRED_NO_CENSUS_AUDIT",
+         "basis": "Same as ranks 1 and 2.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "Third instance of one exposure; ranked last for that reason plus the most NULL-blocked dimensions."
+        }
+       },
+       "cross_check_required": [],
+       "null_canonical_fields": [
+        "margins.operating_margin",
+        "cash_conversion.fcf_margin",
+        "leverage.net_debt_to_ebitda",
+        "quality.beneish_state",
+        "reverse_dcf.implied_fcf_cagr",
+        "reverse_dcf.horizon_spread"
+       ]
+      }
+     ],
+     "barred_now": [
+      {
+       "issuer_id": "BP",
+       "reason": "bunker-and-voyage-services, 8 NULL canonical fields; also an oil major as an expression of a bunker-services link is the diluted end of the chain."
+      },
+      {
+       "issuer_id": "CHEVRON",
+       "reason": "bunker-and-voyage-services, 6 NULL canonical fields, same dilution objection."
+      },
+      {
+       "issuer_id": "WORLD-KINECT",
+       "reason": "bunker-and-voyage-services, 2 NULL canonical fields (quality.piotroski, quality.beneish_state) and a negative operating margin of -1.53 percent; the closest of the three to eligibility on this weaker link."
+      }
+     ]
+    },
+    "russian-diesel-ban": {
+     "chain_id": "russian-diesel-ban",
+     "prerequisite": "run screen russian-diesel-ban",
+     "prerequisite_state": "data/mappings/russian-diesel-ban.json is ACTIVE with no audit block, so a census-scoped screen is refused. Both shortlisted placements carry VERIFIED evidence only, so rows on them ARE admissible today under audit_scope: 'PLACEMENT'. No universe-audit is required first for these two names.",
+     "in_scope_links": [
+      {
+       "link_id": "hydroprocessing-catalysts",
+       "position": 2,
+       "verdict": "UNDISCOVERED",
+       "money_corner": true,
+       "impact": 60,
+       "crowdedness": 25,
+       "capture": 70,
+       "complete_profiles": 1
+      },
+      {
+       "link_id": "refinery-capacity-response",
+       "position": 9,
+       "verdict": "UNDISCOVERED",
+       "money_corner": false,
+       "impact": 60,
+       "crowdedness": 35,
+       "capture": 55,
+       "complete_profiles": 1
+      }
+     ],
+     "shortlist": [
+      {
+       "rank": 1,
+       "issuer_id": "ALBEMARLE",
+       "listing_id": "NEW-YORK-STOCK-EXCHANGE:ALB",
+       "ticker": "ALB",
+       "data_tier": "T1",
+       "link_id": "hydroprocessing-catalysts",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_VERIFIED_BUT_OWNERSHIP_IN_QUESTION",
+         "basis": "One ACTIVE placement on the chain's money corner, role 'Owns the Ketjen catalyst business whose Refining Solutions unit supplies refining catalysts, the charge this link measures', evidenced VERIFIED from Albemarle's Form 10-Q for the period ended 2025-03-31: 'recognize a non-cash goodwill impairment loss in the Refining Solutions reporting unit within the Ketjen segment ... the balance of Ketjen at March 31, 2025 and December 31, 2024 fully consists of goodwill related to the Refining Solutions reporting unit.'",
+         "open_question": "THE DECISIVE ONE, and the screen must resolve it before any promotion. Ember's own crowdedness rationale for this link records that 'a 51% controlling stake in Ketjen's refining catalyst solutions business went on 2 March 2026, the residue is now equity income parked in Corporate'. If that is right, the placement's role text describes a business the issuer no longer consolidates, and the listed expression of this link may be equity income rather than an operating segment. The mapped evidence predates the sale. This is a mapping-refresh question as much as a screening one.",
+         "disclosed_theme_revenue_pct": {
+          "value": null,
+          "tag": "NULL",
+          "basis": "No diesel-catalyst revenue share disclosed."
+         }
+        },
+        "capture": {
+         "link_capture_score": 70,
+         "link_investability": "PARTIAL",
+         "operating_margin": -0.071379,
+         "basis": "Capture 70, the highest of any money corner in this preview: 'Qualification lock-in inside a short, licensor-affiliated list. The charge is qualified to a specific unit and changed at turnaround, so a refiner cannot switch supplier when the crack moves.' Against that, Albemarle's own operating margin is negative 7.14 percent, because the group is a lithium company in a lithium downcycle. The link's capture and the issuer's capture are not the same thing here, and that is the central contradiction a dive must resolve.",
+         "what_would_change_it": "Segment disclosure showing Ketjen economics separately from lithium, or confirmation of what the 2026 stake sale left behind."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": true,
+         "heat_as_of": "2026-08-30",
+         "scores": {
+          "impact": 60,
+          "crowdedness": 25,
+          "capture": 70
+         },
+         "bottleneck_criticality": "HIGH",
+         "basis": "Crowdedness 25, the lowest of any money corner here: 'Close to dark on this occurrence.' HIGH bottleneck criticality on a short, licensor-affiliated supplier list several of whose members are private (Topsoe, Axens, Grace), which is why the listed expressions are thin."
+        },
+        "quality": {
+         "piotroski": 6,
+         "beneish_state": -2.424,
+         "revenue_cagr_3y": -0.111019,
+         "operating_cash_flow_to_net_income": -2.511157,
+         "fcf_margin": 0.134649,
+         "net_debt_to_ebitda": 0.584439,
+         "basis": "Zero NULL canonical fields, T1 SEC filer. Piotroski 6 and Beneish -2.42 are fine; the three-year revenue CAGR of negative 11.10 percent and a cash-conversion ratio of negative 2.51x are not, and they are the lithium cycle, not the catalyst business. A dive must be explicit that it is buying a catalyst thesis inside a lithium P&L.",
+         "weakest_link": "Negative revenue CAGR and negative operating cash flow to net income."
+        },
+        "expectations_gap": {
+         "price_to_sales": 3.144139,
+         "market_cap": 16169469760.0,
+         "implied_fcf_cagr": 0.1211,
+         "horizon_spread": 0.0427,
+         "basis": "Price/sales 3.14 on USD 16.17bn with an implied FCF CAGR of 12.11 percent. Whatever the market is pricing here it is a lithium recovery, not a diesel-catalyst cycle, which is the gap; it is also the reason the thesis may never be expressed in the share price."
+        },
+        "evidence_confidence": {
+         "state": "VERIFIED_PLACEMENT_T1_FILER_ROLE_POSSIBLY_STALE",
+         "basis": "Placement evidence VERIFIED from the issuer's own 10-Q, revenue.latest_fy VERIFIED, both cash-conversion fields INFERRED with official_source true, so the O1 official cross-check is satisfied and a placement-scope screen row is admissible. The one weakness is freshness: the cited 10-Q is dated 2025-04-30 and the chain records a March 2026 divestment that may have changed what the placement describes.",
+         "blocking": false
+        },
+        "duplicate_exposure": {
+         "basis": "No duplication: the only COMPLETE profile on this link and the only listed name on it in the mapping."
+        }
+       },
+       "cross_check_required": [],
+       "null_canonical_fields": []
+      },
+      {
+       "rank": 2,
+       "issuer_id": "CHINA-PETROLEUM-AND-CHEMICAL",
+       "listing_id": null,
+       "ticker": null,
+       "data_tier": "T3",
+       "link_id": "refinery-capacity-response",
+       "listing_note": "listing_id and ticker to be read from data/mappings/russian-diesel-ban.json at promotion.",
+       "draft_selection_basis": {
+        "direct_exposure": {
+         "state": "ROLE_VERIFIED",
+         "basis": "One ACTIVE placement with TWO VERIFIED evidence items, role: 'Builder of the largest single block of new refining and hydroprocessing capacity outside Russia now under construction, including the 16 million tpa Fujian Gulei Phase II refining plant and a 2.6 million tpa hydrocracking unit at Jiujiang.' Hydrocracking is the exact unit type that decides who can make on-spec ultra-low-sulfur diesel."
+        },
+        "capture": {
+         "link_capture_score": 55,
+         "operating_margin": 0.018876,
+         "basis": "Capture 55 with Ember's own warning attached: 'This link's success is its own invalidation, and its listed proxies are the weakest part of it.' A 1.89 percent operating margin on a state refiner is the numeric version of that warning."
+        },
+        "heat": {
+         "link_verdict": "UNDISCOVERED",
+         "money_corner": false,
+         "heat_as_of": "2026-08-30",
+         "scores": {
+          "impact": 60,
+          "crowdedness": 35,
+          "capture": 55
+         },
+         "basis": "UNDISCOVERED and therefore in scope, but not the money corner, and the link is by construction the one that ENDS the trade rather than rides it."
+        },
+        "quality": {
+         "piotroski": 5,
+         "beneish_state": -2.621,
+         "revenue_cagr_3y": -0.056967,
+         "operating_cash_flow_to_net_income": 5.003572,
+         "net_debt_to_ebitda": 2.504205,
+         "basis": "BLOCKING: 4 NULL canonical fields (valuation.market_cap, valuation.price_to_sales, both reverse-DCF fields). Piotroski 5 and 5.00x cash conversion on what is filled.",
+         "blocking": true
+        },
+        "expectations_gap": {
+         "basis": "Cannot be stated: market cap, price/sales and both reverse-DCF fields are NULL, which method 6A's vendor-aggregate currency rule predicts for a listing whose statement currency differs from its trading currency. Recorded empty rather than guessed.",
+         "blocking": true
+        },
+        "evidence_confidence": {
+         "state": "VERIFIED_PLACEMENT_VENDOR_METRICS",
+         "basis": "Two VERIFIED placement evidence items, so a placement-scope screen row is admissible; but every canonical metric is the yfinance-statements vendor block at official_source false, so the O1 official cross-check binds on revenue.latest_fy and cash conversion.",
+         "blocking": true
+        },
+        "duplicate_exposure": {
+         "basis": "No duplication with rank 1: catalysts supplier versus capacity builder, opposite ends of the same chain, and the mapping places them on different links."
+        }
+       },
+       "cross_check_required": [
+        "metrics.revenue.latest_fy",
+        "metrics.cash_conversion.operating_cash_flow_to_net_income"
+       ],
+       "null_canonical_fields": [
+        "valuation.market_cap",
+        "valuation.price_to_sales",
+        "reverse_dcf.implied_fcf_cagr",
+        "reverse_dcf.horizon_spread"
+       ]
+      }
+     ],
+     "barred_now": []
+    }
+   }
+  }
  },
  "changelog": [
   {
@@ -2499,6 +3272,19 @@
    "kind": "AMEND",
    "change": "recomputed campaign completion and advanced proven stages",
    "prior_completed_profiles": 66
+  },
+  {
+   "ts": "2026-09-02T15:16:47Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01: no profile promoted to O1 this run. Appended notes.selection_preview, a ranked 1-3 shortlist with a drafted seven-dimension basis per name for the four themes whose in-scope issuers are COMPLETE but unscreened (tibet-mega-dam, munitions-replenishment, hormuz-maritime, russian-diesel-ban), each naming its prerequisite screen command and the gate line that refuses promotion today. tibet-mega-dam's 7 existing campaign-v1 screen rows were examined against the seven-dimension bar and none clears it: all 7 sit on QUIET links outside targets.links_in_scope and 6 of 7 carry NULL canonical fields. 41 COMPLETE profiles were examined and retained at O2 with a recorded reason code. O1 stands at 3, all on ai-infrastructure, which is at its DEPTH cap of 3. No frozen field was touched."
+  },
+  {
+   "ts": "2026-09-02T15:22:21Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 70
   }
  ],
  "supersedes": "CAMP-20260830-01"

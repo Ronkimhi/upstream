@@ -3,13 +3,13 @@
   "issuer_name": "Hitachi, Ltd.",
   "as_of": "2026-09-02",
   "created_at": "2026-09-01T00:16:37.445094Z",
-  "updated_at": "2026-09-02T13:58:00Z",
+  "updated_at": "2026-09-02T15:16:47Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): T3, 6501.T. CORRECTED 2026-09-01T10:15Z: the 2026-09-01T00:16Z batch withheld fundamentals here citing the cik_for() exchange-suffix-stripping defect (a dotted foreign ticker silently adopting an unrelated US filer's CIK) as an active blocker. That defect was CLOSED 2026-08-31: tools/fetch/fetch.py:cik_for() now returns no CIK for a dotted ticker outside the exact class-share spelling absent an explicit request-row cik override, so a suffixed foreign ticker safely falls to the vendor leg (yfinance-statements) instead of mis-attributing another company's companyfacts. Verified against the current fetch.py source this run, and against sibling tibet-mega-dam issuers (TBEA, NARI-TECHNOLOGY, CHINA-XD-ELECTRIC, NHPC) that already carry vendor fundamentals with cik:null on disk from the 2026-09-01T03:30Z batch. This run queues REQ-20260901-157, REQ-20260901-158, REQ-20260901-159 (prices, fundamentals, quality for 6501.T) rather than continuing to withhold them. Every canonical field still stays NULL regardless of that fetch's outcome: the vendor leg is tagged INFERRED with official_source:false, and method section 6A forbids a bare vendor number from populating a canonical profile metric directly. Official local filings or IR material tagged INFERRED with official_source:true would unblock this, and needs a WebFetch-capable (local) session; this cloud venue has WebSearch only. RE-EXAMINED 2026-09-01T15:19:15Z: the fetch queued last run landed (data/market/6501-T.json, fetched_at 2026-09-01T12:50:49.861770+00:00); cik confirmed null (not misattributed); fundamentals remain vendor-only (yfinance-statements, official_source:false), so status stays BLOCKED/T3/O3. No promotion: not a defect, an honest ceiling on this fetch plane for this listing class.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE medium profile as of this run (run profile --campaign CAMP-20260901-01, 2026-09-02); O2 per method section 6A until an explicit run selection examines it for O1. O2 is a COMPLETE profile retained for monitoring, not a rejection.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). Sits on tibet-mega-dam/global-hydro-spillover (Global hydro-equipment spillover, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Prerequisite: run screen tibet-mega-dam. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "TSE:6501"
   ],
@@ -287,6 +287,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "added the missing crowdedness_caveats entry (required non-empty for COMPLETE status). run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T15:16:47Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). NULL canonical fields: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
   ],
   "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL after the fetch landed: fundamentals resolve only through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating a canonical field directly. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and it needs an official-source (filing or IR) path, not another vendor fetch. Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6501-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg.",
@@ -299,5 +305,16 @@
     },
     "chain": "data/chains/tibet-mega-dam.json",
     "market": "data/market/6501-T.json"
+  },
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "NO_SCREEN_ROW_NO_HANDOFF",
+    "null_canonical_fields": [],
+    "reason": "Sits on tibet-mega-dam/global-hydro-spillover (Global hydro-equipment spillover, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Prerequisite: run screen tibet-mega-dam.",
+    "revisit": "Re-run run selection CAMP-20260901-01 after run screen tibet-mega-dam has written a campaign-v1 row for this issuer on the in-scope link."
   }
 }

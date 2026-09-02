@@ -3,13 +3,13 @@
   "issuer_name": "Komatsu Ltd.",
   "as_of": "2026-09-02",
   "created_at": "2026-09-01T03:20:00Z",
-  "updated_at": "2026-09-02T15:00:00Z",
+  "updated_at": "2026-09-02T15:16:47Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): T3, 6301.T. data/market/6301-T.json now on disk with real yfinance-statements fundamentals. The 2026-09-01 method decision admits a T2/T3 vendor-aggregate number directly into canonical metrics (tag INFERRED, official_source false, source_name naming the vendor block), superseding the earlier rule this profile's prior write cited; that earlier rule text is stale and replaced by this run.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE medium profile as of this run (run profile --campaign CAMP-20260901-01); O2 per method section 6A until an explicit run selection examines it for O1.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). Sits on tibet-mega-dam/tunneling-tbm (Tunneling & TBMs, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Prerequisite: run screen tibet-mega-dam. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "TSE:6301"
   ],
@@ -222,6 +222,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "filled canonical metrics from data/market/6301-T.json (yfinance-statements vendor aggregate, INFERRED official_source false per the 2026-09-01 method decision); replaced the stale vendor-forbidden basis text from the prior write. status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2; 12 of 12 canonical fields carry a sourced number. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T15:16:47Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). NULL canonical fields: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
   ],
   "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain, but every canonical metric field is NULL: no market data existed on disk at profiling time. Price, fundamentals and quality requests were queued this run via the vendor leg (no SEC CIK for this non-US ticker). DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is pending. Revisit once the requests fulfill, noting the vendor tag will still be INFERRED/official_source:false and so still cannot populate a canonical field per method section 6A -- official-source IR/filing data must be sourced separately, which needs a WebFetch-capable (local) venue.",
@@ -234,5 +240,16 @@
     },
     "chain": "data/chains/tibet-mega-dam.json",
     "market": null
+  },
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "NO_SCREEN_ROW_NO_HANDOFF",
+    "null_canonical_fields": [],
+    "reason": "Sits on tibet-mega-dam/tunneling-tbm (Tunneling & TBMs, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Prerequisite: run screen tibet-mega-dam.",
+    "revisit": "Re-run run selection CAMP-20260901-01 after run screen tibet-mega-dam has written a campaign-v1 row for this issuer on the in-scope link."
   }
 }
