@@ -1,9 +1,9 @@
 {
   "issuer_id": "SATELLOGIC",
   "issuer_name": "Satellogic Inc.",
-  "as_of": "2026-09-01",
+  "as_of": "2026-09-02",
   "created_at": "2026-09-01T09:19:47Z",
-  "updated_at": "2026-09-01T10:15:00Z",
+  "updated_at": "2026-09-02T00:29:49Z",
   "generated_by": "sieve-profiler",
   "listing_refs": [
     "NASDAQ:SATL"
@@ -44,7 +44,7 @@
   "data_tier": "T1",
   "data_tier_basis": "US-domestic NASDAQ-listed issuer, CIK 1874315: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent at 4.87 on 2026-08-31) and SEC companyfacts fundamentals (17 of 20 annual fields found; gross_profit, cost_of_revenue and long_term_debt missing, and only 3 fiscal years of revenue history on file) in data/market/SATL.json. PENDING requests REQ-20260901-134/135/136 queued in an earlier batch were fulfilled between that run and this one.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Written COMPLETE at O2 by run profile --campaign CAMP-20260830-01 on 2026-09-01. Not examined by run selection; O1 is a later, separate command per method section 6A.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2. Every ACTIVE placement on this profile sits outside CAMP-20260901-01's DEPTH scope, which this run reads strictly as money-corner and UNDISCOVERED links only: tibet-mega-dam/riparian-risk-monitoring (Riparian risk & monitoring, verdict QUIET, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 6 NULL canonical field(s) (growth.revenue_cagr_3y, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), a second, independent bar. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "sources": {
     "mapping": "data/mappings/tibet-mega-dam.json",
     "mapping_audit": {
@@ -99,7 +99,7 @@
   "data_gaps": [
     "Growth (revenue_cagr_3y) is NULL: companyfacts carries only 3 fiscal years of revenue (2023, 2024, 2025) for Satellogic, one short of the 4 data points a 3-year CAGR needs; computing it would require inventing an intermediate figure.",
     "Leverage (net_debt_to_ebitda) is NULL: companyfacts returns total_debt: None for SATL, so no debt figure exists locally to net against cash.",
-    "Piotroski (piotroski) and Beneish (beneish_state) are NULL: data/market/SATL.json quality both read state PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 and 10 of 12 inputs found respectively).",
+    "Piotroski (piotroski) and Beneish (beneish_state) are NULL: data/market/SATL.json quality both read state PENDING_DATA; long_term_debt_fy and cost_of_revenue_fy are absent from companyfacts coverage (7 of 9 and 10 of 12 inputs found respectively).",
     "Reverse DCF (implied_fcf_cagr, horizon_spread) is NULL: data/market/SATL.json quality.reverse_dcf reads state PENDING_DATA, missing enterprise_value, which depends on the same missing total_debt figure.",
     "No Tibet-basin-specific or dam-specific revenue percentage is disclosed or sourced for Satellogic."
   ],
@@ -154,7 +154,7 @@
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score is PENDING_DATA in data/market/SATL.json quality: 7 of 9 required inputs found, missing long_term_debt_fy and cost_of_revenue_fy."
+        "basis": "Piotroski F-score is PENDING_DATA in data/market/SATL.json quality: 7 of 9 required inputs found; long_term_debt_fy and cost_of_revenue_fy are absent from companyfacts coverage."
       },
       "beneish_state": {
         "value": null,
@@ -224,6 +224,36 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Advanced BLOCKED to COMPLETE (T1, O2) now that data/market/SATL.json carries SEC companyfacts fundamentals (17/20 fields, 3 fiscal years) and a partial quality block (Altman 0.75 DISTRESS; growth, Piotroski, Beneish and reverse DCF PENDING_DATA on missing history/debt/cost_of_revenue fields). 5 of 10 canonical fields populated (revenue, margins, cash_conversion, valuation x2); growth, leverage, quality x2 and reverse_dcf x2 stay NULL on genuine local-store gaps. run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (OUT_OF_DEPTH_SCOPE_LINK_HEAT). NULL canonical fields: ['growth.revenue_cagr_3y', 'leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: reworded a NULL-field basis/data_gap that named data/market/<T>.json near the word 'missing', which tools/check_profile.py's 2026-09-02 stale-claim check reads as a false claim that the fetched file does not exist. The file exists; the specific companyfacts input is what is absent. Wording corrected to state that precisely; the underlying NULL fact, its value and its tag are unchanged."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "OUT_OF_DEPTH_SCOPE_LINK_HEAT",
+    "null_canonical_fields": [
+      "growth.revenue_cagr_3y",
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski",
+      "quality.beneish_state",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "reason": "Every ACTIVE placement on this profile sits outside CAMP-20260901-01's DEPTH scope, which this run reads strictly as money-corner and UNDISCOVERED links only: tibet-mega-dam/riparian-risk-monitoring (Riparian risk & monitoring, verdict QUIET, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 6 NULL canonical field(s) (growth.revenue_cagr_3y, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), a second, independent bar.",
+    "revisit": "Revisit if the theme's DEPTH scope widens to include this link, or if a chain refresh moves this link's heat verdict to money-corner or UNDISCOVERED."
+  }
 }

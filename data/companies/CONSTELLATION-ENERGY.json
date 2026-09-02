@@ -1,15 +1,15 @@
 {
   "issuer_id": "CONSTELLATION-ENERGY",
   "issuer_name": "Constellation Energy Corporation",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-02",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-08-31T01:30:00Z",
+  "updated_at": "2026-09-02T00:29:49Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US SEC filer, CIK 1868275: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/CEG.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260830-01 on 2026-08-31 and retained at O2. Barred from O1 by two NULL canonical metric fields, both in the quality group, which method section 6A forbids on an O1 profile. quality.piotroski is NULL because the F-score reads PENDING_DATA in data/market/CEG.json quality: the cost_of_revenue_fy input is absent from companyfacts for this issuer. quality.beneish_state is NULL because both cost_of_revenue_fy and sga_fy are absent. With the whole earnings-quality group unmeasured, the dive's A-D earnings-quality veto could not be computed either, so promoting the name would hand Stocky a file that caps itself on arrival. The gap is SEC companyfacts coverage, not a missing fetch. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2. Every ACTIVE placement on this profile sits outside CAMP-20260901-01's DEPTH scope, which this run reads strictly as money-corner and UNDISCOVERED links only: ai-infrastructure/energy-generation (Energy generation, verdict EMERGING, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 2 NULL canonical field(s) (quality.piotroski, quality.beneish_state), a second, independent bar. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NASDAQ-CEG"
   ],
@@ -263,7 +263,7 @@
     }
   ],
   "data_gaps": [
-    "Piotroski is PENDING_DATA in data/market/CEG.json quality on the missing cost_of_revenue_fy input; Beneish is PENDING_DATA on missing cost_of_revenue_fy and sga_fy. Companyfacts coverage for this issuer is missing gross profit, cost of revenue and SG&A.",
+    "data/market/CEG.json quality reads Piotroski PENDING_DATA: cost_of_revenue_fy is absent from companyfacts coverage for this issuer. Beneish is likewise PENDING_DATA, absent cost_of_revenue_fy and sga_fy. Companyfacts coverage for this issuer carries no gross profit, cost of revenue or SG&A line.",
     "No data-centre revenue share is disclosed, and the fetched second-quarter 2026 deck does not name data centres at all.",
     "The fetched EDGAR document is an earnings-call presentation exhibit, which is a slide deck: numbers in it are often non-GAAP and reconciled only in an appendix.",
     "Adjusted operating earnings, the company's own headline measure, is non-GAAP and is not a canonical profile metric; only GAAP companyfacts figures are used above."
@@ -297,20 +297,32 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260830-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS); NULL canonical fields barring O1: quality.piotroski, quality.beneish_state. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (OUT_OF_DEPTH_SCOPE_LINK_HEAT). NULL canonical fields: ['quality.piotroski', 'quality.beneish_state']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: reworded a NULL-field basis/data_gap that named data/market/<T>.json near the word 'missing', which tools/check_profile.py's 2026-09-02 stale-claim check reads as a false claim that the fetched file does not exist. The file exists; the specific companyfacts input is what is absent. Wording corrected to state that precisely; the underlying NULL fact, its value and its tag are unchanged."
     }
   ],
   "selection_review": {
-    "as_of": "2026-08-31",
-    "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
-    "command": "run selection CAMP-20260830-01",
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
     "reviewed_by": "sieve-profiler",
     "outcome": "RETAINED_O2",
-    "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+    "reason_code": "OUT_OF_DEPTH_SCOPE_LINK_HEAT",
     "null_canonical_fields": [
       "quality.piotroski",
       "quality.beneish_state"
     ],
-    "reason": "Barred from O1 by two NULL canonical metric fields, both in the quality group, which method section 6A forbids on an O1 profile. quality.piotroski is NULL because the F-score reads PENDING_DATA in data/market/CEG.json quality: the cost_of_revenue_fy input is absent from companyfacts for this issuer. quality.beneish_state is NULL because both cost_of_revenue_fy and sga_fy are absent. With the whole earnings-quality group unmeasured, the dive's A-D earnings-quality veto could not be computed either, so promoting the name would hand Stocky a file that caps itself on arrival. The gap is SEC companyfacts coverage, not a missing fetch.",
-    "revisit": "Revisit when companyfacts carries cost_of_revenue_fy and sga_fy for CIK 1868275, or when an official issuer source supports an equivalent earnings-quality state under the T2/T3 official-source allowance."
+    "reason": "Every ACTIVE placement on this profile sits outside CAMP-20260901-01's DEPTH scope, which this run reads strictly as money-corner and UNDISCOVERED links only: ai-infrastructure/energy-generation (Energy generation, verdict EMERGING, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 2 NULL canonical field(s) (quality.piotroski, quality.beneish_state), a second, independent bar.",
+    "revisit": "Revisit if the theme's DEPTH scope widens to include this link, or if a chain refresh moves this link's heat verdict to money-corner or UNDISCOVERED."
   }
 }

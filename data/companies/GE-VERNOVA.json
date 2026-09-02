@@ -1,15 +1,15 @@
 {
   "issuer_id": "GE-VERNOVA",
   "issuer_name": "GE Vernova Inc.",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-02",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-08-31T01:30:00Z",
+  "updated_at": "2026-09-02T00:29:49Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US SEC filer, CIK 1996810: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/GEV.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260830-01 on 2026-08-31 and retained at O2. Barred from O1 by five NULL canonical metric fields, the most in the batch, which method section 6A forbids on an O1 profile. companyfacts returned no total_debt, no long_term_debt and no cash observation for GE Vernova, so neither leg of net debt exists in data/market/GEV.json and leverage.net_debt_to_ebitda cannot be computed. quality.piotroski is PENDING_DATA on the absent long_term_debt_fy input and quality.beneish_state on absent ppe_net_fy and long_term_debt_fy. Both reverse_dcf fields are NULL as a consequence: enterprise value is null because the debt and cash legs are absent, so the solve returns PENDING_DATA at every horizon. Without a market-implied column there is no expectations gap to hand Stocky, which is the dimension the dive stage is built on. Every gap is companyfacts coverage on a recently separated issuer, not an unfetched request. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2. Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True) and ai-infrastructure/grid-interconnect (Grid & interconnection, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 5 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. These are companyfacts coverage gaps in data/market fundamentals/quality, not unfetched requests this run could clear by asking again. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NYSE:GEV"
   ],
@@ -276,7 +276,7 @@
   ],
   "data_gaps": [
     "Net debt to EBITDA is NULL: companyfacts returned no total_debt, no long_term_debt and no cash observation for GE Vernova, so neither leg of net debt exists in the local store.",
-    "The reverse DCF did not solve: enterprise value is null in data/market/GEV.json for the same missing debt and cash legs, so implied FCF CAGR and horizon spread are both NULL and this issuer has no expectations-gap reading.",
+    "The reverse DCF did not solve: enterprise value is null in data/market/GEV.json because the debt and cash legs used to compute it are both absent from companyfacts, so implied FCF CAGR and horizon spread are both NULL and this issuer has no expectations-gap reading.",
     "Piotroski is PENDING_DATA on the missing long_term_debt_fy input; Beneish is PENDING_DATA on missing ppe_net_fy and long_term_debt_fy.",
     "Revenue history begins at fiscal 2022 in companyfacts, so the three-year CAGR spans the entire available series and cannot be compared with a pre-spin baseline.",
     "The disclosed data-centre figure is order intake, not revenue, and no revenue share is published."
@@ -310,12 +310,24 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260830-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS); NULL canonical fields barring O1: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: reworded a NULL-field basis/data_gap that named data/market/<T>.json near the word 'missing', which tools/check_profile.py's 2026-09-02 stale-claim check reads as a false claim that the fetched file does not exist. The file exists; the specific companyfacts input is what is absent. Wording corrected to state that precisely; the underlying NULL fact, its value and its tag are unchanged."
     }
   ],
   "selection_review": {
-    "as_of": "2026-08-31",
-    "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
-    "command": "run selection CAMP-20260830-01",
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
     "reviewed_by": "sieve-profiler",
     "outcome": "RETAINED_O2",
     "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
@@ -326,7 +338,7 @@
       "reverse_dcf.implied_fcf_cagr",
       "reverse_dcf.horizon_spread"
     ],
-    "reason": "Barred from O1 by five NULL canonical metric fields, the most in the batch, which method section 6A forbids on an O1 profile. companyfacts returned no total_debt, no long_term_debt and no cash observation for GE Vernova, so neither leg of net debt exists in data/market/GEV.json and leverage.net_debt_to_ebitda cannot be computed. quality.piotroski is PENDING_DATA on the absent long_term_debt_fy input and quality.beneish_state on absent ppe_net_fy and long_term_debt_fy. Both reverse_dcf fields are NULL as a consequence: enterprise value is null because the debt and cash legs are absent, so the solve returns PENDING_DATA at every horizon. Without a market-implied column there is no expectations gap to hand Stocky, which is the dimension the dive stage is built on. Every gap is companyfacts coverage on a recently separated issuer, not an unfetched request.",
-    "revisit": "Revisit once companyfacts carries a balance sheet for this issuer, which for a recently separated filer is a question of filing history accumulating rather than of fetching again."
+    "reason": "Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True) and ai-infrastructure/grid-interconnect (Grid & interconnection, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 5 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. These are companyfacts coverage gaps in data/market fundamentals/quality, not unfetched requests this run could clear by asking again.",
+    "revisit": "Revisit once the missing companyfacts inputs listed above are covered."
   }
 }

@@ -1,15 +1,15 @@
 {
   "issuer_id": "POWELL-INDUSTRIES",
   "issuer_name": "Powell Industries, Inc.",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-02",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-08-31T01:30:00Z",
+  "updated_at": "2026-09-02T00:29:49Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US SEC filer, CIK 80420: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/POWL.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260830-01 on 2026-08-31 and retained at O2. Barred from O1 by two NULL canonical metric fields, which method section 6A forbids on an O1 profile. leverage.net_debt_to_ebitda is NULL because the last total_debt observation in SEC companyfacts is 2022-09-30 against a 2026-06-30 cash balance in data/market/POWL.json, four fiscal years apart, so the ratio would be manufactured. quality.piotroski is NULL because the F-score reads PENDING_DATA in data/market/POWL.json quality: only one common fiscal period across the nine inputs, and the change legs need at least two. Both are real SEC companyfacts coverage gaps on the issuer, not unfetched data, so re-queueing the fetch tonight would not close either one. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2. Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. These are companyfacts coverage gaps in data/market fundamentals/quality, not unfetched requests this run could clear by asking again. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NASDAQ-POWL"
   ],
@@ -294,12 +294,18 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260830-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS); NULL canonical fields barring O1: leverage.net_debt_to_ebitda, quality.piotroski. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['leverage.net_debt_to_ebitda', 'quality.piotroski']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
   ],
   "selection_review": {
-    "as_of": "2026-08-31",
-    "campaign_ref": "data/campaigns/CAMP-20260830-01.json",
-    "command": "run selection CAMP-20260830-01",
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
     "reviewed_by": "sieve-profiler",
     "outcome": "RETAINED_O2",
     "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
@@ -307,7 +313,7 @@
       "leverage.net_debt_to_ebitda",
       "quality.piotroski"
     ],
-    "reason": "Barred from O1 by two NULL canonical metric fields, which method section 6A forbids on an O1 profile. leverage.net_debt_to_ebitda is NULL because the last total_debt observation in SEC companyfacts is 2022-09-30 against a 2026-06-30 cash balance in data/market/POWL.json, four fiscal years apart, so the ratio would be manufactured. quality.piotroski is NULL because the F-score reads PENDING_DATA in data/market/POWL.json quality: only one common fiscal period across the nine inputs, and the change legs need at least two. Both are real SEC companyfacts coverage gaps on the issuer, not unfetched data, so re-queueing the fetch tonight would not close either one.",
-    "revisit": "Revisit when companyfacts publishes a total_debt observation contemporaneous with the cash balance and enough common fiscal periods for the Piotroski change legs, or when an official issuer source supports the two fields directly."
+    "reason": "Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. These are companyfacts coverage gaps in data/market fundamentals/quality, not unfetched requests this run could clear by asking again.",
+    "revisit": "Revisit once the missing companyfacts inputs listed above are covered."
   }
 }

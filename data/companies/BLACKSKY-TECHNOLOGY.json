@@ -1,15 +1,15 @@
 {
   "issuer_id": "BLACKSKY-TECHNOLOGY",
   "issuer_name": "BlackSky Technology Inc.",
-  "as_of": "2026-09-01",
+  "as_of": "2026-09-02",
   "created_at": "2026-09-01T06:28:08Z",
-  "updated_at": "2026-09-01T10:15:00Z",
+  "updated_at": "2026-09-02T00:29:49Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US-domestic NYSE-listed issuer, CIK 1753539: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent at 23.10 on 2026-08-31) and SEC companyfacts fundamentals (17 of 20 annual fields found; gross_profit, cost_of_revenue and capex missing) in data/market/BKSY.json. PENDING requests queued in an earlier batch were fulfilled between that run and this one.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Written COMPLETE at O2 by run profile --campaign CAMP-20260830-01 on 2026-09-01. Not examined by run selection; O1 is a later, separate command per method section 6A.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2. Every ACTIVE placement on this profile sits outside CAMP-20260901-01's DEPTH scope, which this run reads strictly as money-corner and UNDISCOVERED links only: tibet-mega-dam/riparian-risk-monitoring (Riparian risk & monitoring, verdict QUIET, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 5 NULL canonical field(s) (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), a second, independent bar. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NYSE:BKSY"
   ],
@@ -97,7 +97,7 @@
     }
   ],
   "data_gaps": [
-    "Piotroski (piotroski) and Beneish (beneish_state) are NULL: data/market/BKSY.json quality both read state PENDING_DATA, missing cost_of_revenue_fy (8 of 9 and 11 of 12 inputs found respectively); companyfacts has no cost_of_revenue line for BlackSky.",
+    "Piotroski (piotroski) and Beneish (beneish_state) are NULL: data/market/BKSY.json quality both read state PENDING_DATA; cost_of_revenue_fy is absent (8 of 9 and 11 of 12 inputs found respectively); companyfacts carries no cost_of_revenue line for BlackSky.",
     "Leverage (net_debt_to_ebitda) is NULL: the EBITDA proxy (operating income -46901000 plus depreciation 30343000 for fiscal 2025) is negative (-16558000), which makes a debt/EBITDA ratio not a meaningful leverage measure regardless of the numerator.",
     "Reverse DCF (implied_fcf_cagr, horizon_spread) is NULL: data/market/BKSY.json quality.reverse_dcf reads state PENDING_DATA, missing fcf, because companyfacts carries no capex line to net against operating cash flow.",
     "No Tibet-basin-specific or dam-specific revenue percentage is disclosed or sourced for BlackSky."
@@ -157,7 +157,7 @@
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score is PENDING_DATA in data/market/BKSY.json quality: 8 of 9 required inputs found, missing cost_of_revenue_fy; companyfacts carries no cost-of-revenue line for BlackSky."
+        "basis": "Piotroski F-score is PENDING_DATA in data/market/BKSY.json quality: 8 of 9 required inputs found; cost_of_revenue_fy is absent, and companyfacts carries no cost-of-revenue line for BlackSky."
       },
       "beneish_state": {
         "value": null,
@@ -227,6 +227,35 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Advanced BLOCKED to COMPLETE (T1, O2) now that data/market/BKSY.json carries SEC companyfacts fundamentals (17/20 fields) and a partial quality block (Altman -0.59 DISTRESS; Piotroski, Beneish and reverse DCF PENDING_DATA on a missing cost_of_revenue/capex line). 6 of 10 canonical fields populated (revenue, growth, margins, cash_conversion, valuation x2); leverage, quality x2 and reverse_dcf x2 stay NULL on genuine local-store gaps. run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: examined and retained at O2 (OUT_OF_DEPTH_SCOPE_LINK_HEAT). NULL canonical fields: ['leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T00:29:49Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: reworded a NULL-field basis/data_gap that named data/market/BKSY.json near the word 'missing', which tools/check_profile.py's 2026-09-02 stale-claim check reads as a false claim that the fetched file does not exist. The file exists; cost_of_revenue_fy is the absent companyfacts input. Wording corrected; the underlying NULL fact, value and tag are unchanged."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "OUT_OF_DEPTH_SCOPE_LINK_HEAT",
+    "null_canonical_fields": [
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski",
+      "quality.beneish_state",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "reason": "Every ACTIVE placement on this profile sits outside CAMP-20260901-01's DEPTH scope, which this run reads strictly as money-corner and UNDISCOVERED links only: tibet-mega-dam/riparian-risk-monitoring (Riparian risk & monitoring, verdict QUIET, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 5 NULL canonical field(s) (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), a second, independent bar.",
+    "revisit": "Revisit if the theme's DEPTH scope widens to include this link, or if a chain refresh moves this link's heat verdict to money-corner or UNDISCOVERED."
+  }
 }
