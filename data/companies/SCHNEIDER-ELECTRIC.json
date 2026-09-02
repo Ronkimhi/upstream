@@ -1,9 +1,9 @@
 {
   "issuer_id": "SCHNEIDER-ELECTRIC",
   "issuer_name": "Schneider Electric SE",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-02",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-08-31T03:20:43Z",
+  "updated_at": "2026-09-02T14:08:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
@@ -165,9 +165,9 @@
   "data_gaps": [
     "data/market/SU-PA.json is quarantined as known-contaminated per this session's task instructions (the cik_for() suffix-stripping defect risks attaching an unrelated US filer's CIK to the .PA-suffixed ticker) and was never read or cited by this profile.",
     "No safe alternative fundamentals source exists locally for Schneider Electric: it has only the one mapped Euronext listing (SU.PA) and no US ADR line in data/mappings/ai-infrastructure.json.",
-    "This run deliberately did not queue a new fundamentals request for SU.PA: doing so would risk recreating the same contamination the existing quarantined file already demonstrates. Containing the risk rather than requesting is the deliberate choice named in this run's ledger line.",
     "No official-source T3 fundamentals (from Schneider Electric's own investor-relations filings) were derived this run; method section 6A allows this for T2/T3 profiles but it requires dedicated web research this bounded batch did not extend to for every issuer.",
-    "No data-center or AI-infrastructure revenue percentage is sourced for Schneider Electric this run."
+    "No data-center or AI-infrastructure revenue percentage is sourced for Schneider Electric this run.",
+    "Re-examined 2026-09-02T14:08:00Z (run profile --campaign CAMP-20260901-01): data/market/SU-PA.json still carries prices only, no fundamentals block. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals deliberately quarantined (2026-08-31 data_gaps entry) is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a fundamentals fetch now safely falls to the vendor leg (yfinance-statements) instead of risking another issuer's companyfacts. Queued REQ-20260902-135 (fundamentals) then REQ-20260902-136 (quality) for SU.PA this run; still BLOCKED pending fulfillment."
   ],
   "disposition": {
     "state": "BLOCKED",
@@ -193,6 +193,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "created shaped BLOCKED profile for SCHNEIDER-ELECTRIC from the COMPLETE PASS-audited ai-infrastructure mapping; status BLOCKED, data tier T3, opportunity tier O3, all canonical metric fields NULL. run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-02T14:08:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "confirmed the cik_for() quarantine reason is stale (defect fixed 2026-08-31); queued REQ-20260902-135 (fundamentals) and REQ-20260902-136 (quality) for SU.PA; still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01."
     }
   ]
 }

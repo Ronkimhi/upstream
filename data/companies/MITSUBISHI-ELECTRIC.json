@@ -1,15 +1,15 @@
 {
   "issuer_id": "MITSUBISHI-ELECTRIC",
   "issuer_name": "Mitsubishi Electric Corporation",
-  "as_of": "2026-09-01",
+  "as_of": "2026-09-02",
   "created_at": "2026-09-01T00:16:37.445094Z",
-  "updated_at": "2026-09-01T15:19:15Z",
+  "updated_at": "2026-09-02T13:58:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): T3, 6503.T. CORRECTED 2026-09-01T10:15Z: the 2026-09-01T00:16Z batch withheld fundamentals here citing the cik_for() exchange-suffix-stripping defect (a dotted foreign ticker silently adopting an unrelated US filer's CIK) as an active blocker. That defect was CLOSED 2026-08-31: tools/fetch/fetch.py:cik_for() now returns no CIK for a dotted ticker outside the exact class-share spelling absent an explicit request-row cik override, so a suffixed foreign ticker safely falls to the vendor leg (yfinance-statements) instead of mis-attributing another company's companyfacts. Verified against the current fetch.py source this run, and against sibling tibet-mega-dam issuers (TBEA, NARI-TECHNOLOGY, CHINA-XD-ELECTRIC, NHPC) that already carry vendor fundamentals with cik:null on disk from the 2026-09-01T03:30Z batch. This run queues REQ-20260901-160, REQ-20260901-161, REQ-20260901-162 (prices, fundamentals, quality for 6503.T) rather than continuing to withhold them. Every canonical field still stays NULL regardless of that fetch's outcome: the vendor leg is tagged INFERRED with official_source:false, and method section 6A forbids a bare vendor number from populating a canonical profile metric directly. Official local filings or IR material tagged INFERRED with official_source:true would unblock this, and needs a WebFetch-capable (local) session; this cloud venue has WebSearch only. RE-EXAMINED 2026-09-01T15:19:15Z: the fetch queued last run landed (data/market/6503-T.json, fetched_at 2026-09-01T12:50:49.861770+00:00); cik confirmed null (not misattributed); fundamentals remain vendor-only (yfinance-statements, official_source:false), so status stays BLOCKED/T3/O3. No promotion: not a defect, an honest ceiling on this fetch plane for this listing class.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE medium profile as of this run (run profile --campaign CAMP-20260901-01, 2026-09-02); O2 per method section 6A until an explicit run selection examines it for O1. O2 is a COMPLETE profile retained for monitoring, not a rejection.",
   "listing_refs": [
     "TSE:6503"
   ],
@@ -69,95 +69,167 @@
   "exposure_summary": {
     "narrative": "MITSUBISHI-ELECTRIC has 2 placement(s) on tibet-mega-dam chain."
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "No pcs (positioning/attention) block exists locally for data/market/6503-T.json: crowdedness cannot be corroborated with quantitative attention data (Google Trends, WSB, Stocktwits, GDELT), only the chain's own heat verdict for this link, which reads UNDISCOVERED."
+  ],
+  "catalysts": [
+    {
+      "claim": "Piotroski 7/9 (STRONG), Beneish CLEAN (-2.431), and a net-cash position (net debt/EBITDA -0.55x, FY2026 vendor aggregate) support the tibet-mega-dam role from a strong balance sheet.",
+      "source_name": "yfinance-statements vendor aggregate, data/market/6503-T.json",
+      "source_date": "2026-09-02",
+      "url": "https://finance.yahoo.com/quote/6503.T/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "The reverse DCF implies a 20.4% FCF CAGR against a trailing three-year revenue CAGR of only 5.6%, a wide gap between the expectations embedded in the current enterprise value and the demonstrated growth rate.",
+      "source_name": "yfinance-statements vendor aggregate, data/market/6503-T.json",
+      "source_date": "2026-09-02",
+      "url": "https://finance.yahoo.com/quote/6503.T/financials",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Fundamentals: only a vendor aggregate exists for this non-US listing (yfinance-statements, official_source:false); no SEC CIK and no EDGAR filings resolve for it.",
-    "Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+    "Filled 2026-09-02 from data/market/6503-T.json (fetched after this profile's prior write): 12 of 12 canonical fields now carry a sourced number ; no canonical field remains NULL.",
+    "No data-center or AI-infrastructure revenue percentage is sourced for this issuer this run."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 5894747000000.0,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of MITSUBISHI-ELECTRIC's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 0.056148,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Three-year compound annual revenue growth computed as (5894747000000.0 / 5003694000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 0.073471,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Operating income 433095000000.0 divided by revenue 5894747000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
       }
     },
     "cash_conversion": {
+      "fcf_margin": {
+        "value": 0.056585,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Free cash flow margin: operating cash flow 575993000000.0 less capex 242437000000.0, divided by revenue 5894747000000.0, all for the period ended 2026-03-31, from the yfinance-statements series."
+      },
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 1.412585,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Operating cash flow 575993000000.0 divided by net income 407758000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": -0.552321,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Net debt -368331000000.0 (total debt 363278000000.0 less cash 731609000000.0, as of 2026-03-31) divided by an EBITDA proxy 666879000000.0 (operating income 433095000000.0 plus depreciation 233784000000.0 for the period ended 2026-03-31), from the yfinance-statements series."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg. A quality block did compute from the vendor statements this fetch, but it is not eligible as the piotroski/beneish_state pair or an official_source_equivalent, since it is not itself official_source:true."
+        "value": 7,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/6503-T.json quality.piotroski, 9 of 9 inputs found."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg. A quality block did compute from the vendor statements this fetch, but it is not eligible as the piotroski/beneish_state pair or an official_source_equivalent, since it is not itself official_source:true."
+        "value": -2.431,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Beneish M-score -2.431 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/6503-T.json quality.beneish, 12 of 12 inputs found."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market cap: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 11298371919296.0,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-info",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Market capitalization 11298371919296.0 computed in data/market/6503-T.json quality.derived.market_cap from vendor price 5521.0 (2026-09-01) times vendor share count 2046435776.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 1.916685,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Market capitalization 11298371919296.0 divided by revenue 5894747000000.0 for the period ended 2026-03-31."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Implied FCF CAGR: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 0.2043,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/6503-T.json quality.reverse_dcf",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Free-cash-flow CAGR the current enterprise value 10930040919296.0 implies over a 5-year explicit period on base FCF 333556000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Horizon spread: Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+        "value": 0.0825,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/6503-T.json quality.reverse_dcf",
+        "source_date": "2026-09-01",
+        "url": "https://finance.yahoo.com/quote/6503.T/financials",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2043, '7': 0.1563, '10': 0.1218}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
       }
     }
   },
   "disposition": {
-    "state": "DEFER",
-    "basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL after the fetch landed: fundamentals resolve only through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating a canonical field directly. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and it needs an official-source (filing or IR) path, not another vendor fetch. Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg."
+    "state": "RETAIN",
+    "as_of": "2026-09-02",
+    "basis": "Completed this run from data/market/6503-T.json, fetched after this profile was last written: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command that was not run this batch; 12 of 12 canonical fields carry a sourced number, the rest honest NULL with a field-specific basis. COMPLETE and O2 per method section 6A; not examined as an O1 candidate here."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 8
+    "INFERRED": 10,
+    "SPECULATIVE": 2,
+    "NULL": 0,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the 6503-T.json vendor-aggregate block (yfinance-statements/yfinance-info), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
   },
   "changelog": [
     {
@@ -177,6 +249,24 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined against fetched data/market/6503-T.json (fetched_at 2026-09-01T12:50:49.861770+00:00) per run profile --campaign CAMP-20260830-01: confirmed cik null and fundamentals still vendor-only (yfinance-statements, official_source:false), so no canonical field promotes and status stays BLOCKED/T3/O3. Refreshed NULL-field bases, data_gaps, disposition and data_tier_basis off the now-stale 'PENDING requests queued this run' language from the prior fire; no new request rows queued. This is a genuine no-progress finding, not an unexamined field."
+    },
+    {
+      "ts": "2026-09-02T13:58:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "filled canonical metrics from data/market/6503-T.json (yfinance-statements vendor aggregate, INFERRED official_source false per the 2026-09-01 method decision); status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2; 0 of 12 canonical fields stay NULL with field-specific bases; replaced the stale vendor-forbidden / verified_zero data_gaps language. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:15:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "added one catalyst and one risk grounded in this run's own filled metrics, required for COMPLETE status (tools/check_profile.py). run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "added the missing crowdedness_caveats entry (required non-empty for COMPLETE status). run profile --campaign CAMP-20260901-01."
     }
   ],
   "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL after the fetch landed: fundamentals resolve only through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating a canonical field directly. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and it needs an official-source (filing or IR) path, not another vendor fetch. Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/6503-T.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg.",

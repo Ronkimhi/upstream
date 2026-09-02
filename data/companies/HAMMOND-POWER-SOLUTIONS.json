@@ -1,9 +1,9 @@
 {
   "issuer_id": "HAMMOND-POWER-SOLUTIONS",
   "issuer_name": "Hammond Power Solutions Inc.",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-02",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-08-31T03:20:43Z",
+  "updated_at": "2026-09-02T14:08:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
@@ -145,8 +145,8 @@
   "data_gaps": [
     "data/market/HPS-A-TO.json has no fundamentals block and no cik: only a best-effort yfinance price series was fetched (stockanalysis answered http 404, stooq is unreachable from the Actions venue).",
     "No official-source T3 fundamentals (from Hammond's own investor-relations filings) were derived this run; method section 6A allows official local filings tagged INFERRED with official_source: true for T2/T3 profiles, but doing so requires dedicated web research this bounded batch did not extend to for every issuer.",
-    "This run deliberately did not queue a fundamentals request for the TSX-suffixed ticker HPS-A.TO: tools/fetch/fetch.py's cik_for() strips the exchange suffix before looking up a SEC CIK, a pattern already confirmed to have silently attached the wrong CIK for ENR.DE and SU.PA (both quarantined). Containing the risk rather than requesting is the deliberate choice named in this run's ledger line.",
-    "No data-center or AI-infrastructure revenue percentage is sourced for Hammond Power Solutions this run."
+    "No data-center or AI-infrastructure revenue percentage is sourced for Hammond Power Solutions this run.",
+    "Re-examined 2026-09-02T14:08:00Z (run profile --campaign CAMP-20260901-01): data/market/HPS-A-TO.json still carries prices only, no fundamentals block. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals deliberately quarantined (2026-08-31 data_gaps entry) is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a fundamentals fetch now safely falls to the vendor leg (yfinance-statements) instead of risking another issuer's companyfacts. Queued REQ-20260902-133 (fundamentals) then REQ-20260902-134 (quality) for HPS-A.TO this run; still BLOCKED pending fulfillment."
   ],
   "disposition": {
     "state": "BLOCKED",
@@ -172,6 +172,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "created shaped BLOCKED profile for HAMMOND-POWER-SOLUTIONS from the COMPLETE PASS-audited ai-infrastructure mapping; status BLOCKED, data tier T3, opportunity tier O3, all canonical metric fields NULL. run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-02T14:08:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "confirmed the cik_for() quarantine reason is stale (defect fixed 2026-08-31); queued REQ-20260902-133 (fundamentals) and REQ-20260902-134 (quality) for HPS-A.TO; still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01."
     }
   ]
 }
