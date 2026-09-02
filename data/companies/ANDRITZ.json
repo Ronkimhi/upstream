@@ -3,13 +3,13 @@
   "issuer_name": "ANDRITZ AG",
   "as_of": "2026-09-02",
   "created_at": "2026-09-01T00:16:21.161770Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-02T16:07:36Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): T3, ANDR.VI. CORRECTED 2026-09-01T10:15Z: the 2026-09-01T00:16Z batch withheld fundamentals here citing the cik_for() exchange-suffix-stripping defect (a dotted foreign ticker silently adopting an unrelated US filer's CIK) as an active blocker. That defect was CLOSED 2026-08-31: tools/fetch/fetch.py:cik_for() now returns no CIK for a dotted ticker outside the exact class-share spelling absent an explicit request-row cik override, so a suffixed foreign ticker safely falls to the vendor leg (yfinance-statements) instead of mis-attributing another company's companyfacts. Verified against the current fetch.py source this run, and against sibling tibet-mega-dam issuers (TBEA, NARI-TECHNOLOGY, CHINA-XD-ELECTRIC, NHPC) that already carry vendor fundamentals with cik:null on disk from the 2026-09-01T03:30Z batch. This run queues REQ-20260901-142, REQ-20260901-143, REQ-20260901-144 (prices, fundamentals, quality for ANDR.VI) rather than continuing to withhold them. Every canonical field still stays NULL regardless of that fetch's outcome: the vendor leg is tagged INFERRED with official_source:false, and method section 6A forbids a bare vendor number from populating a canonical profile metric directly. Official local filings or IR material tagged INFERRED with official_source:true would unblock this, and needs a WebFetch-capable (local) session; this cloud venue has WebSearch only. RE-EXAMINED 2026-09-01T15:19:15Z: the fetch queued last run landed (data/market/ANDR-VI.json, fetched_at 2026-09-01T12:50:49.861770+00:00); cik confirmed null (not misattributed); fundamentals remain vendor-only (yfinance-statements, official_source:false), so status stays BLOCKED/T3/O3. No promotion: not a defect, an honest ceiling on this fetch plane for this listing class.",
-  "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). Sits on tibet-mega-dam/global-hydro-spillover (Global hydro-equipment spillover, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Ranked #1 on the tibet-mega-dam shortlist in data/campaigns/CAMP-20260901-01.json notes.selection_preview, with the seven-dimension basis drafted there. Prerequisite: run screen tibet-mega-dam. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier": "O1",
+  "opportunity_tier_basis": "Promoted to O1 by run selection CAMP-20260901-01 on 2026-09-02, rank 1 of the tibet-mega-dam theme. Sits on tibet-mega-dam/global-hydro-spillover, the chain's money corner (position 4, heat UNDISCOVERED, impact 70, crowdedness 30, capture 65), which is inside this campaign's DEPTH scope. Zero NULL canonical metric fields. The 2026-09-01 O1 official cross-check is satisfied: revenue.latest_fy and both cash-conversion fields were re-sourced this run to the ANDRITZ financial report 2025 and reconcile to the prior vendor figures exactly (7,883.1 MEUR; 652.7 / 456.3 = 1.430419; (652.7 - 198.1) / 7,883.1 = 0.057668). The same document converts direct exposure from role-only to a disclosed segment: Hydropower business area revenue 1,729.5 MEUR, 21.9 percent of group revenue, up 12.5 percent in a year the group fell 5.2 percent, on record order intake of 2,516.1 MEUR and a backlog of 4,535.2 MEUR. screen_handoff resolves to data/screens/tibet-mega-dam.json, bucket picks_and_shovels, issuer ANDRITZ / listing VIE:ANDR / link global-hydro-spillover. Full basis in selection_basis. This is a Stocky work-queue entry, not a verdict.",
   "listing_refs": [
     "VIE:ANDR"
   ],
@@ -65,9 +65,19 @@
       ]
     }
   ],
-  "business_summary": "ANDRITZ - profile blocked on data availability.",
+  "business_summary": "ANDRITZ AG is an Austrian industrial plant and equipment supplier organised in four business areas. Group revenue for 2025 was 7,883.1 MEUR: Pulp & Paper 2,956.9 (37.5 percent), Metals 1,694.1 (21.5 percent), Hydropower 1,729.5 (21.9 percent) and Environment & Energy 1,502.6 (19.1 percent). Group revenue fell 5.2 percent in 2025 while Hydropower revenue rose 12.5 percent on record order intake of 2,516.1 MEUR and a year-end order backlog of 4,535.2 MEUR. Group EBITA margin 8.2 percent, Hydropower EBITA margin 6.5 percent, net income 457.1 MEUR, cash flow from operating activities 652.7 MEUR, net debt -466.6 MEUR (net liquidity). Source: ANDRITZ financial report 2025.",
   "exposure_summary": {
-    "narrative": "ANDRITZ has 2 placement(s) on tibet-mega-dam chain. See placements below."
+    "narrative": "Two ACTIVE placements on the tibet-mega-dam chain. The one this promotion rests on is global-hydro-spillover (position 4, the chain's money corner, heat UNDISCOVERED): ANDRITZ supplies global hydropower projects from the non-Chinese equipment capacity pool, so the chain's claim is that a decade of Chinese domestic hydro demand absorbs Chinese supplier capacity and tightens the market ANDRITZ sells into. The second is hydro-turbines (position 3, heat CROWDED), the direct-supply expression, which is not the basis of this promotion. Disclosed hydropower exposure is 21.9 percent of 2025 group revenue; no Medog- or China-attributable share is disclosed by the issuer.",
+    "disclosed_segment": {
+      "segment": "Hydropower business area",
+      "revenue_meur_2025": 1729.5,
+      "share_of_group_revenue": 0.2194,
+      "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+      "source_date": "2026-02-24",
+      "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+      "tag": "INFERRED",
+      "official_source": true
+    }
   },
   "crowdedness_caveats": [
     "No pcs (positioning/attention) block exists locally for data/market/ANDR-VI.json: crowdedness cannot be corroborated with quantitative attention data (Google Trends, WSB, Stocktwits, GDELT), only the chain's own heat verdict for this link, which reads UNDISCOVERED."
@@ -99,11 +109,11 @@
       "latest_fy": {
         "value": 7883100000.0,
         "tag": "INFERRED",
-        "official_source": false,
-        "source_name": "yfinance-statements",
-        "source_date": "2026-09-01",
-        "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
-        "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of ANDRITZ's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+        "official_source": true,
+        "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+        "source_date": "2026-02-24",
+        "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+        "basis": "O1 official cross-check (method section 6A, 2026-09-01 rule). The consolidated income statement of the ANDRITZ financial report 2025 reports Revenue of 7,883.1 MEUR for 2025 (2024: 8,313.7 MEUR), and the management report repeats it: 'Revenue of the ANDRITZ Group amounted to 7,883.1 MEUR in 2025'. 7,883.1 MEUR = 7,883,100,000 EUR, which is the value carried here and equals the prior yfinance-statements vendor figure of 7883100000.0 exactly, so the vendor normalisation reconciles to the issuer's own audited statements with no rounding or currency difference (both EUR). Retained as INFERRED because the stored value is the report's MEUR figure scaled to units, not a verbatim string."
       }
     },
     "growth": {
@@ -132,20 +142,20 @@
       "fcf_margin": {
         "value": 0.057668,
         "tag": "INFERRED",
-        "official_source": false,
-        "source_name": "yfinance-statements",
-        "source_date": "2026-09-01",
-        "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
-        "basis": "Free cash flow margin: operating cash flow 652700000.0 less capex 198100000.0, divided by revenue 7883100000.0, all for the period ended 2025-12-31, from the yfinance-statements series."
+        "official_source": true,
+        "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+        "source_date": "2026-02-24",
+        "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+        "basis": "O1 official cross-check (method section 6A). Derived from the ANDRITZ financial report 2025 consolidated statements: CASH FLOW FROM OPERATING ACTIVITIES 652.7 MEUR less 'Payments made for property, plant, and equipment and intangible assets' 198.1 MEUR, divided by Revenue 7,883.1 MEUR: (652.7 - 198.1) / 7883.1 = 0.057668. Exactly reconciles the prior yfinance-statements figure 0.057668 and its named inputs (652700000.0, 198100000.0, 7883100000.0). DEFINITION NOTE, recorded rather than smoothed: ANDRITZ's own five-year key-figures table reports a broader 'Capital expenditure' of 269.5 MEUR and a 'Free cash flow' of 383.2 MEUR for 2025, an FCF margin of 4.9 percent. Both numbers come from this one official document; this field follows the cash-flow-statement capex line, which is the vendor convention, and a dive should know the issuer's own headline definition is stricter."
       },
       "operating_cash_flow_to_net_income": {
         "value": 1.430419,
         "tag": "INFERRED",
-        "official_source": false,
-        "source_name": "yfinance-statements",
-        "source_date": "2026-09-01",
-        "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
-        "basis": "Operating cash flow 652700000.0 divided by net income 456300000.0, both for the period ended 2025-12-31, from the yfinance-statements series."
+        "official_source": true,
+        "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+        "source_date": "2026-02-24",
+        "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+        "basis": "O1 official cross-check (method section 6A). Derived from the ANDRITZ financial report 2025 consolidated statements: CASH FLOW FROM OPERATING ACTIVITIES 652.7 MEUR for 2025 (2024: 636.5 MEUR), divided by Net income attributable to owners of the parent 456.3 MEUR for 2025 (2024: 496.5 MEUR). 652.7 / 456.3 = 1.430419. That is the same 1.430419 the yfinance-statements vendor block carried, and the vendor inputs it named (652700000.0 and 456300000.0) are the report's own figures scaled to units, so the reconciliation is exact. Net income including non-controlling interests is 457.1 MEUR; the ratio on that denominator is 1.428, and the shareholder figure is used because it is what the vendor used."
       }
     },
     "leverage": {
@@ -219,9 +229,9 @@
     }
   },
   "disposition": {
-    "state": "RETAIN",
+    "state": "ADVANCE",
     "as_of": "2026-09-02",
-    "basis": "Completed this run from data/market/ANDR-VI.json, fetched after this profile was last written: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command that was not run this batch; 12 of 12 canonical fields carry a sourced number, the rest honest NULL with a field-specific basis. COMPLETE and O2 per method section 6A; not examined as an O1 candidate here."
+    "basis": "Promoted to O1 by run selection CAMP-20260901-01 with a resolving screen_handoff and the official cross-check landed on all three fields method section 6A requires. ADVANCE means it enters Stocky's work queue for run deepdive ANDR.VI tibet-mega-dam; it is not a verdict, an entry basis or a recommendation, and Sieve writes none of those. The first thing a dive should attack is the capture dimension: a 6.5 percent Hydropower EBITA margin under a capture score of 65."
   },
   "confidence_audit": {
     "VERIFIED": 0,
@@ -229,7 +239,9 @@
     "SPECULATIVE": 2,
     "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the ANDR-VI.json vendor-aggregate block (yfinance-statements/yfinance-info), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
+    "basis": "Counts cover the canonical metric fields only. Three of the ten INFERRED fields (revenue.latest_fy and both cash-conversion fields) now carry official_source true against the ANDRITZ financial report 2025, written by the O1 official cross-check this run; the other seven still rest on the ANDR-VI.json vendor-aggregate block (yfinance-statements / yfinance-info) at official_source false, admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals') and never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated.",
+    "official_source_fields": 3,
+    "vendor_aggregate_fields": 7
   },
   "changelog": [
     {
@@ -273,9 +285,15 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01: examined and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). NULL canonical fields: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-02T16:07:36Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01: promoted O2 -> O1 on tibet-mega-dam/global-hydro-spillover (money corner, UNDISCOVERED, capture 65), rank 1 of the theme under DEPTH. Ran the method section 6A O1 official cross-check against the ANDRITZ financial report 2025: revenue.latest_fy, cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin re-sourced from yfinance-statements to the audited statements and set official_source true; all three reconcile to the vendor figures exactly. Wrote selection_basis for all seven dimensions plus screen_handoff to data/screens/tibet-mega-dam.json. Refreshed business_summary, exposure_summary, disposition and confidence_audit off the same official document, and corrected the stale 'every canonical field stays NULL' claim in disposition_basis. Status COMPLETE and data tier T3 unchanged; every listing, placement and other metric unchanged. No verdict written."
     }
   ],
-  "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL after the fetch landed: fundamentals resolve only through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating a canonical field directly. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and it needs an official-source (filing or IR) path, not another vendor fetch. Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/ANDR-VI.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg.",
+  "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL after the fetch landed: fundamentals resolve only through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating a canonical field directly. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and it needs an official-source (filing or IR) path, not another vendor fetch. Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/ANDR-VI.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg. CORRECTED 2026-09-02T16:07:36Z (run selection CAMP-20260901-01): the sentences above stating that every canonical metric field stays NULL and that the vendor leg cannot populate a canonical field are history, not current state. Ron's 2026-09-01 decision admitted the vendor aggregate into T2/T3 canonical metrics, all 12 canonical fields were filled on 2026-09-02, and this run re-sourced revenue.latest_fy and both cash-conversion fields to the ANDRITZ financial report 2025 at official_source true. No canonical field is NULL.",
   "sources": {
     "mapping": "data/mappings/tibet-mega-dam.json",
     "mapping_audit": {
@@ -284,17 +302,136 @@
       "mapping_status": "COMPLETE"
     },
     "chain": "data/chains/tibet-mega-dam.json",
-    "market": "data/market/ANDR-VI.json"
+    "market": "data/market/ANDR-VI.json",
+    "official_crosscheck": {
+      "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+      "source_date": "2026-02-24",
+      "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+      "fetched_by": "run selection CAMP-20260901-01, 2026-09-02, local session (WebFetch)"
+    }
   },
   "selection_review": {
     "as_of": "2026-09-02",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
     "command": "run selection CAMP-20260901-01",
     "reviewed_by": "sieve-profiler",
-    "outcome": "RETAINED_O2",
-    "reason_code": "NO_SCREEN_ROW_NO_HANDOFF",
+    "outcome": "PROMOTED_O1",
+    "reason_code": "PROMOTED_MONEY_CORNER_RANK_1",
     "null_canonical_fields": [],
-    "reason": "Sits on tibet-mega-dam/global-hydro-spillover (Global hydro-equipment spillover, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope, and carries zero NULL canonical metric fields. Not promotable this run for one structural reason: no campaign-v1 screen row exists for this issuer on that link, and method section 6A requires an O1 profile to carry a screen_handoff that resolves to one (tools/check_profile.py refuses the promotion otherwise). Ranked #1 on the tibet-mega-dam shortlist in data/campaigns/CAMP-20260901-01.json notes.selection_preview, with the seven-dimension basis drafted there. Prerequisite: run screen tibet-mega-dam.",
-    "revisit": "Re-run run selection CAMP-20260901-01 after run screen tibet-mega-dam has written a campaign-v1 row for this issuer on the in-scope link."
+    "rank": 1,
+    "reason": "Rank 1 of 21 distinct COMPLETE issuers screened on the two in-scope tibet-mega-dam links. Wins direct exposure (the only disclosed hydro segment on the link, 21.9 percent of revenue, against three joint-venture minorities and one Indian regional supplier), wins the expectations gap (5.3 percent implied FCF CAGR against a hydro backlog up 15.3 percent), sits on the chain's money corner, and is the issuer class Ember's crowdedness rationale names by name. Loses the quality dimension to MITSUBISHI-HEAVY-INDUSTRIES and HITACHI (Piotroski 4 against 7) and loses capture to its own segment margin. The official cross-check landed on all three required fields.",
+    "revisit": "Held at O1 until a FINAL Stocky verdict exists for issuer ANDRITZ on tibet-mega-dam/global-hydro-spillover, or until the mapping fingerprint, the screen row or the census audit stops resolving.",
+    "prior_state": "O2 (RETAINED_O2 / NO_SCREEN_ROW_NO_HANDOFF, 2026-09-02T15:16:47Z), lifted by the 22 campaign-v1 rows written by run screen tibet-mega-dam at 2026-09-02T15:52Z."
+  },
+  "selection_basis": {
+    "as_of": "2026-09-02",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "selected_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01",
+    "direct_exposure": {
+      "state": "DISCLOSED_SEGMENT_SHARE_PROJECT_PCT_UNDISCLOSED",
+      "placement": {
+        "chain_id": "tibet-mega-dam",
+        "link_id": "global-hydro-spillover",
+        "link_position": 4,
+        "placement_status": "ACTIVE",
+        "money_corner": true,
+        "mapping_ref": "data/mappings/tibet-mega-dam.json"
+      },
+      "disclosed_segment_share": {
+        "value": 0.2194,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+        "source_date": "2026-02-24",
+        "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+        "basis": "Hydropower business area revenue 1,729.5 MEUR against group revenue 7,883.1 MEUR for 2025 = 21.94 percent, both from the key financial figures of the business areas in the ANDRITZ financial report 2025. The same table gives Hydropower order intake 2,516.1 MEUR (2024: 2,170.5) and order backlog 4,535.2 MEUR (2024: 3,933.7, +15.3 percent), and the management report states Hydropower revenue rose 12.5 percent while group revenue fell 5.2 percent."
+      },
+      "disclosed_theme_revenue_pct": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "No Medog-, Yarlung-Tsangpo- or Chinese-capacity-attributable revenue share is disclosed anywhere in the 2025 report. The hydropower segment share above is the closest disclosed proxy and is not the same claim: the thesis is that Chinese domestic demand absorbs Chinese supplier capacity and tightens the pool ANDRITZ sells into, which no issuer discloses as revenue."
+      },
+      "basis": "The one name on this link the chain's own role text names by company, and the only candidate here whose hydro exposure is a separately reported business area rather than a minority stake in a joint venture. The mapped role evidence is an ANDRITZ press release of 2025-05-20 (INFERRED) recording a Turkish water-to-wire turbine-generator contract; this run adds the issuer's own audited segment disclosure behind it, which is why direct exposure moves from ROLE_EVIDENCED_PCT_UNDISCLOSED to a disclosed segment share.",
+      "source_refs": [
+        "data/mappings/tibet-mega-dam.json",
+        "data/chains/tibet-mega-dam.json",
+        "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf"
+      ]
+    },
+    "capture": {
+      "link_capture_score": 65,
+      "link_investability": "PARTIAL",
+      "group_operating_margin": 0.074324,
+      "hydropower_ebita_margin_2025": 0.065,
+      "basis": "The chain scores global-hydro-spillover capture 65 on 'Western hydro equipment is an Andritz/Voith/GE Vernova oligopoly with decades-long service annuities', a rationale the chain itself tags SPECULATIVE. The issuer's own 2025 report is the counterweight and it is not flattering: the Hydropower business area earned an EBITA margin of 6.5 percent in 2025 (2024: 6.3 percent) against a group EBITA margin of 8.2 percent, so the segment tied to the thesis is the group's lowest-margin equipment business, not its highest. An oligopoly on paper that earns a project-engineering margin. This is the dimension a dive must attack first.",
+      "what_would_change_it": "Evidence that the record 4,535.2 MEUR hydro backlog carries better pricing than the backlog it replaces, or a disclosed service/aftermarket share of hydro revenue. Neither is in the 2025 report."
+    },
+    "heat": {
+      "link_verdict": "UNDISCOVERED",
+      "money_corner": true,
+      "heat_as_of": "2026-08-29",
+      "scores": {
+        "impact": 70,
+        "crowdedness": 30,
+        "capture": 65
+      },
+      "bottleneck_criticality": "MEDIUM",
+      "basis": "Ember scored impact 70 ('China's domestic mega-demand absorbs Chinese supplier capacity exactly as the global hydro/pumped-storage cycle inflects') and crowdedness 30 ('Andritz-class names are covered as boring European industrials, not as beneficiaries of Chinese capacity absorption; zero retail narrative'). The crowdedness rationale names this issuer class explicitly, which is the strongest un-crowdedness evidence on the theme. This is the only money-corner link in the campaign's DEPTH scope for tibet-mega-dam that carries COMPLETE profiles.",
+      "limitation": "Heat is 4 days old and no pcs/attention block exists for data/market/ANDR-VI.json, so crowdedness rests on the chain's own coverage comparison, not on quantitative positioning data."
+    },
+    "quality": {
+      "piotroski": 4,
+      "beneish_state": -2.42,
+      "revenue_cagr_3y": 0.014813,
+      "fcf_margin": 0.057668,
+      "operating_cash_flow_to_net_income": 1.430419,
+      "net_debt_to_ebitda": -0.097762,
+      "basis": "Zero NULL canonical fields. Net cash (net debt / EBITDA -0.10) and cash conversion of 1.43x are the strengths, and both now rest on the audited statements rather than a vendor normalisation. Beneish -2.42 is below the -1.78 manipulation threshold. Piotroski 4 of 9 and a three-year revenue CAGR of 1.5 percent are the weaknesses, and the 2025 report shows why: group revenue fell 5.2 percent and net income fell to 457.1 MEUR from 496.5 MEUR.",
+      "weakest_link": "Piotroski 4 on a name whose thesis is an upcycle. The upcycle is visible in Hydropower orders and backlog, not yet in group earnings."
+    },
+    "expectations_gap": {
+      "price_to_sales": 1.035544,
+      "market_cap": 8163299540.2,
+      "implied_fcf_cagr": 0.053,
+      "horizon_spread": 0.0121,
+      "hydropower_order_intake_meur_2025": 2516.1,
+      "hydropower_order_backlog_meur_2025": 4535.2,
+      "basis": "Price/sales 1.04 and a reverse-DCF implied FCF CAGR of 5.3 percent over five years with a 1.21 point horizon spread: the market is paying for low single-digit free-cash-flow growth. Against that, the one segment the thesis runs through grew revenue 12.5 percent in 2025, took record order intake of 2,516.1 MEUR and ended the year with a 4,535.2 MEUR backlog, 15.3 percent above 2024. The gap is between a price that embeds group stagnation and a segment backlog that is already booked. It is the widest gap of any COMPLETE candidate on this theme.",
+      "counter": "The reverse-DCF fields stay tagged SPECULATIVE: the 5.3 percent solve assumes a 9 percent discount rate and 2.5 percent terminal growth over vendor-normalised statements, and market cap rests on a vendor price and share count. The gap is a direction, not a measurement."
+    },
+    "evidence_confidence": {
+      "state": "OFFICIAL_CROSSCHECK_LANDED_PLACEMENT_EVIDENCE_INFERRED",
+      "official_crosscheck": {
+        "fields": [
+          "metrics.revenue.latest_fy",
+          "metrics.cash_conversion.operating_cash_flow_to_net_income",
+          "metrics.cash_conversion.fcf_margin"
+        ],
+        "source_name": "ANDRITZ financial report 2025, consolidated financial statements (signed Graz, February 24, 2026)",
+        "source_date": "2026-02-24",
+        "url": "https://www.andritz.com/resource/blob/689114/6715754fcdb5a08fb20331cc2fa78ee2/andritz-financial-report-2025-data.pdf",
+        "reconciliation": "All three reconcile exactly, with no rounding or currency difference: Revenue 7,883.1 MEUR = 7,883,100,000 EUR; 652.7 / 456.3 = 1.430419; (652.7 - 198.1) / 7,883.1 = 0.057668. Every input the vendor block named is a line in this document."
+      },
+      "census_audit": {
+        "mapping_ref": "data/mappings/tibet-mega-dam.json",
+        "audit_status": "PASS",
+        "audited_at": "2026-08-30T13:32:53Z",
+        "mapping_status": "COMPLETE"
+      },
+      "basis": "The metric layer is now official-source. The placement layer is not: the role evidence is a 2025-05-20 ANDRITZ press release tagged INFERRED, admitted under the mapping's current PASS census audit whose fingerprint still matches. Nine of the twelve canonical fields remain vendor-aggregate (yfinance-statements / yfinance-info) at official_source false, and the two reverse-DCF fields are SPECULATIVE by construction.",
+      "residual_limitation": "No filing-grade quote ties ANDRITZ to the Medog scheme or to Chinese capacity absorption. That link is the chain's argument, not the issuer's disclosure, and it is what the dive has to establish or reject."
+    },
+    "duplicate_exposure": {
+      "within_this_theme": "None promoted alongside it on this link. HITACHI, MITSUBISHI-ELECTRIC and MITSUBISHI-HEAVY-INDUSTRIES are the same economic asset up to three times: Hitachi Mitsubishi Hydro is 50 percent Hitachi and 30 percent Mitsubishi Electric, and MHI runs HM Hydro, so at most one of the three could ever be promoted and none was. GE-VERNOVA, the one T1 filer on this link and the natural second Western expression, is barred by 5 NULL canonical fields. BHARAT-HEAVY-ELECTRICALS is regional Indian hydro rather than the non-Chinese global pool the link describes.",
+      "within_this_profile": "ANDRITZ also holds an ACTIVE placement on tibet-mega-dam/hydro-turbines (position 3, heat CROWDED), which is the same company sold into the crowded side of the same chain. Only the money-corner placement is handed off; the hydro-turbines placement is preserved and explicitly not the basis of this promotion.",
+      "across_the_campaign": "No overlap with the three existing O1 names (HUBBELL, MYR-GROUP, VERTIV-HOLDINGS), all on ai-infrastructure, and none with CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY, promoted the same run on a different link (tunneling-tbm) and a different economic exposure."
+    },
+    "screen_handoff": {
+      "screen_ref": "data/screens/tibet-mega-dam.json",
+      "chain_id": "tibet-mega-dam",
+      "link_id": "global-hydro-spillover",
+      "listing_id": "VIE:ANDR"
+    }
   }
 }
