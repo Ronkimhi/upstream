@@ -3,7 +3,7 @@
   "issuer_name": "Koninklijke Vopak N.V.",
   "as_of": "2026-09-02",
   "created_at": "2026-09-02T15:00:00Z",
-  "updated_at": "2026-09-02T15:00:00Z",
+  "updated_at": "2026-09-02T15:10:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
@@ -63,7 +63,8 @@
   "risks": [],
   "data_gaps": [
     "Filled 2026-09-02 from data/market/VPK-AS.json: 0 of 11 canonical fields carry a sourced number; the rest stay NULL with a field-specific basis.",
-    "data/market/VPK-AS.json fundamentals carries a verified_zero record ({'note': 'no revenue rows in yfinance statements', 'probe': 'yfinance-MSFT-income-stmt-ok'}): the vendor income/balance/cash frames all returned empty (0 of 20 annual fields found) while the fetcher's own control probe against a known-good ticker answered, confirming the empty is real rather than a failed request. No canonical field can be computed. Not re-queued this run: the fetch plane has already proved the empty with a passing control probe, so a repeat request would fulfil with nothing and pend the profile forever; an official Vopak annual-report figure (IR, not vendor) is the only path to unblock this, and needs a WebFetch-capable local session."
+    "data/market/VPK-AS.json fundamentals carries a verified_zero record ({'note': 'no revenue rows in yfinance statements', 'probe': 'yfinance-MSFT-income-stmt-ok'}): the vendor income/balance/cash frames all returned empty (0 of 20 annual fields found) while the fetcher's own control probe against a known-good ticker answered, confirming the empty is real rather than a failed request. No canonical field can be computed. Not re-queued this run: the fetch plane has already proved the empty with a passing control probe, so a repeat request would fulfil with nothing and pend the profile forever; an official Vopak annual-report figure (IR, not vendor) is the only path to unblock this, and needs a WebFetch-capable local session.",
+    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): market file unchanged since the prior fire, vendor fundamentals still a verified_zero (empty frame, control probe passed). Status stays BLOCKED, no metric field touched, no re-queue (a repeat vendor fetch would fulfil with nothing)."
   ],
   "metrics": {
     "revenue": {
@@ -157,6 +158,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for KONINKLIJKE-VOPAK from data/mappings/hormuz-maritime.json and data/market/VPK-AS.json (yfinance-statements vendor aggregate, T3). 0 of 11 canonical fields carry a sourced number; rest NULL with field-specific bases. Status BLOCKED, opportunity_tier O3. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T15:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): market file unchanged since the prior fire, vendor fundamentals still a verified_zero (empty frame, control probe passed). Status stays BLOCKED, no metric field touched, no re-queue (a repeat vendor fetch would fulfil with nothing). run profile --campaign CAMP-20260901-01, batch 4."
     }
   ],
   "sources": {

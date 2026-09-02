@@ -3,7 +3,7 @@
   "issuer_name": "Hunan Wuxin Intelligent Equipment Group Co., Ltd.",
   "as_of": "2026-09-02",
   "created_at": "2026-09-01T00:16:37.445094Z",
-  "updated_at": "2026-09-02T15:00:00Z",
+  "updated_at": "2026-09-02T15:10:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
@@ -53,7 +53,8 @@
   "catalysts": [],
   "risks": [],
   "data_gaps": [
-    "data/market/920174-BJ.json fundamentals is verified_zero (0 of 20 annual fields found, {'control_ticker': 'AAPL', 'plane': 'yfinance', 'control_ok': True, 'checked_at': '2026-09-01T12:50:49.861770+00:00'}): no canonical field can be computed. Not re-queued this run: the fetch plane has already proved the empty with a passing control probe."
+    "data/market/920174-BJ.json fundamentals is verified_zero (0 of 20 annual fields found, {'control_ticker': 'AAPL', 'plane': 'yfinance', 'control_ok': True, 'checked_at': '2026-09-01T12:50:49.861770+00:00'}): no canonical field can be computed. Not re-queued this run: the fetch plane has already proved the empty with a passing control probe.",
+    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): market file unchanged since the prior fire, vendor fundamentals still a verified_zero (empty frame, control probe passed). Status stays BLOCKED, no metric field touched, no re-queue (a repeat vendor fetch would fulfil with nothing)."
   ],
   "metrics": {
     "revenue": {
@@ -165,6 +166,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined against data/market/920174-BJ.json: fundamentals verified_zero (0 of 20 annual fields found, control probe passed), so status stays BLOCKED/T3/O3. Replaced the stale vendor-forbidden basis text (pre-2026-09-01 rule) with the current verified_zero finding. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T15:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): market file unchanged since the prior fire, vendor fundamentals still a verified_zero (empty frame, control probe passed). Status stays BLOCKED, no metric field touched, no re-queue (a repeat vendor fetch would fulfil with nothing). run profile --campaign CAMP-20260901-01, batch 4."
     }
   ],
   "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain. Every canonical metric field stays NULL after the fetch landed: fundamentals resolve only through the vendor leg (yfinance-statements, official_source:false), which method section 6A forbids from populating a canonical field directly. DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing, and it needs an official-source (filing or IR) path, not another vendor fetch. Re-examined 2026-09-01T15:19:15Z (run profile --campaign CAMP-20260830-01): data/market/920174-BJ.json now on disk, fetched_at 2026-09-01T12:50:49.861770+00:00, REQ-20260901-142 through REQ-20260901-186 all FULFILLED. Confirmed cik: null (the 2026-08-31 cik_for() fix holds; no misattributed US filer). fundamentals.source: yfinance-statements, official_source: false (vendor aggregate), so method section 6A's vendor-aggregate rule forbids this field from being populated directly: a sourcing-class gap, not an unexamined one. Closing it needs an official local filing or IR source (WebFetch), which this cloud routine venue does not carry per CLAUDE.md's venue split; handed to a local session. No further request rows queued: the fetch already landed and rerunning it would return the same vendor leg.",

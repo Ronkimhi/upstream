@@ -3,11 +3,11 @@
   "issuer_name": "KEC International Limited",
   "as_of": "2026-08-31",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-08-31T03:20:43Z",
+  "updated_at": "2026-09-02T15:10:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): NSE-listed, no market file fetched at all this run (no data/market/KEC*.json exists on disk), so no price, fundamentals, or quality data exists locally in any form.",
+  "data_tier_basis": "Local-only listing (method section 6): NSE-listed, no market file fetched at all yet (no data/market/KEC*.json exists on disk). The 2026-08-31 cik_for() suffix-stripping defect this profile's stale basis cited as the reason not to request is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a request for the correct NSE-suffixed ticker KEC.NS safely falls to the vendor leg (yfinance-statements) rather than risking another issuer's companyfacts. Queued REQ-20260902-155 (prices), REQ-20260902-156 (fundamentals), REQ-20260902-157 (quality) for KEC.NS this run.",
   "opportunity_tier": "O3",
   "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
   "listing_refs": [
@@ -18,7 +18,7 @@
       "listing_id": "NSE-KEC",
       "ticker": "KEC",
       "exchange": "NSE",
-      "market_ticker": null,
+      "market_ticker": "KEC.NS",
       "cik": null,
       "mapping_ref": "data/mappings/ai-infrastructure.json"
     }
@@ -144,7 +144,7 @@
   "risks": [],
   "data_gaps": [
     "No data/market/ file exists at all for KEC International: neither price, fundamentals, nor quality data has ever been fetched for this ticker.",
-    "This run deliberately did not queue any request (price, fundamentals, pcs, or quality) for the NSE ticker KEC: it is a brand-new non-US ticker not yet in data/market/, and tools/fetch/fetch.py's cik_for() suffix-stripping defect (confirmed to have contaminated ENR.DE and SU.PA) makes any fundamentals request for a fresh non-US ticker a live risk of the same class. Containing the risk rather than requesting is the deliberate choice named in this run's ledger line; a price-only request might be safe but was not separated out and queued this run given the batch's bounded scope.",
+    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): the cik_for() quarantine reason above is stale (defect fixed 2026-08-31, confirmed closed on HPS-A.TO/SU.PA/ENR.DE this batch). The bare mapping ticker KEC has no exchange suffix at all (not just an unrequested one); resolved market_ticker KEC.NS by NSE convention (matching BPCL.NS, LT.NS, NHPC.NS already in data/mappings/). Queued REQ-20260902-155 (prices), REQ-20260902-156 (fundamentals), REQ-20260902-157 (quality) for KEC.NS this run; still BLOCKED pending fetch fulfillment.",
     "No official-source T3 fundamentals (from KEC International's own investor-relations filings) were derived this run; method section 6A allows this for T2/T3 profiles but it requires dedicated web research this bounded batch did not extend to for every issuer.",
     "No data-center or AI-infrastructure revenue percentage is sourced for KEC International this run."
   ],
@@ -172,6 +172,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "created shaped BLOCKED profile for KEC-INTERNATIONAL from the COMPLETE PASS-audited ai-infrastructure mapping; status BLOCKED, data tier T3, opportunity tier O3, all canonical metric fields NULL. run profile --campaign CAMP-20260830-01."
+    },
+    {
+      "ts": "2026-09-02T15:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Corrected the stale cik_for()-defect basis for not requesting data; resolved market_ticker KEC.NS. Queued REQ-20260902-155 (prices), REQ-20260902-156 (fundamentals), REQ-20260902-157 (quality). Still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01, batch 4."
     }
   ]
 }

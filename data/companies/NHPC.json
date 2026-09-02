@@ -3,11 +3,11 @@
   "issuer_name": "NHPC Limited",
   "as_of": "2026-09-01",
   "created_at": "2026-09-01T03:20:00Z",
-  "updated_at": "2026-09-01T03:20:00Z",
+  "updated_at": "2026-09-02T15:10:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): T3. A verified price print for NHPC.NS is on disk (SINGLE_SOURCE, yfinance, 2026-08-28). Fundamentals request REQ-20260830-37 FAILED (\"no SEC CIK for NHPC.NS (T3 name): cite fundamentals from filings/IR via web, tagged INFERRED\") -- this is a genuine vendor coverage gap (yfinance carries no statement data for this NSE-listed name), not a fetch-eligible miss, so it is not requeued this run per the pull-data skill's \"row would fulfill empty forever\" guidance. Every canonical field stays NULL until official-source IR or filing data is manually sourced -- this cloud venue has no WebFetch this run to open one.",
+  "data_tier_basis": "Local-only listing (method section 6): T3. A verified price print for NHPC.NS is on disk (SINGLE_SOURCE, yfinance, 2026-08-28). Fundamentals request REQ-20260830-37 FAILED on 2026-08-30, before the vendor-aggregate (yfinance-statements) leg existed and before the cik_for() suffix-stripping fix; other NSE names (LT.NS, 920174-BJ) now carry real vendor-statement data under the current fetcher, so that FAILED result is stale rather than proof of a permanent gap. Queued REQ-20260902-158 (fundamentals) and REQ-20260902-159 (quality) for NHPC.NS this run to re-test under the current fetch plane.",
   "opportunity_tier": "O3",
   "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
   "listing_refs": [
@@ -60,7 +60,8 @@
   "catalysts": [],
   "risks": [],
   "data_gaps": [
-    "Fundamentals: REQ-20260830-37 FAILED (no vendor coverage for this NSE name); official-source IR/filing data needed"
+    "Fundamentals: REQ-20260830-37 FAILED (no vendor coverage for this NSE name); official-source IR/filing data needed",
+    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): the REQ-20260830-37 FAILED result predates both the vendor-aggregate (yfinance-statements) fetch leg and the cik_for() suffix-stripping fix; it is stale, not proof of a permanent vendor gap (see data_tier_basis). Queued REQ-20260902-158 (fundamentals) and REQ-20260902-159 (quality) for NHPC.NS this run; still BLOCKED pending fetch fulfillment."
   ],
   "metrics": {
     "revenue": {
@@ -151,6 +152,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for NHPC (T3 non-US listing, canonical fields NULL per method section 6A vendor-INFERRED restriction)."
+    },
+    {
+      "ts": "2026-09-02T15:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The 2026-08-30 fundamentals FAILURE (REQ-20260830-37) predates the vendor-aggregate leg and the cik_for() fix; queued fresh REQ-20260902-158 (fundamentals) and REQ-20260902-159 (quality) for NHPC.NS to re-test. Still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01, batch 4."
     }
   ],
   "disposition_basis": "Real, evidence-backed placement on the tibet-mega-dam chain and a verified price print exist on disk, but every canonical metric field is NULL: the one fundamentals fetch attempt (REQ-20260830-37) genuinely failed for want of vendor coverage on this NSE-listed name, not a fetch-eligible gap, so it is not requeued. DEFER rather than DRAFT because the placement, role and price are real and sourced; only the fundamentals layer is missing. Revisit once official-source IR/filing data is sourced, which needs a WebFetch-capable (local) venue.",
