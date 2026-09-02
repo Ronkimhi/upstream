@@ -130,7 +130,16 @@ with a basis that names the missing field. Non-canonical metric keys are forbidd
 profiles may not retain NULL or unknown-state placeholders on any canonical field. An empty
 object is not a completed metric group.
 Official local filings and issuer-relations material may support T2 or T3 facts tagged
-INFERRED with `official_source: true` and a derivation basis.
+INFERRED with `official_source: true` and a derivation basis. Since Ron's decision of
+2026-09-01 (method §6A), a T2/T3 canonical metric may also rest directly on the fetched
+vendor block: `source_name: "yfinance-statements"`, `official_source: false`, tag INFERRED,
+a URL and date, and a basis saying it is a vendor normalisation. Read that block from
+`data/market/<T>.json` where `<T>` has every `.` replaced by `-` (`AFCONS.NS` is
+`AFCONS-NS.json`; tools/market_paths.py); a profile that declares the file missing when the
+dashed file exists fails the gate. O1 promotion still needs an official-source cross-check on
+`revenue.latest_fy` and the cash-conversion field, so do that web work only for the names
+selection promotes. A screen row over an ACTIVE, un-audited mapping declares
+`audit_scope: "PLACEMENT"` and rests on all-VERIFIED placement evidence.
 
 A DRAFT or BLOCKED profile is O3, and O3 is always DRAFT or BLOCKED. A COMPLETE profile is
 O1 or O2, and O1 or O2 is always COMPLETE. A profile that becomes COMPLETE moves to O2

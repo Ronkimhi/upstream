@@ -49,7 +49,9 @@ Pull-rebase immediately before writing. Append to `requests` in `data/requests.j
   shipped once; do not copy it).
 - **kinds**: `prices` · `fundamentals` · `quality` · `pcs` · `insider` (takes
   `lookback_days`, default 365) · `edgar_doc` (takes `lookback_days`, default 200) ·
-  `edgar_fts` (takes `query` + optional `forms` instead of `ticker`; may carry `link_id`).
+  `edgar_fts` (takes `query` + optional `forms` instead of `ticker`; may carry `link_id`) ·
+  `web_doc` (takes `url` instead of `ticker`; stores the page text at `data/web/<id>.json`,
+  see `tools/evidence_store.py`; a 403/404 is stored as the page's status, so cite elsewhere).
 - **Order inside one batch matters and one batch is fine**: the fetcher runs rows in file
   order, and `quality` is pure computation over what `fundamentals` wrote — so per ticker
   queue `prices`, then `fundamentals`, then `quality` (then `pcs`, `insider`, `edgar_doc`
@@ -84,10 +86,14 @@ git pull --rebase   # after it completes — the results are COMMITS, not local 
   probe. `SINGLE_SOURCE` = one leg answered (normal for foreign listings).
 - `tier`: `T1` US SEC filer · `T2` ADR with asserted CIK · `T3` local-only/vendor.
 - `fundamentals.source: "yfinance-statements"` + `tag: INFERRED` +
-  `official_source: false`: usable for the `quality` block, but **does NOT satisfy a
-  canonical profile metric** (method §6A). The §6A allowance is official local filings/IR
-  tagged INFERRED with `official_source: true`. Widening that bar is Ron's decision, not
-  yours.
+  `official_source: false`: feeds the `quality` block and, since Ron's 2026-09-01
+  decision (method §6A), may back a T2/T3 canonical profile metric directly when the
+  metric's source block names the vendor and says so. Never a filing quote; O1 promotion
+  still needs an official cross-check on revenue and cash conversion.
+- `fundamentals.sec_attempted`: the SEC leg was fetched for this CIK, found zero annual
+  fields under both `us-gaap` and `ifrs-full`, and the vendor leg served the block instead
+  (fetch.py `do_fundamentals`, 2026-09-01). `fundamentals.taxonomy` and
+  `statement_currency` say which taxonomy and currency a SEC block was read in.
 
 ## Known failure modes — recognize, don't fight
 
