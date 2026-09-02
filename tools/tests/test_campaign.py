@@ -905,6 +905,26 @@ class TestProfileDiscipline(CampaignTree):
         failures = check_profile.validate_profile(self.root, self.path, profile)
         self.assertTrue(any("numeric field has no source_name" in f for f in failures))
 
+    def test_a_field_missing_inside_an_existing_market_file_is_not_a_missing_file_claim(self):
+        """2026-09-02: the first regex matched 'data/market/ETN.json has fcf_margin missing'
+        on nine profiles whose market file was on disk. Only an explicit claim that the
+        FILE does not exist is checked against disk."""
+        (self.root / "data" / "market").mkdir(exist_ok=True)
+        (self.root / "data" / "market" / "AAA.json").write_text("{}")
+        profile = self.profile()
+        profile["as_of"] = "2026-09-02"
+        profile["metrics"]["cash_conversion"]["fcf_margin"] = {
+            "value": None, "tag": "NULL",
+            "basis": "fcf margin cannot be computed: data/market/AAA.json has fcf_margin "
+                     "missing (no capex series in fundamentals)",
+        }
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertFalse(any("filenames map" in f for f in failures), failures)
+        profile["metrics"]["cash_conversion"]["fcf_margin"]["basis"] = (
+            "fcf margin unavailable: data/market/AAA.json does not exist")
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertTrue(any("filenames map" in f for f in failures), failures)
+
     def test_hollow_metric_groups_do_not_make_a_complete_profile(self):
         profile = self.profile()
         profile["metrics"] = {group: {} for group in check_profile.METRIC_GROUPS}

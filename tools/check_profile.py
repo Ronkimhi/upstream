@@ -43,8 +43,9 @@ O1_OFFICIAL_CROSSCHECK_FIELDS = (
 # fetcher never writes (it maps '.' to '-'). Every one of these on 2026-09-01 was false:
 # the file was on disk under its dashed name (AFCONS.NS -> AFCONS-NS.json, 20/20 fields).
 MISSING_MARKET_CLAIM_RE = re.compile(
-    r"data/market/([A-Za-z0-9.\-]+)\.json[^.;]{0,40}?(does not exist|never been fetched|"
-    r"is not on disk|not fetched|missing)", re.I)
+    r"data/market/([A-Za-z0-9.\-]+)\.json(?: file)?(?: has)? (?:does not exist|has never been "
+    r"fetched|was never fetched|never been fetched|is not on disk|is missing|not found on disk)",
+    re.I)
 NO_MARKET_CLAIM_RE = re.compile(
     r"no market file (?:has ever been fetched|exists|on disk) for ([A-Za-z0-9.\-]+)", re.I)
 VERDICT_WORDS = {"INVESTABLE", "WATCH", "TOO_LATE"}

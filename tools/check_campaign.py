@@ -788,10 +788,28 @@ def preservation_failures(root: Path, path: Path, current: dict) -> list[str]:
                   if isinstance(t, dict)}
     if set(old_themes) - set(new_themes):
         failures.append(f"themes removed versus HEAD: {sorted(set(old_themes) - set(new_themes))}")
+    prior_o1 = {row.get("theme_id"): row.get("o1", 0)
+                for row in (prior.get("completion") or {}).get("per_theme") or []
+                if isinstance(row, dict)}
+    current_o1 = {row.get("theme_id"): row.get("o1", 0)
+                  for row in (current.get("completion") or {}).get("per_theme") or []
+                  if isinstance(row, dict)}
     for theme_id in set(old_themes) & set(new_themes):
         before = STAGE_ORDER.get(old_themes[theme_id].get("stage"), -1)
         after = STAGE_ORDER.get(new_themes[theme_id].get("stage"), -1)
         if after < before:
+            # A COMPLETE theme is "every O1 has a FINAL dive". `run selection` promoting a
+            # new O1 makes that false again, honestly: the theme is DIVED or SCREENED until
+            # Stocky catches up. Refusing that regression froze the theme at the value the
+            # funnel exists to move it out of (tasks/lessons.md, 2026-08-30), and it did so
+            # on 2026-09-02, the first time selection ran on a COMPLETE theme. A reopen is
+            # allowed exactly when the theme's computed O1 count rose; every other
+            # regression stays refused.
+            reopened = (old_themes[theme_id].get("stage") == "COMPLETE"
+                        and new_themes[theme_id].get("stage") in {"DIVED", "SCREENED"}
+                        and current_o1.get(theme_id, 0) > prior_o1.get(theme_id, 0))
+            if reopened:
+                continue
             failures.append(f"theme {theme_id} stage regressed "
                             f"{old_themes[theme_id].get('stage')} -> "
                             f"{new_themes[theme_id].get('stage')}")
