@@ -33,6 +33,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import evidence_store  # noqa: E402
+
 EXPIRY_DAYS = 45
 MIN_EVIDENCE = 2
 
@@ -105,6 +108,20 @@ def main() -> int:
         if len(ev) < MIN_EVIDENCE:
             fail(f"{sid}: {len(ev)} dated evidence items, needs {MIN_EVIDENCE}")
     report(f"signals touched today: {len(touched)} of {len(signals)} examined")
+
+    # 1b. web store: a touched card's cited pages, when the fetch plane has stored them,
+    # must contain the card's source_excerpt (tools/evidence_store.py, 2026-09-01).
+    items = [(f"{s.get('id', s['_file'])}: evidence[{i}]", e)
+             for s in touched for i, e in enumerate(s.get("evidence") or [])
+             if isinstance(e, dict) and e.get("tag") != "NULL"]
+    web_findings, web_counts = evidence_store.corpus_web_findings(data, items, None)
+    for f_ in web_findings:
+        fail(f_)
+    stored = sum(v for k, v in web_counts.items() if k not in ("UNFETCHED", "NO_URL"))
+    report(f"web store: {len(items)} citation(s) on touched cards, {stored} with a stored "
+           f"fetch, {web_counts.get('MISMATCH', 0)} mismatch, "
+           f"{web_counts.get('UNFETCHED', 0)} unfetched"
+           + ("  <- nothing stored: the web bar passed over nothing" if not stored else ""))
 
     # 2. calendar swept
     cal = read_json(data / "calendar" / "events.json", {}) or {}

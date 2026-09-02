@@ -16,6 +16,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from market_paths import market_path
+
 from check_map import ISSUER_ID_RE, read_json, valid_date
 
 PROFILE_STATUS = {"DRAFT", "BLOCKED", "COMPLETE"}
@@ -23,6 +25,28 @@ DATA_TIERS = {"T1", "T2", "T3"}
 OPPORTUNITY_TIERS = {"O1", "O2", "O3"}
 DISPOSITIONS = {"ADVANCE", "RETAIN", "DEFER", "PASS", "BLOCKED"}
 EVIDENCE_TAGS = {"VERIFIED", "INFERRED", "SPECULATIVE", "NULL"}
+# Ron's decision, 2026-09-01 (method section 6A "Vendor-aggregate fundamentals"): a T2/T3
+# canonical metric may rest directly on the vendor statements block the fetch plane wrote,
+# INFERRED with official_source false, when the source block names the vendor and the basis
+# says so. Before this, 62 of 67 BLOCKED profiles had fundamentals and a quality block on
+# disk and were refused for this one field. The number stays INFERRED and is never a filing
+# quote; O1 promotion still demands an official cross-check on the two fields a verdict
+# leans on hardest (see O1_OFFICIAL_CROSSCHECK_FIELDS).
+VENDOR_AGGREGATE_SOURCES = {"yfinance-statements", "yfinance-info"}
+VENDOR_TIERS = {"T2", "T3"}
+O1_OFFICIAL_CROSSCHECK_FIELDS = (
+    ("revenue", "latest_fy"),
+    ("cash_conversion", "operating_cash_flow_to_net_income"),
+    ("cash_conversion", "fcf_margin"),
+)
+# A NULL basis that says a market file does not exist, naming the dotted ticker the
+# fetcher never writes (it maps '.' to '-'). Every one of these on 2026-09-01 was false:
+# the file was on disk under its dashed name (AFCONS.NS -> AFCONS-NS.json, 20/20 fields).
+MISSING_MARKET_CLAIM_RE = re.compile(
+    r"data/market/([A-Za-z0-9.\-]+)\.json[^.;]{0,40}?(does not exist|never been fetched|"
+    r"is not on disk|not fetched|missing)", re.I)
+NO_MARKET_CLAIM_RE = re.compile(
+    r"no market file (?:has ever been fetched|exists|on disk) for ([A-Za-z0-9.\-]+)", re.I)
 VERDICT_WORDS = {"INVESTABLE", "WATCH", "TOO_LATE"}
 VALUATION_RATIO_FIELDS = {
     "price_to_earnings", "forward_price_to_earnings", "pe_ratio",
@@ -123,6 +147,16 @@ def _verdict_leaks(obj, where: str = "profile") -> list[str]:
     return leaks
 
 
+def _vendor_backed(block: dict, data_tier) -> bool:
+    """An INFERRED number resting directly on the fetch plane's vendor statements block."""
+    name = str(block.get("source_name") or block.get("source") or "").strip().casefold()
+    return (data_tier in VENDOR_TIERS
+            and block.get("tag") == "INFERRED"
+            and block.get("official_source") is False
+            and name in VENDOR_AGGREGATE_SOURCES
+            and bool(str(block.get("basis") or "").strip()))
+
+
 def _has_source(block: dict) -> bool:
     name = block.get("source_name") or block.get("source")
     url = block.get("url") or block.get("source_url")
@@ -131,10 +165,13 @@ def _has_source(block: dict) -> bool:
         isinstance(url, str) and url.startswith(("http://", "https://"))
 
 
-def numeric_source_failures(metrics, where: str = "metrics") -> tuple[list[str], int, int]:
+def numeric_source_failures(metrics, where: str = "metrics", *,
+                            data_tier=None) -> tuple[list[str], int, int]:
     """Every numeric analytical leaf inherits a source block from itself or an ancestor.
 
-    Returns (failures, numeric_fields_examined, official_inferences_examined).
+    Returns (failures, numeric_fields_examined, official_inferences_examined). A T2/T3
+    vendor-backed inference (see VENDOR_AGGREGATE_SOURCES) passes but is not counted as an
+    official inference.
     """
     failures = []
     examined = inferred = 0
@@ -154,10 +191,14 @@ def numeric_source_failures(metrics, where: str = "metrics") -> tuple[list[str],
                 failures.append(f"{path}: source block tag {tag!r} must be VERIFIED, "
                                 "INFERRED or SPECULATIVE")
             if tag == "INFERRED":
-                inferred += 1
-                if backing.get("official_source") is not True:
+                if backing.get("official_source") is True:
+                    inferred += 1
+                elif not _vendor_backed(backing, data_tier):
                     failures.append(f"{path}: INFERRED numeric data must explicitly set "
-                                    "official_source: true")
+                                    "official_source: true, or be a T2/T3 number whose "
+                                    "source_name is the vendor statements block "
+                                    f"({', '.join(sorted(VENDOR_AGGREGATE_SOURCES))}) with "
+                                    "official_source: false and a basis saying so")
                 if not str(backing.get("basis") or "").strip():
                     failures.append(f"{path}: INFERRED numeric data needs its derivation basis")
             if tag == "SPECULATIVE" and not str(backing.get("basis") or "").strip():
@@ -195,7 +236,7 @@ def _basis_names_field(basis, field: str) -> bool:
 
 
 def _canonical_field_failures(
-        field: str, item, where: str, *, allow_null: bool) -> list[str]:
+        field: str, item, where: str, *, allow_null: bool, data_tier=None) -> list[str]:
     """Validate one named canonical metric field without inherited source metadata."""
     failures = []
     if not isinstance(item, dict):
@@ -229,9 +270,10 @@ def _canonical_field_failures(
         failures.append(
             f"{where}: numeric object tag must be VERIFIED, INFERRED or SPECULATIVE")
     if item.get("tag") == "INFERRED":
-        if item.get("official_source") is not True:
+        if item.get("official_source") is not True and not _vendor_backed(item, data_tier):
             failures.append(
-                f"{where}: INFERRED numeric object needs official_source: true")
+                f"{where}: INFERRED numeric object needs official_source: true, or a T2/T3 "
+                "vendor source_name with official_source: false and a basis saying so")
         if not isinstance(item.get("basis"), str) or not item["basis"].strip():
             failures.append(
                 f"{where}: INFERRED numeric object needs a derivation basis")
@@ -301,10 +343,68 @@ def metric_group_failures(
     for field in sorted(set(value) & allowed):
         item_where = f"{where}.{field}"
         failures.extend(_canonical_field_failures(
-            field, value[field], item_where, allow_null=allow_null))
+            field, value[field], item_where, allow_null=allow_null, data_tier=data_tier))
         if field == "official_source_equivalent":
             failures.extend(_quality_equivalent_failures(
                 value[field], data_tier, item_where))
+    return failures
+
+
+def o1_official_crosscheck_failures(metrics: dict) -> list[str]:
+    """O1 leans on revenue and cash conversion; those two may not rest on a vendor number.
+
+    The cross-check is the one place the web-evidence work still has to happen, and it
+    happens for the one to three names selection actually promotes, not the census.
+    """
+    failures = []
+    for group, field in O1_OFFICIAL_CROSSCHECK_FIELDS:
+        item = (metrics.get(group) or {}).get(field) if isinstance(metrics, dict) else None
+        if not isinstance(item, dict) or item.get("value") is None:
+            continue
+        if item.get("tag") == "INFERRED" and item.get("official_source") is not True:
+            failures.append(
+                f"metrics.{group}.{field}: O1 requires an official-source cross-check; a "
+                "vendor-aggregate number may carry O2 but not the promotion")
+    return failures
+
+
+STALE_CLAIM_FAIL_FROM = "2026-09-02"
+
+
+def stale_market_claim_failures(root: Path, profile: dict) -> list[str]:
+    """A basis or data gap that says a market file is missing must be true on disk.
+
+    The fetcher writes `data/market/<safe_name>.json` with '.' mapped to '-'. A writer that
+    looked for the dotted name and declared the file never fetched blocked the profile on a
+    file that was there (AFCONS.NS, 2026-09-01: 20/20 fields, quality computed).
+    """
+    failures = []
+    texts = []
+
+    def collect(value, path):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                collect(child, f"{path}.{key}")
+        elif isinstance(value, list):
+            for i, child in enumerate(value):
+                collect(child, f"{path}[{i}]")
+        elif isinstance(value, str):
+            texts.append((path, value))
+
+    collect(profile.get("metrics"), "metrics")
+    collect(profile.get("data_gaps"), "data_gaps")
+    seen = set()
+    for path, text in texts:
+        names = [m.group(1) for m in MISSING_MARKET_CLAIM_RE.finditer(text)]
+        names += [m.group(1) for m in NO_MARKET_CLAIM_RE.finditer(text)]
+        for name in names:
+            on_disk = market_path(root / "data", name)
+            if on_disk.exists() and (path, name) not in seen:
+                seen.add((path, name))
+                failures.append(
+                    f"{path}: claims data/market/{name}.json is missing, but "
+                    f"data/market/{on_disk.name} is on disk (filenames map '.' to '-'); "
+                    "profile from the fetched file instead of blocking on a wrong path")
     return failures
 
 
@@ -496,8 +596,11 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
     if not isinstance(metrics, dict):
         failures.append("metrics must be an object")
     else:
-        source_findings, _, _ = numeric_source_failures(metrics)
+        source_findings, _, _ = numeric_source_failures(
+            metrics, data_tier=profile.get("data_tier"))
         failures.extend(source_findings)
+        if opportunity_tier == "O1":
+            failures.extend(o1_official_crosscheck_failures(metrics))
         extra_groups = sorted(set(metrics) - METRIC_GROUPS)
         if extra_groups:
             failures.append(
@@ -513,6 +616,17 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
                 opportunity_tier=profile.get("opportunity_tier"),
             ))
         failures.extend(duplicate_null_basis_failures(metrics))
+
+    stale = stale_market_claim_failures(root, profile)
+    if stale and str(profile.get("as_of") or "") >= STALE_CLAIM_FAIL_FROM:
+        failures.extend(stale)
+    elif stale:
+        # Profiles written before the rule existed carry the false claim in committed bytes.
+        # They are named, not failed, until re-profiled; anything amended from the date
+        # above fails closed.
+        for finding in stale:
+            print(f"  WARN  {path.name}: {finding} (pre-{STALE_CLAIM_FAIL_FROM} profile, "
+                  "re-profile to clear)")
 
     disposition = profile.get("disposition")
     if not isinstance(disposition, dict) or \
@@ -658,7 +772,8 @@ def main() -> int:
             data_tiers[profile.get("data_tier")] = data_tiers.get(profile.get("data_tier"), 0) + 1
             opportunity[profile.get("opportunity_tier")] = \
                 opportunity.get(profile.get("opportunity_tier"), 0) + 1
-            _, count, inf = numeric_source_failures(profile.get("metrics") or {})
+            _, count, inf = numeric_source_failures(
+                profile.get("metrics") or {}, data_tier=profile.get("data_tier"))
             numeric += count
             inferred += inf
         for finding in validate_profile(root, path, profile):

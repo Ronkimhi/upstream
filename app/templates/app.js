@@ -440,7 +440,8 @@
     return '<div class="topbar">' +
       '<a href="#/" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>' +
       '<nav class="nav">' +
-      na("#/", "Cortex", "cortex") +
+      na("#/", "Board", "board") +
+      na("#/cortex", "Cortex", "cortex") +
       na("#/radar", "Radar", "radar") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
       na("#/campaign", "Campaign", "campaign") +
@@ -1731,6 +1732,98 @@
       (graded ? '<div class="card" style="max-width:320px;margin-bottom:16px"><div class="stat"><span class="v">' + Math.round((100 * right) / graded) + '%</span><span class="l">of graded TOO LATE calls were right (' + right + " of " + graded + ")</span></div></div>" : "") +
       (rows.length ? '<div class="tablewrap"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
         '<div class="emptystate">Empty — fills automatically from TOO LATE verdicts and dismissed signals.</div>') +
+      footer() + "</main>";
+  }
+
+  /* ---------------- board: names first ---------------- */
+  /* Ron, 2026-09-01. The page used to open on the cortex, a map of the machine's own state
+     with no ticker on it. This is the front door now: every dive with its verdict, then the
+     O1 queue, then O2 by the heat of its link, then what blocks the rest, one line each.
+     Every number here is a projection app/build.py made from a store; nothing is computed
+     in the renderer, and every cut list prints its *_total beside it. */
+  function boardVerdictChip(v) {
+    if (v == null) return chip("no verdict", "neutral");
+    return chip(v.replace(/_/g, " "), v);
+  }
+  function boardEntry(r) {
+    var z = r.entry_zone;
+    if (r.verdict === "INVESTABLE" && z && z.low != null && z.high != null) {
+      return "<span class='num'>" + fmtMoney(z.low) + "–" + fmtMoney(z.high) + "</span>" +
+        (r.no_entry_above != null ? " <span class='muted'>no entry above <span class='num'>" + fmtMoney(r.no_entry_above) + "</span></span>" : "");
+    }
+    var t = r.watch_triggers;
+    if (r.verdict === "WATCH" && t && t.length) {
+      return t.map(function (w) {
+        return esc(w.metric) + " " + esc(w.direction) + " <span class='num'>" + esc(num(w.level, "?")) + "</span>";
+      }).join("; ");
+    }
+    if (r.verdict === "TOO_LATE") return "<span class='muted'>in the shadow book</span>";
+    return "<span class='muted'>–</span>";
+  }
+  function boardStockHref(r) {
+    return "#/stock/" + encodeURIComponent(r.ticker) + "/" + encodeURIComponent(r.chain_id);
+  }
+  function boardView() {
+    var b = D.board || { verdicts: [], o1_queue: [], o2: [], blocked: [], themes: [], counts: {} };
+    var c = b.counts || {};
+    var verdictRows = (b.verdicts || []).map(function (r) {
+      return "<tr><td class='tk-name'><a href='" + boardStockHref(r) + "'>" + esc(r.ticker) + "</a> <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+        "<td>" + boardVerdictChip(r.verdict) + " " + (r.status === "FINAL" ? chip("FINAL", "accent") : chip("DRAFT, no red team yet", "stale")) + "</td>" +
+        "<td>" + esc(num(r.clock, "–")) + "</td>" +
+        "<td>" + boardEntry(r) + "</td>" +
+        "<td class='muted'>" + esc(r.chain_title || r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
+        "<td class='num'>" + esc(num(r.review_by, "–")) + "</td></tr>";
+    }).join("");
+    var o1Rows = (b.o1_queue || []).map(function (r) {
+      return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+        "<td>" + (r.dive_status ? chip(r.dive_status, r.dive_status === "FINAL" ? "accent" : "stale") : chip("not dived", "neutral")) + "</td>" +
+        "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
+        "<td>" + esc(r.data_tier || "") + "</td></tr>";
+    }).join("");
+    var o2Rows = (b.o2 || []).map(function (r) {
+      return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+        "<td>" + (r.heat_verdict ? chip(r.heat_verdict.replace(/_/g, " "), r.heat_verdict) : chip("unscored link", "neutral")) + (r.money_corner ? " " + chip("money corner", "accent") : "") + "</td>" +
+        "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
+        "<td>" + esc(r.data_tier || "") + "</td></tr>";
+    }).join("");
+    var blockedRows = (b.blocked || []).map(function (r) {
+      return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+        "<td>" + chip(r.status || "BLOCKED", "verystale") + "</td>" +
+        "<td class='muted'>" + esc(r.chain_id || "") + "</td>" +
+        "<td>" + esc(r.on || "no data gap recorded on the profile") + "</td></tr>";
+    }).join("");
+    var themeRows = (b.themes || []).map(function (t) {
+      return "<tr><td class='tk-name'><a href='#/campaign/" + encodeURIComponent(t.id) + "'>" + esc(t.title || t.id) + "</a></td>" +
+        "<td>" + campaignStatusChip(t.stage) + "</td>" +
+        "<td class='num'>" + esc(num(t.profiles, "–")) + " / " + esc(num(t.o1, "–")) + " / " + esc(num(t.finals, "–")) + "</td>" +
+        "<td>" + esc(t.refusing || "nothing recorded as blocking") + "</td></tr>";
+    }).join("");
+    function table(head, body, empty) {
+      return body ? '<div class="tablewrap"><table><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>" :
+        '<div class="emptystate">' + esc(empty) + "</div>";
+    }
+    return topbar("board") + "<main><div class='pagehead'><h1>Board</h1><p class='sub'>Names first. Every dive with its verdict, then the O1 queue waiting on a dive, then O2 by the heat of its link, then what blocks the rest. Verdicts come from the stock files; nothing on this page is computed here.</p></div>" +
+      '<div class="statgrid">' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.final, "0")) + '</span><span class="l">FINAL verdicts</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o1, "0")) + '</span><span class="l">O1 selected</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o2, "0")) + '</span><span class="l">O2 complete, not selected</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.blocked, "0")) + '</span><span class="l">profiles blocked</span></div></div>' +
+      "</div>" +
+      seclabel("Verdicts") +
+      table("<th>Name</th><th>Verdict</th><th>Clock</th><th>Entry zone / triggers</th><th>Chain · link</th><th>Review by</th>", verdictRows,
+        "No dive has been written yet. A verdict exists only as a data/stocks file; none is on disk.") +
+      seclabel("O1 queue") +
+      table("<th>Name</th><th>Dive</th><th>Chain · link</th><th>Data tier</th>", o1Rows,
+        "No O1 issuer is waiting. run selection promotes COMPLETE O2 profiles here.") +
+      seclabel("O2, by link heat" + (b.o2_total != null && b.o2_total > (b.o2 || []).length ? " (showing " + (b.o2 || []).length + " of " + b.o2_total + ")" : "")) +
+      table("<th>Name</th><th>Link heat</th><th>Chain · link</th><th>Data tier</th>", o2Rows,
+        "No COMPLETE O2 profile exists.") +
+      seclabel("Blocked, and on what" + (b.blocked_total != null && b.blocked_total > (b.blocked || []).length ? " (showing " + (b.blocked || []).length + " of " + b.blocked_total + ")" : "")) +
+      table("<th>Name</th><th>State</th><th>Chain</th><th>First recorded data gap</th>", blockedRows,
+        "No profile is BLOCKED or DRAFT.") +
+      seclabel("Themes: stage, and what refuses the next stage") +
+      table("<th>Theme</th><th>Stage</th><th>profiles / O1 / FINAL</th><th>Recorded blocker</th>", themeRows,
+        "No campaign manifest on disk.") +
       footer() + "</main>";
   }
 
@@ -4558,7 +4651,8 @@
     var h = location.hash || "#/";
     var p = h.replace(/^#\//, "").split("/").map(decodeURIComponent);
     var html;
-    if (!p[0]) html = cortexView();
+    if (!p[0]) html = boardView();
+    else if (p[0] === "board") html = boardView();
     else if (p[0] === "radar") html = homeView();
     else if (p[0] === "signal") html = signalView(p[1]);
     else if (p[0] === "chains") html = chainsView();

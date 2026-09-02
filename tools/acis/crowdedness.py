@@ -357,7 +357,10 @@ def fetch_media_count(ticker, company_name):
             "https://api.gdeltproject.org/api/v2/doc/doc",
             params={"query": query, "mode": "artlist", "format": "json",
                     "timespan": "90d", "maxrecords": 50},
-            headers=USER_AGENT, timeout=30)
+            # 10s, not 30s: GDELT has timed out on every smoke probe since 2026-08-31 and
+            # this axis is optional (do_pcs fails only when ZERO axes answer). A dead
+            # optional source should cost seconds per ticker, not half a minute.
+            headers=USER_AGENT, timeout=10)
         if resp.status_code != 200:
             return None
         articles = resp.json().get("articles", [])

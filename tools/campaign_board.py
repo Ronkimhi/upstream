@@ -57,6 +57,7 @@ from check_campaign import (  # noqa: E402
     validated_public_listings,
 )
 from check_map import mapping_fingerprint, read_json  # noqa: E402
+from market_paths import safe_name  # noqa: E402
 from queue_allowlist import is_allowed, reject_reason  # noqa: E402
 
 BOARD_PATH = ("data", "health", "board.json")
@@ -67,11 +68,6 @@ SCOPE_REQUIRED = ("CLAUDE.md", "docs/method.md", "data")
 
 def _identity(value):
     return value.strip() if isinstance(value, str) and value.strip() else None
-
-
-def safe_name(ticker) -> str:
-    """The market/EDGAR filename for a ticker, same rule as tools/fetch/fetch.py."""
-    return str(ticker).replace(".", "-").replace("/", "-")
 
 
 def _checked(cmd):
@@ -638,11 +634,20 @@ def render(board: dict) -> str:
     out.append(f"  themes            {d['themes_total']}   ({stages})")
     out.append(f"  mapped issuers    {d['distinct_mapped_issuers']} distinct "
                f"across {len(board['worklist'])} theme(s)")
-    out.append(f"  complete profiles {d['complete_profiles']} / "
-               f"{t.get('completed_profiles_min', '?')}")
-    out.append(f"  O1                {d['o1']} / "
-               f"{t.get('o1_min', '?')}-{t.get('o1_max', '?')}")
-    out.append(f"  FINAL dives       {d['final_dives']} / {d['o1']} O1")
+    if t.get("mode") == "DEPTH":
+        out.append(f"  mode              DEPTH: {t.get('issuers_per_link')} issuers per "
+                   f"in-scope link ({', '.join(t.get('links_in_scope') or [])}), "
+                   f"{t.get('o1_per_theme_min')}-{t.get('o1_per_theme_max')} O1 per theme")
+        out.append(f"  complete profiles {d['complete_profiles']}")
+        out.append(f"  O1                {d['o1']}")
+        out.append(f"  FINAL dives       {d['final_dives']} / {d['o1']} O1 "
+                   f"(campaign done at {t.get('verdicts_min')}-{t.get('verdicts_max')})")
+    else:
+        out.append(f"  complete profiles {d['complete_profiles']} / "
+                   f"{t.get('completed_profiles_min', '?')}")
+        out.append(f"  O1                {d['o1']} / "
+                   f"{t.get('o1_min', '?')}-{t.get('o1_max', '?')}")
+        out.append(f"  FINAL dives       {d['final_dives']} / {d['o1']} O1")
     out.append(f"  pending requests  {d['pending_requests']} "
                f"({d['pending_requests_blocking']} attributable to a theme issuer)")
     out.append("")

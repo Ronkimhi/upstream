@@ -32,6 +32,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import evidence_store  # noqa: E402
+import market_paths  # noqa: E402
 from impact_score import (  # noqa: E402
     LEGS,
     MONEY_BANDS,
@@ -158,6 +160,51 @@ def check_corpus_excerpts(apps: list[dict], data: Path, root: Path) -> None:
               if not items else ""))
 
 
+# From this date an appraisal written or amended without its web sources in data/web/ fails:
+# one dated week for sessions to learn to queue `web_doc` rows (pull-data skill) before
+# citing. Before it, an unfetched citation is counted and named, never failed.
+WEB_STORE_REQUIRED_FROM = "2026-09-08"
+
+
+def check_corpus_web_store(apps: list[dict], data: Path) -> None:
+    """Every cited web page that the fetch plane has stored must contain its excerpt.
+
+    The excerpt bar above proves the claim's numbers sit in the excerpt; this proves the
+    excerpt sits in the page. Together they close the gap adversarial verifiers found on
+    2026-08-30. Stored contradictions (MISMATCH, HTTP_403, EMPTY) fail on every appraisal;
+    an UNFETCHED source fails only for appraisals dated from WEB_STORE_REQUIRED_FROM.
+    """
+    items, unfetched_late = [], []
+    for a in apps:
+        aid = a.get("id", a["_file"])
+        late = str(a.get("as_of") or "") >= WEB_STORE_REQUIRED_FROM
+        for leg in LEGS:
+            obj = a.get(leg)
+            if not isinstance(obj, dict) or _leg_is_null(obj):
+                continue
+            for i, e in enumerate(obj.get("evidence") or []):
+                if not isinstance(e, dict) or e.get("tag") == "NULL":
+                    continue
+                where = f"{aid}: {leg}.evidence[{i}]"
+                items.append((where, e))
+                if late and evidence_store.verify(data, e)["state"] == "UNFETCHED":
+                    unfetched_late.append(where)
+    findings, counts = evidence_store.corpus_web_findings(data, items, None)
+    for f_ in findings:
+        fail(f_)
+    for where in unfetched_late:
+        fail(f"{where}: cites a web page with no stored fetch in data/web/ (appraisal dated "
+             f"on or after {WEB_STORE_REQUIRED_FROM}); queue a web_doc request and cite from "
+             "the stored text")
+    stored = sum(v for k, v in counts.items() if k not in ("UNFETCHED", "NO_URL"))
+    report(f"web store: {len(items)} web citation(s) examined, {stored} with a stored fetch "
+           f"({counts.get('MATCH', 0)} match, {counts.get('MISMATCH', 0)} mismatch, "
+           f"{sum(v for k, v in counts.items() if k.startswith('HTTP_'))} non-200, "
+           f"{counts.get('EMPTY', 0)} empty, {counts.get('NO_EXCERPT', 0)} without excerpt), "
+           f"{counts.get('UNFETCHED', 0)} unfetched"
+           + ("  <- nothing stored yet: the web bar passed over nothing" if not stored else ""))
+
+
 def check_corpus_references(apps: list[dict], data: Path) -> None:
     cands = read_json(data / "radar" / "candidates.json", {}) or {}
     cand_ids = {c.get("id") for c in cands.get("candidates", []) if isinstance(c, dict)}
@@ -205,17 +252,17 @@ def check_corpus_venue(apps: list[dict], data: Path) -> None:
                 fail(f"{aid}: ticker_refs entry {t!r} is not a ticker string")
                 continue
             checked_metrics += 1
-            market_path = data / "market" / f"{t}.json"
+            market_path = market_paths.market_path(data, t)
             if not market_path.exists():
-                fail(f"{aid}: ticker_refs cites {t} with no data/market/{t}.json. A session "
+                fail(f"{aid}: ticker_refs cites {t} with no {market_path.relative_to(data.parent)}. A session "
                      f"never invents a price: request it and mark the appraisal PENDING_DATA, "
                      f"or write NULL with a basis and no numeric value")
         for row in scan["ticker_metrics"]:
             checked_metrics += 1
             t = row["ticker"]
-            market_path = data / "market" / f"{t}.json"
+            market_path = market_paths.market_path(data, t)
             if not market_path.exists():
-                fail(f"{aid}: {row['path']} cites {t} with no data/market/{t}.json. A session "
+                fail(f"{aid}: {row['path']} cites {t} with no {market_path.relative_to(data.parent)}. A session "
                      f"never invents a price: request it and mark the appraisal PENDING_DATA, "
                      f"or write NULL with a basis and no numeric value")
                 continue
@@ -402,6 +449,7 @@ def main() -> int:
 
     if apps:
         check_corpus_excerpts(apps, data, root)
+        check_corpus_web_store(apps, data)
         check_corpus_references(apps, data)
         check_corpus_venue(apps, data)
         check_corpus_uniqueness(apps)

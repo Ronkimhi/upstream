@@ -42,6 +42,7 @@ from pathlib import Path
 
 import check_map
 import check_profile
+import market_paths
 
 
 def _load_normalizer():
@@ -167,13 +168,28 @@ def _qualified_placement_failures(placement: dict) -> list[str]:
     return findings
 
 
-def _mapping_admission_failures(mapping: dict) -> list[str]:
-    """Campaign-era Stocky requires COMPLETE map plus check_map audit validation."""
+def _mapping_admission_failures(mapping: dict, chain_id=None, link_id=None,
+                                issuer_id=None) -> list[str]:
+    """Campaign-era Stocky requires a fresh-context audit behind the placement it dives.
+
+    Two proofs satisfy it. The whole census: mapping COMPLETE with a valid current PASS
+    audit, as before. Or, since Ron's decision of 2026-09-01, the one placement: a current
+    PASS entry in `placement_audits[]` for this exact (chain, link, issuer), bound by
+    check_map.placement_claim_digest to the placement's present role and sampled evidence.
+    The audit stays where money is decided; it no longer has to cover 84 listings first.
+    """
     findings = []
+    placement_audit = check_map.placement_audit_for(
+        mapping, chain_id, link_id, issuer_id) if chain_id and link_id and issuer_id else None
+    if placement_audit is not None:
+        for item in check_map.placement_audit_failures(mapping):
+            findings.append(f"placement audit not admission-valid: {item}")
+        return findings
     if mapping.get("status") != "COMPLETE":
         findings.append(
             "Stocky admission requires mapping status COMPLETE, "
-            f"found {mapping.get('status')!r}")
+            f"found {mapping.get('status')!r}, or a current PASS placement_audits entry "
+            f"for {(chain_id, link_id, issuer_id)!r}")
     for item in check_map.audit_failures(mapping):
         findings.append(f"mapping audit not admission-valid: {item}")
     return findings
@@ -273,7 +289,7 @@ def stock_admission_failures(root: Path, stock: dict) -> list[str]:
     if mapping.get("chain_id") != chain_id:
         findings.append(
             f"mapping chain_id {mapping.get('chain_id')!r} does not match {chain_id!r}")
-    findings.extend(_mapping_admission_failures(mapping))
+    findings.extend(_mapping_admission_failures(mapping, chain_id, link_id, issuer_id))
 
     listings = [
         row for row in mapping.get("listings") or []
@@ -509,8 +525,7 @@ def main() -> int:
         verdict = d.get("verdict")
         clock = d.get("clock")
         ticker = d.get("ticker")
-        mkt = read_json(data / "market" / f"{str(ticker).replace('.', '-')}.json") \
-            if ticker else None
+        mkt = read_json(market_paths.market_path(data, ticker)) if ticker else None
         quality = mkt.get("quality") if isinstance(mkt, dict) else None
 
         # 1b. link_id — method §7 requires every dive to name its chain link, or null with

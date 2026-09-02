@@ -824,9 +824,74 @@ class TestProfileDiscipline(CampaignTree):
     def test_t3_official_source_inference_is_not_penalized(self):
         profile = self.profile()
         self.assertEqual(check_profile.validate_profile(self.root, self.path, profile), [])
+        # official_source false on a NON-vendor source is still refused: the allowance is
+        # for the fetch plane's vendor block by name, not for any unofficial number.
         profile["metrics"]["revenue"]["latest_fy"]["official_source"] = False
         failures = check_profile.validate_profile(self.root, self.path, profile)
         self.assertTrue(any("official_source: true" in f for f in failures))
+
+    def _vendor(self, value, basis="from data/market fundamentals (yfinance-statements)"):
+        return {
+            "value": value, "tag": "INFERRED", "official_source": False, "basis": basis,
+            "source_name": "yfinance-statements", "source_date": "2026-09-01",
+            "url": "https://finance.yahoo.com/quote/AAA/financials",
+        }
+
+    def test_t3_vendor_aggregate_metric_is_admitted(self):
+        """Ron's decision 2026-09-01: a T2/T3 canonical metric may rest on the vendor block."""
+        profile = self.profile()
+        profile["metrics"]["revenue"]["latest_fy"] = self._vendor(125.0)
+        profile["metrics"]["margins"]["operating_margin"] = self._vendor(0.18)
+        self.assertEqual(check_profile.validate_profile(self.root, self.path, profile), [])
+
+    def test_vendor_aggregate_needs_a_basis_and_a_vendor_source_name(self):
+        profile = self.profile()
+        profile["metrics"]["revenue"]["latest_fy"] = self._vendor(125.0, basis="")
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertTrue(any("derivation basis" in f for f in failures), failures)
+        profile = self.profile()
+        item = self._vendor(125.0)
+        item["source_name"] = "Some blog"
+        profile["metrics"]["revenue"]["latest_fy"] = item
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertTrue(any("official_source: true" in f for f in failures), failures)
+
+    def test_t1_filer_may_not_use_a_vendor_aggregate(self):
+        profile = self.profile()
+        profile["data_tier"] = "T1"
+        profile["metrics"]["revenue"]["latest_fy"] = self._vendor(125.0)
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertTrue(any("official_source: true" in f for f in failures), failures)
+
+    def test_o1_requires_official_crosscheck_on_revenue_and_cash_conversion(self):
+        self.screen()
+        profile = self.profile()
+        profile["opportunity_tier"] = "O1"
+        profile["selection_basis"] = self.selection_basis()
+        profile["metrics"]["margins"]["operating_margin"] = self._vendor(0.18)
+        self.assertEqual(check_profile.validate_profile(self.root, self.path, profile), [])
+        profile["metrics"]["revenue"]["latest_fy"] = self._vendor(125.0)
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertTrue(any("official-source cross-check" in f for f in failures), failures)
+
+    def test_a_null_basis_claiming_a_missing_market_file_must_be_true(self):
+        """AFCONS.NS, 2026-09-01: the basis said data/market/AFCONS.NS.json did not exist
+        while data/market/AFCONS-NS.json held 20/20 fields. The claim is now checked."""
+        (self.root / "data" / "market").mkdir(exist_ok=True)
+        (self.root / "data" / "market" / "AAA-NS.json").write_text("{}")
+        profile = self.profile()
+        profile["as_of"] = "2026-09-02"
+        profile["metrics"]["revenue"]["latest_fy"] = {
+            "value": None, "tag": "NULL",
+            "basis": "latest fiscal-year revenue unavailable: no market file has ever been "
+                     "fetched for AAA.NS (data/market/AAA.NS.json does not exist)",
+        }
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertTrue(any("filenames map '.' to '-'" in f for f in failures), failures)
+        # The same claim is true when the file is absent, and passes.
+        (self.root / "data" / "market" / "AAA-NS.json").unlink()
+        failures = check_profile.validate_profile(self.root, self.path, profile)
+        self.assertFalse(any("filenames map" in f for f in failures), failures)
 
     def test_profile_cannot_leak_final_verdict_vocabulary(self):
         profile = self.profile()
@@ -1115,6 +1180,85 @@ class TestCampaignCompleteBoundaries(CampaignTree):
                     computed[field] = value
                 failures = check_campaign.completion_gate_failures(campaign, computed)
                 self.assertTrue(any(message in finding for finding in failures), failures)
+
+
+class TestDepthCampaignBoundaries(CampaignTree):
+    """Ron, 2026-09-01: a DEPTH campaign closes on verdicts, not on 200 profiles."""
+
+    def setUp(self):
+        super().setUp()
+        self.campaign = {
+            "status": "COMPLETE",
+            "targets": dict(check_campaign.DEPTH_TARGETS),
+            "themes": [{"theme_id": f"T{i}"} for i in range(10)],
+        }
+        self.computed = {
+            "completed_profiles": 24,
+            "opportunity_tiers": {"O1": 12, "O2": 12, "O3": 40},
+            "o1_complete": 12,
+            "o1_final": 12,
+            "themes_complete": 10,
+            "per_theme": [{"theme_id": f"T{i}", "completed_profiles": 2,
+                           "o1": 2 if i < 2 else 1} for i in range(10)],
+        }
+
+    def test_depth_complete_boundary_passes(self):
+        self.assertEqual(check_campaign.completion_gate_failures(
+            self.campaign, self.computed), [])
+
+    def test_depth_boundaries_fail_closed(self):
+        probes = [
+            ("o1_final", 9, "10-20 FINAL"),
+            ("o1_final", 21, "10-20 FINAL"),
+            ("themes_complete", 9, "every theme complete"),
+            ("theme_o1", 4, "needs 1-3"),
+            ("theme_o1", 0, "needs 1-3"),
+        ]
+        for field, value, message in probes:
+            with self.subTest(field=field, value=value):
+                computed = copy.deepcopy(self.computed)
+                if field == "o1_final":
+                    computed["opportunity_tiers"]["O1"] = value
+                    computed["o1_complete"] = value
+                    computed["o1_final"] = value
+                elif field == "theme_o1":
+                    computed["per_theme"][5]["o1"] = value
+                else:
+                    computed[field] = value
+                failures = check_campaign.completion_gate_failures(self.campaign, computed)
+                self.assertTrue(any(message in f for f in failures), failures)
+
+    def test_no_candidate_finding_closes_a_theme_with_zero_o1(self):
+        self.campaign["themes"][5]["no_candidate_finding"] = {"claim": "nothing listed"}
+        self.computed["per_theme"][5]["o1"] = 0
+        self.assertEqual(check_campaign.completion_gate_failures(
+            self.campaign, self.computed), [])
+
+    def test_depth_targets_are_frozen_exactly(self):
+        campaign = self.campaign
+        campaign["targets"]["issuers_per_link"] = 7
+        # validate_campaign needs more shape than this fixture has; the targets clause is
+        # what is under test, so read it out of the full failure list.
+        path = self.root / "data" / "campaigns" / "CAMP-20260901-01.json"
+        failures = check_campaign.validate_campaign(self.root, path, campaign)
+        self.assertTrue(any("targets.issuers_per_link must be 5" in f for f in failures),
+                        failures)
+        campaign["targets"]["issuers_per_link"] = 5
+        campaign["targets"]["bonus"] = 1
+        failures = check_campaign.validate_campaign(self.root, path, campaign)
+        self.assertTrue(any("outside its frozen set" in f for f in failures), failures)
+
+    def test_links_in_scope_reads_money_corner_and_undiscovered(self):
+        chain = {"links": [
+            {"id": "a", "heat": {"verdict": "CROWDED", "money_corner": True}},
+            {"id": "b", "heat": {"verdict": "UNDISCOVERED", "money_corner": False}},
+            {"id": "c", "heat": {"verdict": "QUIET", "money_corner": False}},
+            {"id": "d"},
+        ]}
+        self.assertEqual(check_campaign.links_in_scope(chain, check_campaign.DEPTH_TARGETS),
+                         {"a", "b"})
+        self.assertEqual(check_campaign.links_in_scope(chain, check_campaign.LOCKED_TARGETS),
+                         {"a", "b", "c", "d"})
 
 
 if __name__ == "__main__":

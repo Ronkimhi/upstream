@@ -17,6 +17,7 @@ from pathlib import Path
 from check_campaign import validate_campaign
 from check_map import corpus_identity_failures, validate_mapping
 from check_profile import validate_profile
+from market_paths import market_path
 from heat_score import band_for, money_corner, score_from
 from impact_score import BANDS as IMPACT_BANDS, LEGS as IMPACT_LEGS, MONEY_BANDS, compute as impact_compute
 
@@ -49,7 +50,8 @@ VERDICTS = {"INVESTABLE", "WATCH", "TOO_LATE"}
 REVIEW_VERDICTS = {"ADOPT", "ADOPT_NARROWED", "REJECT"}
 PRICE_STATUS = {"AGREED", "SINGLE_SOURCE", "DISPUTED", "NO_DATA", "VERIFIED_ZERO"}
 REQ_KINDS = {"prices", "fundamentals", "pcs", "edgar_fts", "edgar_doc",
-             "quality", "insider"}   # quality/insider added 2026-08-29 (the analyst)
+             "quality", "insider",   # quality/insider added 2026-08-29 (the analyst)
+             "web_doc"}              # web evidence store, 2026-09-01 (tools/evidence_store.py)
 REQ_STATUS = {"PENDING", "FULFILLED", "FAILED"}
 BUCKETS = ("pure_play", "picks_and_shovels", "second_order", "hedge")
 TRADE_ACTIONS = {"bought", "sold", "trimmed", "added"}
@@ -730,7 +732,7 @@ def v_stock(f: Path) -> None:
                "and falsification")
     if not (DATA / "chains" / f"{d['chain_id']}.json").exists():
         err(f, f"chain_id {d['chain_id']} has no chain file")
-    mk = DATA / "market" / f"{d['ticker'].replace('.', '-')}.json"
+    mk = market_path(DATA, d["ticker"])
     if not mk.exists() and not d.get("fixture"):
         warn(f, f"no market file for {d['ticker']} (chart will show request state)")
     check_common(f, d)
@@ -928,6 +930,8 @@ def v_requests(f: Path) -> None:
             err(f, f"{rid}: kind {req.get('kind')} needs a ticker")
         if req.get("kind") == "edgar_fts" and not req.get("query"):
             err(f, f"{rid}: edgar_fts needs a query")
+        if req.get("kind") == "web_doc" and not str(req.get("url") or "").startswith(("http://", "https://")):
+            err(f, f"{rid}: web_doc needs an http(s) url")
 
 
 def v_shadow(f: Path) -> None:
@@ -1305,6 +1309,22 @@ def v_digest(f: Path) -> None:
         return
     if not isinstance(d.get("ranked"), list):
         err(f, "ranked must be a list")
+    # Ron, 2026-09-01: the digest answers "where should I invest" first. A `verdicts`
+    # section leads: every FINAL dive with its verdict, clock and entry zone or triggers,
+    # then the O1 queue, then what blocks the rest, one line each. Warned for the first
+    # Saturday it applies to, refused from the second, so the routine has one fire to adapt.
+    week = str(d.get("week") or "")
+    if "verdicts" not in d:
+        (err if week >= "2026-37" else warn)(
+            f, "no verdicts section: a digest that ranks mid-funnel objects and never says "
+               "which names carry a verdict does not answer the question the machine exists "
+               "for (required from ISO week 2026-37)")
+    elif not isinstance(d.get("verdicts"), dict):
+        err(f, "verdicts must be an object with named, o1_queue and blocked lists")
+    else:
+        for k in ("named", "o1_queue", "blocked"):
+            if not isinstance(d["verdicts"].get(k), list):
+                err(f, f"verdicts.{k} must be a list (empty is a real answer, absent is not)")
     # Campaign-era digests must name their writer and carry Adam's machine sweep. Warn-only
     # let a digest omit both and still exit zero, which reads as a healthy machine.
     if not d.get("generated_by"):

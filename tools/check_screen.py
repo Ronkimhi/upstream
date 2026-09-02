@@ -45,6 +45,7 @@ import unicodedata
 from pathlib import Path
 
 from check_map import mapping_fingerprint
+from market_paths import safe_name  # one filename rule, tested against fetch.py
 
 failures: list[str] = []
 lines: list[str] = []
@@ -72,10 +73,6 @@ def read_json(path: Path, default=None):
         return json.loads(path.read_text())
     except Exception:  # noqa: BLE001
         return default
-
-
-def safe_name(t) -> str:
-    return str(t).replace(".", "-").replace("/", "-")
 
 
 # Smart punctuation folding. A quote copied out of a filing routinely arrives with the
@@ -232,7 +229,7 @@ def _screen_rows(screen: dict):
 
 
 def _current_audit(mapping: dict) -> bool:
-    """A screen may use a mapping only after its current semantic audit passed."""
+    """A screen may use a whole mapping only after its current semantic audit passed."""
     audit = mapping.get("audit")
     return (
         mapping.get("status") == "COMPLETE"
@@ -240,6 +237,23 @@ def _current_audit(mapping: dict) -> bool:
         and audit.get("status") == "PASS"
         and audit.get("mapping_fingerprint") == mapping_fingerprint(mapping)
     )
+
+
+def _placement_admissible(placement: dict | None) -> bool:
+    """A single placement a screen row may consume from an ACTIVE, un-audited mapping.
+
+    Ron's decision, 2026-09-01. Until then a screen needed the whole census audited in
+    fresh context first, so hormuz-maritime (84 listings) sat behind a stage cloud sessions
+    could not run and five fires in a row stood down on it. The lazy funnel says analyse
+    what the command asks for: a screen row consumes ONE placement, so what it needs is
+    that placement qualified with every evidence item VERIFIED. The row declares
+    `audit_scope: "PLACEMENT"` so the narrower basis is visible on the row itself, and the
+    fresh-context audit moves to the placement being dived (check_analyst.py).
+    """
+    if not _is_qualified_placement(placement):
+        return False
+    evidence = placement.get("evidence") or []
+    return all(isinstance(item, dict) and item.get("tag") == "VERIFIED" for item in evidence)
 
 
 def _scenario_moved_links(chain: dict, scenario_id) -> set | None:
@@ -304,7 +318,7 @@ def check_campaign_identity(data: Path, screens: list) -> None:
     screened, so it is a valid history; O3, DRAFT and BLOCKED are still refused, which is the
     rule that was actually doing work.
     """
-    campaign_rows = legacy_screens = checked = 0
+    campaign_rows = legacy_screens = checked = placement_scoped = 0
     required = {
         "issuer_id", "listing_id", "ticker", "market_ticker", "chain_id", "link_id",
         "mapping_ref", "profile_ref", "data_tier",
@@ -329,9 +343,7 @@ def check_campaign_identity(data: Path, screens: list) -> None:
             fail(f"{path.name}: campaign-v1 screen has no normalized mapping "
                  f"{mapping_path.name}")
             continue
-        if not _current_audit(mapping):
-            fail(f"{path.name}: campaign mapping {mapping_path.name} lacks a current PASS "
-                 "audit and COMPLETE status; screen rows cannot use a stale or failed census")
+        mapping_audited = _current_audit(mapping)
         listings = {
             item.get("listing_id"): item for item in mapping.get("listings") or []
             if isinstance(item, dict) and item.get("listing_id")
@@ -378,6 +390,19 @@ def check_campaign_identity(data: Path, screens: list) -> None:
                 fail(f"{where}: link_id {link_id!r} has no current qualified mapping "
                      f"placement for issuer_id {issuer_id!r}; placement.status must be "
                      "exactly ACTIVE")
+            elif not mapping_audited:
+                if row.get("audit_scope") != "PLACEMENT":
+                    fail(f"{path.name}: campaign mapping {mapping_path.name} lacks a current "
+                         "PASS audit and COMPLETE status; a row on an un-audited census must "
+                         "declare audit_scope: \"PLACEMENT\" and rest on a placement whose "
+                         "evidence is all VERIFIED (Ron, 2026-09-01), otherwise screen rows "
+                         "cannot use a stale or failed census")
+                elif not _placement_admissible(placement):
+                    fail(f"{where}: audit_scope PLACEMENT on an un-audited mapping requires "
+                         "every evidence item on the placement to be VERIFIED; INFERRED "
+                         "issuer-role evidence needs the census audit")
+                else:
+                    placement_scoped += 1
             if moved_links is not None and link_id not in moved_links:
                 fail(f"{where}: scenario screen row link_id {link_id!r} is not moved by "
                      f"scenario {scenario_id!r}")
@@ -404,7 +429,8 @@ def check_campaign_identity(data: Path, screens: list) -> None:
                 fail(f"{where}: duplicate issuer row needs a non-empty secondary_link_basis")
             seen_issuers.add(issuer_id)
     report(f"campaign identity: {checked}/{campaign_rows} campaign row(s) examined; "
-           f"{legacy_screens} legacy screen(s) warned")
+           f"{placement_scoped} row(s) admitted on placement scope over an un-audited "
+           f"mapping; {legacy_screens} legacy screen(s) warned")
 
 
 def check_run_day(data: Path, screens: list, chains_dir: Path, today: str) -> None:

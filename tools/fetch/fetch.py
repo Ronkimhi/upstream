@@ -18,6 +18,7 @@ No Anthropic calls, no absolute paths, loud degradation. Stdlib + requests
 (+ yfinance best-effort via acis.dual_source).
 """
 import dataclasses
+import hashlib
 import html
 import json
 import os
@@ -43,6 +44,12 @@ DATA = ROOT / "data"
 SEC_HEADERS = {"User-Agent": EDGAR_USER_AGENT}
 FTS_URL = "https://efts.sec.gov/LATEST/search-index"
 MAX_DOC_CHARS = 60_000
+# The web evidence store (tools/evidence_store.py). A browser-like agent because the
+# sources cited here are news sites, regulators and company IR pages, not EDGAR; the EDGAR
+# agent string is reserved for data.sec.gov by SEC policy.
+WEB_USER_AGENT = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 UpstreamResearch/1.0")
+MAX_WEB_CHARS = 200_000
 NOW = datetime.now(timezone.utc)
 TODAY = NOW.strftime("%Y-%m-%d")
 
@@ -229,39 +236,43 @@ def tier_for(ticker, cik):
 
 # ---------------------------------------------------------------- prices
 def fetch_series(ticker):
-    """36-month close series: daily last 24mo, weekly before. stooq first,
-    yfinance fallback. Returns (rows, source) or (None, None)."""
+    """36-month close series: daily last 24mo, weekly before. yfinance first, stooq
+    fallback. Returns (rows, source) or (None, None).
+
+    Order flipped 2026-09-01. Stooq had been "primary" since the repo was created and had
+    never once answered: it serves an HTML page to non-browser clients (smoke probe
+    `stooq`, health/actions.json), so every series on disk already reads source
+    "yfinance" and the primary was a 30-second timeout paid on every ticker. The print leg
+    (acis/dual_source.py) made the same swap the same day.
+    """
     rows, source = None, None
     try:
-        # STOOQ_USER_AGENT, not SEC_HEADERS — see control_ok(). This call is why every
-        # series in data/market/ records source "yfinance": stooq is tried first and was
-        # answering the EDGAR agent with an HTML page, so the primary series source has
-        # silently been the fallback since the repo was created.
-        r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol=_stooq_symbol(ticker)),
-                         headers={"User-Agent": STOOQ_USER_AGENT}, timeout=30)
-        if r.status_code != 200 or not r.text.startswith("Date"):
-            print(f"  stooq series unavailable for {ticker}: http {r.status_code}, "
-                  f"body starts {r.text.strip()[:60]!r} — falling back to yfinance")
-        if r.status_code == 200 and r.text.startswith("Date"):
-            lines = r.text.strip().splitlines()[1:]
-            rows = []
-            for ln in lines:
-                p = ln.split(",")
-                if len(p) >= 5 and p[0] and p[4] not in ("", "0"):
-                    rows.append([p[0], round(float(p[4]), 4)])
-            source = "stooq"
+        import yfinance as yf
+        h = yf.Ticker(ticker).history(period="3y", auto_adjust=False)
+        if h is not None and not h.empty:
+            rows = [[str(i.date()), round(float(v), 4)]
+                    for i, v in h["Close"].dropna().items()]
+            source = "yfinance"
     except Exception as e:
-        print(f"  stooq series failed for {ticker}: {e}")
+        print(f"  yfinance series failed for {ticker}: {e}")
     if not rows:
         try:
-            import yfinance as yf
-            h = yf.Ticker(ticker).history(period="3y", auto_adjust=False)
-            if h is not None and not h.empty:
-                rows = [[str(i.date()), round(float(v), 4)]
-                        for i, v in h["Close"].dropna().items()]
-                source = "yfinance"
+            # STOOQ_USER_AGENT, not SEC_HEADERS — see control_ok().
+            r = requests.get(STOOQ_DAILY_CSV_URL.format(symbol=_stooq_symbol(ticker)),
+                             headers={"User-Agent": STOOQ_USER_AGENT}, timeout=15)
+            if r.status_code == 200 and r.text.startswith("Date"):
+                lines = r.text.strip().splitlines()[1:]
+                rows = []
+                for ln in lines:
+                    p = ln.split(",")
+                    if len(p) >= 5 and p[0] and p[4] not in ("", "0"):
+                        rows.append([p[0], round(float(p[4]), 4)])
+                source = "stooq"
+            else:
+                print(f"  stooq series unavailable for {ticker}: http {r.status_code}, "
+                      f"body starts {r.text.strip()[:60]!r}")
         except Exception as e:
-            print(f"  yfinance series failed for {ticker}: {e}")
+            print(f"  stooq series failed for {ticker}: {e}")
     if not rows:
         return None, None
     cutoff36 = (NOW.replace(tzinfo=None) - __import__("datetime").timedelta(days=365 * 3)).strftime("%Y-%m-%d")
@@ -381,6 +392,56 @@ FACT_MAP = {
     "long_term_debt": (["LongTermDebtNoncurrent", "LongTermDebt"], "instant", "USD"),
 }
 
+# The same fields under the `ifrs-full` taxonomy, for the 20-F / 40-F filer whose
+# companyfacts carry no us-gaap facts at all. Until 2026-09-01 the SEC leg read only
+# `facts["us-gaap"]` and accepted only 10-K/10-Q forms, so BHP (CIK 811809), TSM, ASX and
+# ABBNY each came back 0/20 with a CIK that then blocked the vendor fallback: four profiles
+# BLOCKED on data that data.sec.gov was serving all along. Concept names are the IFRS
+# taxonomy's own; units are whatever currency the filer reports in, recorded as
+# `statement_currency` rather than assumed USD (method section 6A currency rule).
+IFRS_FACT_MAP = {
+    "revenue": (["Revenue", "RevenueFromContractsWithCustomers"], "duration"),
+    "net_income": (["ProfitLoss", "ProfitLossAttributableToOwnersOfParent"], "duration"),
+    "cash": (["CashAndCashEquivalents"], "instant"),
+    "total_debt": (["NoncurrentBorrowings", "Borrowings", "LongtermBorrowings"], "instant"),
+    "gross_profit": (["GrossProfit"], "duration"),
+    "cost_of_revenue": (["CostOfSales"], "duration"),
+    "operating_income": (["ProfitLossFromOperatingActivities"], "duration"),
+    "operating_cashflow": (["CashFlowsFromUsedInOperatingActivities"], "duration"),
+    "capex": (["PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities"],
+              "duration"),
+    "depreciation": (["DepreciationAndAmortisationExpense",
+                      "DepreciationAmortisationAndImpairmentLossReversalOfImpairmentLoss"
+                      "RecognisedInProfitOrLoss"], "duration"),
+    "sga": (["SellingGeneralAndAdministrativeExpense", "AdministrativeExpense"], "duration"),
+    "total_assets": (["Assets"], "instant"),
+    "current_assets": (["CurrentAssets"], "instant"),
+    "current_liabilities": (["CurrentLiabilities"], "instant"),
+    "total_liabilities": (["Liabilities"], "instant"),
+    "retained_earnings": (["RetainedEarnings"], "instant"),
+    "equity": (["Equity", "EquityAttributableToOwnersOfParent"], "instant"),
+    "receivables": (["TradeAndOtherCurrentReceivables", "CurrentTradeReceivables"], "instant"),
+    "inventory": (["Inventories"], "instant"),
+    "ppe_net": (["PropertyPlantAndEquipment"], "instant"),
+    "shares": (["NumberOfSharesOutstanding", "NumberOfSharesIssued"], "instant"),
+    "long_term_debt": (["NoncurrentBorrowings", "Borrowings", "LongtermBorrowings"],
+                       "instant"),
+}
+ANNUAL_FORMS = ("10-K", "20-F", "40-F")
+INTERIM_FORMS = ("10-Q", "10-K")
+
+
+def _ifrs_currency(ifrs: dict) -> str | None:
+    """The one currency the IFRS revenue concept reports in, so every field is read in the
+    same unit. A filer with no revenue concept in any currency has no statement currency."""
+    for n in IFRS_FACT_MAP["revenue"][0]:
+        units = ifrs.get(n, {}).get("units", {})
+        for ccy in sorted(units):
+            if len(ccy) == 3 and ccy.isalpha() and ccy.isupper():
+                return ccy
+    return None
+
+
 # The annual series the quality block consumes. Must stay in step with
 # `acis.quality.compute_quality`'s series_fields: a name here that quality does not read
 # is dead weight, and a name quality reads that is missing here silently downgrades every
@@ -404,17 +465,29 @@ def _fundamentals_sec(ticker, cik):
         raise RuntimeError(f"companyfacts HTTP {r.status_code} for {ticker}")
     facts = r.json().get("facts", {})
     gaap = facts.get("us-gaap", {})
+    ifrs = facts.get("ifrs-full", {})
     dei = facts.get("dei", {})
+    # One taxonomy per filer, chosen by which one carries facts. A US filer's us-gaap wins;
+    # a 20-F/40-F filer with only ifrs-full is read from that, in its own currency.
+    taxonomy = "us-gaap" if gaap else ("ifrs-full" if ifrs else "us-gaap")
+    ifrs_ccy = _ifrs_currency(ifrs) if taxonomy == "ifrs-full" else None
 
     def pick(key, annual):
         """Latest 8 periods for one field. Instant facts have no duration to test."""
-        names, shape, unit = FACT_MAP[key]
+        if taxonomy == "ifrs-full":
+            names, shape = IFRS_FACT_MAP[key]
+            unit = "shares" if key == "shares" else ifrs_ccy
+            src_map = ifrs
+        else:
+            names, shape, unit = FACT_MAP[key]
+            src_map = gaap
         for n in names:
-            src = dei if (n == "EntityCommonStockSharesOutstanding") else gaap
-            vals = src.get(n, {}).get("units", {}).get(unit) or []
+            src = dei if (n == "EntityCommonStockSharesOutstanding") else src_map
+            vals = src.get(n, {}).get("units", {}).get(unit) or [] if unit else []
             keep = {}
             for v in vals:
-                form_ok = v.get("form") == "10-K" if annual else v.get("form") in ("10-Q", "10-K")
+                form_ok = v.get("form") in ANNUAL_FORMS if annual \
+                    else v.get("form") in INTERIM_FORMS
                 if not form_ok:
                     continue
                 if shape == "instant":
@@ -435,6 +508,10 @@ def _fundamentals_sec(ticker, cik):
 
     f = {
         "source": "sec-companyfacts", "cik": cik, "as_of": TODAY,
+        "taxonomy": taxonomy,
+        # USD for a us-gaap filer by construction of FACT_MAP; the filer's own reporting
+        # currency for ifrs-full. do_quality refuses a mixed-currency market cap on this.
+        "statement_currency": "USD" if taxonomy == "us-gaap" else ifrs_ccy,
         "revenue_fy": pick("revenue", True),
         "revenue_q": pick("revenue", False),
         "net_income_fy": pick("net_income", True),
@@ -711,10 +788,27 @@ def _store_fundamentals(ticker, f, cik):
 
 def do_fundamentals(ticker):
     """SEC companyfacts when the ticker resolves to a CIK, the vendor statements fallback
-    when it does not. The CIK is the ONLY thing that chooses the leg: an SEC filer never
-    silently reads a vendor aggregate instead of its own filings."""
+    when it does not, or when the SEC leg answered with nothing at all.
+
+    An SEC filer never silently reads a vendor aggregate INSTEAD of its own filings: the
+    vendor leg runs for a CIK only after companyfacts was fetched, returned zero annual
+    fields under both taxonomies, and the same-run EDGAR probe proved the endpoint alive.
+    The block then records `sec_attempted` so a reader can see the filing surface was
+    tried and found empty, and keeps the CIK so identity and tier survive."""
     cik = cik_for(ticker)
-    f = _fundamentals_sec(ticker, cik) if cik else _fundamentals_yfinance(ticker)
+    if not cik:
+        return _store_fundamentals(ticker, _fundamentals_yfinance(ticker), cik)
+    f = _fundamentals_sec(ticker, cik)
+    if f["coverage"]["annual_fields_found"] == 0 and not f.get("revenue_q"):
+        print(f"  fundamentals {ticker}: companyfacts has 0/{f['coverage']['annual_fields_attempted']} "
+              f"annual fields under {f.get('taxonomy')} (probe OK) — falling through to "
+              f"yfinance-statements, INFERRED")
+        attempted = {"cik": cik, "taxonomy": f.get("taxonomy"),
+                     "annual_fields_found": 0, "probe": (f.get("verified_zero") or {}).get("probe"),
+                     "as_of": TODAY}
+        f = _fundamentals_yfinance(ticker)
+        f["cik"] = cik
+        f["sec_attempted"] = attempted
     return _store_fundamentals(ticker, f, cik)
 
 
@@ -1053,6 +1147,69 @@ def _strip_html(html_text):
     return re.sub(r"\s+", " ", text).strip()
 
 
+def _web_canonical(url):
+    """Same rule as tools/evidence_store.canonical_url. Duplicated on purpose: this job runs
+    in Actions without tools/ on its path; tools/tests/test_evidence_store.py asserts the
+    two agree on every URL shape in the corpus."""
+    from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+    parts = urlsplit(url.strip())
+    scheme = (parts.scheme or "https").lower()
+    host = (parts.hostname or "").lower()
+    if parts.port and not ((scheme == "https" and parts.port == 443) or
+                           (scheme == "http" and parts.port == 80)):
+        host = f"{host}:{parts.port}"
+    path = re.sub(r"/+$", "", parts.path) or "/"
+    tracking = ("utm_", "fbclid", "gclid", "mc_cid", "mc_eid", "ref", "ref_src")
+    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+             if not k.lower().startswith(tracking)]
+    query.sort()
+    return urlunsplit((scheme, host, path, urlencode(query), ""))
+
+
+def do_web_doc(url):
+    """Fetch one web page into data/web/<sha16>.json as plain text, the web analogue of
+    do_edgar_doc. A non-200 answer is STORED, not raised: a 403 or 404 is a fact about the
+    source that the citing stage must see (the citation moves), and a stored refusal is
+    what lets tools/check_impact.py fail a claim whose source cannot be read. Only a
+    transport failure (no response at all) raises, so the row retries."""
+    if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+        raise RuntimeError(f"web_doc needs an http(s) url, got {url!r}")
+    canon = _web_canonical(url)
+    doc_id = hashlib.sha256(canon.encode("utf-8")).hexdigest()[:16]
+    r = requests.get(url, headers={"User-Agent": WEB_USER_AGENT,
+                                   "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5"},
+                     timeout=45, allow_redirects=True)
+    ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+    text = ""
+    if r.status_code == 200:
+        if ctype in ("text/html", "application/xhtml+xml", ""):
+            text = _strip_html(r.text)
+        elif ctype.startswith("text/") or ctype in ("application/json", "application/xml"):
+            text = re.sub(r"\s+", " ", r.text).strip()
+        # A PDF or other binary is stored EMPTY on purpose: its text cannot be verified
+        # with the same rule, and an empty text is the honest record of that.
+    text = text[:MAX_WEB_CHARS]
+    doc = {
+        "id": doc_id,
+        "url": url,
+        "canonical_url": canon,
+        "final_url": r.url,
+        "fetched_at": NOW.isoformat(),
+        "http_status": r.status_code,
+        "content_type": ctype,
+        "bytes": len(r.content or b""),
+        "chars": len(text),
+        "truncated": len(text) >= MAX_WEB_CHARS,
+        "text_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "text": text,
+    }
+    path = DATA / "web" / f"{doc_id}.json"
+    jdump(path, doc)
+    print(f"  web_doc {doc_id}: http {r.status_code}, {ctype or 'no content-type'}, "
+          f"{len(text)} chars <- {canon}")
+    return [f"data/web/{doc_id}.json"]
+
+
 def do_edgar_doc(ticker, lookback_days=200):
     cik = cik_for(ticker)
     if not cik:
@@ -1311,6 +1468,8 @@ def main():
                 wrote = do_edgar_fts(req["query"], req.get("forms"), req.get("lookback_days") or 365)
             elif k == "edgar_doc":
                 wrote = do_edgar_doc(req["ticker"], req.get("lookback_days") or 200)
+            elif k == "web_doc":
+                wrote = do_web_doc(req["url"])
             else:
                 raise RuntimeError(f"unknown kind {k}")
             req["status"] = "FULFILLED"
@@ -1318,7 +1477,7 @@ def main():
             req["fulfilled_at"] = NOW.isoformat()
             req.pop("terminal", None)
             counts["fulfilled"] += 1
-            print(f"FULFILLED {req['id']} ({k} {req.get('ticker') or req.get('query')})")
+            print(f"FULFILLED {req['id']} ({k} {req.get('ticker') or req.get('query') or req.get('url')})")
         except Exception as e:
             req["status"] = "FAILED"
             req["note"] = str(e)[:300]

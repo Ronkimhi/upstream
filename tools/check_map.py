@@ -14,9 +14,13 @@ import datetime
 import hashlib
 import json
 import re
+import sys
 import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import evidence_store  # noqa: E402
 
 MAP_STATUS = {"DRAFT", "ACTIVE", "COMPLETE"}
 MAP_STATUS_ORDER = {"DRAFT": 0, "ACTIVE": 1, "COMPLETE": 2}
@@ -43,6 +47,7 @@ SEARCH_RESULT_STATUS = {
     "MIXED_RESULTS",
 }
 AUDIT_STATUS = {"PASS", "FAIL"}
+MAP_TARGETS_ALLOWED = {10, 5}
 AUDIT_REVIEWER = "atlas-fresh-context"
 AUDIT_REVIEW_MODES = {"FRESH_CONTEXT", "SELF_REVIEW"}
 AUDIT_CONFLICT_FIELDS = (
@@ -848,6 +853,98 @@ def _chain_links(root: Path, chain_id) -> set:
             if isinstance(link, dict) and link.get("id")}
 
 
+def placement_audit_for(mapping: dict, chain_id, link_id, issuer_id) -> dict | None:
+    """The current PASS placement audit for one (chain, link, issuer), or None.
+
+    Current means its record_digest equals check_map.placement_claim_digest over the
+    placement as it stands now and the evidence item it sampled: any change to the
+    placement's role or evidence orphans the audit, exactly as the mapping fingerprint
+    orphans a whole-census audit.
+    """
+    placement = next((p for p in mapping.get("placements") or []
+                      if isinstance(p, dict) and p.get("chain_id") == chain_id
+                      and p.get("link_id") == link_id and p.get("issuer_id") == issuer_id),
+                     None)
+    if placement is None:
+        return None
+    for entry in mapping.get("placement_audits") or []:
+        if not isinstance(entry, dict) or entry.get("status") != "PASS":
+            continue
+        if (entry.get("chain_id"), entry.get("link_id"), entry.get("issuer_id")) != \
+                (chain_id, link_id, issuer_id):
+            continue
+        idx = entry.get("evidence_index")
+        evidence = placement.get("evidence") or []
+        if not isinstance(idx, int) or not 0 <= idx < len(evidence):
+            continue
+        if entry.get("record_digest") == placement_claim_digest(placement, evidence[idx]):
+            return entry
+    return None
+
+
+def placement_audit_failures(mapping: dict) -> list[str]:
+    """Shape and currency of `placement_audits[]`, the per-placement fresh-context audit.
+
+    Ron's decision, 2026-09-01: the fresh-context audit moves from the whole census to the
+    placement being dived. Each entry carries the same declared provenance as a whole-map
+    audit, samples exactly one evidence item by index with a substantive source_excerpt,
+    and binds itself to that placement's current content with placement_claim_digest.
+    """
+    entries = mapping.get("placement_audits")
+    if entries is None:
+        return []
+    if not isinstance(entries, list):
+        return ["placement_audits must be a list"]
+    failures = []
+    placements = {
+        (p.get("chain_id"), p.get("link_id"), p.get("issuer_id")): p
+        for p in mapping.get("placements") or [] if isinstance(p, dict)
+    }
+    required = {"chain_id", "link_id", "issuer_id", "audited_at", "reviewed_by", "agent_id",
+                "transcript_ref", "review_mode", "independence_limitation", "status",
+                "evidence_index", "source_excerpt", "record_digest"}
+    for i, entry in enumerate(entries):
+        where = f"placement_audits[{i}]"
+        if not isinstance(entry, dict):
+            failures.append(f"{where}: must be an object")
+            continue
+        missing = sorted(required - set(entry))
+        if missing:
+            failures.append(f"{where}: missing {', '.join(missing)}")
+        key = (entry.get("chain_id"), entry.get("link_id"), entry.get("issuer_id"))
+        placement = placements.get(key)
+        if placement is None:
+            failures.append(f"{where}: no placement {key!r} on this mapping")
+        if _utc_datetime(entry.get("audited_at")) is None:
+            failures.append(f"{where}.audited_at must be a timezone-aware UTC timestamp")
+        if entry.get("reviewed_by") != AUDIT_REVIEWER:
+            failures.append(f"{where}.reviewed_by must be {AUDIT_REVIEWER!r}")
+        if entry.get("agent_id") != entry.get("reviewed_by"):
+            failures.append(f"{where}.agent_id must equal reviewed_by")
+        if not str(entry.get("transcript_ref") or "").strip():
+            failures.append(f"{where}.transcript_ref must be non-empty")
+        if entry.get("review_mode") not in AUDIT_REVIEW_MODES:
+            failures.append(f"{where}.review_mode not in {sorted(AUDIT_REVIEW_MODES)}")
+        if not _substantive_text(entry.get("independence_limitation")):
+            failures.append(f"{where}.independence_limitation must be substantive")
+        if entry.get("status") not in AUDIT_STATUS:
+            failures.append(f"{where}.status not in {sorted(AUDIT_STATUS)}")
+        if not _substantive_text(entry.get("source_excerpt")):
+            failures.append(f"{where}.source_excerpt must be a substantive verbatim span")
+        idx = entry.get("evidence_index")
+        evidence = (placement or {}).get("evidence") or []
+        if not isinstance(idx, int) or not 0 <= idx < len(evidence):
+            failures.append(f"{where}.evidence_index does not index the placement's evidence")
+        elif placement is not None:
+            digest = entry.get("record_digest")
+            if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+                failures.append(f"{where}.record_digest must be a lowercase SHA-256 digest")
+            elif digest != placement_claim_digest(placement, evidence[idx]):
+                failures.append(f"{where}.record_digest is not current for the placement's "
+                                "role and sampled evidence; re-audit after the amendment")
+    return failures
+
+
 def validate_mapping(root: Path, path: Path, obj=None) -> list[str]:
     """Return schema and reference failures for one mapping file."""
     m = obj if isinstance(obj, dict) else read_json(path)
@@ -877,8 +974,9 @@ def validate_mapping(root: Path, path: Path, obj=None) -> list[str]:
     if m.get("status") not in MAP_STATUS:
         failures.append(f"status {m.get('status')!r} not in {sorted(MAP_STATUS)}")
     target = m.get("target_issuers_per_link")
-    if target != 10:
-        failures.append("target_issuers_per_link must be 10 for the ten-theme campaign")
+    if target not in MAP_TARGETS_ALLOWED:
+        failures.append("target_issuers_per_link must be 10 (breadth census) or 5 (a "
+                        "DEPTH-mode campaign mapping, Ron 2026-09-01)")
 
     links = _chain_links(root, chain_id)
     if chain_id and not links:
@@ -1032,6 +1130,16 @@ def validate_mapping(root: Path, path: Path, obj=None) -> list[str]:
     if len(placement_keys) != len(set(placement_keys)):
         failures.append("duplicate (chain_id, link_id, issuer_id) placement key; "
                         "duplicate listings or roles never pad issuer coverage")
+
+    failures.extend(placement_audit_failures(m))
+    web_items = [
+        (f"placements[{i}].evidence[{j}]", item)
+        for i, placement in enumerate(placements) if isinstance(placement, dict)
+        for j, item in enumerate(placement.get("evidence") or [])
+        if isinstance(item, dict) and item.get("source_excerpt")
+    ]
+    web_findings, _ = evidence_store.corpus_web_findings(root / "data", web_items, None)
+    failures.extend(web_findings)
 
     coverage = m.get("link_coverage")
     if not isinstance(coverage, list):
@@ -1370,9 +1478,10 @@ def audit_write_scope_failures(prior: dict, current: dict) -> list[str]:
     """A fresh-context audit may change only audit, map status, and changelog."""
     if not isinstance(prior, dict) or not isinstance(current, dict):
         return []
-    if prior.get("audit") == current.get("audit"):
+    if prior.get("audit") == current.get("audit") and \
+            prior.get("placement_audits") == current.get("placement_audits"):
         return []
-    allowed = {"audit", "status", "changelog"}
+    allowed = {"audit", "status", "changelog", "placement_audits"}
     changed = sorted(
         key
         for key in set(prior) | set(current)

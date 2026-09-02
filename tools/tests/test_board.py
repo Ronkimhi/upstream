@@ -197,10 +197,13 @@ class TestStageLadderAgreesWithTheGate(unittest.TestCase):
             "the repo's own tree must have campaign work on it for this test to mean "
             "anything; a SCOPE_EMPTY board here would be a vacuous pass")
         self.assertTrue(board["worklist"])
+        # Same targets the board ran under: since 2026-09-01 a manifest names its mode
+        # (BREADTH or DEPTH) and the stage ladder reads it, so the gate is asked under
+        # the live manifest's targets, never under a hardcoded breadth set.
         campaign = {
             "themes": [{"theme_id": row["theme_id"], "chain_id": row["chain_id"]}
                        for row in board["worklist"]],
-            "targets": dict(check_campaign.LOCKED_TARGETS),
+            "targets": dict(board["targets"] or check_campaign.LOCKED_TARGETS),
         }
         computed = check_campaign.compute_campaign_completion(ROOT, campaign)
         gate = {row["theme_id"]: row["stage_computed"] for row in computed["per_theme"]}

@@ -62,6 +62,7 @@ STORE_SHARE_BYTES = {
     "candidates": 110_000,
     "ledger": 60_000,
     "campaign_ix": CAMPAIGN_PROJECTION_MAX_BYTES,
+    "board": 64_000,
 }
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
@@ -227,6 +228,152 @@ def _coverage_for(campaign: dict, chain_id: str) -> dict:
         return {}
     row = coverage.get(chain_id)
     return row if isinstance(row, dict) else {}
+
+
+BOARD_VERDICT_ORDER = {"INVESTABLE": 0, "WATCH": 1, "TOO_LATE": 2}
+BOARD_HEAT_ORDER = {"UNDISCOVERED": 0, "EMERGING": 1, "QUIET": 2, "CROWDED": 3,
+                    "OVER_CROWDED": 4}
+BOARD_O2_CAP = 30
+BOARD_BLOCKED_CAP = 40
+BOARD_TEXT_CHARS = 140
+
+
+def build_board(data_dir=DATA, chains=None, stocks=None, campaign_ix=None) -> dict:
+    """The page's front door (Ron, 2026-09-01): names first, then what stops the rest.
+
+    Four lists, every row a projection of a store already on the page or on disk, no
+    number invented here: FINAL and DRAFT dives ranked INVESTABLE, WATCH, TOO_LATE; the O1
+    queue with its dive state; O2 profiles by the heat of the link they sit on; and BLOCKED
+    profiles with the first data gap the profile itself recorded. Themes come from the
+    campaign projection with the blocker text it already carries. Caps are printed as
+    `*_total` beside the list they cut, so a cut is never silent.
+    """
+    data_dir = Path(data_dir)
+    chains = list(chains or [])
+    stocks = list(stocks or [])
+    campaign_ix = campaign_ix or {}
+    companies = read_json_dir(data_dir / "companies")
+    profiles = {p.get("issuer_id"): p for p in companies if p.get("issuer_id")}
+
+    heat_by_link = {}
+    chain_titles = {}
+    for chain in chains:
+        chain_titles[chain.get("id")] = chain.get("title") or chain.get("id")
+        for link in chain.get("links") or []:
+            heat = link.get("heat") if isinstance(link.get("heat"), dict) else {}
+            heat_by_link[(chain.get("id"), link.get("id"))] = {
+                "name": link.get("name") or link.get("id"),
+                "verdict": heat.get("verdict"),
+                "money_corner": heat.get("money_corner") is True,
+            }
+
+    def _profile_ticker(profile):
+        for listing in profile.get("listings") or []:
+            if isinstance(listing, dict) and listing.get("ticker"):
+                return listing.get("ticker")
+        refs = profile.get("listing_refs") or []
+        return refs[0].split(":")[-1].split("-")[-1] if refs else None
+
+    verdicts = []
+    dived_issuers = {}
+    for stock in stocks:
+        key = (stock.get("issuer_id"), stock.get("chain_id"))
+        dived_issuers[stock.get("issuer_id")] = stock.get("status")
+        link = heat_by_link.get((stock.get("chain_id"), stock.get("link_id")), {})
+        verdicts.append({
+            "ticker": stock.get("ticker"),
+            "name": stock.get("name"),
+            "chain_id": stock.get("chain_id"),
+            "chain_title": chain_titles.get(stock.get("chain_id")),
+            "link_id": stock.get("link_id"),
+            "link_name": link.get("name"),
+            "verdict": stock.get("verdict"),
+            "clock": stock.get("clock"),
+            "tier": stock.get("tier"),
+            "status": stock.get("status"),
+            "entry_zone": stock.get("entry_zone"),
+            "no_entry_above": stock.get("no_entry_above"),
+            "watch_triggers": [
+                {k: t.get(k) for k in ("metric", "direction", "level") if k in t}
+                for t in (stock.get("watch_triggers") or [])[:2] if isinstance(t, dict)
+            ],
+            "review_by": stock.get("review_by"),
+            "updated_at": stock.get("updated_at") or stock.get("as_of"),
+        })
+    verdicts.sort(key=lambda r: (
+        0 if r["status"] == "FINAL" else 1,
+        BOARD_VERDICT_ORDER.get(r["verdict"], 9),
+        str(r["updated_at"] or ""),
+    ))
+    verdicts.sort(key=lambda r: (0 if r["status"] == "FINAL" else 1,
+                                 BOARD_VERDICT_ORDER.get(r["verdict"], 9)))
+
+    o1_queue, o2, blocked = [], [], []
+    for issuer_id, profile in sorted(profiles.items()):
+        tier = profile.get("opportunity_tier")
+        placements = [p for p in profile.get("placements") or [] if isinstance(p, dict)]
+        first = placements[0] if placements else {}
+        link = heat_by_link.get((first.get("chain_id"), first.get("link_id")), {})
+        row = {
+            "issuer_id": issuer_id,
+            "name": profile.get("issuer_name"),
+            "ticker": _profile_ticker(profile),
+            "chain_id": first.get("chain_id"),
+            "link_id": first.get("link_id"),
+            "link_name": link.get("name"),
+            "data_tier": profile.get("data_tier"),
+        }
+        if tier == "O1" and profile.get("status") == "COMPLETE":
+            handoff = ((profile.get("selection_basis") or {}).get("screen_handoff") or {})
+            row.update({"chain_id": handoff.get("chain_id") or row["chain_id"],
+                        "link_id": handoff.get("link_id") or row["link_id"],
+                        "dive_status": dived_issuers.get(issuer_id)})
+            o1_queue.append(row)
+        elif tier == "O2" and profile.get("status") == "COMPLETE":
+            row.update({"heat_verdict": link.get("verdict"),
+                        "money_corner": link.get("money_corner", False)})
+            o2.append(row)
+        elif profile.get("status") in ("BLOCKED", "DRAFT"):
+            gaps = [g for g in profile.get("data_gaps") or [] if isinstance(g, str)]
+            row.pop("link_name", None)
+            row.update({"status": profile.get("status"),
+                        "on": _compact_text(gaps[0], BOARD_TEXT_CHARS) if gaps else None})
+            blocked.append(row)
+    o2.sort(key=lambda r: (0 if r["money_corner"] else 1,
+                           BOARD_HEAT_ORDER.get(r["heat_verdict"], 9), r["issuer_id"]))
+    blocked.sort(key=lambda r: (str(r["chain_id"] or ""), r["issuer_id"]))
+
+    themes = []
+    for theme in campaign_ix.get("themes") or []:
+        counts = theme.get("counts") or {}
+        blockers = theme.get("blockers") or []
+        themes.append({
+            "id": theme.get("id"),
+            "title": theme.get("title"),
+            "stage": theme.get("status"),
+            "profiles": counts.get("profiles"),
+            "o1": counts.get("o1"),
+            "finals": counts.get("finals"),
+            "refusing": _compact_text(blockers[0], BOARD_TEXT_CHARS) if blockers else None,
+        })
+
+    return {
+        "verdicts": verdicts,
+        "o1_queue": o1_queue,
+        "o2": o2[:BOARD_O2_CAP],
+        "o2_total": len(o2),
+        "blocked": blocked[:BOARD_BLOCKED_CAP],
+        "blocked_total": len(blocked),
+        "themes": themes,
+        "counts": {
+            "final": sum(1 for r in verdicts if r["status"] == "FINAL"),
+            "draft": sum(1 for r in verdicts if r["status"] != "FINAL"),
+            "o1": len(o1_queue),
+            "o2": len(o2),
+            "blocked": len(blocked),
+            "profiles": len(profiles),
+        },
+    }
 
 
 def build_campaign_ix(data_dir=DATA, chains=None, screens=None, stocks=None,
@@ -1739,6 +1886,7 @@ def build_payload(data_dir=DATA, root=ROOT):
         "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
         "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
         "campaign_ix": campaign_ix,
+        "board": build_board(DATA, chains, stocks, campaign_ix),
         # The eight agent contracts, verbatim, plus the ownership map parsed out of the
         # command table. Ron drives eight agents and until now could not read what any of
         # them was told: the only agent-shaped text on the page was two section labels.

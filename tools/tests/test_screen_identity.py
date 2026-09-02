@@ -150,6 +150,7 @@ class CampaignScreenTree(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_stale_or_failed_mapping_audit_is_rejected(self):
+        """Without placement scope declared on the row, the census audit still binds."""
         with self.subTest("failed"):
             self.mapping["audit"]["status"] = "FAIL"
             self.write()
@@ -159,6 +160,33 @@ class CampaignScreenTree(unittest.TestCase):
             self.mapping["placements"][0]["role"] = "Amended role"
             self.write()
             self.assert_fails("lacks a current PASS audit")
+
+    def test_placement_scope_admits_a_verified_placement_on_an_active_mapping(self):
+        """Ron, 2026-09-01: a screen row consumes ONE placement, so an ACTIVE mapping with
+        no census audit admits a row that says so and rests on all-VERIFIED evidence."""
+        self.mapping["status"] = "ACTIVE"
+        self.mapping.pop("audit")
+        self.row["audit_scope"] = "PLACEMENT"
+        self.write()
+        result = self.gate()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("1 row(s) admitted on placement scope", result.stdout)
+
+    def test_placement_scope_refuses_inferred_evidence(self):
+        self.mapping["status"] = "ACTIVE"
+        self.mapping.pop("audit")
+        self.mapping["placements"][0]["evidence"][0]["tag"] = "INFERRED"
+        self.row["audit_scope"] = "PLACEMENT"
+        self.write()
+        self.assert_fails("requires every evidence item on the placement to be VERIFIED")
+
+    def test_placement_scope_still_needs_a_qualified_placement(self):
+        self.mapping["status"] = "ACTIVE"
+        self.mapping.pop("audit")
+        self.mapping["placements"][0]["status"] = "PENDING"
+        self.row["audit_scope"] = "PLACEMENT"
+        self.write()
+        self.assert_fails("placement.status must be exactly ACTIVE")
 
     def test_duplicate_issuer_needs_secondary_link_basis(self):
         self.screen["buckets"]["second_order"] = [copy.deepcopy(self.row)]

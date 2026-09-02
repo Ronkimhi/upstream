@@ -467,6 +467,43 @@ class TestMappingAuditAdmission(StockyAdmissionTree):
                     result.stdout,
                 )
 
+    def test_placement_audit_admits_a_dive_on_an_active_mapping(self):
+        """Ron, 2026-09-01: the fresh-context audit moves to the placement being dived."""
+        mapping = copy.deepcopy(self.mapping)
+        mapping["status"] = "ACTIVE"
+        mapping.pop("audit", None)
+        placement = mapping["placements"][0]
+        entry = {
+            "chain_id": "theme-a", "link_id": "L1", "issuer_id": "ISS-A",
+            "audited_at": "2026-08-31T02:00:00Z",
+            "reviewed_by": check_map.AUDIT_REVIEWER, "agent_id": check_map.AUDIT_REVIEWER,
+            "transcript_ref": "audit-transcript-placement", "review_mode": "FRESH_CONTEXT",
+            "independence_limitation": (
+                "Repository declarations cannot prove fresh-context independence."),
+            "status": "PASS", "evidence_index": 0,
+            "source_excerpt": placement["evidence"][0]["claim"],
+            "record_digest": check_map.placement_claim_digest(
+                placement, placement["evidence"][0]),
+        }
+        mapping["placement_audits"] = [entry]
+        self.mapping = mapping
+        self._write_upstream()
+        findings = self.findings()
+        self.assertFalse(any("mapping status COMPLETE" in f for f in findings), findings)
+        with self.subTest("digest goes stale when the placement is amended"):
+            mapping["placements"][0]["role"] = "Amended role"
+            self._write_upstream()
+            findings = self.findings()
+            self.assertTrue(any("mapping status COMPLETE" in f for f in findings), findings)
+        with self.subTest("an audit of a different placement does not admit this one"):
+            mapping["placements"][0]["role"] = "Qualified supplier"
+            mapping["placement_audits"][0]["link_id"] = "L2"
+            mapping["placement_audits"][0]["record_digest"] = check_map.placement_claim_digest(
+                mapping["placements"][1], mapping["placements"][1]["evidence"][0])
+            self._write_upstream()
+            findings = self.findings()
+            self.assertTrue(any("mapping status COMPLETE" in f for f in findings), findings)
+
     def test_draft_mapping_rejected(self):
         self.mapping["status"] = "DRAFT"
         self._write_upstream()

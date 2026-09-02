@@ -1,0 +1,87 @@
+# Ron: apply by hand (or `git apply tools/patches/universe-gate-placement.patch`). The session
+# that wrote the per-placement audit (2026-09-01) could not edit .claude/hooks/ under its
+# permission mode, so the Stop hook still only recognises a whole-census audit. Until this
+# lands, a `run universe-audit <slug> --placement <issuer>` session is blocked at Stop by
+# the hook asking for a whole-map audit object dated today.
+--- a/.claude/hooks/universe-gate.py
++++ b/.claude/hooks/universe-gate.py
+@@ -64,16 +64,27 @@ def latest_owning_command(
+     ledger: str, slug: str, day: datetime.date
+ ) -> str | None:
+     """Return universe or universe-audit, whichever appears last that UTC day."""
+     universe = f"run universe {slug}"
+     universe_audit = f"run universe-audit {slug}"
++    placement_audit = f"{universe_audit} --placement "
+     latest = None
+     for line in ledger.splitlines():
+         fields = [field.strip() for field in line.split("|")]
+-        if len(fields) < 3 or fields[2] not in {universe, universe_audit}:
++        if len(fields) < 3:
++            continue
++        command = fields[2]
++        if command not in {universe, universe_audit} and \
++                not command.startswith(placement_audit):
+             continue
+         if not fields[0]:
+             continue
+         if utc_date(fields[0]) != day:
+             continue
+-        latest = "universe-audit" if fields[2] == universe_audit else "universe"
++        if command.startswith(placement_audit):
++            # Ron, 2026-09-01: the fresh-context audit of ONE placement, written to
++            # placement_audits[] (check_map.placement_audit_failures). Its loop closes on
++            # an entry audited today, not on a whole-census audit object.
++            latest = "universe-audit-placement"
++        else:
++            latest = "universe-audit" if command == universe_audit else "universe"
+     return latest
+ 
+ 
++def placement_audit_state_failures(path: Path, day: datetime.date) -> list[str] | None:
++    """A placement audit written today, shape-checked by check_map, or None if unreadable."""
++    try:
++        mapping = json.loads(path.read_text())
++    except Exception:  # noqa: BLE001
++        return None
++    if not isinstance(mapping, dict):
++        return ["the touched issuer map is not a JSON object"]
++    entries = mapping.get("placement_audits")
++    if not isinstance(entries, list) or not entries:
++        return ["the touched issuer map has no placement_audits entries"]
++    today_entries = []
++    for entry in entries:
++        try:
++            if isinstance(entry, dict) and utc_date(entry.get("audited_at")) == day:
++                today_entries.append(entry)
++        except Exception:  # noqa: BLE001
++            return None
++    failures = []
++    if not today_entries:
++        failures.append(f"no placement_audits entry is audited on UTC day {day}")
++    from check_map import placement_audit_failures
++    failures.extend(placement_audit_failures(mapping))
++    prior = _head_json(ROOT, path)
++    if isinstance(prior, dict):
++        failures.extend(audit_write_scope_failures(prior, mapping))
++    return failures
++
++
+@@ -183,6 +194,13 @@ def main() -> int:
+         if owner == "universe-audit":
+             audit_findings = audit_state_failures(path, today)
+             if audit_findings is None:
+                 return allow()
+             missing.extend(
+                 f"data/mappings/{slug}.json: {finding}"
+                 for finding in audit_findings
+             )
++        elif owner == "universe-audit-placement":
++            audit_findings = placement_audit_state_failures(path, today)
++            if audit_findings is None:
++                return allow()
++            missing.extend(
++                f"data/mappings/{slug}.json: {finding}"
++                for finding in audit_findings
++            )
+         elif owner == "universe":
+             needs_calibration = True

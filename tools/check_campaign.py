@@ -36,6 +36,49 @@ LOCKED_TARGETS = {
     "o1_min": 30,
     "o1_max": 60,
 }
+# Ron's decision, 2026-09-01: a DEPTH campaign. The breadth targets above asked for 200
+# complete profiles and 30-60 O1 before anything could be called done; after three days the
+# machine had 36 profiles, 1 O1 and 2 verdicts. Depth-first is the lazy funnel applied to
+# the campaign itself: per theme, census only the money-corner and UNDISCOVERED links to
+# five issuers, profile those, select one to three O1, dive them. Done is a FINAL verdict on
+# every O1 in every theme, ten to twenty verdicts in all. Both target sets are frozen
+# exactly; a manifest names which one it runs under with `targets.mode`.
+DEPTH_TARGETS = {
+    "mode": "DEPTH",
+    "theme_count": 10,
+    "issuers_per_link": 5,
+    "links_in_scope": ["money_corner", "UNDISCOVERED"],
+    "profiles_per_theme_min": 1,
+    "o1_per_theme_min": 1,
+    "o1_per_theme_max": 3,
+    "verdicts_min": 10,
+    "verdicts_max": 20,
+}
+
+
+def campaign_mode(campaign: dict) -> str:
+    targets = campaign.get("targets") if isinstance(campaign, dict) else None
+    return "DEPTH" if isinstance(targets, dict) and targets.get("mode") == "DEPTH" \
+        else "BREADTH"
+
+
+def links_in_scope(chain: dict, targets: dict) -> set:
+    """Under DEPTH, the chain links whose census the campaign owes: money-corner links
+    and links whose heat verdict is UNDISCOVERED. Under BREADTH, every link."""
+    links = chain.get("links") or [] if isinstance(chain, dict) else []
+    if not isinstance(targets, dict) or targets.get("mode") != "DEPTH":
+        return {link.get("id") for link in links if isinstance(link, dict)}
+    wanted = set(targets.get("links_in_scope") or [])
+    out = set()
+    for link in links:
+        if not isinstance(link, dict):
+            continue
+        heat = link.get("heat") if isinstance(link.get("heat"), dict) else {}
+        if "money_corner" in wanted and heat.get("money_corner") is True:
+            out.add(link.get("id"))
+        if heat.get("verdict") in wanted:
+            out.add(link.get("id"))
+    return out
 SELECTION_DIMENSIONS = {
     "occurrence_strength", "economic_impact", "unmappedness",
     "public_market_reach", "overlap",
@@ -279,7 +322,21 @@ def _actual_theme_stage(theme: dict, inventory, targets: dict) -> str:
     else:
         return stage
     mapping = maps.get(chain_id)
-    if not isinstance(mapping, dict) or mapping.get("status") != "COMPLETE":
+    if campaign_mode({"targets": targets}) == "DEPTH":
+        # Depth: the census a theme owes is its in-scope links, and a screen consumes one
+        # qualified placement at a time (check_screen.py placement scope), so MAPPED is
+        # "every in-scope link has an ACTIVE placement or an EXHAUSTED search", not a
+        # whole-census COMPLETE.
+        scope = links_in_scope(chain, targets)
+        if not isinstance(mapping, dict) or not scope:
+            return stage
+        placed = {p.get("link_id") for p in mapping.get("placements") or []
+                  if isinstance(p, dict) and p.get("status") == "ACTIVE"}
+        exhausted = {row.get("link_id") for row in mapping.get("link_coverage") or []
+                     if isinstance(row, dict) and row.get("status") == "EXHAUSTED"}
+        if not scope <= (placed | exhausted):
+            return stage
+    elif not isinstance(mapping, dict) or mapping.get("status") != "COMPLETE":
         return stage
     stage = "MAPPED"
     completed = [profile for profile in profiles
@@ -404,6 +461,8 @@ def completion_gate_failures(campaign: dict, computed: dict) -> list[str]:
     """The locked COMPLETE boundary, separated for scale-fixture tests."""
     if campaign.get("status") != "COMPLETE":
         return []
+    if campaign_mode(campaign) == "DEPTH":
+        return _depth_completion_failures(campaign, computed)
     failures = []
     themes = campaign.get("themes") or []
     if len(themes) != 10:
@@ -429,6 +488,41 @@ def completion_gate_failures(campaign: dict, computed: dict) -> list[str]:
             if row.get("completed_profiles", 0) < minimum]
     if thin:
         failures.append(f"COMPLETE themes below {minimum} completed profiles: {thin}")
+    return failures
+
+
+def _depth_completion_failures(campaign: dict, computed: dict) -> list[str]:
+    """COMPLETE under DEPTH_TARGETS: every theme closed by FINAL verdicts on one to three
+    O1 issuers or by a sourced no_candidate_finding, ten to twenty verdicts in all."""
+    failures = []
+    t = DEPTH_TARGETS
+    themes = campaign.get("themes") or []
+    if len(themes) != t["theme_count"]:
+        failures.append(f"COMPLETE requires exactly {t['theme_count']} themes, found {len(themes)}")
+    o1 = (computed.get("opportunity_tiers") or {}).get("O1", 0)
+    if computed.get("o1_complete", 0) != o1:
+        failures.append(f"COMPLETE requires every O1 profile complete, found "
+                        f"{computed.get('o1_complete', 0)}/{o1}")
+    o1_final = computed.get("o1_final", 0)
+    if o1_final != o1:
+        failures.append(f"COMPLETE requires FINAL coverage for every O1 issuer, "
+                        f"found {o1_final}/{o1}")
+    if not t["verdicts_min"] <= o1_final <= t["verdicts_max"]:
+        failures.append(f"COMPLETE requires {t['verdicts_min']}-{t['verdicts_max']} FINAL "
+                        f"verdicts, found {o1_final}")
+    if computed.get("themes_complete") != t["theme_count"]:
+        failures.append(f"COMPLETE requires every theme complete, found "
+                        f"{computed.get('themes_complete', 0)}/{t['theme_count']}")
+    no_name = {theme.get("theme_id") for theme in themes
+               if isinstance(theme, dict) and isinstance(theme.get("no_candidate_finding"), dict)}
+    for row in computed.get("per_theme") or []:
+        n = row.get("o1", 0)
+        if row.get("theme_id") in no_name and n == 0:
+            continue
+        if not t["o1_per_theme_min"] <= n <= t["o1_per_theme_max"]:
+            failures.append(f"COMPLETE theme {row.get('theme_id')} has {n} O1, needs "
+                            f"{t['o1_per_theme_min']}-{t['o1_per_theme_max']} or a sourced "
+                            "no_candidate_finding")
     return failures
 
 
@@ -460,9 +554,13 @@ def validate_campaign(root: Path, path: Path, obj=None) -> list[str]:
     if not isinstance(targets, dict):
         failures.append("targets must be an object")
         targets = {}
-    for key, locked in LOCKED_TARGETS.items():
+    locked_set = DEPTH_TARGETS if targets.get("mode") == "DEPTH" else LOCKED_TARGETS
+    for key, locked in locked_set.items():
         if targets.get(key) != locked:
             failures.append(f"targets.{key} must be {locked}, found {targets.get(key)!r}")
+    extra_targets = sorted(set(targets) - set(locked_set))
+    if extra_targets:
+        failures.append(f"targets carries keys outside its frozen set: {extra_targets}")
 
     basis = campaign.get("selection_basis")
     if not isinstance(basis, dict):

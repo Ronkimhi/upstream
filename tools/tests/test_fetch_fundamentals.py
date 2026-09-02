@@ -168,6 +168,18 @@ SEC_FACTS = {"facts": {"us-gaap": {"Revenues": {"units": {"USD": [
 ]}}}, "dei": {}}}
 
 
+IFRS_FACTS = {"facts": {"us-gaap": {}, "ifrs-full": {
+    "Revenue": {"units": {"AUD": [
+        {"form": "20-F", "start": "2023-07-01", "end": "2024-06-30", "val": 51000.0},
+        {"form": "20-F", "start": "2024-07-01", "end": "2025-06-30", "val": 55000.0},
+    ]}},
+    "Assets": {"units": {"AUD": [
+        {"form": "20-F", "end": "2024-06-30", "val": 95000.0},
+        {"form": "20-F", "end": "2025-06-30", "val": 100000.0},
+    ]}},
+}, "dei": {}}}
+
+
 class _FakeResponse:
     status_code = 200
 
@@ -179,12 +191,13 @@ class _FakeResponse:
 
 
 class _SecRequests:
-    def __init__(self):
+    def __init__(self, payload=None):
         self.urls = []
+        self._payload = SEC_FACTS if payload is None else payload
 
     def get(self, url, **k):
         self.urls.append(url)
-        return _FakeResponse(SEC_FACTS)
+        return _FakeResponse(self._payload)
 
 
 class FundamentalsLegTestCase(unittest.TestCase):
@@ -233,13 +246,14 @@ class TestLegSelection(FundamentalsLegTestCase):
         self.assertEqual(f["source"], "yfinance-statements")
         self.assertEqual(calls, ["1072.HK"], "the vendor leg must ask for the exact ticker")
 
-    def test_sec_path_is_untouched_when_a_cik_resolves(self):
+    def test_sec_path_is_untouched_when_the_sec_leg_finds_fields(self):
+        """A filer whose companyfacts carry facts never reads a vendor aggregate."""
         sec = _SecRequests()
         fetch.requests = sec
         fetch.cik_for = lambda t: 320193
 
         def _boom(symbol):
-            raise AssertionError("the vendor leg ran for a ticker that HAS a CIK")
+            raise AssertionError("the vendor leg ran for a ticker whose SEC leg had facts")
         yf = types.ModuleType("yfinance")
         yf.Ticker = _boom
         sys.modules["yfinance"] = yf
@@ -247,9 +261,55 @@ class TestLegSelection(FundamentalsLegTestCase):
         fetch.do_fundamentals("AAPL")
         f = self.written("AAPL")
         self.assertEqual(f["source"], "sec-companyfacts")
+        self.assertEqual(f["taxonomy"], "us-gaap")
+        self.assertEqual(f["statement_currency"], "USD")
         self.assertEqual(f["cik"], 320193)
         self.assertEqual(list(f["revenue_fy"][-1]), ["2025-12-31", 1111.0])
         self.assertTrue(any("companyfacts" in u for u in sec.urls), sec.urls)
+
+    def test_ifrs_20f_filer_is_read_from_ifrs_full_in_its_own_currency(self):
+        """BHP's shape: a CIK, zero us-gaap facts, everything under ifrs-full in AUD."""
+        sec = _SecRequests(IFRS_FACTS)
+        fetch.requests = sec
+        fetch.cik_for = lambda t: 811809
+
+        def _boom(symbol):
+            raise AssertionError("the vendor leg ran for an IFRS filer whose SEC leg had facts")
+        yf = types.ModuleType("yfinance")
+        yf.Ticker = _boom
+        sys.modules["yfinance"] = yf
+
+        fetch.do_fundamentals("BHP")
+        f = self.written("BHP")
+        self.assertEqual(f["source"], "sec-companyfacts")
+        self.assertEqual(f["taxonomy"], "ifrs-full")
+        self.assertEqual(f["statement_currency"], "AUD")
+        self.assertEqual(list(f["revenue_fy"][-1]), ["2025-06-30", 55000.0])
+        self.assertEqual(list(f["total_assets_fy"][-1]), ["2025-06-30", 100000.0])
+        self.assertEqual(f["coverage"]["annual_fields_found"], 2)
+
+    def test_empty_companyfacts_with_a_cik_falls_through_to_the_vendor_leg(self):
+        """The 2026-09-01 defect: a CIK whose companyfacts are empty under both
+        taxonomies was a dead end. Now the vendor leg runs, INFERRED, with the SEC attempt
+        recorded and the CIK kept so tier and identity survive."""
+        sec = _SecRequests({"facts": {"us-gaap": {}, "dei": {}}})
+        fetch.requests = sec
+        fetch.cik_for = lambda t: 811809
+        fetch._edgar_probes["facts"] = True
+        fetch._edgar_probes["yf_statements"] = True
+        calls = []
+        _install_yf(_StubTicker(), calls)
+
+        fetch.do_fundamentals("BHP")
+        f = self.written("BHP")
+        self.assertEqual(f["source"], "yfinance-statements")
+        self.assertEqual(f["tag"], "INFERRED")
+        self.assertIs(f["official_source"], False)
+        self.assertEqual(f["cik"], 811809)
+        self.assertEqual(f["sec_attempted"]["annual_fields_found"], 0)
+        self.assertEqual(f["sec_attempted"]["cik"], 811809)
+        self.assertEqual(calls, ["BHP"])
+        self.assertIn("falling through to yfinance-statements", self.out.getvalue())
 
     def test_tier_is_t3_for_a_vendor_leg_name(self):
         """tier_for(ticker, None) is T3 — data availability, not opportunity tier."""

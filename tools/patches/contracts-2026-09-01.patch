@@ -1,0 +1,50 @@
+# Ron: apply with `git apply tools/patches/contracts-2026-09-01.patch`. The architecture
+# session of 2026-09-01 could not write under .claude/ in its permission mode. These two
+# hunks carry the decision recorded in docs/method.md §6A and CLAUDE.md into the Sieve
+# contract and the pull-data skill, so an agent reading only its contract sees the rule.
+--- a/.claude/agents/sieve-profiler.md
++++ b/.claude/agents/sieve-profiler.md
+@@ -130,6 +130,15 @@ profiles may not retain NULL or unknown-state placeholders on any canonical field. An empty
+ object is not a completed metric group.
+ Official local filings and issuer-relations material may support T2 or T3 facts tagged
+ INFERRED with `official_source: true` and a derivation basis.
++Since Ron's decision of 2026-09-01 (method §6A), a T2/T3 canonical metric may also rest
++directly on the fetched vendor block: `source_name: "yfinance-statements"`,
++`official_source: false`, tag INFERRED, a URL and date, and a basis saying it is a vendor
++normalisation. Read that block from `data/market/<T>.json` where `<T>` has every `.`
++replaced by `-` (`AFCONS.NS` is `AFCONS-NS.json`); a profile that declares the file missing
++when the dashed file exists fails the gate (check_profile.py stale_market_claim_failures).
++O1 promotion still needs an official-source cross-check on `revenue.latest_fy` and the
++cash-conversion field, so do that web work only for the names selection promotes.
++A screen row over an ACTIVE, un-audited mapping declares `audit_scope: "PLACEMENT"`.
+
+ A DRAFT or BLOCKED profile is O3, and O3 is always DRAFT or BLOCKED. A COMPLETE profile is
+ O1 or O2, and O1 or O2 is always COMPLETE. A profile that becomes COMPLETE moves to O2
+--- a/.claude/skills/pull-data/SKILL.md
++++ b/.claude/skills/pull-data/SKILL.md
+@@ -44,7 +44,8 @@
+ - **kinds**: `prices` · `fundamentals` · `quality` · `pcs` · `insider` (takes
+   `lookback_days`, default 365) · `edgar_doc` (takes `lookback_days`, default 200) ·
+-  `edgar_fts` (takes `query` + optional `forms` instead of `ticker`; may carry `link_id`).
++  `edgar_fts` (takes `query` + optional `forms` instead of `ticker`; may carry `link_id`) ·
++  `web_doc` (takes `url` instead of `ticker`; stores the page text at `data/web/<id>.json`,
++  see `tools/evidence_store.py`; a 403/404 is stored as the page's status, so cite elsewhere).
+ - **Order inside one batch matters and one batch is fine**: the fetcher runs rows in file
+   order, and `quality` is pure computation over what `fundamentals` wrote — so per ticker
+@@ -85,9 +86,13 @@
+ - `tier`: `T1` US SEC filer · `T2` ADR with asserted CIK · `T3` local-only/vendor.
+ - `fundamentals.source: "yfinance-statements"` + `tag: INFERRED` +
+-  `official_source: false`: usable for the `quality` block, but **does NOT satisfy a
+-  canonical profile metric** (method §6A). The §6A allowance is official local filings/IR
+-  tagged INFERRED with `official_source: true`. Widening that bar is Ron's decision, not
+-  yours.
++  `official_source: false`: feeds the `quality` block and, since Ron's 2026-09-01
++  decision (method §6A), may back a T2/T3 canonical profile metric directly when the
++  metric's source block names the vendor and says so. Never a filing quote; O1 promotion
++  still needs an official cross-check on revenue and cash conversion.
++- `fundamentals.sec_attempted`: the SEC leg was fetched for this CIK, found zero annual
++  fields under both `us-gaap` and `ifrs-full`, and the vendor leg served the block instead
++  (fetch.py `do_fundamentals`, 2026-09-01). `fundamentals.taxonomy` and
++  `statement_currency` say which taxonomy and currency a SEC block was read in.
+
+ ## Known failure modes — recognize, don't fight
