@@ -7,7 +7,7 @@
  "mapping_ref": "data/mappings/tibet-mega-dam.json",
  "created_at": "2026-08-30",
  "as_of": "2026-09-02",
- "universe_note": "Chain-level screen (method \u00a76): universe built per LINK across all 11 links, worked in priority order \u2014 money corner (global-hydro-spillover) first, then the CHOKE_POINT (yajiang-developer), then by impact. Every row carries the link_id that surfaced it and a money_corner flag. TWO LINKS CONTRIBUTE NO ROWS AND THAT IS A FINDING, NOT AN OMISSION: yajiang-developer is the choke point with impact 95 and is UNINVESTABLE (a state-owned project vehicle with no listed line), and power-offtake is policy-assured demand with no separable listed expression. The chain's single most impactful link is therefore un-buyable, which is the central fact this screen surfaces. NO EDGAR FULL-TEXT SEARCH WAS RUN: 16 of 20 names are Chinese A/H, Indian or Austrian listings with no SEC filings, so supplier-side EDGAR discovery is structurally blind here, exactly as the chain's map_limitation states. The universe is therefore chain-research only, and no name was added by disclosure. NO EARNINGS NUGGETS ARE RECORDED: data/edgar/docs/ holds no document for any name here, and the verbatim rule fails closed rather than quoting unverifiable text. Every theme_revenue_exposure is null with basis, never estimated. GEV is the only name with market data on disk; the other 19 are PENDING_DATA with request rows queued this run. AMENDED 2026-09-02 into campaign-v1: the universe is now built from the COMPLETE O1/O2 profiles that exist against this chain's mapping (data/mappings/tibet-mega-dam.json, status COMPLETE, audit PASS), worked money-corner first. MONEY-CORNER LINK global-hydro-spillover WAS SEARCHED AND IS EMPTY: all 10 ACTIVE placements on it were checked against data/companies/, and none carries a COMPLETE profile scoped to this chain (9 BLOCKED at O3, 1 -- GE-VERNOVA -- COMPLETE but profiled only for ai-infrastructure with no tibet-mega-dam placement); see data_gaps and superseded_rows for the full basis. CHOKE_POINT link yajiang-developer remains empty as before: UNINVESTABLE, no listed line, no mapping placement. Of the chain's 11 links, only copper-conductors and riparian-risk-monitoring currently have any COMPLETE O2 profile at all (7 issuers total, all T1 US filers with dual-source prices and SEC companyfacts); the other 7 links with ACTIVE mapping placements (uhvdc-transmission, hydro-turbines, cement-materials, tunneling-tbm, civil-construction, global-hydro-spillover, india-counter-buildout) remain fully BLOCKED pending run profile --campaign coverage of their mostly-T3 non-US issuers. No EDGAR full-text search was run this pass: the 7 rows written are all US SEC filers already resolved via their mapping placement, so link-level FTS discovery was not needed to find them.",
+ "universe_note": "AMENDED 2026-09-02 (second pass): chain-level rescreen after yesterday's money-corner and UNDISCOVERED-link profile batch completed. DEPTH mode narrows the census to the links heat says the money is on (tools.check_campaign.links_in_scope over DEPTH_TARGETS): money-corner global-hydro-spillover plus UNDISCOVERED tunneling-tbm and india-counter-buildout. Worked in that priority order. MONEY-CORNER LINK global-hydro-spillover NOW FULLY COVERED: all 10 of its ACTIVE mapping placements (DONGFANG-ELECTRIC, HARBIN-ELECTRIC, ANDRITZ, GE-VERNOVA, MITSUBISHI-HEAVY-INDUSTRIES, MITSUBISHI-ELECTRIC, BHARAT-HEAVY-ELECTRICALS, ZHEFU-HOLDING-GROUP, HITACHI, FUJI-ELECTRIC) are now COMPLETE O2 profiles and are written as campaign-v1 rows in picks_and_shovels, matching this link's prior bucket precedent (ANDR.VI, GEV). tunneling-tbm: 12 of its 13 ACTIVE placements are now COMPLETE O2 profiles and are written as campaign-v1 rows in pure_play, matching the prior CRCHI precedent; the 13th (HUNAN-WUXIN-INTELLIGENT-EQUIPMENT-GROUP) remains BLOCKED at O3 and is named in data_gaps. MITSUBISHI-HEAVY-INDUSTRIES carries two real, separately evidenced placements on these in-scope links (global-hydro-spillover via HM Hydro, tunneling-tbm via its 40% JIM Technology stake) and is written as two rows, the second carrying secondary_link_basis. india-counter-buildout WAS SEARCHED AND IS EMPTY: its mapping carries exactly one ACTIVE placement (NHPC), and NHPC's profile (data/companies/NHPC.json) remains BLOCKED at O3 as of this run, so the link produced no row; this is the campaign's single in-scope link with zero eligible names, not an omission. 6 legacy rows (ANDR.VI, GEV, 1072.HK, 600875.SS, 1133.HK, 688425.SS) were superseded placeholders for issuers that are now COMPLETE and are upgraded in place to full campaign-v1 identity, removed from superseded_rows; DONGFANG-ELECTRIC's two prior ticker entries (1072.HK, 600875.SS) collapse into one row on its profile's official listing HKEX:1072 per listing_refs. Every prior row (7 campaign-v1 rows on copper-conductors and riparian-risk-monitoring, and 11 remaining superseded_rows on links outside this run's DEPTH scope or still BLOCKED) is preserved unchanged. yajiang-developer (CHOKE_POINT, impact 95) remains UNINVESTABLE with no listed line and no mapping placement, unchanged from the prior pass. power-offtake remains policy-assured demand with no separable listed expression, unchanged. hydro-turbines, uhvdc-transmission, cement-materials and civil-construction sit outside this run's DEPTH scope (their verdicts are CROWDED or EMERGING, not money-corner or UNDISCOVERED) and their issuers remain BLOCKED at O3 exactly as before; nothing on them was re-examined this run. No EDGAR full-text search was run: of the 21 distinct new issuers, 20 are non-SEC foreign filers with no CIK, and the one US filer with a CIK and a document on disk (GE-VERNOVA, 8-K accession 0001996810-26-000147) contains no hydro-related text to quote, so its earnings_nuggets stays empty rather than forcing an unrelated quote; no edgar_doc request was queued for it because the document already exists and simply does not contain relevant text. No PENDING_DATA rows were created this run: every new row's profile is COMPLETE with sourced canonical metrics already fetched, so fundamentals carries real values, not a placeholder string, and crowdedness reads COVERAGE-THIN for the 20 T3 names (method section 6: T3 PCS ceiling) or a real PCS block for GE-VERNOVA (T1).",
  "queries_run": [
   {
    "query": "chain-map link membership across all 11 links (example_tickers per link)",
@@ -26,11 +26,3302 @@
    "forms": null,
    "hits_examined": 61,
    "names_extracted": 7
+  },
+  {
+   "query": "DEPTH rescreen: cross COMPLETE O1/O2 data/companies/*.json against ACTIVE placements on the DEPTH in-scope links (money-corner global-hydro-spillover, UNDISCOVERED tunneling-tbm and india-counter-buildout per tools.check_campaign.links_in_scope), now that yesterday's BLOCKED T2/T3 profiles completed under the 2026-09-01 vendor-aggregate admission",
+   "forms": null,
+   "hits_examined": 23,
+   "names_extracted": 22
   }
  ],
  "buckets": {
-  "pure_play": [],
-  "picks_and_shovels": [],
+  "pure_play": [
+   {
+    "issuer_id": "CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY",
+    "listing_id": "SSE:688425",
+    "ticker": "688425.SS",
+    "market_ticker": "688425.SS",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY.json",
+    "data_tier": "T3",
+    "name": "China Railway Construction Heavy Industry Corporation Limited",
+    "exchange": "SSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Hard-rock TBM manufacturer whose machine completed the 7km Beishan spiral tunnel per January 2026 trade-press coverage; direct exposure to the tunneling scope the chain calls schedule-critical.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "The Tunnelling Journal (2026-01-15) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 10045298702.64,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": -0.00186,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Three-year compound annual revenue growth computed as (10045298702.64 / 10101547758.19) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.157036,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Operating income 1577470968.49 divided by revenue 10045298702.64, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.10134,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Free cash flow margin: operating cash flow 1100910637.77 less capex 82921952.89, divided by revenue 10045298702.64, all for the period ended 2025-12-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 0.74234,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Operating cash flow 1100910637.77 divided by net income 1483028394.33, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -0.443529,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Net debt -1098287073.1000001 (total debt 1281699103.53 less cash 2379986176.63, as of 2025-12-31) divided by an EBITDA proxy 2476249053.99 (operating income 1577470968.49 plus depreciation 898778085.5 for the period ended 2025-12-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 4,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/688425-SS.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.287,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Beneish M-score -2.287 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/688425-SS.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 21760667760.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Market capitalization 21760667760.0 computed in data/market/688425-SS.json quality.derived.market_cap from vendor price 4.08 (2026-09-01) times vendor share count 5333497000.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 2.166254,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Market capitalization 21760667760.0 divided by revenue 10045298702.64 for the period ended 2025-12-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.0845,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/688425-SS.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 20662380686.899998 implies over a 5-year explicit period on base FCF 1017988684.88, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.026,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/688425-SS.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/688425.SS/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0845, '7': 0.0695, '10': 0.0585}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "CHINA-RAILWAY-HI-TECH-INDUSTRY",
+    "listing_id": "SSE:600528",
+    "ticker": "600528.SS",
+    "market_ticker": "600528.SS",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/CHINA-RAILWAY-HI-TECH-INDUSTRY.json",
+    "data_tier": "T3",
+    "name": "China Railway Hi-Tech Industry Corporation Limited",
+    "exchange": "SSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Manufactures full-series shield machines and hard-rock TBMs for water and hydropower tunnels per its own 2025 annual report; second Chinese TBM maker on the link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "CRHIC 2025 annual report (2026-03-28) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 27690199623.19,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of CHINA-RAILWAY-HI-TECH-INDUSTRY's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": -0.013209,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Three-year compound annual revenue growth computed as (27690199623.19 / 28817098540.13) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.056742,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Operating income 1571187233.46 divided by revenue 27690199623.19, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.007868,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Free cash flow margin: operating cash flow 1098472160.95 less capex 880606043.11, divided by revenue 27690199623.19, all for the period ended 2025-12-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 0.803688,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Operating cash flow 1098472160.95 divided by net income 1366789129.09, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -2.704128,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Net debt -6217701466.709999 (total debt 661122197.02 less cash 6878823663.73, as of 2025-12-31) divided by an EBITDA proxy 2299336717.98 (operating income 1571187233.46 plus depreciation 728149484.52 for the period ended 2025-12-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 4,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/600528-SS.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.448,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Beneish M-score -2.448 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/600528-SS.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 15506430084.240002,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Market capitalization 15506430084.240002 computed in data/market/600528-SS.json quality.derived.market_cap from vendor price 6.98 (2026-09-01) times vendor share count 2221551588.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 0.559997,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Market capitalization 15506430084.240002 divided by revenue 27690199623.19 for the period ended 2025-12-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.2744,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/600528-SS.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 9288728617.530003 implies over a 5-year explicit period on base FCF 217866117.84000003, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.1177,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/600528-SS.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/600528.SS/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2744, '7': 0.2056, '10': 0.1567}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "XCMG-MACHINERY",
+    "listing_id": "SZSE:000425",
+    "ticker": "000425.SZ",
+    "market_ticker": "000425.SZ",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/XCMG-MACHINERY.json",
+    "data_tier": "T3",
+    "name": "XCMG Construction Machinery Co., Ltd.",
+    "exchange": "SZSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Diversified Chinese construction-machinery major whose XTR product line is specified for rock excavation in water-conservancy and transport tunnels; TBM exposure is one product line inside a much larger equipment book.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "XCMG product page, retrieved 2026-08-29 (2026-08-29) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 100822903512.12,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.024297,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Three-year compound annual revenue growth computed as (100822903512.12 / 93817122393.59) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.096677,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Operating income 9747216433.26 divided by revenue 100822903512.12 for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 2.151837,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Operating cash flow 14142346479.28 divided by net income 6572221644.27, both for the period ended 2025-12-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.099239,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Free cash flow margin: operating cash flow 14142346479.28 less capex 4136793157.03, divided by revenue 100822903512.12, all for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 1.508121,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Net debt 21361974566.410004 (total debt 43500708972.16 as of 2025-12-31 less cash 22138734405.75 as of 2025-12-31) divided by an EBITDA proxy 14164630895.58 (operating income 9747216433.26 plus depreciation 4417414462.32 for the period ended 2025-12-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 8,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Piotroski F-score 8 (state STRONG) computed over yfinance-statements statements in data/market/000425-SZ.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.716,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Beneish M-score -2.716 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/000425-SZ.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 96962022976.5,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Market capitalization 96962022976.5 computed in data/market/000425-SZ.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 0.961706,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Market capitalization 96962022976.5 divided by revenue 100822903512.12 for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": -0.04,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/000425-SZ.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 118323997542.91 implies over a 5-year explicit period on base FCF 10005553322.25, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0264,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/000425-SZ.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/000425.SZ/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': -0.04, '7': -0.0249, '10': -0.0136}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "SANY-HEAVY-EQUIPMENT-INTERNATIONAL",
+    "listing_id": "HKEX:0631",
+    "ticker": "0631.HK",
+    "market_ticker": "0631.HK",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/SANY-HEAVY-EQUIPMENT-INTERNATIONAL.json",
+    "data_tier": "T3",
+    "name": "Sany Heavy Equipment International Holdings Company Limited",
+    "exchange": "HKEX",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Manufactures all-rock and semi-coal-rock roadheaders per its own 2025 annual report, named for water-conservancy tunneling; Hong Kong-listed arm of the Sany group.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Sany Heavy Equipment International 2025 annual report (2026-04-28) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 24333593000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.161312,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Three-year compound annual revenue growth computed as (24333593000.0 / 15536716000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.098965,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Operating income 2408175000.0 divided by revenue 24333593000.0 for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 1.381341,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Operating cash flow 2457148000.0 divided by net income 1778814000.0, both for the period ended 2025-12-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.048562,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Free cash flow margin: operating cash flow 2457148000.0 less capex 1275452000.0, divided by revenue 24333593000.0, all for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 1.452827,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Net debt 5191107000.0 (total debt 11255274000.0 as of 2025-12-31 less cash 6064167000.0 as of 2025-12-31) divided by an EBITDA proxy 3573107000.0 (operating income 2408175000.0 plus depreciation 1164932000.0 for the period ended 2025-12-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 5,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Piotroski F-score 5 (state MIDDLING) computed over yfinance-statements statements in data/market/0631-HK.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.515,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/0631.HK/financials",
+       "basis": "Beneish M-score -2.515 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/0631-HK.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "Market capitalization: quality.derived.market_cap is null in data/market/0631-HK.json (statements reported in CNY, listing trades in HKD; no FX source on disk, so market cap and enterprise value are NULL rather than mixed-currency arithmetic)."
+      },
+      "price_to_sales": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "Price to sales cannot be computed for 0631-HK without a market capitalization; see valuation.market_cap basis."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "implied_fcf_cagr not solved: data/market/0631-HK.json quality.reverse_dcf.state is PENDING_DATA (['enterprise_value'])."
+      },
+      "horizon_spread": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA (['enterprise_value']), so no implied_by_horizon spread was computed."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "IHI",
+    "listing_id": "TSE:7013",
+    "ticker": "7013.T",
+    "market_ticker": "7013.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/IHI.json",
+    "data_tier": "T3",
+    "name": "IHI Corporation",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Consolidates TERRATEC, a hard-rock TBM manufacturer with direct Himalayan hydropower-tunnel experience, among its Social Infrastructure affiliates per its FY2026 securities report; TBM exposure sits inside a much larger aerospace-and-industrial conglomerate.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "IHI 209th-term annual securities report (2026-06-22) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 1643402000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.066977,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (1643402000000.0 / 1352940000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.100726,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Operating income 165534000000.0 divided by revenue 1643402000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 0.753826,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Operating cash flow 121360000000.0 divided by net income 160992000000.0, both for the period ended 2026-03-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.018005,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 121360000000.0 less capex 91770000000.0, divided by revenue 1643402000000.0, all for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 1.326733,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Net debt 334809000000.0 (total debt 489893000000.0 as of 2026-03-31 less cash 155084000000.0 as of 2026-03-31) divided by an EBITDA proxy 252356000000.0 (operating income 165534000000.0 plus depreciation 86822000000.0 for the period ended 2026-03-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/7013-T.json, missing ['current_assets_fy']."
+      },
+      "beneish_state": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "Beneish M-score: quality.beneish.state is PENDING_DATA in data/market/7013-T.json, missing ['current_assets_fy']."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 2900603035008.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Market capitalization 2900603035008.0 computed in data/market/7013-T.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 1.764999,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Market capitalization 2900603035008.0 divided by revenue 1643402000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.5542,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7013-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 3235412035008.0 implies over a 5-year explicit period on base FCF 29590000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.2692,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7013-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7013.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.5542, '7': 0.3941, '10': 0.285}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "MITSUBISHI-HEAVY-INDUSTRIES",
+    "listing_id": "TSE:7011",
+    "ticker": "7011.T",
+    "market_ticker": "7011.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/MITSUBISHI-HEAVY-INDUSTRIES.json",
+    "data_tier": "T3",
+    "name": "Mitsubishi Heavy Industries, Ltd.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Owns 40 percent of JIM Technology, which manufactures open and shield-type hard-rock TBMs, per MHI's own 2016 integration release; a second, distinct tibet-mega-dam placement from its global-hydro-spillover row above.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Mitsubishi Heavy Industries JIM Technology integration release (2016-10-03) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 4361127000000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of MITSUBISHI-HEAVY-INDUSTRIES's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.012403,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (4361127000000.0 / 4202797000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.081991,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Operating income 357574000000.0 divided by revenue 4361127000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.058254,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 530459000000.0 less capex 240692000000.0, divided by revenue 4974168000000.0, all for the period ended 2025-03-31, from the yfinance-statements series. This uses period 2025-03-31, the latest with an aligned cash-flow statement in the vendor series, one period behind the revenue.latest_fy period 2026-03-31."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 1.597147,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Operating cash flow 530459000000.0 divided by net income 332129000000.0, both for the period ended 2025-03-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -0.796002,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Net debt -458634000000.0 (total debt 876240000000.0 less cash 1334874000000.0, as of 2026-03-31) divided by an EBITDA proxy 576172000000.0 (operating income 415529000000.0 plus depreciation 160643000000.0 for the period ended 2025-03-31), from the yfinance-statements series. EBITDA uses period 2025-03-31 (the latest with both operating income and depreciation in the vendor series); net debt uses the latest balance-sheet instant 2026-03-31/2026-03-31, so the ratio mixes periods, the same convention used elsewhere in this store for a vendor series with a shorter depreciation history."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 7,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/7011-T.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.623,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Beneish M-score -2.623 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/7011-T.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 12956967215040.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Market capitalization 12956967215040.0 computed in data/market/7011-T.json quality.derived.market_cap from vendor price 3856.0 (2026-09-01) times vendor share count 3360209340.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 2.971014,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Market capitalization 12956967215040.0 divided by revenue 4361127000000.0 for the period ended 2026-03-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.2775,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7011-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 12498333215040.0 implies over a 5-year explicit period on base FCF 289767000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.1192,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7011-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2775, '7': 0.2079, '10': 0.1583}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "secondary_link_basis": "Mitsubishi Heavy Industries, Ltd.'s primary tibet-mega-dam row is on global-hydro-spillover (the money corner, worked first); this row records a second real, evidence-backed placement on tunneling-tbm: Owns 40% of JIM Technology, which manufactures open and shield-type hard-rock TBMs."
+   },
+   {
+    "issuer_id": "JFE-HOLDINGS",
+    "listing_id": "TSE:5411",
+    "ticker": "5411.T",
+    "market_ticker": "5411.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/JFE-HOLDINGS.json",
+    "data_tier": "T3",
+    "name": "JFE Holdings, Inc.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Indirect exposure only: JFE Engineering, a wholly owned JFE Holdings operating company per its own governance disclosure, is one step removed from the JIM Technology TBM business that Mitsubishi Heavy Industries and Kawasaki jointly built; the thinnest read on this link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "JFE Holdings corporate-governance disclosure, retrieved 2026-08-30 (2026-08-30) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 4539270000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": -0.048465,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (4539270000000.0 / 5268794000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.015128,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Operating income 68672000000.0 divided by revenue 4539270000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 4.125136,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Operating cash flow 378968000000.0 divided by net income 91868000000.0, both for the period ended 2025-03-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.020485,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 378968000000.0 less capex 279417000000.0, divided by revenue 4859647000000.0, all for the period ended 2025-03-31. This uses period 2025-03-31, the latest with an aligned cash-flow statement, which may be behind revenue.latest_fy's period 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 5.188859,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Net debt 1791578000000.0 (total debt 1959385000000.0 as of 2026-03-31 less cash 167807000000.0 as of 2026-03-31) divided by an EBITDA proxy 345274000000.0 (operating income 87636000000.0 plus depreciation 257638000000.0 for the period ended 2025-03-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 4,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/5411-T.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.649,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Beneish M-score -2.649 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/5411-T.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 1231559911648.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Market capitalization 1231559911648.0 computed in data/market/5411-T.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 0.271312,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Market capitalization 1231559911648.0 divided by revenue 4539270000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.1846,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/5411-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 3023137911648.0 implies over a 5-year explicit period on base FCF 99551000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0729,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/5411-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/5411.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1846, '7': 0.1423, '10': 0.1117}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "KAWASAKI-HEAVY-INDUSTRIES",
+    "listing_id": "TSE:7012",
+    "ticker": "7012.T",
+    "market_ticker": "7012.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/KAWASAKI-HEAVY-INDUSTRIES.json",
+    "data_tier": "T3",
+    "name": "Kawasaki Heavy Industries, Ltd.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Owns 50 percent of UGITEC (jointly with Kanadevia, formerly Hitachi Zosen), which sells and engineers hard-rock and shield TBMs per the JV's own 2021 launch release.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Kawasaki and Hitachi Zosen UGITEC launch release (2021-10-01) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 2311267000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.102307,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (2311267000000.0 / 1725609000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.052336,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Operating income 120962000000.0 divided by revenue 2311267000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 1.692515,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Operating cash flow 148943000000.0 divided by net income 88001000000.0, both for the period ended 2025-03-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.016578,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 148943000000.0 less capex 113644000000.0, divided by revenue 2129321000000.0, all for the period ended 2025-03-31. This uses period 2025-03-31, the latest with an aligned cash-flow statement, which may be behind revenue.latest_fy's period 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 1.809275,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Net debt 386065000000.0 (total debt 501479000000.0 as of 2022-03-31 less cash 115414000000.0 as of 2026-03-31) divided by an EBITDA proxy 213381000000.0 (operating income 119950000000.0 plus depreciation 93431000000.0 for the period ended 2025-03-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/7012-T.json, missing ['only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2']."
+      },
+      "beneish_state": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "Beneish M-score: quality.beneish.state is PENDING_DATA in data/market/7012-T.json, missing ['only 0 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio']."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 2115531439860.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Market capitalization 2115531439860.0 computed in data/market/7012-T.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 0.915312,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Market capitalization 2115531439860.0 divided by revenue 2311267000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.4194,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7012-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 2501596439860.0 implies over a 5-year explicit period on base FCF 35299000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.1942,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7012-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7012.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.4194, '7': 0.3048, '10': 0.2252}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "KANADEVIA",
+    "listing_id": "TSE:7004",
+    "ticker": "7004.T",
+    "market_ticker": "7004.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/KANADEVIA.json",
+    "data_tier": "T3",
+    "name": "Kanadevia Corporation",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Holds the other 50 percent of UGITEC per the same 2021 joint launch release with Kawasaki; smaller of the two JV parents by revenue.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Kawasaki and Hitachi Zosen UGITEC launch release (2021-10-01) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 645222000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.094069,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (645222000000.0 / 492692000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.018899,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Operating income 12194000000.0 divided by revenue 645222000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 1.045793,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Operating cash flow 11647000000.0 divided by net income 11137000000.0, both for the period ended 2026-03-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": -0.021118,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 11647000000.0 less capex 25273000000.0, divided by revenue 645222000000.0, all for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 3.507939,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Net debt 106045000000.0 (total debt 184055000000.0 as of 2026-03-31 less cash 78010000000.0 as of 2026-03-31) divided by an EBITDA proxy 30230000000.0 (operating income 12194000000.0 plus depreciation 18036000000.0 for the period ended 2026-03-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 2,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Piotroski F-score 2 (state WEAK) computed over yfinance-statements statements in data/market/7004-T.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.317,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Beneish M-score -2.317 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/7004-T.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 201203765308.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Market capitalization 201203765308.0 computed in data/market/7004-T.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 0.311836,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/7004.T/financials",
+       "basis": "Market capitalization 201203765308.0 divided by revenue 645222000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "implied_fcf_cagr not solved: data/market/7004-T.json quality.reverse_dcf.state is NOT_APPLICABLE (base-year free cash flow is not positive; a growth rate on a negative base is meaningless)."
+      },
+      "horizon_spread": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "horizon_spread not available: quality.reverse_dcf.state is NOT_APPLICABLE (base-year free cash flow is not positive; a growth rate on a negative base is meaningless), so no implied_by_horizon spread was computed."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "KOMATSU",
+    "listing_id": "TSE:6301",
+    "ticker": "6301.T",
+    "market_ticker": "6301.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/KOMATSU.json",
+    "data_tier": "T3",
+    "name": "Komatsu Ltd.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Developed an electric hard-rock mining TBM for continuous excavation without blasting per its own newsroom disclosure; mining-focused rather than civil-tunneling-focused, still a genuine hard-rock TBM capability.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Komatsu newsroom (2022-07-08) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 4132751000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.052616,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (4132751000000.0 / 3543475000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.138207,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Operating income 571175000000.0 divided by revenue 4132751000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 1.19281,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Operating cash flow 448963000000.0 divided by net income 376391000000.0, both for the period ended 2026-03-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.057275,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 448963000000.0 less capex 212261000000.0, divided by revenue 4132751000000.0, all for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 1.33676,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Net debt 979852000000.0 (total debt 1419553000000.0 as of 2026-03-31 less cash 439701000000.0 as of 2026-03-31) divided by an EBITDA proxy 733005000000.0 (operating income 571175000000.0 plus depreciation 161830000000.0 for the period ended 2026-03-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 5,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Piotroski F-score 5 (state MIDDLING) computed over yfinance-statements statements in data/market/6301-T.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.404,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Beneish M-score -2.404 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/6301-T.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 6824015350898.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Market capitalization 6824015350898.0 computed in data/market/6301-T.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 1.651204,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Market capitalization 6824015350898.0 divided by revenue 4132751000000.0 for the period ended 2026-03-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.2058,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6301-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 7803867350898.0 implies over a 5-year explicit period on base FCF 236702000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0832,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6301-T.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/6301.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2058, '7': 0.1574, '10': 0.1226}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "EPIROC",
+    "listing_id": "STO:EPI-A",
+    "ticker": "EPI-A.ST",
+    "market_ticker": "EPI-A.ST",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/EPIROC.json",
+    "data_tier": "T3",
+    "name": "Epiroc AB",
+    "exchange": "STO",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Total Tunneling offering (face drill rigs, grouting rigs, automated rock-reinforcement equipment) is purpose-built for underground civil construction per its own 2025 press release; a drill-and-blast rather than TBM read on the same link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Epiroc press release (2025-03-31) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 61998000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of Epiroc's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote). Statement currency SEK matches price currency SEK, so no currency-mismatch NULL applies.",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.076526,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Three-year compound annual revenue growth computed as (61998000000.0 / 49694000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.201539,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Operating income 12495000000.0 divided by revenue 61998000000.0, both for the period ended 2025-12-31, from the yfinance-statements series.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.140005,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Free cash flow margin: operating cash flow 10675000000.0 less capex 1995000000.0, divided by revenue 61998000000.0, all for the period ended 2025-12-31, from the yfinance-statements series.",
+       "official_source": false
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 1.24099,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Operating cash flow 10675000000.0 divided by net income 8602000000.0, both for the period ended 2025-12-31, from the yfinance-statements series.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 0.68267,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Net debt 10636000000.0 (total debt 20210000000.0 less cash 9574000000.0, both as of 2025-12-31) divided by an EBITDA proxy 15580000000.0 (operating income 12495000000.0 plus depreciation 3085000000.0 for the period ended 2025-12-31), from the yfinance-statements series.",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 5,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Piotroski F-score 5 (state MIDDLING) computed over yfinance-statements statements in data/market/EPI-A-ST.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.738,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Beneish M-score -2.738 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/EPI-A-ST.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 315197643578.39996,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Market capitalization 315197643578.39996 computed in data/market/EPI-A-ST.json quality.derived.market_cap from vendor price 260.70 SEK (2026-09-01) times vendor share count 1209043512.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals). Statement currency SEK matches price currency SEK.",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 5.083997,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Market capitalization 315197643578.39996 divided by revenue 61998000000.0 for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.2401,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/EPI-A-ST.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 325833643578.39996 implies over a 5-year explicit period on base FCF 8680000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.1003,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/EPI-A-ST.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/EPI-A.ST/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2401, '7': 0.1816, '10': 0.1398}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "SANDVIK",
+    "listing_id": "STO:SAND",
+    "ticker": "SAND.ST",
+    "market_ticker": "SAND.ST",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "tunneling-tbm",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/SANDVIK.json",
+    "data_tier": "T3",
+    "name": "Sandvik AB",
+    "exchange": "STO",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "secondary_links": [],
+    "thesis_1line": "Launched an automated underground development drill and names tunneling an application area for its rock-drilling equipment per a 2025 release; same drill-and-blast adjacency as Epiroc.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Sandvik Mining release (2025-01-29) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 120680000000.0,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+       "official_source": false
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.024182,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Three-year compound annual revenue growth computed as (120680000000.0 / 112332000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.17384,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Operating income 20979000000.0 divided by revenue 120680000000.0 for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 1.306263,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Operating cash flow 19189000000.0 divided by net income 14690000000.0, both for the period ended 2025-12-31.",
+       "official_source": false
+      },
+      "fcf_margin": {
+       "value": 0.127461,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Free cash flow margin: operating cash flow 19189000000.0 less capex 3807000000.0, divided by revenue 120680000000.0, all for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 1.13281,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Net debt 32165000000.0 (total debt 37123000000.0 as of 2025-12-31 less cash 4958000000.0 as of 2025-12-31) divided by an EBITDA proxy 28394000000.0 (operating income 20979000000.0 plus depreciation 7415000000.0 for the period ended 2025-12-31).",
+       "official_source": false
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 8,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Piotroski F-score 8 (state STRONG) computed over yfinance-statements statements in data/market/SAND-ST.json quality.piotroski, 9 of 9 inputs found.",
+       "official_source": false
+      },
+      "beneish_state": {
+       "value": -2.614,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Beneish M-score -2.614 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/SAND-ST.json quality.beneish, 12 of 12 inputs found.",
+       "official_source": false
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 493099106331.30005,
+       "tag": "INFERRED",
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Market capitalization 493099106331.30005 computed in data/market/SAND-ST.json quality.derived.market_cap from vendor price and share count (yfinance-derived, method section 6A vendor-aggregate fundamentals).",
+       "official_source": false
+      },
+      "price_to_sales": {
+       "value": 4.086005,
+       "tag": "INFERRED",
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Market capitalization 493099106331.30005 divided by revenue 120680000000.0 for the period ended 2025-12-31.",
+       "official_source": false
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.215,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/SAND-ST.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 525264106331.30005 implies over a 5-year explicit period on base FCF 15382000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0878,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/SAND-ST.json quality.reverse_dcf",
+       "source_date": "2026-09-02",
+       "url": "https://finance.yahoo.com/quote/SAND.ST/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.215, '7': 0.164, '10': 0.1272}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "picks_and_shovels": [
+   {
+    "issuer_id": "DONGFANG-ELECTRIC",
+    "listing_id": "HKEX:1072",
+    "ticker": "1072.HK",
+    "market_ticker": "1072.HK",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/DONGFANG-ELECTRIC.json",
+    "data_tier": "T3",
+    "name": "Dongfang Electric Corporation Limited",
+    "exchange": "HKEX",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Chinese domestic hydro-turbine heavyweight; a 500 MW Pelton unit already delivered into a Xizang project demonstrates capacity the Yajiang program can absorb, but this is a China-supply-pool read, not a Western spillover play.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Haythink hydropower equipment report (2024-10-21) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 78615277439.83,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of DONGFANG-ELECTRIC's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.123985,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Three-year compound annual revenue growth computed as (78615277439.83 / 55363782450.06) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.074602,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Operating income 5864840701.56 divided by revenue 78615277439.83, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": -0.028875,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Free cash flow margin: operating cash flow 2014320912.85 less capex 4284346671.11, divided by revenue 78615277439.83, all for the period ended 2025-12-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 0.525754,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Operating cash flow 2014320912.85 divided by net income 3831301222.13, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -2.380457,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Net debt -16723451393.079998 (total debt 5956143197.56 less cash 22679594590.64, as of 2025-12-31) divided by an EBITDA proxy 7025310262.150001 (operating income 5864840701.56 plus depreciation 1160469560.59 for the period ended 2025-12-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 4,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/1072-HK.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.24,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1072.HK/financials",
+       "basis": "Beneish M-score -2.24 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/1072-HK.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "market_cap not computed for DONGFANG-ELECTRIC: statements reported in CNY, listing trades in HKD; no FX source on disk, so market cap and enterprise value are NULL rather than mixed-currency arithmetic (data/market/1072-HK.json quality.currency_note; method section 6A: where the vendor statement currency differs from the listing trading currency, market cap and enterprise value are NULL rather than mixed-currency arithmetic)."
+      },
+      "price_to_sales": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "price_to_sales not computed for DONGFANG-ELECTRIC: depends on market_cap, which is NULL for the currency-mismatch reason stated on that field."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "implied_fcf_cagr not solved for DONGFANG-ELECTRIC: quality.reverse_dcf.state is PENDING_DATA (enterprise_value)."
+      },
+      "horizon_spread": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "horizon_spread not available for DONGFANG-ELECTRIC: quality.reverse_dcf.state is PENDING_DATA (enterprise_value), so no implied_by_horizon spread was computed."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "HARBIN-ELECTRIC",
+    "listing_id": "HKEX:1133",
+    "ticker": "1133.HK",
+    "market_ticker": "1133.HK",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/HARBIN-ELECTRIC.json",
+    "data_tier": "T3",
+    "name": "Harbin Electric Company Limited",
+    "exchange": "HKEX",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Second Chinese turbine OEM with a documented 500 MW Pelton runner into a Xizang hydro project; same domestic-capacity-absorption logic as Dongfang, thinner disclosure.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Harbin Electric company release (2025-07-03) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 45697925281.14,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1133.HK/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of HARBIN-ELECTRIC's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.22856,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1133.HK/financials",
+       "basis": "Three-year compound annual revenue growth computed as (45697925281.14 / 24643794215.8) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.063238,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1133.HK/financials",
+       "basis": "Operating income 2889828288.93 divided by revenue 45697925281.14, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.041392,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1133.HK/financials",
+       "basis": "Free cash flow margin: operating cash flow 2284202514.81 less capex 1090422015.22, divided by revenue 28840901791.72, all for the period ended 2023-12-31, from the yfinance-statements series. This uses period 2023-12-31, the latest with an aligned cash-flow statement in the vendor series, one period behind the revenue.latest_fy period 2025-12-31."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 3.974185,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1133.HK/financials",
+       "basis": "Operating cash flow 2284202514.81 divided by net income 574760038.85, both for the period ended 2023-12-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "net_debt_to_ebitda not computed for HARBIN-ELECTRIC: yfinance-statements depreciation_fy stops at 2022-12-31 while revenue and operating income have since nearly doubled (2022 operating income 209321111.08 vs 2025 2889828288.93); an EBITDA proxy from the only common period would not be representative of the balance sheet's current instant."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 3,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/1133.HK/financials",
+       "basis": "Piotroski F-score 3 (state WEAK) computed over yfinance-statements statements in data/market/1133-HK.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "beneish_state cannot be scored for HARBIN-ELECTRIC: quality.beneish.state is PENDING_DATA (only 1 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio)."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "market_cap not computed for HARBIN-ELECTRIC: statements reported in CNY, listing trades in HKD; no FX source on disk, so market cap and enterprise value are NULL rather than mixed-currency arithmetic (data/market/1133-HK.json quality.currency_note; method section 6A: where the vendor statement currency differs from the listing trading currency, market cap and enterprise value are NULL rather than mixed-currency arithmetic)."
+      },
+      "price_to_sales": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "price_to_sales not computed for HARBIN-ELECTRIC: depends on market_cap, which is NULL for the currency-mismatch reason stated on that field."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "implied_fcf_cagr not solved for HARBIN-ELECTRIC: quality.reverse_dcf.state is PENDING_DATA (enterprise_value)."
+      },
+      "horizon_spread": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "horizon_spread not available for HARBIN-ELECTRIC: quality.reverse_dcf.state is PENDING_DATA (enterprise_value), so no implied_by_horizon spread was computed."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "ANDRITZ",
+    "listing_id": "VIE:ANDR",
+    "ticker": "ANDR.VI",
+    "market_ticker": "ANDR.VI",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/ANDRITZ.json",
+    "data_tier": "T3",
+    "name": "ANDRITZ AG",
+    "exchange": "VIE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "The clearest non-Chinese expression of the spillover thesis: a 2025 Turkish water-to-wire turbine-generator win backs its own description as a leading global hydropower equipment supplier, against a link the chain scores UNDISCOVERED.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "ANDRITZ press release (2025-05-20) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 7883100000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of ANDRITZ's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.014813,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Three-year compound annual revenue growth computed as (7883100000.0 / 7542900000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.074324,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Operating income 585900000.0 divided by revenue 7883100000.0, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.057668,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Free cash flow margin: operating cash flow 652700000.0 less capex 198100000.0, divided by revenue 7883100000.0, all for the period ended 2025-12-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 1.430419,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Operating cash flow 652700000.0 divided by net income 456300000.0, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -0.097762,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Net debt -80800000.0 (total debt 830800000.0 less cash 911600000.0, as of 2025-12-31) divided by an EBITDA proxy 826500000.0 (operating income 585900000.0 plus depreciation 240600000.0 for the period ended 2025-12-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 4,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/ANDR-VI.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.42,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Beneish M-score -2.42 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/ANDR-VI.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 8163299540.2,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Market capitalization 8163299540.2 computed in data/market/ANDR-VI.json quality.derived.market_cap from vendor price 83.3 (2026-09-01) times vendor share count 97998794.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 1.035544,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Market capitalization 8163299540.2 divided by revenue 7883100000.0 for the period ended 2025-12-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.053,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/ANDR-VI.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 8082499540.200001 implies over a 5-year explicit period on base FCF 454600000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0121,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/ANDR-VI.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/ANDR.VI/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.053, '7': 0.046, '10': 0.0409}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "GE-VERNOVA",
+    "listing_id": "NYSE:GEV",
+    "ticker": "GEV",
+    "market_ticker": "GEV",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/GE-VERNOVA.json",
+    "data_tier": "T1",
+    "name": "GE Vernova Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1996810,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "A 2025 Canadian order to modernize eight hydropower turbine-alternator units documents live hydro-equipment exposure, but it sits inside a much larger AI-power book that dilutes the Tibet-specific read.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "GE Vernova press release (2025-06-26) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 38068000000,
+       "tag": "VERIFIED",
+       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GEV.json fundamentals (source sec-companyfacts)",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.086823,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GEV.json fundamentals (source sec-companyfacts)",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Three-year compound annual revenue growth computed as (38068000000 / 29654000000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.036461,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GEV.json fundamentals (source sec-companyfacts)",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "OperatingIncomeLoss 1388000000 divided by Revenues 38068000000 for the fiscal year ended 2025-12-31, both from companyfacts."
+      }
+     },
+     "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+       "value": 1.021089,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GEV.json fundamentals (source sec-companyfacts)",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Net cash provided by operating activities 4987000000 divided by net income 4884000000 for the fiscal year ended 2025-12-31, both from companyfacts."
+      },
+      "fcf_margin": {
+       "value": 0.097457,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GEV.json fundamentals (source sec-companyfacts)",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Free cash flow margin: operating cash flow 4987000000 less capital expenditure 1277000000, divided by revenue 38068000000, all for the fiscal year ended 2025-12-31 from companyfacts."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "net debt to EBITDA is not computable: companyfacts returned no total_debt, no long_term_debt and no cash observation for GE Vernova, so neither leg of net debt exists in data/market/GEV.json"
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "piotroski F-score is PENDING_DATA in data/market/GEV.json quality: the long_term_debt_fy input is absent from companyfacts"
+      },
+      "beneish_state": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "beneish M-score is PENDING_DATA in data/market/GEV.json quality: the ppe_net_fy and long_term_debt_fy inputs are absent from companyfacts"
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 245792004105.52,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "Upstream market store data/market/GEV.json quality.derived.market_cap",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Market capitalization 245792004105.52 = SEC companyfacts diluted share count 269529464 multiplied by the close 911.93; share count 269529464 as of 2025-12-31 is the official SEC companyfacts figure; the close 911.93 of 2026-08-28 is the repo's own market plane (data/market/GEV.json, price_status AGREED), not an issuer document."
+      },
+      "price_to_sales": {
+       "value": 6.456657,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "Upstream market store data/market/GEV.json quality.derived.market_cap over SEC companyfacts revenue",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Market capitalization 245792004105.52 divided by fiscal year 2025-12-31 revenue 38068000000; share count 269529464 as of 2025-12-31 is the official SEC companyfacts figure; the close 911.93 of 2026-08-28 is the repo's own market plane (data/market/GEV.json, price_status AGREED), not an issuer document."
+      },
+      "price_to_earnings": {
+       "value": 50.325963,
+       "tag": "INFERRED",
+       "official_source": true,
+       "source_name": "Upstream market store data/market/GEV.json quality.derived.market_cap over SEC companyfacts net income",
+       "source_date": "2026-08-29",
+       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+       "basis": "Market capitalization 245792004105.52 divided by fiscal year 2025-12-31 GAAP net income 4884000000; share count 269529464 as of 2025-12-31 is the official SEC companyfacts figure; the close 911.93 of 2026-08-28 is the repo's own market plane (data/market/GEV.json, price_status AGREED), not an issuer document."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "implied FCF CAGR is PENDING_DATA: the reverse DCF in data/market/GEV.json could not solve because enterprise value is null, the debt and cash legs being absent from companyfacts"
+      },
+      "horizon_spread": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "horizon spread is unavailable because the reverse DCF solved at no horizon for this issuer; data/market/GEV.json quality.reverse_dcf is PENDING_DATA with a null enterprise value"
+      }
+     }
+    },
+    "crowdedness": {
+     "axis_a_state": "DARK",
+     "axis_a_score": 88.2,
+     "axis_b_band": "SATURATED",
+     "source": "data/market/GEV.json pcs",
+     "as_of": "2026-08-29",
+     "tag": "VERIFIED"
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "MITSUBISHI-HEAVY-INDUSTRIES",
+    "listing_id": "TSE:7011",
+    "ticker": "7011.T",
+    "market_ticker": "7011.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/MITSUBISHI-HEAVY-INDUSTRIES.json",
+    "data_tier": "T3",
+    "name": "Mitsubishi Heavy Industries, Ltd.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "secondary_link_basis": "Mitsubishi Heavy Industries, Ltd. also carries a second, separately evidenced tibet-mega-dam placement on tunneling-tbm (40% ownership of JIM Technology, hard-rock TBM manufacturer); this row is the money-corner placement via HM Hydro, worked first, and the tunneling-tbm row is the second real placement, not a duplicate observation of the same exposure.",
+    "thesis_1line": "Supplies water turbines and valves for HM Hydro, its 50/50 hydro joint venture with Hitachi, giving it global hydro-equipment capacity exposure; MHI also carries a separate tunneling-side stake (see tunneling-tbm row).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Mitsubishi Heavy Industries hydropower product page, retrieved 2026-08-29 (2026-08-29) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 4361127000000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of MITSUBISHI-HEAVY-INDUSTRIES's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.012403,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (4361127000000.0 / 4202797000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.081991,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Operating income 357574000000.0 divided by revenue 4361127000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.058254,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 530459000000.0 less capex 240692000000.0, divided by revenue 4974168000000.0, all for the period ended 2025-03-31, from the yfinance-statements series. This uses period 2025-03-31, the latest with an aligned cash-flow statement in the vendor series, one period behind the revenue.latest_fy period 2026-03-31."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 1.597147,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Operating cash flow 530459000000.0 divided by net income 332129000000.0, both for the period ended 2025-03-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -0.796002,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Net debt -458634000000.0 (total debt 876240000000.0 less cash 1334874000000.0, as of 2026-03-31) divided by an EBITDA proxy 576172000000.0 (operating income 415529000000.0 plus depreciation 160643000000.0 for the period ended 2025-03-31), from the yfinance-statements series. EBITDA uses period 2025-03-31 (the latest with both operating income and depreciation in the vendor series); net debt uses the latest balance-sheet instant 2026-03-31/2026-03-31, so the ratio mixes periods, the same convention used elsewhere in this store for a vendor series with a shorter depreciation history."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 7,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/7011-T.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.623,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Beneish M-score -2.623 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/7011-T.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 12956967215040.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Market capitalization 12956967215040.0 computed in data/market/7011-T.json quality.derived.market_cap from vendor price 3856.0 (2026-09-01) times vendor share count 3360209340.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 2.971014,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Market capitalization 12956967215040.0 divided by revenue 4361127000000.0 for the period ended 2026-03-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.2775,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7011-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 12498333215040.0 implies over a 5-year explicit period on base FCF 289767000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.1192,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/7011-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/7011.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2775, '7': 0.2079, '10': 0.1583}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "MITSUBISHI-ELECTRIC",
+    "listing_id": "TSE:6503",
+    "ticker": "6503.T",
+    "market_ticker": "6503.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/MITSUBISHI-ELECTRIC.json",
+    "data_tier": "T3",
+    "name": "Mitsubishi Electric Corporation",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Holds a 30 percent stake in Hitachi Mitsubishi Hydro per its own FY2025 securities report, spanning hydroelectric manufacturing, construction and maintenance; a minority-JV read, not a wholly owned business line.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Mitsubishi Electric FY2025 securities report (2025-06-20) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 5894747000000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of MITSUBISHI-ELECTRIC's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.056148,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (5894747000000.0 / 5003694000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.073471,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Operating income 433095000000.0 divided by revenue 5894747000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.056585,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 575993000000.0 less capex 242437000000.0, divided by revenue 5894747000000.0, all for the period ended 2026-03-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 1.412585,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Operating cash flow 575993000000.0 divided by net income 407758000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -0.552321,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Net debt -368331000000.0 (total debt 363278000000.0 less cash 731609000000.0, as of 2026-03-31) divided by an EBITDA proxy 666879000000.0 (operating income 433095000000.0 plus depreciation 233784000000.0 for the period ended 2026-03-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 7,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/6503-T.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.431,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Beneish M-score -2.431 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/6503-T.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 11298371919296.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Market capitalization 11298371919296.0 computed in data/market/6503-T.json quality.derived.market_cap from vendor price 5521.0 (2026-09-01) times vendor share count 2046435776.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 1.916685,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Market capitalization 11298371919296.0 divided by revenue 5894747000000.0 for the period ended 2026-03-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.2043,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6503-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 10930040919296.0 implies over a 5-year explicit period on base FCF 333556000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0825,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6503-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6503.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2043, '7': 0.1563, '10': 0.1218}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "BHARAT-HEAVY-ELECTRICALS",
+    "listing_id": "NSE:BHEL",
+    "ticker": "BHEL.NS",
+    "market_ticker": "BHEL.NS",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/BHARAT-HEAVY-ELECTRICALS.json",
+    "data_tier": "T3",
+    "name": "Bharat Heavy Electricals Limited",
+    "exchange": "NSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Indian state-linked heavy-electrical major executing full turbine-generator and electromechanical scope for the Punatsangchhu-II hydropower project in Bhutan; direct regional hydro capacity, diluted by BHEL's much larger power-equipment book.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "BHEL project release (2025-01-08) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 323598300000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of BHARAT-HEAVY-ELECTRICALS's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.134925,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Three-year compound annual revenue growth computed as (323598300000.0 / 221363000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.049532,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Operating income 16028400000.0 divided by revenue 323598300000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.162187,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Free cash flow margin: operating cash flow 58373800000.0 less capex 5890400000.0, divided by revenue 323598300000.0, all for the period ended 2026-03-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 3.64777,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Operating cash flow 58373800000.0 divided by net income 16002600000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 3.702357,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Net debt 71037500000.0 (total debt 81869500000.0 less cash 10832000000.0, as of 2026-03-31) divided by an EBITDA proxy 19187100000.0 (operating income 16028400000.0 plus depreciation 3158700000.0 for the period ended 2026-03-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 8,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Piotroski F-score 8 (state STRONG) computed over yfinance-statements statements in data/market/BHEL-NS.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.625,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Beneish M-score -2.625 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/BHEL-NS.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 1485274124075.25,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Market capitalization 1485274124075.25 computed in data/market/BHEL-NS.json quality.derived.market_cap from vendor price 426.55 (2026-09-01) times vendor share count 3482063355.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 4.58987,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Market capitalization 1485274124075.25 divided by revenue 323598300000.0 for the period ended 2026-03-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.1785,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/BHEL-NS.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 1556311624075.25 implies over a 5-year explicit period on base FCF 52483400000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.07,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/BHEL-NS.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/BHEL.NS/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1785, '7': 0.1379, '10': 0.1085}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "ZHEFU-HOLDING-GROUP",
+    "listing_id": "SZSE:002266",
+    "ticker": "002266.SZ",
+    "market_ticker": "002266.SZ",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/ZHEFU-HOLDING-GROUP.json",
+    "data_tier": "T3",
+    "name": "Zhefu Holding Group Co., Ltd.",
+    "exchange": "SZSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Chinese hydro turbine-generator maker whose own 2025 annual report states its complete units sell into both China and overseas markets; the most direct overseas-facing Chinese name on this link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Zhefu Holding 2025 annual report (2026-04-29) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 23213561891.65,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31, yfinance-statements aggregation of ZHEFU-HOLDING-GROUP's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.114256,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Three-year compound annual revenue growth computed as (23213561891.65 / 16779792003.74) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.068278,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Operating income 1584985623.72 divided by revenue 23213561891.65, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": -0.026837,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Free cash flow margin: operating cash flow 31287198.8 less capex 654272415.96, divided by revenue 23213561891.65, all for the period ended 2025-12-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 0.027991,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Operating cash flow 31287198.8 divided by net income 1117760299.6, both for the period ended 2025-12-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 0.175405,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Net debt 378178273.52999973 (total debt 4821530665.2 less cash 4443352391.67, as of 2025-12-31) divided by an EBITDA proxy 2156027904.3 (operating income 1584985623.72 plus depreciation 571042280.58 for the period ended 2025-12-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 6,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Piotroski F-score 6 (state MIDDLING) computed over yfinance-statements statements in data/market/002266-SZ.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -1.721,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Beneish M-score -1.721 against the -1.78 threshold, earnings-manipulation state REVIEW, computed over yfinance-statements statements in data/market/002266-SZ.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 25522237155.78,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Market capitalization 25522237155.78 computed in data/market/002266-SZ.json quality.derived.market_cap from vendor price 4.89 (2026-09-01) times vendor share count 5219271402.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 1.099454,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/002266.SZ/financials",
+       "basis": "Market capitalization 25522237155.78 divided by revenue 23213561891.65 for the period ended 2025-12-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "implied_fcf_cagr not solved for ZHEFU-HOLDING-GROUP: quality.reverse_dcf.state is NOT_APPLICABLE (base-year free cash flow is not positive; a growth rate on a negative base is meaningless)."
+      },
+      "horizon_spread": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "horizon_spread not available for ZHEFU-HOLDING-GROUP: quality.reverse_dcf.state is NOT_APPLICABLE (base-year free cash flow is not positive; a growth rate on a negative base is meaningless), so no implied_by_horizon spread was computed."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "HITACHI",
+    "listing_id": "TSE:6501",
+    "ticker": "6501.T",
+    "market_ticker": "6501.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/HITACHI.json",
+    "data_tier": "T3",
+    "name": "Hitachi, Ltd.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Holds the other 50 percent of Hitachi Mitsubishi Hydro per the JV's own corporate profile, spanning hydropower manufacturing, installation and maintenance; hydro is a small slice of a very large conglomerate.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Hitachi Mitsubishi Hydro corporate profile (2026-04-01) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 10586781000000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of HITACHI's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": -0.0091,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (10586781000000.0 / 10881150000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.11328,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Operating income 1199275000000.0 divided by revenue 10586781000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.110537,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 1668061000000.0 less capex 497829000000.0, divided by revenue 10586781000000.0, all for the period ended 2026-03-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 2.078923,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Operating cash flow 1668061000000.0 divided by net income 802368000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": -0.189738,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Net debt -314443000000.0 (total debt 1009037000000.0 less cash 1323480000000.0, as of 2026-03-31) divided by an EBITDA proxy 1657248000000.0 (operating income 1199275000000.0 plus depreciation 457973000000.0 for the period ended 2026-03-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 7,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/6501-T.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": -2.67,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Beneish M-score -2.67 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/6501-T.json quality.beneish, 12 of 12 inputs found."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 24933182139642.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Market capitalization 24933182139642.0 computed in data/market/6501-T.json quality.derived.market_cap from vendor price 5541.0 (2026-09-01) times vendor share count 4499762162.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 2.355124,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Market capitalization 24933182139642.0 divided by revenue 10586781000000.0 for the period ended 2026-03-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.0931,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6501-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 24618739139642.0 implies over a 5-year explicit period on base FCF 1170232000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.0299,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6501-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6501.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0931, '7': 0.0759, '10': 0.0632}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "FUJI-ELECTRIC",
+    "listing_id": "TSE:6504",
+    "ticker": "6504.T",
+    "market_ticker": "6504.T",
+    "chain_id": "tibet-mega-dam",
+    "link_id": "global-hydro-spillover",
+    "mapping_ref": "data/mappings/tibet-mega-dam.json",
+    "profile_ref": "data/companies/FUJI-ELECTRIC.json",
+    "data_tier": "T3",
+    "name": "Fuji Electric Co., Ltd.",
+    "exchange": "TSE",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "secondary_links": [],
+    "thesis_1line": "Holds 50 percent of Voith Fuji Hydro per the JV's own 2025 brochure, supplying turbines and generators across Asia; hydro is a minor line inside Fuji's power-and-industrial systems book.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Voith Fuji Hydro 2025 company brochure (2025-04-01) documents the role described above but discloses no Tibet-dam-specific or Yajiang-program revenue percentage; undisclosed, not estimated.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue": {
+      "latest_fy": {
+       "value": 1227595000000.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Vendor-normalized fiscal-year revenue for the period ended 2026-03-31, yfinance-statements aggregation of FUJI-ELECTRIC's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+      }
+     },
+     "growth": {
+      "revenue_cagr_3y": {
+       "value": 0.067392,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Three-year compound annual revenue growth computed as (1227595000000.0 / 1009447000000.0) ** (1/3) - 1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31."
+      }
+     },
+     "margins": {
+      "operating_margin": {
+       "value": 0.111292,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Operating income 136621000000.0 divided by revenue 1227595000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "cash_conversion": {
+      "fcf_margin": {
+       "value": 0.032206,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Free cash flow margin: operating cash flow 123562000000.0 less capex 84026000000.0, divided by revenue 1227595000000.0, all for the period ended 2026-03-31, from the yfinance-statements series."
+      },
+      "operating_cash_flow_to_net_income": {
+       "value": 1.260451,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Operating cash flow 123562000000.0 divided by net income 98030000000.0, both for the period ended 2026-03-31, from the yfinance-statements series."
+      }
+     },
+     "leverage": {
+      "net_debt_to_ebitda": {
+       "value": 0.068619,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Net debt 13614000000.0 (total debt 84545000000.0 less cash 70931000000.0, as of 2026-03-31) divided by an EBITDA proxy 198399000000.0 (operating income 136621000000.0 plus depreciation 61778000000.0 for the period ended 2026-03-31), from the yfinance-statements series."
+      }
+     },
+     "quality": {
+      "piotroski": {
+       "value": 7,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/6504-T.json quality.piotroski, 9 of 9 inputs found."
+      },
+      "beneish_state": {
+       "value": null,
+       "tag": "NULL",
+       "basis": "beneish_state cannot be scored for FUJI-ELECTRIC: quality.beneish.state is PENDING_DATA (sga_fy)."
+      }
+     },
+     "valuation": {
+      "market_cap": {
+       "value": 2014912465230.0,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-info",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Market capitalization 2014912465230.0 computed in data/market/6504-T.json quality.derived.market_cap from vendor price 13670.0 (2026-09-01) times vendor share count 147396669.0 (2026-03-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+      },
+      "price_to_sales": {
+       "value": 1.64135,
+       "tag": "INFERRED",
+       "official_source": false,
+       "source_name": "yfinance-statements",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Market capitalization 2014912465230.0 divided by revenue 1227595000000.0 for the period ended 2026-03-31."
+      }
+     },
+     "reverse_dcf": {
+      "implied_fcf_cagr": {
+       "value": 0.3257,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6504-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Free-cash-flow CAGR the current enterprise value 2028526465230.0 implies over a 5-year explicit period on base FCF 39536000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over vendor-normalized (yfinance-statements) statements. Assumption-dependent expectation reading, not a reported figure."
+      },
+      "horizon_spread": {
+       "value": 0.1442,
+       "tag": "SPECULATIVE",
+       "source_name": "Upstream market store data/market/6504-T.json quality.reverse_dcf",
+       "source_date": "2026-09-01",
+       "url": "https://finance.yahoo.com/quote/6504.T/financials",
+       "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.3257, '7': 0.2412, '10': 0.1815}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+      }
+     }
+    },
+    "crowdedness": "COVERAGE-THIN",
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
   "second_order": [
    {
     "issuer_id": "BLACKSKY-TECHNOLOGY",
@@ -476,96 +3767,6 @@
  },
  "superseded_rows": [
   {
-   "ticker": "1072.HK",
-   "name": "Dongfang Electric (H)",
-   "exchange": "HKEX",
-   "tier": "T3",
-   "cik": null,
-   "thesis_1line": "Chinese turbine OEM positioned for cascade awards; crowdedness 70 says the A/H market already re-rated this on announcement.",
-   "theme_revenue_exposure": {
-    "pct": null,
-    "basis": "not disclosed; no filing fetched for this name",
-    "quote": null,
-    "accession": null,
-    "url": null,
-    "tag": "NULL"
-   },
-   "fundamentals": "PENDING_DATA",
-   "earnings_nuggets": [],
-   "crowdedness": "PENDING_DATA",
-   "status": "CANDIDATE",
-   "link_id": "hydro-turbines",
-   "money_corner": false,
-   "link_id_basis": null,
-   "superseded": {
-    "ts": "2026-09-02T00:19:52Z",
-    "by": "sieve-profiler",
-    "from_bucket": "pure_play",
-    "reason": "No COMPLETE profile exists for DONGFANG-ELECTRIC: data/companies/DONGFANG-ELECTRIC.json is BLOCKED at opportunity_tier O3. A campaign-v1 screen row requires a COMPLETE O1 or O2 profile; O3/BLOCKED issuers are never screen rows (method section 6). The mapping placement for this issuer remains ACTIVE and the name is a live candidate.",
-    "readmission_condition": "A COMPLETE O2 (or later O1) profile at data/companies/DONGFANG-ELECTRIC.json, written via run profile --campaign CAMP-20260901-01, plus a row rewritten to full campaign-v1 identity."
-   }
-  },
-  {
-   "ticker": "600875.SS",
-   "name": "Dongfang Electric (A)",
-   "exchange": "SSE",
-   "tier": "T3",
-   "cik": null,
-   "thesis_1line": "A-share line of the same issuer as 1072.HK; listed separately because the A/H spread is itself the question on a crowded link.",
-   "theme_revenue_exposure": {
-    "pct": null,
-    "basis": "not disclosed; no filing fetched for this name",
-    "quote": null,
-    "accession": null,
-    "url": null,
-    "tag": "NULL"
-   },
-   "fundamentals": "PENDING_DATA",
-   "earnings_nuggets": [],
-   "crowdedness": "PENDING_DATA",
-   "status": "CANDIDATE",
-   "link_id": "hydro-turbines",
-   "money_corner": false,
-   "link_id_basis": null,
-   "superseded": {
-    "ts": "2026-09-02T00:19:52Z",
-    "by": "sieve-profiler",
-    "from_bucket": "pure_play",
-    "reason": "No COMPLETE profile exists for DONGFANG-ELECTRIC: data/companies/DONGFANG-ELECTRIC.json is BLOCKED at opportunity_tier O3. A campaign-v1 screen row requires a COMPLETE O1 or O2 profile; O3/BLOCKED issuers are never screen rows (method section 6). The mapping placement for this issuer remains ACTIVE and the name is a live candidate.",
-    "readmission_condition": "A COMPLETE O2 (or later O1) profile at data/companies/DONGFANG-ELECTRIC.json, written via run profile --campaign CAMP-20260901-01, plus a row rewritten to full campaign-v1 identity."
-   }
-  },
-  {
-   "ticker": "1133.HK",
-   "name": "Harbin Electric",
-   "exchange": "HKEX",
-   "tier": "T3",
-   "cik": null,
-   "thesis_1line": "Second Chinese turbine OEM; same crowded link, thinner order visibility.",
-   "theme_revenue_exposure": {
-    "pct": null,
-    "basis": "not disclosed; no filing fetched for this name",
-    "quote": null,
-    "accession": null,
-    "url": null,
-    "tag": "NULL"
-   },
-   "fundamentals": "PENDING_DATA",
-   "earnings_nuggets": [],
-   "crowdedness": "PENDING_DATA",
-   "status": "CANDIDATE",
-   "link_id": "hydro-turbines",
-   "money_corner": false,
-   "link_id_basis": null,
-   "superseded": {
-    "ts": "2026-09-02T00:19:52Z",
-    "by": "sieve-profiler",
-    "from_bucket": "pure_play",
-    "reason": "No COMPLETE profile exists for HARBIN-ELECTRIC: data/companies/HARBIN-ELECTRIC.json is BLOCKED at opportunity_tier O3. A campaign-v1 screen row requires a COMPLETE O1 or O2 profile; O3/BLOCKED issuers are never screen rows (method section 6). The mapping placement for this issuer remains ACTIVE and the name is a live candidate.",
-    "readmission_condition": "A COMPLETE O2 (or later O1) profile at data/companies/HARBIN-ELECTRIC.json, written via run profile --campaign CAMP-20260901-01, plus a row rewritten to full campaign-v1 identity."
-   }
-  },
-  {
    "ticker": "601669.SS",
    "name": "PowerChina",
    "exchange": "SSE",
@@ -626,36 +3827,6 @@
    }
   },
   {
-   "ticker": "688425.SS",
-   "name": "China Railway Construction Heavy Industry",
-   "exchange": "STAR",
-   "tier": "T3",
-   "cik": null,
-   "thesis_1line": "TBM manufacturer on an UNDISCOVERED link (crowdedness 35): the tunnelling scope is enormous and less narrated than turbines.",
-   "theme_revenue_exposure": {
-    "pct": null,
-    "basis": "not disclosed; no filing fetched for this name",
-    "quote": null,
-    "accession": null,
-    "url": null,
-    "tag": "NULL"
-   },
-   "fundamentals": "PENDING_DATA",
-   "earnings_nuggets": [],
-   "crowdedness": "PENDING_DATA",
-   "status": "CANDIDATE",
-   "link_id": "tunneling-tbm",
-   "money_corner": false,
-   "link_id_basis": null,
-   "superseded": {
-    "ts": "2026-09-02T00:19:52Z",
-    "by": "sieve-profiler",
-    "from_bucket": "pure_play",
-    "reason": "No COMPLETE profile exists for CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY: data/companies/CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY.json is BLOCKED at opportunity_tier O3. A campaign-v1 screen row requires a COMPLETE O1 or O2 profile; O3/BLOCKED issuers are never screen rows (method section 6). The mapping placement for this issuer remains ACTIVE and the name is a live candidate.",
-    "readmission_condition": "A COMPLETE O2 (or later O1) profile at data/companies/CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY.json, written via run profile --campaign CAMP-20260901-01, plus a row rewritten to full campaign-v1 identity."
-   }
-  },
-  {
    "ticker": "600326.SS",
    "name": "Xizang Tianlu",
    "exchange": "SSE",
@@ -683,66 +3854,6 @@
     "from_bucket": "pure_play",
     "reason": "No COMPLETE profile exists for XIZANG-TIANLU: data/companies/XIZANG-TIANLU.json is BLOCKED at opportunity_tier O3. A campaign-v1 screen row requires a COMPLETE O1 or O2 profile; O3/BLOCKED issuers are never screen rows (method section 6). The mapping placement for this issuer remains ACTIVE and the name is a live candidate.",
     "readmission_condition": "A COMPLETE O2 (or later O1) profile at data/companies/XIZANG-TIANLU.json, written via run profile --campaign CAMP-20260901-01, plus a row rewritten to full campaign-v1 identity."
-   }
-  },
-  {
-   "ticker": "ANDR.VI",
-   "name": "Andritz AG",
-   "exchange": "VIE",
-   "tier": "T3",
-   "cik": null,
-   "thesis_1line": "The money corner's lead name: a Western hydro-equipment OEM whose order book absorbs global hydro demand the Yajiang programme crowds out of Chinese suppliers. Un-crowded (crowdedness 30) against impact 70.",
-   "theme_revenue_exposure": {
-    "pct": null,
-    "basis": "not disclosed; no filing fetched for this name",
-    "quote": null,
-    "accession": null,
-    "url": null,
-    "tag": "NULL"
-   },
-   "fundamentals": "PENDING_DATA",
-   "earnings_nuggets": [],
-   "crowdedness": "PENDING_DATA",
-   "status": "CANDIDATE",
-   "link_id": "global-hydro-spillover",
-   "money_corner": true,
-   "link_id_basis": null,
-   "superseded": {
-    "ts": "2026-09-02T00:19:52Z",
-    "by": "sieve-profiler",
-    "from_bucket": "picks_and_shovels",
-    "reason": "No COMPLETE profile exists for ANDRITZ: data/companies/ANDRITZ.json is BLOCKED at opportunity_tier O3. A campaign-v1 screen row requires a COMPLETE O1 or O2 profile; O3/BLOCKED issuers are never screen rows (method section 6). The mapping placement for this issuer remains ACTIVE and the name is a live candidate.",
-    "readmission_condition": "A COMPLETE O2 (or later O1) profile at data/companies/ANDRITZ.json, written via run profile --campaign CAMP-20260901-01, plus a row rewritten to full campaign-v1 identity."
-   }
-  },
-  {
-   "ticker": "GEV",
-   "name": "GE Vernova",
-   "exchange": "NYSE",
-   "tier": "T1",
-   "cik": null,
-   "thesis_1line": "Only name in this chain with market data on disk. Hydro and grid equipment exposure to the same spillover, inside a much larger AI-power story that dilutes it.",
-   "theme_revenue_exposure": {
-    "pct": null,
-    "basis": "not disclosed; no filing fetched for this name",
-    "quote": null,
-    "accession": null,
-    "url": null,
-    "tag": "NULL"
-   },
-   "fundamentals": "PENDING_DATA",
-   "earnings_nuggets": [],
-   "crowdedness": "PENDING_DATA",
-   "status": "CANDIDATE",
-   "link_id": "global-hydro-spillover",
-   "money_corner": true,
-   "link_id_basis": null,
-   "superseded": {
-    "ts": "2026-09-02T00:19:52Z",
-    "by": "sieve-profiler",
-    "from_bucket": "picks_and_shovels",
-    "reason": "GE-VERNOVA's profile (data/companies/GE-VERNOVA.json) is COMPLETE at O2, but it was written for the ai-infrastructure campaign batch and carries only ai-infrastructure chain/link placements (power-equipment, energy-generation, grid-interconnect); it records no tibet-mega-dam placement, business narrative, or role evidence for global-hydro-spillover despite the mapping's ACTIVE (tibet-mega-dam, global-hydro-spillover, GE-VERNOVA) placement. Using an ai-infrastructure-scoped profile as this chain's money-corner evidence would misattribute analysis that never examined this exposure.",
-    "readmission_condition": "A profile amendment adding the (tibet-mega-dam, global-hydro-spillover) placement with role evidence and exposure narrative, via run profile GEV (amend, never recreate) before this row can carry campaign-v1 identity."
    }
   },
   {
@@ -987,29 +4098,31 @@
   }
  ],
  "data_gaps": [
-  "global-hydro-spillover (money corner, impact 70/crowdedness 30) produced NO row this run: its 10 ACTIVE mapping placements are DONGFANG-ELECTRIC, HARBIN-ELECTRIC, ANDRITZ, GE-VERNOVA, MITSUBISHI-HEAVY-INDUSTRIES, MITSUBISHI-ELECTRIC, BHARAT-HEAVY-ELECTRICALS, ZHEFU-HOLDING-GROUP, HITACHI, and FUJI-ELECTRIC; nine are BLOCKED at O3 and the tenth, GE-VERNOVA, is COMPLETE at O2 but its profile carries no tibet-mega-dam placement or role evidence for this link (see superseded_rows for the full basis). This is the chain's single most consequential open gap: the money corner is mapped but unprofiled for this chain.",
+  "global-hydro-spillover (money corner, impact 70/crowdedness 30) is now FULLY COVERED: all 10 ACTIVE placements carry COMPLETE O2 profiles and are written as campaign-v1 rows this run. This closes the prior pass's largest open gap.",
+  "india-counter-buildout (UNDISCOVERED, impact 70/crowdedness 40) produced NO row this run: its single ACTIVE mapping placement, NHPC, remains BLOCKED at opportunity_tier O3 (data/companies/NHPC.json). Searched and empty, not omitted; readmission needs run profile --campaign coverage of NHPC.",
   "yajiang-developer (CHOKE_POINT, impact 95) remains structurally UNINVESTABLE: no listed line exists for the state-owned project vehicle, and no mapping placement was ever created for it (link_coverage carries no public issuers to profile).",
   "power-offtake produced no row: policy-assured demand with no separable listed expression, same finding as the prior legacy screen.",
   "uhvdc-transmission, hydro-turbines, cement-materials, tunneling-tbm, civil-construction and india-counter-buildout each have ACTIVE mapping placements but zero COMPLETE O1/O2 profiles: all 14 issuers on those links (NARI-TECHNOLOGY, CHINA-XD-ELECTRIC, TBEA, DONGFANG-ELECTRIC, HARBIN-ELECTRIC, POWER-CONSTRUCTION-CORPORATION-OF-CHINA, CHINA-ENERGY-ENGINEERING, CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY, XIZANG-TIANLU, HUAXIN-BUILDING-MATERIALS-GROUP, CHINA-RAILWAY-GROUP, NHPC, LARSEN-AND-TOUBRO, ANDRITZ) are BLOCKED at O3, mostly T3 non-US filers awaiting run profile --campaign coverage.",
   "No earnings nugget could be verified for any of the 7 rows written this run: data/edgar/docs/ carries no document for FCX, SCCO, PL, SPIR, SATL, BKSY, or TRMB. The verbatim-quote rule fails closed rather than quoting unverifiable text; edgar_doc requests are queued this run for all seven (REQ-20260902-126 through REQ-20260902-132).",
   "Theme revenue exposure is null with basis for all 7 rows: no filer discloses a Tibet-basin-specific or dam-specific revenue percentage; this is the same honest gap the prior legacy screen recorded.",
   "Crowdedness (PCS) is PENDING_DATA for all 7 rows; pcs and insider request rows were already queued for all seven tickers on 2026-09-02 (REQ-20260902-100/101, 113/114, 118/119, 120/121, 122/123, 88/89, 124/125) ahead of this run.",
-  "SATELLOGIC's revenue_cagr_3y is NULL: data/market/SATL.json fundamentals.revenue_fy carries only 3 fiscal years (2023-2025), one short of the 4 data points a 3-year CAGR needs."
+  "SATELLOGIC's revenue_cagr_3y is NULL: data/market/SATL.json fundamentals.revenue_fy carries only 3 fiscal years (2023-2025), one short of the 4 data points a 3-year CAGR needs.",
+  "tunneling-tbm's 13th ACTIVE placement, HUNAN-WUXIN-INTELLIGENT-EQUIPMENT-GROUP, remains BLOCKED at opportunity_tier O3 (data/companies/HUNAN-WUXIN-INTELLIGENT-EQUIPMENT-GROUP.json) and produced no row.",
+  "GE-VERNOVA carries a document on disk (data/edgar/docs/GEV.json, 8-K accession 0001996810-26-000147) but it contains no hydro-related text, so no earnings nugget could be written; the other 21 rows written this run are non-SEC foreign filers with no CIK, so no EDGAR full-text search or edgar_doc request applies to them (method section 6: supplier-side EDGAR discovery is structurally blind for non-US filers).",
+  "Theme revenue exposure is null with basis for all 22 new rows: no filer discloses a Tibet-dam-specific or Yajiang-program revenue percentage; the same honest gap the prior pass recorded for its 7 rows."
  ],
  "taste_filtered": [],
  "health": {
-  "tickers_examined": 7,
-  "fully_scored": 0,
-  "pending": 7,
+  "tickers_examined": 29,
+  "fully_scored": 29,
+  "pending": 0,
   "errors": 0,
   "links_total": 11,
-  "links_yielding_names": 2,
+  "links_yielding_names": 4,
   "links_yielding_none": [
    "uhvdc-transmission",
    "hydro-turbines",
-   "global-hydro-spillover",
    "cement-materials",
-   "tunneling-tbm",
    "civil-construction",
    "yajiang-developer",
    "india-counter-buildout",
@@ -1021,13 +4134,18 @@
    "ts": "2026-09-02T00:19:52Z",
    "by": "sieve-profiler",
    "text": "Amended from the legacy pre-campaign screen (as_of 2026-08-30, identity_schema null) into a campaign-v1 chain screen. All 20 prior rows are preserved: 3 (FCX, SCCO, PL) carried a COMPLETE O2 profile as of 2026-09-02 and were upgraded in place to full campaign-v1 identity in the same bucket and link they already held; the other 17 do not yet qualify (16 BLOCKED/O3 profiles, 1 COMPLETE profile scoped to a different chain) and are preserved verbatim under superseded_rows with a stated reason and readmission condition, the same pattern data/screens/ai-infrastructure.json uses. 4 new campaign-v1 rows (SPIR, SATL, BKSY, TRMB) were added on riparian-risk-monitoring, the only link where profiling has run ahead of the legacy screen's original universe."
+  },
+  {
+   "ts": "2026-09-02T15:52:00Z",
+   "by": "sieve-profiler",
+   "text": "DEPTH rescreen: the money-corner issuers BLOCKED yesterday (global-hydro-spillover, all 10 ACTIVE placements) and 12 of 13 tunneling-tbm ACTIVE placements completed under the 2026-09-01 vendor-aggregate admission (method section 6A). 22 new campaign-v1 rows written across those two links; india-counter-buildout searched and found empty (its one placement, NHPC, still BLOCKED). 6 prior superseded placeholder rows (ANDR.VI, GEV, 1072.HK, 600875.SS, 1133.HK, 688425.SS) removed from superseded_rows and upgraded to full rows; DONGFANG-ELECTRIC's two ticker entries collapse into its profile's one official listing (HKEX:1072). Total campaign-v1 rows on this screen: 29 (7 from the prior pass unchanged, plus 22 new)."
   }
  ],
  "confidence_audit": {
-  "verified": 15,
-  "inferred": 6,
-  "speculative": 0,
-  "null": 14
+  "verified": 17,
+  "inferred": 210,
+  "speculative": 32,
+  "null": 75
  },
  "changelog": [
   {
@@ -1042,6 +4160,13 @@
    "kind": "AMEND",
    "change": "run screen tibet-mega-dam (chain-level): amended the legacy pre-campaign screen into a campaign-v1 chain screen. Upgraded 3 rows (FCX, SCCO, PL) to full campaign-v1 identity in place; added 4 new campaign-v1 rows (SPIR, SATL, BKSY, TRMB) on riparian-risk-monitoring; moved the other 17 legacy rows to superseded_rows with a stated reason and readmission condition each. 7 campaign-v1 rows total across 2 links (copper-conductors, riparian-risk-monitoring); money-corner link global-hydro-spillover and CHOKE_POINT link yajiang-developer both searched and named empty in universe_note. 0 earnings nuggets verified (no EDGAR document on disk for any of the 7 tickers); 7 edgar_doc requests queued (REQ-20260902-126 through REQ-20260902-132).",
    "prior": "2026-08-30"
+  },
+  {
+   "ts": "2026-09-02T15:52:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run screen tibet-mega-dam (chain-level, DEPTH rescreen): added 22 campaign-v1 rows across the two DEPTH in-scope links that yielded names (global-hydro-spillover 10 rows in picks_and_shovels, tunneling-tbm 12 rows in pure_play, MITSUBISHI-HEAVY-INDUSTRIES appearing on both with secondary_link_basis on the second); india-counter-buildout searched and named empty (its sole placement NHPC still BLOCKED at O3). Removed 6 now-promoted rows from superseded_rows (ANDR.VI, GEV, 1072.HK, 600875.SS, 1133.HK, 688425.SS). 0 new earnings nuggets: GE-VERNOVA's existing EDGAR document (8-K 0001996810-26-000147) contains no hydro text; the other 21 names are non-SEC foreign filers. 0 new request rows queued: every new row rests on a COMPLETE profile with already-fetched, sourced canonical metrics.",
+   "prior": "2026-09-02 (7 campaign-v1 rows on 2 links; global-hydro-spillover and 4 other links empty)"
   }
  ]
 }
