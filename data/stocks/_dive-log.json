@@ -28,18 +28,18 @@
     },
     "red_team_amendments": {
       "question": "How often does my own attack change my draft, and which attack lands?",
-      "denominator": 2,
-      "amended": 2,
+      "denominator": 3,
+      "amended": 3,
       "by_dimension": {
-        "CROWDEDNESS_REALITY": 1,
-        "PRICED_IN_CHECK": 2,
-        "CAPTURE_REALITY": 2,
-        "ENTRY_BASIS_STRESS": 2,
+        "CROWDEDNESS_REALITY": 2,
+        "PRICED_IN_CHECK": 3,
+        "CAPTURE_REALITY": 3,
+        "ENTRY_BASIS_STRESS": 3,
         "PRE_MORTEM": 1,
-        "EVIDENCE_BOUNDARY": 1
+        "EVIDENCE_BOUNDARY": 2
       },
-      "note": "An attack dimension that has never amended anything is either unnecessary or being performed rather than run, and naming which is part of the report. After run 2: CROWDEDNESS_REALITY has now landed once, on MYRG, where it found the dive using analyst_count 5 as evidence for its thesis while ruling the same number unusable against it, so the earlier note about it possibly being performative is closed. PRE_MORTEM did NOT amend this run and is recorded at 1 of 2 rather than inflated: the market-would-have-been-right question was answerable and the verdict was already at WATCH, the floor that gate imposes, so the pre-mortem informed the file without changing it. EVIDENCE_BOUNDARY is a fifth dimension added on run 2 at the brief's instruction that an unverifiable assertion is itself a finding; it landed, producing three data_gaps and one amended bull bullet. Two of two dives amended is not a rate either, but the failure modes have not repeated: VRT's was a horizon convention, MYRG's is a base-year outlier and an invented price level.",
-      "recomputed_from": "data/stocks/*.json: 2 dive(s) attacked, 2 amended. Run 2 did not overturn its verdict the way run 1 did; it held WATCH and rebuilt the reasoning underneath it, which counts as an amendment because net_gap_direction, three bear bullets, one bull bullet, a watch trigger and the independence test all changed."
+      "note": "An attack dimension that has never amended anything is either unnecessary or being performed rather than run, and naming which is part of the report. After run 3 (HUBB): CROWDEDNESS_REALITY landed a second time, arguing 99.03% institutional ownership contradicts an UNDISCOVERED label the draft had reframed as settled rather than contested. PRICED_IN_CHECK and CAPTURE_REALITY landed a third straight time, both finding the same shape of problem: a headline number (a claimed gap, a demand narrative) survives only because a category mismatch or an unquantified attribution was not stress-tested. EVIDENCE_BOUNDARY landed a second time, and not on a data gap this time but on a structural defect: HUBB's independence_test.falsification described the conditions that would CONFIRM the dive, the exact polarity error the repairs log first caught on VRT on 2026-08-29, now caught and fixed a second time on a different file, which argues this specific defect class needs a machine check rather than continued reliance on this attack finding it by hand. PRE_MORTEM stays at 1 of 3 rather than inflated: on HUBB, same as MYRG, the market-would-have-been-right question was answerable (continued margin expansion on Hubbell's own established trend) and the verdict was already at WATCH, the floor that gate imposes, so the pre-mortem informed the file without changing the label. Three of three dives amended is now a pattern worth naming plainly: this red team has never once confirmed a draft unchanged, which either means the draft stage is consistently leaving real gaps for the fresh-context pass to find, or the red team is calibrated to always find something. The failure modes have not repeated across dives (VRT: horizon convention; MYRG: base-year outlier and an invented trigger price; HUBB: category-mismatched gap survival, an unverified AI-attribution, an invented trigger threshold, and a falsifier with inverted polarity), which argues for the former reading, but three data points is not enough to rule out the latter.",
+      "recomputed_from": "data/stocks/*.json: 3 dive(s) attacked, 3 amended. Run 3 (HUBB) did not overturn its verdict; it held WATCH and rebuilt the reasoning underneath it, the same shape as run 2, because net_gap_direction, two bull-adjacent sections (bull[0], crowdedness.basis), a watch trigger and the independence test's falsification field all changed."
     },
     "implied_growth": {
       "question": "The market-implied CAGR I recorded at dive time, against what was actually delivered by review_by.",
@@ -157,6 +157,14 @@
       "finding": "data/market/*.json quality.reverse_dcf publishes implied_by_horizon and horizon_spread but no base-FCF sensitivity, and base_fcf is a single fiscal year. On MYRG that single year is 2.90x the trailing four-year average, so the sensitivity that is published answers the smaller question and the one that would have changed the reading is absent. Method section 7 forbids re-solving in-session, which is correct, so a dive that notices this can only state the direction and stop.",
       "action": "ESCALATED, not applied. tools/fetch/ and the acis quality module are CONSTITUTION tier and owned by the Actions venue. Handled inside my lane by recording the base explicitly in this log's implied_growth record with both EV/FCF readings, so the calibration channel grades the base as well as the horizon.",
       "prevention": "none shipped this run. The analogous fix to the horizon work would be an implied_by_base block solving the same reverse DCF off the trailing 3-year and 5-year average FCF alongside the latest year, which is pure computation over fundamentals already fetched."
+    },
+    {
+      "ts": "2026-09-02T01:13:00Z",
+      "by": "stocky",
+      "kind": "REPAIR",
+      "finding": "HUBB__ai-infrastructure independence_test.falsification described the conditions under which this dive's own bear case would be CONFIRMED (leverage not declining AND margin not recovering), the opposite of what a falsifier is supposed to state. tools/check_analyst.py checks only that the field is a non-empty string covering three named sub-fields, so this passed the gate while being unable to ever prove the dive wrong. This is the same defect class the repairs log already caught once, on VRT's original falsification test (2026-08-29): a conjunction phrased so every in-line outcome confirms rather than tests the dive.",
+      "action": "FIXED inside my lane. Rewrote the field to state the condition that would show the market right instead: leverage declining toward the pre-deal 28% AND segment margin recovering toward 22.5%, which is what actually falsifies this dive's bear case.",
+      "prevention": "none shipped this run. Now found twice on two different files (VRT, HUBB), which crosses the two-failure bar tasks/lessons.md sets for promoting a finding into a gate. ESCALATED: tools/check_analyst.py's independence-test check (check 6) could plausibly compare the polarity of the stated bear case (from largest_disagreement/why_the_gap_exists) against the direction named in falsification and flag a same-direction match, or at minimum require falsification to name the opposite outcome of a paired confirmation field this dive would then also have to write. Both a data-plane fix and a gate fix sit in CONSTITUTION-tier files this analyst cannot edit; escalated to Ron rather than patched."
     }
   ],
   "confidence_audit": {
@@ -204,6 +212,13 @@
       "kind": "AMEND",
       "change": "Third dive recorded: HUBB / ai-infrastructure, power-equipment (the chain's money corner), WATCH on the COMPOUNDER clock, earnings grade B, status DRAFT (red team not yet run). implied_growth moves to denominator 3 with the HUBB record noting its base year is NOT an outlier the way MYRG's was (1.09x the 3-year average vs 2.90x), though the comparison window is only 3 years due to a companyfacts coverage gap (FY2021-2022 operating cash flow missing). entry_zones stays at denominator 0: still no INVESTABLE verdict across three dives. shadow_book stays at 1 open row: three dives, zero TOO_LATE calls, so the book still has not graded a single 'no'. red_team_amendments is unchanged at denominator 2: this dive has not been attacked yet. This dive's own largest addition beyond the O1 profile is a post-close capital-structure fact (Net Debt to Total Capital 28% to 52% in one quarter from the NSI Industries acquisition) that the canonical profile metrics do not yet reflect, verbatim-sourced from the same 8-K already on disk.",
       "prior": "implied_growth denominator 2; dives[] carrying VRT and MYRG only"
+    },
+    {
+      "ts": "2026-09-02T01:13:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "change": "Third red team executed (HUBB / ai-infrastructure, power-equipment), fresh context, DRAFT to FINAL. Verdict SURVIVED at WATCH. red_team_amendments moves to 3 of 3 with CROWDEDNESS_REALITY landing a second time (99.03% institutional ownership contradicts a settled UNDISCOVERED read), PRICED_IN_CHECK and CAPTURE_REALITY landing a third straight time (thin gap-survival margin from a category mismatch; unquantified AI-specific demand attribution), and EVIDENCE_BOUNDARY landing a second time on a structural defect rather than a data gap: independence_test.falsification described the conditions that CONFIRM the dive, the same inverted-polarity error the repairs log first caught on VRT on 2026-08-29, now found and fixed a second time on a different file. PRE_MORTEM stays at 1 of 3, honestly not inflated: the market-would-have-been-right story (continued margin expansion on Hubbell's own established trend) was answerable and the verdict was already at WATCH, its floor. Three of three dives have now been amended by their own red team, a pattern named directly in the calibration note rather than smoothed over. entry_zones stays at denominator 0: still no INVESTABLE verdict across three dives. shadow_book stays at 1 open row: three dives, zero TOO_LATE calls.",
+      "prior": "red_team_amendments denominator 2 with EVIDENCE_BOUNDARY at 1 and no repeat finding of the falsification-polarity defect; dives[] HUBB entry status DRAFT with prior_verdict null"
     }
   ],
   "dives": [
@@ -261,15 +276,25 @@
       "verdict": "WATCH",
       "clock": "COMPOUNDER",
       "earnings_grade": "B",
-      "status": "DRAFT",
+      "status": "FINAL",
       "dive_date": "2026-09-02",
       "review_by": "2026-11-15",
       "price_ref": 459.66,
       "price_status": "AGREED",
       "shadow_ref": null,
-      "one_line": "The market-implied 5y FCF CAGR (17.92%) exceeds both HUBB's own just-raised FY2026 organic guide (9-11%) and this dive's own 8.5% estimate by more than the file's 7.03pp horizon_spread, and the gap is layered on a ~$3.0B, almost entirely debt-funded acquisition (NSI Industries) that took Net Debt to Total Capital from 28% to 52% in one quarter, not yet reflected in the O1 profile's canonical leverage metric.",
-      "prior_verdict": null,
-      "red_team_amended": null
+      "one_line": "The market-implied 5y FCF CAGR (17.92%) exceeds both HUBB's own just-raised FY2026 organic guide (9-11%) and this dive's own 8.5% estimate by more than the file's 7.03pp horizon_spread, but the red team found that survival margin thinner than stated (a revenue-vs-FCF-CAGR category mismatch against HUBB's own history of FCF outpacing revenue) and layered on a ~$3.0B, almost entirely debt-funded acquisition (NSI Industries) that took Net Debt to Total Capital from 28% to 52% in one quarter, not yet reflected in the O1 profile's canonical leverage metric.",
+      "prior_verdict": "WATCH (DRAFT); label unchanged by the red team, reasoning rebuilt",
+      "red_team_amended": true,
+      "red_team_dimensions_landed": [
+        "CROWDEDNESS_REALITY",
+        "PRICED_IN_CHECK",
+        "CAPTURE_REALITY",
+        "ENTRY_BASIS_STRESS",
+        "EVIDENCE_BOUNDARY"
+      ],
+      "red_team_dimensions_not_landed": [
+        "PRE_MORTEM"
+      ]
     }
   ]
 }
