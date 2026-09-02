@@ -1,0 +1,290 @@
+{
+  "ticker": "ANDR.VI",
+  "name": "ANDRITZ AG",
+  "issuer_id": "ANDRITZ",
+  "listing_id": "VIE:ANDR",
+  "chain_id": "tibet-mega-dam",
+  "link_id": "global-hydro-spillover",
+  "link_id_basis": "Exact match to the O1 profile's selection_basis.screen_handoff (link_id global-hydro-spillover, position 4, the chain's money corner, heat UNDISCOVERED with impact 70 / crowdedness 30 / capture 65) and to the picks_and_shovels screen row in data/screens/tibet-mega-dam.json. ANDRITZ also holds a second ACTIVE placement on tibet-mega-dam/hydro-turbines (position 3, heat CROWDED), the direct-supply expression of the same company; this dive treats it as context only, exactly as the selection record does, because the mapped role evidence, the heat block and the handoff all key off global-hydro-spillover.",
+  "screen_ref": "data/screens/tibet-mega-dam.json",
+  "scenario_ids": [],
+  "tier": "T3",
+  "tier_basis": "Local-only Vienna listing, no SEC filer, no CIK (method section 6). Best-effort prices from one leg, fundamentals from a vendor aggregate tagged INFERRED, PCS COVERAGE-THIN. Every consequence of that tier is stated on this page rather than smoothed: there is no document at data/edgar/docs/ANDR-VI.json, so this dive verifies no filing passage verbatim and writes none as verified (method section 1 fails closed); the web pages it does cite are queued as web_doc rows and their spans are marked PENDING_DATA.",
+  "clock": "COMPOUNDER",
+  "clock_basis": "Inherited from the tibet-mega-dam chain, whose own clock field reads COMPOUNDER: a decade-long Chinese domestic hydro construction programme repricing a global equipment pool over 2 to 5 years, not a dated binary resolution (method section 2). scenario_ids is empty, so no scenario overrides it to an EVENT clock. review_by is therefore the 90-day COMPOUNDER cap, set to 2026-11-30, which lands after the company's own Q1-Q3 2026 release on its published cadence (H1 released 2026-07-30).",
+  "status": "DRAFT",
+  "created_at": "2026-09-02",
+  "updated_at": "2026-09-02",
+  "as_of": "2026-09-02",
+  "review_by": "2026-11-30",
+  "verdict": "WATCH",
+  "shadow_ref": null,
+  "entry_zone": null,
+  "no_entry_above": null,
+  "watch_triggers": [
+    {
+      "metric": "FY2026 group revenue guidance, as restated at the Q1-Q3 2026 release (ANDRITZ guides a revenue RANGE, not a point)",
+      "level": "8,000 MEUR",
+      "direction": "guidance cut below this floor",
+      "note": "8,000 MEUR is the bottom of the company's own FY2026 guide, not a level this dive invented: the H1 2026 release states ANDRITZ foresees a return to growth and revenues in a range of 8.0 to 8.3 billion EUR for 2026. Against FY2025 revenue of 7,883.1 MEUR that floor is only +1.5%, so cutting below it would say the record 12,602.1 MEUR backlog is not converting on the schedule the whole thesis assumes. Resolves inside review_by. Source span PENDING_DATA against https://www.andritz.com/newsroom-en/news/2026-07-30-results-h1-2026-group until the queued web_doc row lands."
+    },
+    {
+      "metric": "Comparable EBITA margin (excluding non-operating items), nine-month 2026",
+      "level": "8.7%",
+      "direction": "below",
+      "note": "8.7% is the floor of the company's own guided FY2026 range of 8.7% to 9.1%, and the test is already live rather than rigged: H1 2026 delivered 8.6%, below that floor, against 8.3% in H1 2025 and 8.2% for FY2025. Nine-month margin staying under 8.7% would say the guided expansion is not arriving while the mix shifts toward Hydropower, which earned a 6.5% EBITA margin in 2025 against a group 8.2%. Resolves inside review_by. Source span PENDING_DATA against https://www.andritz.com/newsroom-en/news/2026-07-30-results-h1-2026-group."
+    },
+    {
+      "metric": "Hydropower business area order intake, H2 2026 (second half alone)",
+      "level": "1,345.4 MEUR",
+      "direction": "below",
+      "note": "1,345.4 MEUR is the company's own published H1 2025 Hydropower order intake, the comparative against which H1 2026's 2,445.9 MEUR is +81.8%. It is the pre-surge run-rate, so a second half falling back under it would say the surge was award timing on a small number of large projects rather than a demand regime, which is the single load-bearing fact of the spillover thesis. Resolves at the FY2026 release, after review_by. Source span PENDING_DATA against https://www.andritz.com/newsroom-en/news/2026-07-30-results-h1-2026-group."
+    }
+  ],
+  "price_ref": {
+    "value": 83.3,
+    "source": "data/market/ANDR-VI.json series.rows last close (2026-09-01); price_status SINGLE_SOURCE; currency EUR (fundamentals.price_currency and statement_currency both EUR, so no cross-currency adjustment is applied anywhere in this file)",
+    "as_of": "2026-09-01"
+  },
+  "price_source_note": "data/market/ANDR-VI.json carries price_status SINGLE_SOURCE: only the yfinance leg answered. legs.stockanalysis records http 400 and legs.stooq records a non-CSV robots body, which is the known coverage gap method section 1 names for non-US listings, not a fetch this run could fix. Every level on this page, the 83.3 reference close, the 52-week band of 59.00 to 83.90 and the 17.78x EV/FCF, therefore rests on one unconfirmed print. The verdict does not turn on a fraction of a euro, but a reader should know no second tape has confirmed it.",
+  "what_is_priced_in": [
+    {
+      "expectation": "The re-rating has already happened, and it is almost entirely multiple expansion on falling reported fundamentals. The close went from 60.65 on 2025-09-01 to 83.30 on 2026-09-01, +37.35% in twelve months, while FY2025 revenue FELL 5.2% to 7,883.1 MEUR and net income fell to 456.3 MEUR from 496.5 MEUR. Market capitalisation over the same window went from roughly 5,918M EUR (60.65 x 97,998,794 shares) to 8,163.3M EUR, so price-to-sales on the then-latest reported revenue went from 0.712x to 1.0355x, +45.4%. The multiple did all of the work and more; the earnings worked against it.",
+      "evidence": "computed from data/market/ANDR-VI.json series.rows (60.65 on 2025-09-01, 83.30 on 2026-09-01), fundamentals.revenue_fy (8,313.7M for 2024, 7,883.1M for 2025), fundamentals.net_income_fy (496.5M for 2024, 456.3M for 2025) and quality.shares_used (97,998,794 at 2025-12-31); the 1.0355x cross-checks exactly against the profile's canonical price_to_sales of 1.035544",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "The specific fact the thesis rests on was published five weeks ago and repriced the same session. ANDRITZ released H1 2026 on 2026-07-30 with Hydropower order intake up 81.8% and a record group backlog; the close went from 74.20 on 2026-07-29 to 81.20 on 2026-07-30, +9.43% in one session, and reached the 52-week high of 83.90 four sessions later on 2026-08-03. The 2026-09-01 close of 83.30 is 0.72% below that high and 41.19% above the 52-week low of 59.00 (2025-10-07). Whatever else is true, this is not a security the market has failed to look at since the news.",
+      "evidence": "computed from data/market/ANDR-VI.json series.rows (74.20 on 2026-07-29, 81.20 on 2026-07-30, 83.90 on 2026-08-03, 59.00 on 2025-10-07, 83.30 on 2026-09-01) and week52 {low 59.0, high 83.9}; the release date is the chain's own cited H1 2026 evidence item at https://www.andritz.com/newsroom-en/news/2026-07-30-results-h1-2026-group",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "Sell-side positioning contradicts the un-crowded read at the security level. The consensus rating is Buy from 6 analysts, 5 buy and 1 hold and 0 sell, with an average 12-month target of 82.833 EUR (high 92, low 72) and a second aggregator showing 88.33 EUR. The 2026-09-01 close of 83.30 is AT or slightly ABOVE the first average target. The chain's crowdedness score of 30 is a claim about the Medog framing, which nobody applies to this name, and it remains true as a framing claim. It is not a claim that the equity is under-owned or under-covered, and this dive does not let the first be read as the second.",
+      "evidence": "WebSearch 2026-09-02 over marketscreener.com and investing.com consensus pages for ANDRITZ AG (AT0000730007). Secondary aggregator data, not a primary source, and not stored in data/web/ this run: recorded INFERRED and named as the weakest evidence on this page.",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "What the price actually asks is modest in absolute terms and demanding against this company's own recent record. quality.reverse_dcf solves an implied FCF CAGR of 5.3% over a 5-year explicit period on base FCF of 454.6M EUR and an enterprise value of 8,082.5M EUR, an EV/FCF of 17.78x. Two things about that base, both checked because this analyst's own log requires it: 454.6M is 1.088x the FY2022-2025 average FCF of 417.9M, so unlike the MYRG case the base is NOT an outlier year; but group FCF has compounded at MINUS 6.48% a year over three years (555.8M in 2022 to 454.6M in 2025), so a +5.3% ask is a reversal of the trend, not an extrapolation of it.",
+      "evidence": "data/market/ANDR-VI.json quality.reverse_dcf (implied_fcf_cagr 0.053, base_fcf 454600000.0, enterprise_value 8082499540.2, state SOLVED, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection) and fundamentals.operating_cashflow_fy less fundamentals.capex_fy for 2022-2025 (555.8, 204.2, 457.0, 454.6 MEUR)",
+      "tag": "INFERRED"
+    }
+  ],
+  "priced_in_summary": "Not TOO_LATE, and the reason it is not is worth stating because the surface facts point that way. A +37.35% twelve-month move that is 100% multiple expansion on falling revenue and falling net income, with the price 0.72% under its 52-week high and at the sell-side average target, is the textbook shape of a re-rating that ate its runway (method section 2). What stops this dive calling it is that the multiple expanded against real new forward numbers rather than against a story: H1 2026 group order intake +25.2% to 5.9bn EUR, order backlog a record 12,602.1 MEUR (+20.5% versus year-end 2025, or 1.60x FY2025 revenue), Hydropower intake 2,445.9 MEUR in six months against 2,516.1 MEUR for the whole of record-year 2025. For a plant engineer the order book IS the estimate revision, so the decomposition method section 7 demands does not show story-over-numbers; it shows a multiple that moved because the forward numbers moved. That is ordinary correct pricing, and the verdict for correct pricing is WATCH, not TOO_LATE.",
+  "bull": [
+    {
+      "point": "The order book moved harder than anything in the P&L, and for a long-cycle plant engineer the order book is the forward estimate. H1 2026 group order intake rose 25.2% to 5.9 billion EUR, the order backlog reached a record 12,602.1 MEUR, +20.5% against year-end 2025 and 1.60x FY2025 revenue of 7,883.1 MEUR, and Hydropower order intake alone was 2,445.9 MEUR, +81.8% against 1,345.4 MEUR in H1 2025 and within 3% of the whole of FY2025's own record 2,516.1 MEUR in half the time. That is contracted work, not a forecast.",
+      "evidence": "ANDRITZ H1 2026 results release, 2026-07-30, https://www.andritz.com/newsroom-en/news/2026-07-30-results-h1-2026-group; FY2025 comparatives from the ANDRITZ financial report 2025 as carried in data/companies/ANDRITZ.json exposure_summary and selection_basis",
+      "tag": "PENDING_DATA",
+      "pending_span": "Order intake rises to 5.9 billion EUR (+25.2% vs. H1 2025) / Order backlog reaches a new record of 12,602.1 MEUR (+20.5% vs. year-end 2025) / In Hydropower, order intake increased significantly to 2,445.9 MEUR (+81.8% vs. H1 2025: 1,345.4 MEUR)",
+      "pending_basis": "Read by WebFetch this run and NOT written as verified: there is no document at data/edgar/docs/ANDR-VI.json for a T3 non-SEC filer, so method section 1's verbatim rule fails closed. REQ-20260902-160 queues this page as a web_doc row; when it lands, these spans become checkable against data/web/."
+    },
+    {
+      "point": "The balance sheet does not need the market's permission. Net debt to EBITDA is -0.098x, that is net CASH (total debt 830.8M against cash 911.6M at 2025-12-31), cash conversion is 1.43x operating cash flow to net income, and accruals run at -2.34% of average total assets, well inside the 5% caution band and in the conservative direction because cash exceeds earnings. Beneish M is -2.42 against the -1.78 review threshold, CLEAN, on 12 of 12 inputs found. A net-cash company with 1.6 years of booked backlog can convert it without financing risk.",
+      "evidence": "data/market/ANDR-VI.json fundamentals (total_debt 830800000.0, cash 911600000.0, net_income_fy 456300000.0, operating_cashflow_fy 652700000.0, total_assets_fy 8163000000.0 and 8610100000.0) and quality.beneish; the 1.43x and the leverage ratio cross-check exactly against the O1 profile's canonical fields, where the cash-conversion figure additionally carries official_source true against the ANDRITZ financial report 2025",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "The absolute valuation is not demanding. Enterprise value 8,082.5M EUR over base FCF 454.6M is 17.78x, price-to-sales is 1.0355x, and the reverse DCF's implied ask of 5.3% FCF CAGR over five years is a low bar in the abstract for an industrial holding a record backlog. The base it is solved off is not a cherry-picked peak either: 454.6M is 1.088x the FY2022-2025 average of 417.9M, so this file does not repeat the defect this analyst's log recorded on MYRG, where the same field sat at 2.90x its own four-year average and made the bar look lower than it was.",
+      "evidence": "data/market/ANDR-VI.json quality.reverse_dcf and quality.derived; the four-year FCF average computed from fundamentals.operating_cashflow_fy less fundamentals.capex_fy (555.8, 204.2, 457.0, 454.6 MEUR for 2022-2025)",
+      "tag": "INFERRED"
+    }
+  ],
+  "bear": [
+    {
+      "point": "The entire twelve-month move is multiple expansion on deteriorating reported results, and it is already at the top of its range. 60.65 to 83.30, +37.35%, while revenue fell 5.2% and net income fell 8.1%; price-to-sales 0.712x to 1.0355x. The close sits 0.72% below the 52-week high of 83.90 and 41.19% above the low of 59.00, and 9.43 percentage points of the move landed in the single session after the 2026-07-30 H1 release. The information this thesis is built on is five weeks old and was repriced on the day.",
+      "evidence": "data/market/ANDR-VI.json series.rows and week52, plus fundamentals.revenue_fy and net_income_fy, as decomposed in what_is_priced_in[0] and [1]",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "The money corner is the group's lowest-margin business, so converting the record hydro backlog shifts mix AGAINST group margin. Hydropower earned a 6.5% EBITA margin in 2025 against a group 8.2%. Size the whole thesis at its own disclosed margin: Hydropower revenue DOUBLING from 1,729.5 MEUR to about 3,459 MEUR by 2030 adds roughly 112 MEUR of EBITA, against roughly 134 MEUR of extra annual free cash flow the current price already asks for by 2030 (454.6M compounding at the implied 5.3% reaches 588.5M). The single most favourable realistic outcome for the money corner does not on its own clear the bar the price has already set, and no service or aftermarket share of hydro revenue is disclosed anywhere to argue the margin improves as it converts.",
+      "evidence": "Segment margins and revenue from the ANDRITZ financial report 2025 as carried in data/companies/ANDRITZ.json (Hydropower revenue 1,729.5 MEUR, EBITA margin 6.5%, group EBITA margin 8.2%, group revenue 7,883.1 MEUR); the FCF arithmetic computed from data/market/ANDR-VI.json quality.reverse_dcf base_fcf and implied_fcf_cagr. The doubling is this dive's own illustrative bound, tagged accordingly, not a forecast.",
+      "tag": "SPECULATIVE"
+    },
+    {
+      "point": "The earnings-quality battery cannot be closed, and every part of it that CAN be computed is drifting the wrong way. Days sales outstanding went 45.35 (FY2023) to 51.31 (FY2024) to 59.52 (FY2025), two consecutive years up to a four-year high, while revenue fell 9.0% from its 2023 peak: receivables grew 19.5% as sales shrank. Alongside that sit two governance flags inside eighteen months, an auditor change (Deloitte Audit Wirtschaftspruefungs GmbH elected at the 119th AGM on 2026-03-26 after KPMG Austria audited FY2025) and a CFO change (Vanessa Hellwing succeeding Norbert Nettesheim, end of March 2025). Piotroski is 4 of 9 MIDDLING and Altman cannot be scored at all (PENDING_DATA, retained_earnings_fy missing).",
+      "evidence": "DSO computed from data/market/ANDR-VI.json fundamentals.receivables_fy over revenue_fy times 365; piotroski and altman from quality; auditor from the ANDRITZ AGM release 2026-03-26 (https://www.andritz.com/newsroom-en/news/2026-03-26-agm-group) and prior-year auditor plus the CFO succession from WebSearch 2026-09-02 over the ANDRITZ consolidated corporate governance report 2025",
+      "tag": "INFERRED"
+    }
+  ],
+  "events": [
+    {
+      "what": "Q1-Q3 2026 results (nine-month figures, group and business areas)",
+      "when": "expected late October or early November 2026, on the company's own published cadence",
+      "why": "The first read on whether the 8.7% to 9.1% guided comparable EBITA margin is arriving while the mix shifts toward Hydropower, and whether the 8.0 to 8.3 billion EUR revenue guide holds. Both watch_triggers[0] and [1] resolve here, inside review_by.",
+      "tag": "INFERRED"
+    },
+    {
+      "what": "FY2026 results and FY2027 guidance",
+      "when": "expected February 2027 (FY2025 preliminary results were published 2026-02-06)",
+      "why": "Where H2 2026 Hydropower order intake becomes visible against the 1,345.4 MEUR pre-surge half-year run-rate in watch_triggers[2], and where FY2026 receivables days either extend the two-year DSO drift into a third year or break it.",
+      "tag": "INFERRED"
+    }
+  ],
+  "valuation_snapshot": {
+    "price": 83.3,
+    "price_as_of": "2026-09-01",
+    "currency": "EUR",
+    "market_cap": 8163299540.2,
+    "enterprise_value": 8082499540.200001,
+    "ev_to_base_fcf": 17.78,
+    "price_to_sales": 1.035544,
+    "week52_low": 59.0,
+    "week52_high": 83.9,
+    "pct_below_52w_high": 0.0072,
+    "pct_above_52w_low": 0.4119,
+    "twelve_month_price_change": 0.3735,
+    "net_debt_to_ebitda": -0.097762,
+    "basis": "Every field here is read from data/market/ANDR-VI.json (series.rows, week52, quality.derived, quality.reverse_dcf) or from the O1 profile's canonical metrics, which themselves cite that file. Nothing is solved in session. The EV/FCF is 8,082,499,540.2 over 454,600,000.0. The 12-month change is 83.30 over 60.65 minus 1.",
+    "tag": "INFERRED"
+  },
+  "crowdedness": {
+    "state": "COVERAGE-THIN-BUT-NOT-UNOWNED",
+    "pcs": null,
+    "basis": "data/market/ANDR-VI.json carries no pcs block at all, which is the T3 ceiling method section 6 describes, so PCS Axis A and Axis B cannot be scored and no quantitative positioning read is available. The chain's heat block scores crowdedness 30 on a coverage comparison: Andritz-class names are covered as boring European industrials, not as beneficiaries of Chinese capacity absorption. This dive accepts that as a claim about the FRAMING and rejects any reading of it as a claim about ownership or attention: the security carries 6 sell-side analysts with 5 Buy ratings and trades at the average 12-month target, and it repriced 9.43% in one session on its own results day. Un-narrated is not the same as un-owned, and only the first is evidenced here.",
+    "tag": "INFERRED"
+  },
+  "expectations_gap": {
+    "market_implied_source": "data/market/ANDR-VI.json quality.reverse_dcf [implied_fcf_cagr 0.053, state SOLVED, base_fcf 454,600,000.0 EUR, enterprise_value 8,082,499,540.2 EUR, 9% discount rate, 2.5% terminal growth, 5-year explicit period, bisection method; implied_by_horizon 7y 0.046, 10y 0.0409, horizon_spread 0.0121; as_of 2026-09-01; assumptions tagged SPECULATIVE in the file itself]",
+    "denominator": "5 of 5 required rows populated. Market-implied column: 2 of 5 rows carry a number from the solve (revenue_cagr_5y as the FCF-CAGR proxy, terminal), 2 are explicitly NULL because the filed solve does not decompose them (operating_margin, reinvestment_return), and net_gap_direction is a direction rather than a level. Tags across the table: 4 INFERRED, 1 SPECULATIVE, 2 NULL on the market-implied side. The table is not complete in the sense of every cell filled, and saying which cells are empty is the point of this field.",
+    "category_mismatch_note": "Stated up front because this analyst's own red team has landed on it twice, on MYRG and on HUBB: quality.reverse_dcf solves a FREE CASH FLOW CAGR, and the required row is a REVENUE CAGR. They are not the same quantity and this file does not pretend they are. Row 1 therefore carries the solve as a labelled proxy and this dive additionally builds its own FCF-CAGR-equivalent (5.49%) in net_gap_direction from its own revenue and margin rows, so the comparison that decides the verdict is like for like.",
+    "rows": [
+      {
+        "driver": "revenue_cagr_5y",
+        "market_implied": 0.053,
+        "market_implied_note": "This is the solved FCF CAGR, not a decomposed revenue CAGR; the file does not separate them. Carried here as the closest available proxy and named as such.",
+        "mine": 0.0448,
+        "percentile": 70,
+        "why": "Built rather than asserted: Hydropower revenue of 1,729.5 MEUR compounding at 13% a year to about 3,186 MEUR by 2030, and the other three business areas (6,153.6 MEUR combined) at 1.5%, their own trailing group rate, giving 9,815.7 MEUR against 7,883.1 MEUR, a 4.48% CAGR. That sits above the company's own trailing three-year revenue CAGR of 1.48% and above the midpoint of its FY2026 guide (8.0 to 8.3bn EUR is +1.5% to +5.3%, midpoint +3.4%), and it is deliberately below the 12.5% Hydropower growth of 2025 because a 20.5% six-month backlog step-up converts over years, not immediately. 70th percentile against this issuer's own four-year record, in which revenue peaked at 8,660.0 MEUR in 2023 and has fallen since.",
+        "structural_reason": "A record 12,602.1 MEUR order backlog at 1.60x annual revenue, and a Hydropower order book that took in 2,445.9 MEUR in one half against 2,516.1 MEUR in all of 2025. Backlog is contracted work, which is a structurally different basis for a growth assumption than a demand forecast.",
+        "leading_indicator": "FY2026 revenue landing inside the guided 8.0 to 8.3 billion EUR range at the Q1-Q3 2026 and FY2026 releases (watch_triggers[0]).",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "operating_margin",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a margin path from the headline FCF CAGR. Recorded NULL rather than invented.",
+        "mine": 0.086,
+        "percentile": 78,
+        "why": "This dive underwrites the 8.6% comparable EBITA margin ANDRITZ actually DELIVERED in H1 2026, held flat, and declines to underwrite the 8.7% to 9.1% it GUIDES. The reason is the thesis's own mechanics: the segment carrying it, Hydropower, earned a 6.5% EBITA margin in 2025 against a group 8.2%, so the mix shift the bull case needs is margin-dilutive at group level, and no service or aftermarket share of hydro revenue is disclosed to argue otherwise. 8.6% is nonetheless already the best half-year comparable margin this dive has evidence for (H1 2025: 8.3%; FY2025: 8.2%), which is why 78 and not 50. Definitional caveat, recorded rather than smoothed: the vendor operating margin on the same FY2025 is 7.43%, 77bp below the 8.2% EBITA margin, so this row is stated on the EBITA basis the company reports and is not directly comparable to the vendor field of the same name.",
+        "structural_reason": "Multi-year price and productivity programmes plus a service tail are the standard case for margin expansion here, and this dive does NOT claim them: no disclosed service share exists in the material on disk. The structural fact that IS evidenced runs the other way, toward dilution as hydro grows into the mix.",
+        "leading_indicator": "Nine-month 2026 comparable EBITA margin at or above the 8.7% guided floor (watch_triggers[1]) would falsify this row's caution directly.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "reinvestment_return",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a reinvestment return, and no company-disclosed ROIC or ROCE figure appears in any source read this run. Recorded NULL rather than invented.",
+        "mine": 0.14,
+        "percentile": 45,
+        "why": "A crude FY2025 return on invested capital, computed here and not disclosed, is about 16.2%: net income 456.3M over invested capital of 2,815.3M (long-term debt 363.6M plus equity 2,451.7M). Net income is used as the NOPAT proxy deliberately, so that no tax rate is assumed anywhere in this file. The number is flattered by the business model: ANDRITZ runs on large customer advances, so current liabilities of 4,887.7M sit against current assets of 5,514.0M and the invested capital denominator is small. The forward 14% is a deliberate decay below that, because hydro converts at a 6.5% segment margin and because the advance-funded working capital that produces the flattery is the same item this file cannot see (see earnings_quality: contract liabilities are absent from the vendor aggregate).",
+        "leading_indicator": "FY2026 receivables days against the 59.52 of FY2025: a third consecutive rise would say the advance-funded working-capital position is weakening, which is what would compress this return in practice.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "terminal",
+        "market_implied": 0.025,
+        "mine": 0.025,
+        "percentile": 50,
+        "why": "No disagreement, and saying so is worth a row. 2.5% perpetual growth sits at or below the long-run nominal GDP ceiling this repo's base rates cite, and it is the one input this dive would not move for a European capital-goods engineer. The assumption this dive WOULD question is the other one, and it cannot: the 9% discount rate is high for a EUR-denominated net-cash industrial, and a lower rate would LOWER the implied CAGR and therefore WIDEN this dive's own gap in its own favour. Method section 7 forbids re-solving in session, so the direction is stated and the number is not touched. This is the same shape as the base-FCF sensitivity finding already recorded in the dive log on 2026-08-31: the file publishes a horizon sensitivity and no discount-rate sensitivity.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "net_gap_direction",
+        "mine": "NO_MEASURABLE_GAP_AT_THE_FILED_HORIZON_AND_THE_SIGN_FLIPS_WITH_THE_CONVENTION",
+        "note": "The comparison, made like for like rather than revenue-against-FCF. Carrying this dive's own rows forward: revenue 9,815.7 MEUR in 2030 at a comparable EBITA margin held flat at 8.6% gives EBITA of 844.2 MEUR against 646.4 MEUR in 2025 (7,883.1 at 8.2%), a 5.49% CAGR, and at unchanged cash conversion that is this dive's FCF-CAGR-equivalent expectation. Against the filed 5-year market-implied 5.3%, the gap is +0.19 percentage points. The file's own horizon_spread is 1.21 percentage points. Method section 7 is explicit: a gap inside the band is not a gap. At the 10-year convention the implied number is 4.09% and the same 5.49% expectation is +1.40pp ahead, which IS wider than the spread, so the SIGN of the finding depends on which convention is read, and section 7 requires a dive to say which it claims. This dive claims the filed 5-year default, and therefore claims NO measurable gap. It does not get to claim the 10-year reading here and the 5-year reading elsewhere. That is the whole verdict: the expectations gap the screen sent this dive to find closed on 2026-07-30, and what is left is inside the file's own error bar."
+      }
+    ]
+  },
+  "independence_test": {
+    "largest_disagreement": "On the headline price this dive has no material disagreement with consensus, and that IS the primary finding: the stock trades at the 6-analyst average 12-month target of 82.833 EUR and this dive's own build lands 0.19 percentage points from the price's implied ask, inside the file's 1.21-point horizon spread. The one specific, falsifiable disagreement that remains is about MARGIN, not growth: the market and the company read the record Hydropower order book as consistent with FY2026 comparable EBITA margin of 8.7% to 9.1%, and this dive expects it to land at or below the 8.7% floor, because Hydropower earns 6.5% EBITA against a group 8.2%, so the mix shift the order book creates dilutes group margin rather than expanding it, and H1 2026 already printed 8.6%, under the floor.",
+    "why_the_gap_exists": "A composition error, and a small one, which is why it supports WATCH rather than a call. Order intake and backlog are reported in euros of revenue with no margin attached, so a record Hydropower book reads as an unambiguous positive when the segment carrying it is the group's least profitable. Separately and further upstream, a framing error this dive corrects rather than inherits: the chain scored crowdedness 30 on the observation that nobody frames Andritz as a Medog beneficiary, which is true, and the screen then carried it forward as though it described the security's ownership and attention, which it does not. 5 of 6 analysts rate it Buy and it repriced 9.43% in a session on its own numbers.",
+    "falsification": "Stated to prove this dive WRONG, not to confirm it, the polarity error this analyst's repairs log has now caught twice (VRT 2026-08-29, HUBB 2026-09-02). At the Q1-Q3 2026 release, expected late October or early November 2026 on the company's own cadence (H1 published 2026-07-30), if nine-month comparable EBITA margin comes in AT OR ABOVE 8.7%, the floor of the company's own guide, while revenue tracks inside the guided 8.0 to 8.3 billion EUR range, then the margin-dilution reasoning behind this dive's operating_margin row and its bear case is wrong: the guided expansion would be arriving alongside the hydro mix shift rather than despite it, the FCF-CAGR-equivalent in net_gap_direction would be understated, and a real positive gap against the 5.3% implied ask would open. Single-legged and at the guide's own floor deliberately, so an in-line outcome tests the dive instead of confirming it."
+  },
+  "earnings_quality": {
+    "grade": null,
+    "basis": "The grade is NULL and the verdict is capped at WATCH because of it. Said plainly: the earnings-quality battery method section 7 defines CANNOT be computed for this issuer on the data this repo holds, and a grade that cannot be computed is NULL, never a default A or B. The missing input is deferred revenue and contract liabilities, and it is not a minor one here: ANDRITZ recognises revenue over time on long-cycle plant contracts funded by large customer advances (current liabilities of 4,887.7M EUR against current assets of 5,514.0M at 2025-12-31), so contract-liability drift is the single most diagnostic earnings-quality test for this business model, and the vendor aggregate at data/market/ANDR-VI.json carries no such line at all. Altman is separately PENDING_DATA (retained_earnings_fy missing, 7 of 8 inputs found); it is not one of section 7's veto inputs, but it is a second sign of how thin this balance-sheet plane is. WHAT THE MISSING INPUT IS NOT DOING: the cap does not rest on the absent datum alone. Of the four veto inputs that ARE computable, two are clean and two are flags. Clean: accruals at -2.34% of average total assets FY2025 (net income 456.3M against operating cash flow 652.7M over average assets of 8,386.55M), inside the 5% band and in the conservative direction, and FY2024 the same at -1.68%; Beneish M -2.42 against the -1.78 threshold, CLEAN, 12 of 12 inputs. Flags: sustained DSO drift, 51.54 days (FY2022), 45.35 (FY2023), 51.31 (FY2024), 59.52 (FY2025), which is two consecutive years up to a four-year high while revenue fell 9.0% from its 2023 peak, receivables rising 19.5% as sales shrank; and two governance events inside eighteen months, an auditor change and a CFO change. Method section 7 puts sustained DSO drift in C territory on its own, so on the computable evidence the honest range is B-minus to C, not A. Capex to depreciation is unremarkable and rising modestly (0.613, 0.759, 0.794, 0.823 across FY2022-2025), below 1.0 throughout, consistent with an asset-light engineering model rather than with under-investment being used to flatter cash. Piotroski is 4 of 9, MIDDLING, on 9 of 9 inputs found, missing d_roa, d_leverage, d_current, shares and asset_turnover, which is a weak score for a name whose thesis is an upcycle and is consistent with a year in which revenue and net income both fell. Every number above is INFERRED from a vendor normalisation of statements this repo has never read, which is the T3 ceiling and is itself part of why the grade is NULL rather than a letter.",
+    "inputs": {
+      "accruals_pct_avg_assets_fy2025": -0.023419,
+      "accruals_pct_avg_assets_fy2024": -0.01681,
+      "beneish": -2.42,
+      "beneish_state": "CLEAN",
+      "beneish_threshold": -1.78,
+      "piotroski": 4,
+      "piotroski_state": "MIDDLING",
+      "piotroski_misses": "d_roa, d_leverage, d_current, shares, asset_turnover",
+      "altman": null,
+      "altman_state": "PENDING_DATA",
+      "altman_missing": "retained_earnings_fy (7 of 8 inputs found)",
+      "dso_days_fy2022": 51.54,
+      "dso_days_fy2023": 45.35,
+      "dso_days_fy2024": 51.31,
+      "dso_days_fy2025": 59.52,
+      "capex_to_depreciation_fy2022": 0.613,
+      "capex_to_depreciation_fy2023": 0.759,
+      "capex_to_depreciation_fy2024": 0.794,
+      "capex_to_depreciation_fy2025": 0.823,
+      "ocf_to_net_income_fy2025": 1.430419,
+      "deferred_revenue_drift": null,
+      "deferred_revenue_drift_basis": "NULL, looked for and not found. data/market/ANDR-VI.json fundamentals carries no deferred-revenue or contract-liability series (its keys stop at receivables, inventory, ppe_net, debt, equity and the aggregate liability lines), and there is no data/edgar/docs/ANDR-VI.json for a non-SEC filer. This is the input whose absence makes the grade NULL. REQ-20260902-162 queues the ANDRITZ financial report 2025 as a web_doc row; the balance sheet in that document carries the contract-liability line and would close this.",
+      "source": "data/market/ANDR-VI.json quality (piotroski, beneish, altman) plus ratios computed in this session from fundamentals.receivables_fy, revenue_fy, capex_fy, depreciation_fy, net_income_fy, operating_cashflow_fy and total_assets_fy",
+      "governance": {
+        "auditor_change": "Deloitte Audit Wirtschaftspruefungs GmbH, Vienna, was elected auditor at the 119th Annual General Meeting on 2026-03-26, after KPMG Austria was the elected auditor for financial year 2025. A change of statutory auditor is one of the governance signals method section 7 names, whether or not it is routine rotation, and it is recorded here without being characterised as either innocent or suspicious.",
+        "cfo_change": "Vanessa Hellwing succeeded Norbert Nettesheim as Chief Financial Officer at the end of March 2025, an orderly announced succession. Inside eighteen months of this dive, so it counts as a flag on section 7's list.",
+        "related_party": "Looked for and not found: no related-party transaction disclosure surfaced in this run's WebSearch. Absence of a search hit is not evidence of absence, and this is explicitly not recorded as a clean result.",
+        "source": "AGM release 2026-03-26 (https://www.andritz.com/newsroom-en/news/2026-03-26-agm-group) for the elected auditor, WebSearch 2026-09-02 over the ANDRITZ consolidated corporate governance report 2025 for the prior auditor and the CFO succession",
+        "as_of": "2026-09-02",
+        "tag": "INFERRED",
+        "note": "Secondary and not exhaustive. The corporate governance report PDF was fetched this run and its body text could not be extracted (subset-encoded fonts), so these facts rest on the AGM release plus search summaries rather than on a span read out of the report itself. REQ-20260902-161 queues the AGM release as a web_doc row."
+      }
+    },
+    "veto_applied": "NULL grade caps the verdict at WATCH (method section 7). The cap binds here rather than being decorative: without it the verdict would still be WATCH, because net_gap_direction finds no measurable gap, so the two independent routes to WATCH agree and neither is doing the other's work."
+  },
+  "filing_evidence": [],
+  "filing_evidence_note": "Deliberately empty, and this is the honest T3 outcome rather than an oversight. ANDRITZ is not an SEC filer, there is no data/edgar/docs/ANDR-VI.json, and method section 1 fails closed: a quote that cannot be verified against a fetched document is not evidence. This dive therefore quotes no filing passage as verified anywhere on this page. The three company pages it does rely on were read by WebFetch this run and are queued as web_doc rows (REQ-20260902-160 the H1 2026 results release, REQ-20260902-161 the 2026-03-26 AGM release, REQ-20260902-162 the financial report 2025 PDF); the spans this dive would verify against them are written into the bull[0] and watch_triggers notes as PENDING_DATA with their URLs. When those pages land in data/web/, a re-run can promote them from PENDING_DATA to checkable.",
+  "data_gaps": [
+    "No EDGAR document exists for this issuer, so zero filing passages are verified verbatim in this dive. Every company figure on this page is either a vendor normalisation (INFERRED, official_source false) or a WebFetch read this run whose span is PENDING_DATA until the queued web_doc rows land.",
+    "Deferred revenue and contract liabilities are absent from the vendor aggregate entirely. For a percentage-of-completion plant engineer funded by customer advances this is the single most diagnostic earnings-quality input, and its absence is what makes the earnings_quality grade NULL rather than a letter.",
+    "quality.altman is PENDING_DATA (retained_earnings_fy missing, 7 of 8 inputs found), so no distress score exists for a name whose thesis runs through a working-capital-heavy contracting model.",
+    "No pcs block exists for data/market/ANDR-VI.json, so PCS Axis A and Axis B are unscoreable and the crowdedness read rests on the chain's coverage comparison plus this run's sell-side count, not on quantitative positioning data.",
+    "price_status is SINGLE_SOURCE: legs.stockanalysis returned http 400 and legs.stooq a non-CSV robots body, the known non-US coverage gap. No second tape has confirmed the 83.30 close every level here rests on.",
+    "No Hydropower EBITA or EBITA margin is disclosed for H1 2026 on the results page read this run, so the 6.5% segment margin used throughout is the FY2025 figure and may already be stale in either direction.",
+    "No service or aftermarket share of Hydropower revenue is disclosed anywhere read this run, which is exactly the fact that would settle whether the capture score of 65 is an oligopoly rent or a project-engineering margin. The chain's own capture evidence item is tagged SPECULATIVE.",
+    "quality.reverse_dcf publishes a horizon sensitivity and no discount-rate or base-FCF sensitivity. The 9% discount rate is an assumption that moves the implied ask materially and cannot be re-solved in session (method section 7). Already escalated in the dive log's repairs, 2026-08-31."
+  ],
+  "red_team": null,
+  "notes": [
+    {
+      "ts": "2026-09-02T17:11:00Z",
+      "by": "stocky",
+      "text": "TOO_LATE was seriously considered and not taken. The surface case for it is strong and is written out in what_is_priced_in and priced_in_summary rather than buried: +37.35% in twelve months, 100% of it multiple expansion, revenue and net income both down, price 0.72% off the 52-week high and at the sell-side average target. What stops it is that the multiple re-rated against genuinely new forward numbers (order intake +25.2%, backlog +20.5% to a record 1.60x revenue, hydro intake +81.8%), and for a plant engineer the order book is the estimate revision. That is correct pricing, not a story-driven re-rating, and method section 7's decomposition test does not support the call. Recorded here so the red team can attack the decision rather than reconstruct it."
+    },
+    {
+      "ts": "2026-09-02T17:11:00Z",
+      "by": "stocky",
+      "text": "This dive disagrees with its own upstream in one specific place and says so rather than inheriting it: the selection record calls this 'the widest gap of any COMPLETE candidate on this theme' on the strength of a 5.3% implied FCF CAGR against a hydro backlog up 15.3%. Built out like for like, the gap is +0.19 percentage points, inside the file's own 1.21-point horizon spread. The selection was not wrong to rank it first; the gap it described is smaller than it looked because it compared a segment growth rate to a group cash-flow rate, which is the category mismatch this analyst's red team has now flagged twice on other names."
+    },
+    {
+      "ts": "2026-09-02T17:11:00Z",
+      "by": "stocky",
+      "text": "Base-FCF check, run because the dive log requires it after the MYRG finding: base_fcf of 454.6M EUR is 1.088x the FY2022-2025 average of 417.9M, so this solve is NOT resting on an outlier year. The opposite caveat applies instead and is recorded in what_is_priced_in[3]: group FCF has compounded at -6.48% over three years, so the 5.3% ask is a trend reversal."
+    }
+  ],
+  "changelog": [
+    {
+      "ts": "2026-09-02T17:11:00Z",
+      "by": "stocky",
+      "kind": "BUILD",
+      "change": "First dive on ANDR.VI / tibet-mega-dam, from the O1 handoff written by run selection CAMP-20260901-01 on 2026-09-02 (issuer ANDRITZ, listing VIE:ANDR, link global-hydro-spillover, screen data/screens/tibet-mega-dam.json). Verdict WATCH on the COMPOUNDER clock, earnings grade NULL, status DRAFT pending red team. Three web_doc request rows queued (REQ-20260902-160 to -162) for the ANDRITZ pages this dive reads.",
+      "prior": null
+    }
+  ],
+  "confidence_audit": {
+    "verified": 0,
+    "inferred": 21,
+    "speculative": 5,
+    "null": 14,
+    "basis": "Recounted mechanically against the tags actually present in this file, by the same substring rule tools/check_analyst.py applies, never by hand. VERIFIED is zero and that is the T3 headline: with no EDGAR document there is no primary source this dive can verify a passage against, so nothing on this page earns the top tag. The count of NULL includes the explicit NULL markers on the two undecomposed gap rows, the deferred-revenue input and the Altman score, each of which names what was looked for."
+  }
+}
