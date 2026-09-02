@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-02",
   "owner": "stocky",
   "note": "Stocky's calibration. Every number here is recomputed from disk at the start of each dive, never carried in memory. First real dive landed 2026-08-29 (VRT / ai-infrastructure); the denominators below moved off zero for the first time. A zero still means nothing has been graded in that channel yet, NOT that nothing has been wrong.",
   "calibration": {
@@ -24,7 +24,7 @@
       "never_reached": 0,
       "filled_same_week": 0,
       "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone.",
-      "recomputed_from": "data/stocks/*.json: 2 real dive(s), 0 INVESTABLE, so this channel still has no denominator after two dives. Nothing has been graded here and that is not the same as nothing having been wrong. The MYRG red team did stress the one price level the dive stated and found it invented, which is the same failure mode an entry zone would have, arriving through a watch trigger instead of an entry_zone block."
+      "recomputed_from": "data/stocks/*.json: 3 real dive(s), 0 INVESTABLE, so this channel still has no denominator after three dives. Nothing has been graded here and that is not the same as nothing having been wrong."
     },
     "red_team_amendments": {
       "question": "How often does my own attack change my draft, and which attack lands?",
@@ -43,7 +43,7 @@
     },
     "implied_growth": {
       "question": "The market-implied CAGR I recorded at dive time, against what was actually delivered by review_by.",
-      "denominator": 2,
+      "denominator": 3,
       "resolved": 0,
       "market_too_high": 0,
       "market_too_low": 0,
@@ -77,6 +77,22 @@
           "base_fcf_caveat": "$232.195M is exactly FY2025 free cash flow (OCF $326.567M less capex $94.372M) and 2.90x the FY2022-2025 average of $80.020M, in a series where FY2023 FCF was negative. EV/base is 19.11x; EV over the four-year average is 55.45x. Grade the 7.0% implied CAGR against BOTH bases or this record will teach that the price was cheap when what was actually true is that the base was high.",
           "resolve_by": "2026-11-29",
           "resolves_against": "Q3 2026 reported revenue and consolidated operating margin against the 6.0% trigger, and FY2026 operating cash flow less capex against the $232.195M FY2025 base and the $80.020M four-year average. The five-year CAGR cannot resolve before 2031; the review date grades the first year of the path and, more usefully here, whether the base year repeated."
+        },
+        {
+          "ticker": "HUBB",
+          "chain_id": "ai-infrastructure",
+          "dive_date": "2026-09-02",
+          "market_implied_fcf_cagr": 0.1792,
+          "market_implied_fcf_cagr_10y_horizon": 0.1089,
+          "horizon_spread": 0.0703,
+          "source": "data/market/HUBB.json quality.reverse_dcf (state SOLVED)",
+          "my_revenue_cagr_5y": 0.085,
+          "my_fcf_cagr": null,
+          "my_fcf_cagr_note": "NULL deliberately, same discipline as the MYRG record: this dive never defends an independent FCF CAGR, it compares its 8.5% revenue expectation against the solved FCF CAGR and names the category mismatch itself in expectations_gap.denominator rather than inventing a number to fill this field.",
+          "base_fcf": 874700000.0,
+          "base_fcf_caveat": "$874.7M is FY2025 free cash flow (OCF $1,029.8M less capex $155.1M) and 1.09x the FY2023-2025 three-year average of $800.2M (only three years available: companyfacts is missing FY2021-2022 operating cash flow for this issuer). Unlike MYRG's 2.90x outlier, HUBB's base year is not flagged as an outlier on the data available, though the shorter comparison window is itself a caveat, named in the dive's own data_gaps.",
+          "resolve_by": "2026-11-15",
+          "resolves_against": "FY2026 organic sales growth against the 9-11% guided range, and Net Debt to Total Capital against the 52% reported at 2026-06-30 and the pre-deal 28% at 2025-12-31, both reportable at the Q3 2026 filing. The five-year CAGR itself cannot resolve before 2031; the review date grades the first post-NSI-close data point, not the path."
         }
       ],
       "recomputed_from": "data/stocks/*.json expectations_gap blocks: 2 dive(s) carrying a SOLVED market-implied column"
@@ -181,6 +197,13 @@
       "kind": "AMEND",
       "change": "Second dive and second red team recorded: MYRG / ai-infrastructure, grid-interconnect, WATCH on the COMPOUNDER clock, earnings grade B, DRAFT to FINAL. The dive stage left this log untouched, so this entry carries both stages. red_team_amendments moves to 2 of 2 with CROWDEDNESS_REALITY landing for the first time, which closes the open question from run 1 about whether that attack was performative. PRE_MORTEM is honestly recorded as not landing this run rather than incremented for having been performed. A fifth dimension, EVIDENCE_BOUNDARY, is added and landed. implied_growth moves to 2 with the MYRG record carrying the base_fcf caveat and both EV/FCF readings, because run 2 found that the implied column inherits a base as well as a horizon and only the horizon is published. entry_zones stays at denominator 0: still no INVESTABLE verdict in two dives. shadow_book stays at 1 open row: two WATCH verdicts in two dives means I have still never said no in a way the book can grade, and that is named rather than smoothed. Two repairs logged, one FIXED in lane (an invented $260 trigger level) and one ESCALATED (no base-FCF sensitivity in the quality block).",
       "prior": "red_team_amendments denominator 1 with CROWDEDNESS_REALITY at 0 and no EVIDENCE_BOUNDARY dimension; implied_growth denominator 1; dives[] carrying VRT only"
+    },
+    {
+      "ts": "2026-09-02T00:55:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "change": "Third dive recorded: HUBB / ai-infrastructure, power-equipment (the chain's money corner), WATCH on the COMPOUNDER clock, earnings grade B, status DRAFT (red team not yet run). implied_growth moves to denominator 3 with the HUBB record noting its base year is NOT an outlier the way MYRG's was (1.09x the 3-year average vs 2.90x), though the comparison window is only 3 years due to a companyfacts coverage gap (FY2021-2022 operating cash flow missing). entry_zones stays at denominator 0: still no INVESTABLE verdict across three dives. shadow_book stays at 1 open row: three dives, zero TOO_LATE calls, so the book still has not graded a single 'no'. red_team_amendments is unchanged at denominator 2: this dive has not been attacked yet. This dive's own largest addition beyond the O1 profile is a post-close capital-structure fact (Net Debt to Total Capital 28% to 52% in one quarter from the NSI Industries acquisition) that the canonical profile metrics do not yet reflect, verbatim-sourced from the same 8-K already on disk.",
+      "prior": "implied_growth denominator 2; dives[] carrying VRT and MYRG only"
     }
   ],
   "dives": [
@@ -229,6 +252,24 @@
       "red_team_dimensions_not_landed": [
         "PRE_MORTEM"
       ]
+    },
+    {
+      "file": "data/stocks/HUBB__ai-infrastructure.json",
+      "ticker": "HUBB",
+      "chain_id": "ai-infrastructure",
+      "link_id": "power-equipment",
+      "verdict": "WATCH",
+      "clock": "COMPOUNDER",
+      "earnings_grade": "B",
+      "status": "DRAFT",
+      "dive_date": "2026-09-02",
+      "review_by": "2026-11-15",
+      "price_ref": 459.66,
+      "price_status": "AGREED",
+      "shadow_ref": null,
+      "one_line": "The market-implied 5y FCF CAGR (17.92%) exceeds both HUBB's own just-raised FY2026 organic guide (9-11%) and this dive's own 8.5% estimate by more than the file's 7.03pp horizon_spread, and the gap is layered on a ~$3.0B, almost entirely debt-funded acquisition (NSI Industries) that took Net Debt to Total Capital from 28% to 52% in one quarter, not yet reflected in the O1 profile's canonical leverage metric.",
+      "prior_verdict": null,
+      "red_team_amended": null
     }
   ]
 }
