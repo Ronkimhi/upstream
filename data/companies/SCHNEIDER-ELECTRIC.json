@@ -3,11 +3,11 @@
   "issuer_name": "Schneider Electric SE",
   "as_of": "2026-09-02",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-02T14:08:00Z",
+  "updated_at": "2026-09-02T14:30:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): Euronext Paris primary listing. data/market/SU-PA.json exists on disk but is explicitly named known-contaminated and quarantined in this session's task instructions (the cik_for() suffix-stripping defect can attach an unrelated US filer's CIK to a suffixed ticker like SU.PA), so it is never read or cited here; no safe fundamentals exist locally.",
+  "data_tier_basis": "Local-only listing (method section 6): T3, SU.PA (Euronext Paris). The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals quarantined (2026-08-31 data_gaps entry) was CLOSED 2026-08-31 and confirmed still closed this run: a suffixed ticker resolves to no CIK without an explicit request-row override, so SU.PA safely falls to the vendor leg (yfinance-statements) rather than risking another issuer's companyfacts. data/market/SU-PA.json still carries prices only (no fundamentals or quality block): REQ-20260902-135 (fundamentals) and REQ-20260902-136 (quality), queued 2026-09-02T14:05:00Z, remain PENDING as of this run.",
   "opportunity_tier": "O3",
   "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
   "listing_refs": [
@@ -73,7 +73,7 @@
       "mapping_status": "COMPLETE"
     },
     "chain": "data/chains/ai-infrastructure.json",
-    "market": null
+    "market": "data/market/SU-PA.json"
   },
   "business_summary": "Schneider Electric SE is a French (Euronext Paris: SU) energy-management and industrial-automation company. Its Energy Management business supplies end-to-end power-distribution and energy-management systems for data centers; the Motivair acquisition adds coolant-distribution units, cold plates and thermal-management systems for liquid cooling.",
   "exposure_summary": {
@@ -167,7 +167,11 @@
     "No safe alternative fundamentals source exists locally for Schneider Electric: it has only the one mapped Euronext listing (SU.PA) and no US ADR line in data/mappings/ai-infrastructure.json.",
     "No official-source T3 fundamentals (from Schneider Electric's own investor-relations filings) were derived this run; method section 6A allows this for T2/T3 profiles but it requires dedicated web research this bounded batch did not extend to for every issuer.",
     "No data-center or AI-infrastructure revenue percentage is sourced for Schneider Electric this run.",
-    "Re-examined 2026-09-02T14:08:00Z (run profile --campaign CAMP-20260901-01): data/market/SU-PA.json still carries prices only, no fundamentals block. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals deliberately quarantined (2026-08-31 data_gaps entry) is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a fundamentals fetch now safely falls to the vendor leg (yfinance-statements) instead of risking another issuer's companyfacts. Queued REQ-20260902-135 (fundamentals) then REQ-20260902-136 (quality) for SU.PA this run; still BLOCKED pending fulfillment."
+    "Re-examined 2026-09-02T14:08:00Z (run profile --campaign CAMP-20260901-01): data/market/SU-PA.json still carries prices only, no fundamentals block. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals deliberately quarantined (2026-08-31 data_gaps entry) is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a fundamentals fetch now safely falls to the vendor leg (yfinance-statements) instead of risking another issuer's companyfacts. Queued REQ-20260902-135 (fundamentals) then REQ-20260902-136 (quality) for SU.PA this run; still BLOCKED pending fulfillment.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/SU-PA.json unchanged since the prior fire, REQ-20260902-135/136 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/SU-PA.json unchanged since the prior fire, REQ-20260902-135/136 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/SU-PA.json unchanged since the prior fire, REQ-20260902-135/136 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/SU-PA.json unchanged since the prior fire, REQ-20260902-135/136 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched."
   ],
   "disposition": {
     "state": "BLOCKED",
@@ -199,6 +203,30 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "confirmed the cik_for() quarantine reason is stale (defect fixed 2026-08-31); queued REQ-20260902-135 (fundamentals) and REQ-20260902-136 (quality) for SU.PA; still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-135/136 (SU.PA fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/SU-PA.json existing). run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-135/136 (SU.PA fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/SU-PA.json existing). run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-135/136 (SU.PA fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/SU-PA.json existing). run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-135/136 (SU.PA fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/SU-PA.json existing). run profile --campaign CAMP-20260901-01."
     }
   ]
 }

@@ -3,11 +3,11 @@
   "issuer_name": "Siemens Energy AG",
   "as_of": "2026-09-02",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-02T14:08:00Z",
+  "updated_at": "2026-09-02T14:30:00Z",
   "generated_by": "sieve-profiler",
   "status": "BLOCKED",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): XETRA primary listing. data/market/ENR-DE.json exists on disk but is explicitly named known-contaminated and quarantined in this session's task instructions (the cik_for() suffix-stripping defect can attach an unrelated US filer's CIK to a suffixed ticker like ENR.DE), so it is never read or cited here; no safe fundamentals exist locally.",
+  "data_tier_basis": "Local-only listing (method section 6): T3, ENR.DE. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals quarantined (2026-08-31 data_gaps entry) was CLOSED 2026-08-31 and confirmed still closed this run: a suffixed ticker resolves to no CIK without an explicit request-row override, so ENR.DE safely falls to the vendor leg (yfinance-statements) rather than risking another issuer's companyfacts. data/market/ENR-DE.json still carries prices only (no fundamentals or quality block): REQ-20260902-137 (fundamentals) and REQ-20260902-138 (quality), queued 2026-09-02T14:05:00Z, remain PENDING as of this run.",
   "opportunity_tier": "O3",
   "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
   "listing_refs": [
@@ -83,6 +83,26 @@
           "tag": "VERIFIED"
         }
       ]
+    },
+    {
+      "chain_id": "tibet-mega-dam",
+      "link_id": "uhvdc-transmission",
+      "link_name": "UHVDC transmission buildout",
+      "link_position": 2,
+      "role": "Designs and delivers HVDC converter systems and stations.",
+      "placement_status": "ACTIVE",
+      "money_corner": false,
+      "link_heat": "EMERGING",
+      "mapping_ref": "data/mappings/tibet-mega-dam.json",
+      "role_evidence": [
+        {
+          "claim": "Siemens Energy AG's mapping placement evidence describes this role.",
+          "source_name": "50Hertz press release",
+          "source_date": "2025-09-04",
+          "url": "https://www.50hertz.com/Portals/1/Dokumente/Medien/Pressemitteilungen/2025/20250905_BEI_Siemens-Energy_EN.pdf?ver=w7N3pcoA1NdW6yBIQ8GtOQ%3D%3D",
+          "tag": "INFERRED"
+        }
+      ]
     }
   ],
   "sources": {
@@ -93,7 +113,7 @@
       "mapping_status": "COMPLETE"
     },
     "chain": "data/chains/ai-infrastructure.json",
-    "market": null
+    "market": "data/market/ENR-DE.json"
   },
   "business_summary": "Siemens Energy AG is a German (XETRA: ENR) energy-technology company spun off from Siemens, supplying gas and steam turbines (Gas Services), large power transformers and grid technologies (Grid Technologies), and wind power (Siemens Gamesa). All three mapped links sit inside its Gas Services and Grid Technologies businesses.",
   "exposure_summary": {
@@ -187,7 +207,12 @@
     "No safe alternative fundamentals source exists locally for Siemens Energy: it has only the one mapped XETRA listing (ENR.DE) and no US ADR line in data/mappings/ai-infrastructure.json.",
     "No official-source T3 fundamentals (from Siemens Energy's own investor-relations filings) were derived this run; method section 6A allows this for T2/T3 profiles but it requires dedicated web research this bounded batch did not extend to for every issuer.",
     "No data-center or AI-infrastructure revenue percentage is sourced for Siemens Energy this run.",
-    "Re-examined 2026-09-02T14:08:00Z (run profile --campaign CAMP-20260901-01): data/market/ENR-DE.json still carries prices only, no fundamentals block. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals deliberately quarantined (2026-08-31 data_gaps entry) is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a fundamentals fetch now safely falls to the vendor leg (yfinance-statements) instead of risking another issuer's companyfacts. Queued REQ-20260902-137 (fundamentals) then REQ-20260902-138 (quality) for ENR.DE this run; still BLOCKED pending fulfillment."
+    "Re-examined 2026-09-02T14:08:00Z (run profile --campaign CAMP-20260901-01): data/market/ENR-DE.json still carries prices only, no fundamentals block. The cik_for() exchange-suffix-stripping defect that had this listing's fundamentals deliberately quarantined (2026-08-31 data_gaps entry) is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a fundamentals fetch now safely falls to the vendor leg (yfinance-statements) instead of risking another issuer's companyfacts. Queued REQ-20260902-137 (fundamentals) then REQ-20260902-138 (quality) for ENR.DE this run; still BLOCKED pending fulfillment.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/ENR-DE.json unchanged since the prior fire, REQ-20260902-137/138 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched. Also appended the missing tibet-mega-dam uhvdc-transmission placement (found while re-examining the issuer's full ACTIVE placement set across all mapped chains), sourced from the mapping's own ACTIVE evidence; no metric or tier touched by that addition.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/ENR-DE.json unchanged since the prior fire, REQ-20260902-137/138 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched. Also appended the missing tibet-mega-dam uhvdc-transmission placement (found while re-examining the issuer's full ACTIVE placement set across all mapped chains), sourced from the mapping's own ACTIVE evidence; no metric or tier touched by that addition.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/ENR-DE.json unchanged since the prior fire, REQ-20260902-137/138 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched. Also appended the missing tibet-mega-dam uhvdc-transmission placement (found while re-examining the issuer's full ACTIVE placement set across all mapped chains), sourced from the mapping's own ACTIVE evidence; no metric or tier touched by that addition.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/ENR-DE.json unchanged since the prior fire, REQ-20260902-137/138 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched. Also appended the missing tibet-mega-dam uhvdc-transmission placement (found while re-examining the issuer's full ACTIVE placement set across all mapped chains), sourced from the mapping's own ACTIVE evidence; no metric or tier touched by that addition.",
+    "Re-examined 2026-09-02T14:30:00Z (run profile --campaign CAMP-20260901-01, batch 2): data/market/ENR-DE.json unchanged since the prior fire, REQ-20260902-137/138 still PENDING (fetch workflow has not run again since they were queued). Still BLOCKED, no metric field touched. Also appended the missing tibet-mega-dam uhvdc-transmission placement (found while re-examining the issuer's full ACTIVE placement set across all mapped chains), sourced from the mapping's own ACTIVE evidence; no metric or tier touched by that addition."
   ],
   "disposition": {
     "state": "BLOCKED",
@@ -219,6 +244,36 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "confirmed the cik_for() quarantine reason is stale (defect fixed 2026-08-31); queued REQ-20260902-137 (fundamentals) and REQ-20260902-138 (quality) for ENR.DE; still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-137/138 (ENR.DE fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/ENR-DE.json existing). Appended the missing tibet-mega-dam uhvdc-transmission placement from the mapping's own ACTIVE evidence. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-137/138 (ENR.DE fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/ENR-DE.json existing). Appended the missing tibet-mega-dam uhvdc-transmission placement from the mapping's own ACTIVE evidence. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-137/138 (ENR.DE fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/ENR-DE.json existing). Appended the missing tibet-mega-dam uhvdc-transmission placement from the mapping's own ACTIVE evidence. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-137/138 (ENR.DE fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/ENR-DE.json existing). Appended the missing tibet-mega-dam uhvdc-transmission placement from the mapping's own ACTIVE evidence. run profile --campaign CAMP-20260901-01."
+    },
+    {
+      "ts": "2026-09-02T14:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined: REQ-20260902-137/138 (ENR.DE fundamentals, quality) still PENDING, no fetch landed since the prior fire; status stays BLOCKED/T3/O3, no metric field touched. Corrected the stale data_tier_basis text (still described the 2026-08-31 quarantine as active) and sources.market (was null despite data/market/ENR-DE.json existing). Appended the missing tibet-mega-dam uhvdc-transmission placement from the mapping's own ACTIVE evidence. run profile --campaign CAMP-20260901-01."
     }
   ]
 }
