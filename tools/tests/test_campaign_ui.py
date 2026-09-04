@@ -30,7 +30,7 @@ def _load_build():
 
 
 build = _load_build()
-HTML_SCALE_BUDGET = int(build.SIZE_WARN_MB * 1_000_000)
+HTML_SCALE_BUDGET = build.page_byte_limit()
 
 
 def public_listing(issuer_id, issuer_name, listing_id, ticker, exchange):
@@ -686,7 +686,7 @@ class TestCampaignProjection(unittest.TestCase):
         self.assertNotIn(fixture.RAW_MARKER, html)
         self.assertLess(len(html.encode()), HTML_SCALE_BUDGET,
                         f"page is {len(html.encode()):,} bytes against build.py's own "
-                        f"{HTML_SCALE_BUDGET:,}-byte warn threshold")
+                        f"{HTML_SCALE_BUDGET:,}-byte platform cap")
         # The thing this test is actually about: a campaign at full scale must not be
         # what blows the page up, whatever else the payload is carrying.
         self.assertLess(len(json.dumps(projection, separators=(",", ":")).encode()),

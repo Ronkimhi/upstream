@@ -98,11 +98,6 @@ DENY = [
      "leg carried at reduced chain fidelity, where the rows are dropped and only the "
      "count survives (signal evidence is different — that store is carried whole)",
      "print evidence_total, the count app/build.py ships beside the rows it kept"),
-    (r"\.capture_inputs(?!_count)\b",
-     "`capture_inputs` is not carried on the page — the three capture judgments live in "
-     "data/chains/<slug>.json — so reading it here renders nothing where a reader would "
-     "read an absence as 'the capture score rests on nothing written'",
-     "render capture_inputs_count and name the file, the way the map-citation count does"),
 ]
 
 # Structures whose absence silently degrades the page rather than breaking it.
@@ -138,59 +133,41 @@ REQUIRE = [
     ("app/templates/app.js", r"function seriesNote\(",
      "the price-series disclosure: how many points the page is carrying against how many "
      "data/market/<T>.json holds, and the fact that a header-only ticker has none"),
-    ("app/templates/app.js", r"function carriedTail\(",
-     "the notes/history disclosure: the page carries a tail of an append-only list and "
-     "must print the full count beside it"),
     ("app/templates/app.js", r"seriesNote\(mk, st\.ticker\)",
      "the series disclosure actually rendered under the price chart — a helper nobody "
      "calls is the same silence as no helper at all"),
-    ("app/templates/app.js", r"evidence_count",
-     "the count of impact-leg sources the page carries instead of their verbatim "
-     "excerpts; without it a sourced leg reads as an unsourced assertion"),
-    ("app/templates/app.js", r"st\.detail_inlined === false",
-     "the dive page for a writeup this build could not carry in full — without this "
-     "branch an uncarried dive draws empty Bull, Bear and Red team cards, which reads as "
-     "\"never written\" instead of \"not on this page\""),
-    ("app/build.py", r"def _elastic_stock_budgets\(",
-     "the rule that prices the rest of the page first and gives dives the change, so a "
-     "small repo carries every dive whole and a finished campaign still opens"),
-    ("app/templates/app.js", r"legs_inlined",
-     "the state where an appraisal is carried at chip fidelity only — the card must say "
-     "the reasoning is in the file, not draw a blank where it would go"),
     ("app/build.py", r"def project_market\(",
-     "the market projection that keeps unrendered fundamentals, insider and prints blocks "
-     "off the page and windows the series to the tickers that draw one"),
+     "the market projection: every ticker's full daily series, compactly encoded, with "
+     "only the blocks no template renders left out"),
+    ("app/build.py", r"def encode_series_rows\(",
+     "the compact series encoding that keeps 400+ full daily series inside one page"),
+    ("app/templates/app.js", r"function decodeSeries\(",
+     "the boot-time decoder that rebuilds series.rows from the compact encoding; without "
+     "it every chart and sparkline reads an empty series"),
+    ("app/templates/app.js", r"decodeSeries\(D\.market\[k\]\)",
+     "the decoder actually run over every market entry at boot"),
     ("app/build.py", r"def project_impact\(",
-     "the impact projection that keeps verbatim source_excerpt spans in data/impact/ and "
-     "carries their count instead"),
+     "the impact projection that carries every appraisal whole, legs and excerpts included"),
+    ("app/build.py", r"def page_byte_limit\(",
+     "the one ceiling: the artifact platform's cap, refused rather than trimmed to"),
+    ("app/templates/app.js", r"function evRow\(",
+     "the one evidence renderer: claim, source, date, link and the verbatim excerpt"),
+    ("app/templates/app.js", r"evList\(leg\.evidence\)",
+     "impact-leg evidence rows actually rendered on the signal page"),
+    ("app/templates/app.js", r"evList\(l\.evidence\)",
+     "map citations actually rendered in the link modal"),
+    ("app/templates/app.js", r"kvBlock\(l\.capture_inputs\)",
+     "the capture judgments actually rendered in the link modal"),
     ("app/build.py", r"def build_payload\(",
      "the payload builder, extracted from main() so the page's scale is testable at "
      "campaign size instead of only at today's size"),
     # --- the elastic chain projection must stay visible too (added 2026-08-30) ------
-    ("app/build.py", r"def _elastic_chain_budgets\(",
-     "the chain half of the elastic rule: ten finished chains are 1.26 MB of a 2 MB "
-     "file, so chains get the change the same way dives do"),
-    ("app/build.py", r"def _elastic_page_budgets\(",
-     "the split between the two elastic stores, proportional to what each needs at full "
-     "fidelity, so chains and dives degrade at the same rate instead of one starving"),
     ("app/build.py", r"def campaign_chain_order\(",
      "the campaign manifest's theme rank as the order chains keep their fidelity in — "
      "an evidence-backed ordering that already exists, rather than alphabetical"),
-    ("app/templates/app.js", r"function chainFidelityNote\(",
-     "the chain page's own disclosure: which fidelity this chain was carried at, what "
-     "that dropped, and the file that still holds it"),
-    ("app/templates/app.js", r"chainFidelityNote\(c\) \+",
-     "that disclosure actually rendered on the chain page — a helper nobody calls is the "
-     "same silence as no helper at all"),
     ("app/templates/app.js", r"function chainPath\(",
      "the data/chains/<slug>.json path every chain-level disclosure names; without it "
      "the reader is told something is missing and not where it is"),
-    ("app/templates/app.js", r"capture_inputs_count",
-     "the count of capture judgments behind a link's capture score, carried instead of "
-     "their text; without it a scored capture leg reads as resting on nothing written"),
-    ("app/templates/app.js", r"evidence_total",
-     "the heat leg's full source count, carried beside the rows the page kept — the "
-     "difference between 'showing 3 of 7' and 'none of 7 on this page'"),
     ("app/templates/app.js", r"!n\.length && obj\.notes_total",
      "the third notes state: an object whose notes exist but were not carried must not "
      "draw the \"None — add one\" empty state, which says nobody ever annotated it"),

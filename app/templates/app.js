@@ -2,6 +2,36 @@
 (function () {
   "use strict";
   var D = window.UPSTREAM_DATA || {};
+  /* app/build.py carries every ticker's FULL daily series, compactly encoded as
+     {start, d: day offsets, c: closes} (encode_series_rows). Rebuild the exact
+     [date, close] rows once at boot; nothing downstream knows the encoding existed. */
+  function decodeSeries(mk) {
+    var s = mk && mk.series;
+    if (!s || s.rows || !s.rows_c) return;
+    var c = s.rows_c, rows = [];
+    if (c.start) {
+      var t0 = Date.UTC(+c.start.slice(0, 4), +c.start.slice(5, 7) - 1, +c.start.slice(8, 10));
+      for (var i = 0; i < (c.d || []).length; i++) {
+        var d = new Date(t0 + c.d[i] * 86400000).toISOString().slice(0, 10);
+        var v = c.c[i];
+        rows.push(Array.isArray(v) ? [d].concat(v) : [d, v]);
+      }
+    }
+    (c.raw || []).forEach(function (r) { rows.push(r); });
+    s.rows = rows;
+  }
+  Object.keys(D.market || {}).forEach(function (k) { decodeSeries(D.market[k]); });
+  /* One evidence row, the same everywhere a cited source is drawn: tag, claim, source
+     and date, the link, and the verbatim excerpt the gates verified, behind a toggle. */
+  function evRow(e) {
+    if (!e || typeof e !== "object") return "<div class='evli'>" + esc(String(e)) + "</div>";
+    var src = e.source_name ? (e.url ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>" + esc(e.source_name) + "</a>" : esc(e.source_name)) : (e.url ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>source</a>" : "");
+    return "<div class='evli'>" + (e.tag ? chip(e.tag) + " " : "") + esc(e.claim || "") +
+      (src || e.source_date ? " <span class='muted'>[" + src + (e.source_date ? (src ? ", " : "") + esc(e.source_date) : "") + "]</span>" : "") +
+      (e.source_excerpt ? "<details class='excerpt'><summary class='muted small'>verbatim excerpt</summary><blockquote class='small'>" + esc(e.source_excerpt) + "</blockquote></details>" : "") +
+      "</div>";
+  }
+  function evList(items) { return (items || []).map(evRow).join(""); }
   var app = document.getElementById("app");
   /* BUILT_AT is when the data was assembled. TODAY is when someone is LOOKING at it, and
      those are different questions. Staleness chips, review-due lists and the radar-silence
@@ -780,43 +810,35 @@
         "<div class='small muted' style='margin-top:6px'>No published sizing was found. That is " +
         "a finding about how early this occurrence is, not a gap in the writeup.</div></div>";
     }
-    /* The four legs. app/build.py carries each leg's rationale only for appraisals a
-       signal card can reach, and NEVER carries the leg's `evidence` array: those hold the
-       verbatim source_excerpt spans method §1 requires, they exist so a machine can
-       cross-check the claim offline, and they were 259 KB of a page that rendered none of
-       them. What the page carries instead is the COUNT, printed here beside the file that
-       holds the excerpts — so a reader can see the leg is sourced and where, rather than
-       reading a rationale that looks unsupported. */
+    /* The four legs, each with its rationale and every cited source's verbatim excerpt
+       (app/build.py carries appraisals whole since 2026-09-04). */
     var file = a.id ? "data/impact/" + a.id + ".json" : "data/impact/";
-    if (a.legs_inlined === false) {
-      return seclabel("Financial impact") +
-        "<div class='card'><div class='row'>" + impactChip(a) +
-        chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) + "</div>" +
-        "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
-        "<div class='small muted' style='margin-top:8px'>The four scores are on this page; " +
-        "their written reasoning is not. It is in " + esc(file) + ".</div></div>";
-    }
     var legs = [
-      ["Money at stake", (a.money_at_stake || {}).band, (a.money_at_stake || {}).rationale,
-       (a.money_at_stake || {}).basis, (a.money_at_stake || {}).evidence_count],
-      ["Public reach", num((a.public_reach || {}).score), (a.public_reach || {}).rationale,
-       (a.public_reach || {}).basis, (a.public_reach || {}).evidence_count],
-      ["Value capture", num((a.capture_odds || {}).score), (a.capture_odds || {}).rationale,
-       (a.capture_odds || {}).basis, (a.capture_odds || {}).evidence_count],
-      ["Timing fit", num((a.timing_fit || {}).score), (a.timing_fit || {}).rationale,
-       (a.timing_fit || {}).basis, (a.timing_fit || {}).evidence_count]
+      ["Money at stake", (a.money_at_stake || {}).band, a.money_at_stake],
+      ["Public reach", num((a.public_reach || {}).score), a.public_reach],
+      ["Value capture", num((a.capture_odds || {}).score), a.capture_odds],
+      ["Timing fit", num((a.timing_fit || {}).score), a.timing_fit]
     ].map(function (r) {
+      var leg = r[2] || {}, n = (leg.evidence || []).length;
       return "<div class='evli'><b>" + esc(r[0]) + "</b> " + chip(num(r[1])) +
-        (r[4] == null ? "" : chip(r[4] + " cited", r[4] ? "neutral" : "stale")) +
-        "<div class='small muted'>" + esc(r[2] || r[3] || "") + "</div></div>";
+        chip(n + " cited", n ? "neutral" : "stale") +
+        "<div class='small muted'>" + esc(leg.rationale || leg.basis || "") + "</div>" +
+        (n ? "<div style='margin-top:6px'>" + evList(leg.evidence) + "</div>" : "") + "</div>";
     }).join("");
+    var ca = a.confidence_audit;
+    var audit = ca && typeof ca === "object"
+      ? "<div class='small muted' style='margin-top:10px'><b>Confidence audit:</b> " +
+        Object.keys(ca).map(function (k) { return esc(k) + " " + esc(typeof ca[k] === "object" ? JSON.stringify(ca[k]) : ca[k]); }).join(" · ") + "</div>"
+      : "";
     return seclabel("Financial impact") +
       "<div class='card'><div class='row'>" + impactChip(a) +
-      chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) + "</div>" +
+      chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) +
+      (a.review_by ? "<span class='muted'>review <span class='num'>" + esc(a.review_by) + "</span></span>" : "") + "</div>" +
       "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
-      "<div style='margin-top:10px'>" + legs + "</div>" +
-      "<div class='small muted' style='margin-top:10px'>Each source's verbatim excerpt stays in " +
-      esc(file) + "; this page carries the count, not the text.</div></div>";
+      "<div style='margin-top:10px'>" + legs + "</div>" + audit +
+      ((a.ticker_refs || []).length ? "<div class='small muted' style='margin-top:6px'>Tickers referenced: " + esc((a.ticker_refs || []).map(function (t) { return typeof t === "string" ? t : (t.ticker || JSON.stringify(t)); }).join(", ")) + "</div>" : "") +
+      "<div class='small muted' style='margin-top:8px'>Canonical file: <span class='mono'>" + esc(file) + "</span></div>" +
+      notesBlock(a) + changelogBlock(a) + "</div>";
   }
 
   function signalView(id) {
@@ -849,24 +871,8 @@
      written analysis at all. Everything the flow strip, the heat scatter, the scenario
      cards and the cortex draw survives at every fidelity — what a reduced chain loses is
      prose. These two say which, per chain, and name the file that holds the rest, the
-     same rule seriesNote() and carriedTail() follow. */
+     same rule seriesNote() follows. */
   function chainPath(c) { return "data/chains/" + ((c && c.id) || "") + ".json"; }
-  function chainFidelityNote(c) {
-    var f = c && c.chain_fidelity;
-    if (!f || f === "FULL") return "";
-    var cn = (D.carried || {}).chains || {};
-    var lost = f === "SUMMARY"
-      ? "The heat reasoning behind every score is here. What is not: the cited evidence rows under each score, each link's bottleneck note, and each scenario's per-link reasoning."
-      : "This chain is carried as navigation only — links, order, verdicts, scores, scenarios, indicators and invalidation signs. What is not on this page: the written reasoning behind every heat score, the cited evidence rows under it, the bottleneck notes, each scenario's per-link reasoning, and this chain's own notes.";
-    var across = cn.total
-      ? " Across " + cn.total + " chains this build carried " + cn.carried +
-        " in full, " + cn.summary + " without evidence rows and " + cn.index_only +
-        " as navigation only, in " + (cn.order || "chain id") + " order."
-      : "";
-    return "<div class='card' style='margin-top:14px'><h3>Reduced fidelity on this page</h3>" +
-      "<div class='small'>" + esc(lost) + " It is all in <span class='mono'>" +
-      esc(chainPath(c)) + "</span>." + esc(across) + "</div></div>";
-  }
   var chainTab = "flow";
   function chainView(id, tab) {
     var c = byId(D.chains, id);
@@ -884,7 +890,7 @@
       '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) +
       (c.chain_fidelity && c.chain_fidelity !== "FULL" ? chip("reduced fidelity", "CROWDED") : "") + "</div>" +
       "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
-      chainFidelityNote(c) + chainScreenAction(c) + mapCard(c.id) +
+       chainScreenAction(c) + mapCard(c.id) +
       '<div class="seg">' +
       [["flow", "Flow"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
@@ -941,57 +947,36 @@
     // sources under a score would otherwise believe three is all there is.
     function ev(o) {
       var items = (o || {}).evidence || [];
-      var total = (o || {}).evidence_total;
-      var rows = items.map(function (e) { return '<div class="evli">' + chip(e.tag) + " " + esc(e.claim) + (e.source_name ? " <span class='muted'>[" + esc(e.source_name) + "]</span>" : "") + "</div>"; }).join("");
-      if (typeof total === "number" && total > items.length) {
-        /* Two different states, and printing them the same way would be the "300 HELD"
-           defect again: a windowed leg (3 of 7 carried) and a leg carried at reduced
-           chain fidelity with none of its rows on the page at all. The second one has to
-           say the sources exist, or a scored leg reads as an unsourced assertion. */
-        rows += '<div class="evli muted">' + (items.length
-          ? "showing " + items.length + " of " + total + " cited source(s)"
-          : "none of this leg's " + total + " cited source(s) are carried on this page") +
-          "; the rest, with each one's verbatim excerpt, are in <span class='mono'>" +
-          esc(chainPath(c)) + "</span></div>";
-      }
-      return rows;
+      return evList(items) + (items.length ? "" : "<div class='evli muted'>no cited source recorded on this leg</div>");
     }
     function block(title, o) {
       if (!o) return "";
-      /* `esc(o.rationale || "")` drew an empty paragraph for a leg whose reasoning this
-         build did not carry, which reads as "nobody wrote one". A scored leg with no
-         rationale on the page says so and names the file. */
       var why = o.rationale != null
         ? "<div class='small'>" + esc(o.rationale) + "</div>"
-        : (o.score != null
-          ? "<div class='small muted'>Scored " + o.score +
-            "/100. The written reasoning for this score is not on this page — it is in <span class='mono'>" +
-            esc(chainPath(c)) + "</span>.</div>"
-          : "");
+        : (o.score != null ? "<div class='small muted'>Scored " + o.score + "/100 with no written rationale on file.</div>" : "");
       return "<h3>" + title + "</h3>" + why + ev(o);
     }
-    var chips = '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + chip((l.bottleneck || {}).criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + ((l.bottleneck || {}).criticality || "").toLowerCase()) + "</div>";
+    function kvBlock(obj) {
+      if (!obj) return "";
+      if (Array.isArray(obj)) return "<ul class='bullets'>" + obj.map(function (x) { return "<li>" + esc(typeof x === "string" ? x : JSON.stringify(x)) + "</li>"; }).join("") + "</ul>";
+      if (typeof obj !== "object") return "<div class='small'>" + esc(String(obj)) + "</div>";
+      return "<div class='kv'>" + Object.keys(obj).map(function (k) {
+        var v = obj[k];
+        var text = v == null ? "null" : (typeof v === "object" ? (v.note || v.basis ? [v.state, v.note || v.basis].filter(Boolean).join(" · ") : JSON.stringify(v)) : String(v));
+        return "<dt>" + esc(k.replace(/_/g, " ")) + "</dt><dd class='small'>" + esc(text) + "</dd>";
+      }).join("") + "</div>";
+    }
+    var chips = '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + ((l.bottleneck || {}).criticality ? chip(l.bottleneck.criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + String(l.bottleneck.criticality).toLowerCase()) : chip("bottleneck not rated", "stale")) + "</div>";
     var analysis =
       scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
       block("Impact", h.impact) + block("Crowdedness", h.crowdedness) + block("Value capture", h.capture) +
-      (h.repricing_check && h.repricing_check.note ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note) +
-        (h.repricing_check.legs_detail_held ? " <span class='muted'>· the " + h.repricing_check.legs_detail_held + " per-leg basis note(s) are in <span class='mono'>" + esc(chainPath(c)) + "</span></span>" : "") + "</div>" : "") +
-      /* The three capture judgments Ember records per link (supply concentration,
-         substitutability, who posted the margin). They reach no template and were 66 KB
-         of the 2026-08-30 page, so app/build.py carries the count; without this line a
-         reader would have no way to know the capture score rests on anything written. */
-      (l.capture_inputs_count ? "<h3>Capture inputs</h3><div class='small muted'>" +
-        l.capture_inputs_count + " recorded judgment(s) behind the capture score, in <span class='mono'>" +
-        esc(chainPath(c)) + "</span></div>" : "") +
-      (((l.bottleneck || {}).note_held) ? "<div class='small muted' style='margin-top:8px'>The bottleneck note for this link is not on this page — it is in <span class='mono'>" + esc(chainPath(c)) + "</span>.</div>" : "") +
+      (h.repricing_check && (h.repricing_check.note || h.repricing_check.legs) ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note || "") + "</div>" +
+        (h.repricing_check.legs ? kvBlock(h.repricing_check.legs) : "") : "") +
+      (l.capture_inputs ? "<h3>Capture inputs</h3>" + kvBlock(l.capture_inputs) : "") +
+      (((l.bottleneck || {}).note || (l.bottleneck || {}).basis) ? "<h3>Bottleneck</h3><div class='small'>" + esc(l.bottleneck.note || l.bottleneck.basis) + "</div>" : "") +
       "<h3>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
       "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
-      // The link's own citation bar, the one tools/check_chain.py enforces on every link
-      // and edge. app/build.py carries its COUNT, not its rows, so the count is printed
-      // with the file that holds the citations rather than rendering nowhere.
-      (l.evidence_count == null ? "" :
-        "<h3>Map citations</h3><div class='small'>" + l.evidence_count +
-        " dated source(s) behind this link, in data/chains/" + esc(c.id) + ".json</div>") +
+      ((l.evidence || []).length ? "<h3>Map citations</h3><div class='small muted'>" + l.evidence.length + " dated source(s) behind this link</div>" + evList(l.evidence) : "<h3>Map citations</h3><div class='small muted'>no dated source recorded on this link</div>") +
       (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "scores every unscored link with fetched evidence", { compact: true }) + "</div>");
 
     var sc = chainScreen(c.id);
@@ -1146,7 +1131,7 @@
     if (!scens.length) return '<div class="emptystate">No scenarios yet.<div class="runwrap">' + runButton("run scenarios " + c.id) + "</div></div>";
     return scens.map(function (s) {
       var mv = (s.links_moved || []).map(function (m) {
-        return '<span class="mv"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(shortName(linkName(c, m.link_id))) + " · " + esc(m.magnitude.toLowerCase()) + "</span>";
+        return '<span class="mv" title="' + esc(m.why || "") + '"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(shortName(linkName(c, m.link_id))) + " · " + esc(String(m.magnitude || "").toLowerCase()) + "</span>";
       }).join("");
       var inds = (s.leading_indicators || []).map(function (i) {
         var trip = ((D.indicators || {}).trips || []).filter(function (t) {
@@ -1154,7 +1139,11 @@
         })[0];
         var trippedAt = i.tripped_at || (trip && trip.tripped_at);
         var badge = trippedAt ? chip("tripped " + trippedAt, "OVER_CROWDED") : i.armed ? chip("armed", "accent") : "";
-        return "<li>" + esc(indText(i)) + (i.where_to_watch ? " <span class='muted'>(" + esc(i.where_to_watch) + ")</span>" : "") + " " + badge + "</li>";
+        return "<li>" + esc(indText(i)) + (i.where_to_watch ? " <span class='muted'>(" + esc(i.where_to_watch) + ")</span>" : "") + " " + badge +
+          (i.check_basis ? "<div class='muted small'>" + esc(i.check_basis) + "</div>" : "") + "</li>";
+      }).join("");
+      var whys = (s.links_moved || []).filter(function (m) { return m && m.why; }).map(function (m) {
+        return "<div class='small'><b>" + esc(shortName(linkName(c, m.link_id))) + ":</b> " + esc(m.why) + "</div>";
       }).join("");
       return '<div class="card scen"><div class="head"><span class="t">' + esc(s.id) + " — " + esc(s.title) + "</span>" +
         chip(s.status, s.status === "SCREENED" ? "accent" : "neutral") + (s.clock && s.clock !== c.clock ? chip(s.clock) : "") +
@@ -1162,15 +1151,10 @@
         '<div class="pbar"><i style="width:' + esc(s.probability_pct) + '%"></i></div>' +
         "<div class='small'>" + esc(s.narrative) + "</div>" +
         "<div style='margin:10px 0 2px'>" + mv + "</div>" +
-        /* At reduced chain fidelity the per-moved-link `why` and each indicator's
-           check basis are not carried. Say it, rather than showing a shorter scenario
-           that looks like a thinner one. */
-        (s.why_held ? "<div class='muted small'>the reason each of these " + s.why_held +
-          " link move(s) was written down is in <span class='mono'>" + esc(chainPath(c)) + "</span></div>" : "") +
+        (whys ? "<div style='margin:6px 0'>" + whys + "</div>" : "") +
         "<details><summary>Leading indicators & invalidation</summary><div class='body'><ul class='bullets'>" + inds + "</ul>" +
-        "<div class='small' style='margin-top:8px'><b>Invalidation:</b> " + (s.invalidation_signs || []).map(esc).join(" · ") + "</div>" +
-        (s.evidence_count ? "<div class='muted small' style='margin-top:8px'>" + s.evidence_count +
-          " cited source(s) behind this scenario, in <span class='mono'>" + esc(chainPath(c)) + "</span></div>" : "") +
+        "<div class='small' style='margin-top:8px'><b>Invalidation:</b> " + ((s.invalidation_signs || []).length ? (s.invalidation_signs || []).map(esc).join(" · ") : "<span class='muted'>none recorded</span>") + "</div>" +
+        ((s.evidence || []).length ? "<div style='margin-top:8px'><b class='small'>Sources (" + s.evidence.length + ")</b>" + evList(s.evidence) + "</div>" : "") +
         "</div></details>" +
         "<div style='margin-top:14px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">Open stock screen →</a>' : runButton("run screen " + c.id + " " + s.id, "screens stocks for this scenario, bucketed and tiered")) + "</div></div>";
     }).join("");
@@ -1303,11 +1287,11 @@
           var cw = r.crowdedness === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>pending</span>' :
             (r.crowdedness && r.crowdedness.state ? chip(r.crowdedness.state + (r.crowdedness.pcs_score != null ? " " + r.crowdedness.pcs_score : ""), r.crowdedness.state === "DARK" ? "UNDISCOVERED" : r.crowdedness.state === "CROWDED" ? "CROWDED" : "neutral") : "—");
           var ex = r.theme_revenue_exposure && r.theme_revenue_exposure.pct != null ? "<span class='num'>" + esc(r.theme_revenue_exposure.pct) + "%</span>" :
-            '<span class="muted" title="' + esc((r.theme_revenue_exposure || {}).basis || "") + '">null</span>';
+            '<span class="muted">null</span>' + ((r.theme_revenue_exposure || {}).basis ? "<div class='muted small'>" + esc(r.theme_revenue_exposure.basis) + "</div>" : "");
           var nug = (r.earnings_nuggets || []).length ? "<details><summary>" + r.earnings_nuggets.length + " earnings nugget(s)</summary>" +
             r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + " · <a href='" + esc(n.url) + "'>" + esc(n.accession) + "</a></div></blockquote>"; }).join("") + "</details>" : "";
           var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">Dive →</a>' :
-            r.status === "CANDIDATE" ? "" : chip(r.status);
+            r.status === "CANDIDATE" ? runButton("run deepdive " + r.ticker + " " + chainId, "opens the last-mile analysis on this name", { compact: true }) : chip(r.status);
           return "<tr><td><div class='tk-name'>" + esc(r.ticker) + "</div><div class='tk-co'>" + esc(r.name || "") + " · " + esc(r.exchange || "") + "</div>" + nug + "</td>" +
             "<td>" + tierChip(r.tier) + "</td><td class='small' style='max-width:280px'>" + esc(r.thesis_1line) + "</td>" +
             "<td>" + ex + "</td><td>" + f + "</td><td>" + cw + "</td><td>" + act + "</td></tr>";
@@ -1390,48 +1374,6 @@
       gradeChip(st.earnings_quality) +
       '<span class="muted">updated <span class="num">' + esc(st.updated_at) + '</span> · review <span class="num">' + esc(st.review_by) + "</span></span>" +
       staleChip(st.updated_at) + "</span></div>";
-    /* A finished dive is ~55 KB of prose and nearly all of it renders, so app/build.py
-       carries whole dives newest-first up to STOCK_DETAIL_BUDGET_BYTES and stops. This is
-       the page for one that did not fit. It shows the verdict, the clock, the levels, the
-       review date and the real price chart — everything the index row carries — and then
-       says plainly that the written case is in the file rather than drawing empty Bull,
-       Bear and Red team cards, which would read as "never written" instead of "not on
-       this page". */
-    if (st.detail_inlined === false) {
-      var cn = (D.carried || {}).stocks || {};
-      return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
-        '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
-        seclabel("Price") + "<div class='card'>" + priceChart(mk, st) + "</div>" +
-        /* Only when the summary fidelity carried them. An index-only dive has no bull or
-           bear on the page, and empty Bull/Bear headers read as "never written" (seen on
-           VRT, 2026-09-03), which the card below is there to prevent. */
-        (((st.bull || []).length || (st.bear || []).length)
-          ? seclabel("The case") +
-            '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
-            '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>"
-          : "") +
-        ((st.red_team || {}).surviving_bear_case
-          ? "<div class='card redteam' style='margin-top:14px'><div class='rt-label'>Red team — attacked " +
-            esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") +
-            " · " + esc(st.red_team.challenge_count) + " challenge(s), not on this page</div>" +
-            "<div class='small' style='margin-top:10px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
-          : "") +
-        seclabel("The rest of the writeup") +
-        "<div class='card'><h3>Not carried on this page</h3><div class='small'>" +
-        "Everything above is this dive's own. " +
-        ((st.bull || []).length
-          ? "Its expectations gap, priced-in table, valuation lines, filing quotes, data gaps, red-team challenges and history are"
-          : "Its bull and bear cases, expectations gap, priced-in table, valuation lines, filing quotes, data gaps, red team and history are") +
-        " not on this page — they are in <span class='mono'>data/stocks/" +
-        esc(ticker) + "__" + esc(chainId) + ".json</span>.</div>" +
-        (cn.total ? "<div class='small muted' style='margin-top:8px'>Of " + esc(cn.total) +
-          " dives on file this build carried " + esc(cn.carried) + " in full, " +
-          esc(cn.summary) + " down to bull, bear and the surviving bear case, and " +
-          esc(cn.index_only) + " as verdict and levels only — " + esc(cn.order) +
-          ". A finished dive is tens of kilobytes of prose and the whole page has to " +
-          "open on a phone.</div>" : "") +
-        "</div>" + footer() + "</main>";
-    }
     var rt = st.red_team
       ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
         (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
@@ -1515,7 +1457,7 @@
       "</div>" : "";
     var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
       "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
-      "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
+      "<dt>Market cap</dt><dd class='num'>" + esc(num((st.valuation_snapshot.market_cap || {}).value)) + "</dd>" +
       (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + "]</span></dd>"; }).join("") +
       (st.entry_zone ? "<dt>Entry basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") +
       (st.would_buy_zone != null ? "<dt>Would-buy basis</dt><dd class='small'>" + esc(st.would_buy_zone.basis) + (str_or_empty(st.would_buy_zone.as_of) ? " <span class='muted'>[drawn " + esc(st.would_buy_zone.as_of) + "]</span>" : "") + "</dd>" : "") + "</div></div>";
@@ -1549,7 +1491,7 @@
     var cls = (g === "A" || g === "B") ? "accent" : (g === "C" ? "CROWDED" : g === "D" ? "OVER_CROWDED" : "stale");
     return chip("earnings " + (g === null ? "NULL" : esc(g)), cls);
   }
-  function pct(v) { return v == null ? "—" : (v * 100).toFixed(1) + "%"; }
+  function pct(v) { return v == null ? "–" : (v * 100).toFixed(1) + "%"; }
   function ord(n) {
     var r = n % 100;
     if (r >= 11 && r <= 13) return n + "th";
@@ -1626,35 +1568,24 @@
     }
     return s + "</div>";
   }
-  /* What this page is holding of a price series, in the page's own words.
-     app/build.py inlines the full daily file only for tickers that have a dive, and
-     downsamples even those to method.page.series_points evenly spaced points — the chart
-     is 940px wide and drew 420 at most anyway. A downsample rendered as if it were the
-     whole file is the same defect class as an invented number, so every chart states
-     `inlined_rows` against `row_count` and names the file that has the rest. */
+  /* What this page is holding of a price series, in the page's own words. Since
+     2026-09-04 app/build.py carries every ticker's full daily series, so this states
+     the count against the file and can only disagree with it if the build broke. */
   function seriesNote(mk, ticker) {
     var s = (mk || {}).series;
     if (!s || s.row_count == null) return "";
     var path = "data/market/" + String(ticker || "").replace(/\./g, "-") + ".json";
-    if (s.sampling === "HEADER_ONLY") {
-      return s.row_count + " price points exist in " + path +
-        "; this page carries none of them — the series is inlined only for tickers with a dive";
-    }
-    if (s.sampling === "EVEN" && s.inlined_rows != null && s.inlined_rows < s.row_count) {
-      return s.inlined_rows + " of " + s.row_count + " price points, evenly spaced · full daily series in " + path;
-    }
-    return "all " + s.row_count + " price points on file";
+    var have = (s.rows || []).length;
+    if (have < s.row_count) return have + " of " + s.row_count + " price points on this page (build defect: the page is meant to carry them all) · " + path;
+    return "all " + s.row_count + " daily price points on file · " + path;
   }
   function priceChart(mk, st) {
     if (!mk || !mk.series) {
       return '<div class="emptystate">No price series yet.<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
     }
-    if (!(mk.series.rows || []).length) {
-      /* Two different states that must never be shown as one: the fetch has never run,
-         and the fetch has run but this build did not carry the series onto the page. */
-      return mk.series.row_count
-        ? '<div class="emptystate">This page is not carrying this price series.<div class="small muted" style="margin-top:8px">' + esc(seriesNote(mk, st.ticker)) + "</div></div>"
-        : '<div class="emptystate">No price series yet.<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
+    if ((mk.series.rows || []).length < 2) {
+      return '<div class="emptystate">' + ((mk.series.rows || []).length ? "Only one price point on file, nothing to draw yet." : "No price series yet.") +
+        '<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
     }
     var rows = mk.series.rows;
     var step = Math.max(1, Math.floor(rows.length / 420));
@@ -1663,9 +1594,13 @@
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
     var vals = pts.map(function (r) { return r[1]; });
     var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
-    if (st.entry_zone) { lo = Math.min(lo, st.entry_zone.low); hi = Math.max(hi, st.no_entry_above || hi); }
+    /* Every drawn level extends the axis on BOTH ends, or a zone above the plotted max
+       is drawn outside the plot (found 2026-09-04). */
+    function ext(v) { if (typeof v === "number" && isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
+    if (st.entry_zone) { ext(st.entry_zone.low); ext(st.entry_zone.high); }
+    ext(st.no_entry_above);
     var wbz = st.verdict === "WATCH" && st.would_buy_zone != null ? st.would_buy_zone : null;
-    if (wbz) { lo = Math.min(lo, wbz.low); }
+    if (wbz) { ext(wbz.low); ext(wbz.high); }
     var pad = (hi - lo) * 0.07; lo -= pad; hi += pad;
     function X(i) { return P.l + (i / (pts.length - 1)) * iw; }
     function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
@@ -1690,19 +1625,32 @@
       s += '<line x1="' + P.l + '" y1="' + Y(st.no_entry_above) + '" x2="' + (W - P.r) + '" y2="' + Y(st.no_entry_above) + '" stroke="var(--ovr)" stroke-width="0.9" stroke-dasharray="2 5"/>' +
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.no_entry_above) + 4) + '" font-size="10" class="mono-t" fill="var(--ovr)">' + esc(st.no_entry_above) + " no entry</text>";
     }
+    /* Tick precision follows the axis span: a 3-to-6 range printed with toFixed(0) drew
+       two gridlines both labelled "5" (688425.SS, 2026-09-04). */
+    var tickStep = (hi - lo) / 4;
+    var tickDp = tickStep >= 5 ? 0 : tickStep >= 0.5 ? 1 : 2;
     for (var t = 0; t <= 4; t++) {
       var v = lo + ((hi - lo) * t) / 4;
       s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
       // top tick carries the axis name inline; the rest keep bare numbers (Evidence axis grammar)
       // sits just inside the plot on the top gridline, so the event-label band above stays clear
-      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(0) + "   price" + (mk.series.currency ? ", " + esc(mk.series.currency) : "") + "</text>";
-      else s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(0) + "</text>";
+      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(tickDp) + "   price" + (mk.series.currency ? ", " + esc(mk.series.currency) : "") + "</text>";
+      else s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(tickDp) + "</text>";
     }
     var lbl = Math.max(1, Math.floor(pts.length / 6));
     pts.forEach(function (r, i) { if (i % lbl === 0 && i < pts.length - 3) s += '<text x="' + X(i) + '" y="' + (H - P.b + 16) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(r[0].slice(0, 7)) + "</text>"; });
     // An event outside the price window is exactly the one that must not vanish: a SCHEDULED
     // occurrence or a dated calendar entry is future by definition. Clamp it to the edge instead.
-    (st.events || []).forEach(function (e, ei) {
+    /* Two event shapes exist on disk: {label, date} and {what, when, why} (688425.SS,
+       2026-09-02). The second carries its date inside prose; take the first ISO date in
+       it, and skip the marker (never the page) when there is none. Found 2026-09-04:
+       `e.label.length` threw and the whole stock page failed to route. */
+    (st.events || []).map(function (e) {
+      if (!e || typeof e !== "object") return null;
+      var label = e.label || e.what || e.title || "";
+      var m = String(e.date || e.when || "").match(/\d{4}-\d{2}-\d{2}/);
+      return m ? { label: label, date: m[0] } : null;
+    }).filter(Boolean).forEach(function (e, ei) {
       var idx = -1, off = "";
       pts.forEach(function (r, i) { if (idx < 0 && r[0] >= e.date) idx = i; });
       if (idx < 0) { idx = pts.length - 1; off = "after"; }
@@ -1719,7 +1667,7 @@
     s += '<path d="' + path + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
     var last = pts[pts.length - 1];
     s += '<circle cx="' + X(pts.length - 1) + '" cy="' + Y(last[1]) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
-    s += '<text x="' + (X(pts.length - 1) + 9) + '" y="' + (Y(last[1]) + 4) + '" font-size="11.5" font-weight="650" class="mono-t" fill="var(--ink)">' + last[1] + "</text>";
+    s += '<text x="' + (X(pts.length - 1) + 9) + '" y="' + (Y(last[1]) + 4) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(last[0]) + "</text>";
     s += '<text x="' + (W - P.r) + '" y="' + (H - 6) + '" text-anchor="end" font-size="10.5" class="mono-t" fill="var(--ink-3)">date \u2192</text>';
     s += '<rect id="pxhover" x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
     s += "</svg></div>";
@@ -1804,13 +1752,13 @@
       return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + (r.dive_status ? chip(r.dive_status, r.dive_status === "FINAL" ? "accent" : "stale") : chip("not dived", "neutral")) + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
-        "<td>" + esc(r.data_tier || "") + "</td></tr>";
+        "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>tier not set</span>") + "</td></tr>";
     }).join("");
     var o2Rows = (b.o2 || []).map(function (r) {
       return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + (r.heat_verdict ? chip(r.heat_verdict.replace(/_/g, " "), r.heat_verdict) : chip("unscored link", "neutral")) + (r.money_corner ? " " + chip("money corner", "accent") : "") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
-        "<td>" + esc(r.data_tier || "") + "</td></tr>";
+        "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>tier not set</span>") + "</td></tr>";
     }).join("");
     var blockedRows = (b.blocked || []).map(function (r) {
       return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
@@ -3344,9 +3292,9 @@
         chip(o.status) + chip(o.probability_pct + "%", "accent") + (o.clock ? chip(o.clock) : ""),
         "<p class='small'>" + esc(o.narrative) + "</p>" +
         "<h3>Leading indicators</h3><ul class='bullets'>" + (o.leading_indicators || []).map(function (x) {
-          return "<li>" + esc(x.indicator) + (x.armed ? " " + chip("armed", "accent") : "") + "</li>";
+          return "<li>" + esc(indText(x)) + (x.armed ? " " + chip("armed", "accent") : "") + "</li>";
         }).join("") + "</ul>" +
-        "<div class='small'><b>Invalidation:</b> " + (o.invalidation_signs || []).map(esc).join(" · ") + "</div>" +
+        "<div class='small'><b>Invalidation:</b> " + ((o.invalidation_signs || []).length ? (o.invalidation_signs || []).map(esc).join(" · ") : "<span class='muted'>none recorded</span>") + "</div>" +
         '<div style="margin-top:14px">' + (o.screen_ref
           ? '<a class="chip accent" href="#/screen/' + esc(n.chainId) + "/" + esc(o.id) + '">Open screen →</a>'
           : runButton("run screen " + n.chainId + " " + o.id, "screens stocks for this scenario")) + "</div>");
@@ -4340,17 +4288,7 @@
   }
 
   /* ---------------- shared blocks ---------------- */
-  /* Notes and changelogs are append-only, so they grow without bound while the page only
-     ever shows a tail. app/build.py carries the last method.page.history_rows of each and
-     ships the full count beside it; these two print the denominator whenever the page is
-     holding fewer rows than the file does. Same rule as the ledger's 60 lines and the
-     occurrence log's 900 rows: truncating is fine, reporting the truncated count as the
-     total is not. */
-  function carriedTail(shown, total, unit, where) {
-    if (total == null || total <= shown) return "";
-    return "<div class='muted small' style='margin-top:6px'>showing the last " + shown +
-      " of " + total + " " + esc(unit) + " · the rest are in " + esc(where) + "</div>";
-  }
+  /* Notes and changelogs are append-only and, since 2026-09-04, carried whole. */
   function objPath(obj) {
     if (obj.ticker && obj.chain_id) return "data/stocks/" + obj.ticker + "__" + obj.chain_id + ".json";
     if (obj.links) return chainPath(obj);
@@ -4370,15 +4308,15 @@
     }
     return seclabel("Notes") + (n.length ? n.map(function (x) {
       return '<div class="note"><span class="who">' + esc(x.by) + " · " + esc((x.ts || "").slice(0, 10)) + "</span><br>" + esc(x.text) + "</div>";
-    }).join("") + carriedTail(n.length, obj.notes_total, "notes", objPath(obj))
+    }).join("")
       : '<div class="muted">None — add one from any session: <span class="mono">note ' + esc(obj.id || obj.ticker || "") + ' "…"</span></div>');
   }
   function changelogBlock(obj) {
     var c = (obj.changelog || []).slice().reverse();
-    if (!c.length) return "";
+    if (!c.length) return seclabel("History") + "<div class='muted'>No history entries recorded on this object.</div>";
     return seclabel("History") + "<div class='timeline'>" + c.map(function (x) {
       return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
-    }).join("") + "</div>" + carriedTail(c.length, obj.changelog_total, "history entries", objPath(obj));
+    }).join("") + "</div>";
   }
   /* ---------------- themes: the occurrence log ----------------
      Everything this machine has SEEN, including the small things, clustered. The store
@@ -4415,7 +4353,7 @@
   }
   function thGrid() {
     var cal = thCal(), weeks = cal.weeks || [], per = cal.per_theme || {};
-    if (!weeks.length) return "";
+    if (!weeks.length) return "<div class='muted small'>No weekly occurrence counts calibrated yet (run themes).</div>";
     var peak = 0;
     Object.keys(per).forEach(function (id) {
       weeks.forEach(function (w) { peak = Math.max(peak, (per[id].by_week || {})[w] || 0); });
@@ -4492,10 +4430,6 @@
       "over " + esc(num(d.feed_items_on_disk)) + " feed items, " + esc(num(d.candidates_on_disk)) +
       " candidates, " + esc(num(d.signals_on_disk)) + " signal cards and " +
       esc(num(d.calendar_on_disk)) + " calendar entries currently on disk." +
-      ((TH && TH.total > (TH.rows || []).length)
-        ? " This page carries the newest " + esc((TH.rows || []).length) + " of " +
-          esc(TH.total) + " rows; the counts above are over the whole store."
-        : "") +
       "</div></div>";
   }
   function themesView(themeId) {
@@ -4612,7 +4546,7 @@
           "<div class='small'>" + esc(a.role) + "</div>" +
           "<div class='agentcmds'><span data-stop>" + agentCommandList(a, { compact: true }) + "</span></div>" +
           "<div class='muted' style='margin-top:10px'>" +
-          (led ? "last seen in the ledger " + esc(led.slice(0, 10)) : "no ledger line names " + esc(a.name) + " in the last 60") +
+          (led ? "last seen in the ledger " + esc(led.slice(0, 10)) : "no ledger line names " + esc(a.name)) +
           "</div></div>";
       }).join("") + "</div>"
         : "<div class='emptystate'>No agent contracts reached this build.</div>") +
@@ -4692,7 +4626,8 @@
     else if (p[0] === "campaign") html = campaignView(p[1]);
     else if (p[0] === "book") html = bookView();
     else if (p[0] === "shadow") html = shadowView();
-    else html = cortexView();
+    else if (!p[0]) html = cortexView();
+    else html = notFound("route #/" + p.join("/"));
     app.innerHTML = html;
     // the cortex is the only full-viewport view: the page stops scrolling and the
     // topbar joins the overlays floating on the field

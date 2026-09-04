@@ -26,8 +26,9 @@ What it measured on 2026-08-30, after the fixture's chain size was corrected fro
     60 dives at full analytical fidelity                     3,581,934
     everything at full fidelity                             ~6,290,000
     the budget                                               2,000,000
-    (raised to 12,000,000 on 2026-09-03: Ron chose the higher SIZE_WARN_MB option
-    below, "I don't care about the sizes ... I need all the data")
+    (2026-09-04: the budget is gone. Ron: "I don't care about the digital size of the
+    pages, the megabytes. I just want all the data." Every store is carried whole and
+    the only ceiling is the platform's 16 MB, which build.page_byte_limit() refuses.)
 
 The floor — the page with no written analysis in it at all — is 91% of the budget. So at
 the campaign the manifest locked, this one file holds the navigation for ten themes, two
@@ -60,7 +61,7 @@ def _load_build():
 
 
 build = _load_build()
-HTML_BUDGET = int(build.SIZE_WARN_MB * 1_000_000)
+HTML_BUDGET = build.page_byte_limit()
 
 # The finished campaign, as CLAUDE.md's `run campaign init` contract locks it: 10 themes,
 # 10 issuer maps, at least 200 complete profiles, 30-60 O1 dives. Tickers, signals,
@@ -127,229 +128,112 @@ class TestFixtureIsRealisticallySized(ScaleFixtureCase):
 
 
 class TestProjectedCampaignScaleFitsThePage(ScaleFixtureCase):
-    def test_page_stays_inside_the_single_file_budget(self):
+    def test_page_stays_under_the_platform_cap(self):
         size = len(self.html.encode())
         biggest = sorted(self.sizes.items(), key=lambda kv: -kv[1])[:5]
         self.assertLess(
             size, HTML_BUDGET,
-            "at the finished campaign's scale the page is "
-            f"{size:,} bytes against app/build.py's own {HTML_BUDGET:,}-byte threshold. "
+            "at the finished campaign's scale, carried whole, the page is "
+            f"{size:,} bytes against the platform cap less margin ({HTML_BUDGET:,}). "
             "Heaviest stores: " + ", ".join(f"{k} {v:,}" for k, v in biggest) +
-            ". Raise a projection's fidelity knob in app/build.py before SIZE_WARN_MB")
-
-    def test_no_store_silently_takes_over_the_page(self):
-        overruns = build.store_overruns(self.payload)
-        self.assertFalse(
-            [o for o in overruns],
-            "a store is over its STORE_SHARE_BYTES allowance at campaign scale: "
-            + "; ".join(f"{s} {n:,} > {share:,}" for s, n, share in overruns))
-
-    def test_the_biggest_raw_stores_are_projected_not_inlined(self):
-        """The three that would each blow the page on their own."""
-        raw = {}
-        for store in ("stocks", "market", "impact"):
-            folder = self.data / store
-            raw[store] = sum(f.stat().st_size for f in folder.glob("[!_]*.json"))
-        self.assertGreater(raw["stocks"], 3_000_000)
-        self.assertGreater(raw["market"], 5_000_000)
-        self.assertGreater(raw["impact"], 1_000_000)
-        for store in ("market", "impact"):
-            with self.subTest(store=store):
-                self.assertLess(self.sizes[store], raw[store] / 4)
-        # Ron, 2026-09-03: "I need all the data." Dives are the product; at the 12 MB
-        # ceiling every one is carried whole and the page says so in its own note.
-        note = self.payload["carried"]["stocks"]
-        self.assertEqual(note["carried"], note["total"],
-                         f"{note['total'] - note['carried']} dive(s) cut from the page: "
-                         "the ceiling is meant to carry every dive whole")
+            ". A store has outgrown one file; that is a split-page decision for Ron, "
+            "never a trim")
 
 
-class TestEveryCutIsDeclaredInThePayload(ScaleFixtureCase):
-    """Getting under budget by dropping data silently is the failure this guards.
+def _decode_series(head: dict) -> list:
+    """The python twin of app.js decodeSeries(), so the test can prove the round trip."""
+    from datetime import date, timedelta
+    c = head.get("rows_c") or {}
+    rows = []
+    if c.get("start"):
+        start = date.fromisoformat(c["start"])
+        for off, v in zip(c.get("d") or [], c.get("c") or []):
+            d = (start + timedelta(days=off)).isoformat()
+            rows.append([d] + (v if isinstance(v, list) else [v]))
+    rows.extend(c.get("raw") or [])
+    return rows
 
-    Each assertion below is a denominator the page can print. tools/check_render.py holds
-    the other half — that app.js actually prints them.
-    """
 
-    def test_dive_fidelity_is_stated_and_adds_up(self):
-        note = self.payload["carried"]["stocks"]
-        self.assertEqual(note["total"], SCALE["dives"])
-        self.assertEqual(note["carried"] + note["summary"] + note["index_only"],
-                         note["total"])
-        self.assertGreaterEqual(note["carried"], 1,
-                                "at least the most recent dive must be readable in full")
+class TestEveryStoreIsCarriedWhole(ScaleFixtureCase):
+    """Ron, 2026-09-04: all the data. Nothing on disk that a template can render may be
+    cut, and every denominator the page prints must equal what it carries."""
+
+    def test_dives_and_chains_are_all_whole(self):
+        for store in ("stocks", "chains"):
+            note = self.payload["carried"][store]
+            self.assertEqual(note["carried"], note["total"], store)
+            self.assertEqual(note["summary"], 0)
+            self.assertEqual(note["index_only"], 0)
+        self.assertEqual(self.payload["carried"]["stocks"]["total"], SCALE["dives"])
+        self.assertEqual(self.payload["carried"]["chains"]["total"], SCALE["themes"])
         for row in self.payload["stocks"]:
-            self.assertIn("detail_inlined", row,
-                          "every dive row must say which fidelity it is")
-            for field in ("ticker", "chain_id", "verdict", "clock", "review_by"):
-                self.assertIn(field, row,
-                              f"{field} must survive at every fidelity — the lists, the "
-                              "cortex and the dive hero all read it")
-            if not row["detail_inlined"]:
-                self.assertNotIn("expectations_gap", row)
-
-    def test_chain_fidelity_is_stated_and_adds_up(self):
-        """Ten finished chains are 1.26 MB of a 2 MB file, so chains are elastic too.
-
-        The same contract dives have: three fidelities, a stated denominator, and every
-        row saying which one it is. What must survive at EVERY fidelity is everything the
-        flow strip, the heat scatter, the scenario cards and the cortex draw — the cut is
-        prose, never navigation.
-        """
-        note = self.payload["carried"]["chains"]
-        self.assertEqual(note["total"], SCALE["themes"])
-        self.assertEqual(note["carried"] + note["summary"] + note["index_only"],
-                         note["total"])
-        self.assertGreaterEqual(
-            note["carried"], 1,
-            "the campaign's top-ranked theme must be readable in full on any page")
-        self.assertEqual(note["order"], "campaign theme rank")
-        seen = set()
+            self.assertTrue(row.get("detail_inlined"))
+            self.assertIn("expectations_gap", row)
+            self.assertIn("red_team", row)
         for chain in self.payload["chains"]:
-            fidelity = chain.get("chain_fidelity")
-            seen.add(fidelity)
-            self.assertIn(fidelity, ("FULL", "SUMMARY", "INDEX"),
-                          "every chain row must say which fidelity it is")
+            self.assertEqual(chain.get("chain_fidelity"), "FULL")
+            self.assertIn("notes", chain)
             for link in chain["links"]:
-                for field in ("id", "position", "name", "role", "upstream_of",
-                              "downstream_of", "investability", "heat"):
-                    self.assertIn(field, link,
-                                  f"{field} must survive at every chain fidelity — the "
-                                  "flow strip, the heat map and the cortex all read it")
-                self.assertNotIn("capture_inputs", link,
-                                 "capture_inputs reaches no template; its COUNT is what "
-                                 "the page carries")
-                self.assertIn("capture_inputs_count", link)
-                heat = link.get("heat") or {}
+                self.assertIn("evidence", link)
+                self.assertEqual(len(link["evidence"]), link["evidence_count"])
+                self.assertIn("capture_inputs", link)
                 for leg in ("impact", "crowdedness", "capture"):
-                    block = heat.get(leg)
+                    block = (link.get("heat") or {}).get(leg)
                     if not isinstance(block, dict):
                         continue
-                    self.assertIn("score", block)
-                    self.assertIn("evidence_total", block,
-                                  "a leg whose sources were dropped and whose count went "
-                                  "with them reads as an unsourced assertion")
-                    self.assertGreater(block["evidence_total"], 0)
-                    if fidelity != "FULL":
-                        self.assertEqual(block.get("evidence"), [])
-                    if fidelity == "INDEX":
-                        self.assertNotIn("rationale", block)
-                    else:
-                        self.assertTrue(block.get("rationale"))
+                    self.assertTrue(block.get("rationale"))
+                    self.assertEqual(len(block["evidence"]), block["evidence_total"])
+                    self.assertTrue(all("source_excerpt" in e for e in block["evidence"]
+                                        if isinstance(e, dict) and e.get("source_excerpt") is not None))
             for scen in chain["scenarios"]:
-                for field in ("id", "title", "probability_pct", "links_moved",
-                              "leading_indicators", "invalidation_signs", "narrative"):
-                    self.assertIn(field, scen,
-                                  f"scenario {field} must survive at every chain fidelity")
-                self.assertNotIn("evidence", scen)
-                self.assertIn("evidence_count", scen)
-            if fidelity == "INDEX":
-                self.assertNotIn("notes", chain)
-                self.assertIn("notes_total", chain,
-                              "a chain whose notes were dropped must still say how many "
-                              "there are, or the page prints its 'None — add one' state")
-        # Ron, 2026-09-03: at the 12 MB ceiling every chain is carried whole. The
-        # reduced fidelities stay tested directly (project_chains with a small budget);
-        # this checks the real build never reaches them at the finished campaign's scale.
-        self.assertEqual(seen, {"FULL"},
-                         f"chain fidelities in play at campaign scale: {sorted(seen)}; "
-                         "the ceiling is meant to carry every chain whole")
-        note = self.payload["carried"]["chains"]
-        self.assertEqual(note["carried"], note["total"])
+                self.assertIn("evidence", scen)
+                self.assertEqual(len(scen["evidence"]), scen["evidence_count"])
+                for moved in scen["links_moved"]:
+                    self.assertIn("why", moved)
 
-    def test_the_chain_kept_whole_is_the_campaign_top_ranked_theme(self):
-        """The order is evidence-backed, not alphabetical, and that is the point."""
-        order = build.campaign_chain_order(self.data)
-        self.assertTrue(order, "the fixture wrote a campaign manifest with no themes")
-        full = [c["id"] for c in self.payload["chains"]
-                if c.get("chain_fidelity") == "FULL"]
-        self.assertEqual(full, order[:len(full)],
-                         "chains keep their fidelity in campaign theme-rank order; a "
-                         "different set survived, so the budget is spending the page on "
-                         "whatever sorts first instead of on what the campaign ranked")
-
-    def test_market_series_states_what_it_kept_and_what_the_file_holds(self):
-        header_only, sampled = 0, 0
+    def test_every_market_series_round_trips(self):
         for ticker, doc in self.payload["market"].items():
             series = doc.get("series")
-            self.assertIsNotNone(series, f"{ticker} lost its series header entirely")
-            self.assertIn("row_count", series,
-                          "the page must carry the file's real point count, not only its own")
-            self.assertIn("sampling", series)
-            self.assertIn("inlined_rows", series)
-            self.assertEqual(series["inlined_rows"], len(series.get("rows") or []))
-            if series["sampling"] == "HEADER_ONLY":
-                header_only += 1
-                self.assertEqual(series["inlined_rows"], 0)
-            else:
-                sampled += 1
-                self.assertLessEqual(series["inlined_rows"],
-                                     build.MARKET_SERIES_POINTS)
-                self.assertLess(series["inlined_rows"], series["row_count"],
-                                "a sampled series must be smaller than the file's")
-                # First and last point kept, so the span the chart draws is the real one.
-                self.assertEqual(series["rows"][0][0], "2023-01-01")
-        self.assertGreater(sampled, 0, "no ticker got a chart at all")
-        self.assertGreater(header_only, 200,
-                           "tickers with no dive must not be carrying price series")
+            self.assertIsNotNone(series, f"{ticker} lost its series")
+            self.assertEqual(series["sampling"], "COMPLETE")
+            self.assertEqual(series["inlined_rows"], series["row_count"])
+            on_disk = json.loads((self.data / "market" / f"{ticker}.json").read_text())
+            rows = (on_disk.get("series") or {}).get("rows") or []
+            self.assertEqual(_decode_series(series), rows,
+                             f"{ticker}: the compact series does not decode to the file")
+            self.assertIn("quality", doc)
+            for gone in ("fundamentals", "insider", "prints", "legs"):
+                self.assertNotIn(gone, doc, f"{gone} reaches no template")
 
-    def test_impact_carries_source_counts_not_source_text(self):
-        blob = json.dumps(self.payload["impact"], separators=(",", ":"))
-        self.assertNotIn("source_excerpt", blob)
-        self.assertNotIn("\"evidence\"", blob)
-        full = [a for a in self.payload["impact"] if a["legs_inlined"]]
-        chip = [a for a in self.payload["impact"] if not a["legs_inlined"]]
-        self.assertTrue(full and chip,
-                        "both impact fidelities must be exercised at this scale")
+    def test_impact_carries_legs_and_excerpts(self):
         for appraisal in self.payload["impact"]:
+            self.assertTrue(appraisal["legs_inlined"])
             for leg in ("money_at_stake", "public_reach", "capture_odds", "timing_fit"):
-                self.assertIn("evidence_count", appraisal[leg],
-                              "a leg with its evidence dropped and no count reads as an "
-                              "unsourced assertion")
-                self.assertGreater(appraisal[leg]["evidence_count"], 0)
-            self.assertIsNotNone(appraisal["id"],
-                                 "the page must be able to name the file it did not carry")
-        for appraisal in full:
-            self.assertTrue(appraisal["public_reach"].get("rationale"))
-        for appraisal in chip:
-            self.assertNotIn("rationale", appraisal["public_reach"])
+                block = appraisal[leg]
+                self.assertEqual(len(block.get("evidence") or []), block["evidence_count"])
+                self.assertTrue(block.get("rationale") or block.get("basis"))
 
-    def test_append_only_history_carries_its_full_count(self):
+    def test_append_only_history_is_whole(self):
         seen = 0
-        for store in ("signals", "chains", "screens"):
+        for store in ("signals", "chains", "screens", "stocks", "impact"):
             for doc in self.payload[store]:
-                if "changelog" in doc:
+                if "changelog_total" in doc:
                     seen += 1
-                    self.assertIn("changelog_total", doc)
-                    self.assertLessEqual(len(doc["changelog"]),
-                                         build.HISTORY_ROWS_INLINED)
-                    self.assertLessEqual(len(doc["changelog"]), doc["changelog_total"])
-        self.assertGreater(seen, 0, "nothing carried a changelog — the scan found nothing")
+                    self.assertEqual(len(doc["changelog"]), doc["changelog_total"])
+        self.assertGreater(seen, 0)
 
-    def test_stores_the_page_only_summarizes_carry_their_denominator(self):
-        self.assertEqual(self.payload["requests"]["total"], SCALE["requests"])
-        self.assertGreater(self.payload["requests"]["settled"], 0)
-        self.assertTrue(all(r["status"] in ("PENDING", "FAILED")
-                            for r in self.payload["requests"]["requests"]))
-        self.assertEqual(self.payload["candidates"]["total"], SCALE["candidates"])
-        self.assertNotIn("campaign_record",
-                         json.dumps(self.payload["candidates"], separators=(",", ":")))
-        self.assertEqual(self.payload["themes"]["total"], SCALE["occurrences"])
-        self.assertLessEqual(len(self.payload["themes"]["rows"]),
-                             build.OCCURRENCE_ROWS_INLINED)
-        self.assertLess(len(self.payload["themes"]["rows"]),
-                        self.payload["themes"]["total"])
-
-    def test_link_citations_survive_as_counts(self):
-        counted = 0
-        for chain in self.payload["chains"]:
-            for link in chain["links"]:
-                self.assertNotIn("evidence", link,
-                                 "the link citation array reaches no template; carrying "
-                                 "it is 46 KB of invisible page")
-                self.assertIn("evidence_count", link)
-                counted += link["evidence_count"]
-        self.assertGreater(counted, 0)
+    def test_side_stores_are_whole(self):
+        req = self.payload["requests"]
+        self.assertEqual(len(req["requests"]), req["total"])
+        self.assertEqual(req["total"], SCALE["requests"])
+        cands = self.payload["candidates"]
+        self.assertEqual(len(cands["candidates"]), cands["total"])
+        self.assertEqual(cands["total"], SCALE["candidates"])
+        themes = self.payload["themes"]
+        self.assertEqual(len(themes["rows"]), themes["total"])
+        self.assertEqual(themes["total"], SCALE["occurrences"])
+        feeds = self.payload["feeds"]
+        self.assertEqual(len(feeds["items"]), feeds["total"])
 
 
 if __name__ == "__main__":
