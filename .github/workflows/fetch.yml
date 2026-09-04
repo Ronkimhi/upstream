@@ -38,7 +38,15 @@ jobs:
           python3 -c "import edgar, financetoolkit; from financetoolkit.models import piotroski_model, beneish_model, altman_model; print('analyst deps import OK')"
       - name: fetch
         run: python3 tools/fetch/fetch.py
-      - name: rebuild UI
+      # Best-effort, never a gate on the data commit. app/build.py runs validate.py first
+      # and validate examines session-written profiles: from 2026-09-02 a profile whose NULL
+      # basis says "market file missing" FAILS the moment the fetcher puts that file on disk.
+      # Six consecutive runs (2026-09-02 17:50Z to 2026-09-04 01:34Z) fetched correctly,
+      # failed here, and never reached the commit step, so every fetched file was discarded
+      # and 46 request rows sat PENDING while the data they asked for was thrown away on the
+      # runner. Fetched public data lands regardless; a stale page is the session's problem.
+      - name: rebuild UI (best effort)
+        continue-on-error: true
         run: python3 app/build.py
       - name: commit (race-safe)
         run: |
