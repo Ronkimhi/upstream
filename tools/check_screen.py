@@ -381,10 +381,15 @@ def check_campaign_identity(data: Path, screens: list) -> None:
             if not listing or listing.get("issuer_id") != issuer_id:
                 fail(f"{where}: listing_id {listing_id!r} does not resolve to issuer_id "
                      f"{issuer_id!r} in the qualified mapping")
-            elif listing.get("ticker") != row.get("market_ticker") or \
+            elif (listing.get("market_ticker") or listing.get("ticker")) != row.get("market_ticker") or \
                     listing.get("ticker") != row.get("ticker"):
-                fail(f"{where}: ticker and market_ticker must match the official mapped "
-                     "listing ticker")
+                # A foreign listing carries the exchange's own ticker (BPCL) and the
+                # vendor plane's suffixed one (BPCL.NS) as two fields; comparing the row's
+                # market_ticker against the bare ticker refused every such row (found
+                # 2026-09-04 on russian-diesel-ban, where three admissible names were
+                # dropped rather than written with a market_ticker no file resolves).
+                fail(f"{where}: ticker must match the mapped listing's ticker and "
+                     "market_ticker its market_ticker (or ticker when unset)")
             placement = placements.get((chain_id, link_id, issuer_id))
             if not _is_qualified_placement(placement):
                 fail(f"{where}: link_id {link_id!r} has no current qualified mapping "
