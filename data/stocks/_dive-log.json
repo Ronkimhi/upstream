@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "owner": "stocky",
   "note": "Stocky's calibration. Every number here is recomputed from disk at the start of each dive, never carried in memory. First real dive landed 2026-08-29 (VRT / ai-infrastructure); the denominators below moved off zero for the first time. A zero still means nothing has been graded in that channel yet, NOT that nothing has been wrong.",
   "calibration": {
@@ -18,13 +18,84 @@
       "recomputed_from": "data/shadow/book.json (1 row) and data/shadow/results.json (0 results). No new row this run: 688425.SS is the SIXTH consecutive dive to decline TOO_LATE, and this one declines for a structurally different reason than the five before it, which is worth separating from the escalation rather than folding into it. The first five declined because estimate revisions moved WITH the multiple, a judgement about two moving numbers. This one declines because the multiple moved the WRONG WAY: over twelve months the share fell 29.17% while the trailing earnings base fell only 1.65%, so the trailing P/E went 20.37x to 14.67x, -27.98%, and the price now sits 0.97% BELOW its last pre-announcement close of 2025-07-18 and 47.15% below the 2025-07-24 event peak. Method section 7 makes TOO_LATE conditional on the decomposition SHOWING that multiple expansion ate the runway, and here there is no expansion left to decompose. THE FINDING THAT FALLS OUT OF SIX: TOO_LATE as the method defines it can only be written over a name whose multiple has EXPANDED, and this funnel keeps delivering names whose multiples have CONTRACTED. That is a property of the vocabulary meeting the pipeline, not necessarily of an analyst who cannot say no, and it is a cheaper explanation of a 0-for-6 record than either of the two Ron was offered last run. Escalated as an amendment to the escalation, not resolved here. The single open row SHD-20260829-01 still grades on 2026-11-27. CONFIRMED by the 688425.SS red team on 2026-09-02, which re-tested TOO_LATE rather than inheriting the draft's decline: the decomposition still shows -27.98% of multiple against a -1.65% earnings base with the share 0.97% below its last pre-announcement close, so method section 7's condition cannot be met however negative the file is, and the file is negative. No shadow row created. The escalation to Ron stands unchanged and unresolved."
     },
     "entry_zones": {
-      "question": "Did price ever reach the zones I drew, and what happened after?",
-      "denominator": 0,
+      "question": "Did price ever reach the zones I drew (entry zones on INVESTABLE, would-buy zones on WATCH since 2026-09-03), and what happened after?",
+      "denominator": 3,
       "reached": 0,
       "never_reached": 0,
       "filled_same_week": 0,
       "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone.",
-      "recomputed_from": "data/stocks/*.json: 5 real dive(s), 0 INVESTABLE, so this channel still has no denominator after five dives. 688425.SS is the first dive whose block is a MEASURED expectations gap rather than a data condition: the gap is negative at -7.88pp against a 2.60pp horizon_spread and keeps its sign under all three conventions varied (10-year horizon -5.28pp, mean cash conversion -20.75pp), so no entry band exists to draw at any price this file could defend. The grade-C cap binds independently. Recorded because the previous four dives were blocked by NULL grades, category mismatches and thin margins, and this is the first one where the arithmetic itself says no. AMENDED after the red team of 2026-09-02, which priced the one level in the file rather than accepting it: at the 3.35 watch trigger, EV over the filed base free cash flow falls from 20.30x to 16.47x and the implied five-year ask from 8.45% to about 3.5%, taking the gap from -7.88pp to about -2.9pp. So a 17.9% drawdown would nearly close the valuation gap and still could not produce an entry zone, because the grade-C cap binds at any price. This channel stays at denominator 0 after five dives, and this is the first run in which the reason is documented as a CAP rather than as an absence of a defensible band."
+      "recomputed_from": "data/stocks/*.json on 2026-09-04 by tools/check_analyst.would_buy_reached over data/market series rows: 5 WATCH dives, 3 would-buy zones drawn (VRT 141.66-153.19 against 257.08, HUBB 305.30-378.70 against 459.66, MYRG 113.44-136.48 against 294.42), 2 capped (ANDR.VI grade NULL, 688425.SS grade C, each carrying a SPECULATIVE conditional zone in would_buy_if_uncapped), 0 reached, 0 INVESTABLE entry zones. The channel has a denominator for the first time. Every drawn zone sits 18% to 45% below spot, and every stress attack found the drawn zone on the optimistic side of the file's own bear case (HUBB on post-close net debt, MYRG on conversion, VRT on the 10-year anchor), so the zones are the generous edge of a yes, not the strict one. never_reached is 0 rather than 3 because a zone drawn today has had no time to be missed; it is graded at each dive's review_by. Ron's question of 2026-09-03 (is zero INVESTABLE odd?) is now answerable in data: if price never visits these zones by review_by, the bar is measured too high by the distance recorded per zone; if it does and the names then underperform, the bar was right.",
+      "capped": 2,
+      "zones": [
+        {
+          "file": "data/stocks/VRT__ai-infrastructure.json",
+          "ticker": "VRT",
+          "origin": "WATCH_WOULD_BUY",
+          "low": 141.66,
+          "high": 153.19,
+          "as_of": "2026-09-04",
+          "spot_at_draw": 257.08,
+          "high_vs_spot_pct": -40.41,
+          "low_vs_spot_pct": -44.9,
+          "reached": false,
+          "basis": "Uses only the reverse-DCF's 5-year explicit-period convention, the tougher of the two the filed solve computes since 5-year always implies a higher required FCF CAGR than 10-year at the same price (32.95% against 18.33% at today's $257.08): $141.66 is the price at which that convention's implied FCF CAGR falls to this dive's own defended 17.1% point estimate (valuation_snapshot, reproduced there at $142.22, a 0.4% arithmetic drift already disclosed), and $153.19 is where it falls to the 19% stretch case, both already computed from the filed solve's own base_fcf $1,893.8M, enterprise value $98,476.1M, 9% discount rate and 2.5% terminal growth, changing only price/EV. The 10-year convention's own fair-value point, $234.52, only 8.8% below spot, is deliberately excluded: using it as a trigger would mean accepting the market's own optimistic duration read, exactly the point the independence test leaves unresolved, so it would not be a real margin of safety, just spot with a small haircut. See the entry-basis stress attack in red_team.challenges for why the zone was narrowed to this convention alone."
+        },
+        {
+          "file": "data/stocks/HUBB__ai-infrastructure.json",
+          "ticker": "HUBB",
+          "origin": "WATCH_WOULD_BUY",
+          "low": 305.3,
+          "high": 378.7,
+          "as_of": "2026-09-04",
+          "spot_at_draw": 459.66,
+          "high_vs_spot_pct": -17.61,
+          "low_vs_spot_pct": -33.58,
+          "reached": false,
+          "basis": "Forward-solving the same growing-FCF-plus-Gordon-terminal-value formula behind quality.reverse_dcf (base_fcf $874.7M, 9% discount rate, 2.5% terminal growth; this formula reproduces the filed enterprise values at all three filed horizons [$26,011.5M at 5y vs filed $26,014.0M, $26,008.5M at 7y, $26,006.7M at 10y] to within 0.1%) for expectations_gap.rows[revenue_cagr_5y].mine (8.5%, this dive's own defended growth path) instead of the market-implied 17.92% gives an enterprise value of $17,793.6M at the 5-year explicit horizon actually filed and $21,702.9M at the 10-year horizon also carried in implied_by_horizon; subtracting the same canonical net debt the filed enterprise_value already nets out ($1,535.4M, quality.derived.enterprise_value minus quality.derived.market_cap) and dividing by FY2025 shares outstanding (53,253,805) gives $305.30 (5-year convention) to $378.70 (10-year convention), the band at which the market would be asking no more of Hubbell's FCF path than expectations_gap.rows[revenue_cagr_5y] already defends."
+        },
+        {
+          "file": "data/stocks/MYRG__ai-infrastructure.json",
+          "ticker": "MYRG",
+          "origin": "WATCH_WOULD_BUY",
+          "low": 113.44,
+          "high": 136.48,
+          "as_of": "2026-09-04",
+          "spot_at_draw": 294.42,
+          "high_vs_spot_pct": -53.64,
+          "low_vs_spot_pct": -61.47,
+          "reached": false,
+          "basis": "The expectations_gap revenue_cagr_5y row's defended 'mine' growth of 8.5% closes at this price when quality.reverse_dcf's own bisection formula (reproduced here as an arithmetic check against its own stated assumptions only, matching the filed EV of $4,437,082,786 to within 0.02% at 9% discount rate, 2.5% terminal growth, 5y and 10y explicit horizons) is re-based on the file's four-year average free cash flow of $80.020M (FY2022-2025), replacing the FY2025 outlier base_fcf of $232.195M that is 2.90x it: solving forward for enterprise value at g=8.5% gives $1,627.8M at the 5-year horizon and $1,985.4M at the 10-year horizon, which at the file's own 15,522,834 FY2025 shares and -$133.15M net cash (both already used elsewhere in this file) convert to $113.44 and $136.48 a share; today's 294.42 close instead demands 34.77% (5y) or 19.19% (10y) growth on that same rebased base, the arithmetic form of this file's own 'floor, not measurement' finding on the priced-in ask."
+        }
+      ],
+      "caps": [
+        {
+          "file": "data/stocks/ANDR.VI__tibet-mega-dam.json",
+          "ticker": "ANDR.VI",
+          "cap": "Capped at WATCH by earnings_quality.grade NULL (method section 7), not by price. The entry-basis stress attack already run in this file's red_team established that no drawdown, including 30% to 58.31 EUR (below the 59.00 EUR 52-week low), trips any of the three fundamental watch_triggers or changes the verdict, because the veto is the missing deferred-revenue/contract-liability line named in data_gaps and earnings_quality.inputs.deferred_revenue_drift_basis, not a valuation level. Only REQ-20260902-162 landing the ANDRITZ financial report 2025, so deferred_revenue_drift becomes computable and the grade moves off NULL, can lift this cap; a cheaper price cannot. See would_buy_if_uncapped for the conditional zone this dive can build from its own reverse-DCF figures against that contingency, and the ENTRY_BASIS_STRESS would-buy-zone challenge below for why only its low end survives the bear case.",
+          "conditional": {
+            "low": 73.2,
+            "high": 79.8,
+            "as_of": "2026-09-04",
+            "basis": "Illustrative only, contingent on REQ-20260902-162 landing and the grade lifting off NULL; not a claim this dive is entitled to price today. Reconstructing quality.reverse_dcf's own 2-stage DCF (base_fcf 454.6M EUR, discount rate 9%, terminal growth 2.5%, 5-year explicit period) but solving price for a target implied FCF CAGR g rather than g for the filed price reproduces the filed enterprise value of 8,082.5M EUR at g=5.3% to within 0.02%, which is the check that this reconstruction is faithful to the file's own method rather than a different model. Setting the target g at this dive's own net_gap_direction FCF-CAGR-equivalent expectations (5.49% at the FY2025 cash-conversion point, 3.45% at the four-year-mean conversion point) less the file's own 1.21pp horizon_spread, the margin this dive already uses to call a gap real rather than noise, gives target g of 4.28% and 2.24% and implied enterprise values of approximately 7,737.7M and 7,088.3M EUR. Converting each to price via EV = price * shares_used (97,998,794) - net_cash (911.6M cash less 830.8M total debt = 80.8M) gives approximately 79.8 and 73.2 EUR. Both bounds sit below the 83.30 EUR price_ref and inside 0.3x-2.0x of it. Hand-reconstructed from figures already in this file and the market file, not a new re-solve of the official market-implied figure the dive itself cites; superseded by any actual reverse-DCF re-run once the grade is computable.",
+            "tag": "SPECULATIVE"
+          }
+        },
+        {
+          "file": "data/stocks/688425.SS__tibet-mega-dam.json",
+          "ticker": "688425.SS",
+          "cap": "NULL: earnings grade C caps the verdict at WATCH at any price (method section 7), so no would_buy_zone is drawn regardless of where the shares trade; the cap lifts only if contract liabilities (合同负债) recover above the 1,000,000,000 CNY watch_triggers[0] level, last held at 1,118,911,017.44 twelve months before the 538,788,644.17 print, observable at the 2026 interim balance sheet or the FY2026 annual report. The conditional zone that arithmetic implies once that one condition is met is recorded in would_buy_if_uncapped, tagged SPECULATIVE because it prices a state the file does not yet report.",
+          "conditional": {
+            "tag": "SPECULATIVE",
+            "as_of": "2026-09-04",
+            "zone": {
+              "low": 2.97,
+              "high": 3.3
+            },
+            "basis": "The net_gap_direction row closes at these prices. Replicating the filed reverse-DCF exactly as red_team.stress_computations already validated (base_fcf 1,017,988,684.88, discount rate 9%, terminal growth 2.5%, 5-year horizon; the replication reproduces the filed column to three decimals, 8.447% against a filed 0.0845), and now varying enterprise value (price) instead of the discount rate that stress left fixed: EV = price x 5,333,497,000 shares - net cash 1,098,287,073 (the same net-cash figure the 3.35 trigger stress used). At EV ~14,757,955,110 (price ~2.97) the implied FCF CAGR the price asks for falls to 0.57%, exactly this dive's own net_gap_direction my_expectation, closing the gap to zero. At EV ~16,524,352,905 (price ~3.30) the implied ask is 3.17%, the edge of this file's own 2.60pp horizon_spread band around that same 0.57% path, so the gap is no longer a gap by the file's own rule at any price at or below 3.30. High = 3.30 (upper edge, gap enters the file's own error band), low = 2.97 (gap fully closed). Both bounds sit inside 0.3x-2.0x of the last close 4.08 in data/market/688425-SS.json series.rows (bounds 1.224-8.16) and strictly below price_ref.value.",
+            "bear_case_check": "This zone prices flat-to-near-zero FCF growth (0.57%-3.17%), which is what the surviving bear case already describes: revenue has not moved more than 0.74% in four years, mainland revenue fell 18.14% in FY2025, and the TBM line lost 3.14 points of gross margin. The zone does not require the mainland decline to reverse or margin to recover, so it is a genuine margin-of-safety band rather than one smuggling in a recovery assumption. It does NOT survive independently of the single named trigger: it assumes contract liabilities are the only earnings-quality flag standing between grade C and something better, and leaves the DSO drift (314.35 days) and the capex-to-depreciation cut (0.09x) unaddressed. Method section 7's ladder does not say what grade a name gets when one of three flags clears and two remain, and that gap is the same non-monotonic-ladder question the earnings_quality block already escalated to Ron rather than a new finding."
+          }
+        }
+      ]
     },
     "red_team_amendments": {
       "question": "How often does my own attack change my draft, and which attack lands?",
@@ -357,6 +428,13 @@
       "kind": "AMEND",
       "change": "Fifth red team executed (688425.SS / tibet-mega-dam, tunneling-tbm), fresh context, model escalated to claude-opus-5 by Ron, DRAFT to FINAL. Verdict SURVIVES at WATCH on the COMPOUNDER clock, earnings grade still C. red_team_amendments moves to 5 of 5, and this is the first run to put SIX attack dimensions on a dive. PRICED_IN_CHECK landed a fifth straight time and hardest: the draft's bridge re-derives exactly and its robustness claim does not, because the filed 9% discount rate was declared and never varied and is the only convention that closes the gap (7.5% inside the file's own 2.60pp band, 7.0% sign flip); the filed solve was replicated to three decimals first so the stress is the same model. MARKET_ERROR_CATEGORY ran for the first time and landed: the Sina beneficiary article of 2025-07-23 that carried the basket printed 工程需25台TBM，订单潜力超60亿元, the same sizing the dive uses as its own independent estimate, so the crowd saw the right number and bought anyway, and the surviving market error is about the durability of a harvest-year FCF base rather than about project sizing. CROWDEDNESS_REALITY landed a fourth time on the same document, which falsifies the CHAIN's stated UNDISCOVERED rationale outright and is routed to Atlas and Ember rather than edited. EARNINGS_QUALITY_STRESS ran for the first time and landed twice: a fourth flag (four-year revenue spread 0.74%) and the finding that section 7's grade ladder is non-monotonic, since C caps at WATCH while D only forbids INVESTABLE, so the grade is held at C deliberately. ENTRY_BASIS_STRESS landed a fifth time by pricing the 3.35 trigger (gap -7.88pp to about -2.9pp) and inverting the draft's ranking of its own locks. CAPTURE_REALITY landed a fifth time in the dive's own direction and changed no number, with the direction stated so the count is not misread. PRE_MORTEM stays at 1 of 5, not inflated. TOO_LATE re-tested and declined for the sixth consecutive time on the decomposition; no shadow row. Three findings logged, all ESCALATED or ROUTED, none auto-applied.",
       "prior": "red_team_amendments denominator 4 with CROWDEDNESS_REALITY 3, PRICED_IN_CHECK 4, CAPTURE_REALITY 4, ENTRY_BASIS_STRESS 4 and no MARKET_ERROR_CATEGORY or EARNINGS_QUALITY_STRESS dimension; 688425.SS at DRAFT with red_team_amended null; the implied_growth record carrying three varied conventions and no discount-rate measurement"
+    },
+    {
+      "ts": "2026-09-04T01:23:22Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5",
+      "change": "Five red-team re-runs in fresh context on claude-sonnet-5, in parallel, each writing only its dive file, to fill the would-buy zone method section 7 requires since Ron's decision of 2026-09-03 (a WATCH names the price at which it would have been a yes, or the cap). VRT 141.66-153.19 (5-year-convention points at the defended 17.1% and a 19% stretch; the 10-year anchor at 234.52 was drawn first and rejected by the entry-basis stress as base case with a haircut), HUBB 305.30-378.70 (8.5% defended path forward-solved at 5y and 10y; stress on post-close net debt 4,874.2M drops it to 242.60-316.01), MYRG 113.44-136.48 (rebased on the four-year-average FCF 80.020M; stress on the 0.386 conversion ratio drops it to 92.64-94.76), ANDR.VI null (grade NULL cap, conditional 73.2-79.8 EUR, only the 73.2 end survives), 688425.SS null (grade C cap, conditional 2.97-3.30 CNY). No verdict changed; no red team argued one should. VRT additionally received its campaign identity (issuer_id, listing_id, screen_ref from the O1 profile, the PASS-audited mapping and the DIVED screen row) because amending it broke the exact-bytes legacy admission baseline. Calibration channel 2 renamed from entry zones to zones and recomputed by code: denominator 3, capped 2, reached 0. The log itself was recomputed by the driving session after the five agents returned, not by each agent, so five parallel writers would not race on this file; every number in it is read from the dive files, none from the agents' reports."
     }
   ],
   "dives": [
@@ -376,7 +454,16 @@
       "shadow_ref": "SHD-20260829-01",
       "one_line": "The price asks for the path this dive defends held for ten years, not for twice the path over five: the 32.95% headline was a five-year-horizon artifact and the same solve over ten years returns 18.33%, inside the dive's own band.",
       "prior_verdict": "TOO_LATE (DRAFT, overturned by red team 2026-08-29)",
-      "red_team_amended": true
+      "red_team_amended": true,
+      "would_buy_zone": {
+        "low": 141.66,
+        "high": 153.19,
+        "as_of": "2026-09-04"
+      },
+      "would_buy_basis": null,
+      "issuer_id": "VERTIV-HOLDINGS",
+      "listing_id": "NYSE-VRT",
+      "screen_ref": "data/screens/ai-infrastructure.json"
     },
     {
       "file": "data/stocks/MYRG__ai-infrastructure.json",
@@ -404,7 +491,13 @@
       ],
       "red_team_dimensions_not_landed": [
         "PRE_MORTEM"
-      ]
+      ],
+      "would_buy_zone": {
+        "low": 113.44,
+        "high": 136.48,
+        "as_of": "2026-09-04"
+      },
+      "would_buy_basis": null
     },
     {
       "file": "data/stocks/HUBB__ai-infrastructure.json",
@@ -432,7 +525,13 @@
       ],
       "red_team_dimensions_not_landed": [
         "PRE_MORTEM"
-      ]
+      ],
+      "would_buy_zone": {
+        "low": 305.3,
+        "high": 378.7,
+        "as_of": "2026-09-04"
+      },
+      "would_buy_basis": null
     },
     {
       "file": "data/stocks/ANDR.VI__tibet-mega-dam.json",
@@ -460,7 +559,9 @@
       ],
       "red_team_dimensions_not_landed": [
         "PRE_MORTEM"
-      ]
+      ],
+      "would_buy_zone": null,
+      "would_buy_basis": "Capped at WATCH by earnings_quality.grade NULL (method section 7), not by price. The entry-basis stress attack already run in this file's red_team established that no drawdown, including 30% to 58.31 EUR (below the 59.00 EUR 52-week low), trips any of the three fundamental watch_triggers or changes the verdict, because the veto is the missing deferred-revenue/contract-liability line named in data_gaps and earnings_quality.inputs.deferred_revenue_drift_basis, not a valuation level. Only REQ-20260902-162 landing the ANDRITZ financial report 2025, so deferred_revenue_drift becomes computable and the grade moves off NULL, can lift this cap; a cheaper price cannot. See would_buy_if_uncapped for the conditional zone this dive can build from its own reverse-DCF figures against that contingency, and the ENTRY_BASIS_STRESS would-buy-zone challenge below for why only its low end survives the bear case."
     },
     {
       "file": "data/stocks/688425.SS__tibet-mega-dam.json",
@@ -489,7 +590,9 @@
       ],
       "red_team_dimensions_not_landed": [
         "PRE_MORTEM"
-      ]
+      ],
+      "would_buy_zone": null,
+      "would_buy_basis": "NULL: earnings grade C caps the verdict at WATCH at any price (method section 7), so no would_buy_zone is drawn regardless of where the shares trade; the cap lifts only if contract liabilities (合同负债) recover above the 1,000,000,000 CNY watch_triggers[0] level, last held at 1,118,911,017.44 twelve months before the 538,788,644.17 print, observable at the 2026 interim balance sheet or the FY2026 annual report. The conditional zone that arithmetic implies once that one condition is met is recorded in would_buy_if_uncapped, tagged SPECULATIVE because it prices a state the file does not yet report."
     }
   ]
 }
