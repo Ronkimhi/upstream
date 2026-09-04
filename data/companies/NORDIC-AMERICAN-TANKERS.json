@@ -1,0 +1,175 @@
+{
+ "issuer_id": "NORDIC-AMERICAN-TANKERS",
+ "issuer_name": "Nordic American Tankers Ltd",
+ "as_of": "2026-09-04",
+ "created_at": "2026-09-04T22:10:00Z",
+ "updated_at": "2026-09-04T22:10:00Z",
+ "generated_by": "sieve-profiler",
+ "status": "BLOCKED",
+ "data_tier": "T1",
+ "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:NAT carries a real SEC CIK (1000177), but data/market/NAT.json fundamentals.coverage reads 0 of 20 annual fields found (fetched 2026-08-31, before the 2026-09-01 fetch.py fix that serves the yfinance-statements vendor leg when SEC companyfacts returns zero fields for a filer). Kept at T1 (a real CIK exists) pending the re-fetch.",
+ "opportunity_tier": "O3",
+ "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+ "listing_refs": [
+  "NYSE-NAT"
+ ],
+ "listings": [
+  {
+   "listing_id": "NYSE-NAT",
+   "ticker": "NAT",
+   "exchange": "NYSE",
+   "market_ticker": "NAT",
+   "cik": 1000177,
+   "mapping_ref": "data/mappings/hormuz-maritime.json"
+  }
+ ],
+ "placements": [
+  {
+   "chain_id": "hormuz-maritime",
+   "link_id": "crude-tanker-tonnage",
+   "link_name": "Crude tanker tonnage and ton-mile inflation",
+   "link_position": 9,
+   "role": "Suezmax crude tanker owner whose fleet earns the spot time-charter-equivalent rate the reroute has repriced.",
+   "placement_status": "ACTIVE",
+   "money_corner": false,
+   "link_heat": "OVER_CROWDED",
+   "mapping_ref": "data/mappings/hormuz-maritime.json",
+   "role_evidence": [
+    {
+     "claim": "Nordic American Tankers reports a Suezmax crude tanker fleet and reports its fleet time-charter-equivalent earnings.",
+     "source_name": "Nordic American Tankers Ltd report as per December 31, 2025",
+     "source_date": "2026-02-26",
+     "url": "https://www.nat.bm/nordic-american-tankers-ltd-nyse-nat-report-as-per-december-31-2025-full-speed-ahead/",
+     "tag": "VERIFIED",
+     "source_excerpt": "During the first half of 2025, we acquired two 2016-built suezmax tankers."
+    }
+   ]
+  }
+ ],
+ "sources": {
+  "mapping": "data/mappings/hormuz-maritime.json",
+  "mapping_audit": {
+   "status": "FAIL",
+   "audited_at": "2026-09-04T03:53:11Z",
+   "mapping_status": "ACTIVE"
+  },
+  "chain": "data/chains/hormuz-maritime.json",
+  "market": "data/market/NAT.json"
+ },
+ "business_summary": "Nordic American Tankers Ltd (NYSE: NAT) is a Bermuda-domiciled owner of a homogeneous Suezmax crude tanker fleet, giving it clean spot-market exposure to Gulf-transit tonnage economics. Fundamentals cannot be sourced this run: SEC companyfacts returned zero annual fields for CIK 1000177 (fetched 2026-08-31, before the vendor-fallback fix landed).",
+ "exposure_summary": {
+  "narrative": "NORDIC-AMERICAN-TANKERS has 1 placement on hormuz-maritime (crude-tanker-tonnage, OVER_CROWDED, not the money corner). Every canonical metric is NULL: data/market/NAT.json fundamentals.coverage shows 0 of 20 annual fields found."
+ },
+ "crowdedness_caveats": [
+  "Chain heat scores crude-tanker-tonnage crowdedness 84/100, verdict OVER_CROWDED, REPRICED with 1 leg met. Chain heat evidence names Nordic American specifically: '24/7 Wall St., Tankers surge on rising oil prices' cites a 63.23% year-to-date gain for NAT shares."
+ ],
+ "catalysts": [],
+ "risks": [],
+ "data_gaps": [
+  "Filled 2026-09-04 from data/market/NAT.json: 0 of 11 canonical fields carry a sourced number; all NULL with field-specific bases.",
+  "data/market/NAT.json fundamentals.coverage reads annual_fields_found 0 of 20, fetched 2026-08-31, source sec-companyfacts, verified_zero note 'no revenue concepts found'. This fetch predates fetch.py's 2026-09-01 fix (method section 6A 'Vendor-aggregate fundamentals'; pull-data skill 'fundamentals.sec_attempted') that serves the yfinance-statements vendor leg when the SEC leg finds zero fields for a filer under both us-gaap and ifrs-full. Re-queued this run (fundamentals, quality) to pick up the vendor fallback that did not exist at the time of the original fetch."
+ ],
+ "metrics": {
+  "revenue": {
+   "latest_fy": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Latest fiscal-year revenue: no revenue_fy series in fundamentals (0 of 20 companyfacts annual fields found)."
+   }
+  },
+  "growth": {
+   "revenue_cagr_3y": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "3-year revenue CAGR: no annual revenue points available."
+   }
+  },
+  "margins": {
+   "operating_margin": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Operating margin: operating_income_fy series missing (0 of 20 companyfacts annual fields found)."
+   }
+  },
+  "cash_conversion": {
+   "operating_cash_flow_to_net_income": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Operating cash flow to net income: operating_cashflow_fy and net_income_fy both missing."
+   },
+   "fcf_margin": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Free cash flow margin: operating_cashflow_fy and capex_fy both missing."
+   }
+  },
+  "leverage": {
+   "net_debt_to_ebitda": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Net debt to EBITDA: cash, total_debt, operating_income_fy and depreciation_fy all missing."
+   }
+  },
+  "quality": {
+   "piotroski": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/NAT.json, 0 of 9 inputs found."
+   },
+   "beneish_state": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Beneish M-score: quality.beneish.state is PENDING_DATA in data/market/NAT.json, 0 of 12 inputs found."
+   }
+  },
+  "valuation": {
+   "market_cap": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Market capitalization: quality.derived.market_cap is null in data/market/NAT.json (no companyfacts share count available)."
+   },
+   "price_to_sales": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Price to sales cannot be computed without a market capitalization or revenue figure."
+   }
+  },
+  "reverse_dcf": {
+   "implied_fcf_cagr": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "implied_fcf_cagr not solved: data/market/NAT.json quality.reverse_dcf.state is PENDING_DATA (missing fcf, enterprise_value)."
+   },
+   "horizon_spread": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
+   }
+  }
+ },
+ "disposition": {
+  "state": "BLOCKED",
+  "as_of": "2026-09-04",
+  "basis": "SEC companyfacts returned 0 of 20 annual fields for CIK 1000177 on the 2026-08-31 fetch, predating the 2026-09-01 vendor-fallback fix. Re-queued fundamentals and quality this run (REQ-20260904-73, REQ-20260904-74) to pick up the yfinance-statements leg. Status BLOCKED, data tier T1 pending re-fetch, opportunity tier O3."
+ },
+ "confidence_audit": {
+  "VERIFIED": 0,
+  "INFERRED": 0,
+  "SPECULATIVE": 0,
+  "NULL": 11,
+  "canonical_fields_written": 11,
+  "basis": "All 11 canonical fields NULL this run: SEC companyfacts found 0 of 20 annual fields for this filer as of the last fetch (2026-08-31), before the vendor-fallback fix existed. Re-queued to pick up the fix."
+ },
+ "notes": [
+  "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
+  "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other."
+ ],
+ "changelog": [
+  {
+   "ts": "2026-09-04T22:10:00Z",
+   "by": "sieve-profiler",
+   "kind": "BUILD",
+   "change": "Created BLOCKED profile for NORDIC-AMERICAN-TANKERS from data/mappings/hormuz-maritime.json (ACTIVE, current audit status FAIL) and data/market/NAT.json (sec-companyfacts, 0/20 annual fields found, fetched 2026-08-31 before the 2026-09-01 vendor-fallback fix). 0 of 11 canonical fields sourced; all NULL. Status BLOCKED, opportunity_tier O3. Re-queued fundamentals+quality (REQ-20260904-73, REQ-20260904-74). run profile --campaign CAMP-20260901-01, batch 4."
+  }
+ ]
+}
