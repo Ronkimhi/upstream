@@ -57,7 +57,7 @@
     "source": "data/market/MYRG.json series.rows last close (2026-08-28), price_status AGREED",
     "as_of": "2026-08-28"
   },
-  "price_source_note": "data/market/MYRG.json carries price_status AGREED: the 2026-08-28 close of 294.42 is confirmed by two same-session prints, yfinance 294.4200134277344 and stockanalysis 294.42, agreeing to the cent. stooq was not attempted because stockanalysis answered first. No level in this dive rests on an unconfirmed single print.",
+  "price_source_note": "data/market/MYRG.json currently carries price_status SINGLE_SOURCE (its two legs, yfinance and stockanalysis, now answer for different dates, 2026-09-02 and 2026-09-03 respectively, so neither confirms the other at the file's latest print), a change since this dive was written that an unrelated ESLT/hormuz-maritime dive's postlude found stale on 2026-09-04. This dive's own price_ref (294.42, 2026-08-28) predates that change: at the time it was drawn, the file's price_status was AGREED for that date, with yfinance 294.4200134277344 and stockanalysis 294.42 agreeing to the cent on the same session. No level in this dive rested on an unconfirmed single print as of 2026-08-28; the file's condition has since moved on at more recent, unrelated dates.",
   "what_is_priced_in": [
     {
       "expectation": "Almost all of the last two years' price return is multiple, not delivery, on a peak-to-peak fiscal-year basis. From 2023-08-31 to 2026-08-28 the price rose 107.2% (142.07 to 294.42) while revenue per share rose only 7.9% (FY2023's $218.42 to FY2025's $235.63, computed on companyfacts revenue and shares outstanding), because FY2023 and FY2025 are two similar peaks with a profit collapse (FY2024) sandwiched between them. In log terms, about 90% of the two-year return is price-to-sales re-rating (0.6504x to 1.2494x) and only about 10% is delivered per-share revenue growth. Even after the 41.3% pullback from the 2026-06-29 peak of 501.13, the multiple has not returned to its 2023 level: 1.2494x today against 0.6504x then, roughly 1.9x higher.",
@@ -460,6 +460,14 @@
       "model": "claude-sonnet-5",
       "change": "Re-run in fresh context solely to fill the would_buy_zone Ron's 2026-09-03 method amendment requires on every WATCH. Verdict, clock, status, attacked_at, review_by and price_ref are unchanged. would_buy_zone{113.44, 136.48} added: quality.reverse_dcf's bisection formula was reproduced as an arithmetic check (matches the filed EV to within 0.02%) and re-based on the four-year average FCF of $80.020M in place of the 2.90x-outlier FY2025 base_fcf of $232.195M, then solved forward for the price at which the expectations_gap revenue_cagr_5y row's defended 8.5% growth closes, at the 5-year and 10-year horizons. A fifth attack, ENTRY_BASIS_STRESS_WOULD_BUY_ZONE, stress-tested the zone against this file's own bear[0] capture-conversion finding (revenue +63.8% against FCF +24.6%) and found the zone is optimistic by 18-30% against that ratio (bear-case fair value $92.64-$94.76); the zone is left as drawn per the prescribed method and the finding is recorded in red_team.challenges rather than used to redraw it. confidence_audit recounted mechanically.",
       "prior": "would_buy_zone absent (file predates the 2026-09-03 method amendment)"
+    },
+    {
+      "ts": "2026-09-04T18:20:53Z",
+      "by": "stocky",
+      "kind": "REPAIR",
+      "model": "claude-sonnet-5",
+      "change": "price_source_note repaired inside an unrelated ESLT/hormuz-maritime dive's postlude (tools/check_analyst.py failed on this file because data/market/MYRG.json's price_status has moved on to SINGLE_SOURCE at its latest print, 2026-09-02/2026-09-03 legs answering for different dates, while the note still asserted AGREED). No number in this dive changed: price_ref stays 294.42 as of 2026-08-28, which the note now says was genuinely AGREED-confirmed at the time it was drawn. Only the note's characterization of the file's CURRENT state was stale; per method section 1's rule that a price_source_note must name the status the market file holds now, it is amended rather than left to render a false disclosure.",
+      "prior": "price_source_note asserted price_status AGREED, which stopped being true at data/market/MYRG.json's latest print (SINGLE_SOURCE) sometime before 2026-09-04"
     }
   ],
   "confidence_audit": {
