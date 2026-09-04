@@ -3,7 +3,7 @@
  "issuer_name": "Teekay Tankers Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:15:00Z",
- "updated_at": "2026-09-04T22:15:00Z",
+ "updated_at": "2026-09-04T18:05:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -86,7 +86,8 @@
   "operating_cash_flow_to_net_income remains NULL: net_income_fy in companyfacts for this filer has no data point after 2015-12-31 (a tagging discontinuity, ten years stale against the current 2025 revenue/OCF series), so no common fiscal year exists to pair with operating cash flow. cash_conversion is satisfied via fcf_margin instead (both computed on FY2025).",
   "piotroski and beneish_state remain NULL: data/market/TNK.json quality.piotroski and quality.beneish both report \"only 0 common fiscal period(s)\" across their 9 and 12 respective inputs, the same net_income_fy tagging discontinuity noted above; the change-based legs both scores need cannot be computed without at least two common periods.",
   "net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both null in companyfacts for this filer.",
-  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/TNK.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). All 9 Piotroski and 12 Beneish raw inputs are found, but net_income_fy (only 2011-12-31 through 2015-12-31) and shares_fy (only 2011-12-31 through 2013-12-31) are pinned to a stale, discontinued XBRL concept while every other FY series for this filer (revenue_fy, cost_of_revenue_fy, operating_income_fy, etc.) runs cleanly through 2025-12-31 under a different concept; the two series share zero common fiscal period, so the change-based Piotroski/Beneish legs cannot compute. fundamentals.cash and fundamentals.total_debt are both still entirely absent. This is a concept-selection gap in tools/fetch/fetch.py's fixed FACT_MAP (net_income and shares need a second, more-recent candidate concept for this filer) rather than a data-availability gap a re-fetch of the same document would resolve; a same-day re-queue returns identical results. No re-queue; flagged to backlog as a fetch-code defect outside this run's write scope (tools/ is off-limits to Sieve). Fields stay NULL with their existing bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A."
+  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/TNK.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). All 9 Piotroski and 12 Beneish raw inputs are found, but net_income_fy (only 2011-12-31 through 2015-12-31) and shares_fy (only 2011-12-31 through 2013-12-31) are pinned to a stale, discontinued XBRL concept while every other FY series for this filer (revenue_fy, cost_of_revenue_fy, operating_income_fy, etc.) runs cleanly through 2025-12-31 under a different concept; the two series share zero common fiscal period, so the change-based Piotroski/Beneish legs cannot compute. fundamentals.cash and fundamentals.total_debt are both still entirely absent. This is a concept-selection gap in tools/fetch/fetch.py's fixed FACT_MAP (net_income and shares need a second, more-recent candidate concept for this filer) rather than a data-availability gap a re-fetch of the same document would resolve; a same-day re-queue returns identical results. No re-queue; flagged to backlog as a fetch-code defect outside this run's write scope (tools/ is off-limits to Sieve). Fields stay NULL with their existing bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A.",
+  "Checked 2026-09-04 after the fetcher's XBRL concept map was widened (commit 2d3ce3e) and data/market/TNK.json was re-fetched under it: quality.piotroski (7, STRONG) and cash_conversion.operating_cash_flow_to_net_income (0.871, FY2025) are now fillable, and valuation.market_cap/price_to_sales are corrected off the now-current shares_fy series (was resting on a stale 2013 share count). quality.beneish_state stays NULL: the widened map raised the common-period count from 0 to 1, still short of the 2 needed for a year-over-year Beneish index. leverage.net_debt_to_ebitda and reverse_dcf stay NULL: fundamentals.cash and fundamentals.total_debt remain entirely absent."
  ],
  "metrics": {
   "revenue": {
@@ -132,9 +133,13 @@
     "official_source": true
    },
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Operating cash flow to net income: no fiscal year with both operating cash flow and net income present in the same period."
+    "value": 0.8710313053481631,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TNK.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001419945.json",
+    "source_date": "2026-09-04",
+    "basis": "Operating cash flow 305894000 divided by net income 351186000, both for the fiscal year ended 2025-12-31, from companyfacts. Newly fillable 2026-09-04: before the widened XBRL concept map, net_income_fy for this filer had no data point after 2015-12-31 and shared no common fiscal year with operating_cashflow_fy.",
+    "official_source": true
    }
   },
   "leverage": {
@@ -146,33 +151,37 @@
   },
   "quality": {
    "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Piotroski F-score: data/market/TNK.json quality.piotroski.state is PENDING_DATA."
+    "value": 7,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TNK.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001419945.json",
+    "source_date": "2026-09-04",
+    "basis": "Piotroski F-score 7 (state STRONG), computed over companyfacts statements in data/market/TNK.json quality.piotroski, 9 of 9 inputs found. Re-read 2026-09-04 after the fetcher's widened XBRL concept map (commit 2d3ce3e) resolved the net_income_fy/shares_fy concept-tagging discontinuity that previously left this field with zero common fiscal periods.",
+    "official_source": true
    },
    "beneish_state": {
     "value": null,
     "tag": "NULL",
-    "basis": "Beneish M-score: data/market/TNK.json quality.beneish.state is PENDING_DATA."
+    "basis": "Beneish M-score: data/market/TNK.json quality.beneish.state is PENDING_DATA (re-checked 2026-09-04 after the widened XBRL concept map): only 1 common fiscal period (2022-12-31) exists across the 12 inputs, and every Beneish index is a year-over-year ratio needing at least two common periods, so beneish_state stays NULL naming this gap."
    }
   },
   "valuation": {
    "market_cap": {
-    "value": 7414524361.0,
+    "value": 3084583124.6,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TNK.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001419945.json",
     "source_date": "2026-09-04",
-    "basis": "Market capitalization 7414524361.0 computed in data/market/TNK.json quality.derived.market_cap from share count 83591030 (as of 2013-12-31) times the close 88.7 of 2026-08-28.",
+    "basis": "Market capitalization 3084583124.6 computed in data/market/TNK.json quality.derived.market_cap from share count 34775458 (as of 2025-12-31) times the close 88.7 of 2026-08-28. Corrects the prior 7414524361.0 figure, which used a stale shares_fy point (83591030 as of 2013-12-31) sourced under the old, narrower XBRL concept map; the widened map (commit 2d3ce3e) now resolves shares_fy through 2025-12-31.",
     "official_source": true
    },
    "price_to_sales": {
-    "value": 7.790027034125974,
+    "value": 3.240799376967988,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TNK.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001419945.json",
     "source_date": "2026-09-04",
-    "basis": "Market capitalization 7414524361.0 divided by fiscal year 2025-12-31 revenue 951797000.",
+    "basis": "Market capitalization 3084583124.6 divided by fiscal year 2025-12-31 revenue 951797000. Recomputed 2026-09-04 with the corrected market_cap figure (see valuation.market_cap basis).",
     "official_source": true
    }
   },
@@ -192,15 +201,15 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 from data/market/TNK.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 6 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+  "basis": "Re-profiled 2026-09-04 after the widened XBRL concept map re-fetch (commit 2d3ce3e): quality.piotroski, cash_conversion.operating_cash_flow_to_net_income now sourced; valuation corrected off the current share count. 8 of 12 canonical fields now carry a sourced number (up from 6). Status COMPLETE, opportunity_tier O2 unchanged (selection assigns O1); leverage.net_debt_to_ebitda and reverse_dcf remain NULL so O1's critical-field rule still excludes this profile."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 5,
+  "INFERRED": 7,
   "SPECULATIVE": 0,
-  "NULL": 6,
+  "NULL": 4,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 6 canonical field(s) remain NULL this run."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 4 canonical field(s) remain NULL this run (leverage.net_debt_to_ebitda, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread)."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -224,6 +233,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile TEEKAY-TANKERS: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for quality.piotroski/beneish_state and leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T18:05:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile TNK: re-read data/market/TNK.json in full after the fetcher's XBRL concept map was widened today (commit 2d3ce3e) and the file was re-fetched under it. quality.piotroski filled (7, STRONG, 9/9 inputs); cash_conversion.operating_cash_flow_to_net_income filled (0.871, FY2025); valuation.market_cap and price_to_sales corrected from a stale 2013 share count (83,591,030) to the current FY2025 count (34,775,458), market_cap now 3,084,583,124.60 (was 7,414,524,361.00). quality.beneish_state stays NULL naming the still-short common-period count (1 of 2 needed). leverage.net_debt_to_ebitda and reverse_dcf stay NULL naming missing cash/total_debt. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage and reverse_dcf still NULL)."
   }
  ]
 }

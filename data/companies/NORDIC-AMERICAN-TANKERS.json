@@ -3,7 +3,7 @@
  "issuer_name": "Nordic American Tankers Ltd",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:10:00Z",
- "updated_at": "2026-09-04T22:10:00Z",
+ "updated_at": "2026-09-04T18:05:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -85,7 +85,8 @@
   "Filled 2026-09-04 from data/market/NAT.json: 8 of 12 canonical fields carry a sourced number; 4 remain NULL, each with a field-specific basis naming the missing series or state.",
   "fcf_margin remains NULL: capex_fy is absent entirely from companyfacts for this filer (NAT typically finances vessels off-balance via bareboat/JV structures rather than reporting a capex line), so cash_conversion is satisfied via operating_cash_flow_to_net_income alone.",
   "net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both null in companyfacts for this filer, so no net debt or enterprise value figure exists to compute either.",
-  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/NAT.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality (piotroski 5, beneish_state CLEAN) is already complete. fundamentals.cash and fundamentals.total_debt are both still entirely absent under tools/fetch/fetch.py's single fixed cash candidate concept; a same-day re-queue against the same SEC companyfacts document would return identical results, matching the pattern already confirmed exhausted for DHT, FRO, TEEKAY-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION and ELBIT-SYSTEMS in this same gap-closing pass. No re-queue. net_debt_to_ebitda stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A."
+  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/NAT.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality (piotroski 5, beneish_state CLEAN) is already complete. fundamentals.cash and fundamentals.total_debt are both still entirely absent under tools/fetch/fetch.py's single fixed cash candidate concept; a same-day re-queue against the same SEC companyfacts document would return identical results, matching the pattern already confirmed exhausted for DHT, FRO, TEEKAY-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION and ELBIT-SYSTEMS in this same gap-closing pass. No re-queue. net_debt_to_ebitda stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A.",
+  "Checked 2026-09-04 against the fetcher's XBRL concept map widen (commit 2d3ce3e, same-day re-fetch of data/market/NAT.json): every canonical field value on this profile matches the re-fetched file exactly (piotroski 5 MIDDLING, beneish -3.366 CLEAN, revenue/growth/margins/cash-conversion/valuation all unchanged). fcf_margin stays NULL (capex_fy still entirely absent from companyfacts for this filer). net_debt_to_ebitda and reverse_dcf stay NULL (cash and total_debt still entirely absent)."
  ],
  "metrics": {
   "revenue": {
@@ -150,7 +151,7 @@
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
     "source_date": "2026-09-04",
-    "basis": "Piotroski F-score 5 (state MIDDLING), computed over companyfacts statements in data/market/NAT.json quality.piotroski, 9 of 9 inputs found.",
+    "basis": "Piotroski F-score 5 (state MIDDLING), computed over companyfacts statements in data/market/NAT.json quality.piotroski, 9 of 9 inputs found. Re-checked 2026-09-04 against the re-fetch under the fetcher's widened XBRL concept map (commit 2d3ce3e): unchanged.",
     "official_source": true
    },
    "beneish_state": {
@@ -159,7 +160,7 @@
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
     "source_date": "2026-09-04",
-    "basis": "Beneish M-score -3.366 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/NAT.json quality.beneish, 12 of 12 inputs found.",
+    "basis": "Beneish M-score -3.366 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/NAT.json quality.beneish, 12 of 12 inputs found. Re-checked 2026-09-04 against the re-fetch under the fetcher's widened XBRL concept map (commit 2d3ce3e): unchanged.",
     "official_source": true
    }
   },
@@ -199,7 +200,7 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 from data/market/NAT.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 8 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+  "basis": "Re-checked 2026-09-04 against data/market/NAT.json re-fetched under the fetcher's widened XBRL concept map (commit 2d3ce3e): no canonical field changed. 8 of 12 canonical fields carry a sourced number. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage.net_debt_to_ebitda and reverse_dcf remain NULL)."
  },
  "confidence_audit": {
   "VERIFIED": 1,
@@ -207,7 +208,7 @@
   "SPECULATIVE": 0,
   "NULL": 4,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 4 canonical field(s) remain NULL this run."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 4 canonical field(s) remain NULL this run (cash_conversion.fcf_margin, leverage.net_debt_to_ebitda, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread). Re-checked 2026-09-04 against the widened-concept-map re-fetch of data/market/NAT.json: no field changed."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -231,6 +232,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile NORDIC-AMERICAN-TANKERS: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T18:05:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile NAT: re-read data/market/NAT.json in full after the fetcher's XBRL concept map was widened today (commit 2d3ce3e) and the file was re-fetched under it. Every canonical field already matched the re-fetched file exactly (quality.piotroski 5 MIDDLING, quality.beneish_state -3.366 CLEAN, revenue 291,690,000, growth -4.92%, operating_margin 15.89%, cash_conversion.operating_cash_flow_to_net_income 1.616, market_cap 1,446,257,028.29, price_to_sales 4.958); no numeric field changed. fcf_margin stays NULL (capex absent), leverage.net_debt_to_ebitda and reverse_dcf stay NULL (cash/total_debt absent). Status COMPLETE, opportunity_tier O2 unchanged; not O1-eligible under the critical-field rule."
   }
  ]
 }

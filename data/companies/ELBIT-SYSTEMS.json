@@ -3,7 +3,7 @@
  "issuer_name": "Elbit Systems Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:30:00Z",
- "updated_at": "2026-09-04T22:30:00Z",
+ "updated_at": "2026-09-04T18:05:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -85,38 +85,39 @@
   "Filled 2026-09-04 from data/market/ESLT.json: 9 of 12 canonical fields carry a sourced number; 3 remain NULL, each with a field-specific basis naming the missing series or state.",
   "revenue_latest_fy, revenue_cagr_3y, operating_margin and fcf_margin are all anchored on fiscal year 2024-12-31: companyfacts revenue_fy for this filer has no 2025 point yet, even though operating_income_fy, operating_cashflow_fy and net_income_fy already carry a 2025 figure. operating_cash_flow_to_net_income therefore uses the more current FY2025 pair (both series overlap there); the two cash-conversion fields are consequently sourced from different fiscal years, each stated in its own basis.",
   "net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both null in companyfacts for this filer, so no net debt or enterprise value figure exists.",
-  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/ESLT.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality (piotroski 7 STRONG, beneish -2.437 CLEAN) is already complete and official-source cross-checkable. fundamentals.cash and fundamentals.total_debt are both still entirely absent under the same single fixed cash-concept limitation confirmed exhausted elsewhere in this pass (DHT, FRO, TEEKAY-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION, NORDIC-AMERICAN-TANKERS); a same-day re-queue would return identical results. No re-queue. net_debt_to_ebitda stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A."
+  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/ESLT.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality (piotroski 7 STRONG, beneish -2.437 CLEAN) is already complete and official-source cross-checkable. fundamentals.cash and fundamentals.total_debt are both still entirely absent under the same single fixed cash-concept limitation confirmed exhausted elsewhere in this pass (DHT, FRO, TEEKAY-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION, NORDIC-AMERICAN-TANKERS); a same-day re-queue would return identical results. No re-queue. net_debt_to_ebitda stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A.",
+  "Checked 2026-09-04 after the fetcher's XBRL concept map was widened (commit 2d3ce3e) and data/market/ESLT.json was re-fetched under it: revenue_fy now carries a 2025-12-31 point, so revenue.latest_fy, growth.revenue_cagr_3y, margins.operating_margin, cash_conversion.fcf_margin and valuation.price_to_sales all move from a FY2024 base to FY2025 and are now internally consistent with cash_conversion.operating_cash_flow_to_net_income (already FY2025). quality.piotroski moved 7 to 8 and quality.beneish_state moved -2.437 to -2.473 (both states unchanged, STRONG/CLEAN) as the widened map changed which fiscal-year points the change-based criteria compare. net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both still entirely absent in companyfacts for this filer."
  ],
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": 6827871000,
+    "value": 7938627000,
     "tag": "VERIFIED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Revenue for the fiscal year ended 2024-12-31 as reported to SEC XBRL companyfacts for CIK 1027664 (Elbit Systems Ltd., ESLT)."
+    "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1027664 (Elbit Systems Ltd., ESLT). Newly available 2026-09-04: revenue_fy had no 2025 point as of the prior fetch even though operating_income_fy, operating_cashflow_fy and net_income_fy already carried a 2025 figure; the widened concept map (commit 2d3ce3e) resolved it, so this profile now anchors on FY2025 instead of FY2024."
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": 0.08957639148482555,
+    "value": 0.12933791284329832,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Three-year compound annual revenue growth computed as (6827871000 / 5278521000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2021-12-31 to fiscal year ended 2024-12-31.",
+    "basis": "Three-year compound annual revenue growth computed as (7938627000 / 5511549000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. Recomputed 2026-09-04 to the now-available FY2025 base (was FY2024/FY2021).",
     "official_source": true
    }
   },
   "margins": {
    "operating_margin": {
-    "value": 0.07162598707561992,
+    "value": 0.08457684181408195,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Operating income 489053000 divided by revenue 6827871000, both for the fiscal year ended 2024-12-31, from companyfacts.",
+    "basis": "Operating income 671424000 divided by revenue 7938627000, both for the fiscal year ended 2025-12-31, from companyfacts. Recomputed 2026-09-04 on the now-available FY2025 revenue (was paired with FY2024 revenue 6827871000).",
     "official_source": true
    }
   },
@@ -127,16 +128,16 @@
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Operating cash flow 778378000 divided by net income 534339000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+    "basis": "Operating cash flow 778378000 divided by net income 534339000, both for the fiscal year ended 2025-12-31, from companyfacts. Value unchanged from the prior run (it was already sourced on FY2025, the only period with both series present); now consistent with revenue.latest_fy, which also anchors on FY2025 as of this run.",
     "official_source": true
    },
    "fcf_margin": {
-    "value": 0.04680214374290317,
+    "value": 0.06963546719098908,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Free cash flow margin: operating cash flow 534610000 less capital expenditure 215051000, divided by revenue 6827871000, all for the fiscal year ended 2024-12-31, from companyfacts.",
+    "basis": "Free cash flow margin: operating cash flow 778378000 less capital expenditure 225568000, divided by revenue 7938627000, all for the fiscal year ended 2025-12-31, from companyfacts. Recomputed 2026-09-04 on the now-available FY2025 series (was FY2024: opcf 534610000, capex 215051000, revenue 6827871000).",
     "official_source": true
    }
   },
@@ -149,21 +150,21 @@
   },
   "quality": {
    "piotroski": {
-    "value": 7,
+    "value": 8,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Piotroski F-score 7 (state STRONG), computed over companyfacts statements in data/market/ESLT.json quality.piotroski, 9 of 9 inputs found.",
+    "basis": "Piotroski F-score 8 (state STRONG), computed over companyfacts statements in data/market/ESLT.json quality.piotroski, 9 of 9 inputs found. Updated 2026-09-04: score moved from 7 to 8 (state unchanged, STRONG) under the widened XBRL concept map re-fetch (commit 2d3ce3e), which changed which fiscal-year points several change-based criteria compare.",
     "official_source": true
    },
    "beneish_state": {
-    "value": -2.437,
+    "value": -2.473,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Beneish M-score -2.437 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/ESLT.json quality.beneish, 12 of 12 inputs found.",
+    "basis": "Beneish M-score -2.473 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/ESLT.json quality.beneish, 12 of 12 inputs found. Updated 2026-09-04: score moved from -2.437 to -2.473 (state unchanged, CLEAN) under the widened XBRL concept map re-fetch (commit 2d3ce3e).",
     "official_source": true
    }
   },
@@ -178,12 +179,12 @@
     "official_source": true
    },
    "price_to_sales": {
-    "value": 4.769613554421284,
+    "value": 4.102259253324284,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
     "source_date": "2026-09-04",
-    "basis": "Market capitalization 32566306069.440002 divided by fiscal year 2024-12-31 revenue 6827871000.",
+    "basis": "Market capitalization 32566306069.440002 divided by fiscal year 2025-12-31 revenue 7938627000. Recomputed 2026-09-04 on the now-available FY2025 revenue (was divided by FY2024 revenue 6827871000); market_cap itself is unchanged (already computed off the current FY2025 share count).",
     "official_source": true
    }
   },
@@ -203,7 +204,7 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 from data/market/ESLT.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 9 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+  "basis": "Re-profiled 2026-09-04 after the widened XBRL concept map re-fetch (commit 2d3ce3e): revenue/growth/margins/fcf_margin/price_to_sales rebased from FY2024 to the now-available FY2025, and quality.piotroski/beneish_state updated (8 STRONG, -2.473 CLEAN). 9 of 12 canonical fields carry a sourced number (unchanged count, values updated). Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage.net_debt_to_ebitda and reverse_dcf remain NULL)."
  },
  "confidence_audit": {
   "VERIFIED": 1,
@@ -211,7 +212,7 @@
   "SPECULATIVE": 0,
   "NULL": 3,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 3 canonical field(s) remain NULL this run."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 3 canonical field(s) remain NULL this run (leverage.net_debt_to_ebitda, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread). Re-verified 2026-09-04 against the widened-concept-map re-fetch; VERIFIED/INFERRED/NULL split (1/8/3) unchanged, but every INFERRED value moved to the now-available FY2025 base or an updated quality score."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -235,6 +236,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile ELBIT-SYSTEMS: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T18:05:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile ESLT: re-read data/market/ESLT.json in full after the fetcher's XBRL concept map was widened today (commit 2d3ce3e) and the file was re-fetched under it. revenue_fy now carries FY2025 (7,938,627,000, was FY2024's 6,827,871,000), so revenue.latest_fy, growth.revenue_cagr_3y, margins.operating_margin, cash_conversion.fcf_margin and valuation.price_to_sales all moved to the FY2025 base, now consistent with cash_conversion.operating_cash_flow_to_net_income (already FY2025, value unchanged at 1.457). quality.piotroski updated 7 to 8 (STRONG unchanged); quality.beneish_state updated -2.437 to -2.473 (CLEAN unchanged). valuation.market_cap unchanged (32,566,306,069.44, already on the current share count). leverage.net_debt_to_ebitda and reverse_dcf stay NULL naming missing cash/total_debt. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage and reverse_dcf still NULL)."
   }
  ]
 }
