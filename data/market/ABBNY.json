@@ -1,6 +1,6 @@
 {
  "ticker": "ABBNY",
- "fetched_at": "2026-09-02T00:12:38.980312+00:00",
+ "fetched_at": "2026-09-04T17:38:23.087510+00:00",
  "tier": "T1",
  "cik": 1091587,
  "price_status": "SINGLE_SOURCE",
@@ -2248,7 +2248,7 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 1091587,
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "taxonomy": "us-gaap",
   "statement_currency": "USD",
   "revenue_fy": [
@@ -2288,24 +2288,50 @@
   "revenue_q": [],
   "net_income_fy": [
    [
-    "2007-12-31",
-    3611000000
+    "2016-12-31",
+    2034000000
    ],
    [
-    "2008-12-31",
-    3118000000
+    "2017-12-31",
+    2365000000
    ],
    [
-    "2009-12-31",
-    2901000000
+    "2018-12-31",
+    2298000000
    ],
    [
-    "2010-12-31",
-    2561000000
+    "2019-12-31",
+    1528000000
+   ],
+   [
+    "2020-12-31",
+    5205000000
+   ],
+   [
+    "2021-12-31",
+    4650000000
+   ],
+   [
+    "2022-12-31",
+    2594000000
+   ],
+   [
+    "2023-12-31",
+    3824000000
    ]
   ],
-  "cash": null,
-  "total_debt": null,
+  "cash": [
+   [
+    "2023-12-31",
+    3891000000
+   ]
+  ],
+  "total_debt": [
+   [
+    "2023-12-31",
+    5221000000
+   ]
+  ],
   "operating_income_fy": [
    [
     "2016-12-31",
@@ -2925,31 +2951,35 @@
   }
  },
  "quality": {
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-09-02",
+  "fundamentals_as_of": "2026-09-04",
   "piotroski": {
-   "score": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2"
-   ],
+   "score": 7,
+   "state": "STRONG",
+   "criteria": {
+    "roa": true,
+    "cfo": true,
+    "d_roa": true,
+    "accruals": true,
+    "d_leverage": false,
+    "d_current": false,
+    "shares": true,
+    "gross_margin": true,
+    "asset_turnover": true
+   },
    "inputs_found": 9,
    "inputs_needed": 9,
-   "common_periods": [],
    "proxies": {
     "shares": "share-count increase clipped at zero; companyfacts lacks reliable issuance proceeds"
    }
   },
   "beneish": {
-   "score": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "only 0 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio"
-   ],
+   "score": -2.501,
+   "threshold": -1.78,
+   "state": "CLEAN",
    "inputs_found": 12,
-   "inputs_needed": 12,
-   "common_periods": []
+   "inputs_needed": 12
   },
   "altman": {
    "score": 6.1,
@@ -2958,11 +2988,17 @@
    "inputs_needed": 8
   },
   "reverse_dcf": {
-   "implied_fcf_cagr": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "enterprise_value"
-   ],
+   "implied_fcf_cagr": 0.335,
+   "state": "SOLVED",
+   "base_fcf": 3520000000.0,
+   "enterprise_value": 186631720000.0,
+   "implied_by_horizon": {
+    "5": 0.335,
+    "7": 0.2475,
+    "10": 0.1859
+   },
+   "horizon_spread": 0.1491,
+   "horizon_note": "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon shows the same solve over other explicit-period lengths; where the spread is wide, a gap against the headline number is a statement about the horizon convention as much as about the price, and a dive must say which it means.",
    "assumptions": {
     "discount_rate": 0.09,
     "terminal_growth": 0.025,
@@ -2974,16 +3010,12 @@
   "derived": {
    "fcf": 3520000000.0,
    "market_cap": 185301720000.0,
-   "enterprise_value": null
+   "enterprise_value": 186631720000.0
   },
   "health": {
    "statement_fields_found": 20,
    "statement_fields_needed": 20,
    "periods_available": [
-    "2007-12-31",
-    "2008-12-31",
-    "2009-12-31",
-    "2010-12-31",
     "2016-12-31",
     "2017-12-31",
     "2018-12-31",

@@ -1,6 +1,6 @@
 {
  "ticker": "GEV",
- "fetched_at": "2026-09-02T00:12:38.980312+00:00",
+ "fetched_at": "2026-09-04T17:38:23.087510+00:00",
  "tier": "T1",
  "cik": 1996810,
  "price_status": "AGREED",
@@ -2136,7 +2136,9 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 1996810,
-  "as_of": "2026-08-29",
+  "as_of": "2026-09-04",
+  "taxonomy": "us-gaap",
+  "statement_currency": "USD",
   "revenue_fy": [
    [
     "2022-12-31",
@@ -2207,8 +2209,18 @@
     4884000000
    ]
   ],
-  "cash": null,
-  "total_debt": null,
+  "cash": [
+   [
+    "2026-06-30",
+    13120000000
+   ]
+  ],
+  "total_debt": [
+   [
+    "2026-06-30",
+    2794000000
+   ]
+  ],
   "operating_income_fy": [
    [
     "2022-12-31",
@@ -2407,16 +2419,24 @@
   ],
   "equity_fy": [
    [
+    "2021-12-31",
+    13729000000
+   ],
+   [
+    "2022-12-31",
+    11607000000
+   ],
+   [
     "2023-12-31",
-    7416000000
+    8380000000
    ],
    [
     "2024-12-31",
-    9546000000
+    10593000000
    ],
    [
     "2025-12-31",
-    11178000000
+    12296000000
    ]
   ],
   "receivables_fy": [
@@ -2445,18 +2465,38 @@
   ],
   "shares_fy": [
    [
-    "2024-04-02",
-    274085523
+    "2022-12-31",
+    274000000
+   ],
+   [
+    "2023-12-31",
+    274000000
+   ],
+   [
+    "2024-04-01",
+    274000000
    ],
    [
     "2024-12-31",
-    275880314
+    278000000
    ],
    [
     "2025-12-31",
-    269529464
+    276000000
    ]
   ],
+  "concept_hints": {
+   "ppe_net": [
+    "ProceedsFromSaleOfPropertyPlantAndEquipment (2025-12-31)",
+    "DeferredTaxLiabilitiesPropertyPlantAndEquipment (2024-12-31)"
+   ],
+   "long_term_debt": [
+    "ProceedsFromRepaymentsOfShortTermDebtMaturingInThreeMonthsOrLess (2025-12-31)",
+    "ShortTermBorrowings (2025-12-31)",
+    "NotesAndLoansReceivableNetCurrent (2024-12-31)",
+    "NotesAndLoansReceivableNetNoncurrent (2024-12-31)"
+   ]
+  },
   "coverage": {
    "annual_fields_found": 18,
    "annual_fields_attempted": 20,
@@ -2467,9 +2507,9 @@
   }
  },
  "quality": {
-  "as_of": "2026-08-29",
+  "as_of": "2026-09-04",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-08-29",
+  "fundamentals_as_of": "2026-09-04",
   "piotroski": {
    "score": null,
    "state": "PENDING_DATA",
@@ -2493,17 +2533,23 @@
    "inputs_needed": 12
   },
   "altman": {
-   "score": 3.71,
+   "score": 3.78,
    "state": "SAFE",
    "inputs_found": 8,
    "inputs_needed": 8
   },
   "reverse_dcf": {
-   "implied_fcf_cagr": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "enterprise_value"
-   ],
+   "implied_fcf_cagr": 0.394,
+   "state": "SOLVED",
+   "base_fcf": 3710000000.0,
+   "enterprise_value": 241366680000.0,
+   "implied_by_horizon": {
+    "5": 0.394,
+    "7": 0.2877,
+    "10": 0.2135
+   },
+   "horizon_spread": 0.1805,
+   "horizon_note": "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon shows the same solve over other explicit-period lengths; where the spread is wide, a gap against the headline number is a statement about the horizon convention as much as about the price, and a dive must say which it means.",
    "assumptions": {
     "discount_rate": 0.09,
     "terminal_growth": 0.025,
@@ -2514,29 +2560,34 @@
   },
   "derived": {
    "fcf": 3710000000.0,
-   "market_cap": 245792004105.52,
-   "enterprise_value": null
+   "market_cap": 251692680000.0,
+   "enterprise_value": 241366680000.0
   },
   "health": {
    "statement_fields_found": 18,
    "statement_fields_needed": 20,
    "periods_available": [
+    "2021-12-31",
     "2022-12-31",
     "2023-12-31",
-    "2024-04-02",
+    "2024-04-01",
     "2024-12-31",
     "2025-12-31"
    ]
   },
   "formulas": "financetoolkit.models (MIT); see docs/analyst-sources.md",
+  "currency_note": null,
+  "official_source": true,
+  "source_tag": "VERIFIED",
   "price_used": {
    "value": 911.93,
    "source": "yfinance",
    "as_of": "2026-08-28"
   },
   "shares_used": {
-   "value": 269529464,
-   "as_of": "2025-12-31"
+   "value": 276000000,
+   "as_of": "2025-12-31",
+   "source": "fundamentals.shares_fy"
   },
   "state": "SCORED"
  },
