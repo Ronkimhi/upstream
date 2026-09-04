@@ -19,11 +19,11 @@
     },
     "entry_zones": {
       "question": "Did price ever reach the zones I drew (entry zones on INVESTABLE, would-buy zones on WATCH since 2026-09-03), and what happened after?",
-      "denominator": 3,
+      "denominator": 4,
       "reached": 0,
       "never_reached": 0,
       "filled_same_week": 0,
-      "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone.",
+      "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone. ESLT/hormuz-maritime (2026-09-04) is the first dive in this log to draw its own would_buy_zone at DRAFT time rather than at a later red-team backfill, testing whether the discipline holds without the red team's forcing function.",
       "recomputed_from": "data/stocks/*.json on 2026-09-04 by tools/check_analyst.would_buy_reached over data/market series rows: 5 WATCH dives, 3 would-buy zones drawn (VRT 141.66-153.19 against 257.08, HUBB 305.30-378.70 against 459.66, MYRG 113.44-136.48 against 294.42), 2 capped (ANDR.VI grade NULL, 688425.SS grade C, each carrying a SPECULATIVE conditional zone in would_buy_if_uncapped), 0 reached, 0 INVESTABLE entry zones. The channel has a denominator for the first time. Every drawn zone sits 18% to 45% below spot, and every stress attack found the drawn zone on the optimistic side of the file's own bear case (HUBB on post-close net debt, MYRG on conversion, VRT on the 10-year anchor), so the zones are the generous edge of a yes, not the strict one. never_reached is 0 rather than 3 because a zone drawn today has had no time to be missed; it is graded at each dive's review_by. Ron's question of 2026-09-03 (is zero INVESTABLE odd?) is now answerable in data: if price never visits these zones by review_by, the bar is measured too high by the distance recorded per zone; if it does and the names then underperform, the bar was right.",
       "capped": 2,
       "zones": [
@@ -65,6 +65,19 @@
           "low_vs_spot_pct": -61.47,
           "reached": false,
           "basis": "The expectations_gap revenue_cagr_5y row's defended 'mine' growth of 8.5% closes at this price when quality.reverse_dcf's own bisection formula (reproduced here as an arithmetic check against its own stated assumptions only, matching the filed EV of $4,437,082,786 to within 0.02% at 9% discount rate, 2.5% terminal growth, 5y and 10y explicit horizons) is re-based on the file's four-year average free cash flow of $80.020M (FY2022-2025), replacing the FY2025 outlier base_fcf of $232.195M that is 2.90x it: solving forward for enterprise value at g=8.5% gives $1,627.8M at the 5-year horizon and $1,985.4M at the 10-year horizon, which at the file's own 15,522,834 FY2025 shares and -$133.15M net cash (both already used elsewhere in this file) convert to $113.44 and $136.48 a share; today's 294.42 close instead demands 34.77% (5y) or 19.19% (10y) growth on that same rebased base, the arithmetic form of this file's own 'floor, not measurement' finding on the priced-in ask."
+        },
+        {
+          "file": "data/stocks/ESLT__hormuz-maritime.json",
+          "ticker": "ESLT",
+          "origin": "WATCH_WOULD_BUY",
+          "low": 282.94,
+          "high": 364.23,
+          "as_of": "2026-09-04",
+          "spot_at_draw": 701.22,
+          "high_vs_spot_pct": -48.06,
+          "low_vs_spot_pct": -59.65,
+          "reached": false,
+          "basis": "Drawn on the 5-year reverse-DCF convention (the tougher of the two the filed solve computes), forward-solving quality.reverse_dcf's own bisection formula (base_fcf $552,810,000, 9% discount rate, 2.5% terminal growth) for a target g instead of solving for g: low=$282.94 is where the ask falls to a conservative 11.11% like-for-like build (11% revenue CAGR, 8.5% margin), high=$364.23 is where it falls to a stretch 17.70% build (15% revenue CAGR, 9.5% margin), both above the file's own 13%/9.0%/14.41% base case. Not yet red-team stressed; this is the first dive in the corpus to draw its own would_buy_zone at DRAFT time under the 2026-09-03 rule rather than needing a later backfill."
         }
       ],
       "caps": [
@@ -83,7 +96,7 @@
         {
           "file": "data/stocks/688425.SS__tibet-mega-dam.json",
           "ticker": "688425.SS",
-          "cap": "NULL: earnings grade C caps the verdict at WATCH at any price (method section 7), so no would_buy_zone is drawn regardless of where the shares trade; the cap lifts only if contract liabilities (合同负债) recover above the 1,000,000,000 CNY watch_triggers[0] level, last held at 1,118,911,017.44 twelve months before the 538,788,644.17 print, observable at the 2026 interim balance sheet or the FY2026 annual report. The conditional zone that arithmetic implies once that one condition is met is recorded in would_buy_if_uncapped, tagged SPECULATIVE because it prices a state the file does not yet report.",
+          "cap": "NULL: earnings grade C caps the verdict at WATCH at any price (method section 7), so no would_buy_zone is drawn regardless of where the shares trade; the cap lifts only if contract liabilities (\u5408\u540c\u8d1f\u503a) recover above the 1,000,000,000 CNY watch_triggers[0] level, last held at 1,118,911,017.44 twelve months before the 538,788,644.17 print, observable at the 2026 interim balance sheet or the FY2026 annual report. The conditional zone that arithmetic implies once that one condition is met is recorded in would_buy_if_uncapped, tagged SPECULATIVE because it prices a state the file does not yet report.",
           "conditional": {
             "tag": "SPECULATIVE",
             "as_of": "2026-09-04",
@@ -116,7 +129,7 @@
     },
     "implied_growth": {
       "question": "The market-implied CAGR I recorded at dive time, against what was actually delivered by review_by.",
-      "denominator": 5,
+      "denominator": 6,
       "resolved": 0,
       "market_too_high": 0,
       "market_too_low": 0,
@@ -199,7 +212,7 @@
           "base_fcf": 1017988684.88,
           "base_fcf_caveat": "1,017,988,684.88 CNY is FY2025 free cash flow (OCF 1,100,910,637.77 less capex 82,921,952.89) and 2.00x the FY2022-FY2025 average of 510,146,000, in a series that includes a negative year (FY2023 -926.48m). This is the MYRG defect class (2.90x there) recurring, and here the mechanism is explicit: capex fell to 0.09x depreciation in FY2025 after 2.03x in FY2023, so the base year's free cash flow is a capex holiday, not a run rate. EV/base FCF is 20.30x; EV over the four-year average is 40.50x. Grade the 8.45% implied CAGR against BOTH bases.",
           "resolve_by": "2026-11-30",
-          "resolves_against": "Nine-month 2026 revenue and net profit against the H1 2026 rates of -11.63% and -31.38%, and the contract-liabilities (合同负债) balance against the 1,000,000,000 CNY watch trigger, after 538,788,644.17 at 2025-12-31 and 1,118,911,017.44 at 2024-12-31, all reportable at the Q1-Q3 2026 release due by 2026-10-31. The five-year CAGR cannot resolve before 2031; the review date grades the first year of the path and, specifically here, whether customer advances refill, which is the single condition that would prove this dive wrong.",
+          "resolves_against": "Nine-month 2026 revenue and net profit against the H1 2026 rates of -11.63% and -31.38%, and the contract-liabilities (\u5408\u540c\u8d1f\u503a) balance against the 1,000,000,000 CNY watch trigger, after 538,788,644.17 at 2025-12-31 and 1,118,911,017.44 at 2024-12-31, all reportable at the Q1-Q3 2026 release due by 2026-10-31. The five-year CAGR cannot resolve before 2031; the review date grades the first year of the path and, specifically here, whether customer advances refill, which is the single condition that would prove this dive wrong.",
           "stress_implied_by_discount_rate": {
             "0.070": -0.0005,
             "0.075": 0.0228,
@@ -210,6 +223,22 @@
             "note": "Red-team sensitivities computed 2026-09-02 by bisection replicating quality.reverse_dcf's own method and inputs; NOT a substitute for the filed market-implied column, which stays 0.0845 in the dive."
           },
           "stress_implied_on_four_year_average_base": 0.2605
+        },
+        {
+          "ticker": "ESLT",
+          "chain_id": "hormuz-maritime",
+          "dive_date": "2026-09-04",
+          "market_implied_fcf_cagr": 0.3596,
+          "market_implied_fcf_cagr_10y_horizon": 0.1975,
+          "horizon_spread": 0.1621,
+          "source": "data/market/ESLT.json quality.reverse_dcf (state SOLVED)",
+          "my_revenue_cagr_5y": 0.13,
+          "my_fcf_cagr": 0.1441,
+          "my_fcf_cagr_note": "Built like for like (revenue 13% CAGR x 9.0% steady-state operating margin x FY2025 cash conversion 0.8233 held): 14.41%. Gap at 5y is 21.55pp, outside the file's own 16.21pp horizon_spread (real gap); at 10y (19.75% implied) the gap is 5.34pp, inside the spread (no measurable gap). Stress-tested in-dive on three axes, an escalation from the four-defect-class pattern this channel has tracked since VRT: the discount rate (7% still implies 25.03%, gap survives), the FCF base (trailing 3-4yr average bases make the ask WORSE not better here, the opposite direction from MYRG/688425.SS, so choosing the FY2025 base is the MORE generous reading toward the bull case, not a hidden inflation), and the cash-conversion assumption (reverting to the volatile 4-year average flips this dive's own build to NEGATIVE 3.95%, widening rather than closing the gap, the opposite direction from the ANDR.VI case where reversion flipped the sign in the dive's favour).",
+          "base_fcf": 552810000.0,
+          "base_fcf_caveat": "$552.81M is FY2025 free cash flow (OCF $778.378M less capex $225.568M) and 2.65x the FY2022-FY2025 average of $208.5M (2.08x the FY2023-FY2025 three-year average of $266.3M), the fourth instance of this channel's base-year-outlier defect class (MYRG 2.90x, 688425.SS 2.00x, now ESLT 2.65x). Unlike those two prior cases, using the LOWER trailing-average base here makes the market's implied ask WORSE (58-67% at 5y) rather than better, because ESLT's FCF has been genuinely accelerating (34,958,000 to -73,328,000 to 319,559,000 to 552,810,000 across FY2022-FY2025) rather than spiking off a one-off high year, so the outlier-base direction does not by itself flatter this dive's finding the way it did on MYRG or 688425.SS.",
+          "resolve_by": "2026-11-30",
+          "resolves_against": "Nine-month 2026 revenue growth against the achieved 12.93% trailing three-year CAGR and against the low end of guided mid-teens growth (watch_triggers[0]), and FY2026 or Q3 2026 operating margin against the independence test's single-legged falsifier of 9.5% (vs FY2025's 8.46%). The five-year CAGR itself cannot resolve before 2031; the review date grades the first data point on both the revenue and margin legs."
         }
       ],
       "recomputed_from": "data/stocks/*.json and data/market/*.json quality.reverse_dcf: 5 open record(s), 0 resolved. The 688425.SS record is the first in this channel whose gap sign survives every convention the channel has learned to vary (horizon, base, discount rate, cash conversion), and it is the second to carry the base-year distortion the MYRG record first named: 2.00x the four-year average here against 2.90x there, both driven by a single fiscal year standing in for a run rate. No record has reached its resolve_by yet."
@@ -343,7 +372,7 @@
       "ts": "2026-09-02T18:02:00Z",
       "by": "stocky",
       "kind": "FINDING",
-      "finding": "AN UPSTREAM SCORE IS FALSIFIED BY A DOCUMENT, AND IT IS NOT MINE TO FIX. The tibet-mega-dam chain scores the tunneling-tbm link crowdedness 35 with the stated rationale that TBM makers barely feature in beneficiary lists. The canonical retail beneficiary list, Sina Finance 2025-07-23, published four sessions into the +87% move, sorts the project into seven buckets and names 铁建重工 (688425) FIRST in the construction-machinery bucket as 国产TBM（隧道掘进机）龙头, among roughly fifty tickers, and the same article prints the 25-machine, above-6bn TBM sizing. On 2025-07-21 the name hit its 20% STAR limit inside a sector-wide 涨停潮 whose hottest print was another tunnel-equipment maker, 五新隧装 (835174), at +30%.",
+      "finding": "AN UPSTREAM SCORE IS FALSIFIED BY A DOCUMENT, AND IT IS NOT MINE TO FIX. The tibet-mega-dam chain scores the tunneling-tbm link crowdedness 35 with the stated rationale that TBM makers barely feature in beneficiary lists. The canonical retail beneficiary list, Sina Finance 2025-07-23, published four sessions into the +87% move, sorts the project into seven buckets and names \u94c1\u5efa\u91cd\u5de5 (688425) FIRST in the construction-machinery bucket as \u56fd\u4ea7TBM\uff08\u96a7\u9053\u6398\u8fdb\u673a\uff09\u9f99\u5934, among roughly fifty tickers, and the same article prints the 25-machine, above-6bn TBM sizing. On 2025-07-21 the name hit its 20% STAR limit inside a sector-wide \u6da8\u505c\u6f6e whose hottest print was another tunnel-equipment maker, \u4e94\u65b0\u96a7\u88c5 (835174), at +30%.",
       "action": "ROUTED, not edited. data/chains/ is Atlas's and heat is Ember's; CLAUDE.md forbids editing another agent's store to make a dive easier, and the dive stage is the wrong place to re-score a link. Handled inside my lane by rebuilding crowdedness.basis in the dive, which already read CONTESTED, and by naming the finding in this run's ledger line so it reaches its owner.",
       "prevention": "none shipped this run. Worth Ron's attention as a pattern rather than as a one-off: this is the second dive in a row on this chain whose red team found the link-level heat read did not survive contact with primary sources, and a heat score whose rationale is a claim about coverage is checkable by exactly the search a red team runs anyway."
     }
@@ -426,7 +455,7 @@
       "ts": "2026-09-02T18:02:00Z",
       "by": "stocky",
       "kind": "AMEND",
-      "change": "Fifth red team executed (688425.SS / tibet-mega-dam, tunneling-tbm), fresh context, model escalated to claude-opus-5 by Ron, DRAFT to FINAL. Verdict SURVIVES at WATCH on the COMPOUNDER clock, earnings grade still C. red_team_amendments moves to 5 of 5, and this is the first run to put SIX attack dimensions on a dive. PRICED_IN_CHECK landed a fifth straight time and hardest: the draft's bridge re-derives exactly and its robustness claim does not, because the filed 9% discount rate was declared and never varied and is the only convention that closes the gap (7.5% inside the file's own 2.60pp band, 7.0% sign flip); the filed solve was replicated to three decimals first so the stress is the same model. MARKET_ERROR_CATEGORY ran for the first time and landed: the Sina beneficiary article of 2025-07-23 that carried the basket printed 工程需25台TBM，订单潜力超60亿元, the same sizing the dive uses as its own independent estimate, so the crowd saw the right number and bought anyway, and the surviving market error is about the durability of a harvest-year FCF base rather than about project sizing. CROWDEDNESS_REALITY landed a fourth time on the same document, which falsifies the CHAIN's stated UNDISCOVERED rationale outright and is routed to Atlas and Ember rather than edited. EARNINGS_QUALITY_STRESS ran for the first time and landed twice: a fourth flag (four-year revenue spread 0.74%) and the finding that section 7's grade ladder is non-monotonic, since C caps at WATCH while D only forbids INVESTABLE, so the grade is held at C deliberately. ENTRY_BASIS_STRESS landed a fifth time by pricing the 3.35 trigger (gap -7.88pp to about -2.9pp) and inverting the draft's ranking of its own locks. CAPTURE_REALITY landed a fifth time in the dive's own direction and changed no number, with the direction stated so the count is not misread. PRE_MORTEM stays at 1 of 5, not inflated. TOO_LATE re-tested and declined for the sixth consecutive time on the decomposition; no shadow row. Three findings logged, all ESCALATED or ROUTED, none auto-applied.",
+      "change": "Fifth red team executed (688425.SS / tibet-mega-dam, tunneling-tbm), fresh context, model escalated to claude-opus-5 by Ron, DRAFT to FINAL. Verdict SURVIVES at WATCH on the COMPOUNDER clock, earnings grade still C. red_team_amendments moves to 5 of 5, and this is the first run to put SIX attack dimensions on a dive. PRICED_IN_CHECK landed a fifth straight time and hardest: the draft's bridge re-derives exactly and its robustness claim does not, because the filed 9% discount rate was declared and never varied and is the only convention that closes the gap (7.5% inside the file's own 2.60pp band, 7.0% sign flip); the filed solve was replicated to three decimals first so the stress is the same model. MARKET_ERROR_CATEGORY ran for the first time and landed: the Sina beneficiary article of 2025-07-23 that carried the basket printed \u5de5\u7a0b\u970025\u53f0TBM\uff0c\u8ba2\u5355\u6f5c\u529b\u8d8560\u4ebf\u5143, the same sizing the dive uses as its own independent estimate, so the crowd saw the right number and bought anyway, and the surviving market error is about the durability of a harvest-year FCF base rather than about project sizing. CROWDEDNESS_REALITY landed a fourth time on the same document, which falsifies the CHAIN's stated UNDISCOVERED rationale outright and is routed to Atlas and Ember rather than edited. EARNINGS_QUALITY_STRESS ran for the first time and landed twice: a fourth flag (four-year revenue spread 0.74%) and the finding that section 7's grade ladder is non-monotonic, since C caps at WATCH while D only forbids INVESTABLE, so the grade is held at C deliberately. ENTRY_BASIS_STRESS landed a fifth time by pricing the 3.35 trigger (gap -7.88pp to about -2.9pp) and inverting the draft's ranking of its own locks. CAPTURE_REALITY landed a fifth time in the dive's own direction and changed no number, with the direction stated so the count is not misread. PRE_MORTEM stays at 1 of 5, not inflated. TOO_LATE re-tested and declined for the sixth consecutive time on the decomposition; no shadow row. Three findings logged, all ESCALATED or ROUTED, none auto-applied.",
       "prior": "red_team_amendments denominator 4 with CROWDEDNESS_REALITY 3, PRICED_IN_CHECK 4, CAPTURE_REALITY 4, ENTRY_BASIS_STRESS 4 and no MARKET_ERROR_CATEGORY or EARNINGS_QUALITY_STRESS dimension; 688425.SS at DRAFT with red_team_amended null; the implied_growth record carrying three varied conventions and no discount-rate measurement"
     },
     {
@@ -435,6 +464,14 @@
       "kind": "AMEND",
       "model": "claude-sonnet-5",
       "change": "Five red-team re-runs in fresh context on claude-sonnet-5, in parallel, each writing only its dive file, to fill the would-buy zone method section 7 requires since Ron's decision of 2026-09-03 (a WATCH names the price at which it would have been a yes, or the cap). VRT 141.66-153.19 (5-year-convention points at the defended 17.1% and a 19% stretch; the 10-year anchor at 234.52 was drawn first and rejected by the entry-basis stress as base case with a haircut), HUBB 305.30-378.70 (8.5% defended path forward-solved at 5y and 10y; stress on post-close net debt 4,874.2M drops it to 242.60-316.01), MYRG 113.44-136.48 (rebased on the four-year-average FCF 80.020M; stress on the 0.386 conversion ratio drops it to 92.64-94.76), ANDR.VI null (grade NULL cap, conditional 73.2-79.8 EUR, only the 73.2 end survives), 688425.SS null (grade C cap, conditional 2.97-3.30 CNY). No verdict changed; no red team argued one should. VRT additionally received its campaign identity (issuer_id, listing_id, screen_ref from the O1 profile, the PASS-audited mapping and the DIVED screen row) because amending it broke the exact-bytes legacy admission baseline. Calibration channel 2 renamed from entry zones to zones and recomputed by code: denominator 3, capped 2, reached 0. The log itself was recomputed by the driving session after the five agents returned, not by each agent, so five parallel writers would not race on this file; every number in it is read from the dive files, none from the agents' reports."
+    },
+    {
+      "ts": "2026-09-04T18:20:53Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5",
+      "change": "Sixth dive recorded, and the first on hormuz-maritime: ESLT (Elbit Systems Ltd.) / naval-escort-and-mine-clearance, WATCH on the COMPOUNDER clock, earnings grade A (first grade-A dive in this corpus), status DRAFT (red team not yet run). implied_growth moves to denominator 6; the base-FCF outlier defect this channel has tracked since MYRG (2.90x) and 688425.SS (2.00x) recurs a fourth time (ESLT 2.65x) but for the first time cuts AGAINST the bull case rather than flattering it, since ESLT's FCF has been genuinely accelerating rather than spiking off one high year, so a lower trailing-average base makes the market's implied ask WORSE, not better. entry_zones (still keyed entry_zones in this file despite the 2026-09-04 note claiming a rename to zones) moves to denominator 4, 3 zones now unreached and this is the first dive in the corpus to draw its own would_buy_zone at DRAFT time rather than needing a later red-team backfill, testing whether the discipline holds without the red team's forcing function. shadow_book stays at 1 open row: seven dives (six real, one demo-adjacent) and TOO_LATE has still never been called by this analyst's draft stage on first pass, though this dive's own priced_in_summary rules it out on the method's own test (trailing P/E FELL, not expanded, over the past year) rather than by omission. red_team_amendments unchanged at 5 of 5: this dive has not been attacked. This dive's own largest original finding, not present in the O1 profile or the chain: CENTCOM's own cited primary source names a competitor's platform (General Dynamics' Knifefish), not Elbit's Seagull, for the specific Hormuz mine-clearance mission, so the capture link between the occurrence and this issuer is a product-category association rather than a demonstrated contractual one.",
+      "prior": "implied_growth denominator 5; entry_zones denominator 3; dives[] carrying VRT, MYRG, HUBB, ANDR.VI and 688425.SS only; no grade-A dive anywhere in the corpus"
     }
   ],
   "dives": [
@@ -592,7 +629,34 @@
         "PRE_MORTEM"
       ],
       "would_buy_zone": null,
-      "would_buy_basis": "NULL: earnings grade C caps the verdict at WATCH at any price (method section 7), so no would_buy_zone is drawn regardless of where the shares trade; the cap lifts only if contract liabilities (合同负债) recover above the 1,000,000,000 CNY watch_triggers[0] level, last held at 1,118,911,017.44 twelve months before the 538,788,644.17 print, observable at the 2026 interim balance sheet or the FY2026 annual report. The conditional zone that arithmetic implies once that one condition is met is recorded in would_buy_if_uncapped, tagged SPECULATIVE because it prices a state the file does not yet report."
+      "would_buy_basis": "NULL: earnings grade C caps the verdict at WATCH at any price (method section 7), so no would_buy_zone is drawn regardless of where the shares trade; the cap lifts only if contract liabilities (\u5408\u540c\u8d1f\u503a) recover above the 1,000,000,000 CNY watch_triggers[0] level, last held at 1,118,911,017.44 twelve months before the 538,788,644.17 print, observable at the 2026 interim balance sheet or the FY2026 annual report. The conditional zone that arithmetic implies once that one condition is met is recorded in would_buy_if_uncapped, tagged SPECULATIVE because it prices a state the file does not yet report."
+    },
+    {
+      "file": "data/stocks/ESLT__hormuz-maritime.json",
+      "ticker": "ESLT",
+      "chain_id": "hormuz-maritime",
+      "link_id": "naval-escort-and-mine-clearance",
+      "verdict": "WATCH",
+      "clock": "COMPOUNDER",
+      "earnings_grade": "A",
+      "status": "DRAFT",
+      "dive_date": "2026-09-04",
+      "review_by": "2026-11-30",
+      "price_ref": 701.22,
+      "price_status": "AGREED",
+      "shadow_ref": null,
+      "one_line": "The market's 5-year reverse-DCF convention asks for a ~36% FCF CAGR against this dive's own 14.41% like-for-like build (a real 21.55pp gap against the file's 16.21pp horizon_spread), narrowing to a non-gap (5.34pp) at the 10-year convention; combined with the single most crowded link on the whole chain (crowdedness 72, zero of four repricing-check legs met, 52-week high set a month before the Hormuz catalyst) and a capture link to the cited occurrence that is thematic (Seagull, same product category) rather than contractual (CENTCOM's own source names a competitor's Knifefish for this mission), the honest read is WATCH on a genuinely clean (grade A) balance sheet and earnings book.",
+      "prior_verdict": null,
+      "red_team_amended": null,
+      "would_buy_zone": {
+        "low": 282.94,
+        "high": 364.23,
+        "as_of": "2026-09-04"
+      },
+      "would_buy_basis": null,
+      "issuer_id": "ELBIT-SYSTEMS",
+      "listing_id": "NASDAQ-ESLT",
+      "screen_ref": "data/screens/hormuz-maritime.json"
     }
   ]
 }
