@@ -5027,6 +5027,12 @@
       "kind": "AMEND",
       "change": "run universe-audit hormuz-maritime: fresh-context census audit FAIL. Sampled 2+ ACTIVE placements on each of 7 TARGET_MET links (33 distinct placements total) and every ACTIVE placement plus every recorded search on each of 7 EXHAUSTED links (24 searches), each against a source opened now. Found 20 amendments required: role claims exceeding their cited source on 11 placements and 3 EXHAUSTED searches, wrong source_date on 4 placements and 2 EXHAUSTED searches (one date issue shared across a placement/search pair), an evidence item that names neither issuer it is cited for on 1 placement (2 issuers affected), and one stale listing legal name found on an unrequired spot check. Mapping stays ACTIVE; run universe corrects these before the next audit.",
       "prior": "ACTIVE"
+    },
+    {
+      "ts": "2026-09-04T18:08:32Z",
+      "by": "atlas-fresh-context",
+      "kind": "NOTE",
+      "change": "run universe-audit hormuz-maritime --placement ELBIT-SYSTEMS: fresh-context placement audit PASS. Opened both evidence items live: the SEC company_tickers_exchange.json registry row for CIK 1027664 (ELBIT SYSTEMS LTD, ESLT, Nasdaq) confirms the NASDAQ-ESLT listing's identity_evidence exactly, and the live Elbit Systems Seagull USV product page confirms the placement's role claim on link naval-escort-and-mine-clearance verbatim, matching the placement's cited source_excerpt exactly. No defects found. Mapping status and the whole-census audit block are untouched; this PASS admits ELBIT-SYSTEMS to run deepdive on this placement without the whole census being COMPLETE."
     }
   ],
   "audit": {
@@ -5779,5 +5785,30 @@
       "LISTING AWILCO-LNG (issuer_id AWILCO-LNG, Euronext Expand ALNG): legal_issuer on file is stale. The issuer renamed to 'ALNG ASA' in June 2026, after the cited May 2026 prospectus evidence; same entity and ticker, listing identity text needs updating to the current legal name. Found during beyond-minimum listing spot checks in this audit, not part of the required placement/search sample."
     ],
     "surviving_limitation": "This audit verified every ACTIVE placement and every recorded EXHAUSTED search against a source opened now, and at least two ACTIVE placements per TARGET_MET link. It did not independently re-verify listing identity_evidence for all 83 placed issuers (not required for a FAIL result); 21 of those were spot-checked anyway and one stale legal name surfaced (AWILCO-LNG), recorded in amendments_required. Several PDF and spreadsheet sources exceeded automated fetch limits and were confirmed via direct download plus pdftotext instead of WebFetch; those substitutions are named in the sampled_checks that used them."
-  }
+  },
+  "placement_audits": [
+    {
+      "chain_id": "hormuz-maritime",
+      "link_id": "naval-escort-and-mine-clearance",
+      "issuer_id": "ELBIT-SYSTEMS",
+      "audited_at": "2026-09-04T18:08:32Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context/run-universe-audit-hormuz-maritime--placement-ELBIT-SYSTEMS-2026-09-04T180832Z",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the ELBIT-SYSTEMS placement on link naval-escort-and-mine-clearance and its NASDAQ-ESLT listing within data/mappings/hormuz-maritime.json, the hormuz-maritime chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the two live source URLs the placement and listing name (SEC company_tickers_exchange.json and the Elbit Systems Seagull USV product page); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with today's separate whole-census audit; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+      "status": "PASS",
+      "evidence_index": 0,
+      "identity_ok": true,
+      "role_ok": true,
+      "source_date_ok": true,
+      "source_url": "https://www.elbitsystems.com/unmanned/maritime/unmanned-surface-vessel/seagull-usv",
+      "source_date": "2026-09-01",
+      "source_excerpt": "The Seagull USV's MCM capabilities include detection, classification, localization, identification of bottom, moored and drifting sea mines and navigation out of the minefield.",
+      "identity_source_url": "https://www.sec.gov/files/company_tickers_exchange.json",
+      "identity_source_date": "2026-09-04",
+      "identity_source_excerpt": "Registry row (live fetch 2026-09-04): {\"cik\": 1027664, \"name\": \"ELBIT SYSTEMS LTD\", \"ticker\": \"ESLT\", \"exchange\": \"Nasdaq\"} -- matches the NASDAQ-ESLT listing's identity_evidence (legal_issuer Elbit Systems Ltd., exchange Nasdaq, ticker ESLT) exactly.",
+      "record_digest": "35054cb990c82a07b4bb69ef823ca1f27b0afc4bb17cccff0be6cb697dec980d"
+    }
+  ]
 }
