@@ -1,15 +1,15 @@
 {
  "issuer_id": "AFCONS-INFRASTRUCTURE",
  "issuer_name": "Afcons Infrastructure Limited",
- "as_of": "2026-09-01",
+ "as_of": "2026-09-04",
  "created_at": "2026-09-01T06:28:08Z",
- "updated_at": "2026-09-01T06:28:08Z",
+ "updated_at": "2026-09-04T18:30:00Z",
  "generated_by": "sieve-profiler",
- "status": "BLOCKED",
+ "status": "COMPLETE",
  "data_tier": "T3",
- "data_tier_basis": "Local-only NSE listing (method section 6): no US SEC filing exists for this Indian issuer and no data/market/AFCONS.NS.json has been fetched, so no fundamentals leg exists locally.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+ "data_tier_basis": "Local-only NSE listing (method section 6): no US SEC filing exists for this Indian issuer and no data/market/AFCONS.NS.json has been fetched, so no fundamentals leg exists locally. Corrected 2026-09-04: this batch re-examined data/market/AFCONS-NS.json (fetched_at 2026-09-01) and found a full fundamentals block (yfinance-statements vendor aggregate) and a scored quality block. Ron's 2026-09-01 decision admits the T2/T3 vendor aggregate directly into canonical metrics (method section 6A); this issuer's prior BLOCKED basis predates that decision or predates this fetch. Filled the canonical metric fields from it this run.",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
  "listing_refs": [
   "NSE:AFCONS"
  ],
@@ -53,7 +53,8 @@
    "mapping_status": "COMPLETE"
   },
   "chain": "data/chains/tibet-mega-dam.json",
-  "market": null
+  "market": "data/market/AFCONS-NS.json",
+  "market_fetched_at": "2026-09-01"
  },
  "business_summary": "Afcons Infrastructure Limited is an Indian, NSE-listed (AFCONS.NS) heavy civil engineering contractor within the Shapoorji Pallonji group, executing large tunnels, marine works and underground infrastructure across India and select overseas markets. Its tunnelling and underground-works capability is the mapped exposure to the tibet-mega-dam chain's civil-construction link.",
  "exposure_summary": {
@@ -67,98 +68,157 @@
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "latest fiscal-year revenue is not available for Afcons Infrastructure Limited: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Fiscal-year revenue for the period ended 2026-03-31: 118,880,200,000 INR from the yfinance-statements statements in AFCONS-NS.json.",
+    "value": 118880200000.0
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "three-year revenue CAGR cannot be computed for Afcons Infrastructure Limited with no revenue series on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Compound annual revenue growth computed as (118,880,200,000/125,393,150,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+    "value": -0.017618143761018557
    }
   },
   "margins": {
    "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "operating margin cannot be computed for Afcons Infrastructure Limited with no operating-income or revenue series on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Operating income 8,996,300,000 INR divided by revenue 118,880,200,000 INR, both for the period ended 2026-03-31, from the yfinance-statements series.",
+    "value": 0.07567534374942168
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "operating cash flow to net income cannot be computed for Afcons Infrastructure Limited with no cash-flow or income series on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Operating cash flow -1,274,900,000 INR divided by net income 2,515,000,000 INR, both for the period ended 2026-03-31, from the yfinance-statements series.",
+    "value": -0.5069184890656063
+   },
+   "fcf_margin": {
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Free cash flow margin: operating cash flow -1,274,900,000 INR less capex 3,717,900,000 INR, divided by revenue 118,880,200,000 INR, all for the period ended 2026-03-31, from the yfinance-statements series.",
+    "value": -0.04199858344787442
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "net debt to EBITDA cannot be computed for Afcons Infrastructure Limited with no debt, cash or EBITDA inputs on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Net debt 32,412,100,000 INR (total debt 36,269,100,000 less cash 3,857,000,000, as of 2026-03-31) divided by an EBITDA proxy 13,535,500,000 INR (operating income 8,996,300,000 plus depreciation 4,539,200,000 for the period ended 2026-03-31), from the yfinance-statements series.",
+    "value": 2.39459938679768
    }
   },
   "quality": {
    "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "piotroski F-score cannot be computed for Afcons Infrastructure Limited with no companyfacts-equivalent statement inputs on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Piotroski F-score 3 (state WEAK) computed over yfinance-statements statements in AFCONS-NS.json quality.piotroski, 9 of 9 inputs found.",
+    "value": 3
    },
    "beneish_state": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "beneish M-score cannot be computed for Afcons Infrastructure Limited with no companyfacts-equivalent statement inputs on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Beneish M-score -2.285 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in AFCONS-NS.json quality.beneish, 12 of 12 inputs found.",
+    "value": -2.285
    }
   },
   "valuation": {
    "market_cap": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "market capitalization cannot be computed for Afcons Infrastructure Limited without a sourced official share count: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Market capitalization 105,057,679,845 INR computed in AFCONS-NS.json quality.derived.market_cap from vendor/official share count and price (method section 6A vendor-aggregate fundamentals).",
+    "value": 105057679845.15
    },
-   "price_to_earnings": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "price to earnings ratio cannot be computed for Afcons Infrastructure Limited without both a sourced market capitalization and a sourced net-income figure, neither of which is available this run: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+   "price_to_sales": {
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+    "basis": "Market capitalization 105,057,679,845 INR divided by revenue 118,880,200,000 INR for the period ended 2026-03-31.",
+    "value": 0.8837273140956189
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
     "value": null,
     "tag": "NULL",
-    "basis": "reverse-DCF implied FCF CAGR cannot be solved for Afcons Infrastructure Limited with no free-cash-flow or enterprise-value inputs on file: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "basis": "reverse-DCF implied FCF CAGR: quality.reverse_dcf.state is NOT_APPLICABLE for AFCONS-INFRASTRUCTURE, reason 'base-year free cash flow is not positive; a growth rate on a negative base is meaningless'; the solver correctly declines to run rather than producing a meaningless growth rate."
    },
    "horizon_spread": {
     "value": null,
     "tag": "NULL",
-    "basis": "reverse-DCF horizon spread cannot be computed for Afcons Infrastructure Limited with the base solve unavailable: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist)"
+    "basis": "reverse-DCF horizon spread: not available for AFCONS-INFRASTRUCTURE for the same NOT_APPLICABLE reason as implied_fcf_cagr ('base-year free cash flow is not positive; a growth rate on a negative base is meaningless')."
    }
   }
  },
  "crowdedness_caveats": [
   "Afcons sits on a link scored EMERGING (see placements above), but this profile cannot corroborate or refute that with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
  ],
- "catalysts": [],
- "risks": [],
+ "catalysts": [
+  {
+   "claim": "Newly filled fundamentals (2026-09-01, yfinance-statements) show a CLEAN Beneish read (-2.285), the strongest evidence this profile carries for the AFCONS.NS placement.",
+   "source_name": "yfinance-statements",
+   "source_date": "2026-09-01",
+   "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+   "tag": "INFERRED"
+  }
+ ],
+ "risks": [
+  {
+   "claim": "Against that: a WEAK Piotroski score (3/9), negative FCF margin (-4.20%), negative three-year revenue CAGR (-1.76%).",
+   "source_name": "yfinance-statements",
+   "source_date": "2026-09-01",
+   "url": "https://finance.yahoo.com/quote/AFCONS.NS/financials",
+   "tag": "INFERRED"
+  }
+ ],
  "data_gaps": [
-  "data/market/AFCONS.NS.json does not exist: no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist).",
-  "PENDING requests queued this run (prices, fundamentals, quality) for AFCONS.NS.",
-  "No project-specific revenue percentage is sourced for Afcons this run."
+  "Filled 2026-09-04 from data/market/AFCONS-NS.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): 10 of 12 canonical fields carry a sourced number; 2 stay NULL with a field-specific basis on the metrics themselves."
  ],
  "disposition": {
-  "state": "BLOCKED",
-  "basis": "Real, evidence-backed placement on civil-construction (EMERGING) sourced from the issuer's own filings or press material, but every canonical metric field is NULL because no market file has ever been fetched for AFCONS.NS (data/market/AFCONS.NS.json does not exist). BLOCKED rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing. PENDING prices/fundamentals/quality requests queued this run. run profile --campaign CAMP-20260830-01.",
-  "as_of": "2026-09-01"
+  "state": "RETAIN",
+  "as_of": "2026-09-04",
+  "basis": "Filled this run from data/market/AFCONS-NS.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields carry a sourced number, the remaining 2 honest NULL with field-specific bases. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01."
  },
  "confidence_audit": {
-  "verified": 0,
-  "inferred": 0,
-  "speculative": 0,
-  "null": 11,
-  "canonical_fields_written": 11,
-  "basis": "Every canonical metric field is NULL this run; no numeric figure was fetched, computed, or sourced. See data_gaps for the specific cause of each gap."
+  "VERIFIED": 0,
+  "INFERRED": 10,
+  "SPECULATIVE": 0,
+  "NULL": 2,
+  "canonical_fields_written": 12,
+  "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Rons 2026-09-01 decision (method section 6A Vendor-aggregate fundamentals); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -170,6 +230,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "created shaped BLOCKED profile for AFCONS-INFRASTRUCTURE from the COMPLETE PASS-audited tibet-mega-dam mapping; status BLOCKED, data tier T3, opportunity tier O3, all canonical metric fields NULL. PENDING prices/fundamentals/quality requests queued this run. run profile --campaign CAMP-20260830-01."
+  },
+  {
+   "ts": "2026-09-04T18:30:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile --campaign CAMP-20260901-01: filled canonical metrics from data/market/AFCONS-NS.json (yfinance-statements vendor aggregate (INFERRED, official_source false) per the 2026-09-01 method decision); status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2; 2 of 12 canonical fields stay NULL with field-specific bases; added one data-driven catalyst and one data-driven risk; replaced the stale never-fetched data_gaps language."
   }
  ]
 }

@@ -1,15 +1,15 @@
 {
  "issuer_id": "AIRBUS",
  "issuer_name": "Airbus SE",
- "as_of": "2026-09-01",
+ "as_of": "2026-09-04",
  "created_at": "2026-09-01T06:28:08Z",
- "updated_at": "2026-09-01T06:28:08Z",
+ "updated_at": "2026-09-04T18:30:00Z",
  "generated_by": "sieve-profiler",
- "status": "BLOCKED",
+ "status": "COMPLETE",
  "data_tier": "T3",
- "data_tier_basis": "Local-only Euronext Paris listing (method section 6): Airbus SE is a Netherlands-incorporated, Euronext-listed issuer with no US SEC filing and no data/market/AIR-PA.json fetched, so no fundamentals leg exists locally.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+ "data_tier_basis": "Local-only Euronext Paris listing (method section 6): Airbus SE is a Netherlands-incorporated, Euronext-listed issuer with no US SEC filing and no data/market/AIR-PA.json fetched, so no fundamentals leg exists locally. Corrected 2026-09-04: this batch re-examined data/market/AIR-PA.json (fetched_at 2026-09-01) and found a full fundamentals block (yfinance-statements vendor aggregate) and a scored quality block. Ron's 2026-09-01 decision admits the T2/T3 vendor aggregate directly into canonical metrics (method section 6A); this issuer's prior BLOCKED basis predates that decision or predates this fetch. Filled the canonical metric fields from it this run.",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
  "listing_refs": [
   "EPA:AIR"
  ],
@@ -53,7 +53,8 @@
    "mapping_status": "COMPLETE"
   },
   "chain": "data/chains/tibet-mega-dam.json",
-  "market": null
+  "market": "data/market/AIR-PA.json",
+  "market_fetched_at": "2026-09-01"
  },
  "business_summary": "Airbus SE is a European aerospace and defense group (commercial aircraft, helicopters, and defense and space systems) listed on Euronext Paris. Its Space Systems / Intelligence business supplies the optical and radar Earth-observation satellites mapped to the chain's riparian-risk-monitoring link, alongside its much larger commercial-aircraft segment which sits outside the mapped exposure.",
  "exposure_summary": {
@@ -67,98 +68,163 @@
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "latest fiscal-year revenue is not available for Airbus SE: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Fiscal-year revenue for the period ended 2025-12-31: 73,420,000,000 EUR from the yfinance-statements statements in AIR-PA.json.",
+    "value": 73420000000.0
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "three-year revenue CAGR cannot be computed for Airbus SE with no revenue series on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Compound annual revenue growth computed as (73,420,000,000/58,763,000,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+    "value": 0.07703409968887809
    }
   },
   "margins": {
    "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "operating margin cannot be computed for Airbus SE with no operating-income or revenue series on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Operating income 5,236,000,000 EUR divided by revenue 73,420,000,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 0.07131571778806865
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "operating cash flow to net income cannot be computed for Airbus SE with no cash-flow or income series on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Operating cash flow 7,995,000,000 EUR divided by net income 5,221,000,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 1.531315839877418
+   },
+   "fcf_margin": {
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Free cash flow margin: operating cash flow 7,995,000,000 EUR less capex 3,964,000,000 EUR, divided by revenue 73,420,000,000 EUR, all for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 0.05490329610460365
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "net debt to EBITDA cannot be computed for Airbus SE with no debt, cash or EBITDA inputs on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Net debt -3,105,000,000 EUR (total debt 11,023,000,000 less cash 14,128,000,000, as of 2025-12-31) divided by an EBITDA proxy 8,369,000,000 EUR (operating income 5,236,000,000 plus depreciation 3,133,000,000 for the period ended 2025-12-31), from the yfinance-statements series.",
+    "value": -0.3710120683474728
    }
   },
   "quality": {
    "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "piotroski F-score cannot be computed for Airbus SE with no companyfacts-equivalent statement inputs on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in AIR-PA.json quality.piotroski, 9 of 9 inputs found.",
+    "value": 7
    },
    "beneish_state": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "beneish M-score cannot be computed for Airbus SE with no companyfacts-equivalent statement inputs on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Beneish M-score -2.531 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in AIR-PA.json quality.beneish, 12 of 12 inputs found.",
+    "value": -2.531
    }
   },
   "valuation": {
    "market_cap": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "market capitalization cannot be computed for Airbus SE without a sourced official share count: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Market capitalization 159,846,593,622 EUR computed in AIR-PA.json quality.derived.market_cap from vendor/official share count and price (method section 6A vendor-aggregate fundamentals).",
+    "value": 159846593622.25
    },
-   "price_to_earnings": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "price to earnings ratio cannot be computed for Airbus SE without both a sourced market capitalization and a sourced net-income figure, neither of which is available this run: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+   "price_to_sales": {
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Market capitalization 159,846,593,622 EUR divided by revenue 73,420,000,000 EUR for the period ended 2025-12-31.",
+    "value": 2.177153277339281
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "reverse-DCF implied FCF CAGR cannot be solved for Airbus SE with no free-cash-flow or enterprise-value inputs on file: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "value": 0.2495,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store AIR-PA.json quality.reverse_dcf",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Free-cash-flow CAGR the current enterprise value 156,741,593,622 EUR implies over a 5-year explicit period on base FCF 4,031,000,000 EUR, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over yfinance-statements statements. Assumption-dependent expectation reading, not a reported figure."
    },
    "horizon_spread": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "reverse-DCF horizon spread cannot be computed for Airbus SE with the base solve unavailable: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist)"
+    "value": 0.105,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store AIR-PA.json quality.reverse_dcf",
+    "source_date": "2026-09-01",
+    "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2495, '7': 0.1882, '10': 0.1445}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
    }
   }
  },
  "crowdedness_caveats": [
   "Airbus sits on a link scored QUIET (see placements above): nobody is watching this link and the mapped monitoring business is immaterial next to Airbus's commercial-aircraft revenue; no pcs block or fundamentals-derived quality read exists locally."
  ],
- "catalysts": [],
- "risks": [],
+ "catalysts": [
+  {
+   "claim": "Newly filled fundamentals (2026-09-01, yfinance-statements) show 7.70% three-year revenue CAGR, a CLEAN Beneish read (-2.531), a STRONG Piotroski score (7/9), the strongest evidence this profile carries for the AIR.PA placement.",
+   "source_name": "yfinance-statements",
+   "source_date": "2026-09-01",
+   "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+   "tag": "INFERRED"
+  }
+ ],
+ "risks": [
+  {
+   "claim": "Against that: no pcs (positioning/attention) block exists to corroborate or refute the chain's own crowdedness read.",
+   "source_name": "yfinance-statements",
+   "source_date": "2026-09-01",
+   "url": "https://finance.yahoo.com/quote/AIR.PA/financials",
+   "tag": "INFERRED"
+  }
+ ],
  "data_gaps": [
-  "data/market/AIR-PA.json does not exist: no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist).",
-  "PENDING requests queued this run (prices, fundamentals, quality) for AIR.PA.",
-  "No monitoring-specific revenue percentage is sourced for Airbus this run; the mapped Space Solutions exposure is one small unit inside a group dominated by commercial aircraft."
+  "Filled 2026-09-04 from data/market/AIR-PA.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): 12 of 12 canonical fields carry a sourced number; 0 stay NULL with a field-specific basis on the metrics themselves."
  ],
  "disposition": {
-  "state": "BLOCKED",
-  "basis": "Real, evidence-backed placement on riparian-risk-monitoring (QUIET) sourced from the issuer's own filings or press material, but every canonical metric field is NULL because no market file has ever been fetched for AIR.PA (data/market/AIR-PA.json does not exist). BLOCKED rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing. PENDING prices/fundamentals/quality requests queued this run. run profile --campaign CAMP-20260830-01.",
-  "as_of": "2026-09-01"
+  "state": "RETAIN",
+  "as_of": "2026-09-04",
+  "basis": "Filled this run from data/market/AIR-PA.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 12 of 12 canonical fields carry a sourced number, the remaining 0 honest NULL with field-specific bases. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01."
  },
  "confidence_audit": {
-  "verified": 0,
-  "inferred": 0,
-  "speculative": 0,
-  "null": 11,
-  "canonical_fields_written": 11,
-  "basis": "Every canonical metric field is NULL this run; no numeric figure was fetched, computed, or sourced. See data_gaps for the specific cause of each gap."
+  "VERIFIED": 0,
+  "INFERRED": 10,
+  "SPECULATIVE": 2,
+  "NULL": 0,
+  "canonical_fields_written": 12,
+  "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Rons 2026-09-01 decision (method section 6A Vendor-aggregate fundamentals); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -170,6 +236,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "created shaped BLOCKED profile for AIRBUS from the COMPLETE PASS-audited tibet-mega-dam mapping; status BLOCKED, data tier T3, opportunity tier O3, all canonical metric fields NULL. PENDING prices/fundamentals/quality requests queued this run. run profile --campaign CAMP-20260830-01."
+  },
+  {
+   "ts": "2026-09-04T18:30:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile --campaign CAMP-20260901-01: filled canonical metrics from data/market/AIR-PA.json (yfinance-statements vendor aggregate (INFERRED, official_source false) per the 2026-09-01 method decision); status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2; 0 of 12 canonical fields stay NULL with field-specific bases; added one data-driven catalyst and one data-driven risk; replaced the stale never-fetched data_gaps language."
   }
  ]
 }
