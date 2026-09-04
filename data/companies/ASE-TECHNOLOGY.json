@@ -3,7 +3,7 @@
  "issuer_name": "ASE Technology Holding Co., Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-08-31T01:10:50Z",
- "updated_at": "2026-09-04T18:30:00Z",
+ "updated_at": "2026-09-04T23:59:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T2",
@@ -127,9 +127,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "net debt to EBITDA cannot be computed for ASE-TECHNOLOGY: total debt, cash or depreciation not found in the sec-companyfacts series."
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "sec-companyfacts",
+    "source_date": "2026-09-04",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001122411.json",
+    "basis": "Net debt to EBITDA: total debt 202,612,796,000 TWD less cash 92,468,851,000 TWD = net debt 110,143,945,000 TWD, divided by EBITDA (operating income 51,420,826,000 TWD plus depreciation 67,439,837,000 TWD = 118,860,663,000 TWD), all for the period ended 2025-12-31, from the sec-companyfacts series. Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): total debt and cash, previously not found, now resolve.",
+    "value": 0.926664
    }
   },
   "quality": {
@@ -172,12 +176,12 @@
    "implied_fcf_cagr": {
     "value": null,
     "tag": "NULL",
-    "basis": "reverse-DCF implied FCF CAGR: quality.reverse_dcf.state is PENDING_DATA for ASE-TECHNOLOGY, missing ['enterprise_value']."
+    "basis": "reverse-DCF implied FCF CAGR not usable for ASE-TECHNOLOGY: data/market/ASX.json quality.reverse_dcf.state is NOT_APPLICABLE, base-year free cash flow is negative (fcf_margin -3.47% above), so a growth rate on a negative base is meaningless. Corrected 2026-09-04: enterprise_value now resolves under the fixed fetcher, but the solve itself is blocked by the negative FCF base, a different and permanent reason from the prior PENDING_DATA state."
    },
    "horizon_spread": {
     "value": null,
     "tag": "NULL",
-    "basis": "reverse-DCF horizon spread: not available for ASE-TECHNOLOGY, base solve unavailable (PENDING_DATA, missing ['enterprise_value'])."
+    "basis": "reverse-DCF horizon spread not available for ASE-TECHNOLOGY: base solve unavailable for the same NOT_APPLICABLE reason as implied_fcf_cagr (negative base-year free cash flow)."
    }
   }
  },
@@ -199,6 +203,13 @@
    "claim": "Newly filled fundamentals (2026-09-02, sec-companyfacts) show a CLEAN Beneish read (-3.026), the strongest evidence this profile carries for the ASX placement.",
    "source_name": "sec-companyfacts",
    "source_date": "2026-09-02",
+   "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001122411.json",
+   "tag": "VERIFIED"
+  },
+  {
+   "claim": "Net debt to EBITDA of 0.93x, newly sourced 2026-09-04 once the fetcher fix resolved total debt and cash for this filer, is a moderate leverage read that sits alongside the CLEAN Beneish state.",
+   "source_name": "sec-companyfacts",
+   "source_date": "2026-09-04",
    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001122411.json",
    "tag": "VERIFIED"
   }
@@ -227,19 +238,20 @@
   }
  ],
  "data_gaps": [
-  "Filled 2026-09-04 from data/market/ASX.json (SEC companyfacts, official): 8 of 12 canonical fields carry a sourced number; 4 stay NULL with a field-specific basis on the metrics themselves.",
-  "Piotroski could not be scored: ASX.json quality.piotroski state is PENDING_DATA."
+  "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): leverage.net_debt_to_ebitda now carries a sourced value. 9 of 12 canonical fields carry a sourced number; 3 stay NULL with a field-specific basis on the metrics themselves.",
+  "Piotroski could not be scored: ASX.json quality.piotroski state is still PENDING_DATA (0 common fiscal periods across the change-leg inputs).",
+  "reverse_dcf stays NULL: quality.reverse_dcf.state is now NOT_APPLICABLE (base-year free cash flow is negative), a different and permanent reason from the prior PENDING_DATA state."
  ],
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Filled this run from data/market/ASX.json: SEC companyfacts (official). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 8 of 12 canonical fields carry a sourced number, the remaining 4 honest NULL with field-specific bases. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01."
+  "basis": "Amended 2026-09-04 from data/market/ASX.json re-fetched under the corrected fetcher (commit 54cbeaa): leverage.net_debt_to_ebitda now sourced. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 9 of 12 canonical fields carry a sourced number, the remaining 3 honest NULL with field-specific bases. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 7,
+  "INFERRED": 8,
   "SPECULATIVE": 0,
-  "NULL": 4,
+  "NULL": 3,
   "canonical_fields_written": 12,
   "basis": "Counts cover the canonical metric fields only. VERIFIED fields are directly reported SEC XBRL facts; INFERRED computed fields carry official_source true. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
  },
@@ -271,6 +283,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile --campaign CAMP-20260901-01: filled canonical metrics from data/market/ASX.json (SEC companyfacts, official); status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2; 4 of 12 canonical fields stay NULL with field-specific bases; added one data-driven catalyst and one data-driven risk; replaced the stale never-fetched data_gaps language."
+  },
+  {
+   "ts": "2026-09-04T23:59:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile ASX: re-read data/market/ASX.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). leverage.net_debt_to_ebitda filled: 0.926664 TWD-denominated (INFERRED, official_source true). quality.piotroski stays NULL (still PENDING_DATA, 0 common fiscal periods). reverse_dcf stays NULL but basis corrected: quality.reverse_dcf.state moved from PENDING_DATA to NOT_APPLICABLE (negative base-year free cash flow), a permanent block distinct from the prior missing-enterprise_value reason. 9 of 12 canonical fields now sourced (up from 8). Added one catalyst naming the new leverage read. Status stays COMPLETE/O2 unchanged; opportunity_tier not re-examined by run selection this run."
   }
  ]
 }

@@ -3,7 +3,7 @@
  "issuer_name": "Okeanis Eco Tankers Corp.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T21:35:00Z",
- "updated_at": "2026-09-04T21:35:00Z",
+ "updated_at": "2026-09-04T23:59:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -117,9 +117,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/ECO.json fundamentals.cash and fundamentals.total_debt are both null; only long_term_debt_fy is tagged in this filer's IFRS companyfacts block, with no matching cash figure to net against it, so net debt to EBITDA is not computed rather than approximated from a one-sided figure."
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+    "source_date": "2026-09-04",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+    "basis": "Net debt to EBITDA: total debt 605099897 less cash 116636741 = net debt 488463156, divided by EBITDA (operating income 162530692 plus depreciation 41440551 = 203971243), all for the fiscal year ended 2025-12-31, from companyfacts. Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): cash and total_debt, both previously null for this IFRS filer, now resolve.",
+    "value": 2.394765
    }
   },
   "quality": {
@@ -158,12 +162,12 @@
    "implied_fcf_cagr": {
     "value": null,
     "tag": "NULL",
-    "basis": "implied_fcf_cagr (implied FCF CAGR) not solved: data/market/ECO.json quality.reverse_dcf state PENDING_DATA, missing fcf and enterprise_value (fcf could not be solved without a capex figure; see cash_conversion.fcf_margin)."
+    "basis": "implied_fcf_cagr (implied FCF CAGR) not solved: data/market/ECO.json quality.reverse_dcf state is still PENDING_DATA, missing fcf. Corrected 2026-09-04 (fetcher commit 54cbeaa): enterprise_value now resolves (2676374735.68, cash and total_debt no longer null), so fcf is the sole remaining blocker, itself unsolvable without a capex figure (see cash_conversion.fcf_margin)."
    },
    "horizon_spread": {
     "value": null,
     "tag": "NULL",
-    "basis": "horizon_spread not available: it depends on implied_fcf_cagr, which is NULL for the same reason (quality.reverse_dcf state PENDING_DATA), so no horizon spread was solved."
+    "basis": "horizon_spread not available: it depends on implied_fcf_cagr, which is NULL for the same reason (quality.reverse_dcf state PENDING_DATA, missing fcf), so no horizon spread was solved."
    }
   }
  },
@@ -182,30 +186,30 @@
  ],
  "risks": [
   {
-   "claim": "Leverage is NULL: this IFRS filer's companyfacts block does not tag a matching cash figure against its long_term_debt_fy series, so net debt to EBITDA cannot be sourced without guessing; crowdedness on the link is scored 84/100 with the trade already REPRICED.",
+   "claim": "Superseded 2026-09-04 (fetcher commit 54cbeaa): leverage now resolves at net debt to EBITDA 2.39x (net debt 488463156 over EBITDA 203971243, FY2025), a real leverage read on a crowded, already-REPRICED link (84/100 crowdedness); fcf_margin and the reverse-DCF solve remain NULL because capex_fy is still absent from this IFRS filer's companyfacts.",
    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts)",
-   "source_date": "2026-09-02",
+   "source_date": "2026-09-04",
    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
    "tag": "INFERRED"
   }
  ],
  "data_gaps": [
-  "Filled 2026-09-04 from data/market/ECO.json (sec-companyfacts, IFRS taxonomy, T1): revenue, growth, margins and the ocf/ni cash-conversion leg carry sourced numbers.",
-  "fcf_margin, net_debt_to_ebitda, piotroski, beneish_state, and both reverse-DCF fields are NULL: companyfacts.coverage lists capex, gross_profit, cost_of_revenue, sga and ppe_net as missing for this IFRS filer, and cash/total_debt are untagged.",
+  "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): leverage.net_debt_to_ebitda now carries a sourced value. 7 of 11 numeric canonical fields now carry a sourced number.",
+  "fcf_margin, piotroski, beneish_state, and both reverse-DCF fields remain NULL: companyfacts.coverage still lists capex, gross_profit, cost_of_revenue, sga and ppe_net as missing for this IFRS filer, even after the fix (the fix corrected cash/total_debt reading, not these other tags).",
   "shares_fy's last entry is 2023-12-31; market_cap uses that share count against the 2026-09-01 close, so a share-count change since 2023 would not be reflected."
  ],
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Created this run from data/market/ECO.json (sec-companyfacts, T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 6 of 11 numeric canonical fields carry a sourced number, the remaining 5 honestly NULL on named missing companyfacts inputs. COMPLETE and O2 per method section 6A."
+  "basis": "Amended 2026-09-04 from data/market/ECO.json re-fetched under the corrected fetcher (commit 54cbeaa): leverage.net_debt_to_ebitda now sourced. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 7 of 11 numeric canonical fields carry a sourced number, the remaining 4 honestly NULL on named missing companyfacts inputs. COMPLETE and O2 per method section 6A."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 5,
+  "INFERRED": 6,
   "SPECULATIVE": 0,
-  "NULL": 5,
+  "NULL": 4,
   "canonical_fields_written": 11,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers fcf_margin, net_debt_to_ebitda, piotroski, beneish_state, and both reverse-DCF fields, each with a named missing companyfacts input."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers fcf_margin, piotroski, beneish_state, and both reverse-DCF fields, each with a named missing companyfacts input."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -217,6 +221,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for OKEANIS-ECO-TANKERS from data/mappings/hormuz-maritime.json (ACTIVE, current audit status FAIL, audited 2026-09-04) and data/market/ECO.json (sec-companyfacts, IFRS taxonomy, T1). 6 of 11 numeric canonical fields filled with sourced numbers, 5 honestly NULL on named missing companyfacts inputs; status COMPLETE, opportunity_tier O2. The mapping's only role-evidence item for this placement is tagged INFERRED (secondary-aggregator transcript), carried through and noted rather than skipped. run profile --campaign CAMP-20260901-01, batch 4, written to unblock run screen hormuz-maritime on the crude-tanker-tonnage CHOKE_POINT link."
+  },
+  {
+   "ts": "2026-09-04T23:59:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile ECO: re-read data/market/ECO.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). leverage.net_debt_to_ebitda filled: 2.394765 (net debt 488463156 over EBITDA 203971243, FY2025, INFERRED official_source true). reverse_dcf stays NULL but basis corrected: enterprise_value now resolves (2676374735.68), so the sole remaining blocker is the still-missing fcf (capex_fy absent from this IFRS filer). quality.piotroski and quality.beneish_state stay NULL (still PENDING_DATA, missing cost_of_revenue_fy and, for beneish, ppe_net_fy/sga_fy too). 7 of 11 canonical fields now sourced (up from 6). Replaced the stale risk naming leverage as unmeasurable. Status stays COMPLETE/O2 unchanged; opportunity_tier not re-examined by run selection this run."
   }
  ]
 }

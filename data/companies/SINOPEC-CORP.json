@@ -3,7 +3,7 @@
   "issuer_name": "China Petroleum & Chemical Corp",
   "as_of": "2026-09-04",
   "created_at": "2026-09-02T15:00:00Z",
-  "updated_at": "2026-09-04T16:00:00Z",
+  "updated_at": "2026-09-04T23:59:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T2",
@@ -67,7 +67,7 @@
   ],
   "business_summary": "China Petroleum & Chemical Corporation (Sinopec) is Asia's largest refiner, trading OTC in the US as SNPMF (CIK 1123658). Two real, sourced hormuz-maritime roles: a CROWDED cargo-owner/import-side exposure (Gulf crude rerouting) and an UNDISCOVERED physical bunker-supply role through Sinopec Fuel Oil.",
   "exposure_summary": {
-    "narrative": "SINOPEC-CORP has 2 placements on hormuz-maritime: cargo-owners-and-energy-importers (CROWDED, Gulf crude rerouting under supply disruption) and bunker-and-voyage-services (UNDISCOVERED, Sinopec Fuel Oil MPA top-ten standing). The most recent fiscal year on file in sec-companyfacts is 2022-12-31 (stale: three years behind the current run date), showing 3.9% revenue CAGR against 2019, a 2.3% operating margin and 1.5x OCF/NI. cost_of_revenue_fy is entirely missing from companyfacts, blocking piotroski and beneish; total_debt and cash are also missing, blocking leverage. market_cap and price_to_sales stay NULL: the shares_used figure behind quality.derived.market_cap is dated 2015-02-11, eleven years before the current price, and the CNY statement currency likely differs from the USD OTC quote with no FX source or price_currency confirmation on disk.",
+    "narrative": "SINOPEC-CORP has 2 placements on hormuz-maritime: cargo-owners-and-energy-importers (CROWDED, Gulf crude rerouting under supply disruption) and bunker-and-voyage-services (UNDISCOVERED, Sinopec Fuel Oil MPA top-ten standing). The most recent fiscal year on file in sec-companyfacts is 2022-12-31 (stale: three years behind the current run date), showing 3.9% revenue CAGR against 2019, a 2.3% operating margin and 1.5x OCF/NI. Corrected 2026-09-04 (fetcher commit 54cbeaa): total_debt and cash now both resolve at the same 2022-12-31 date, giving a net cash debt-to-EBITDA of -0.04x. cost_of_revenue_fy is still entirely missing from companyfacts, blocking piotroski and beneish. market_cap and price_to_sales stay NULL: the shares_used figure behind quality.derived.market_cap is dated 2015-02-11, eleven years before the current price, and the CNY statement currency likely differs from the USD OTC quote with no FX source or price_currency confirmation on disk.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
@@ -88,7 +88,14 @@
   ],
   "risks": [
     {
-      "claim": "sec-companyfacts for this 20-F filer stops at fiscal year 2022-12-31 (three years stale) and is missing cost_of_revenue_fy, total_debt and cash entirely, blocking quality scores, leverage and the reverse-DCF solve; the vendor-derived market cap also rests on an 11-year-stale share count and an unconfirmed currency, so it is withheld rather than shown misleadingly precise.",
+      "claim": "sec-companyfacts for this 20-F filer stops at fiscal year 2022-12-31 (three years stale) and is missing cost_of_revenue_fy entirely, blocking quality scores and the reverse-DCF solve; the vendor-derived market cap also rests on an 11-year-stale share count and an unconfirmed currency, so it is withheld rather than shown misleadingly precise.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SNPMF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001123658.json",
+      "tag": "INFERRED"
+    },
+    {
+      "claim": "Corrected 2026-09-04 (fetcher commit 54cbeaa): net debt to EBITDA now resolves at -0.04x, a net cash position, but this is a 2022-12-31 balance sheet, three years old, so it says little about the company's current leverage during the Gulf-sourcing disruption this profile's own placements describe.",
       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SNPMF.json fundamentals (source sec-companyfacts)",
       "source_date": "2026-09-04",
       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001123658.json",
@@ -96,10 +103,9 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-04 from data/market/SNPMF.json (sec-companyfacts, official source, T2 per the mapping's OTC-ADR classification): 4 of 12 canonical fields carry a sourced number (revenue, growth, operating margin, OCF/NI), all from fiscal year 2022-12-31, the most recent on file.",
-    "leverage.net_debt_to_ebitda NULL: companyfacts carries no total_debt or cash for this filer.",
-    "quality.piotroski and quality.beneish_state NULL: companyfacts is missing cost_of_revenue_fy for this filer (8/9 and 11/12 inputs found respectively).",
-    "valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread NULL: the vendor-derived market cap rests on an 11-year-stale share count (dated 2015-02-11) with an unconfirmed CNY/USD currency match, and capex_fy is missing for the free-cash-flow leg of the reverse-DCF solve.",
+    "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): leverage.net_debt_to_ebitda now carries a sourced value. 5 of 12 canonical fields carry a sourced number (revenue, growth, operating margin, OCF/NI, leverage), all from fiscal year 2022-12-31, the most recent on file.",
+    "quality.piotroski and quality.beneish_state NULL: companyfacts is still missing cost_of_revenue_fy for this filer (8/9 and 11/12 inputs found respectively), unaffected by the fetcher fix.",
+    "valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread NULL: the vendor-derived market cap rests on an 11-year-stale share count (dated 2015-02-11) with an unconfirmed CNY/USD currency match, and capex_fy is still missing for the free-cash-flow leg of the reverse-DCF solve.",
     "No link-specific (cargo-owner or bunker-supply) revenue percentage is sourced for Sinopec Corp this run."
   ],
   "metrics": {
@@ -149,9 +155,13 @@
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be computed: companyfacts carries no total_debt or cash figure for this filer (data/market/SNPMF.json fundamentals.total_debt and .cash are both null)."
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SNPMF.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001123658.json",
+        "basis": "Net debt to EBITDA: total debt 85706000000 CNY less cash 93438000000 CNY = net debt -7732000000 CNY (a net cash position), divided by EBITDA (operating income 75835000000 CNY plus depreciation 109906000000 CNY = 185741000000 CNY), all for the fiscal year ended 2022-12-31 (the latest fiscal year sec-companyfacts carries for this filer), from companyfacts. Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): total_debt and cash, previously both null, now resolve at the same fiscal-year date as operating income and depreciation, so this ratio (unlike valuation.market_cap on this profile) does not depend on the stale share count or an unconfirmed currency conversion; it is a pure CNY-denominated ratio.",
+        "value": -0.041628
       }
     },
     "quality": {
@@ -182,27 +192,27 @@
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "implied_fcf_cagr not solved: data/market/SNPMF.json quality.reverse_dcf.state is PENDING_DATA, missing both fcf (capex_fy is null in companyfacts, so free cash flow cannot be derived) and enterprise_value (blocked by the same market_cap defects named above)."
+        "basis": "implied_fcf_cagr not solved: data/market/SNPMF.json quality.reverse_dcf.state is still PENDING_DATA, missing fcf (capex_fy is null in companyfacts, so free cash flow cannot be derived). Corrected 2026-09-04 (fetcher commit 54cbeaa): enterprise_value now computes internally (64910725787.6), but it inherits the same stale-share-count and unconfirmed-currency defects already named on valuation.market_cap, so even if fcf resolved this solve would need the same scrutiny; moot here since fcf alone already blocks it."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA for the same missing-fcf and missing-enterprise_value reasons as implied_fcf_cagr."
+        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA for the same missing-fcf reason as implied_fcf_cagr."
       }
     }
   },
   "disposition": {
     "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "Filled this run from data/market/SNPMF.json: sec-companyfacts, official source but thin (17/20 statement fields) and stale (latest fiscal year 2022-12-31). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; only 4 of 12 canonical fields carry a sourced number, the remaining 8 honest NULL on named, specific data gaps (missing statement lines, stale share count, unconfirmed currency). COMPLETE and O2 per method section 6A: a profile is COMPLETE once every group has at least its minimum required field filled or a field-specific NULL, which this profile now does."
+    "basis": "Amended 2026-09-04 from data/market/SNPMF.json re-fetched under the corrected fetcher (commit 54cbeaa): leverage.net_debt_to_ebitda now sourced. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 5 of 12 canonical fields carry a sourced number, the remaining 7 honest NULL on named, specific data gaps (missing cost_of_revenue_fy, stale share count, unconfirmed currency, missing capex_fy). COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 1,
-    "INFERRED": 3,
+    "INFERRED": 4,
     "SPECULATIVE": 0,
-    "NULL": 8,
+    "NULL": 7,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing (growth, margin, cash conversion). NULL covers the 8 fields blocked by named, specific gaps in the companyfacts record itself (missing cost_of_revenue_fy, missing total_debt/cash, an 11-year-stale share count, and an unconfirmed CNY/USD currency match), never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing (growth, margin, cash conversion, leverage). NULL covers the 7 fields blocked by named, specific gaps in the companyfacts record itself (missing cost_of_revenue_fy, an 11-year-stale share count, an unconfirmed CNY/USD currency match, and missing capex_fy), never estimated."
   },
   "changelog": [
     {
@@ -222,6 +232,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-149/150/151) has landed: data/market/SNPMF.json now holds sec-companyfacts data (17/20 statement fields, official source, but the most recent fiscal year is 2022-12-31 and cost_of_revenue_fy/total_debt/cash are all missing). Filled 4 of 12 canonical metric fields (1 VERIFIED, 3 INFERRED official-source); 8 stay NULL with field-specific bases, including market_cap withheld on an 11-year-stale share count and an unconfirmed currency rather than shown misleadingly precise. Status COMPLETE, opportunity_tier O2. run profile SNPMF (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile SNPMF: re-read data/market/SNPMF.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). leverage.net_debt_to_ebitda filled: -0.041628 (net cash; total debt 85706000000 CNY less cash 93438000000 CNY over EBITDA 185741000000 CNY, all FY2022-12-31, INFERRED official_source true). quality.piotroski/beneish_state stay NULL (still missing cost_of_revenue_fy, unaffected by the fix). valuation.market_cap and reverse_dcf stay NULL for their own pre-existing reasons (stale share count, unconfirmed currency, missing capex_fy for fcf); reverse_dcf basis corrected to note enterprise_value now computes internally but inherits the same market_cap defects. 5 of 12 canonical fields now sourced (up from 4). Added one risk flagging the leverage figure's own staleness (2022-12-31 balance sheet, three years old). Status stays COMPLETE/O2; opportunity_tier not re-examined by run selection this run."
     }
   ],
   "sources": {

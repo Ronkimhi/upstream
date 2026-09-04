@@ -3,13 +3,13 @@
   "issuer_name": "FLEX LNG Ltd.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T23:10:00Z",
-  "updated_at": "2026-09-04T23:10:00Z",
+  "updated_at": "2026-09-04T23:59:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): New York Stock Exchange:FLNG carries a real SEC CIK (1772253); data/market/FLNG.json has a fetched prices block (price_status AGREED) but no fundamentals or quality block on disk this run. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): New York Stock Exchange:FLNG carries a real SEC CIK (1772253); data/market/FLNG.json has a fetched prices block (price_status AGREED) and, as of the 2026-09-04 re-fetch (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins), a full companyfacts fundamentals block and a SCORED quality block (Piotroski, Beneish, and a solved market_cap). BLOCKED -> COMPLETE this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NYSE-FLNG"
   ],
@@ -64,106 +64,175 @@
     "chain": "data/chains/hormuz-maritime.json",
     "market": "data/market/FLNG.json"
   },
-  "business_summary": "FLEX LNG Ltd. (New York Stock Exchange: FLNG) sits on the hormuz-maritime/lng-shipping-and-qatari-supply link (LNG carriers and the Qatari cargo with no bypass, verdict CROWDED). Fundamentals cannot be sourced this run: no fundamentals or quality block exists in data/market/FLNG.json (prices only, price_status AGREED).",
+  "business_summary": "FLEX LNG Ltd. (New York Stock Exchange: FLNG) sits on the hormuz-maritime/lng-shipping-and-qatari-supply link (LNG carriers and the Qatari cargo with no bypass, verdict CROWDED). FY2025 companyfacts (fetched 2026-09-04, under the corrected fetcher) shows revenue of 347637000, an operating margin of 50.6% and a MIDDLING Piotroski/CLEAN Beneish quality read.",
   "exposure_summary": {
-    "narrative": "FLEX-LNG has 1 placement on hormuz-maritime (lng-shipping-and-qatari-supply, CROWDED, money_corner False). Every canonical metric is NULL: no fundamentals data is available for FLNG this run."
+    "narrative": "FLEX-LNG has 1 placement on hormuz-maritime (lng-shipping-and-qatari-supply, CROWDED, money_corner False), backed by its own Form 20-F naming the Strait of Hormuz among its exposed routes. Corrected 2026-09-04 (fetcher commit 54cbeaa): 9 of 12 canonical fields now carry a sourced number, including a scored Piotroski F-score (5, MIDDLING) and Beneish M-score (-3.471, CLEAN). fcf_margin and the reverse-DCF solve stay NULL: capex_fy is entirely absent from this filer's companyfacts."
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 347637000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1772253 (FLEX LNG Ltd., NYSE: FLNG)."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "value": -0.000268,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Three-year compound annual revenue growth computed as (347637000 / 347917000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31; essentially flat revenue over the period."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "value": 0.505711,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Operating income 175804000 divided by revenue 347637000, both for the fiscal year ended 2025-12-31, from companyfacts."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
+        "value": 1.881120,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Operating cash flow 140736000 divided by net income 74815000, both for the fiscal year ended 2025-12-31, from companyfacts."
       },
       "fcf_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "basis": "fcf_margin cannot be computed for FLEX-LNG: capex_fy is entirely absent from this filer's companyfacts, so free cash flow has no capex leg."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "value": 5.092507,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Net debt to EBITDA: total debt 1682848000 less cash 397382000 = net debt 1285466000 (both 2026-06-30, the latest balance-sheet point), divided by EBITDA (operating income 175804000 plus depreciation 76619000 = 252423000, both fiscal year ended 2025-12-31, the latest income-statement point). The balance-sheet date (2026-06-30) is later than the income-statement date (2025-12-31); both are named here rather than silently blended. Corrected 2026-09-04 (fetcher commit 54cbeaa): cash and total_debt, previously unavailable, now resolve."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "value": 5,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality.piotroski (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Piotroski F-score 5 of 9, state MIDDLING, computed over sec-companyfacts statements in data/market/FLNG.json quality.piotroski, 9 of 9 inputs found."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "value": -3.471,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality.beneish (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Beneish M-score -3.471 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/FLNG.json quality.beneish, 12 of 12 inputs found."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 1726113489.5,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality.derived.market_cap (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Market capitalization 1726113489.5 = SEC companyfacts share count 54520325 (as of 2025-12-31) multiplied by the close 31.66 of 2026-08-31. The share count is the official SEC figure; the close is the repo's own market plane (data/market/FLNG.json, price_status AGREED), not an issuer document."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "value": 4.965276,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+        "basis": "Market capitalization 1726113489.5 divided by fiscal year 2025-12-31 revenue 347637000."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "basis": "implied_fcf_cagr not solved for FLEX-LNG: data/market/FLNG.json quality.reverse_dcf.state is PENDING_DATA, missing fcf (capex_fy is entirely absent from companyfacts, so free cash flow cannot be derived, even though enterprise_value itself now resolves under the corrected fetcher)."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "basis": "horizon_spread not available for FLEX-LNG: quality.reverse_dcf.state is PENDING_DATA (missing fcf), so no implied_by_horizon spread was computed."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "The lng-shipping-and-qatari-supply link's heat verdict is CROWDED (see placements above); no pcs block exists locally for data/market/FLNG.json, so analyst count and institutional ownership were not measured for this issuer."
+  ],
+  "catalysts": [
+    {
+      "claim": "FY2025 companyfacts (fetched 2026-09-04, corrected fetcher) shows an operating margin of 50.6% and operating cash flow to net income of 1.88x on a fleet of nine MEGI and four Generation X Dual Fuel LNG carriers, backed by the issuer's own Form 20-F.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+      "tag": "INFERRED"
+    },
+    {
+      "claim": "Piotroski F-score 5 of 9 (MIDDLING) and Beneish M-score -3.471 (CLEAN, well below the -1.78 manipulation threshold) are two independent quality reads now sourced for this filer.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Net debt to EBITDA of 5.09x is elevated leverage for a shipowner even in a strong charter-rate environment, and the figure blends a 2026-06-30 balance sheet against FY2025 (2025-12-31) income-statement legs because no closer-dated pair exists on file.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+      "tag": "INFERRED"
+    },
+    {
+      "claim": "Revenue growth is essentially flat over three years (-0.03% 3-year CAGR), and capex_fy is entirely absent from companyfacts, so fcf_margin and the reverse-DCF solve cannot be corroborated from this filer's XBRL alone.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Queued this run: fundamentals (REQ-20260904-174), quality (REQ-20260904-175). Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): the fundamentals and quality requests queued 2026-09-04 (REQ-20260904-174, REQ-20260904-175) landed. 9 of 12 canonical fields now carry a sourced number.",
+    "fcf_margin and both reverse_dcf fields stay NULL: capex_fy is entirely absent from companyfacts for CIK 1772253, blocking free cash flow and the reverse-DCF solve.",
+    "leverage.net_debt_to_ebitda blends a 2026-06-30 balance-sheet date (cash, total_debt) with a 2025-12-31 income-statement date (operating income, depreciation); both dates are named on the field, not blended silently."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "No fundamentals data on disk for FLNG this run. Queued fundamentals (REQ-20260904-174), quality (REQ-20260904-175). Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "Amended 2026-09-04 from data/market/FLNG.json (sec-companyfacts, T1, fetched under the corrected fetcher commit 54cbeaa): 9 of 12 canonical fields now carry a sourced number, including a scored Piotroski/Beneish quality read. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; the remaining 3 fields are honest NULL on capex_fy's total absence from companyfacts. Status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2 per method section 6A."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
+    "VERIFIED": 1,
+    "INFERRED": 8,
     "SPECULATIVE": 0,
-    "NULL": 12,
+    "NULL": 3,
     "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no fundamentals data fetched for FLNG this listing yet."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers fcf_margin and both reverse_dcf fields, each blocked by capex_fy's total absence from companyfacts, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -175,6 +244,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for FLEX-LNG from data/mappings/hormuz-maritime.json (ACTIVE). No fundamentals or quality data on disk for FLNG (prices only, AGREED). Queued fundamentals (REQ-20260904-174), quality (REQ-20260904-175). Status BLOCKED, opportunity_tier O3. run profile --campaign CAMP-20260901-01, batch 6."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile FLNG: the fundamentals and quality requests queued this batch (REQ-20260904-174, REQ-20260904-175) landed under the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). Filled 9 of 12 canonical fields: revenue.latest_fy 347637000 (VERIFIED); growth.revenue_cagr_3y -0.000268, margins.operating_margin 0.505711, cash_conversion.operating_cash_flow_to_net_income 1.881120, leverage.net_debt_to_ebitda 5.092507 (balance-sheet/income-statement date mismatch named on the field), quality.piotroski 5/MIDDLING, quality.beneish_state -3.471/CLEAN, valuation.market_cap 1726113489.5, valuation.price_to_sales 4.965276 (all INFERRED, official_source true). fcf_margin and both reverse_dcf fields stay NULL: capex_fy is entirely absent from this filer's companyfacts. Status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2 per method section 6A. Added two catalysts and two risks grounded in the newly filled metrics."
     }
   ]
 }

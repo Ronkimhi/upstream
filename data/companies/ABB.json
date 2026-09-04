@@ -1,13 +1,13 @@
 {
   "issuer_id": "ABB",
   "issuer_name": "ABB Ltd",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-04T23:59:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T2",
-  "data_tier_basis": "ADR/OTC of a foreign filer (method section 6): ABBNY trades OTC in the US and carries a real SEC CIK (1091587), giving it a dual-source price plane in data/market/ABBNY.json, but SEC XBRL companyfacts for that CIK returns zero of twenty attempted annual fields (coverage.annual_fields_found: 0, flagged verified_zero), so no fundamentals or quality block exists locally.",
+  "data_tier_basis": "ADR/OTC of a foreign filer (method section 6): ABBNY trades OTC in the US and carries a real SEC CIK (1091587), giving it a dual-source price plane in data/market/ABBNY.json. Corrected 2026-09-04 (fetcher commit 54cbeaa): companyfacts fundamentals and quality now exist for this CIK (revenue, margins, cash conversion, leverage, and a scored quality block all resolve), sourced from the 20-F taxonomy whose facts run latest. Still T2, not T1: the underlying filer is a Swiss 20-F filer represented through an OTC ADR line, not a domestic 10-K registrant.",
   "opportunity_tier": "O2",
   "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True); ai-infrastructure/grid-interconnect (Grid & interconnection, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 6 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
@@ -77,7 +77,7 @@
   },
   "business_summary": "ABB Ltd is a Swiss multinational electrification and automation company, listed primarily on SIX Swiss Exchange with a US OTC line (ABBNY, CIK 1091587) representing the same underlying shares. Its Electrification business supplies switchgear, low-voltage systems, breakers and UPS equipment; its Process Automation and Motion businesses supply grid-integration and system-integration technology. Both mapped links (power-equipment, grid-interconnect) sit inside these businesses.",
   "exposure_summary": {
-    "narrative": "ABB sits on the chain's money corner (power-equipment, UNDISCOVERED) and on grid-interconnect (UNDISCOVERED), with a real, filing-referenced role on each from its own 2025 Financial Report. This profile is BLOCKED purely on data availability: SEC XBRL companyfacts for CIK 1091587 returns zero of the twenty annual fields fetch.py attempts (data/market/ABBNY.json fundamentals.coverage shows 0/20 found, flagged verified_zero), which is a known pattern for a foreign private issuer that does not tag its 20-F the way a domestic 10-K filer does, not a mapping or identity problem.",
+    "narrative": "ABB sits on the chain's money corner (power-equipment, UNDISCOVERED) and on grid-interconnect (UNDISCOVERED), with a real, filing-referenced role on each from its own 2025 Financial Report. Corrected 2026-09-04 (fetcher commit 54cbeaa): companyfacts fundamentals and quality now resolve for CIK 1091587 (foreign filers' cash and debt now read from the 20-F taxonomy whose facts run latest), so revenue, growth, margins, both cash-conversion legs, leverage, a scored Piotroski/Beneish quality read and a solved reverse-DCF are now sourced; only market-cap-adjacent items and the O1 official cross-check remain open.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
@@ -128,28 +128,44 @@
         "basis": "Free cash flow margin: operating cash flow 4290000000 less capital expenditure 770000000, divided by revenue 32235000000, all for the fiscal year ended 2023-12-31, from companyfacts."
       },
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating_cash_flow_to_net_income cannot be computed for ABB: companyfacts NetIncomeLoss in data/market/ABBNY.json fundamentals.net_income_fy has no entry after fiscal year ended 2010-12-31, thirteen years stale against the 2023-12-31 revenue and cash-flow figures; fcf_margin is used instead."
+        "value": 1.121862,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ABBNY.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+        "basis": "Operating cash flow to net income: operating cash flow 4290000000 divided by net income 3824000000, both for the fiscal year ended 2023-12-31, from companyfacts. Corrected 2026-09-04 (fetcher commit 54cbeaa, latest-facts taxonomy wins): fundamentals.net_income_fy now carries a 2023-12-31 entry; the prior claim that NetIncomeLoss stopped at fiscal 2010 no longer holds against the re-fetched file."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net_debt_to_ebitda cannot be computed for ABB: companyfacts fundamentals.cash and fundamentals.total_debt are both null in data/market/ABBNY.json for CIK 1091587, so net debt has no basis."
+        "value": 0.235357,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ABBNY.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+        "basis": "Net debt to EBITDA: total debt 5221000000 less cash 3891000000 = net debt 1330000000, divided by EBITDA (operating income 4871000000 plus depreciation 780000000 = 5651000000), all for the fiscal year ended 2023-12-31, from companyfacts. Corrected 2026-09-04 (fetcher commit 54cbeaa): cash and total_debt, both previously null for this foreign filer, are now read from the 20-F taxonomy whose facts run latest."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "piotroski cannot be scored for ABB: data/market/ABBNY.json quality.piotroski.state is PENDING_DATA (only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2)."
+        "value": 7,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ABBNY.json quality.piotroski (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+        "basis": "Piotroski F-score 7 of 9, state STRONG, computed over sec-companyfacts statements in data/market/ABBNY.json quality.piotroski, 9 of 9 inputs found. Corrected 2026-09-04 (fetcher commit 54cbeaa): the prior PENDING_DATA state (0 common fiscal periods) is stale against the re-fetched file, which now has common periods across the change-leg inputs."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "beneish_state cannot be scored for ABB: data/market/ABBNY.json quality.beneish.state is PENDING_DATA (only 0 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio)."
+        "value": -2.501,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ABBNY.json quality.beneish (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+        "basis": "Beneish M-score -2.501 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/ABBNY.json quality.beneish, 12 of 12 inputs found. Corrected 2026-09-04 (fetcher commit 54cbeaa): the prior PENDING_DATA state (0 common fiscal periods) is stale against the re-fetched file."
       }
     },
     "valuation": {
@@ -174,19 +190,25 @@
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr not solved for ABB: data/market/ABBNY.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value (which itself needs net debt, unavailable since cash and total_debt are both null in companyfacts for CIK 1091587)."
+        "value": 0.335,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream reverse-DCF over data/market/ABBNY.json quality.reverse_dcf (base sec-companyfacts, solve assumptions repo-internal)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+        "basis": "Reverse-DCF implied FCF CAGR 0.335 at the 5-year default horizon (base FCF 3520000000, enterprise value 186631720000, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/ABBNY.json quality.reverse_dcf.state is SOLVED. Corrected 2026-09-04 (fetcher commit 54cbeaa): enterprise value now resolves because cash and total_debt are no longer null for CIK 1091587; the discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread not available for ABB: quality.reverse_dcf.state is PENDING_DATA (missing enterprise_value), so no implied_by_horizon spread was computed."
+        "value": 0.1491,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream reverse-DCF over data/market/ABBNY.json quality.reverse_dcf (base sec-companyfacts, solve assumptions repo-internal)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+        "basis": "Horizon spread 0.1491 between the 5-year (0.335) and 10-year (0.1859) implied FCF CAGR solves in data/market/ABBNY.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note. Corrected 2026-09-04 (fetcher commit 54cbeaa): now solvable because enterprise value resolves."
       }
     }
   },
   "crowdedness_caveats": [
-    "ABB sits on a chain link scored UNDISCOVERED or EMERGING (see placements above), but this profile cannot corroborate or refute that with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
+    "ABB sits on a chain link scored UNDISCOVERED or EMERGING (see placements above), but this profile cannot corroborate or refute that with issuer-level positioning data: no pcs block exists locally for this issuer, even though fundamentals-derived quality now does."
   ],
   "catalysts": [
     {
@@ -195,13 +217,27 @@
       "source_date": "2026-09-02",
       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
       "tag": "INFERRED"
+    },
+    {
+      "claim": "Piotroski F-score 7 of 9 (STRONG) and Beneish M-score -2.501 (CLEAN, below the -1.78 manipulation threshold), plus net debt to EBITDA of only 0.235x, are three independent quality reads that now resolve and all point the same direction.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ABBNY.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+      "tag": "INFERRED"
     }
   ],
   "risks": [
     {
-      "claim": "companyfacts NetIncomeLoss stops at fiscal 2010 and cash/total_debt are both null for CIK 1091587, so operating_cash_flow_to_net_income and net_debt_to_ebitda stay unmeasured; the balance-sheet leverage picture cannot be corroborated from this filer's XBRL alone.",
+      "claim": "companyfacts NetIncomeLoss stops at fiscal 2010 and cash/total_debt are both null for CIK 1091587, so operating_cash_flow_to_net_income and net_debt_to_ebitda stay unmeasured; the balance-sheet leverage picture cannot be corroborated from this filer's XBRL alone. Superseded 2026-09-04: fixed by fetcher commit 54cbeaa, see the 2026-09-04 catalyst and metrics.leverage/cash_conversion above.",
       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ABBNY.json fundamentals (source sec-companyfacts)",
       "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
+      "tag": "INFERRED"
+    },
+    {
+      "claim": "Market capitalization still rests on a single-source close (price_status SINGLE_SOURCE, yfinance only) and the reverse-DCF solve's discount rate and terminal growth are repo-standard assumptions, not filed facts (tag SPECULATIVE); a stress on either assumption moves the implied FCF CAGR materially.",
+      "source_name": "Upstream reverse-DCF over data/market/ABBNY.json quality.reverse_dcf",
+      "source_date": "2026-09-04",
       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001091587.json",
       "tag": "INFERRED"
     }
@@ -209,22 +245,21 @@
   "data_gaps": [
     "price_status is SINGLE_SOURCE (only yfinance answered; stockanalysis returned http 400 for ABBNY), so even the one available number (close 98.46 on 2026-08-28) lacks the repo's usual dual-source agreement check.",
     "No data-center or AI-infrastructure revenue percentage is sourced for ABB this run.",
-    "Filled 2026-09-02 from data/market/ABBNY.json (fetched after this profile's prior write): 6 of 12 canonical fields now carry a sourced number (cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread remain NULL, each with a field-specific basis on the metric).",
-    "No data-center or AI-infrastructure revenue percentage is sourced for this issuer this run.",
-    "Companyfacts NetIncomeLoss and the cash/total_debt balance-sheet fields remain absent for CIK 1091587 in the fetched series (last net income entry fiscal year ended 2010-12-31): operating_cash_flow_to_net_income and net_debt_to_ebitda stay NULL until a fresh companyfacts pull adds those tags, or an official ABB annual report is read directly."
+    "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): all 12 canonical fields now carry a sourced number; cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state and reverse_dcf (both fields) closed this run. Zero canonical fields remain NULL for ABB.",
+    "The reverse-DCF solve (implied_fcf_cagr, horizon_spread) rests on repo-standard discount-rate and terminal-growth assumptions, not filed facts, and is tagged SPECULATIVE for that reason; market_cap still rests on a SINGLE_SOURCE price."
   ],
   "disposition": {
     "state": "RETAIN",
-    "as_of": "2026-09-02",
-    "basis": "Completed this run from data/market/ABBNY.json, fetched after this profile was last written: sec-companyfacts (official 20-F XBRL for a Swiss ADR/OTC filer). RETAIN rather than ADVANCE because run selection is a separate command that was not run this batch; 6 of 12 canonical fields carry a sourced number, the rest honest NULL with a field-specific basis. COMPLETE and O2 per method section 6A; not examined as an O1 candidate here."
+    "as_of": "2026-09-04",
+    "basis": "Amended 2026-09-04 from data/market/ABBNY.json re-fetched under the corrected fetcher (commit 54cbeaa): the last 6 NULL canonical fields (cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread) now carry a sourced value. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; all 12 of 12 canonical fields now carry a sourced number. COMPLETE and O2 per method section 6A; O1 promotion is a separate run selection decision and still needs the official-source cross-check on revenue and cash conversion, which this run's numbers already satisfy (official_source true) but which selection alone may act on."
   },
   "confidence_audit": {
     "VERIFIED": 1,
-    "INFERRED": 5,
-    "SPECULATIVE": 0,
-    "NULL": 6,
+    "INFERRED": 9,
+    "SPECULATIVE": 2,
+    "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported (ABB Ltd, CIK 1091587, ADR/OTC 20-F filer). INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported (ABB Ltd, CIK 1091587, ADR/OTC 20-F filer). INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. Corrected 2026-09-04 (fetcher commit 54cbeaa): all 12 canonical fields now carry a sourced number; zero NULL remain."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -255,6 +290,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['cash_conversion.operating_cash_flow_to_net_income', 'leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile ABBNY: re-read data/market/ABBNY.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). All 6 remaining NULL canonical fields filled: cash_conversion.operating_cash_flow_to_net_income 1.121862 (INFERRED, official_source true); leverage.net_debt_to_ebitda 0.235357 (INFERRED, official_source true); quality.piotroski 7/STRONG and quality.beneish_state -2.501/CLEAN (both INFERRED, official_source true, sec-companyfacts quality block); reverse_dcf.implied_fcf_cagr 0.335 and reverse_dcf.horizon_spread 0.1491 (both SPECULATIVE, discount-rate/terminal-growth assumptions). 12 of 12 canonical fields now sourced, zero NULL. Added one catalyst and superseded one stale risk; added one new risk naming the SPECULATIVE reverse-DCF assumptions and the single-source price. Status stays COMPLETE, data_tier T2 unchanged; opportunity_tier stays O2 (this run does not run selection; the 2026-09-02 selection_review NULL-field list is a preserved historical snapshot)."
     }
   ],
   "selection_review": {

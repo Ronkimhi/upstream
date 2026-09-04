@@ -1,9 +1,9 @@
 {
   "issuer_id": "GE-VERNOVA",
   "issuer_name": "GE Vernova Inc.",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-09-02T16:07:36Z",
+  "updated_at": "2026-09-04T23:59:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -154,7 +154,7 @@
     },
     "chain": "data/chains/ai-infrastructure.json",
     "market": "data/market/GEV.json",
-    "market_fetched_at": "2026-08-30T00:17:15.218249+00:00",
+    "market_fetched_at": "2026-09-04T17:38:23.087510+00:00",
     "filing": {
       "form": "8-K",
       "filing_date": "2026-07-22",
@@ -227,21 +227,25 @@
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA is not computable: companyfacts returned no total_debt, no long_term_debt and no cash observation for GE Vernova, so neither leg of net debt exists in data/market/GEV.json"
+        "value": -5.155267,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GEV.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+        "basis": "Net debt to EBITDA: total debt 2794000000 (as of 2026-06-30, the latest balance-sheet point) less cash 13120000000 (also 2026-06-30) = net debt -10326000000 (a net cash position), divided by EBITDA (operating income 1388000000 plus depreciation 615000000 = 2003000000, both for the fiscal year ended 2025-12-31). Corrected 2026-09-04 (fetcher commit 54cbeaa): total_debt and cash, previously entirely absent, now resolve. The balance-sheet date (2026-06-30, most recent quarter) is later than the income-statement date (2025-12-31, latest fiscal year); both are named here rather than silently blended."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score is PENDING_DATA in data/market/GEV.json quality: the long_term_debt_fy input is absent from companyfacts"
+        "basis": "piotroski F-score is still PENDING_DATA in data/market/GEV.json quality: corrected 2026-09-04, total_debt and cash now resolve, but the specific long_term_debt_fy input (a distinct XBRL concept from total_debt) remains absent from companyfacts, 8 of 9 inputs found."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish M-score is PENDING_DATA in data/market/GEV.json quality: the ppe_net_fy and long_term_debt_fy inputs are absent from companyfacts"
+        "basis": "beneish M-score is still PENDING_DATA in data/market/GEV.json quality: corrected 2026-09-04, total_debt and cash now resolve, but the ppe_net_fy and long_term_debt_fy inputs remain absent from companyfacts, 10 of 12 inputs found."
       }
     },
     "valuation": {
@@ -275,14 +279,20 @@
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied FCF CAGR is PENDING_DATA: the reverse DCF in data/market/GEV.json could not solve because enterprise value is null, the debt and cash legs being absent from companyfacts"
+        "value": 0.394,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream reverse-DCF over data/market/GEV.json quality.reverse_dcf (base sec-companyfacts, solve assumptions repo-internal)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+        "basis": "Reverse-DCF implied FCF CAGR 0.394 at the 5-year default horizon (base FCF 3710000000, enterprise value 241366680000, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/GEV.json quality.reverse_dcf.state is SOLVED. Corrected 2026-09-04 (fetcher commit 54cbeaa): enterprise value now resolves because cash and total_debt are no longer null for CIK 1996810; the discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon spread is unavailable because the reverse DCF solved at no horizon for this issuer; data/market/GEV.json quality.reverse_dcf is PENDING_DATA with a null enterprise value"
+        "value": 0.1805,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream reverse-DCF over data/market/GEV.json quality.reverse_dcf (base sec-companyfacts, solve assumptions repo-internal)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
+        "basis": "Horizon spread 0.1805 between the 5-year (0.394) and 10-year (0.2135) implied FCF CAGR solves in data/market/GEV.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note. Corrected 2026-09-04 (fetcher commit 54cbeaa): now solvable because enterprise value resolves."
       }
     }
   },
@@ -320,9 +330,9 @@
       "tag": "INFERRED"
     },
     {
-      "claim": "Leverage and the reverse DCF are both unmeasurable here: companyfacts returned no total debt, no long-term debt and no cash observation, so enterprise value is null and the expectations gap cannot be computed at all.",
+      "claim": "Superseded 2026-09-04 (fetcher commit 54cbeaa): total_debt and cash now resolve. GE Vernova sits in a large net cash position (net debt -10326000000 against EBITDA 2003000000, a -5.16x ratio), and the reverse-DCF solve implies a 39.4% five-year FCF CAGR against an enterprise value of 241366680000, a steep expectations bar for a company with a 3.6% operating margin today.",
       "source_name": "Upstream market store data/market/GEV.json and data/chains/ai-infrastructure.json",
-      "source_date": "2026-08-29",
+      "source_date": "2026-09-04",
       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001996810.json",
       "tag": "INFERRED"
     },
@@ -335,24 +345,24 @@
     }
   ],
   "data_gaps": [
-    "Net debt to EBITDA is NULL: companyfacts returned no total_debt, no long_term_debt and no cash observation for GE Vernova, so neither leg of net debt exists in the local store.",
-    "The reverse DCF did not solve: enterprise value is null in data/market/GEV.json because the debt and cash legs used to compute it are both absent from companyfacts, so implied FCF CAGR and horizon spread are both NULL and this issuer has no expectations-gap reading.",
-    "Piotroski is PENDING_DATA on the missing long_term_debt_fy input; Beneish is PENDING_DATA on missing ppe_net_fy and long_term_debt_fy.",
+    "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): leverage.net_debt_to_ebitda and both reverse_dcf fields now carry a sourced value. Net cash position (-5.16x net debt to EBITDA) and a 39.4% implied 5-year FCF CAGR (SPECULATIVE, enterprise value 241366680000) are now on record.",
+    "Piotroski and Beneish stay PENDING_DATA: the long_term_debt_fy input (a distinct XBRL concept from total_debt) and, for Beneish, also ppe_net_fy remain absent from companyfacts for this issuer, even after the fix.",
     "Revenue history begins at fiscal 2022 in companyfacts, so the three-year CAGR spans the entire available series and cannot be compared with a pre-spin baseline.",
-    "The disclosed data-centre figure is order intake, not revenue, and no revenue share is published."
+    "The disclosed data-centre figure is order intake, not revenue, and no revenue share is published.",
+    "leverage.net_debt_to_ebitda blends a 2026-06-30 balance-sheet date (cash, total_debt) with a 2025-12-31 income-statement date (operating income, depreciation); both dates are named on the field, not blended silently."
   ],
   "disposition": {
     "state": "RETAIN",
-    "basis": "Complete medium profile with three filing-backed placements including the money corner, but the weakest measurement set in the batch: no leverage, no earnings quality and no expectations-gap reading because companyfacts has no debt or cash for this issuer. Retained for monitoring; a debt and cash backfill would change the picture materially.",
-    "as_of": "2026-08-31"
+    "basis": "Amended 2026-09-04 from data/market/GEV.json re-fetched under the corrected fetcher (commit 54cbeaa): leverage.net_debt_to_ebitda and both reverse_dcf fields now sourced (10 of 12 canonical fields, up from 8 of 13 counted fields). Complete medium profile with three filing-backed placements including the money corner. Piotroski and Beneish remain PENDING_DATA on inputs the fix does not touch (long_term_debt_fy, ppe_net_fy). Retained for monitoring; opportunity_tier not re-examined by run selection this run.",
+    "as_of": "2026-09-04"
   },
   "confidence_audit": {
     "verified": 1,
     "inferred": 7,
-    "speculative": 0,
-    "null": 5,
+    "speculative": 2,
+    "null": 3,
     "canonical_fields_written": 13,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/GEV.json, price_status AGREED) and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/GEV.json, price_status AGREED) and not an issuer document. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated. Corrected 2026-09-04: leverage and both reverse_dcf fields moved from NULL to sourced."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -400,6 +410,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS), rank 20 of 21. Reason and revisit condition recorded in selection_review; the stale NO_SCREEN_ROW_NO_HANDOFF reason from 15:16:47Z is superseded now that run screen tibet-mega-dam has written campaign-v1 rows on both in-scope links. Status, data tier, listings, placements and every metric unchanged."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile GEV: re-read data/market/GEV.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). leverage.net_debt_to_ebitda filled: -5.155267 (net cash position; total_debt 2794000000 and cash 13120000000, both 2026-06-30, against EBITDA 2003000000 from FY2025; the balance-sheet/income-statement date mismatch is named in the basis). reverse_dcf.implied_fcf_cagr 0.394 and reverse_dcf.horizon_spread 0.1805 filled (both SPECULATIVE; base FCF 3710000000, enterprise value 241366680000). quality.piotroski and quality.beneish_state stay NULL: long_term_debt_fy (and for beneish also ppe_net_fy) remain absent from companyfacts even after the fix; bases corrected to name this precisely. 10 of 13 written canonical fields now sourced (up from 8). This examined-and-barred selection_review from 2026-09-02 is a preserved historical snapshot: 3 NULL canonical fields remain (quality.piotroski, quality.beneish_state; reverse_dcf now closed), so revisit under the next run selection is still live. Status stays COMPLETE/O2; opportunity_tier not re-examined by run selection this run."
     }
   ],
   "selection_review": {

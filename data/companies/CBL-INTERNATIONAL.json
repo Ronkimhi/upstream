@@ -231,6 +231,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-146/147/148) has landed: data/market/BANL.json now holds sec-companyfacts data (18/20 statement fields, official source; long_term_debt_fy missing). Filled 7 of 12 canonical metric fields (1 VERIFIED, 6 INFERRED official-source); 5 stay NULL on the missing long_term_debt_fy input, which blocks leverage, both quality scores and the reverse-DCF solve. Status COMPLETE, opportunity_tier O2. run profile BANL (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-examined data/market/BANL.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). No change for this filer: fundamentals.total_debt is still entirely absent (companyfacts never tags long_term_debt_fy for CIK 1914805, a coverage gap the taxonomy-priority fix does not address), so leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread stay NULL with their existing field-specific bases, unchanged. Revenue, growth, margins, both cash-conversion fields and valuation re-verified unchanged against the re-fetched file. Status stays COMPLETE/O2; no metric value changed."
     }
   ]
 }

@@ -3,7 +3,7 @@
   "issuer_name": "CMB.TECH NV",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T21:55:00Z",
-  "updated_at": "2026-09-04T21:55:00Z",
+  "updated_at": "2026-09-04T23:59:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -83,10 +83,10 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-04 from data/market/CMBT.json: 6 of 12 canonical fields carry a sourced number; 6 remain NULL, each with a field-specific basis naming the missing series or state.",
+    "Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread now carry a sourced (SPECULATIVE) value. 8 of 12 canonical fields carry a sourced number; 4 remain NULL, each with a field-specific basis naming the missing series or state.",
     "fcf_margin discarded as stale: the only common fiscal year across operating cash flow, capex and revenue is 2019-12-31, 5 years before the latest revenue figure (2024); capex_fy has no more recent point in this filer's companyfacts.",
     "operating_margin for FY2024 reads above 100% (operating income 1,002,452,000 exceeds revenue 940,246,000 in the same companyfacts period); this is the filer's own reported figure, not a computation error, and likely reflects a large non-recurring item (vessel or fleet disposal gain) inside operating income for the former-Euronav consolidation year. Flagged rather than adjusted: this profile never restates a filed number.",
-    "net_debt_to_ebitda and both quality scores (piotroski, beneish) remain NULL: cash and total_debt are both null in companyfacts for this filer, and piotroski/beneish are missing cost_of_revenue_fy (and beneish also depreciation_fy). reverse_dcf remains NULL for the same reason (no enterprise_value without cash/debt)."
+    "net_debt_to_ebitda stays NULL: cash and total_debt now both resolve, but depreciation_fy is entirely absent from companyfacts for this filer, so EBITDA has no second leg. Both quality scores (piotroski, beneish) stay NULL: piotroski is missing cost_of_revenue_fy and beneish is missing cost_of_revenue_fy and depreciation_fy."
   ],
   "metrics": {
     "revenue": {
@@ -141,7 +141,7 @@
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+        "basis": "Net debt to EBITDA cannot be computed for CMB-TECH: corrected 2026-09-04 (fetcher commit 54cbeaa), cash (155048000, 2025-06-30) and total_debt (5641722000, 2025-06-30) now both resolve, but depreciation_fy is entirely absent from this filer's companyfacts series, so EBITDA (operating income plus depreciation) has no second leg. net debt to EBITDA is the one canonical field this fix does not close for CMB-TECH."
       }
     },
     "quality": {
@@ -178,29 +178,35 @@
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr not solved: data/market/CMBT.json quality.reverse_dcf.state is PENDING_DATA."
+        "value": 0.0998,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream reverse-DCF over data/market/CMBT.json quality.reverse_dcf (base sec-companyfacts, solve assumptions repo-internal)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001604481.json",
+        "basis": "Reverse-DCF implied FCF CAGR 0.0998 at the 5-year default horizon (base FCF 418464000, enterprise value 9050552922.25, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/CMBT.json quality.reverse_dcf.state is SOLVED. Corrected 2026-09-04 (fetcher commit 54cbeaa): enterprise value now resolves because cash and total_debt are no longer null for CIK 1604481; the discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
+        "value": 0.0329,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream reverse-DCF over data/market/CMBT.json quality.reverse_dcf (base sec-companyfacts, solve assumptions repo-internal)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001604481.json",
+        "basis": "Horizon spread 0.0329 between the 5-year (0.0998) and 10-year (0.0669) implied FCF CAGR solves in data/market/CMBT.json quality.reverse_dcf.implied_by_horizon. Corrected 2026-09-04 (fetcher commit 54cbeaa): now solvable because enterprise value resolves."
       }
     }
   },
   "disposition": {
     "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "Re-profiled 2026-09-04 from data/market/CMBT.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 6 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+    "basis": "Amended 2026-09-04 from data/market/CMBT.json re-fetched under the corrected fetcher (commit 54cbeaa): reverse_dcf now SOLVED and sourced. 8 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01."
   },
   "confidence_audit": {
     "VERIFIED": 1,
     "INFERRED": 5,
-    "SPECULATIVE": 0,
-    "NULL": 6,
+    "SPECULATIVE": 2,
+    "NULL": 4,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 6 canonical field(s) remain NULL this run."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. 4 canonical field(s) remain NULL this run."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -218,6 +224,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile --campaign CAMP-20260901-01, batch 5: data/market/CMBT.json fundamentals+quality now populated (batch-4 requests fulfilled). Recomputed all 11-12 canonical fields; 6 remain NULL with field-specific bases (see data_gaps). Status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile CMBT: re-read data/market/CMBT.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). reverse_dcf.implied_fcf_cagr 0.0998 and reverse_dcf.horizon_spread 0.0329 filled (both SPECULATIVE, discount-rate/terminal-growth assumptions; base FCF 418464000, enterprise value 9050552922.25). leverage.net_debt_to_ebitda stays NULL: cash and total_debt now both resolve, but depreciation_fy is entirely absent from companyfacts for this filer, so EBITDA still has no second leg; basis corrected to name this precisely. quality.piotroski and quality.beneish_state stay NULL (still PENDING_DATA, missing cost_of_revenue_fy). 8 of 12 canonical fields now sourced (up from 6). Status stays COMPLETE/O2 unchanged; opportunity_tier not re-examined by run selection this run."
     }
   ]
 }

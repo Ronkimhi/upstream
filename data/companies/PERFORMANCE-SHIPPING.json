@@ -3,7 +3,7 @@
   "issuer_name": "Performance Shipping Inc.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T22:20:00Z",
-  "updated_at": "2026-09-04T22:20:00Z",
+  "updated_at": "2026-09-04T23:59:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -86,7 +86,7 @@
     "Filled 2026-09-04 from data/market/PSHG.json: 6 of 12 canonical fields carry a sourced number; 6 remain NULL, each with a field-specific basis naming the missing series or state.",
     "fcf_margin discarded as stale: the only common fiscal year across operating cash flow, capex and revenue is 2019-12-31, 6 years before the latest revenue figure (2025); capex_fy has no more recent point in this filer's companyfacts.",
     "operating_margin (61.7%) and cash-conversion ratios read high for a shipowner of this size; PSHG is a small-float Aframax/Suezmax owner (market cap 21.1M) and these are the filer's own companyfacts figures for FY2025, not adjusted.",
-    "net_debt_to_ebitda, piotroski, beneish_state and reverse_dcf all remain NULL: cash and total_debt are both null in companyfacts for this filer, and piotroski/beneish are missing cost_of_revenue_fy (piotroski) or total_liabilities_fy (the altman input, not required here, but the same coverage gap touches beneish's cost_of_revenue_fy input)."
+    "net_debt_to_ebitda, piotroski, beneish_state and reverse_dcf all remain NULL. Corrected 2026-09-04 (fetcher commit 54cbeaa): cash and total_debt are no longer both null, but they land a year apart (2026-06-30 and 2025-06-30) with no closer pair, so net_debt_to_ebitda stays NULL rather than blended across dates; piotroski/beneish are missing cost_of_revenue_fy; reverse_dcf.state is NOT_APPLICABLE (negative base-year free cash flow), a permanent block distinct from the prior PENDING_DATA reading."
   ],
   "metrics": {
     "revenue": {
@@ -141,7 +141,7 @@
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+        "basis": "Net debt to EBITDA not computed for PERFORMANCE-SHIPPING: corrected 2026-09-04 (fetcher commit 54cbeaa), cash (104933000) and total_debt (43739000) are each individually sourced, but at dates a full year apart (cash 2026-06-30, total_debt 2025-06-30) with no closer pair on file for this filer; combining a balance-sheet figure across a 12-month gap risks misstating leverage for a shipowner whose asset and debt levels can move materially in a year, so this stays NULL rather than blended."
       }
     },
     "quality": {
@@ -180,12 +180,12 @@
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "implied_fcf_cagr not solved: data/market/PSHG.json quality.reverse_dcf.state is PENDING_DATA."
+        "basis": "implied_fcf_cagr not usable for PERFORMANCE-SHIPPING: data/market/PSHG.json quality.reverse_dcf.state is NOT_APPLICABLE, base-year free cash flow is negative (-85000), so a growth rate on a negative base is meaningless. Corrected 2026-09-04: this is a permanent NOT_APPLICABLE state, distinct from the prior PENDING_DATA reading."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
+        "basis": "horizon_spread not available for PERFORMANCE-SHIPPING: base solve unavailable for the same NOT_APPLICABLE reason as implied_fcf_cagr (negative base-year free cash flow)."
       }
     }
   },
@@ -218,6 +218,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile --campaign CAMP-20260901-01, batch 5: data/market/PSHG.json fundamentals+quality now populated (batch-4 requests fulfilled). Recomputed all 11-12 canonical fields; 6 remain NULL with field-specific bases (see data_gaps). Status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2."
+    },
+    {
+      "ts": "2026-09-04T23:59:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile PSHG: re-read data/market/PSHG.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). No canonical field value changed: cash and total_debt are each now individually sourced but land a year apart (2026-06-30 vs 2025-06-30) with no closer pair, so leverage.net_debt_to_ebitda stays NULL rather than blended across a 12-month gap; basis corrected to name this precisely. reverse_dcf basis corrected: quality.reverse_dcf.state moved from PENDING_DATA to NOT_APPLICABLE (negative base-year free cash flow), a permanent block. quality.piotroski/beneish_state unchanged (still PENDING_DATA, missing cost_of_revenue_fy). Status stays COMPLETE/O2; opportunity_tier not re-examined by run selection this run."
     }
   ]
 }
