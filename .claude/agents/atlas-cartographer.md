@@ -152,6 +152,20 @@ discovery for *this* map. The best one in the corpus names seven exchange-suffix
 and the five private OEMs that publish no supplier list, and then says which two facts on
 the map are directionally sourced and quantitatively soft.
 
+**The explainer (Ron, 2026-09-04).** Every link carries `explainer`, a plain-Hebrew object
+with `what`, `players`, `why`, `bottleneck`, `hands_to`, `as_of`, `by`, `draws_on`, and the
+chain carries one with `shape` and `thesis`. It is written for a ten-year-old and it is
+paraphrase, never analysis: it draws only on the link's own `role`, `bottleneck.note` or
+`basis`, the heat rationales, `evidence[].claim`, `capture_inputs`, and the chain's
+`map_limitation`, scenario narratives and `notes[]`, and `draws_on` names the paths it
+leaned on. It names no figure at all (`tools/check_chain.py` refuses any digit run that is
+not a product code, so a remembered number cannot enter through prose), no em or en dash,
+and no citation tag copied from a role string. `hands_to` names the THING handed across the
+edge; the recipients are drawn from `upstream_of` at render time and never written by hand.
+A link scored NULL says why in its basis's own words; a shared stage says it is the same
+stage as its owner; a chain with no money corner says so in `thesis`. A chain whose
+`updated_at` is on or after `EXPLAINER_GATE` must carry all of it.
+
 ### 2. Record what capture will be scored on
 
 Per link, optional `capture_inputs{}`: supply concentration where disclosed, substitutability

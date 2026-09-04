@@ -98,6 +98,11 @@ DENY = [
      "leg carried at reduced chain fidelity, where the rows are dropped and only the "
      "count survives (signal evidence is different — that store is carried whole)",
      "print evidence_total, the count app/build.py ships beside the rows it kept"),
+    # --- added 2026-09-04 with the Hebrew explainer layer ---------------------------
+    (r"\.explainer\s*\|\|\s*\{",
+     "an absent explainer rendered through `explainer || {}` draws empty Hebrew sections, "
+     "which read as an explanation nobody wrote",
+     "test `explainer != null` and print the honest absent state naming chainPath(c)"),
 ]
 
 # Structures whose absence silently degrades the page rather than breaking it.
@@ -171,6 +176,20 @@ REQUIRE = [
     ("app/templates/app.js", r"!n\.length && obj\.notes_total",
      "the third notes state: an object whose notes exist but were not carried must not "
      "draw the \"None — add one\" empty state, which says nobody ever annotated it"),
+    # --- added 2026-09-04 with the Graph tab and the Hebrew explainer layer ----------
+    ("app/templates/app.js", r"function chainLayout\(",
+     "the layered layout of the real chain graph from upstream_of / downstream_of"),
+    ("app/templates/app.js", r"function graphTab\(",
+     "the Graph tab, the one chain view that draws edges instead of position order"),
+    ("app/templates/app.js", r"function explainerBlock\(",
+     "the Hebrew explainer renderer with its honest absent state"),
+    ("app/templates/app.js", r"explainerBlock\(c, l\)",
+     "the Hebrew explainer actually rendered in the link modal, not merely defined"),
+    ("app/templates/app.js", r'dir="rtl" lang="he"',
+     "right-to-left, Hebrew-tagged containers; without them bidi reordering scrambles "
+     "tickers and dates inside the prose"),
+    ("app/templates/shell.html", r"family=Heebo",
+     "a Hebrew-capable webface; Inter, JetBrains Mono and Baloo 2 ship no Hebrew glyphs"),
 ]
 
 

@@ -877,11 +877,11 @@
   function chainView(id, tab) {
     var c = byId(D.chains, id);
     if (!c) return notFound("chain " + id);
-    chainTab = (tab === "heat" || tab === "scen" || tab === "flow") ? tab : "flow";
+    chainTab = (tab === "heat" || tab === "scen" || tab === "flow" || tab === "graph") ? tab : "flow";
     var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
     var scored = links.filter(isPlottable);
     var money = links.filter(function (l) { return l.heat && l.heat.money_corner; });
-    var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : flowTab(c, links);
+    var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : chainTab === "graph" ? graphTab(c, links) : flowTab(c, links);
     var subtitle = scored.length
       ? (money.length ? "Money corner: " + money.map(function (l) { return l.name; }).join(", ") + ". " : "No link clears all three thresholds yet. ") +
         scored.length + " of " + links.length + " links scored, as of " + (c.heat_as_of || "—") + "."
@@ -892,7 +892,7 @@
       "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
        chainScreenAction(c) + mapCard(c.id) +
       '<div class="seg">' +
-      [["flow", "Flow"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
+      [["flow", "Flow"], ["graph", "Graph"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
       }).join("") + "</div>" + body +
       notesBlock(c) + changelogBlock(c) + footer() + "</main>";
@@ -967,7 +967,7 @@
       }).join("") + "</div>";
     }
     var chips = '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + ((l.bottleneck || {}).criticality ? chip(l.bottleneck.criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + String(l.bottleneck.criticality).toLowerCase()) : chip("bottleneck not rated", "stale")) + "</div>";
-    var analysis =
+    var analysis = explainerBlock(c, l) +
       scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
       block("Impact", h.impact) + block("Crowdedness", h.crowdedness) + block("Value capture", h.capture) +
       (h.repricing_check && (h.repricing_check.note || h.repricing_check.legs) ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note || "") + "</div>" +
@@ -1055,6 +1055,153 @@
   }
   function linkName(c, id) { var l = byId(c.links, id); return l ? l.name : id; }
   function shortName(n) { return n.split("(")[0].replace(" & ", " · ").trim(); }
+
+  /* ---------------- the chain graph and the Hebrew explainer layer ----------------
+     The Flow strip draws links in position order and throws the graph away: upstream_of
+     and downstream_of are validated on disk (reciprocal, acyclic, position-ordered) and
+     were used by no visual. chainLayout() lays the real DAG out in columns (longest path
+     from the roots; every sink in the last column so the demand anchors sit rightmost),
+     rows ordered by two barycenter sweeps, deterministic, no force simulation. The
+     explainer is an authored Hebrew field on each link and on the chain
+     (data/chains/<slug>.json, gated by tools/check_chain.py: no figures, no dashes); the
+     recipients under "what passes on" are always derived from upstream_of at render time
+     so the prose can never disagree with the graph. */
+  var G = { NODE_W: 150, NODE_H: 58, COL_GAP: 70, ROW_GAP: 16, PAD: { l: 24, r: 24, t: 28, b: 28 } };
+  function chainLayout(links) {
+    var by = {};
+    links.forEach(function (l) { by[l.id] = l; });
+    var memo = {}, visiting = {};
+    function layer(id) {
+      if (memo[id] != null) return memo[id];
+      if (visiting[id]) return 0;
+      visiting[id] = 1;
+      var best = -1;
+      ((by[id] && by[id].downstream_of) || []).forEach(function (pid) { if (by[pid]) best = Math.max(best, layer(pid)); });
+      visiting[id] = 0;
+      memo[id] = best + 1;
+      return memo[id];
+    }
+    var col = {}, last = 0;
+    links.forEach(function (l) { col[l.id] = layer(l.id); last = Math.max(last, col[l.id]); });
+    links.forEach(function (l) { if (!(l.upstream_of || []).length) col[l.id] = last; });
+    var cols = [];
+    for (var i = 0; i <= last; i++) cols.push([]);
+    links.slice().sort(function (a, b) { return a.position - b.position; }).forEach(function (l) { cols[col[l.id]].push(l.id); });
+    var row = {};
+    function settle() { cols.forEach(function (cl) { cl.forEach(function (id, r) { row[id] = r; }); }); }
+    settle();
+    function sweep(indices, side) {
+      indices.forEach(function (ci) {
+        var keys = {};
+        cols[ci].forEach(function (id) {
+          var nb = (by[id][side] || []).filter(function (o) { return by[o] && col[o] !== ci; });
+          keys[id] = nb.length ? nb.reduce(function (a, o) { return a + row[o]; }, 0) / nb.length : row[id];
+        });
+        cols[ci].sort(function (a, b) { return (keys[a] - keys[b]) || (by[a].position - by[b].position); });
+        settle();
+      });
+    }
+    var fwd = [], back = [];
+    for (var k = 1; k <= last; k++) fwd.push(k);
+    for (var m = last - 1; m >= 0; m--) back.push(m);
+    sweep(fwd, "downstream_of");
+    sweep(back, "upstream_of");
+    sweep(fwd, "downstream_of");
+    var rowsMax = cols.reduce(function (a, cl) { return Math.max(a, cl.length); }, 0);
+    var stride = G.NODE_H + G.ROW_GAP, hMax = rowsMax * stride - G.ROW_GAP;
+    var nodes = {};
+    cols.forEach(function (cl, ci) {
+      var hCol = cl.length * stride - G.ROW_GAP;
+      cl.forEach(function (id, r) {
+        nodes[id] = { x: G.PAD.l + ci * (G.NODE_W + G.COL_GAP), y: G.PAD.t + (hMax - hCol) / 2 + r * stride, col: ci, row: r };
+      });
+    });
+    var edges = [];
+    links.forEach(function (l) { (l.upstream_of || []).forEach(function (t) { if (nodes[t]) edges.push({ from: l.id, to: t }); }); });
+    return { nodes: nodes, edges: edges, cols: cols, W: G.PAD.l + (last + 1) * (G.NODE_W + G.COL_GAP) - G.COL_GAP + G.PAD.r, H: G.PAD.t + hMax + G.PAD.b };
+  }
+  function wrapText(name, maxChars, maxLines) {
+    var words = name.split(" "), out = [], cur = "";
+    words.forEach(function (w) {
+      if (cur && (cur + " " + w).length > maxChars) { out.push(cur); cur = w; } else cur = cur ? cur + " " + w : w;
+    });
+    if (cur) out.push(cur);
+    if (out.length > maxLines) { out = out.slice(0, maxLines); out[maxLines - 1] = out[maxLines - 1].slice(0, maxChars - 1) + "…"; }
+    return out;
+  }
+  /* Three bars per node, one per heat leg. A null score draws NO bar and the group title
+     says unscored; it is never drawn at zero height, because 0 is a score. */
+  function triadSvg(h, x, y) {
+    if (!h) return "";
+    var s = "", legs = [[h.impact, "var(--accent)"], [h.crowdedness, "var(--crd)"], [h.capture, "var(--und)"]];
+    legs.forEach(function (lg, i) {
+      var o = lg[0];
+      if (!o || o.score == null) return;
+      var bh = Math.max(2, (o.score / 100) * 18);
+      s += '<rect x="' + (x + i * 7) + '" y="' + (y - bh).toFixed(1) + '" width="5" height="' + bh.toFixed(1) + '" rx="1.5" fill="' + lg[1] + '"/>';
+    });
+    return s;
+  }
+  function graphTab(c, links) {
+    var g = chainLayout(links), by = {};
+    links.forEach(function (l) { by[l.id] = l; });
+    var s = overviewBlock(c);
+    s += '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + g.W + " " + g.H + '" width="' + g.W + '" height="' + g.H + '" role="img" aria-label="Value chain graph, upstream on the left">';
+    s += '<defs><marker id="gArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0.5 L8,4 L0,7.5 z" fill="var(--border-strong)"/></marker></defs>';
+    g.edges.forEach(function (e) {
+      var a = g.nodes[e.from], b = g.nodes[e.to];
+      var x1 = a.x + G.NODE_W, y1 = a.y + G.NODE_H / 2, x2 = b.x, y2 = b.y + G.NODE_H / 2;
+      s += '<path class="gedge" data-from="' + esc(e.from) + '" data-to="' + esc(e.to) + '" marker-end="url(#gArrow)" d="M' + x1 + "," + y1 + " C" + (x1 + 35) + "," + y1 + " " + (x2 - 35) + "," + y2 + " " + x2 + "," + y2 + '"><title>' + esc(linkName(c, e.from)) + " → " + esc(linkName(c, e.to)) + "</title></path>";
+    });
+    links.forEach(function (l) {
+      var n = g.nodes[l.id];
+      if (!n) return;
+      var hv = (l.heat && l.heat.verdict) || null;
+      var vcls = hv ? "v-" + hv : "v-none";
+      s += '<g class="gnode ' + vcls + '" transform="translate(' + n.x + "," + n.y + ')" data-drawer="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.name) + '">';
+      s += "<title>" + esc(l.name) + (hv ? " · " + esc(hv.replace("_", " ")) : " · unscored") + "</title>";
+      s += '<rect class="body' + (hv ? "" : " unscored") + '" x="0" y="0" width="' + G.NODE_W + '" height="' + G.NODE_H + '" rx="10"/>';
+      s += '<rect x="0" y="10" width="4" height="' + (G.NODE_H - 20) + '" rx="2" fill="' + verdColor(hv) + '"/>';
+      if (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT") s += '<circle cx="14" cy="0" r="4.5" fill="var(--bg)" stroke="var(--ovr)" stroke-width="2"><title>choke point</title></circle>';
+      if (l.heat && l.heat.money_corner) s += '<text class="star" x="' + (G.NODE_W - 16) + '" y="17">★<title>money corner</title></text>';
+      s += '<text class="pos" x="12" y="15">' + String(l.position).padStart(2, "0") + "</text>";
+      wrapText(shortName(l.name), 21, 2).forEach(function (ln, i) { s += '<text class="nm" x="12" y="' + (29 + i * 12) + '">' + esc(ln) + "</text>"; });
+      s += '<text class="verd ' + vcls + '" x="12" y="53">' + (hv ? esc(hv.replace("_", " ")) : "unscored") + "</text>";
+      s += triadSvg(l.heat, G.NODE_W - 34, 52);
+      s += "</g>";
+    });
+    s += "</svg></div>";
+    s += '<div class="legend">' +
+      '<span><span class="tri-demo"><i style="height:11px;background:var(--accent)"></i><i style="height:7px;background:var(--crd)"></i><i style="height:9px;background:var(--und)"></i></span>impact · crowdedness · capture</span>' +
+      [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
+        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
+      }).join("") +
+      '<span style="color:var(--gold)">★ money corner</span><span><span class="choke" style="position:static;display:inline-block;vertical-align:-1px;margin-right:6px"></span>choke point</span>' +
+      "<span>upstream on the left, demand on the right; hover a stage to light its edges</span></div>";
+    var roots = links.filter(function (l) { return !(l.downstream_of || []).length; }).length;
+    var widest = links.slice().sort(function (a, b) { return (b.downstream_of || []).length - (a.downstream_of || []).length; })[0];
+    s += '<div class="gshape he" dir="rtl" lang="he">נקודות מוצא: <bdi>' + roots + "</bdi> · שלבים: <bdi>" + g.cols.length + "</bdi> · צומת ההתכנסות הרחב ביותר: <bdi>" + esc(widest ? widest.name : "") + "</bdi> (<bdi>" + (widest ? (widest.downstream_of || []).length : 0) + "</bdi> חוליות נכנסות)</div>";
+    s += "</div>";
+    s += "<div id='drawerHost'></div>";
+    return s;
+  }
+  function explainerBlock(c, l) {
+    var x = l.explainer;
+    if (x == null) return '<section class="he" dir="rtl" lang="he"><div class="absent">אין עדיין הסבר בעברית לחוליה זו. הוא ייכתב אל <bdi>' + esc(chainPath(c)) + "</bdi>.</div></section>";
+    function sec(t, v) { return v == null ? "" : "<h3>" + t + "</h3><p>" + esc(v) + "</p>"; }
+    var to = (l.upstream_of || []).map(function (id) { return "<bdi>" + esc(linkName(c, id)) + "</bdi>"; });
+    return '<section class="he" dir="rtl" lang="he">' +
+      sec("מה זה", x.what) + sec("מי משחק כאן", x.players) + sec("למה זה חשוב", x.why) + sec("צוואר בקבוק?", x.bottleneck) +
+      "<h3>מה עובר הלאה</h3><p>" + esc(x.hands_to) + (to.length ? " · אל: " + to.join(", ") : " · סוף השרשרת") + "</p>" +
+      '<div class="stamp">נכתב <bdi>' + esc(x.as_of) + "</bdi> · <bdi>" + esc(x.by) + "</bdi></div></section>";
+  }
+  function overviewBlock(c) {
+    var x = c.explainer;
+    if (x == null) return '<div class="card he" dir="rtl" lang="he"><div class="absent">אין עדיין הסבר בעברית לשרשרת זו. הוא ייכתב אל <bdi>' + esc(chainPath(c)) + "</bdi>.</div></div>";
+    function sec(t, v) { return v == null ? "" : "<h3>" + t + "</h3><p>" + esc(v) + "</p>"; }
+    return '<div class="card he" dir="rtl" lang="he">' + sec("צורת השרשרת", x.shape) + sec("התזה", x.thesis) +
+      '<div class="stamp">נכתב <bdi>' + esc(x.as_of) + "</bdi> · <bdi>" + esc(x.by) + "</bdi></div></div>";
+  }
   function heatTab(c, links, scored) {
     if (!scored.length) return '<div class="emptystate">No links scored yet.<div class="runwrap">' + runButton("run heat " + c.id) + "</div></div>";
     var W = 940, H = 560, P = { l: 64, r: 40, t: 34, b: 52 };
@@ -4694,6 +4841,21 @@
       }
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
+    app.querySelectorAll(".gnode").forEach(function (n) {
+      var id = n.getAttribute("data-drawer"), svg = n.closest("svg");
+      function lit(on) {
+        if (!svg) return;
+        svg.querySelectorAll(".gedge").forEach(function (e) {
+          var mine = e.getAttribute("data-from") === id || e.getAttribute("data-to") === id;
+          e.classList.toggle("hi", on && mine);
+          e.classList.toggle("dim", on && !mine);
+        });
+      }
+      n.addEventListener("mouseenter", function () { lit(true); });
+      n.addEventListener("mouseleave", function () { lit(false); });
+      n.addEventListener("focusin", function () { lit(true); });
+      n.addEventListener("focusout", function () { lit(false); });
     });
     var aEdit = document.getElementById("agentEditBtn");
     if (aEdit) aEdit.addEventListener("click", function () { EDITING = aEdit.getAttribute("data-slug"); route(); });

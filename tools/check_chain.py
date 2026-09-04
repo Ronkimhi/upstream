@@ -19,6 +19,9 @@ Checks, each reported with the denominator it examined (Rule 21):
   9. PRESERVATION: against this file's own git HEAD version, no link lost its heat and no
      scenario vanished. This is the hazard the cartographer can cause and nothing else catches
  10. the ledger line names the archetypes applied and what the click queue held
+ 11. the explainer bar: a chain touched on or after EXPLAINER_GATE carries a plain-Hebrew
+     explainer on every link and at chain level; any explainer present names no figure,
+     no em or en dash, and every draws_on path resolves on its own object
 
 Scope: checks 9 and 10 only bind on a day that actually wrote a chain. On a day with no
 chain run the gate says NOT RUN TODAY for those, rather than reporting a clean pass over
@@ -37,6 +40,76 @@ from pathlib import Path
 # Ledger-content rules bind runs from this date forward, never retroactively. Same pattern
 # as OCCURRENCE_GATE in tools/validate.py: a rule invented today cannot fail yesterday's work.
 LEDGER_RULE_GATE = "2026-08-30"
+
+# The Hebrew explainer layer (Ron, 2026-09-04). Same dated ratchet as the citation bar: a chain
+# whose updated_at is on or after this date must explain every link and itself; chains not
+# yet touched are reported, not failed. The prose bar is mechanical on purpose: a digit run
+# that is not part of a product code is refused outright, because an explainer that names no
+# figure cannot invent one (method section 1), and every draws_on path must resolve to a real
+# field on the link or chain it paraphrases.
+EXPLAINER_GATE = "2026-09-04"
+HEBREW = re.compile("[\u0590-\u05FF]")
+DASHES = re.compile("[\u2013\u2014]")
+# "40", "18%", "$143", "2026", "3-for-1" refused; "H100", "HBM3E", "2nm" allowed
+NUMERIC_TOKEN = re.compile(r"(?<![A-Za-z0-9])\d+(?:[.,]\d+)*(?![A-Za-z])")
+LINK_KEYS = ("what", "players", "why", "bottleneck", "hands_to")
+CHAIN_KEYS = ("shape", "thesis")
+EXPLAINER_MIN_CHARS = 40
+
+
+def resolve_path(obj, path: str):
+    """Resolve a draws_on path such as `heat.capture.rationale`, `evidence[0].claim`,
+    `links[power-equipment].role` or `scenarios[].narrative` against obj. None when it
+    resolves to nothing; a list step keeps only non-empty elements."""
+    cur = obj
+    for tok in re.findall(r"[^.\[\]]+|\[[^\]]*\]", path or ""):
+        if tok.startswith("["):
+            key = tok[1:-1]
+            if not isinstance(cur, list):
+                return None
+            if key == "":
+                cur = [x for x in cur if x not in (None, "", [], {})]
+            elif key.isdigit():
+                cur = cur[int(key)] if int(key) < len(cur) else None
+            else:
+                cur = next((x for x in cur if isinstance(x, dict) and x.get("id") == key), None)
+        elif isinstance(cur, dict):
+            cur = cur.get(tok)
+        elif isinstance(cur, list):
+            cur = [x.get(tok) for x in cur if isinstance(x, dict) and x.get(tok) not in (None, "", [], {})]
+        else:
+            return None
+        if cur in (None, "", [], {}):
+            return None
+    return cur
+
+
+def explainer_failures(owner: dict, keys, ctx: str) -> list[str]:
+    """Every way an explainer present on `owner` can be wrong. Pure; the tests call it."""
+    x = owner.get("explainer")
+    if not isinstance(x, dict):
+        return [f"{ctx}: explainer is not an object"]
+    fails = []
+    if x.get("lang") != "he":
+        fails.append(f"{ctx}: explainer.lang must be 'he'")
+    for k in keys:
+        v = x.get(k)
+        if not isinstance(v, str) or len(v.strip()) < EXPLAINER_MIN_CHARS or not HEBREW.search(v):
+            fails.append(f"{ctx}: explainer.{k} missing, short, or not Hebrew")
+            continue
+        m = NUMERIC_TOKEN.search(v)
+        if m:
+            fails.append(f"{ctx}: explainer.{k} carries the numeric token {m.group(0)!r}; the "
+                         f"prose names no figure (method section 1: a number lives in a sourced field)")
+        if DASHES.search(v):
+            fails.append(f"{ctx}: explainer.{k} contains an em or en dash")
+    for k in ("as_of", "by"):
+        if not x.get(k):
+            fails.append(f"{ctx}: explainer.{k} missing")
+    for path in x.get("draws_on") or []:
+        if resolve_path(owner, path) is None:
+            fails.append(f"{ctx}: explainer.draws_on {path!r} resolves to nothing on this object")
+    return fails
 
 failures: list[str] = []
 lines: list[str] = []
@@ -242,6 +315,29 @@ def main() -> int:
                 fail(f"{cid}: scenario(s) {sorted(gone)} vanished versus git HEAD")
             report(f"{cid}: preservation checked against HEAD "
                    f"({len(prev.get('links') or [])} prior links, {len(prev_scen)} prior scenarios)")
+
+        # 11. the explainer bar
+        bound = str(c.get("updated_at") or "")[:10] >= EXPLAINER_GATE
+        have = 0
+        for l in links:
+            if l.get("explainer") is not None:
+                have += 1
+                for m in explainer_failures(l, LINK_KEYS, f"{cid}/{l.get('id')}"):
+                    fail(m)
+            elif bound:
+                fail(f"{cid}: link {l.get('id')} carries no explainer; a chain touched on or after "
+                     f"{EXPLAINER_GATE} explains every link in plain Hebrew (what, players, why, "
+                     f"bottleneck, hands_to)")
+        chain_x = c.get("explainer")
+        if chain_x is not None:
+            for m in explainer_failures(c, CHAIN_KEYS, f"{cid} (chain)"):
+                fail(m)
+        elif bound:
+            fail(f"{cid}: no chain-level explainer (shape, thesis); a chain touched on or after "
+                 f"{EXPLAINER_GATE} explains its own shape")
+        report(f"{cid}: explainers {have} of {n} links, chain-level "
+               f"{'yes' if isinstance(chain_x, dict) else 'no'}"
+               + ("" if bound else f" (not bound: updated_at {str(c.get('updated_at') or '')[:10] or 'unset'})"))
 
     report(f"corpus: {len(chains)} chains, {total_links} links examined, "
            f"{uncited_all} uncited ({'error' if strict else 'warning'} mode)")
