@@ -1,15 +1,15 @@
 {
   "issuer_id": "BHARAT-PETROLEUM",
   "issuer_name": "Bharat Petroleum Corporation Limited",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): T3, BPCL.NS (National Stock Exchange of India), no SEC CIK. No market file has ever been fetched for this listing; queued REQ-20260902-143 (prices), REQ-20260902-144 (fundamentals), REQ-20260902-145 (quality) this run.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+  "data_tier_basis": "Local-only listing (method section 6): T3, BPCL.NS (National Stock Exchange of India), no SEC CIK. data/market/BPCL-NS.json is on disk (fetched_at 2026-09-04) with a full 20/20-field yfinance-statements vendor fundamentals block and a SCORED quality block (piotroski, beneish, altman, reverse_dcf all solved). The prior BLOCKED profile wrongly checked the dotted path data/market/BPCL.NS.json instead of the fetcher's dashed filename data/market/BPCL-NS.json (tools/check_profile.py's stale-market-claim gate, effective 2026-09-02, catches this class of defect); corrected this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NATIONAL-STOCK-EXCHANGE-OF-INDIA-LTD:BPCL"
   ],
@@ -53,118 +53,178 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/russian-diesel-ban.json",
-    "market": null
+    "market": "data/market/BPCL-NS.json"
   },
-  "business_summary": "Bharat Petroleum Corporation Limited - profile shaped from its mapping placement(s); blocked on data availability, not on the mapping or role claim.",
+  "business_summary": "Bharat Petroleum Corporation Limited (NSE: BPCL) is one of India's largest state-controlled oil refiners and marketers. It is expanding the Bina refinery from 7.8 MMTPA to 11 MMTPA with an attached petrochemical project, which reached financial closure in January 2025, the new Indian conversion capacity this chain's refinery-capacity-response link tracks.",
   "exposure_summary": {
-    "narrative": "Bharat Petroleum Corporation Limited has 1 placement(s) on russian-diesel-ban chain. See placements above. This profile is BLOCKED purely on data availability.",
+    "narrative": "Bharat Petroleum sits on refinery-capacity-response (UNDISCOVERED, not the money corner), building the Bina refinery expansion cum petrochemical project (7.8 to 11 MMTPA) per its own January 2025 financial-closure press release. FY2026 statements (INR, year ended 2026-03-31) show roughly flat 3-year revenue (-1.2% CAGR), an 8.3% operating margin, strong operating cash conversion (2.0x OCF/NI) and a STRONG Piotroski read (7/9) with a CLEAN Beneish score.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "No link-specific revenue percentage is sourced for Bharat Petroleum Corporation Limited this run; see data_gaps."
+      "basis": "No Bina-project-specific revenue percentage is sourced for Bharat Petroleum this run; the refinery expansion is one project within a much larger integrated refining and marketing revenue base."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 4503026700000.0,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Vendor-normalized fiscal-year revenue (INR) for the period ended 2026-03-31, yfinance-statements aggregation of Bharat Petroleum Corporation Limited's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+        "official_source": false
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "three-year revenue CAGR cannot be computed with no revenue series on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": -0.011539,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Three-year compound annual revenue growth computed as (4503026700000.0 / 4662577300000.0) ** (1/3) - 1 from the yfinance-statements INR revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+        "official_source": false
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin cannot be computed with no operating-income or revenue series on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 0.083429,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Operating income 375681600000.0 (INR) divided by revenue 4503026700000.0 (INR), both for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating cash flow to net income cannot be computed with no cash-flow or income series on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 1.964482,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Operating cash flow 507689900000.0 divided by net income 258434500000.0, both INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "free cash flow margin cannot be computed with no cash-flow series on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 0.069607,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Free cash flow margin: operating cash flow 507689900000.0 less capex 194248200000.0, divided by revenue 4503026700000.0, all INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be computed with no debt, cash or EBITDA inputs on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 1.191084,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Net debt 541044300000.0 (total debt 544244200000.0 less cash 3199900000.0, both as of 2026-03-31) divided by an EBITDA proxy 454245300000.0 (operating income 375681600000.0 plus depreciation 78563700000.0 for the period ended 2026-03-31), from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "piotroski F-score cannot be computed with no statement inputs on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 7,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/BPCL-NS.json quality.piotroski, 9 of 9 inputs found.",
+        "official_source": false
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "beneish M-score cannot be computed with no statement inputs on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": -3.495,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Beneish M-score -3.495 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/BPCL-NS.json quality.beneish, 12 of 12 inputs found.",
+        "official_source": false
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization cannot be computed without a sourced official share count: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 1367440788923.7,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Market capitalization computed in data/market/BPCL-NS.json quality.derived.market_cap from shares outstanding 4272584874.0 (as of 2026-03-31, source fundamentals.shares_fy) times the close 320.05 INR (as of 2026-09-03).",
+        "official_source": false
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price-to-sales ratio cannot be computed without both a sourced market capitalization and a sourced revenue figure: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 0.303671,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Market capitalization 1367440788923.7 (INR) divided by fiscal year 2026-03-31 revenue 4503026700000.0 (INR).",
+        "official_source": false
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR cannot be solved with no free-cash-flow or enterprise-value inputs on file: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": -0.1805,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/BPCL-NS.json quality.reverse_dcf",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Free-cash-flow CAGR the current enterprise value 1908485088923.7 implies over a 5-year explicit period on base FCF 313441700000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over yfinance-statements statements. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "reverse-DCF horizon spread cannot be computed with the base solve unavailable: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk."
+        "value": 0.0741,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/BPCL-NS.json quality.reverse_dcf",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': -0.1805, '7': -0.1383, '10': -0.1064}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
       }
     }
   },
   "crowdedness_caveats": [
-    "Bharat Petroleum Corporation Limited sits on at least one chain link (see placements above), but this profile cannot corroborate or refute crowdedness with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
+    "Bharat Petroleum sits on a chain link scored UNDISCOVERED (see placements above), but no pcs (positioning/attention) block exists locally for data/market/BPCL-NS.json to corroborate or refute that at the issuer level; BPCL is itself a large, widely covered state oil marketer even if the specific Bina-expansion angle is undiscovered."
   ],
-  "catalysts": [],
-  "risks": [],
+  "catalysts": [
+    {
+      "claim": "2.0x operating-cash-flow-to-net-income, a STRONG Piotroski read (7/9) and a CLEAN Beneish score (-3.495) back the Bina refinery expansion cum petrochemical project role on refinery-capacity-response, which reached financial closure per the company's own January 2025 press release.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "FY2026 revenue is roughly flat over three years (-1.2% CAGR, INR) and net debt to EBITDA sits at 1.2x; no Bina-project-specific revenue percentage is disclosed, so the placement's weight in BPCL's overall book is not sized this run.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/BPCL.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk.",
-    "Queued REQ-20260902-143 (prices), REQ-20260902-144 (fundamentals), REQ-20260902-145 (quality) for BPCL.NS this run.",
-    "No link-specific revenue percentage is sourced for Bharat Petroleum Corporation Limited this run.",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-143/144/145 (prices, fundamentals, quality for BPCL.NS) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched."
+    "Filled 2026-09-04 from data/market/BPCL-NS.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): all 12 of 12 canonical fields carry a sourced number.",
+    "No Bina-project-specific revenue percentage is sourced for Bharat Petroleum this run."
   ],
   "disposition": {
-    "state": "BLOCKED",
-    "as_of": "2026-09-02",
-    "basis": "Real, evidence-backed placement(s) on the russian-diesel-ban chain, sourced from the mapping's own ACTIVE placement evidence. BLOCKED purely on data availability: no market file has ever been fetched for BPCL.NS: data/market/BPCL-NS.json is not on disk. Queued REQ-20260902-143 (prices), REQ-20260902-144 (fundamentals), REQ-20260902-145 (quality) for BPCL.NS this run."
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/BPCL-NS.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; all 12 of 12 canonical fields carry a sourced number. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
+    "INFERRED": 10,
+    "SPECULATIVE": 2,
+    "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. All 12 are NULL this run: no fetched market data exists locally for this listing yet. Every NULL names the specific missing field and the real reason, never estimated."
+    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the BPCL-NS.json vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); never a filing quote. SPECULATIVE covers the two reverse-DCF fields, whose discount rate and terminal growth are assumed. No NULL fields this run."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -182,6 +242,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-143/144/145 (prices, fundamentals, quality for BPCL.NS) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Corrected the stale-market-claim defect: the prior BLOCKED profile checked the dotted path data/market/BPCL.NS.json instead of the fetcher's dashed filename data/market/BPCL-NS.json, which was already on disk with a full 20/20-field yfinance-statements vendor block and a SCORED quality block. Filled all 12 canonical metric fields from that file (10 INFERRED vendor-backed, 2 SPECULATIVE reverse-DCF). Status COMPLETE, opportunity_tier O2. run profile BPCL.NS (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ]
 }

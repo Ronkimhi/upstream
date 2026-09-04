@@ -1,15 +1,15 @@
 {
   "issuer_id": "CBL-INTERNATIONAL",
   "issuer_name": "CBL International Ltd",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:BANL carries a real SEC CIK (1914805, per the mapping's own SEC company_tickers_exchange registry evidence), but no market file has ever been fetched for this listing. Queued REQ-20260902-146 (prices), REQ-20260902-147 (fundamentals), REQ-20260902-148 (quality) this run.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:BANL carries a real SEC CIK (1914805, per the mapping's own SEC company_tickers_exchange registry evidence). data/market/BANL.json is on disk (fetched_at 2026-09-04) with a sec-companyfacts fundamentals block (18 of 20 statement fields; long_term_debt_fy missing, blocking piotroski/beneish/leverage/reverse_dcf) and a SCORED-state quality block. The prior BLOCKED profile's basis (REQ-20260902-146/147/148 still PENDING) is stale: the fetch has since landed. Corrected this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch (T1 O1 promotion additionally needs its own official cross-check on revenue and cash conversion, moot here since both fields already rest on sec-companyfacts directly). Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NASDAQ-BANL"
   ],
@@ -53,118 +53,161 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/hormuz-maritime.json",
-    "market": null
+    "market": "data/market/BANL.json"
   },
-  "business_summary": "CBL International Ltd - profile shaped from its mapping placement(s); blocked on data availability, not on the mapping or role claim.",
+  "business_summary": "CBL International Ltd (Nasdaq: BANL) is a Hong Kong-based marine bunkering services facilitator serving nine of the world's twelve largest container liners across Asian ports, the physical bunker-supply role this chain's bunker-and-voyage-services link tracks.",
   "exposure_summary": {
-    "narrative": "CBL International Ltd has 1 placement(s) on hormuz-maritime chain. See placements above. This profile is BLOCKED purely on data availability.",
+    "narrative": "CBL International sits on hormuz-maritime/bunker-and-voyage-services (UNDISCOVERED, not the money corner), a real, sourced bunkering role including its first LNG bunkering at Xiaomo Port for BYD in Shenzhen. FY2025 statements (USD) show revenue essentially flat to modestly down against a strong prior 3-year base (5.2% 3yr CAGR against 2022, though FY2025 revenue itself fell 9.1% year over year against FY2024), a small operating loss (-0.5% margin) and a small net loss, with modestly positive free cash flow (0.7% FCF margin) after a negative operating-cash-flow year in FY2024. Leverage and quality scores stay NULL: companyfacts is missing long_term_debt_fy for this filer.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "No link-specific revenue percentage is sourced for CBL International Ltd this run; see data_gaps."
+      "basis": "No bunker-supply-specific revenue percentage is sourced for CBL International this run; bunkering services is the company's entire disclosed revenue base, but no Hormuz-route-specific slice is broken out."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": 538489831,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1914805 (CBL International Ltd, Nasdaq: BANL).",
+        "official_source": true
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "three-year revenue CAGR cannot be computed with no revenue series on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": 0.051707,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Three-year compound annual revenue growth computed as (538489831 / 462906257) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. FY2025 revenue itself fell 9.1% against FY2024's 592517545, so the 3-year CAGR reflects a strong 2022-to-2024 run followed by a FY2025 pullback, not steady growth throughout.",
+        "official_source": true
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin cannot be computed with no operating-income or revenue series on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": -0.004519,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Operating loss -2433232 divided by revenue 538489831, both for the fiscal year ended 2025-12-31, from companyfacts.",
+        "official_source": true
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating cash flow to net income cannot be computed with no cash-flow or income series on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": -1.336724,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Operating cash flow 3996097 divided by net loss -2989471, both for the fiscal year ended 2025-12-31, from companyfacts. A negative ratio here reflects positive operating cash flow against a net loss (a sign flip from non-cash charges below the operating line), not a cash-conversion failure; the prior fiscal year (2024) had negative operating cash flow (-1943216) against a larger net loss (-3871413).",
+        "official_source": true
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "free cash flow margin cannot be computed with no cash-flow series on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": 0.007416,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Free cash flow margin: operating cash flow 3996097 less capital expenditure 2641, divided by revenue 538489831, all for the fiscal year ended 2025-12-31, from companyfacts.",
+        "official_source": true
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be computed with no debt, cash or EBITDA inputs on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "basis": "net debt to EBITDA cannot be computed: companyfacts carries no total_debt figure for this filer (data/market/BANL.json fundamentals.total_debt is null; long_term_debt_fy is the specific missing input)."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score cannot be computed with no statement inputs on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "basis": "piotroski F-score not computed: data/market/BANL.json quality.piotroski.state is PENDING_DATA, missing long_term_debt_fy (8 of 9 inputs found); companyfacts does not tag this filer's long-term debt."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish M-score cannot be computed with no statement inputs on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "basis": "beneish M-score not computed: data/market/BANL.json quality.beneish.state is PENDING_DATA, missing long_term_debt_fy (11 of 12 inputs found); companyfacts does not tag this filer's long-term debt."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization cannot be computed without a sourced official share count: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": 429280104.47,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Market capitalization computed in data/market/BANL.json quality.derived.market_cap from companyfacts share count 27500327 (as of 2025-12-31) times the close 15.61 of 2026-09-02. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+        "official_source": true
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price-to-sales ratio cannot be computed without both a sourced market capitalization and a sourced revenue figure: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "value": 0.797193,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+        "basis": "Market capitalization 429280104.47 divided by fiscal year 2025-12-31 revenue 538489831.",
+        "official_source": true
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR cannot be solved with no free-cash-flow or enterprise-value inputs on file: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "basis": "implied_fcf_cagr not solved: data/market/BANL.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, itself blocked on the missing total_debt figure named in the leverage basis."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF horizon spread cannot be computed with the base solve unavailable: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk."
+        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA (missing enterprise_value) for the same missing-total_debt reason as implied_fcf_cagr."
       }
     }
   },
   "crowdedness_caveats": [
-    "CBL International Ltd sits on at least one chain link (see placements above), but this profile cannot corroborate or refute crowdedness with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
+    "CBL International sits on a chain link scored UNDISCOVERED (see placements above), but no pcs (positioning/attention) block exists locally for data/market/BANL.json to corroborate or refute that at the issuer level; this is a small-cap name (USD 429M market cap) where an undiscovered read is plausible on its face."
   ],
-  "catalysts": [],
-  "risks": [],
+  "catalysts": [
+    {
+      "claim": "CBL International's first LNG bunkering at Xiaomo Port for BYD in Shenzhen, alongside its standing serving nine of the world's twelve largest container liners, backs its bunker-and-voyage-services role on hormuz-maritime, per Barchart's coverage of the announcement.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "FY2025 revenue fell 9.1% year over year (538489831 against 592517545 in FY2024) and the company posted both an operating loss and a net loss; leverage and both quality scores stay NULL this run because companyfacts does not tag this filer's long-term debt.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BANL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001914805.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "no market file has ever been fetched for BANL: data/market/BANL.json is not on disk.",
-    "Queued REQ-20260902-146 (prices), REQ-20260902-147 (fundamentals), REQ-20260902-148 (quality) for BANL this run.",
-    "No link-specific revenue percentage is sourced for CBL International Ltd this run.",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-146/147/148 (prices, fundamentals, quality for BANL) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched."
+    "Filled 2026-09-04 from data/market/BANL.json (sec-companyfacts, official source, T1): 7 of 12 canonical fields carry a sourced number.",
+    "leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread NULL: companyfacts is missing long_term_debt_fy for this filer, which blocks total_debt, the leverage ratio, both quality scores and the enterprise-value leg of the reverse-DCF solve.",
+    "No bunker-supply-specific revenue percentage is sourced for CBL International this run."
   ],
   "disposition": {
-    "state": "BLOCKED",
-    "as_of": "2026-09-02",
-    "basis": "Real, evidence-backed placement(s) on the hormuz-maritime chain, sourced from the mapping's own ACTIVE placement evidence. BLOCKED purely on data availability: no market file has ever been fetched for BANL: data/market/BANL.json is not on disk. Queued REQ-20260902-146 (prices), REQ-20260902-147 (fundamentals), REQ-20260902-148 (quality) for BANL this run."
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/BANL.json: sec-companyfacts, official source (T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 7 of 12 canonical fields carry a sourced number, the remaining 5 honest NULL on companyfacts' missing long_term_debt_fy for this filer. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
+    "VERIFIED": 1,
+    "INFERRED": 6,
     "SPECULATIVE": 0,
-    "NULL": 12,
+    "NULL": 5,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. All 12 are NULL this run: no fetched market data exists locally for this listing yet. Every NULL names the specific missing field and the real reason, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. NULL covers the 5 fields blocked by companyfacts' missing long_term_debt_fy for this filer (leverage, both quality scores, both reverse_dcf fields), never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -182,6 +225,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-146/147/148 (prices, fundamentals, quality for BANL) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-146/147/148) has landed: data/market/BANL.json now holds sec-companyfacts data (18/20 statement fields, official source; long_term_debt_fy missing). Filled 7 of 12 canonical metric fields (1 VERIFIED, 6 INFERRED official-source); 5 stay NULL on the missing long_term_debt_fy input, which blocks leverage, both quality scores and the reverse-DCF solve. Status COMPLETE, opportunity_tier O2. run profile BANL (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ]
 }

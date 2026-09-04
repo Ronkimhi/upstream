@@ -1,15 +1,15 @@
 {
   "issuer_id": "NHPC",
   "issuer_name": "NHPC Limited",
-  "as_of": "2026-09-01",
+  "as_of": "2026-09-04",
   "created_at": "2026-09-01T03:20:00Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): T3. A verified price print for NHPC.NS is on disk (SINGLE_SOURCE, yfinance, 2026-08-28). Fundamentals request REQ-20260830-37 FAILED on 2026-08-30, before the vendor-aggregate (yfinance-statements) leg existed and before the cik_for() suffix-stripping fix; other NSE names (LT.NS, 920174-BJ) now carry real vendor-statement data under the current fetcher, so that FAILED result is stale rather than proof of a permanent gap. Queued REQ-20260902-158 (fundamentals) and REQ-20260902-159 (quality) for NHPC.NS this run to re-test under the current fetch plane.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "Local-only listing (method section 6): T3, NHPC.NS (National Stock Exchange of India), no SEC CIK. data/market/NHPC-NS.json is on disk (fetched_at 2026-09-04) with a full 20/20-field yfinance-statements vendor fundamentals block and a SCORED quality block. The prior BLOCKED profile's basis (REQ-20260830-37 FAILED, then fresh REQ-20260902-158/159 queued) is stale: the re-test fetch has since landed under the current fetcher, confirming the 2026-08-30 FAILED result was a fetch-plane gap now closed, not a permanent vendor gap. Corrected this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NSE:NHPC"
   ],
@@ -52,99 +52,170 @@
       ]
     }
   ],
-  "business_summary": "NHPC Limited - profile blocked on data availability.",
+  "business_summary": "NHPC Limited (NSE: NHPC) is India's largest hydropower generation company, majority owned by the Government of India. It leads pre-feasibility work for the Siang Upper Multipurpose Project, India's direct flood-buffer response tracked on this chain's india-counter-buildout link.",
   "exposure_summary": {
-    "narrative": "NHPC Limited has 1 placement(s) on tibet-mega-dam chain. See placements below."
+    "narrative": "NHPC sits on india-counter-buildout (UNDISCOVERED, not the money corner), leading pre-feasibility work for the Siang Upper Multipurpose Project per its own tender records and its chairman's public statements. FY2026 statements (INR, year ended 2026-03-31) show modest 3-year revenue growth (2.0% CAGR) and a strong 32.9% operating margin, but heavy capex (INR 115.7B against INR 32.9B operating cash flow) drives negative free cash flow and blocks the reverse-DCF solve; Piotroski is MIDDLING (4/9) against a CLEAN Beneish score.",
+    "disclosed_revenue_exposure": {
+      "pct": null,
+      "tag": "NULL",
+      "basis": "No Siang-project-specific revenue percentage is sourced for NHPC this run; the project is in pre-feasibility, ahead of any disclosed revenue contribution."
+    }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "NHPC sits on a chain link scored UNDISCOVERED (see placements above), but no pcs (positioning/attention) block exists locally for data/market/NHPC-NS.json to corroborate or refute that at the issuer level; NHPC is itself a large, widely covered state hydropower major even if the specific Siang-project angle is undiscovered."
+  ],
+  "catalysts": [
+    {
+      "claim": "A 32.9% operating margin and a CLEAN Beneish score (-2.627) back the Siang Upper Multipurpose Project pre-feasibility role on india-counter-buildout, evidenced by NHPC's own tender records and its chairman's public statements.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Heavy construction capex (INR 115.7B) drives free cash flow deeply negative this year (-74.4% FCF margin) and net debt to EBITDA sits at 9.4x; the reverse-DCF solve is NOT_APPLICABLE on the negative base FCF, so no market-implied growth reading exists this run.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Fundamentals: REQ-20260830-37 FAILED (no vendor coverage for this NSE name); official-source IR/filing data needed",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): the REQ-20260830-37 FAILED result predates both the vendor-aggregate (yfinance-statements) fetch leg and the cik_for() suffix-stripping fix; it is stale, not proof of a permanent vendor gap (see data_tier_basis). Queued REQ-20260902-158 (fundamentals) and REQ-20260902-159 (quality) for NHPC.NS this run; still BLOCKED pending fetch fulfillment."
+    "Filled 2026-09-04 from data/market/NHPC-NS.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): 10 of 12 canonical fields carry a sourced number; reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread stay NULL because quality.reverse_dcf.state is NOT_APPLICABLE on a negative base FCF.",
+    "No Siang-project-specific revenue percentage is sourced for NHPC this run."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 111231500000.0,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Vendor-normalized fiscal-year revenue (INR) for the period ended 2026-03-31, yfinance-statements aggregation of NHPC Limited's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+        "official_source": false
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 0.020091,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Three-year compound annual revenue growth computed as (111231500000.0 / 104787800000.0) ** (1/3) - 1 from the yfinance-statements INR revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+        "official_source": false
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 0.328845,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Operating income 36577900000.0 (INR) divided by revenue 111231500000.0 (INR), both for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 0.874628,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Operating cash flow 32936200000.0 divided by net income 37657400000.0, both INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
+      },
+      "fcf_margin": {
+        "value": -0.744273,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Free cash flow margin: operating cash flow 32936200000.0 less capex 115722800000.0, divided by revenue 111231500000.0, all INR for the period ended 2026-03-31, from the yfinance-statements series. Heavy hydropower construction capex drives free cash flow deeply negative this year.",
+        "official_source": false
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 9.365054,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Net debt 527593400000.0 (total debt 546061700000.0 less cash 18468300000.0, both as of 2026-03-31) divided by an EBITDA proxy 56336400000.0 (operating income 36577900000.0 plus depreciation 19758500000.0 for the period ended 2026-03-31), from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 4,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/NHPC-NS.json quality.piotroski, 9 of 9 inputs found.",
+        "official_source": false
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": -2.627,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Beneish M-score -2.627 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/NHPC-NS.json quality.beneish, 12 of 12 inputs found.",
+        "official_source": false
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 751569504110.1,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Market capitalization computed in data/market/NHPC-NS.json quality.derived.market_cap from shares outstanding 10045034805.0 (as of 2026-03-31, source fundamentals.shares_fy) times the close 74.82 INR (as of 2026-08-28).",
+        "official_source": false
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price-to-sales: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "value": 6.756805,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/NHPC.NS/financials",
+        "basis": "Market capitalization 751569504110.1 (INR) divided by fiscal year 2026-03-31 revenue 111231500000.0 (INR).",
+        "official_source": false
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "Reverse-DCF implied FCF CAGR: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "basis": "reverse-DCF implied FCF CAGR: data/market/NHPC-NS.json quality.reverse_dcf.state is NOT_APPLICABLE, reason 'base-year free cash flow is not positive; a growth rate on a negative base is meaningless' (base FCF -82786600000.0 INR); the solver correctly declines to run rather than producing a meaningless growth rate on a negative base."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "Reverse-DCF horizon spread: fundamentals request REQ-20260830-37 FAILED for want of vendor coverage (no SEC CIK, and yfinance-statements carries no data for this NSE-listed name); not requeued as a genuine coverage gap, and no WebFetch is available this run to source an official filing/IR equivalent"
+        "basis": "reverse-DCF horizon spread: not available for the same reason as implied_fcf_cagr, quality.reverse_dcf.state NOT_APPLICABLE on a negative base FCF."
       }
     }
   },
   "disposition": {
-    "state": "DEFER",
-    "basis": "Real, evidence-backed placement on the tibet-mega-dam chain and a verified price print exist on disk, but every canonical metric field is NULL: the one fundamentals fetch attempt (REQ-20260830-37) genuinely failed for want of vendor coverage on this NSE-listed name, not a fetch-eligible gap, so it is not requeued. DEFER rather than DRAFT because the placement, role and price are real and sourced; only the fundamentals layer is missing. Revisit once official-source IR/filing data is sourced, which needs a WebFetch-capable (local) venue."
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/NHPC-NS.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields carry a sourced number, the remaining 2 honest NULL on a real negative-FCF reverse-DCF NOT_APPLICABLE state. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
+    "INFERRED": 10,
     "SPECULATIVE": 0,
-    "NULL": 8
+    "NULL": 2,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the NHPC-NS.json vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); never a filing quote. NULL is limited to the two reverse_dcf fields, blocked by a real NOT_APPLICABLE state on negative base FCF (method section 6A), never estimated."
   },
   "changelog": [
     {
@@ -158,9 +229,14 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The 2026-08-30 fundamentals FAILURE (REQ-20260830-37) predates the vendor-aggregate leg and the cik_for() fix; queued fresh REQ-20260902-158 (fundamentals) and REQ-20260902-159 (quality) for NHPC.NS to re-test. Still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The re-test fetch queued by the prior BLOCKED run (REQ-20260902-158/159) has landed: data/market/NHPC-NS.json now holds a full 20/20-field yfinance-statements vendor block and a SCORED quality block, confirming the 2026-08-30 FAILED result (REQ-20260830-37) was a fetch-plane gap now closed. Filled 10 of 12 canonical metric fields (all INFERRED vendor-backed); reverse_dcf stays NULL on quality.reverse_dcf.state NOT_APPLICABLE (negative base FCF). Status COMPLETE, opportunity_tier O2. run profile NHPC.NS (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ],
-  "disposition_basis": "Real, evidence-backed placement on the tibet-mega-dam chain and a verified price print exist on disk, but every canonical metric field is NULL: the one fundamentals fetch attempt (REQ-20260830-37) genuinely failed for want of vendor coverage on this NSE-listed name, not a fetch-eligible gap, so it is not requeued. DEFER rather than DRAFT because the placement, role and price are real and sourced; only the fundamentals layer is missing. Revisit once official-source IR/filing data is sourced, which needs a WebFetch-capable (local) venue.",
   "sources": {
     "mapping": "data/mappings/tibet-mega-dam.json",
     "mapping_audit": {

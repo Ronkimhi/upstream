@@ -1,15 +1,15 @@
 {
   "issuer_id": "PETROCHINA",
   "issuer_name": "PetroChina Co Ltd",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-09-02T15:00:00Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T2",
-  "data_tier_basis": "OTC ADR with an asserted SEC CIK (method section 6): PCCYF resolves to CIK 1108329 per the SEC company_tickers_exchange registry, but no data/market/PCCYF.json has been fetched yet. Provisional T2 pending the fetch outcome (a 20-F filer may or may not carry XBRL companyfacts).",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "OTC ADR with an asserted SEC CIK (method section 6): PCCYF resolves to CIK 1108329 per the SEC company_tickers_exchange registry. data/market/PCCYF.json is on disk (fetched_at 2026-09-04): the CIK did not carry SEC XBRL companyfacts (a 20-F filer without full US GAAP XBRL tagging), so the fetch fell to the vendor leg (yfinance-statements) with a full 20/20-field fundamentals block and a SCORED quality block. T2 confirmed: vendor, not official-source, statement data.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "OTC-PCCYF"
   ],
@@ -45,105 +45,162 @@
       ]
     }
   ],
-  "business_summary": "PetroChina Company Limited trades OTC in the US as PCCYF (CIK 1108329). PetroChina International is a disclosed top-ten Singapore MPA bunker supplier, and Chimbusco is its marine-fuel arm, the UNDISCOVERED bunker-and-voyage-services role on hormuz-maritime. No market file has been fetched yet.",
+  "business_summary": "PetroChina Company Limited trades OTC in the US as PCCYF (CIK 1108329, no XBRL companyfacts). PetroChina International is a disclosed top-ten Singapore MPA bunker supplier, and Chimbusco is its marine-fuel arm, the UNDISCOVERED bunker-and-voyage-services role on hormuz-maritime.",
   "exposure_summary": {
-    "narrative": "PETROCHINA has 1 placement on hormuz-maritime (bunker-and-voyage-services, UNDISCOVERED, not the money corner). Every canonical metric is NULL: no market file fetched yet."
+    "narrative": "PETROCHINA sits on hormuz-maritime/bunker-and-voyage-services (UNDISCOVERED, not the money corner), via PetroChina International's disclosed MPA top-ten bunker-supplier standing. FY2025 statements (CNY) show declining revenue (-4.0% 3yr CAGR) off elevated 2022 energy prices, an 8.4% operating margin, and strong operating cash conversion (2.6x OCF/NI) with a MIDDLING Piotroski read (5/9) and a CLEAN Beneish score. Statement currency (CNY) differs from the OTC quote currency (USD) with no FX source on disk, so market_cap, price_to_sales and the reverse-DCF solve stay NULL per method section 6A.",
+    "disclosed_revenue_exposure": {
+      "pct": null,
+      "tag": "NULL",
+      "basis": "No bunker-supply-specific revenue percentage is sourced for PetroChina this run; bunkering is one activity within a vast integrated upstream, refining and marketing revenue base."
+    }
   },
   "crowdedness_caveats": [
-    "No pcs (positioning/attention) block exists locally: no market file has been fetched for PCCYF yet."
+    "PetroChina sits on a chain link scored UNDISCOVERED (see placements above), but no pcs (positioning/attention) block exists locally for data/market/PCCYF.json to corroborate or refute that at the issuer level; PetroChina is itself a large, widely covered state oil major even if the specific bunker-supply angle is undiscovered."
   ],
-  "catalysts": [],
-  "risks": [],
+  "catalysts": [
+    {
+      "claim": "2.6x operating-cash-flow-to-net-income and a CLEAN Beneish read (-2.754) support the PetroChina International/Chimbusco bunker-supply role on bunker-and-voyage-services, backed by the MPA's official top-10 bunker supplier list.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "FY2025 revenue has fallen for three straight years (CAGR -4.0%, CNY) off 2022's energy-price peak; market capitalization, price-to-sales and the reverse-DCF solve are all NULL this run because the vendor statement currency (CNY) differs from the USD OTC quote with no FX source on disk.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Filled 2026-09-02 from data/market/PCCYF.json: 0 of 11 canonical fields carry a sourced number; the rest stay NULL with a field-specific basis.",
-    "PENDING requests REQ-20260902-152 (prices), REQ-20260902-153 (fundamentals), REQ-20260902-154 (quality) queued this run for PCCYF, cik 1108329 asserted.",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-152/153/154 (prices, fundamentals, quality for PCCYF) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched."
+    "Filled 2026-09-04 from data/market/PCCYF.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): 8 of 12 canonical fields carry a sourced number; valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread stay NULL on the CNY/USD statement-vs-quote currency mismatch (no FX source on disk), per method section 6A.",
+    "No bunker-supply-specific revenue percentage is sourced for PetroChina this run."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": 2864469000000.0,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Vendor-normalized fiscal-year revenue (CNY) for the period ended 2025-12-31, yfinance-statements aggregation of PetroChina Company Limited's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+        "official_source": false
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": -0.040149,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Three-year compound annual revenue growth computed as (2864469000000.0 / 3239167000000.0) ** (1/3) - 1 from the yfinance-statements CNY revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+        "official_source": false
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": 0.084312,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Operating income 241509000000.0 (CNY) divided by revenue 2864469000000.0 (CNY), both for the period ended 2025-12-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": 2.622408,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Operating cash flow 412510000000.0 divided by net income 157302000000.0, both CNY for the period ended 2025-12-31, from the yfinance-statements series.",
+        "official_source": false
+      },
+      "fcf_margin": {
+        "value": 0.041795,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Free cash flow margin: operating cash flow 412510000000.0 less capex 292789000000.0, divided by revenue 2864469000000.0, all CNY for the period ended 2025-12-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": 0.241668,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Net debt 114867000000.0 (total debt 353775000000.0 less cash 238908000000.0, both as of 2025-12-31) divided by an EBITDA proxy 475310000000.0 (operating income 241509000000.0 plus depreciation 233801000000.0 for the period ended 2025-12-31), from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": 5,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Piotroski F-score 5 (state MIDDLING) computed over yfinance-statements statements in data/market/PCCYF.json quality.piotroski, 9 of 9 inputs found.",
+        "official_source": false
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "value": -2.754,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/PCCYF/financials",
+        "basis": "Beneish M-score -2.754 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/PCCYF.json quality.beneish, 12 of 12 inputs found.",
+        "official_source": false
       }
     },
     "valuation": {
       "market_cap": {
         "value": null,
         "tag": "NULL",
-        "basis": "Market capitalization: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "basis": "market capitalization is NULL per method section 6A's currency-mismatch rule: data/market/PCCYF.json fundamentals.statement_currency is CNY but the OTC quote is USD (fundamentals.price_currency), with no FX source on disk; quality.derived.market_cap and quality.currency_note both confirm this, rather than mixed-currency arithmetic."
       },
       "price_to_sales": {
         "value": null,
         "tag": "NULL",
-        "basis": "Price to sales: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "basis": "price-to-sales cannot be computed without a market capitalization; see valuation.market_cap basis (CNY statement currency vs USD OTC quote, no FX source on disk)."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "Reverse-DCF implied FCF CAGR: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "basis": "implied_fcf_cagr not solved: data/market/PCCYF.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, itself blocked on the CNY/USD currency mismatch that NULLs market_cap."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "Reverse-DCF horizon spread: no data/market/PCCYF.json exists yet; PENDING requests REQ-20260902-152/153/154 queued this run for PCCYF, cik 1108329 asserted per the mapping's SEC company_tickers_exchange registry evidence."
+        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA (missing enterprise_value) for the same currency-mismatch reason as implied_fcf_cagr."
       }
     }
   },
   "disposition": {
-    "state": "DEFER",
-    "as_of": "2026-09-02",
-    "basis": "Real, evidence-backed placement(s), but only 0 of 11 canonical fields carry a sourced number this run. DEFER rather than DRAFT because the placement(s) and role(s) are real and sourced; only the numeric layer is incomplete."
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/PCCYF.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 8 of 12 canonical fields carry a sourced number, the remaining 4 honest NULL on a real CNY/USD currency mismatch. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
+    "INFERRED": 8,
     "SPECULATIVE": 0,
-    "NULL": 11,
-    "canonical_fields_written": 11,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts; INFERRED with official_source false rests on the yfinance-statements/yfinance-info vendor-aggregate block, admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'), never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
+    "NULL": 4,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the PCCYF.json vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); never a filing quote. NULL is limited to the four valuation/reverse_dcf fields, blocked by a real CNY/USD statement-vs-quote currency mismatch with no FX source on disk (method section 6A), never estimated."
   },
   "changelog": [
     {
@@ -157,6 +214,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-152/153/154 (prices, fundamentals, quality for PCCYF) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-152/153/154) has landed: data/market/PCCYF.json now holds a full 20/20-field yfinance-statements vendor block (the CIK carried no XBRL companyfacts) and a SCORED quality block. Filled 8 of 12 canonical metric fields; valuation and reverse_dcf (4 fields) NULL on a real CNY/USD currency mismatch (method section 6A). Status COMPLETE, opportunity_tier O2. run profile PCCYF (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ],
   "sources": {
@@ -167,6 +230,6 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/hormuz-maritime.json",
-    "market": null
+    "market": "data/market/PCCYF.json"
   }
 }

@@ -1,15 +1,15 @@
 {
   "issuer_id": "WILLIS-TOWERS-WATSON",
   "issuer_name": "Willis Towers Watson plc",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:WTW carries a real SEC CIK (1140536); data/market/WTW.json currently holds prices only, no fundamentals or quality block. Queued REQ-20260902-139 (fundamentals) then REQ-20260902-140 (quality) this run.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:WTW carries a real SEC CIK (1140536). data/market/WTW.json is on disk (fetched_at 2026-09-04) with a sec-companyfacts fundamentals block (16 of 20 statement fields; cost_of_revenue_fy and sga_fy missing entirely, and capex_fy/depreciation_fy stop at 2015 and 2012 respectively, both stale) and a SCORED-state quality block whose reverse_dcf solved despite the gaps because it needs only revenue, FCF and enterprise value, not the missing income-statement lines. The prior BLOCKED profile's basis (REQ-20260902-139/140 still PENDING) is stale: the fetch has since landed. Corrected this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch (T1 O1 promotion additionally needs its own official cross-check on revenue and cash conversion, moot here since both fields already rest on sec-companyfacts directly). Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NASDAQ-WTW"
   ],
@@ -55,116 +55,163 @@
     "chain": "data/chains/hormuz-maritime.json",
     "market": "data/market/WTW.json"
   },
-  "business_summary": "Willis Towers Watson plc - profile shaped from its mapping placement(s); blocked on data availability, not on the mapping or role claim.",
+  "business_summary": "Willis Towers Watson plc (Nasdaq: WTW) is a global insurance broking, risk and human capital advisory firm. Its marine and cargo brokers publicly price the Hormuz war-risk market and advise clients on rate trajectory through the Strait closure, the money-corner role this chain's specialty-marine-broking link tracks.",
   "exposure_summary": {
-    "narrative": "Willis Towers Watson plc has 1 placement(s) on hormuz-maritime chain. See placements above. This profile is BLOCKED purely on data availability.",
+    "narrative": "WTW holds a money-corner role on hormuz-maritime/specialty-marine-broking (UNDISCOVERED), placing Gulf war-risk cover per trade-press coverage of the marine war insurance opportunity. FY2025 statements (USD) show modest 3-year revenue growth (2.9% CAGR), a strong 23.5% operating margin and solid cash conversion (1.1x OCF/NI). The reverse-DCF solve is SOLVED (11.95% implied FCF CAGR at the 5-year horizon) because it needs only revenue, cash flow, debt and cash, all present; leverage, fcf_margin and both quality scores stay NULL because companyfacts has no current-period cost_of_revenue_fy, sga_fy, capex_fy or depreciation_fy for this filer (the on-file series for those specific lines stop at 2015 or earlier).",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "No link-specific revenue percentage is sourced for Willis Towers Watson plc this run; see data_gaps."
+      "basis": "No specialty-marine-broking-specific revenue percentage is sourced for WTW this run; marine broking is one line of business within WTW's broader Risk & Broking segment."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 9516000000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1140536 (Willis Towers Watson plc, Nasdaq: WTW).",
+        "official_source": true
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "three-year revenue CAGR cannot be computed with no revenue series on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 0.029311,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Three-year compound annual revenue growth computed as (9516000000 / 8726000000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+        "official_source": true
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin cannot be computed with no operating-income or revenue series on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 0.234763,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Operating income 2234000000 divided by revenue 9516000000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+        "official_source": true
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating cash flow to net income cannot be computed with no cash-flow or income series on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 1.105919,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Operating cash flow 1775000000 divided by net income 1605000000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+        "official_source": true
       },
       "fcf_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "free cash flow margin cannot be computed with no cash-flow series on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "free cash flow margin cannot be computed: companyfacts' capex_fy series for this filer stops at fiscal year 2015-12-31 (data/market/WTW.json fundamentals.capex_fy), ten years before the current 2025-12-31 revenue and cash-flow figures; no current-period capital expenditure figure exists to net against operating cash flow."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be computed with no debt, cash or EBITDA inputs on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "net debt to EBITDA cannot be reliably proxied: net debt itself is known (total debt 5781000000 less cash 1627000000, both as of 2026-06-30, from companyfacts), but companyfacts' depreciation_fy series for this filer stops at fiscal year 2012-12-31 (data/market/WTW.json fundamentals.depreciation_fy), so no current-period EBITDA proxy (operating income plus depreciation) can be built without inventing a depreciation figure."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score cannot be computed with no statement inputs on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "piotroski F-score not computed: data/market/WTW.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); companyfacts does not tag this filer's cost of revenue."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish M-score cannot be computed with no statement inputs on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "beneish M-score not computed: data/market/WTW.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); companyfacts does not tag either line for this filer."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization cannot be computed without a sourced official share count: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 34031250000.0,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Market capitalization computed in data/market/WTW.json quality.derived.market_cap from companyfacts share count 99000000 (as of 2025-12-31) times the close 343.75 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+        "official_source": true
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price-to-sales ratio cannot be computed without both a sourced market capitalization and a sourced revenue figure: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 3.576214,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Market capitalization 34031250000.0 divided by fiscal year 2025-12-31 revenue 9516000000.",
+        "official_source": true
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR cannot be solved with no free-cash-flow or enterprise-value inputs on file: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 0.1195,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/WTW.json quality.reverse_dcf",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 38185250000.0 implies over a 5-year explicit period on base FCF 1629000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "reverse-DCF horizon spread cannot be computed with the base solve unavailable: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 0.042,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/WTW.json quality.reverse_dcf",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1195, '7': 0.0952, '10': 0.0775}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
       }
     }
   },
   "crowdedness_caveats": [
-    "Willis Towers Watson plc sits on at least one chain link (see placements above), but this profile cannot corroborate or refute crowdedness with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
+    "WTW's specialty-marine-broking placement is scored a money corner (see placements above), but no pcs (positioning/attention) block exists locally for data/market/WTW.json to independently corroborate that read at the issuer level; WTW is itself a large, widely covered global broker even if the specific Hormuz war-risk angle is undiscovered."
   ],
-  "catalysts": [],
-  "risks": [],
+  "catalysts": [
+    {
+      "claim": "A SOLVED reverse-DCF read (11.95% implied FCF CAGR at the 5-year horizon) and a strong 23.5% operating margin back WTW's money-corner Gulf war-risk broking role on specialty-marine-broking, evidenced by trade-press coverage of the marine war insurance opportunity.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Companyfacts is missing current-period cost_of_revenue_fy, sga_fy, capex_fy and depreciation_fy for this filer, so fcf_margin, leverage and both quality scores stay NULL this run; the reverse-DCF solve carries the usual SPECULATIVE assumption dependence (9% discount rate, 2.5% terminal growth).",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run.",
-    "Queued REQ-20260902-139 (fundamentals) then REQ-20260902-140 (quality) for WTW this run; prices already FULFILLED so not re-queued.",
-    "No link-specific revenue percentage is sourced for Willis Towers Watson plc this run.",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-139/140 (fundamentals, quality for WTW) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched."
+    "Filled 2026-09-04 from data/market/WTW.json (sec-companyfacts, official source, T1): 8 of 12 canonical fields carry a sourced number.",
+    "cash_conversion.fcf_margin NULL: companyfacts' capex_fy series stops at fiscal year 2015-12-31 for this filer.",
+    "leverage.net_debt_to_ebitda NULL: companyfacts' depreciation_fy series stops at fiscal year 2012-12-31 for this filer, so no current EBITDA proxy can be built even though net debt itself is known.",
+    "quality.piotroski and quality.beneish_state NULL: companyfacts is missing cost_of_revenue_fy (and sga_fy for beneish) for this filer.",
+    "No specialty-marine-broking-specific revenue percentage is sourced for WTW this run."
   ],
   "disposition": {
-    "state": "BLOCKED",
-    "as_of": "2026-09-02",
-    "basis": "Real, evidence-backed placement(s) on the hormuz-maritime chain, sourced from the mapping's own ACTIVE placement evidence. BLOCKED purely on data availability: data/market/WTW.json carries a price series and a real SEC CIK (1140536) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run. Queued REQ-20260902-139 (fundamentals) then REQ-20260902-140 (quality) for WTW this run; prices already FULFILLED so not re-queued."
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/WTW.json: sec-companyfacts, official source (T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 8 of 12 canonical fields carry a sourced number, the remaining 4 honest NULL on companyfacts' missing or stale income-statement lines for this filer. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
+    "VERIFIED": 1,
+    "INFERRED": 5,
+    "SPECULATIVE": 2,
+    "NULL": 4,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. All 12 are NULL this run: no fetched market data exists locally for this listing yet. Every NULL names the specific missing field and the real reason, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. SPECULATIVE covers the two reverse-DCF fields, whose discount rate and terminal growth are assumed. NULL covers the 4 fields blocked by companyfacts' missing or stale cost_of_revenue_fy, sga_fy, capex_fy and depreciation_fy for this filer, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -182,6 +229,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-139/140 (fundamentals, quality for WTW) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-139/140) has landed: data/market/WTW.json now holds sec-companyfacts data (16/20 statement fields, official source; cost_of_revenue_fy and sga_fy missing, capex_fy and depreciation_fy stale). Filled 8 of 12 canonical metric fields (1 VERIFIED, 5 INFERRED official-source, 2 SPECULATIVE reverse-DCF); 4 stay NULL on the missing/stale statement lines named above. Status COMPLETE, opportunity_tier O2. run profile WTW (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ]
 }

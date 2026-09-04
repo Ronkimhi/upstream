@@ -1,15 +1,15 @@
 {
   "issuer_id": "DRAFTKINGS",
   "issuer_name": "DraftKings Inc.",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:DKNG carries a real SEC CIK (1883685); data/market/DKNG.json currently holds prices only, no fundamentals or quality block. Queued REQ-20260902-141 (fundamentals) then REQ-20260902-142 (quality) this run.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:DKNG carries a real SEC CIK (1883685). data/market/DKNG.json is on disk (fetched_at 2026-09-04) with a sec-companyfacts fundamentals block (17 of 20 statement fields; long_term_debt_fy missing, blocking piotroski/beneish/leverage/reverse_dcf) and a SCORED-state quality block. The prior BLOCKED profile's basis (REQ-20260902-141/142 still PENDING) is stale: the fetch has since landed. Corrected this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch (T1 O1 promotion additionally needs its own official cross-check on revenue and cash conversion, moot here since both fields already rest on sec-companyfacts directly). Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NASDAQ-DKNG"
   ],
@@ -95,116 +95,159 @@
     "chain": "data/chains/prediction-market-plumbing.json",
     "market": "data/market/DKNG.json"
   },
-  "business_summary": "DraftKings Inc. - profile shaped from its mapping placement(s); blocked on data availability, not on the mapping or role claim.",
+  "business_summary": "DraftKings Inc. (Nasdaq: DKNG) is a US online sportsbook, iGaming and daily fantasy operator, live in 27 of 33 US jurisdictions with legalized online sports betting as of 10 February 2026, and operator of DraftKings Predictions (a CFTC-registered exchange via the Railbird acquisition), the roles this chain tracks across three links.",
   "exposure_summary": {
-    "narrative": "DraftKings Inc. has 3 placement(s) on prediction-market-plumbing chain. See placements above. This profile is BLOCKED purely on data availability.",
+    "narrative": "DraftKings holds three real, 10-K-sourced roles on prediction-market-plumbing: sportsbook-platform-and-trading (UNDISCOVERED), prediction-market-venue (CROWDED, DraftKings Predictions), and distribution-front-ends (OVER_CROWDED, the consumer app). FY2025 statements (USD) show strong revenue growth (39.3% 3yr CAGR) and the company's first near-breakeven net income (USD 3.7M against USD 6.05B revenue), producing an unusually large operating-cash-flow-to-net-income ratio (178.7x) that reflects the small net-income denominator rather than an unusual cash pattern. Piotroski, Beneish and leverage stay NULL: companyfacts is missing long_term_debt_fy for this filer.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "No link-specific revenue percentage is sourced for DraftKings Inc. this run; see data_gaps."
+      "basis": "No link-specific (sportsbook, prediction-venue or distribution) revenue percentage is sourced for DraftKings this run; the 10-K reports these as one combined operating segment."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 6054525000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1883685 (DraftKings Inc., Nasdaq: DKNG).",
+        "official_source": true
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "three-year revenue CAGR cannot be computed with no revenue series on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 0.392882,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Three-year compound annual revenue growth computed as (6054525000 / 2240461000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+        "official_source": true
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin cannot be computed with no operating-income or revenue series on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": -0.002612,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Operating loss -15817000 divided by revenue 6054525000, both for the fiscal year ended 2025-12-31, from companyfacts. Near-breakeven, a sharp improvement from the -608999000 operating loss of fiscal year 2024.",
+        "official_source": true
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating cash flow to net income cannot be computed with no cash-flow or income series on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 178.667116,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Operating cash flow 662855000 divided by net income 3710000, both for the fiscal year ended 2025-12-31, from companyfacts. The unusually large ratio reflects a near-zero net-income denominator (DraftKings' first near-breakeven year), not an unusual cash-conversion pattern; operating cash flow itself grew a more ordinary 58.7% year over year (417767000 to 662855000).",
+        "official_source": true
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "free cash flow margin cannot be computed with no cash-flow series on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 0.106945,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Free cash flow margin: operating cash flow 662855000 less capital expenditure 15352000, divided by revenue 6054525000, all for the fiscal year ended 2025-12-31, from companyfacts.",
+        "official_source": true
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be computed with no debt, cash or EBITDA inputs on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "net debt to EBITDA cannot be computed: companyfacts carries no total_debt figure for this filer (data/market/DKNG.json fundamentals.total_debt is null; long_term_debt_fy is the specific missing input)."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score cannot be computed with no statement inputs on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "piotroski F-score not computed: data/market/DKNG.json quality.piotroski.state is PENDING_DATA, missing long_term_debt_fy (8 of 9 inputs found); companyfacts does not tag this filer's long-term debt."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish M-score cannot be computed with no statement inputs on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "beneish M-score not computed: data/market/DKNG.json quality.beneish.state is PENDING_DATA, missing long_term_debt_fy (11 of 12 inputs found); companyfacts does not tag this filer's long-term debt."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization cannot be computed without a sourced official share count: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 12526509780.0,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Market capitalization computed in data/market/DKNG.json quality.derived.market_cap from companyfacts share count 495903000 (as of 2025-12-31) times the close 25.26 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+        "official_source": true
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price-to-sales ratio cannot be computed without both a sourced market capitalization and a sourced revenue figure: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "value": 2.06895,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+        "basis": "Market capitalization 12526509780.0 divided by fiscal year 2025-12-31 revenue 6054525000.",
+        "official_source": true
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR cannot be solved with no free-cash-flow or enterprise-value inputs on file: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "implied_fcf_cagr not solved: data/market/DKNG.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, itself blocked on the missing total_debt figure named in the leverage basis."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF horizon spread cannot be computed with the base solve unavailable: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run."
+        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA (missing enterprise_value) for the same missing-total_debt reason as implied_fcf_cagr."
       }
     }
   },
   "crowdedness_caveats": [
-    "DraftKings Inc. sits on at least one chain link (see placements above), but this profile cannot corroborate or refute crowdedness with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
+    "DraftKings' distribution-front-ends placement is scored OVER_CROWDED and prediction-market-venue CROWDED (see placements above); no pcs (positioning/attention) block exists locally for data/market/DKNG.json to independently corroborate either read, though both are consistent with DraftKings being a large, widely covered consumer name."
   ],
-  "catalysts": [],
-  "risks": [],
+  "catalysts": [
+    {
+      "claim": "39.3% three-year revenue CAGR and a swing to near-breakeven net income (from a USD 507M loss in FY2024 to USD 3.7M profit in FY2025) back DraftKings' three sourced roles across the prediction-market-plumbing chain, per its own FY2025 Form 10-K.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Operating margin is still slightly negative (-0.3%) despite the revenue scale, and quality scores (Piotroski, Beneish), leverage and the reverse-DCF solve are all NULL this run because companyfacts does not tag this filer's long-term debt.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run.",
-    "Queued REQ-20260902-141 (fundamentals) then REQ-20260902-142 (quality) for DKNG this run; prices already FULFILLED so not re-queued.",
-    "No link-specific revenue percentage is sourced for DraftKings Inc. this run.",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-141/142 (fundamentals, quality for DKNG) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched."
+    "Filled 2026-09-04 from data/market/DKNG.json (sec-companyfacts, official source, T1): 7 of 12 canonical fields carry a sourced number.",
+    "leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread NULL: companyfacts is missing long_term_debt_fy for this filer, which blocks total_debt, the leverage ratio, both quality scores and the enterprise-value leg of the reverse-DCF solve.",
+    "No link-specific (sportsbook, prediction-venue or distribution) revenue percentage is sourced for DraftKings this run."
   ],
   "disposition": {
-    "state": "BLOCKED",
-    "as_of": "2026-09-02",
-    "basis": "Real, evidence-backed placement(s) on the prediction-market-plumbing chain, sourced from the mapping's own ACTIVE placement evidence. BLOCKED purely on data availability: data/market/DKNG.json carries a price series and a real SEC CIK (1883685) but no fundamentals or quality block yet: sec-companyfacts has not been fetched for this filer this run. Queued REQ-20260902-141 (fundamentals) then REQ-20260902-142 (quality) for DKNG this run; prices already FULFILLED so not re-queued."
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/DKNG.json: sec-companyfacts, official source (T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 7 of 12 canonical fields carry a sourced number, the remaining 5 honest NULL on companyfacts' missing long_term_debt_fy for this filer. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
+    "VERIFIED": 1,
+    "INFERRED": 6,
     "SPECULATIVE": 0,
-    "NULL": 12,
+    "NULL": 5,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. All 12 are NULL this run: no fetched market data exists locally for this listing yet. Every NULL names the specific missing field and the real reason, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. NULL covers the 5 fields blocked by companyfacts' missing long_term_debt_fy for this filer (leverage, both quality scores, both reverse_dcf fields), never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -222,6 +265,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): REQ-20260902-141/142 (fundamentals, quality for DKNG) still PENDING, no fetch has landed since queued. Status stays BLOCKED, no metric field touched. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-141/142) has landed: data/market/DKNG.json now holds sec-companyfacts data (17/20 statement fields, official source; long_term_debt_fy missing). Filled 7 of 12 canonical metric fields (1 VERIFIED, 6 INFERRED official-source); 5 stay NULL on the missing long_term_debt_fy input, which blocks leverage, both quality scores and the reverse-DCF solve. Status COMPLETE, opportunity_tier O2. run profile DKNG (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ]
 }

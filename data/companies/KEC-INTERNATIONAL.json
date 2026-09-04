@@ -1,15 +1,15 @@
 {
   "issuer_id": "KEC-INTERNATIONAL",
   "issuer_name": "KEC International Limited",
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-04",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-02T15:10:00Z",
+  "updated_at": "2026-09-04T16:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T3",
-  "data_tier_basis": "Local-only listing (method section 6): NSE-listed, no market file fetched at all yet (no data/market/KEC*.json exists on disk). The 2026-08-31 cik_for() suffix-stripping defect this profile's stale basis cited as the reason not to request is fixed in the current tools/fetch/fetch.py: a suffixed ticker resolves to no CIK without an explicit request-row override, so a request for the correct NSE-suffixed ticker KEC.NS safely falls to the vendor leg (yfinance-statements) rather than risking another issuer's companyfacts. Queued REQ-20260902-155 (prices), REQ-20260902-156 (fundamentals), REQ-20260902-157 (quality) for KEC.NS this run.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target. Revisit once the data gap named in data_gaps below closes.",
+  "data_tier_basis": "Local-only listing (method section 6): T3, KEC.NS (National Stock Exchange of India), no SEC CIK. data/market/KEC-NS.json is on disk (fetched_at 2026-09-04) with a full 20/20-field yfinance-statements vendor fundamentals block and a SCORED quality block. The prior BLOCKED profile's basis (queued REQ-20260902-155/156/157, still PENDING as of the last re-examination) is stale: the fetch has since landed. Corrected this run.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NSE-KEC"
   ],
@@ -53,113 +53,172 @@
       "mapping_status": "COMPLETE"
     },
     "chain": "data/chains/ai-infrastructure.json",
-    "market": null
+    "market": "data/market/KEC-NS.json"
   },
-  "business_summary": "KEC International Limited is an Indian (NSE: KEC) engineering, procurement and construction company specializing in power transmission lines and high-voltage substations, part of the RPG Group.",
+  "business_summary": "KEC International Limited (NSE: KEC) is an Indian engineering, procurement and construction company specializing in power transmission lines and high-voltage substations, part of the RPG Group. It engineers and constructs the transmission and substation infrastructure this chain's grid-interconnect link tracks.",
   "exposure_summary": {
-    "narrative": "KEC International sits on grid-interconnect (UNDISCOVERED), with a real role evidenced by industry research on the transmission-line construction market. This profile is BLOCKED purely on data availability: no data/market/ file exists locally for this issuer at all, and this run deliberately did not request one.",
+    "narrative": "KEC International sits on grid-interconnect (UNDISCOVERED, not the money corner), a real, sourced transmission-line and substation construction role per industry research. FY2026 statements (INR, year ended 2026-03-31) show strong 3-year revenue growth (11.1% CAGR) and a 7.5% operating margin, but negative operating cash flow this year (-INR 4.1B against INR 6.1B net income) and a WEAK Piotroski read (3/9), against a CLEAN Beneish score.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
-      "basis": "No data-center or AI-infrastructure revenue percentage is sourced for KEC International this run; see data_gaps."
+      "basis": "No grid-interconnect-specific revenue percentage is sourced for KEC International this run; transmission and substation construction is one segment within a broader EPC revenue base."
     }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "latest fiscal-year revenue is not available for KEC International: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 233013200000.0,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Vendor-normalized fiscal-year revenue (INR) for the period ended 2026-03-31, yfinance-statements aggregation of KEC International Limited's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote).",
+        "official_source": false
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "three-year revenue CAGR cannot be computed for KEC International with no revenue series on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 0.11089,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Three-year compound annual revenue growth computed as (233013200000.0 / 169968000000.0) ** (1/3) - 1 from the yfinance-statements INR revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+        "official_source": false
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating margin cannot be computed for KEC International with no operating-income or revenue series on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 0.07512,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Operating income 17503900000.0 (INR) divided by revenue 233013200000.0 (INR), both for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating cash flow to net income cannot be computed for KEC International with no cash-flow or income series on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": -0.683846,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Operating cash flow -4141300000.0 divided by net income 6055900000.0, both INR for the period ended 2026-03-31, from the yfinance-statements series. Negative operating cash flow against positive net income reflects a working-capital swing in an EPC order book, not a loss year.",
+        "official_source": false
+      },
+      "fcf_margin": {
+        "value": -0.031878,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Free cash flow margin: operating cash flow -4141300000.0 less capex 3286800000.0, divided by revenue 233013200000.0, all INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be computed for KEC International with no debt, cash or EBITDA inputs on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 2.551246,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Net debt 49692400000.0 (total debt 53777600000.0 less cash 4085200000.0, both as of 2026-03-31) divided by an EBITDA proxy 19477700000.0 (operating income 17503900000.0 plus depreciation 1973800000.0 for the period ended 2026-03-31), from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "piotroski F-score cannot be computed for KEC International with no companyfacts-equivalent statement inputs on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 3,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Piotroski F-score 3 (state WEAK) computed over yfinance-statements statements in data/market/KEC-NS.json quality.piotroski, 9 of 9 inputs found.",
+        "official_source": false
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "beneish M-score cannot be computed for KEC International with no companyfacts-equivalent statement inputs on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": -2.058,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Beneish M-score -2.058 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/KEC-NS.json quality.beneish, 12 of 12 inputs found.",
+        "official_source": false
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization cannot be computed for KEC International without a sourced official share count: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 108117130000.0,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Market capitalization computed in data/market/KEC-NS.json quality.derived.market_cap from shares outstanding 266200000.0 (as of 2026-09-04, source yfinance-info impliedSharesOutstanding) times the current close, both INR.",
+        "official_source": false
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price-to-sales ratio cannot be computed for KEC International without both a sourced market capitalization and a sourced revenue figure, neither of which is available this run: latest fiscal-year revenue is not available for KEC International: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "value": 0.463996,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+        "basis": "Market capitalization 108117130000.0 (INR) divided by fiscal year 2026-03-31 revenue 233013200000.0 (INR).",
+        "official_source": false
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF implied FCF CAGR cannot be solved for KEC International with no free-cash-flow or enterprise-value inputs on file: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "basis": "reverse-DCF implied FCF CAGR: data/market/KEC-NS.json quality.reverse_dcf.state is NOT_APPLICABLE, reason 'base-year free cash flow is not positive; a growth rate on a negative base is meaningless' (base FCF -7428100000.0 INR); the solver correctly declines to run rather than producing a meaningless growth rate on a negative base."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "reverse-DCF horizon spread cannot be computed for KEC International with the base solve unavailable: no data/market/ file exists for this issuer at all; nothing was fetched"
+        "basis": "reverse-DCF horizon spread: not available for the same reason as implied_fcf_cagr, quality.reverse_dcf.state NOT_APPLICABLE on a negative base FCF."
       }
     }
   },
   "crowdedness_caveats": [
-    "KEC International sits on a chain link scored UNDISCOVERED or EMERGING (see placements above), but this profile cannot corroborate or refute that with issuer-level positioning data: no pcs block and no fundamentals-derived quality read exist locally for this issuer."
+    "KEC International sits on a chain link scored UNDISCOVERED (see placements above), but no pcs (positioning/attention) block exists locally for data/market/KEC-NS.json to corroborate or refute that at the issuer level."
   ],
-  "catalysts": [],
-  "risks": [],
+  "catalysts": [
+    {
+      "claim": "11.1% three-year revenue CAGR and a CLEAN Beneish score (-2.058) back the transmission-line and substation construction role on grid-interconnect, evidenced by industry research on the transmission-line construction market.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Negative operating cash flow this fiscal year (-INR 4.1B against INR 6.1B net income), a WEAK Piotroski read (3/9), and net debt to EBITDA of 2.6x; the reverse-DCF solve is NOT_APPLICABLE on a negative base FCF, so no market-implied growth reading exists this run.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/KEC.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "No data/market/ file exists at all for KEC International: neither price, fundamentals, nor quality data has ever been fetched for this ticker.",
-    "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): the cik_for() quarantine reason above is stale (defect fixed 2026-08-31, confirmed closed on HPS-A.TO/SU.PA/ENR.DE this batch). The bare mapping ticker KEC has no exchange suffix at all (not just an unrequested one); resolved market_ticker KEC.NS by NSE convention (matching BPCL.NS, LT.NS, NHPC.NS already in data/mappings/). Queued REQ-20260902-155 (prices), REQ-20260902-156 (fundamentals), REQ-20260902-157 (quality) for KEC.NS this run; still BLOCKED pending fetch fulfillment.",
-    "No official-source T3 fundamentals (from KEC International's own investor-relations filings) were derived this run; method section 6A allows this for T2/T3 profiles but it requires dedicated web research this bounded batch did not extend to for every issuer.",
-    "No data-center or AI-infrastructure revenue percentage is sourced for KEC International this run."
+    "Filled 2026-09-04 from data/market/KEC-NS.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): 10 of 12 canonical fields carry a sourced number; reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread stay NULL because quality.reverse_dcf.state is NOT_APPLICABLE on a negative base FCF.",
+    "No grid-interconnect-specific revenue percentage is sourced for KEC International this run."
   ],
   "disposition": {
-    "state": "BLOCKED",
-    "basis": "Real, evidence-backed placement on grid-interconnect, but every canonical metric field is NULL because no market data of any kind has ever been fetched for this issuer and this run deliberately did not queue a request given the confirmed cik_for() contamination risk for non-US tickers. BLOCKED rather than DRAFT because the placement and role are real and sourced; only the numeric layer is missing and contained. Revisit once the cik_for() suffix-stripping defect is fixed and a safe fetch can be queued, or once a T2/T3 official-source figure is manually derived from KEC International's own filings.",
-    "as_of": "2026-08-31"
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Filled this run from data/market/KEC-NS.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields carry a sourced number, the remaining 2 honest NULL on a real negative-FCF reverse-DCF NOT_APPLICABLE state. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
-    "verified": 0,
-    "inferred": 0,
-    "speculative": 0,
-    "null": 11,
-    "canonical_fields_written": 11,
-    "basis": "Every canonical metric field is NULL for KEC International this run; no numeric figure was fetched, computed, or sourced. See data_gaps for the specific cause of each gap."
+    "VERIFIED": 0,
+    "INFERRED": 10,
+    "SPECULATIVE": 0,
+    "NULL": 2,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the KEC-NS.json vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); never a filing quote. NULL is limited to the two reverse_dcf fields, blocked by a real NOT_APPLICABLE state on negative base FCF (method section 6A), never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -178,6 +237,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Corrected the stale cik_for()-defect basis for not requesting data; resolved market_ticker KEC.NS. Queued REQ-20260902-155 (prices), REQ-20260902-156 (fundamentals), REQ-20260902-157 (quality). Still BLOCKED, no metric field touched, pending fetch fulfillment. run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T16:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-155/156/157) has landed: data/market/KEC-NS.json now holds a full 20/20-field yfinance-statements vendor block and a SCORED quality block. Filled 10 of 12 canonical metric fields (all INFERRED vendor-backed); reverse_dcf stays NULL on quality.reverse_dcf.state NOT_APPLICABLE (negative base FCF). Status COMPLETE, opportunity_tier O2. run profile KEC.NS (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
     }
   ]
 }
