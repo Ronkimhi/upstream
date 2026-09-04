@@ -1,175 +1,219 @@
 {
- "issuer_id": "FRONTLINE",
- "issuer_name": "Frontline plc",
- "as_of": "2026-09-04",
- "created_at": "2026-09-04T22:05:00Z",
- "updated_at": "2026-09-04T22:05:00Z",
- "generated_by": "sieve-profiler",
- "status": "BLOCKED",
- "data_tier": "T1",
- "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:FRO carries a real SEC CIK (913290), but data/market/FRO.json fundamentals.coverage reads 0 of 20 annual fields found (fetched 2026-08-31, before the 2026-09-01 fetch.py fix that serves the yfinance-statements vendor leg when SEC companyfacts returns zero fields for a filer). Kept at T1 (a real CIK exists) pending the re-fetch.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
- "listing_refs": [
-  "NYSE-FRO"
- ],
- "listings": [
-  {
-   "listing_id": "NYSE-FRO",
-   "ticker": "FRO",
-   "exchange": "NYSE",
-   "market_ticker": "FRO",
-   "cik": 913290,
-   "mapping_ref": "data/mappings/hormuz-maritime.json"
-  }
- ],
- "placements": [
-  {
-   "chain_id": "hormuz-maritime",
-   "link_id": "crude-tanker-tonnage",
-   "link_name": "Crude tanker tonnage and ton-mile inflation",
-   "link_position": 9,
-   "role": "Owner and operator of VLCC and Suezmax crude oil tankers, the tonnage class whose effective capacity the Cape reroute absorbs.",
-   "placement_status": "ACTIVE",
-   "money_corner": false,
-   "link_heat": "OVER_CROWDED",
-   "mapping_ref": "data/mappings/hormuz-maritime.json",
-   "role_evidence": [
-    {
-     "claim": "Frontline's own annual report states it operates VLCC and Suezmax crude oil tankers.",
-     "source_name": "Frontline plc Annual Report and Financial Statements 2025",
-     "source_date": "2026-03-27",
-     "url": "https://ml-eu.globenewswire.com/Resource/Download/09634fab-1b1f-450b-969a-5e9078dff8ab",
-     "tag": "VERIFIED",
-     "source_excerpt": "The Company operates oil tankers of two sizes: very large crude carriers (“VLCCs”) which are between 200,000 and 320,000 dwt, and Suezmax tankers, which are vessels between 120,000 and 170,000 dwt."
-    }
-   ]
-  }
- ],
- "sources": {
-  "mapping": "data/mappings/hormuz-maritime.json",
-  "mapping_audit": {
-   "status": "FAIL",
-   "audited_at": "2026-09-04T03:53:11Z",
-   "mapping_status": "ACTIVE"
-  },
-  "chain": "data/chains/hormuz-maritime.json",
-  "market": "data/market/FRO.json"
- },
- "business_summary": "Frontline plc (NYSE: FRO) is a Cyprus-domiciled owner and operator of VLCC and Suezmax crude oil tankers, one of the largest listed pure-play crude tanker owners. Fundamentals cannot be sourced this run: SEC companyfacts returned zero annual fields for CIK 913290 (fetched 2026-08-31, before the vendor-fallback fix landed).",
- "exposure_summary": {
-  "narrative": "FRONTLINE has 1 placement on hormuz-maritime (crude-tanker-tonnage, OVER_CROWDED, not the money corner). Every canonical metric is NULL: data/market/FRO.json fundamentals.coverage shows 0 of 20 annual fields found."
- },
- "crowdedness_caveats": [
-  "Chain heat scores crude-tanker-tonnage crowdedness 84/100, verdict OVER_CROWDED, REPRICED with 1 leg met. Chain heat evidence names Frontline specifically: 'gCaptain, Frontline sees strongest quarter in two decades as Hormuz crisis reshapes tanker trade' (2026-05-22) and '24/7 Wall St.' cites a 62.58% year-to-date gain for FRO shares."
- ],
- "catalysts": [],
- "risks": [],
- "data_gaps": [
-  "Filled 2026-09-04 from data/market/FRO.json: 0 of 11 canonical fields carry a sourced number; all NULL with field-specific bases.",
-  "data/market/FRO.json fundamentals.coverage reads annual_fields_found 0 of 20, fetched 2026-08-31, source sec-companyfacts, verified_zero note 'no revenue concepts found'. This fetch predates fetch.py's 2026-09-01 fix (method section 6A 'Vendor-aggregate fundamentals'; pull-data skill 'fundamentals.sec_attempted') that serves the yfinance-statements vendor leg when the SEC leg finds zero fields for a filer under both us-gaap and ifrs-full. Re-queued this run (fundamentals, quality) to pick up the vendor fallback that did not exist at the time of the original fetch."
- ],
- "metrics": {
-  "revenue": {
-   "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Latest fiscal-year revenue: no revenue_fy series in fundamentals (0 of 20 companyfacts annual fields found)."
-   }
-  },
-  "growth": {
-   "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "3-year revenue CAGR: no annual revenue points available."
-   }
-  },
-  "margins": {
-   "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Operating margin: operating_income_fy series missing (0 of 20 companyfacts annual fields found)."
-   }
-  },
-  "cash_conversion": {
-   "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Operating cash flow to net income: operating_cashflow_fy and net_income_fy both missing."
-   },
-   "fcf_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Free cash flow margin: operating_cashflow_fy and capex_fy both missing."
-   }
-  },
-  "leverage": {
-   "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Net debt to EBITDA: cash, total_debt, operating_income_fy and depreciation_fy all missing."
-   }
-  },
-  "quality": {
-   "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/FRO.json, 0 of 9 inputs found."
-   },
-   "beneish_state": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Beneish M-score: quality.beneish.state is PENDING_DATA in data/market/FRO.json, 0 of 12 inputs found."
-   }
-  },
-  "valuation": {
-   "market_cap": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Market capitalization: quality.derived.market_cap is null in data/market/FRO.json (no companyfacts share count available)."
-   },
-   "price_to_sales": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Price to sales cannot be computed without a market capitalization or revenue figure."
-   }
-  },
-  "reverse_dcf": {
-   "implied_fcf_cagr": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "implied_fcf_cagr not solved: data/market/FRO.json quality.reverse_dcf.state is PENDING_DATA (missing fcf, enterprise_value)."
-   },
-   "horizon_spread": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
-   }
-  }
- },
- "disposition": {
-  "state": "BLOCKED",
+  "issuer_id": "FRONTLINE",
+  "issuer_name": "Frontline plc",
   "as_of": "2026-09-04",
-  "basis": "SEC companyfacts returned 0 of 20 annual fields for CIK 913290 on the 2026-08-31 fetch, predating the 2026-09-01 vendor-fallback fix. Re-queued fundamentals and quality this run (REQ-20260904-71, REQ-20260904-72) to pick up the yfinance-statements leg. Status BLOCKED, data tier T1 pending re-fetch, opportunity tier O3."
- },
- "confidence_audit": {
-  "VERIFIED": 0,
-  "INFERRED": 0,
-  "SPECULATIVE": 0,
-  "NULL": 11,
-  "canonical_fields_written": 11,
-  "basis": "All 11 canonical fields NULL this run: SEC companyfacts found 0 of 20 annual fields for this filer as of the last fetch (2026-08-31), before the vendor-fallback fix existed. Re-queued to pick up the fix."
- },
- "notes": [
-  "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
-  "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other."
- ],
- "changelog": [
-  {
-   "ts": "2026-09-04T22:05:00Z",
-   "by": "sieve-profiler",
-   "kind": "BUILD",
-   "change": "Created BLOCKED profile for FRONTLINE from data/mappings/hormuz-maritime.json (ACTIVE, current audit status FAIL) and data/market/FRO.json (sec-companyfacts, 0/20 annual fields found, fetched 2026-08-31 before the 2026-09-01 vendor-fallback fix). 0 of 11 canonical fields sourced; all NULL. Status BLOCKED, opportunity_tier O3. Re-queued fundamentals+quality (REQ-20260904-71, REQ-20260904-72). run profile --campaign CAMP-20260901-01, batch 4."
-  }
- ]
+  "created_at": "2026-09-04T22:05:00Z",
+  "updated_at": "2026-09-04T22:05:00Z",
+  "generated_by": "sieve-profiler",
+  "status": "COMPLETE",
+  "data_tier": "T1",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:FRO carries a real SEC CIK (913290), but data/market/FRO.json fundamentals.coverage reads 0 of 20 annual fields found (fetched 2026-08-31, before the 2026-09-01 fetch.py fix that serves the yfinance-statements vendor leg when SEC companyfacts returns zero fields for a filer). Kept at T1 (a real CIK exists) pending the re-fetch. UPDATED 2026-09-04: sec-companyfacts fundamentals and computed quality block now on disk in data/market/FRO.json (fetched this run); profile moves from BLOCKED to COMPLETE.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring per method section 6A; not examined for O1 promotion this run (run selection is a separate command not run this batch).",
+  "listing_refs": [
+    "NYSE-FRO"
+  ],
+  "listings": [
+    {
+      "listing_id": "NYSE-FRO",
+      "ticker": "FRO",
+      "exchange": "NYSE",
+      "market_ticker": "FRO",
+      "cik": 913290,
+      "mapping_ref": "data/mappings/hormuz-maritime.json"
+    }
+  ],
+  "placements": [
+    {
+      "chain_id": "hormuz-maritime",
+      "link_id": "crude-tanker-tonnage",
+      "link_name": "Crude tanker tonnage and ton-mile inflation",
+      "link_position": 9,
+      "role": "Owner and operator of VLCC and Suezmax crude oil tankers, the tonnage class whose effective capacity the Cape reroute absorbs.",
+      "placement_status": "ACTIVE",
+      "money_corner": false,
+      "link_heat": "OVER_CROWDED",
+      "mapping_ref": "data/mappings/hormuz-maritime.json",
+      "role_evidence": [
+        {
+          "claim": "Frontline's own annual report states it operates VLCC and Suezmax crude oil tankers.",
+          "source_name": "Frontline plc Annual Report and Financial Statements 2025",
+          "source_date": "2026-03-27",
+          "url": "https://ml-eu.globenewswire.com/Resource/Download/09634fab-1b1f-450b-969a-5e9078dff8ab",
+          "tag": "VERIFIED",
+          "source_excerpt": "The Company operates oil tankers of two sizes: very large crude carriers (\u201cVLCCs\u201d) which are between 200,000 and 320,000 dwt, and Suezmax tankers, which are vessels between 120,000 and 170,000 dwt."
+        }
+      ]
+    }
+  ],
+  "sources": {
+    "mapping": "data/mappings/hormuz-maritime.json",
+    "mapping_audit": {
+      "status": "FAIL",
+      "audited_at": "2026-09-04T03:53:11Z",
+      "mapping_status": "ACTIVE"
+    },
+    "chain": "data/chains/hormuz-maritime.json",
+    "market": "data/market/FRO.json"
+  },
+  "business_summary": "Frontline plc (NYSE: FRO) is a Cyprus-domiciled owner and operator of VLCC and Suezmax crude oil tankers, one of the largest listed pure-play crude tanker owners. Fundamentals cannot be sourced this run: SEC companyfacts returned zero annual fields for CIK 913290 (fetched 2026-08-31, before the vendor-fallback fix landed).",
+  "exposure_summary": {
+    "narrative": "FRONTLINE has 1 placement on hormuz-maritime (crude-tanker-tonnage, OVER_CROWDED, not the money corner). Every canonical metric is NULL: data/market/FRO.json fundamentals.coverage shows 0 of 20 annual fields found."
+  },
+  "crowdedness_caveats": [
+    "Chain heat scores crude-tanker-tonnage crowdedness 84/100, verdict OVER_CROWDED, REPRICED with 1 leg met. Chain heat evidence names Frontline specifically: 'gCaptain, Frontline sees strongest quarter in two decades as Hormuz crisis reshapes tanker trade' (2026-05-22) and '24/7 Wall St.' cites a 62.58% year-to-date gain for FRO shares."
+  ],
+  "catalysts": [
+    {
+      "claim": "gCaptain (2026-05-22) reports Frontline's \"strongest quarter in two decades\" on the Hormuz crisis, and 24/7 Wall St. cites a 62.58% year-to-date share gain, corroborating direct crude-tanker exposure to the reroute this chain trades even though companyfacts itself has not re-tagged revenue past FY2021.",
+      "source_name": "gCaptain, Frontline sees strongest quarter in two decades as Hormuz crisis reshapes tanker trade (chain heat evidence)",
+      "source_date": "2026-05-22",
+      "url": "data/chains/hormuz-maritime.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "SEC companyfacts for Frontline plc (CIK 913290) carries no revenue or operating-income figure after fiscal year 2021, five years stale against this run; the redomiciliation from Frontline Ltd. (Marshall Islands, 20-F filer) to Frontline plc (Cyprus) around 2026 appears to have interrupted this CIK's XBRL tagging. Every income-statement canonical field on this profile is a 2021 number, not current, even though the chain heat evidence (24/7 Wall St., gCaptain) describes a live 2026 rate spike this filer is directly exposed to.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "data_gaps": [
+    "Filled 2026-09-04 from data/market/FRO.json: 5 of 12 canonical fields carry a sourced number; 7 remain NULL, each with a field-specific basis naming the missing series or state.",
+    "revenue_latest_fy is the fiscal year ended 2021-12-31 (640,327,000): companyfacts for this CIK carries no revenue_fy point after 2021, five fiscal years stale against this run's 2026-09-04 as_of. revenue_cagr_3y is NULL because no 2018-12-31 point exists to anchor a 3-year-back comparison against 2021.",
+    "operating_margin and operating_cash_flow_to_net_income are both computed on the same stale 2021-12-31 fiscal year for internal consistency (matching the only revenue point on file), not on a current year.",
+    "valuation.market_cap and price_to_sales mix a current market close (44.19, 2026-08-28) against the 2021 share count (203,530,979) and 2021 revenue: this is a genuine data limitation of companyfacts for this filer post-redomiciliation (Frontline Ltd. to Frontline plc), not an invented number, but price_to_sales in particular should be read as indicative only given the 5-year-old revenue denominator.",
+    "fcf_margin, net_debt_to_ebitda, piotroski, beneish_state and reverse_dcf all remain NULL: capex_fy, cash and total_debt are all null or absent in companyfacts for this filer, and piotroski/beneish are missing cost_of_revenue_fy."
+  ],
+  "metrics": {
+    "revenue": {
+      "latest_fy": {
+        "value": 640327000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+        "source_date": "2026-09-04",
+        "basis": "Revenue for the fiscal year ended 2021-12-31 as reported to SEC XBRL companyfacts for CIK 913290 (Frontline plc, FRO)."
+      }
+    },
+    "growth": {
+      "revenue_cagr_3y": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Three-year revenue CAGR: no data point three fiscal years before the latest annual revenue figure is present in the series."
+      }
+    },
+    "margins": {
+      "operating_margin": {
+        "value": 0.019077752460852034,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+        "source_date": "2026-09-04",
+        "basis": "Operating income 12216000 divided by revenue 640327000, both for the fiscal year ended 2021-12-31, from companyfacts.",
+        "official_source": true
+      }
+    },
+    "cash_conversion": {
+      "operating_cash_flow_to_net_income": {
+        "value": -5.64513814137065,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+        "source_date": "2026-09-04",
+        "basis": "Operating cash flow 62932000 divided by net income -11148000, both for the fiscal year ended 2021-12-31, from companyfacts.",
+        "official_source": true
+      },
+      "fcf_margin": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Free cash flow margin: no fiscal year with operating cash flow, capex and revenue all present in the same period."
+      }
+    },
+    "leverage": {
+      "net_debt_to_ebitda": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+      }
+    },
+    "quality": {
+      "piotroski": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Piotroski F-score: data/market/FRO.json quality.piotroski.state is PENDING_DATA."
+      },
+      "beneish_state": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "Beneish M-score: data/market/FRO.json quality.beneish.state is PENDING_DATA."
+      }
+    },
+    "valuation": {
+      "market_cap": {
+        "value": 8994033962.01,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+        "source_date": "2026-09-04",
+        "basis": "Market capitalization 8994033962.01 computed in data/market/FRO.json quality.derived.market_cap from share count 203530979 (as of 2021-12-31) times the close 44.19 of 2026-08-28.",
+        "official_source": true
+      },
+      "price_to_sales": {
+        "value": 14.04600143678152,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+        "source_date": "2026-09-04",
+        "basis": "Market capitalization 8994033962.01 divided by fiscal year 2021-12-31 revenue 640327000.",
+        "official_source": true
+      }
+    },
+    "reverse_dcf": {
+      "implied_fcf_cagr": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "implied_fcf_cagr not solved: data/market/FRO.json quality.reverse_dcf.state is PENDING_DATA."
+      },
+      "horizon_spread": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
+      }
+    }
+  },
+  "disposition": {
+    "state": "RETAIN",
+    "as_of": "2026-09-04",
+    "basis": "Re-profiled 2026-09-04 from data/market/FRO.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 5 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+  },
+  "confidence_audit": {
+    "VERIFIED": 1,
+    "INFERRED": 4,
+    "SPECULATIVE": 0,
+    "NULL": 7,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 7 canonical field(s) remain NULL this run."
+  },
+  "notes": [
+    "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
+    "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other."
+  ],
+  "changelog": [
+    {
+      "ts": "2026-09-04T22:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "BUILD",
+      "change": "Created BLOCKED profile for FRONTLINE from data/mappings/hormuz-maritime.json (ACTIVE, current audit status FAIL) and data/market/FRO.json (sec-companyfacts, 0/20 annual fields found, fetched 2026-08-31 before the 2026-09-01 vendor-fallback fix). 0 of 11 canonical fields sourced; all NULL. Status BLOCKED, opportunity_tier O3. Re-queued fundamentals+quality (REQ-20260904-71, REQ-20260904-72). run profile --campaign CAMP-20260901-01, batch 4."
+    },
+    {
+      "ts": "2026-09-04T22:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile --campaign CAMP-20260901-01, batch 5: data/market/FRO.json fundamentals+quality now populated (batch-4 requests fulfilled). Recomputed all 11-12 canonical fields; 7 remain NULL with field-specific bases (see data_gaps). Status BLOCKED -> COMPLETE, opportunity_tier O3 -> O2."
+    }
+  ]
 }
