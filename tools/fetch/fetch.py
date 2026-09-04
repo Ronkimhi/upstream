@@ -396,7 +396,9 @@ FACT_MAP = {
                "instant", "USD"),
     "receivables": (["AccountsReceivableNetCurrent",
                      "ReceivablesNetCurrent"], "instant", "USD"),
-    "inventory": (["InventoryNet"], "instant", "USD"),
+    "inventory": (["InventoryNet",
+                   "InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings"],
+                  "instant", "USD"),
     "ppe_net": (["PropertyPlantAndEquipmentNet"], "instant", "USD"),
     "shares": (["CommonStockSharesOutstanding", "CommonStockSharesIssued",
                 "WeightedAverageNumberOfDilutedSharesOutstanding",
@@ -420,7 +422,8 @@ FACT_MAP = {
 IFRS_FACT_MAP = {
     "revenue": (["Revenue", "RevenueFromContractsWithCustomers"], "duration"),
     "net_income": (["ProfitLoss", "ProfitLossAttributableToOwnersOfParent"], "duration"),
-    "cash": (["CashAndCashEquivalents"], "instant"),
+    "cash": (["CashAndCashEquivalents", "Cash", "CashAndBankBalancesAtCentralBanks"],
+             "instant"),
     "total_debt": (["NoncurrentBorrowings", "Borrowings", "LongtermBorrowings"], "instant"),
     "gross_profit": (["GrossProfit"], "duration"),
     "cost_of_revenue": (["CostOfSales"], "duration"),
@@ -446,7 +449,11 @@ IFRS_FACT_MAP = {
                        "instant"),
 }
 ANNUAL_FORMS = ("10-K", "20-F", "40-F")
-INTERIM_FORMS = ("10-Q", "10-K")
+# The interim filter also admits the annual forms: it is what the "latest instant" reads
+# of cash and total_debt use, and a 20-F filer files no 10-Q or 10-K at all, so until
+# 2026-09-04 every foreign filer (DHT, FRO, SFL, TNK, NAT, TEN, ESLT) read cash and debt
+# as absent while its 20-F carried both. 6-K is the foreign interim form.
+INTERIM_FORMS = ("10-Q", "10-K", "6-K", "20-F", "40-F")
 
 
 def _ifrs_currency(ifrs: dict) -> str | None:
@@ -487,7 +494,17 @@ def _fundamentals_sec(ticker, cik):
     dei = facts.get("dei", {})
     # One taxonomy per filer, chosen by which one carries facts. A US filer's us-gaap wins;
     # a 20-F/40-F filer with only ifrs-full is read from that, in its own currency.
-    taxonomy = "us-gaap" if gaap else ("ifrs-full" if ifrs else "us-gaap")
+    # The taxonomy whose facts run LATEST wins. A filer that switched from US GAAP to
+    # IFRS keeps its old us-gaap facts in companyfacts forever (FRO's stop at 2021-12-31
+    # while its ifrs-full facts run to 2025), and "us-gaap if any" read the dead one.
+    def _latest_end(m):
+        return max((v.get("end") or "" for body in m.values()
+                    for units in (body.get("units") or {}).values() for v in units
+                    if v.get("form") in ANNUAL_FORMS), default="")
+    if gaap and ifrs:
+        taxonomy = "ifrs-full" if _latest_end(ifrs) > _latest_end(gaap) else "us-gaap"
+    else:
+        taxonomy = "us-gaap" if gaap else ("ifrs-full" if ifrs else "us-gaap")
     ifrs_ccy = _ifrs_currency(ifrs) if taxonomy == "ifrs-full" else None
 
     def pick(key, annual):
@@ -573,7 +590,12 @@ def _fundamentals_sec(ticker, cik):
                         for v in units if v.get("form") in ANNUAL_FORMS]
                 if ends:
                     hits.append((max(ends), name))
-            out[key] = [f"{n} ({e})" for e, n in sorted(hits, reverse=True)[:8]]
+            # Newest first, then names that START with the keyword, then alphabetical:
+            # a cap sorted by name descending hid CashAndCashEquivalents behind
+            # RestrictedCash... on the first run.
+            keys = words.get(key, ())
+            hits.sort(key=lambda en: (en[0], any(en[1].startswith(w) for w in keys), en[1] and -ord(en[1][0])), reverse=True)
+            out[key] = [f"{n} ({e})" for e, n in hits[:20]]
         return out
 
     f = {
