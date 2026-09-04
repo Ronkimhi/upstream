@@ -44,7 +44,7 @@ import sys
 import unicodedata
 from pathlib import Path
 
-from check_map import mapping_fingerprint
+from check_map import mapping_fingerprint, placement_audit_for
 from market_paths import safe_name  # one filename rule, tested against fetch.py
 
 failures: list[str] = []
@@ -239,7 +239,8 @@ def _current_audit(mapping: dict) -> bool:
     )
 
 
-def _placement_admissible(placement: dict | None) -> bool:
+def _placement_admissible(placement: dict | None, mapping: dict | None = None,
+                          chain_id=None, link_id=None, issuer_id=None) -> bool:
     """A single placement a screen row may consume from an ACTIVE, un-audited mapping.
 
     Ron's decision, 2026-09-01. Until then a screen needed the whole census audited in
@@ -253,7 +254,21 @@ def _placement_admissible(placement: dict | None) -> bool:
     if not _is_qualified_placement(placement):
         return False
     evidence = placement.get("evidence") or []
-    return all(isinstance(item, dict) and item.get("tag") == "VERIFIED" for item in evidence)
+    if all(isinstance(item, dict) and item.get("tag") == "VERIFIED" for item in evidence):
+        return True
+    # A current PASS fresh-context placement audit (CLAUDE.md, `--placement`, Ron
+    # 2026-09-01) is the stronger of the two bases: a reviewer in fresh context opened
+    # every evidence item and the issuer's own primary source and confirmed the role.
+    # Until 2026-09-04 only the tag rule counted here, and on that day three screens
+    # (minor-nsr-permits, offshore-counter-drone, data-center-moratoria) seated nothing
+    # over placements that had just PASSED such an audit, because a secondary source
+    # cited alongside a primary one is INFERRED by definition and the author cannot
+    # re-tag the sampled item without invalidating the audit's digest. The placement
+    # audit was created to be the fresh-context admission at placement level; a screen
+    # consumes one placement, so it honours the same entry the dive does.
+    if mapping is not None and chain_id and link_id and issuer_id:
+        return placement_audit_for(mapping, chain_id, link_id, issuer_id) is not None
+    return False
 
 
 def _scenario_moved_links(chain: dict, scenario_id) -> set | None:
@@ -402,10 +417,13 @@ def check_campaign_identity(data: Path, screens: list) -> None:
                          "declare audit_scope: \"PLACEMENT\" and rest on a placement whose "
                          "evidence is all VERIFIED (Ron, 2026-09-01), otherwise screen rows "
                          "cannot use a stale or failed census")
-                elif not _placement_admissible(placement):
+                elif not _placement_admissible(placement, mapping, chain_id, link_id,
+                                               issuer_id):
                     fail(f"{where}: audit_scope PLACEMENT on an un-audited mapping requires "
-                         "every evidence item on the placement to be VERIFIED; INFERRED "
-                         "issuer-role evidence needs the census audit")
+                         "every evidence item on the placement to be VERIFIED or a current "
+                         "PASS placement_audits[] entry for this issuer, link and chain; "
+                         "INFERRED issuer-role evidence with no placement audit needs the "
+                         "census audit")
                 else:
                     placement_scoped += 1
             if moved_links is not None and link_id not in moved_links:
