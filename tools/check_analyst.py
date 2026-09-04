@@ -24,6 +24,11 @@ Checks, each reported with the denominator it examined:
   9. confidence_audit matches the tags actually present in the file
  10. today's ledger line names the verdict, the clock and the earnings grade
  11. schema drift guard: fetch.QUALITY_FIELDS and acis.quality's series_fields agree
+ 12. every WATCH names its would-buy zone {low, high, basis} below the price it reasoned
+     from, or null with would_buy_basis naming the cap that makes price irrelevant
+     (Ron, 2026-09-03: five WATCH verdicts and no price at which any would have been a
+     yes left the INVESTABLE bar untestable). Warning on dives whose last changelog entry
+     predates the gate, failure after; the would-buy denominator prints on every run.
 
 Scope: admission check 0 and schema-drift check 11 always run. Checks 1-10 only bind on a
 day that actually wrote a dive. On a day with no dive the gate reports NOT RUN TODAY
@@ -82,12 +87,94 @@ STOCKY_LEGACY_BASELINE = {
         "98b1f6f3fba93fa7bbbde38ae5db761409471bfa758df3b37d51ae80d4e4d9cf",
 }
 
+# A WATCH must carry a would-buy zone from this date (Ron, 2026-09-03). Dives whose latest
+# changelog entry predates it warn instead of failing, so the tree validates between the
+# gate landing and the red-team re-runs that fill the field; nothing is grandfathered by
+# path, so a re-run that leaves the field empty fails.
+WOULD_BUY_GATE = "2026-09-03"
+WOULD_BUY_CAPS = ("grade C", "grade NULL", "independence test", "pre-mortem")
+
 failures: list[str] = []
 lines: list[str] = []
 
 
 def fail(msg: str) -> None:
     failures.append(msg)
+
+
+def latest_changelog_date(d: dict) -> str:
+    """The date of the newest changelog entry, falling back to updated_at, then ''."""
+    dates = [str(e.get("ts") or e.get("date") or "")[:10]
+             for e in (d.get("changelog") or []) if isinstance(e, dict)]
+    dates = [x for x in dates if x]
+    return max(dates) if dates else str(d.get("updated_at") or "")[:10]
+
+
+def would_buy_failures(d: dict, last_close=None) -> list[str]:
+    """Check 12, lifted to module level so a test can watch it refuse.
+
+    On a WATCH: `would_buy_zone{low, high, basis}` with high below `price_ref.value` and
+    both bounds inside 0.3x-2.0x of the last close when one is given, OR `would_buy_zone:
+    null` with a non-empty `would_buy_basis` naming the cap. Returns findings; the caller
+    decides whether they fail or warn by `latest_changelog_date` against WOULD_BUY_GATE."""
+    if d.get("verdict") != "WATCH":
+        return []
+    if "would_buy_zone" not in d:
+        return ["WATCH without would_buy_zone: a WATCH says at what price this file's own "
+                "gap table would have supported INVESTABLE, or null with would_buy_basis "
+                "naming the cap that makes price irrelevant (method section 7)"]
+    zone = d.get("would_buy_zone")
+    out: list[str] = []
+    if zone is None:
+        basis = str(d.get("would_buy_basis") or "").strip()
+        if not basis:
+            out.append("would_buy_zone is null but would_buy_basis is empty: a null zone "
+                       "must name the cap (grade C, grade NULL, independence test, "
+                       "pre-mortem) that binds at any price")
+        elif not any(c.lower() in basis.lower() for c in WOULD_BUY_CAPS):
+            out.append(f"would_buy_basis {basis[:80]!r} names none of the caps method "
+                       f"section 7 recognises {WOULD_BUY_CAPS}; a zone that is merely "
+                       "hard to draw is drawn, not nulled")
+        return out
+    if not isinstance(zone, dict) or not {"low", "high", "basis"} <= set(zone):
+        return ["would_buy_zone must be {low, high, basis} or null"]
+    lo, hi = zone.get("low"), zone.get("high")
+    if not (isinstance(lo, (int, float)) and isinstance(hi, (int, float))):
+        out.append("would_buy_zone low and high must be numbers")
+    elif lo >= hi:
+        out.append(f"would_buy_zone low {lo} is not below high {hi}")
+    if not str(zone.get("basis") or "").strip():
+        out.append("would_buy_zone.basis is empty: name the gap-table row that closes at "
+                   "that price, in one line")
+    spot = (d.get("price_ref") or {}).get("value") if isinstance(d.get("price_ref"), dict) \
+        else None
+    if isinstance(hi, (int, float)) and isinstance(spot, (int, float)) and hi >= spot:
+        out.append(f"would_buy_zone.high {hi} is at or above the price the dive reasoned "
+                   f"from ({spot}): a zone at spot contradicts WATCH, the verdict would be "
+                   "INVESTABLE")
+    if isinstance(last_close, (int, float)) and last_close:
+        for key, v in (("low", lo), ("high", hi)):
+            if isinstance(v, (int, float)) and not (0.3 * last_close <= v <= 2.0 * last_close):
+                out.append(f"would_buy_zone.{key} {v} is outside 0.3x-2x the last close "
+                           f"({last_close}) — check the number, not the thesis")
+    return out
+
+
+def would_buy_reached(zone: dict, rows: list) -> bool:
+    """True when any close dated on or after the zone's as_of sits inside [low, high]."""
+    if not isinstance(zone, dict):
+        return False
+    lo, hi = zone.get("low"), zone.get("high")
+    since = str(zone.get("as_of") or "")[:10]
+    if not (isinstance(lo, (int, float)) and isinstance(hi, (int, float))):
+        return False
+    for r in rows or []:
+        try:
+            if str(r[0])[:10] >= since and lo <= float(r[1]) <= hi:
+                return True
+        except (TypeError, ValueError, IndexError):
+            continue
+    return False
 
 
 def report(msg: str) -> None:
@@ -506,6 +593,30 @@ def main() -> int:
         f"admission: {admission_checked} campaign-era dive(s) checked; "
         f"{legacy} pre-{STOCKY_ADMISSION_GATE} legacy warning(s)")
 
+    # 12. the would-buy denominator, every run, over the whole corpus: a WATCH with no
+    # price at which it would have been a yes is the state that left the INVESTABLE bar
+    # untestable for five dives. Pre-gate dives warn here; today's dives fail below.
+    wb_watch = wb_zones = wb_capped = wb_reached = wb_pending = 0
+    for p, d in dives:
+        if d.get("verdict") != "WATCH":
+            continue
+        wb_watch += 1
+        zone = d.get("would_buy_zone")
+        if isinstance(zone, dict):
+            wb_zones += 1
+            mk = read_json(market_paths.market_path(data, d.get("ticker"))) or {}
+            if would_buy_reached(zone, ((mk.get("series") or {}).get("rows") or [])):
+                wb_reached += 1
+        elif "would_buy_zone" in d and zone is None:
+            wb_capped += 1
+        else:
+            wb_pending += 1
+        if latest_changelog_date(d) < WOULD_BUY_GATE and (p, d) not in touched:
+            for finding in would_buy_failures(d):
+                report(f"WARN {p.name}: {finding} (pre-{WOULD_BUY_GATE}; fails on re-run)")
+    report(f"would-buy: {wb_watch} WATCH dive(s) / {wb_zones} zone(s) / {wb_capped} capped / "
+           f"{wb_reached} reached / {wb_pending} pre-gate with no zone")
+
     if not touched:
         report(f"NOT RUN TODAY ({today}): 0 of {len(dives)} dive(s) updated. "
                "No run-specific checks applied; schema and admission checks still did.")
@@ -547,6 +658,7 @@ def main() -> int:
         # validate.py would all have passed.
         series = (mkt or {}).get("series") if isinstance(mkt, dict) else None
         rows = (series or {}).get("rows") or []
+        wb_last = None
         pr = d.get("price_ref")
         if not isinstance(pr, dict) or pr.get("value") is None:
             fail(f"{n}: no price_ref{{value, source, as_of}} — the dive must say which price "
@@ -584,6 +696,13 @@ def main() -> int:
                 if isinstance(v, (int, float)) and last and not (0.3 * last <= v <= 2.0 * last):
                     fail(f"{n}: entry_zone.{key} {v} is outside 0.3x-2x the last close "
                          f"({last}) — check the number, not the thesis")
+            # 12. the would-buy zone on a WATCH, same sanity band, plus below-spot.
+            wb_last = last
+        for finding in would_buy_failures(d, wb_last):
+            if latest_changelog_date(d) < WOULD_BUY_GATE:
+                report(f"WARN {n}: {finding} (pre-{WOULD_BUY_GATE})")
+            else:
+                fail(f"{n}: {finding}")
         pstatus = (mkt or {}).get("price_status") if isinstance(mkt, dict) else None
         check_price_source_note(n, ticker, pstatus, d)
 

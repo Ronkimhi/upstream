@@ -1339,6 +1339,16 @@
     } else if (st.verdict === "WATCH") {
       zone = '<div class="zone"><span class="zl">Waiting on</span><span class="zv" style="font-size:14px">' +
         (st.watch_triggers || []).map(function (t) { return esc(t.metric) + " " + esc(t.direction || "") + " " + esc(t.level); }).join(" · ") + "</span></div>";
+      // Ron, 2026-09-03: a WATCH says at what price it would have been a yes, or names the
+      // cap that binds at any price. A dive written before that date carries neither, and
+      // the page says so rather than drawing nothing.
+      if (st.would_buy_zone != null) {
+        zone += '<div class="zone"><span class="zl">Would buy</span><span class="zv">' + fmtMoney(st.would_buy_zone.low) + "–" + fmtMoney(st.would_buy_zone.high) + "</span></div>";
+      } else if (str_or_empty(st.would_buy_basis)) {
+        zone += '<div class="zone"><span class="zl">No price fixes it</span><span class="zv" style="font-size:14px">' + esc(st.would_buy_basis) + "</span></div>";
+      } else {
+        zone += '<div class="zone"><span class="zl">Would buy</span><span class="zv muted" style="font-size:14px">not yet drawn (dive predates the 2026-09-03 rule)</span></div>';
+      }
     } else {
       zone = '<div class="zone"><span class="zl">Shadow book</span><span class="zv" style="font-size:14px"><a href="#/shadow">graded at +90d vs SPY →</a></span></div>';
     }
@@ -1502,7 +1512,8 @@
       "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
       "<dt>Market cap</dt><dd class='num'>" + esc(((st.valuation_snapshot.market_cap || {}).value) || "—") + "</dd>" +
       (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + "]</span></dd>"; }).join("") +
-      (st.entry_zone ? "<dt>Entry basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") + "</div></div>";
+      (st.entry_zone ? "<dt>Entry basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") +
+      (st.would_buy_zone != null ? "<dt>Would-buy basis</dt><dd class='small'>" + esc(st.would_buy_zone.basis) + (str_or_empty(st.would_buy_zone.as_of) ? " <span class='muted'>[drawn " + esc(st.would_buy_zone.as_of) + "]</span>" : "") + "</dd>" : "") + "</div></div>";
     var priced = "<div class='card'><h3>What is already priced in</h3>" +
       (st.what_is_priced_in || []).map(function (p) { return "<div class='evli'>" + chip(p.tag) + " " + esc(p.expectation) + "</div>"; }).join("") +
       "<div class='small' style='margin-top:10px'>" + esc(st.priced_in_summary || "") + "</div></div>";
@@ -1648,6 +1659,8 @@
     var vals = pts.map(function (r) { return r[1]; });
     var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
     if (st.entry_zone) { lo = Math.min(lo, st.entry_zone.low); hi = Math.max(hi, st.no_entry_above || hi); }
+    var wbz = st.verdict === "WATCH" && st.would_buy_zone != null ? st.would_buy_zone : null;
+    if (wbz) { lo = Math.min(lo, wbz.low); }
     var pad = (hi - lo) * 0.07; lo -= pad; hi += pad;
     function X(i) { return P.l + (i / (pts.length - 1)) * iw; }
     function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
@@ -1659,6 +1672,14 @@
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.entry_zone.high) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(st.entry_zone.high) + "</text>" +
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.entry_zone.low) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(st.entry_zone.low) + "</text>" +
         '<text x="' + (P.l + 8) + '" y="' + (Y(st.entry_zone.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">ENTRY ZONE</text>';
+    }
+    if (wbz) {
+      s += '<rect x="' + P.l + '" y="' + Y(wbz.high) + '" width="' + iw + '" height="' + (Y(wbz.low) - Y(wbz.high)) + '" fill="var(--band-good)"/>' +
+        '<line x1="' + P.l + '" y1="' + Y(wbz.high) + '" x2="' + (W - P.r) + '" y2="' + Y(wbz.high) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
+        '<line x1="' + P.l + '" y1="' + Y(wbz.low) + '" x2="' + (W - P.r) + '" y2="' + Y(wbz.low) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
+        '<text x="' + (W - P.r + 6) + '" y="' + (Y(wbz.high) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(wbz.high) + "</text>" +
+        '<text x="' + (W - P.r + 6) + '" y="' + (Y(wbz.low) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(wbz.low) + "</text>" +
+        '<text x="' + (P.l + 8) + '" y="' + (Y(wbz.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">WOULD BUY</text>';
     }
     if (st.no_entry_above) {
       s += '<line x1="' + P.l + '" y1="' + Y(st.no_entry_above) + '" x2="' + (W - P.r) + '" y2="' + Y(st.no_entry_above) + '" stroke="var(--ovr)" stroke-width="0.9" stroke-dasharray="2 5"/>' +

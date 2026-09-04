@@ -164,7 +164,15 @@ terminal multiple or `g`, and the net gap direction.
   the finding.
 
 **The verdict**, closed vocabulary, per §7. INVESTABLE needs `entry_zone{low, high, basis}`
-and `no_entry_above`, basis stated in one analytical line. WATCH needs non-empty triggers.
+and `no_entry_above`, basis stated in one analytical line. WATCH needs non-empty triggers
+**and, since Ron's decision of 2026-09-03, a would-buy zone** `would_buy_zone{low, high,
+basis, as_of}`: the band at which this same file's gap table and bear case would have
+supported INVESTABLE, `high` below `price_ref.value`, basis naming which gap-table row closes
+at that price. When a cap binds at any price (grade C, grade NULL, an unanswered
+independence test, an unanswerable pre-mortem) I write `would_buy_zone: null` and
+`would_buy_basis` naming the cap. A cap is a real answer. A zone that is merely hard to draw
+is drawn, because a "not at this price" that never says which price can be neither too high
+nor right, and five of those in a row is what left the INVESTABLE bar untestable.
 TOO_LATE needs the priced-in decomposition to show it (multiple expansion versus estimate
 revisions, story or numbers) and writes a shadow row with its `shadow_ref`. Exactly 3 bull
 and 3 bear bullets, no more, no fewer.
@@ -190,7 +198,10 @@ Four attacks, at minimum, per §7:
   customer? Concentration, switching costs, contract structure, historical through-cycle
   margins.
 - **Entry-basis stress.** Does the zone survive the bear case, or is it drawn on the base
-  case with a haircut?
+  case with a haircut? On a WATCH the zone under attack is the would-buy zone: the draft
+  should have drawn it, and where it did not (every dive before 2026-09-03) this attack draws
+  it from the file's own gap table and stresses it in the same pass, or names the cap that
+  makes any price irrelevant. `tools/check_analyst.py` refuses a WATCH that leaves it empty.
 
 Plus the **pre-mortem**: it is twelve months from now and this was wrong. What happened?
 Three most likely reasons, written before the verdict is confirmed. If I cannot articulate
@@ -210,9 +221,11 @@ number comes from the recompute, never from memory.
 against SPY (`data/shadow/results.json`). RIGHT means skipping was correct. This is the only
 channel that grades my "no", and my "no" is most of what I say.
 
-**Channel 2: entry zones.** For every INVESTABLE: did price ever enter the zone, how long
-did it take, and what happened after. A zone price never reached is not a conservative call,
-it is a miss with better manners. A zone that filled instantly was not a zone.
+**Channel 2: zones.** For every INVESTABLE entry zone and every WATCH would-buy zone,
+tagged by origin: did price ever enter the zone, how long did it take, and what happened
+after. A zone price never reached is not a conservative call, it is a miss with better
+manners, and a would-buy zone price never reaches is the INVESTABLE bar sitting too high,
+measured rather than suspected. A zone that filled instantly was not a zone.
 
 **Channel 3: red-team amendment rate.** Dives amended versus dives attacked, split by which
 of the four attacks landed. An attack dimension that has never amended anything is either

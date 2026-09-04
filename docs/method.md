@@ -465,7 +465,7 @@ referenced map, profile, screen, or Stocky result changes; no session hand-count
 
 Closed vocabulary: `INVESTABLE | WATCH | TOO_LATE`, clock-labeled.
 - INVESTABLE requires an entry zone `{low, high, basis}` and a no-entry-above level. Basis is analytical (valuation band vs own history, scenario asymmetry), stated in one line.
-- WATCH requires non-empty triggers `{metric, level, direction}`.
+- WATCH requires non-empty triggers `{metric, level, direction}`, **and (Ron, 2026-09-03) a would-buy zone `{low, high, basis, as_of}`**: the band at which this same file's gap table and bear case would have supported INVESTABLE, `high` below the price the dive reasoned from, basis naming in one line which gap-table row closes at that price. Or `would_buy_zone: null` with `would_buy_basis` naming the cap that binds at any price (grade C, grade NULL, the independence test, the pre-mortem). Why: five WATCH verdicts in a row and no price at which any would have been a yes left the INVESTABLE bar untestable, since a "not at this price" that never says which price can be neither too high nor right. A cap is a real answer; a zone that is merely hard to draw is drawn.
 - TOO_LATE requires the "what is priced in" decomposition to show it (multiple expansion vs estimate revisions — story or numbers), and auto-creates a shadow row.
 - Exactly 3 bull bullets, 3 bear bullets. `review_by` per clock (§2).
 - **`link_id` (amended 2026-08-29):** every dive names the chain link it sits on, or null with a stated basis. A verdict is the deepest thing a link ever produces, so a link that reached INVESTABLE is the strongest evidence a map was worth building, and it was previously untrackable because the dive schema had no link concept at all.
@@ -492,6 +492,7 @@ The grade is written on the page whatever it is; an A is evidence too. A grade t
 ## 8. Calibration surfaces
 
 - **Shadow book**: every TOO_LATE verdict and every DISMISSED signal writes a row (spot + date); Actions reprices at +90d vs SPY; `RIGHT` means skipping was correct (underperformed SPY). The machine's "no" gets graded.
+- **Zones (amended 2026-09-03)**: Stocky's channel 2 counts every zone drawn, entry zones on INVESTABLE and would-buy zones on WATCH, tagged by origin: did price ever reach it, and what happened after. A would-buy zone price never reaches is the INVESTABLE bar sitting too high, measured; one it reaches and the name then underperforms is the bar being right. `tools/check_analyst.py` prints the denominator every run.
 - **Trade log**: Ron's real entries (`log trade`), reviewed against the machine's calls weekly. No account numbers, ever.
 - **Taste ledger** (`data/taste.md`): revealed preferences appended with evidence; consumed by radar/screens with visible filtering; rules are editable and carry their justification.
 - **Map yield**: mapping mode is selected per chain. Chains with normalized mapping files

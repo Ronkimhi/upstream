@@ -14,6 +14,7 @@ import re
 import sys
 from pathlib import Path
 
+from check_analyst import WOULD_BUY_GATE, latest_changelog_date, would_buy_failures
 from check_campaign import validate_campaign
 from check_map import corpus_identity_failures, validate_mapping
 from check_profile import validate_profile
@@ -658,6 +659,16 @@ def v_stock(f: Path) -> None:
     check_enum(f, d["verdict"], VERDICTS, "verdict")
     if d["verdict"] == "WATCH" and not d.get("watch_triggers"):
         err(f, "verdict WATCH requires non-empty watch_triggers")
+    if d["verdict"] == "WATCH":
+        # Ron, 2026-09-03: a WATCH names the price at which this file's own thesis would
+        # have been INVESTABLE (`would_buy_zone{low, high, basis}` below price_ref), or
+        # null with `would_buy_basis` naming the cap that binds at any price. The shape
+        # rule lives in tools/check_analyst.would_buy_failures; this is the same rule at
+        # validate time. Dives last changed before the gate warn, so the tree validates
+        # until the red-team re-runs fill the field; after that date it is an error.
+        pre_gate = latest_changelog_date(d) < WOULD_BUY_GATE
+        for msg in would_buy_failures(d):
+            (warn if pre_gate else err)(f, msg)
     if d["verdict"] == "INVESTABLE":
         ez = d.get("entry_zone")
         if not (isinstance(ez, dict) and {"low", "high", "basis"} <= set(ez)):
