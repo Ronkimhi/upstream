@@ -81,6 +81,33 @@ occurrences between runs.
 - Unusual Whales, Finnhub, Shodan, VirusTotal, NASA FIRMS: keyed. DEFERRED, not rejected; revisit if a family proves thin.
 - Cyber/malware/C2 trackers, wastewater, NUFORC: off-thesis.
 
+## Operator-supplied documents (`data/library/`) — added 2026-09-04
+
+A third plane, distinct from ACTIONS feeds and SESSION beats: documents Ron hands a local
+session directly (a PDF, a broker note, a slide deck). They are not fetched by the fetch
+workflow, so they are **not** `data/web/` records and must never be written there — a
+`data/web/` file is a fetch receipt, and forging one would break the only thing that makes
+`source_excerpt` checkable.
+
+Each lands as `data/library/LIB-YYYYMMDD-NN.json` carrying: the extracted text, the SHA-256
+of the original file bytes, publisher, author, publication date, subject tickers, and an
+explicit `provenance` string naming who supplied it and when.
+
+**They carry `evidence_status` and it is `NOT_EVIDENCE` by default.** Method §1 is unchanged
+by a document arriving through a person: a figure in a sell-side or vendor note is that
+vendor's assertion, not a filing, and it may not be cited by any stage. To use a number from
+one, re-verify it against `data/edgar/` or `data/market/` and cite THAT. The library exists
+so a lead can be logged, dated and argued with, not so it can be quoted.
+
+| Id | Publisher | Subject | Published | Status | Note |
+|---|---|---|---|---|---|
+| `LIB-20260904-01` | Seeking Alpha (Alpha Picks), Steven Cress | PBF Energy (PBF) | 2026-09-01 | NOT_EVIDENCE | Quant-rated buy note. Promotional: the publisher sells the portfolio product the article advertises, and the piece carries no primary citation for any figure it states. Useful only as a crowding datapoint — it tells us the retail-quant channel is now pushing PBF |
+
+**Publisher standing: Seeking Alpha / Alpha Picks is a CROWDING SENSOR, never a source.**
+Its output is a paid subscription product whose distribution is the point. An Upstream name
+appearing in it is evidence about *positioning* (how mapped the trade already is), which is
+exactly what `run heat` scores, and evidence about nothing else.
+
 ## Change protocol
 
 Adding/removing an ACTIONS source = edit `tools/fetch/feeds.py` SOURCES list AND this file in the same commit. Fetch the URL and read it first: a source that 403s, 404s or carries no dates is refused and the reason is recorded above, so nobody spends the same hour twice. Dead feeds degrade silently in the pipeline (logged in the run entry) and get pruned here on the next `check health` that reports them.
