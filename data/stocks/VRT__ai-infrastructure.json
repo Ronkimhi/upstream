@@ -9,7 +9,7 @@
   "clock": "COMPOUNDER",
   "status": "FINAL",
   "created_at": "2026-08-29",
-  "updated_at": "2026-08-29",
+  "updated_at": "2026-09-04",
   "as_of": "2026-08-29",
   "review_by": "2026-11-27",
   "verdict": "WATCH",
@@ -488,11 +488,26 @@
       "kind": "AMEND",
       "change": "price_source_note amended: data/market/VRT.json moved from SINGLE_SOURCE to AGREED in the 2026-08-30T00:15Z fetch, which landed while the renderer fix for this very field was being written. Two same-session prints now confirm the 2026-08-28 close to the cent (yfinance 257.0799865722656, stockanalysis 257.08); stooq was not attempted because stockanalysis answered first. The note said one unconfirmed print and stooq has never answered, both true when written hours earlier and neither true now — and the field had just started RENDERING, so a stale warning would have read as a live disclosure of something false. No price, level, verdict or trigger changes: the second source agreed with the number this dive already used. tools/check_analyst.py now fails any dive whose price_source_note does not name its market file's current price_status, so this cannot go stale silently again.",
       "prior": "data/market/VRT.json carries price_status SINGLE_SOURCE: the 257.08 close of 2026-08-28 rests on ONE unconfirmed print from yfinance. The second leg (stooq) answered the Actions ve [...]"
+    },
+    {
+      "ts": "2026-09-04T00:00:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5",
+      "change": "Re-run to fill the would-buy zone Ron's 2026-09-03 method amendment requires on every WATCH. would_buy_zone set to {141.66, 153.19}, both already-computed 5-year-convention fair-value points for this dive's own defended 17.1% and a 19% stretch FCF CAGR. A wider candidate zone spanning 141.66 to 234.52 (the 10-year convention's fair-value point for the same 17.1%) was drawn first and attacked under entry-basis stress: 234.52 is only 8.8% below spot and requires none of the three unimproved bear facts to move, so it would answer the independence test's own unresolved duration question in the market's favor by construction. Narrowed to the tougher, convention-robust 5-year points instead. Verdict WATCH, clock COMPOUNDER, status FINAL, attacked_at, review_by and price_ref unchanged; no verdict change concluded by this attack.",
+      "prior": "would_buy_zone absent from the file"
+    },
+    {
+      "ts": "2026-09-04T01:40:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5",
+      "change": "Campaign identity backfilled so the file can be amended at all: issuer_id VERTIV-HOLDINGS, listing_id NYSE-VRT, screen_ref data/screens/ai-infrastructure.json, link_id liquid-cooling already present. Each value is read from the COMPLETE O1 profile data/companies/VERTIV-HOLDINGS.json selection_basis.screen_handoff, the COMPLETE PASS-audited mapping data/mappings/ai-infrastructure.json (listing NYSE-VRT, placement liquid-cooling ACTIVE) and the DIVED row in data/screens/ai-infrastructure.json; nothing is invented. Until this run the file was admitted only by an exact-bytes legacy baseline in tools/check_analyst.py, which the would-buy amendment necessarily broke."
     }
   ],
   "confidence_audit": {
     "verified": 14,
-    "inferred": 27,
+    "inferred": 28,
     "speculative": 9,
     "null": 0
   },
@@ -533,6 +548,12 @@
         "attack": "It is 2027-08-29. The call was wrong, Vertiv compounded and skipping it cost real money. What happened? If I cannot say why the market would have been right to pay 32.95%, the verdict downgrades.",
         "outcome": "LANDED, and it is the second independent reason for the downgrade. I can articulate all three reasons and the first is not a story about the company outperforming: it is the statement that my own convention chose my answer. See pre_mortem below.",
         "evidence": "reasoned from the same data plane; no new sources"
+      },
+      {
+        "dimension": "ENTRY_BASIS_STRESS: would-buy zone",
+        "attack": "Ron's 2026-09-03 rule requires every WATCH to carry a would_buy_zone naming the price at which this file's own gap table and bear case would have supported INVESTABLE. The obvious construction spans both horizon conventions' fair-value points for the dive's own defended 17.1% estimate: 141.66 (5-year) to 234.52 (10-year), both already sitting in valuation_snapshot. Does that zone survive the bear case, or is the top of it just the base case with a haircut?",
+        "outcome": "LANDED, zone narrowed. 234.52 is only 8.8% below spot and requires none of the three unimproved bear facts to move: the deferred-revenue-funded free cash flow, the SG&A-driven margin expansion, and the FY2026 guide's required 45.4% H2 growth are all untouched at that price. Using it as the zone's high bound would answer the independence test's own unresolved duration question (is roughly 18% FCF-CAGR compounding for ten years real) in the market's favor by construction, before any new evidence. That is the base case with a haircut, not a margin of safety. The zone is narrowed to the 5-year convention's own two points, 141.66 and 153.19, which are convention-robust: at either price the tougher test is already met, so the softer 10-year test is met a fortiori, since 10-year always implies a lower required CAGR than 5-year at the same price (18.33% against 32.95% at today's close). Both sit 40%+ below spot, which is a real discount against the bear case rather than a rounding move off it.",
+        "evidence": "would_buy_zone and would_buy_stress in this file; valuation_snapshot lines 'Price implied by a 17.1% FCF CAGR, 5-year explicit period' ($141.66), 'Price implied by a 19% FCF CAGR, 5-year explicit period' ($153.19), and 'Price implied by a 17.1% FCF CAGR, 10-year explicit period' ($234.52); independence_test.largest_disagreement and falsification in this file; data/market/VRT.json quality.reverse_dcf.implied_by_horizon"
       }
     ],
     "pre_mortem": {
@@ -558,5 +579,21 @@
     },
     "amendments": "Verdict TOO_LATE amended to WATCH with five triggers, on two independent grounds: the priced-in check showed the implied column's honest error bar (14.62% to 37.52% across defensible assumption sets) contains this dive's entire 15.7% to 18.3% column, so the reverse DCF cannot establish the gap the draft was written around; and the pre-mortem's first reason says the 32.95% headline was chosen by a five-year horizon convention rather than by the price. Also amended: the $141.66 and $153.19 levels withdrawn as levels and relabelled convention-dependent, with the $234.52 ten-year counterpart added alongside and the 65.5% spread stated as the error bar on every level on the page; the falsification test rewritten, because the draft's version required a print at or above the CEILING of the company's own guidance and so could not fire inside the guided range, and it now tests the guide's floor with a single leg; bull bullet 2 narrowed, because gross margin was flat at 36.32% against 36.62% while operating margin rose, so the leverage is SG&A dilution and not pricing power; the priced-in row that called FY2026 contracted amended, because the guide midpoint needs 45.4% H2 growth after Q2 printed 24.1% and an implied Q4 of 50.2%; the two-thirds multiple decomposition narrowed to 54.6% on a current-fiscal-year basis; and two tags downgraded from VERIFIED to INFERRED because they rest on an assumptions block the data plane tags SPECULATIVE.",
     "surviving_bear_case": "What survives the attack is a duration bet with a thin margin of safety, not a valuation error. At $257.08 the same reverse DCF this dive quotes requires roughly 18.3% free-cash-flow compounding for ten years, which is this dive's own defended 19.1% revenue path at the currently guided 17.9% free-cash-flow margin held for twice as long as it was defended, and the base rate this dive itself cites is that only 1% to 3% of companies hold 20% growth for a decade, so the price pays for a top-decile duration outcome and offers nothing for the ordinary one. Three bear facts are unimproved by the amendment: the free cash flow being discounted is currently funded by a $1,822.7M half-year deferred-revenue build rather than by operations, so the cash number is a stock change that reverses when the balance stops growing; the operating-margin expansion that makes any bull model work came entirely from SG&A falling 19.12% to 15.81% of revenue while gross margin went flat at 36.32%, which is scale and not pricing power; and the FY2026 guide the draft granted as contracted needs the back half to grow 45.4% after Q2 2026 printed 24.1% reported, with an implied Q4 of 50.2%, so the year's real risk sits in two quarters nobody has seen. Around that, value capture is fragmented at roughly 11.3% share against a top five holding about 35%, 81.9% of enterprise value sits beyond 2030 on the five-year reading, and 26 analysts, 84.4% institutional ownership and a Strong Buy consensus mean there is no attention gap paying anyone to wait. WATCH rather than TOO_LATE because the disagreement is about how long and not about how much, and not INVESTABLE at any level on this page, because the price at which it would become one moves 65.5% depending on a convention the data plane itself tags SPECULATIVE."
-  }
+  },
+  "would_buy_zone": {
+    "low": 141.66,
+    "high": 153.19,
+    "basis": "Uses only the reverse-DCF's 5-year explicit-period convention, the tougher of the two the filed solve computes since 5-year always implies a higher required FCF CAGR than 10-year at the same price (32.95% against 18.33% at today's $257.08): $141.66 is the price at which that convention's implied FCF CAGR falls to this dive's own defended 17.1% point estimate (valuation_snapshot, reproduced there at $142.22, a 0.4% arithmetic drift already disclosed), and $153.19 is where it falls to the 19% stretch case, both already computed from the filed solve's own base_fcf $1,893.8M, enterprise value $98,476.1M, 9% discount rate and 2.5% terminal growth, changing only price/EV. The 10-year convention's own fair-value point, $234.52, only 8.8% below spot, is deliberately excluded: using it as a trigger would mean accepting the market's own optimistic duration read, exactly the point the independence test leaves unresolved, so it would not be a real margin of safety, just spot with a small haircut. See the entry-basis stress attack in red_team.challenges for why the zone was narrowed to this convention alone.",
+    "as_of": "2026-09-04"
+  },
+  "would_buy_stress": {
+    "why_this_field_exists": "Records the arithmetic behind the zone and the attack that narrowed it, separate from the one-line basis, per the 2026-09-04 instruction to fill VRT's would-buy zone.",
+    "candidate_zone_before_attack": "141.66 to 234.52, spanning both horizon conventions' fair-value points for the dive's own defended 17.1% FCF CAGR (the 5-year figure at 141.66, the 10-year figure at 234.52, both already in valuation_snapshot).",
+    "why_it_was_narrowed": "The independence test's largest_disagreement is explicitly a duration dispute: whether roughly 18% FCF-CAGR compounding (the 10-year reading) holds for a decade. A would-buy trigger set at $234.52 answers that dispute in the market's favor before any new evidence arrives, since it is barely below spot (-8.8%) and requires nothing to change except believing the softer convention. That fails the entry-basis stress test (does the zone survive the bear case, or is it the base case with a haircut): at $234.52 none of the three unimproved bear facts (deferred-revenue-funded free cash flow, SG&A-driven not price-driven margin, and the FY2026 guide's required 45.4% H2 growth) have to move at all. The zone is narrowed to the 5-year convention's own two points, 141.66 (my central 17.1% estimate) and 153.19 (a 19% stretch case), which both sit 40%+ below spot and are convention-robust: at either price the tougher test is already satisfied, so the softer 10-year test is satisfied a fortiori (10-year always implies a lower required CAGR than 5-year at the same price).",
+    "arithmetic": "141.66 = price implied by 17.1% FCF CAGR on the filed solve's base ($1,893.8M), EV ($98,476.1M), 9% discount, 2.5% terminal, 5-year horizon (valuation_snapshot line, reproduced at 142.22). 153.19 = price implied by 19% FCF CAGR on the same assumption set (valuation_snapshot line). Both are quoted verbatim from arithmetic already performed in this file's own red team; nothing was re-solved for this attack.",
+    "tag": "INFERRED"
+  },
+  "issuer_id": "VERTIV-HOLDINGS",
+  "listing_id": "NYSE-VRT",
+  "screen_ref": "data/screens/ai-infrastructure.json"
 }
