@@ -1,0 +1,730 @@
+{
+  "id": "prediction-market-plumbing",
+  "chain_id": "prediction-market-plumbing",
+  "scenario_id": null,
+  "created_at": "2026-09-04",
+  "as_of": "2026-09-04",
+  "identity_schema": "campaign-v1",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "mapping_ref": "data/mappings/prediction-market-plumbing.json",
+  "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 11 links, worked in priority order: the money-corner link first, then the CHOKE_POINT link, then the rest by chain position. The mapping (data/mappings/prediction-market-plumbing.json, 18 issuers, 23 placements) carries a fresh-context census audit dated 2026-09-04T22:30:00Z (atlas-fresh-context) that returned status FAIL: not on any evidence defect (52 of 52 sampled placement/listing/search checks came back clean, zero identity/role/source-date conflicts) but because 5 of 11 link_coverage rows are still OPEN under DEPTH-mode design, so method section 6A's COMPLETE gate cannot be met yet. Mapping status stays ACTIVE. Every row this run therefore rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED. 18 of this mapping's 23 placements clear that mechanical bar; the other 5 (funding-and-settlement-rails: PAYPAL, APPLE, BLOCK; liquidity-provision: VIRTU, MAREX) carry only INFERRED role evidence and are refused as screen inputs until the whole-mapping census audit passes or they are re-evidenced VERIFIED. Of the 18 all-VERIFIED placements, only 3 distinct issuers (DRAFTKINGS, BALLYS, CAESARS) have a COMPLETE O1/O2 profile on disk; the other 10 issuers clearing the evidence bar (SPORTRADAR, GENIUS-SPORTS, NASDAQ, ICE, CBOE, RUSH-STREET-INTERACTIVE, KAMBI, CIRCLE, COINBASE, IBKR) are admissible-but-unprofiled this run.\n\nplayer-eligibility-gate [MONEY CORNER, UNDISCOVERED]: searched and empty. link_coverage status EXHAUSTED, distinct_issuer_count 0. The chain's own bottleneck note already names the private vendors (GeoComply, Xpoint, Jumio, Socure, Persona, Sumsub); this mapping's EXHAUSTED record documents two further opened sources today (the SEC's own EDGAR company registry, and GeoComply's 17 August 2026 FanDuel renewal press page), both NO_QUALIFYING_NAMES, both control-probe-passed (Mitek Systems recovered on the same registry domain as the control), two domains and two source types (OFFICIAL_REGISTRY, PRIMARY_ISSUER) covered. Flutter Entertainment surfaces only as the listed operator parent, not the vendor, and is rejected on that basis. The money-corner link is genuinely empty this run, not merely unscreened.\n\nregulatory-gate [CHOKE_POINT, CROWDED]: searched and empty. link_coverage status EXHAUSTED, distinct_issuer_count 0. The chain scores this link UNINVESTABLE by design: licences are issued by the CFTC, state gaming boards and tribal regulators, none of which is itself an SEC registrant. Two opened sources today (SEC EDGAR company registry search for 'Commodity Futures Trading Commission' and 'Nevada Gaming'; GeoComply's FanDuel renewal page) both NO_QUALIFYING_NAMES, control probe passed. Nasdaq, Inc. is rejected as a listed exchange operator, not a licence-issuing regulator. The CHOKE_POINT link is genuinely empty this run.\n\nofficial-event-data [OPEN, EMERGING]: searched, admissible-but-unprofiled. Both placements, SPORTRADAR and GENIUS-SPORTS, are ACTIVE with all-VERIFIED role evidence (Sportradar's Kalshi data-and-infrastructure partnership announcement; Genius Sports' FY2025 10-K sports-data-rights disclosure). Neither has a COMPLETE profile on disk; this run screens only, it does not write profiles.\n\nmarket-surveillance-and-integrity [OPEN, EMERGING]: searched, admissible-but-unprofiled. Both placements, NASDAQ and SPORTRADAR, are ACTIVE with all-VERIFIED role evidence. Neither has a COMPLETE profile on disk.\n\nfunding-and-settlement-rails [TARGET_MET, EMERGING]: partially inadmissible, rest admissible-but-unprofiled. 5 placements: CIRCLE and COINBASE clear the all-VERIFIED bar but have no profile on disk. PAYPAL, APPLE and BLOCK carry only INFERRED role evidence under audit_scope PLACEMENT and are refused as screen inputs on an un-audited mapping regardless of profile status; PAYPAL and APPLE are in any case unprofiled, and BLOCK is also unprofiled. No row seated on this link this run.\n\nsportsbook-platform-and-trading [TARGET_MET, UNDISCOVERED]: attributed. This is the link the task names as the chain's live opportunity: 5 ACTIVE placements, all all-VERIFIED role evidence, and the link_coverage row is already closed TARGET_MET. Of the 5 (DRAFTKINGS, RUSH-STREET-INTERACTIVE, KAMBI, BALLYS, CAESARS), 3 have a COMPLETE O2 profile (DRAFTKINGS, BALLYS, CAESARS) and are seated as pure_play rows: each is one of 4 vertically-integrated operators running its own in-house sportsbook platform rather than buying one from Kambi, the link's sole third-party platform vendor. DraftKings' row carries 2 verbatim earnings nuggets verified against its own Q2 2026 8-K (data/edgar/docs/DKNG.json, accession 0001883685-26-000027); Bally's and Caesars carry no nuggets because no EDGAR document for either ticker is on disk this run (2 edgar_doc requests queued below). RUSH-STREET-INTERACTIVE and KAMBI both clear the all-VERIFIED evidence bar but have no profile on disk; admissible-but-unprofiled, next in line for `run profile --campaign`.\n\nprediction-market-venue [OPEN, CROWDED]: attributed plus admissible-but-unprofiled. 3 placements, all ACTIVE with all-VERIFIED role evidence: ICE and CBOE have no profile on disk (admissible-but-unprofiled). DRAFTKINGS is seated a second time on this chain: DraftKings sits on 3 distinct links in this mapping (sportsbook-platform-and-trading, prediction-market-venue, distribution-front-ends), and the screen contract admits a duplicate issuer row when the later row records a non-empty secondary_link_basis (method section 6, check_screen.py check_campaign_identity), which this row does: DraftKings Predictions is a distinct CFTC-lane exchange seat (via the Railbird Exchange acquisition, launched 19 December 2025) from the state-licensed sportsbook business on the first row, with its own earnings-release language and its own CROWDED heat read (Kalshi, Polymarket, ICE, CME and Cboe already occupy this link). One row per issuer per link, not one row per issuer.\n\nclearing-and-collateral [OPEN, EMERGING]: searched, admissible-but-unprofiled. Both placements, CBOE and ICE, are ACTIVE with all-VERIFIED role evidence. Neither has a COMPLETE profile on disk.\n\nliquidity-provision [EXHAUSTED, EMERGING]: partially inadmissible, rest admissible-but-unprofiled. 3 placements: IBKR clears the all-VERIFIED bar but has no profile on disk (admissible-but-unprofiled). VIRTU and MAREX carry only INFERRED role evidence under audit_scope PLACEMENT and are refused as screen inputs on this un-audited mapping. No row seated on this link this run.\n\ndistribution-front-ends [OPEN, OVER_CROWDED]: attributed, third DraftKings row. Sole placement DRAFTKINGS is ACTIVE with all-VERIFIED role evidence and is seated a third time under the same secondary_link_basis rule described under prediction-market-venue above: the consumer Super App distributing Sportsbook, iGaming and Predictions to the end user. Bucketed second_order rather than pure_play because the chain's own bottleneck note calls this link 'the crowded end of the map' and 'the demand path, not... the trade' (DKNG and FLUT both repriced the session the Ninth Circuit ruled); the row is written for complete per-link attribution, not because it carries fresh information.\n\nend-user-demand [EXHAUSTED, no verdict]: searched and empty by chain design. The chain's own text: 'The anchor is a household, not a firm, and there is nothing to buy at this position.' link_coverage status EXHAUSTED, distinct_issuer_count 0, consistent with the chain's UNINVESTABLE investability tag on this link.\n\nNet effect: 3 of 11 links produce rows (5 rows total, 3 distinct issuers); the money-corner link and the CHOKE_POINT link are attributed as searched-and-empty with a stated EXHAUSTED record, never silently absent. The single largest concrete next step is `run profile --campaign CAMP-20260901-01` prioritizing sportsbook-platform-and-trading's remaining 2 admissible names (RUSH-STREET-INTERACTIVE, KAMBI) since that link is both TARGET_MET and UNDISCOVERED, then the 8 further admissible-but-unprofiled names on official-event-data, market-surveillance-and-integrity, funding-and-settlement-rails, prediction-market-venue, clearing-and-collateral and liquidity-provision.",
+  "queries_run": [
+    {
+      "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/prediction-market-plumbing.json carrying an ACTIVE status and all-VERIFIED role evidence, joined to its official listing",
+      "forms": null,
+      "hits_examined": 23,
+      "names_extracted": 18
+    },
+    {
+      "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a prediction-market-plumbing placement",
+      "forms": null,
+      "hits_examined": 18,
+      "names_extracted": 3
+    },
+    {
+      "query": "data/edgar/docs/DKNG.json full-text search for 'mobile sports betting', 'Super App', 'Predictions' to verify the sportsbook-platform-and-trading and prediction-market-venue nugget claims against DraftKings' own Q2 2026 8-K earnings release exhibit",
+      "forms": "8-K item 2.02 / EX-99.1",
+      "hits_examined": 2,
+      "names_extracted": 2
+    },
+    {
+      "query": "EDGAR earnings documents on disk for BALLYS (BALY) and CAESARS (CZR)",
+      "forms": null,
+      "hits_examined": 0,
+      "names_extracted": 0
+    },
+    {
+      "query": "review of player-eligibility-gate and regulatory-gate EXHAUSTED records (searches, control probes, exhaustion_conclusion) in data/mappings/prediction-market-plumbing.json link_coverage",
+      "forms": null,
+      "hits_examined": 2,
+      "names_extracted": 0
+    }
+  ],
+  "buckets": {
+    "pure_play": [
+      {
+        "issuer_id": "DRAFTKINGS",
+        "listing_id": "NASDAQ-DKNG",
+        "ticker": "DKNG",
+        "market_ticker": "DKNG",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "sportsbook-platform-and-trading",
+        "mapping_ref": "data/mappings/prediction-market-plumbing.json",
+        "profile_ref": "data/companies/DRAFTKINGS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "DraftKings Inc.",
+        "exchange": "The Nasdaq Stock Market LLC",
+        "tier": "T1",
+        "cik": 1883685,
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "thesis_1line": "One of four vertically-integrated sportsbook operators counted on this link (DraftKings, Rush Street Interactive, Bally's, Caesars), each running its own in-house platform rather than buying one from Kambi, the link's sole third-party vendor. Mapping placement evidence (DraftKings FY2025 10-K) is VERIFIED; the link itself is scored UNDISCOVERED, the strongest heat read on this chain outside the empty money corner.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "DraftKings does not break out a segment-level revenue percentage specific to the prediction-market-plumbing theme; its 10-K/8-K report combined Sportsbook, iGaming and (for DraftKings) Predictions handle and revenue without a theme-scoped split.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 6054525000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1883685 (DraftKings Inc., Nasdaq: DKNG).",
+            "official_source": true
+          },
+          "revenue_cagr_3y": {
+            "value": 0.392882,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Three-year compound annual revenue growth computed as (6054525000 / 2240461000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": -0.002612,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Operating loss -15817000 divided by revenue 6054525000, both for the fiscal year ended 2025-12-31, from companyfacts. Near-breakeven, a sharp improvement from the -608999000 operating loss of fiscal year 2024.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.106945,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Free cash flow margin: operating cash flow 662855000 less capital expenditure 15352000, divided by revenue 6054525000, all for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 178.667116,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Operating cash flow 662855000 divided by net income 3710000, both for the fiscal year ended 2025-12-31, from companyfacts. The unusually large ratio reflects a near-zero net-income denominator (DraftKings' first near-breakeven year), not an unusual cash-conversion pattern; operating cash flow itself grew a more ordinary 58.7% year over year (417767000 to 662855000).",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "net debt to EBITDA cannot be computed: companyfacts carries no total_debt figure for this filer (data/market/DKNG.json fundamentals.total_debt is null; long_term_debt_fy is the specific missing input)."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski F-score not computed: data/market/DKNG.json quality.piotroski.state is PENDING_DATA, missing long_term_debt_fy (8 of 9 inputs found); companyfacts does not tag this filer's long-term debt."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish M-score not computed: data/market/DKNG.json quality.beneish.state is PENDING_DATA, missing long_term_debt_fy (11 of 12 inputs found); companyfacts does not tag this filer's long-term debt."
+          },
+          "market_cap": {
+            "value": 12526509780.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Market capitalization computed in data/market/DKNG.json quality.derived.market_cap from companyfacts share count 495903000 (as of 2025-12-31) times the close 25.26 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 2.06895,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Market capitalization 12526509780.0 divided by fiscal year 2025-12-31 revenue 6054525000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved: data/market/DKNG.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, itself blocked on the missing total_debt figure named in the leverage basis."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/DKNG.json",
+          "as_of": "2026-09-04",
+          "tag": "NULL",
+          "basis": "data/market/DKNG.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here the file simply carries no PCS block yet)."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "DraftKings is live with mobile sports betting in 27 states, Washington, D.C., and Puerto Rico representing approximately 53% of the U.S. population.",
+            "accession": "0001883685-26-000027",
+            "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1883685",
+            "form": "8-K",
+            "filing_date": "2026-08-07",
+            "source_name": "DraftKings Inc. Form 8-K (Q2 2026 earnings release exhibit), data/edgar/docs/DKNG.json",
+            "tag": "VERIFIED"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "DRAFTKINGS",
+        "listing_id": "NASDAQ-DKNG",
+        "ticker": "DKNG",
+        "market_ticker": "DKNG",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "prediction-market-venue",
+        "mapping_ref": "data/mappings/prediction-market-plumbing.json",
+        "profile_ref": "data/companies/DRAFTKINGS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "DraftKings Inc.",
+        "exchange": "The Nasdaq Stock Market LLC",
+        "tier": "T1",
+        "cik": 1883685,
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "secondary_link_basis": "DraftKings sits on 3 distinct placements in this mapping (sportsbook-platform-and-trading, prediction-market-venue, distribution-front-ends), each with its own ACTIVE status and VERIFIED role evidence and each carrying a materially different link_heat_verdict (UNDISCOVERED / CROWDED / OVER_CROWDED). This row is the federal-lane venue exposure: DraftKings Predictions, the CFTC-designated-contract-market business launched 19 December 2025 as an introducing broker after DraftKings acquired Railbird Exchange, a CFTC-registered DCM. That is a distinct regulatory seat and a distinct earnings driver from the state-licensed sportsbook row on this same issuer, so it is written as a second row rather than folded into the first.",
+        "thesis_1line": "DraftKings' own federal-lane exchange seat, acquired via Railbird and launched 19 December 2025 as a CFTC introducing broker; the Q2 2026 earnings release names Predictions by name as a growth driver ahead of plan. The link itself reads CROWDED (Kalshi/Polymarket/ICE/CME/Cboe all already occupy this link and DKNG's own Predictions launch is public), so incremental information here is thinner than on the sportsbook link.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "DraftKings does not break out a segment-level revenue percentage specific to the prediction-market-plumbing theme; its 10-K/8-K report combined Sportsbook, iGaming and (for DraftKings) Predictions handle and revenue without a theme-scoped split.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 6054525000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1883685 (DraftKings Inc., Nasdaq: DKNG).",
+            "official_source": true
+          },
+          "revenue_cagr_3y": {
+            "value": 0.392882,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Three-year compound annual revenue growth computed as (6054525000 / 2240461000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": -0.002612,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Operating loss -15817000 divided by revenue 6054525000, both for the fiscal year ended 2025-12-31, from companyfacts. Near-breakeven, a sharp improvement from the -608999000 operating loss of fiscal year 2024.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.106945,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Free cash flow margin: operating cash flow 662855000 less capital expenditure 15352000, divided by revenue 6054525000, all for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 178.667116,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Operating cash flow 662855000 divided by net income 3710000, both for the fiscal year ended 2025-12-31, from companyfacts. The unusually large ratio reflects a near-zero net-income denominator (DraftKings' first near-breakeven year), not an unusual cash-conversion pattern; operating cash flow itself grew a more ordinary 58.7% year over year (417767000 to 662855000).",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "net debt to EBITDA cannot be computed: companyfacts carries no total_debt figure for this filer (data/market/DKNG.json fundamentals.total_debt is null; long_term_debt_fy is the specific missing input)."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski F-score not computed: data/market/DKNG.json quality.piotroski.state is PENDING_DATA, missing long_term_debt_fy (8 of 9 inputs found); companyfacts does not tag this filer's long-term debt."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish M-score not computed: data/market/DKNG.json quality.beneish.state is PENDING_DATA, missing long_term_debt_fy (11 of 12 inputs found); companyfacts does not tag this filer's long-term debt."
+          },
+          "market_cap": {
+            "value": 12526509780.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Market capitalization computed in data/market/DKNG.json quality.derived.market_cap from companyfacts share count 495903000 (as of 2025-12-31) times the close 25.26 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 2.06895,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Market capitalization 12526509780.0 divided by fiscal year 2025-12-31 revenue 6054525000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved: data/market/DKNG.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, itself blocked on the missing total_debt figure named in the leverage basis."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/DKNG.json",
+          "as_of": "2026-09-04",
+          "tag": "NULL",
+          "basis": "data/market/DKNG.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here the file simply carries no PCS block yet)."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "Our Super App is now live nationwide, and Predictions is already growing faster than we anticipated.",
+            "accession": "0001883685-26-000027",
+            "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1883685",
+            "form": "8-K",
+            "filing_date": "2026-08-07",
+            "source_name": "DraftKings Inc. Form 8-K (Q2 2026 earnings release exhibit), quote attributed to CEO Jason Robins, data/edgar/docs/DKNG.json",
+            "tag": "VERIFIED"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "BALLYS",
+        "listing_id": "NYSE-BALY",
+        "ticker": "BALY",
+        "market_ticker": "BALY",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "sportsbook-platform-and-trading",
+        "mapping_ref": "data/mappings/prediction-market-plumbing.json",
+        "profile_ref": "data/companies/BALLYS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Bally's Corporation",
+        "exchange": "New York Stock Exchange",
+        "tier": "T1",
+        "cik": 1747079,
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "thesis_1line": "Operator of Bally Bet Sportsbook & Casino, its own in-house sports betting and iCasino platform licensed in 14 North American jurisdictions; one of 4 vertically-integrated operators counted on this link. Mapping placement is ACTIVE with VERIFIED role evidence; no earnings document is on disk this run so no verbatim nugget is written.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Bally's Corporation does not break out a segment-level revenue percentage specific to the prediction-market-plumbing theme; its 10-K/8-K report combined Sportsbook, iGaming and (for DraftKings) Predictions handle and revenue without a theme-scoped split.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 2436189000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BALY.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001747079.json",
+            "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for BALLYS (BALY).",
+            "official_source": true
+          },
+          "revenue_cagr_3y": {
+            "value": 0.02598944255701463,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BALY.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001747079.json",
+            "basis": "Three-year compound annual revenue growth computed as (2436189000/2255705000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": -0.11399033490422951,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BALY.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001747079.json",
+            "basis": "Operating income -277702000 divided by revenue 2436189000, both for the period ended 2025-12-31, from the companyfacts series.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": -0.07342739007523637,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BALY.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001747079.json",
+            "basis": "Free cash flow margin: operating cash flow -11014000 less capital expenditure 167869000, divided by revenue 2436189000, all for the period ended 2025-12-31, from the companyfacts series.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "operating_cash_flow_to_net_income is not computed for BALLYS: net income for the period ended 2025-12-31 was -650074000 (negative), so the ratio of operating cash flow to net income would not be a meaningful cash-conversion read; fcf_margin is used instead below."
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "leverage.net_debt_to_ebitda cannot be computed for BALLYS: depreciation_fy in data/market/BALY.json fundamentals is stale since 2021-12-31, several fiscal years before the 2025-12-31 operating-income figure, so an EBITDA proxy cannot be built from current inputs."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for BALLYS: data/market/BALY.json quality.piotroski.state is PENDING_DATA (cost_of_revenue_fy)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for BALLYS: data/market/BALY.json quality.beneish.state is PENDING_DATA (cost_of_revenue_fy)."
+          },
+          "market_cap": {
+            "value": 496894044.16,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/BALY.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001747079.json",
+            "basis": "Market capitalization 496894044.16 computed in data/market/BALY.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 0.2039636679091811,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/BALY.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001747079.json",
+            "basis": "Market capitalization 496894044.16 divided by fiscal year 2025-12-31 revenue 2436189000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not usable for BALLYS: data/market/BALY.json quality.reverse_dcf state is NOT_APPLICABLE (base-year free cash flow is not positive; a growth rate on a negative base is meaningless)."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/BALY.json",
+          "as_of": "2026-09-04",
+          "tag": "NULL",
+          "basis": "data/market/BALY.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here the file simply carries no PCS block yet)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "CAESARS",
+        "listing_id": "NASDAQ-CZR",
+        "ticker": "CZR",
+        "market_ticker": "CZR",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "sportsbook-platform-and-trading",
+        "mapping_ref": "data/mappings/prediction-market-plumbing.json",
+        "profile_ref": "data/companies/CAESARS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Caesars Entertainment, Inc.",
+        "exchange": "NASDAQ Stock Market",
+        "tier": "T1",
+        "cik": 1590895,
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "thesis_1line": "Operator of the Caesars Sportsbook app running on its own in-house Liberty platform (pre-match and live markets, odds and limits, player props, same-game parlays); one of 4 vertically-integrated operators counted on this link. Mapping placement is ACTIVE with VERIFIED role evidence; no earnings document is on disk this run so no verbatim nugget is written.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Caesars Entertainment, Inc. does not break out a segment-level revenue percentage specific to the prediction-market-plumbing theme; its 10-K/8-K report combined Sportsbook, iGaming and (for DraftKings) Predictions handle and revenue without a theme-scoped split.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 11486000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CZR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for CAESARS (CZR).",
+            "official_source": true
+          },
+          "revenue_cagr_3y": {
+            "value": 0.02007899524656609,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CZR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Three-year compound annual revenue growth computed as (11486000000/10821000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.16176214522026816,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CZR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Operating income 1858000000 divided by revenue 11486000000, both for the period ended 2025-12-31, from the companyfacts series.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.04327006790875849,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CZR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Free cash flow margin: operating cash flow 1302000000 less capital expenditure 805000000, divided by revenue 11486000000, all for the period ended 2025-12-31, from the companyfacts series.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "operating_cash_flow_to_net_income is not computed for CAESARS: net income for the period ended 2025-12-31 was -502000000 (negative), so the ratio of operating cash flow to net income would not be a meaningful cash-conversion read; fcf_margin is used instead below."
+          },
+          "net_debt_to_ebitda": {
+            "value": 3.2427480916030533,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CZR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Net debt 10620000000 (total debt 11585000000 as of 2026-06-30 less cash 965000000 as of 2026-06-30) divided by an EBITDA proxy 3275000000 (operating income 1858000000 plus depreciation 1417000000, both for the period ended 2025-12-31), from the companyfacts series.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for CAESARS: data/market/CZR.json quality.piotroski.state is PENDING_DATA (cost_of_revenue_fy)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for CAESARS: data/market/CZR.json quality.beneish.state is PENDING_DATA (cost_of_revenue_fy)."
+          },
+          "market_cap": {
+            "value": 6014033439.12,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/CZR.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Market capitalization 6014033439.12 computed in data/market/CZR.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 0.5235968517429914,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/CZR.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Market capitalization 6014033439.12 divided by fiscal year 2025-12-31 revenue 11486000000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.2098,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/CZR.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001590895.json",
+            "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 497000000.0, enterprise_value 16634033439.119999, from data/market/CZR.json quality.reverse_dcf."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/CZR.json",
+          "as_of": "2026-09-04",
+          "tag": "NULL",
+          "basis": "data/market/CZR.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here the file simply carries no PCS block yet)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE"
+      }
+    ],
+    "picks_and_shovels": [],
+    "second_order": [
+      {
+        "issuer_id": "DRAFTKINGS",
+        "listing_id": "NASDAQ-DKNG",
+        "ticker": "DKNG",
+        "market_ticker": "DKNG",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "distribution-front-ends",
+        "mapping_ref": "data/mappings/prediction-market-plumbing.json",
+        "profile_ref": "data/companies/DRAFTKINGS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "DraftKings Inc.",
+        "exchange": "The Nasdaq Stock Market LLC",
+        "tier": "T1",
+        "cik": 1883685,
+        "money_corner": false,
+        "link_heat_verdict": "OVER_CROWDED",
+        "secondary_link_basis": "Third of DraftKings' 3 placements on this mapping (see prediction-market-venue row for the full explanation of why the issuer is written across multiple rows). This row is the consumer-app distribution surface: the same Super App carrying Sportsbook, iGaming and Predictions to the end user, which the chain's own bottleneck note calls 'the crowded end of the map' and 'the demand path, not... the trade' because DKNG and FLUT both repriced the session the Ninth Circuit ruled.",
+        "thesis_1line": "DraftKings' own Super App is the consumer front end distributing Sportsbook, iGaming and Predictions outcomes; the FY2025 10-K's mobile-footprint disclosure (27 states / 53% of US population for sports betting, 5 states / 11% of US population for iGaming) is written under this app. Scored OVER_CROWDED: this is the layer general ruling coverage already named, so most of what is knowable here is already in the price. Written for completeness of per-link attribution, not as a fresh idea.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "DraftKings does not break out a segment-level revenue percentage specific to the prediction-market-plumbing theme; its 10-K/8-K report combined Sportsbook, iGaming and (for DraftKings) Predictions handle and revenue without a theme-scoped split.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 6054525000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1883685 (DraftKings Inc., Nasdaq: DKNG).",
+            "official_source": true
+          },
+          "revenue_cagr_3y": {
+            "value": 0.392882,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Three-year compound annual revenue growth computed as (6054525000 / 2240461000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": -0.002612,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Operating loss -15817000 divided by revenue 6054525000, both for the fiscal year ended 2025-12-31, from companyfacts. Near-breakeven, a sharp improvement from the -608999000 operating loss of fiscal year 2024.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.106945,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Free cash flow margin: operating cash flow 662855000 less capital expenditure 15352000, divided by revenue 6054525000, all for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 178.667116,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Operating cash flow 662855000 divided by net income 3710000, both for the fiscal year ended 2025-12-31, from companyfacts. The unusually large ratio reflects a near-zero net-income denominator (DraftKings' first near-breakeven year), not an unusual cash-conversion pattern; operating cash flow itself grew a more ordinary 58.7% year over year (417767000 to 662855000).",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "net debt to EBITDA cannot be computed: companyfacts carries no total_debt figure for this filer (data/market/DKNG.json fundamentals.total_debt is null; long_term_debt_fy is the specific missing input)."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski F-score not computed: data/market/DKNG.json quality.piotroski.state is PENDING_DATA, missing long_term_debt_fy (8 of 9 inputs found); companyfacts does not tag this filer's long-term debt."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish M-score not computed: data/market/DKNG.json quality.beneish.state is PENDING_DATA, missing long_term_debt_fy (11 of 12 inputs found); companyfacts does not tag this filer's long-term debt."
+          },
+          "market_cap": {
+            "value": 12526509780.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Market capitalization computed in data/market/DKNG.json quality.derived.market_cap from companyfacts share count 495903000 (as of 2025-12-31) times the close 25.26 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 2.06895,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DKNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001883685.json",
+            "basis": "Market capitalization 12526509780.0 divided by fiscal year 2025-12-31 revenue 6054525000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved: data/market/DKNG.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, itself blocked on the missing total_debt figure named in the leverage basis."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/DKNG.json",
+          "as_of": "2026-09-04",
+          "tag": "NULL",
+          "basis": "data/market/DKNG.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here the file simply carries no PCS block yet)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE"
+      }
+    ],
+    "hedge": []
+  },
+  "data_gaps": [
+    "5 placements carry only INFERRED role evidence and are refused under audit_scope PLACEMENT on this un-audited (FAIL, structural-only) mapping: funding-and-settlement-rails PAYPAL, APPLE, BLOCK; liquidity-provision VIRTU, MAREX. All 5 need either the whole-mapping census to reach a current PASS audit, or re-evidencing to VERIFIED, before a screen row can use them. None of the 5 is profiled either, so this is a placement-evidence gap, not merely a profiling gap.",
+    "10 issuers carry ACTIVE, all-VERIFIED mapping placements on this chain but have no profile on disk (admissible-but-unprofiled): official-event-data: SPORTRADAR, GENIUS-SPORTS. market-surveillance-and-integrity: NASDAQ, SPORTRADAR (same issuer, second link). funding-and-settlement-rails: CIRCLE, COINBASE. sportsbook-platform-and-trading: RUSH-STREET-INTERACTIVE, KAMBI. prediction-market-venue: ICE, CBOE. clearing-and-collateral: CBOE, ICE (same issuers, second link). liquidity-provision: IBKR. `run profile --campaign CAMP-20260901-01` should prioritize RUSH-STREET-INTERACTIVE and KAMBI first: both sit on sportsbook-platform-and-trading, the one link this run found both TARGET_MET and UNDISCOVERED.",
+    "No earnings_nuggets are written for BALLYS or CAESARS: neither has a data/edgar/docs/<T>.json file on disk this run, so no verbatim quote could be verified rather than being fabricated. 2 edgar_doc requests are queued below (REQ-20260904-283 BALY, REQ-20260904-284 CZR) so a re-run can attempt nuggets for both.",
+    "Crowdedness is NULL/COVERAGE-THIN on all 5 seated rows: data/market/DKNG.json, data/market/BALY.json and data/market/CZR.json all read pcs: null. All three are T1 listings; method section 6 treats T2/T3 PCS as COVERAGE-THIN and never a blocker, and the same non-estimation discipline is applied here even though these are T1 names, because the field is genuinely absent on disk, not merely thin.",
+    "theme_revenue_exposure is NULL with basis 'not disclosed' on all 5 rows: none of DraftKings, Bally's or Caesars breaks out a segment-level revenue percentage specific to the prediction-market-plumbing theme in the fundamentals data on disk; DraftKings' 8-K reports population-coverage footprint (27 states / 53% of US population for sports betting) rather than a revenue split.",
+    "Every DKNG/BALY/CZR canonical metric group carries at least one NULL field (net_debt_to_ebitda or ocf_to_ni, piotroski, beneish_state, and for two of the three, reverse_dcf): fully_scored is 0 of 5 rows for that reason, mirrored from each issuer's own COMPLETE O2 profile rather than re-derived here. See each profile's own metrics basis strings (data/companies/DRAFTKINGS.json, data/companies/BALLYS.json, data/companies/CAESARS.json) for why each specific field is NULL; this screen does not re-explain them."
+  ],
+  "taste_filtered": [],
+  "health": {
+    "tickers_examined": 18,
+    "rows_written": 5,
+    "fully_scored": 0,
+    "pending": 5,
+    "errors": 0,
+    "rows_superseded": 0,
+    "rows_with_quality_gaps": 5,
+    "links_worked": 11,
+    "links_total": 11,
+    "target_links_covered": 1,
+    "target_links_total": 2,
+    "money_corner_links_total": 1,
+    "money_corner_links_covered": 0,
+    "choke_point_links_total": 1,
+    "choke_point_links_covered": 0,
+    "quotes_verified": 2,
+    "distinct_issuers": 3,
+    "profiles_available_repo_wide": 156,
+    "admissible_placements_all_verified_evidence": 18,
+    "admissible_but_unprofiled_issuers": 10,
+    "admissible_profiled_but_declined_on_judgment": 0,
+    "admissible_profiled_but_blocked_o3": 0,
+    "admissible_profiled_but_blocked_by_gate_defect": 0
+  },
+  "notes": [],
+  "confidence_audit": {
+    "verified": 7,
+    "inferred": 29,
+    "speculative": 1,
+    "null": 30
+  },
+  "changelog": [
+    {
+      "ts": "2026-09-04T00:00:00Z",
+      "by": "sieve-profiler",
+      "change": "First run screen prediction-market-plumbing (chain-level, scenario_id null). Built the per-link universe across all 11 links under audit_scope PLACEMENT (mapping FAILs its fresh-context census audit on OPEN-link coverage only; 52/52 sampled checks clean, zero conflicts). 18 of 23 placements clear the all-VERIFIED evidence bar (5 refused: PAYPAL, APPLE, BLOCK, VIRTU, MAREX, all INFERRED-only); of those 18, 3 issuers (DRAFTKINGS, BALLYS, CAESARS) have a COMPLETE O2 profile. Seated 5 rows across 3 links: DRAFTKINGS on sportsbook-platform-and-trading (pure_play, primary row, 1 verbatim nugget verified against its Q2 2026 8-K), BALLYS and CAESARS on the same link (pure_play, no nuggets, no EDGAR doc on disk for either). DRAFTKINGS seated a second and third time under secondary_link_basis on prediction-market-venue (pure_play, 1 verbatim nugget) and distribution-front-ends (second_order, no nugget), reflecting its 3 distinct mapping placements with 3 different link_heat_verdicts. The money-corner link (player-eligibility-gate) and the CHOKE_POINT link (regulatory-gate) both documented searched-and-empty, naming each EXHAUSTED record's control-probe-passed searches; both are 0-issuer by the mapping's own proved census, not by an unscreened gap. Named 10 admissible-but-unprofiled issuers across 6 other links and 5 evidence-inadmissible placements in data_gaps. Queued 2 edgar_doc requests (BALY, CZR) so a re-run can attempt nuggets on the other 2 seated names."
+    }
+  ]
+}
