@@ -3,7 +3,7 @@
  "issuer_name": "Nordic American Tankers Ltd",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:10:00Z",
- "updated_at": "2026-09-04T18:05:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -84,7 +84,7 @@
  "data_gaps": [
   "Filled 2026-09-04 from data/market/NAT.json: 8 of 12 canonical fields carry a sourced number; 4 remain NULL, each with a field-specific basis naming the missing series or state.",
   "fcf_margin remains NULL: capex_fy is absent entirely from companyfacts for this filer (NAT typically finances vessels off-balance via bareboat/JV structures rather than reporting a capex line), so cash_conversion is satisfied via operating_cash_flow_to_net_income alone.",
-  "net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both null in companyfacts for this filer, so no net debt or enterprise value figure exists to compute either.",
+  "net_debt_to_ebitda is now sourced: re-checked 2026-09-04 after commit 54cbeaa (foreign filer cash/debt fix), fundamentals.cash and fundamentals.total_debt are both now populated. reverse_dcf remains NULL: quality.reverse_dcf.state is still PENDING_DATA (missing fcf, itself blocked on the absent capex_fy noted above).",
   "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/NAT.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality (piotroski 5, beneish_state CLEAN) is already complete. fundamentals.cash and fundamentals.total_debt are both still entirely absent under tools/fetch/fetch.py's single fixed cash candidate concept; a same-day re-queue against the same SEC companyfacts document would return identical results, matching the pattern already confirmed exhausted for DHT, FRO, TEEKAY-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION and ELBIT-SYSTEMS in this same gap-closing pass. No re-queue. net_debt_to_ebitda stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A.",
   "Checked 2026-09-04 against the fetcher's XBRL concept map widen (commit 2d3ce3e, same-day re-fetch of data/market/NAT.json): every canonical field value on this profile matches the re-fetched file exactly (piotroski 5 MIDDLING, beneish -3.366 CLEAN, revenue/growth/margins/cash-conversion/valuation all unchanged). fcf_margin stays NULL (capex_fy still entirely absent from companyfacts for this filer). net_debt_to_ebitda and reverse_dcf stay NULL (cash and total_debt still entirely absent)."
  ],
@@ -139,9 +139,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+    "value": 3.29436,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
+    "source_date": "2026-09-04",
+    "basis": "Net debt 342877000 (total debt 388740000 less cash 45863000, both as of 2025-12-31) divided by an EBITDA proxy 104080000 (operating income 46345000 plus depreciation 57735000, both for the fiscal year ended 2025-12-31), from companyfacts. Newly fillable 2026-09-04: commit 54cbeaa (foreign filer cash/debt fix) populated fundamentals.cash and fundamentals.total_debt for this filer, which previously read entirely absent.",
+    "official_source": true
    }
   },
   "quality": {
@@ -200,15 +204,15 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-checked 2026-09-04 against data/market/NAT.json re-fetched under the fetcher's widened XBRL concept map (commit 2d3ce3e): no canonical field changed. 8 of 12 canonical fields carry a sourced number. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage.net_debt_to_ebitda and reverse_dcf remain NULL)."
+  "basis": "Re-profiled 2026-09-04 from data/market/NAT.json after commit 54cbeaa (foreign filer cash/debt fix) re-fetched the market file. 9 of 12 canonical fields now carry a sourced number, up from 8: leverage.net_debt_to_ebitda newly computed at 3.29436. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (reverse_dcf remains NULL)."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 7,
+  "INFERRED": 8,
   "SPECULATIVE": 0,
-  "NULL": 4,
+  "NULL": 3,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 4 canonical field(s) remain NULL this run (cash_conversion.fcf_margin, leverage.net_debt_to_ebitda, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread). Re-checked 2026-09-04 against the widened-concept-map re-fetch of data/market/NAT.json: no field changed."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 3 canonical field(s) remain NULL this run (cash_conversion.fcf_margin, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread)."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -238,6 +242,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile NAT: re-read data/market/NAT.json in full after the fetcher's XBRL concept map was widened today (commit 2d3ce3e) and the file was re-fetched under it. Every canonical field already matched the re-fetched file exactly (quality.piotroski 5 MIDDLING, quality.beneish_state -3.366 CLEAN, revenue 291,690,000, growth -4.92%, operating_margin 15.89%, cash_conversion.operating_cash_flow_to_net_income 1.616, market_cap 1,446,257,028.29, price_to_sales 4.958); no numeric field changed. fcf_margin stays NULL (capex absent), leverage.net_debt_to_ebitda and reverse_dcf stay NULL (cash/total_debt absent). Status COMPLETE, opportunity_tier O2 unchanged; not O1-eligible under the critical-field rule."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile NAT: re-read data/market/NAT.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash (45863000) and fundamentals.total_debt (388740000), both as of 2025-12-31, are now populated (previously entirely absent). Computed leverage.net_debt_to_ebitda = 3.29436 (net debt 342877000 / EBITDA proxy 104080000 = operating income 46345000 + depreciation 57735000, FY2025). Re-verified all other canonical fields against the current market file: unchanged. reverse_dcf remains PENDING_DATA (missing fcf, capex_fy still absent). 9 of 12 canonical fields now sourced, up from 8. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: reverse_dcf still NULL). Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }

@@ -3,7 +3,7 @@
  "issuer_name": "DHT Holdings, Inc.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:00:00Z",
- "updated_at": "2026-09-04T22:00:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -82,7 +82,7 @@
   }
  ],
  "data_gaps": [
-  "Filled 2026-09-04 from data/market/DHT.json: 4 of 12 canonical fields carry a sourced number; 8 remain NULL, each with a field-specific basis naming the missing series or state.",
+  "Re-checked 2026-09-04 after commit 54cbeaa (foreign filer cash/debt fix): fundamentals.cash and fundamentals.total_debt are now populated, so leverage.net_debt_to_ebitda is now sourced (1.055435). 5 of 12 canonical fields carry a sourced number; 7 remain NULL, each with a field-specific basis naming the missing series or state.",
   "fcf_margin discarded as stale: the only common fiscal year across operating cash flow, capex and revenue is 2021-12-31, 4 years before the latest revenue figure (2025); capex_fy has no more recent point in this filer's companyfacts.",
   "market_cap and price_to_sales remain NULL: quality.shares_used is null for this filer (shares_fy missing from companyfacts), so no share count exists to multiply by the market close.",
   "net_debt_to_ebitda, piotroski, beneish_state and reverse_dcf all remain NULL: cash and total_debt are both null in companyfacts; piotroski is additionally missing shares_fy and cost_of_revenue_fy, beneish is missing cost_of_revenue_fy and ppe_net_fy.",
@@ -139,9 +139,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+    "value": 1.055435,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DHT.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001331284.json",
+    "source_date": "2026-09-04",
+    "basis": "Net debt 349710000 (total debt 428744000 less cash 79034000, both as of 2025-12-31) divided by an EBITDA proxy 331342000 (operating income 224972000 plus depreciation 106370000, both for the fiscal year ended 2025-12-31), from companyfacts. Newly fillable 2026-09-04: commit 54cbeaa (foreign filers' cash and debt now read from 20-F/40-F, latest-taxonomy-wins) populated fundamentals.cash and fundamentals.total_debt for this filer, which previously read null.",
+    "official_source": true
    }
   },
   "quality": {
@@ -184,15 +188,15 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 from data/market/DHT.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 4 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+  "basis": "Re-profiled 2026-09-04 from data/market/DHT.json (sec-companyfacts) after commit 54cbeaa (foreign filer cash/debt fix) re-fetched the market file. 5 of 12 canonical fields now carry a sourced number, up from 4: leverage.net_debt_to_ebitda newly computed at 1.055435. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 (quality piotroski/beneish remain PENDING_DATA). run profile DHT."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 3,
+  "INFERRED": 4,
   "SPECULATIVE": 0,
-  "NULL": 8,
+  "NULL": 7,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 8 canonical field(s) remain NULL this run."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 7 canonical field(s) remain NULL this run."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -216,6 +220,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile DHT-HOLDINGS: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for quality.piotroski/beneish_state and leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile DHT: re-read data/market/DHT.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash (79034000) and fundamentals.total_debt (428744000), both as of 2025-12-31, are now populated (previously entirely absent). Computed leverage.net_debt_to_ebitda = 1.055435 (net debt 349710000 / EBITDA proxy 331342000 = operating income 224972000 + depreciation 106370000, FY2025). Re-verified all other canonical fields against the current market file: unchanged. quality.piotroski and quality.beneish_state remain PENDING_DATA per data/market/DHT.json quality block (missing shares_fy/cost_of_revenue_fy and cost_of_revenue_fy/ppe_net_fy respectively); reverse_dcf remains PENDING_DATA (missing enterprise_value, itself blocked on the same missing shares_fy). 5 of 12 canonical fields now sourced. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: quality group and reverse_dcf still NULL). Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }

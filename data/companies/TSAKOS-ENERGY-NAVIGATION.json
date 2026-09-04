@@ -3,7 +3,7 @@
  "issuer_name": "Tsakos Energy Navigation Ltd",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T21:45:00Z",
- "updated_at": "2026-09-04T18:05:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -116,9 +116,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/TEN.json fundamentals.cash and fundamentals.total_debt are both null; only long_term_debt_fy (1487363000 at 2025-12-31) is tagged, with no matching cash figure to net against it, so net debt to EBITDA is not computed rather than approximated from a one-sided figure."
+    "value": 2.827019,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TEN.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001166663.json",
+    "source_date": "2026-09-04",
+    "basis": "Net debt 1194051000 (total debt 1487363000 less cash 293312000, both as of 2025-12-31) divided by an EBITDA proxy 422371000 (operating income 252317000 plus depreciation 170054000, both for the fiscal year ended 2025-12-31), from companyfacts. Newly fillable 2026-09-04: commit 54cbeaa (foreign filer cash/debt fix) populated fundamentals.cash and fundamentals.total_debt for this filer, which previously read null.",
+    "official_source": true
    }
   },
   "quality": {
@@ -198,7 +202,7 @@
  ],
  "data_gaps": [
   "Filled 2026-09-04 from data/market/TEN.json (sec-companyfacts, T1): revenue, growth, margins and the ocf/ni cash-conversion leg carry sourced numbers.",
-  "fcf_margin, net_debt_to_ebitda, piotroski, beneish_state, and both reverse-DCF fields are NULL: companyfacts.coverage lists capex, gross_profit, cost_of_revenue and total_liabilities as missing, and cash/total_debt are untagged.",
+  "fcf_margin and both reverse-DCF fields are NULL: companyfacts.coverage lists capex and total_liabilities as missing. net_debt_to_ebitda is now sourced (re-checked 2026-09-04 after commit 54cbeaa: cash and total_debt are both now populated).",
   "No VLCC/Suezmax segment revenue split isolates the Hormuz-relevant crude tonnage from TEN's broader fleet mix.",
   "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/TEN.json in full (fetched_at 2026-09-02T00:12:38Z). quality.piotroski/beneish are missing cost_of_revenue_fy; fundamentals.cash and fundamentals.total_debt are both entirely absent, the same structural pattern already confirmed exhausted for DHT, FRO and SFL-CORP on the identical fixed FACT_MAP candidate list (cost_of_revenue: CostOfGoodsAndServicesSold/CostOfRevenue/CostOfGoodsSold/CostOfServices; cash: CashAndCashEquivalentsAtCarryingValue only). No re-queue. Fields stay NULL with their existing bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A.",
   "Checked 2026-09-04 after the fetcher's XBRL concept map was widened (commit 2d3ce3e) and data/market/TEN.json was re-fetched under it: quality.piotroski (5, MIDDLING) and quality.beneish_state (-2.145, CLEAN) are now fillable, both previously blocked only by the missing cost_of_revenue_fy input, which the widened map resolved. fcf_margin, net_debt_to_ebitda and both reverse-DCF fields stay NULL: companyfacts.coverage still lists capex and total_liabilities as missing, and cash/total_debt remain untagged."
@@ -206,15 +210,15 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 after the widened XBRL concept map re-fetch (commit 2d3ce3e): quality.piotroski and quality.beneish_state now sourced (both were blocked only by missing cost_of_revenue_fy). 8 of 12 canonical fields now carry a sourced number (up from 6). Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (fcf_margin, leverage.net_debt_to_ebitda and reverse_dcf remain NULL)."
+  "basis": "Re-profiled 2026-09-04 from data/market/TEN.json (sec-companyfacts) after commit 54cbeaa (foreign filer cash/debt fix) re-fetched the market file. 9 of 12 canonical fields now carry a sourced number (up from 8): leverage.net_debt_to_ebitda newly computed at 2.827019. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (fcf_margin and reverse_dcf remain NULL)."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 7,
+  "INFERRED": 8,
   "SPECULATIVE": 0,
-  "NULL": 4,
+  "NULL": 3,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers cash_conversion.fcf_margin, leverage.net_debt_to_ebitda, and both reverse-DCF fields, each with a named missing companyfacts input. Recomputed 2026-09-04 (prior audit undercounted canonical_fields_written as 11 instead of 12)."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers cash_conversion.fcf_margin and both reverse-DCF fields, each with a named missing companyfacts input."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -238,6 +242,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile TEN: re-read data/market/TEN.json in full after the fetcher's XBRL concept map was widened today (commit 2d3ce3e) and the file was re-fetched under it. quality.piotroski filled (5, MIDDLING, 9/9 inputs); quality.beneish_state filled (-2.145, CLEAN, 12/12 inputs); both were previously blocked only by missing cost_of_revenue_fy, now resolved by the widened concept map. Revenue, growth, margins, cash_conversion.ocf/ni and valuation confirmed unchanged against the re-fetch. fcf_margin, leverage.net_debt_to_ebitda and reverse_dcf stay NULL naming missing capex, cash/total_debt and total_liabilities respectively. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (fcf_margin, leverage and reverse_dcf still NULL)."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile TEN: re-read data/market/TEN.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash (293312000) and fundamentals.total_debt (1487363000), both as of 2025-12-31, are now populated (previously entirely absent). Computed leverage.net_debt_to_ebitda = 2.827019 (net debt 1194051000 / EBITDA proxy 422371000 = operating income 252317000 + depreciation 170054000, FY2025). Re-verified all other canonical fields against the current market file: unchanged. fcf_margin and reverse_dcf remain PENDING_DATA (capex_fy and total_liabilities_fy still absent). 9 of 12 canonical fields now sourced, up from 8. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: fcf_margin and reverse_dcf still NULL). Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }

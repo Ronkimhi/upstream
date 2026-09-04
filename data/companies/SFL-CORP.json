@@ -3,7 +3,7 @@
  "issuer_name": "SFL Corp Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T21:40:00Z",
- "updated_at": "2026-09-04T21:40:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -116,9 +116,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/SFL.json fundamentals.cash and fundamentals.total_debt are both null; only long_term_debt_fy (1960533000 at 2025-12-31) is tagged, with no matching cash figure to net against it, so net debt to EBITDA is not computed rather than approximated from a one-sided figure."
+    "value": 4.562503,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SFL.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001289877.json",
+    "source_date": "2026-09-04",
+    "basis": "Net debt 1695773000 (total debt 1808877000 less cash 113104000, both as of 2026-06-30) divided by an EBITDA proxy 371676000 (operating income 136678000 plus depreciation 234998000, both for the fiscal year ended 2025-12-31), from companyfacts. The balance sheet is more recent than the income statement; the ratio mixes the latest instant against the last full fiscal year. Newly fillable 2026-09-04: commit 54cbeaa (foreign filer cash/debt fix) populated fundamentals.cash and fundamentals.total_debt for this filer, which previously read null.",
+    "official_source": true
    }
   },
   "quality": {
@@ -189,23 +193,23 @@
   }
  ],
  "data_gaps": [
-  "Filled 2026-09-04 from data/market/SFL.json (sec-companyfacts, T1): revenue, growth, margins and the ocf/ni cash-conversion leg carry sourced numbers.",
-  "fcf_margin, net_debt_to_ebitda, piotroski, beneish_state, and both reverse-DCF fields are NULL: companyfacts.coverage lists capex, gross_profit, cost_of_revenue and sga as missing, and cash/total_debt are untagged.",
+  "Filled 2026-09-04 from data/market/SFL.json (sec-companyfacts, T1): revenue, growth, margins and the ocf/ni cash-conversion leg carry sourced numbers. Re-checked 2026-09-04 after commit 54cbeaa (foreign filer cash/debt fix): fundamentals.cash and fundamentals.total_debt are now populated, so leverage.net_debt_to_ebitda is now sourced (4.562503).",
+  "fcf_margin, piotroski, beneish_state, and both reverse-DCF fields are NULL: companyfacts.coverage lists capex, gross_profit, cost_of_revenue and sga as missing.",
   "No segment-level revenue split isolates the five Suezmax crude tankers from SFL's much larger diversified fleet.",
   "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/SFL.json in full (fetched_at 2026-09-02T00:12:38Z). quality.piotroski/beneish are missing cost_of_revenue_fy (beneish additionally sga_fy); fundamentals.cash and fundamentals.total_debt are both entirely absent, matching the same structural pattern already confirmed exhausted for DHT, FRO and TSAKOS-ENERGY-NAVIGATION on the identical fixed FACT_MAP candidate list. No new filing period is due in this window that would plausibly add these concepts. No re-queue. Fields stay NULL with their existing bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A."
  ],
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Created this run from data/market/SFL.json (sec-companyfacts, T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 6 of 11 numeric canonical fields carry a sourced number, the remaining 5 honestly NULL on named missing companyfacts inputs. COMPLETE and O2 per method section 6A."
+  "basis": "Re-profiled 2026-09-04 from data/market/SFL.json (sec-companyfacts) after commit 54cbeaa (foreign filer cash/debt fix) re-fetched the market file. 7 of 12 canonical fields now carry a sourced number, up from 6: leverage.net_debt_to_ebitda newly computed at 4.562503. Status COMPLETE, opportunity_tier O2 unchanged. run profile SFL."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 5,
+  "INFERRED": 6,
   "SPECULATIVE": 0,
   "NULL": 5,
-  "canonical_fields_written": 11,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers fcf_margin, net_debt_to_ebitda, piotroski, beneish_state, and both reverse-DCF fields, each with a named missing companyfacts input."
+  "canonical_fields_written": 12,
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL covers fcf_margin, piotroski, beneish_state, and both reverse-DCF fields, each with a named missing companyfacts input."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -223,6 +227,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile SFL-CORP: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for quality.piotroski/beneish_state and leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile SFL: re-read data/market/SFL.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash (113104000) and fundamentals.total_debt (1808877000), both as of 2026-06-30, are now populated (previously entirely absent). Computed leverage.net_debt_to_ebitda = 4.562503 (net debt 1695773000 / EBITDA proxy 371676000 = operating income 136678000 + depreciation 234998000, FY2025), mixing the latest balance-sheet instant against the last full fiscal year's income statement. Re-verified all other canonical fields against the current market file: unchanged. quality.piotroski/beneish_state remain PENDING_DATA (missing cost_of_revenue_fy, and sga_fy for beneish); reverse_dcf remains PENDING_DATA (capex_fy still absent from companyfacts, so fcf cannot be solved). 7 of 12 canonical fields now sourced, up from 6. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: quality group and reverse_dcf still NULL). Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }

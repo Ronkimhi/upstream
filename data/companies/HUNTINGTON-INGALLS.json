@@ -3,7 +3,7 @@
  "issuer_name": "Huntington Ingalls Industries, Inc.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T21:50:00Z",
- "updated_at": "2026-09-04T21:50:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -120,9 +120,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/HII.json fundamentals.cash's only entry is dated 2024-03-31 (10000000) while fundamentals.total_debt is dated 2026-06-30 (2702000000); the two points are roughly two years apart with no comparable-period pairing available in companyfacts, so net debt to EBITDA is not computed rather than mixed across mismatched dates."
+    "value": 2.728195,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HII.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001501585.json",
+    "source_date": "2026-09-04",
+    "basis": "Net debt 2690000000 (total debt 2702000000 less cash 12000000, both as of 2026-06-30) divided by an EBITDA proxy 986000000 (operating income 657000000 plus depreciation 329000000, both for the fiscal year ended 2025-12-31), from companyfacts. The balance sheet is more recent than the income statement; the ratio mixes the latest instant against the last full fiscal year. Newly fillable 2026-09-04: commit 54cbeaa (foreign filer cash/debt fix, but this run's re-fetch also retagged cash for this US filer) moved fundamentals.cash's datapoint from a stale 2024-03-31 read to 2026-06-30, now matching total_debt's period.",
+    "official_source": true
    }
   },
   "quality": {
@@ -162,17 +166,17 @@
     "value": 0.0538,
     "tag": "SPECULATIVE",
     "source_name": "Upstream market store data/market/HII.json quality.reverse_dcf",
-    "source_date": "2026-09-02",
+    "source_date": "2026-09-04",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001501585.json",
-    "basis": "Free-cash-flow CAGR the current enterprise value 14167007325.34 implies over a 5-year explicit period on base FCF 794000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+    "basis": "Free-cash-flow CAGR the current enterprise value 14165007325.34 implies over a 5-year explicit period on base FCF 794000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure. Re-verified 2026-09-04 against the commit 54cbeaa re-fetch: enterprise value corrected from 14167007325.34 to 14165007325.34 (immaterial, reflects updated cash/debt inputs to the derived enterprise-value calc); implied_fcf_cagr unchanged."
    },
    "horizon_spread": {
     "value": 0.0124,
     "tag": "SPECULATIVE",
     "source_name": "Upstream market store data/market/HII.json quality.reverse_dcf",
-    "source_date": "2026-09-02",
+    "source_date": "2026-09-04",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001501585.json",
-    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0538, '7': 0.0467, '10': 0.0414})."
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0538, '7': 0.0466, '10': 0.0414}). Re-verified 2026-09-04 against the commit 54cbeaa re-fetch: unchanged."
    }
   }
  },
@@ -199,8 +203,8 @@
   }
  ],
  "data_gaps": [
-  "Filled 2026-09-04 from data/market/HII.json (sec-companyfacts, T1): revenue, growth, margins, both cash-conversion legs, valuation and reverse-DCF fields carry sourced numbers.",
-  "leverage (net_debt_to_ebitda) is NULL: companyfacts' only cash datapoint (2024-03-31) sits roughly two years from the total_debt datapoint (2026-06-30), too far apart to pair honestly.",
+  "Filled 2026-09-04 from data/market/HII.json (sec-companyfacts, T1): revenue, growth, margins, both cash-conversion legs, valuation, leverage and reverse-DCF fields carry sourced numbers.",
+  "leverage (net_debt_to_ebitda) is now sourced: re-checked 2026-09-04 after commit 54cbeaa (foreign filer cash/debt fix, which also retagged cash for this US filer), fundamentals.cash's datapoint moved from a stale 2024-03-31 read to 2026-06-30, now matching total_debt's period. net_debt_to_ebitda = 2.728195.",
   "piotroski and beneish_state are NULL despite full raw-input coverage: data/market/HII.json quality reports 0 common fiscal periods across the found inputs, so the year-over-year change legs both scores need cannot be computed.",
   "No Hormuz-specific or mine-clearance-program revenue percentage is disclosed by segment.",
   "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/HII.json in full (fetched_at 2026-09-02T00:12:38Z). All 9 Piotroski and 12 Beneish raw inputs are found but share zero common fiscal period across the concepts used (e.g. cost_of_revenue_fy only reaches 2010-2017 while net_income_fy/shares_fy run 2023-2025 under a different concept), the same class of concept-selection gap documented for TEEKAY-TANKERS above. fundamentals.cash carries exactly one point (2024-03-31) and fundamentals.total_debt exactly one point (2026-06-30), roughly two years apart, so no matching-period net debt exists. tools/fetch/fetch.py's cash field tries a single fixed concept (CashAndCashEquivalentsAtCarryingValue) with no fallback; this filer's companyfacts evidently retagged cash after 2024-03-31 under a concept the fetcher does not search. A re-fetch of the same companyfacts document with the same fixed candidate list would return the identical single points; this is a fetch-code candidate-list gap, not a fresh-data question. No re-queue; flagged to backlog. Fields stay NULL with their existing bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A."
@@ -208,15 +212,15 @@
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Created this run from data/market/HII.json (sec-companyfacts, T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 9 of 11 numeric canonical fields carry a sourced number, with net_debt_to_ebitda, piotroski and beneish_state honestly NULL on named data gaps. COMPLETE and O2 per method section 6A."
+  "basis": "Re-profiled 2026-09-04 from data/market/HII.json (sec-companyfacts) after commit 54cbeaa (foreign filer cash/debt fix, which also retagged cash for this US filer) re-fetched the market file. 10 of 11 numeric canonical fields now carry a sourced number, up from 9: leverage.net_debt_to_ebitda newly computed at 2.728195. piotroski and beneish_state remain NULL (0 common fiscal periods). COMPLETE and O2 per method section 6A."
  },
  "confidence_audit": {
   "VERIFIED": 1,
   "INFERRED": 7,
   "SPECULATIVE": 2,
-  "NULL": 3,
-  "canonical_fields_written": 11,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. NULL covers net_debt_to_ebitda, piotroski and beneish_state, each with a named data gap."
+  "NULL": 2,
+  "canonical_fields_written": 12,
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. NULL covers piotroski and beneish_state, each with a named data gap."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -234,6 +238,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile HUNTINGTON-INGALLS: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for quality.piotroski/beneish_state and leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile HII: re-read data/market/HII.json after commit 54cbeaa (foreign filer cash/debt fix, fetched_at 2026-09-04T17:38:23Z; this re-fetch also retagged cash for this US filer). fundamentals.cash's datapoint moved from a stale 2024-03-31 read (10000000) to 2026-06-30 (12000000), now matching total_debt's period (2702000000, 2026-06-30). Computed leverage.net_debt_to_ebitda = 2.728195 (net debt 2690000000 / EBITDA proxy 986000000 = operating income 657000000 + depreciation 329000000, FY2025). Re-verified reverse_dcf against the current market file: enterprise value corrected 14167007325.34 -> 14165007325.34 (immaterial), implied_fcf_cagr and horizon_spread unchanged. quality.piotroski/beneish_state remain NULL (0 common fiscal periods across full raw-input coverage). 10 of 11 canonical fields now sourced, up from 9. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: quality group still NULL). Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }

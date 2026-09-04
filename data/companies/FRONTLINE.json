@@ -3,11 +3,11 @@
  "issuer_name": "Frontline plc",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:05:00Z",
- "updated_at": "2026-09-04T22:05:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
- "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:FRO carries a real SEC CIK (913290), but data/market/FRO.json fundamentals.coverage reads 0 of 20 annual fields found (fetched 2026-08-31, before the 2026-09-01 fetch.py fix that serves the yfinance-statements vendor leg when SEC companyfacts returns zero fields for a filer). Kept at T1 (a real CIK exists) pending the re-fetch. UPDATED 2026-09-04: sec-companyfacts fundamentals and computed quality block now on disk in data/market/FRO.json (fetched this run); profile moves from BLOCKED to COMPLETE.",
+ "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:FRO carries a real SEC CIK (913290), but data/market/FRO.json fundamentals.coverage reads 0 of 20 annual fields found (fetched 2026-08-31, before the 2026-09-01 fetch.py fix that serves the yfinance-statements vendor leg when SEC companyfacts returns zero fields for a filer). Kept at T1 (a real CIK exists) pending the re-fetch. UPDATED 2026-09-04: sec-companyfacts fundamentals and computed quality block now on disk in data/market/FRO.json (fetched this run); profile moves from BLOCKED to COMPLETE. UPDATED 2026-09-04 (commit 54cbeaa, foreign filers' cash/debt read from 20-F/40-F, latest-taxonomy-wins): the redomiciliation-era CIK tagging gap this profile previously flagged is resolved. companyfacts now carries revenue and income statement points through fiscal year 2025-12-31, not just 2021-12-31; the whole income-statement metrics block is re-anchored on FY2025 this run.",
  "opportunity_tier": "O2",
  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring per method section 6A; not examined for O1 promotion this run (run selection is a separate command not run this batch).",
  "listing_refs": [
@@ -56,17 +56,17 @@
   "chain": "data/chains/hormuz-maritime.json",
   "market": "data/market/FRO.json"
  },
- "business_summary": "Frontline plc (NYSE: FRO) is a Cyprus-domiciled owner and operator of VLCC and Suezmax crude oil tankers, one of the largest listed pure-play crude tanker owners. Fundamentals cannot be sourced this run: SEC companyfacts returned zero annual fields for CIK 913290 (fetched 2026-08-31, before the vendor-fallback fix landed).",
+ "business_summary": "Frontline plc (NYSE: FRO) is a Cyprus-domiciled owner and operator of VLCC and Suezmax crude oil tankers, one of the largest listed pure-play crude tanker owners. FY2025 revenue of 1,971,173,000 and operating margin of 30.4% (data/market/FRO.json, sec-companyfacts) confirm the scale of a pure-play tanker operator with direct spot-market leverage to the Hormuz-driven rate environment this chain trades.",
  "exposure_summary": {
-  "narrative": "FRONTLINE has 1 placement on hormuz-maritime (crude-tanker-tonnage, OVER_CROWDED, not the money corner). Every canonical metric is NULL: data/market/FRO.json fundamentals.coverage shows 0 of 20 annual fields found."
+  "narrative": "FRONTLINE has 1 placement on hormuz-maritime (crude-tanker-tonnage, OVER_CROWDED, not the money corner). 5 of 12 canonical metric fields carry a sourced number this run (revenue, growth, operating margin, both cash-conversion fields, market_cap, price_to_sales, and reverse_dcf); leverage and quality remain NULL, each with a field-specific basis."
  },
  "crowdedness_caveats": [
   "Chain heat scores crude-tanker-tonnage crowdedness 84/100, verdict OVER_CROWDED, REPRICED with 1 leg met. Chain heat evidence names Frontline specifically: 'gCaptain, Frontline sees strongest quarter in two decades as Hormuz crisis reshapes tanker trade' (2026-05-22) and '24/7 Wall St.' cites a 62.58% year-to-date gain for FRO shares."
  ],
  "catalysts": [
   {
-   "claim": "gCaptain (2026-05-22) reports Frontline's \"strongest quarter in two decades\" on the Hormuz crisis, and 24/7 Wall St. cites a 62.58% year-to-date share gain, corroborating direct crude-tanker exposure to the reroute this chain trades even though companyfacts itself has not re-tagged revenue past FY2021.",
-   "source_name": "gCaptain, Frontline sees strongest quarter in two decades as Hormuz crisis reshapes tanker trade (chain heat evidence)",
+   "claim": "gCaptain (2026-05-22) reports Frontline's \"strongest quarter in two decades\" on the Hormuz crisis, and 24/7 Wall St. cites a 62.58% year-to-date share gain, corroborating direct crude-tanker exposure to the reroute this chain trades. companyfacts now corroborates from the filing side: FY2025 operating cash flow (682,460,000) exceeds net income (379,081,000) by 1.80x on a 30.4% operating margin, consistent with the rate spike flowing through to cash.",
+   "source_name": "gCaptain, Frontline sees strongest quarter in two decades as Hormuz crisis reshapes tanker trade (chain heat evidence); SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals",
    "source_date": "2026-05-22",
    "url": "data/chains/hormuz-maritime.json",
    "tag": "INFERRED"
@@ -74,130 +74,142 @@
  ],
  "risks": [
   {
-   "claim": "SEC companyfacts for Frontline plc (CIK 913290) carries no revenue or operating-income figure after fiscal year 2021, five years stale against this run; the redomiciliation from Frontline Ltd. (Marshall Islands, 20-F filer) to Frontline plc (Cyprus) around 2026 appears to have interrupted this CIK's XBRL tagging. Every income-statement canonical field on this profile is a 2021 number, not current, even though the chain heat evidence (24/7 Wall St., gCaptain) describes a live 2026 rate spike this filer is directly exposed to.",
-   "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+   "claim": "Chain heat scores crude-tanker-tonnage OVER_CROWDED (84/100) with a REPRICED verdict; FRO shares are up 62.58% year-to-date per the chain's own cited evidence, so the rate spike this profile's strong FY2025 numbers reflect is largely already in the price. price_to_sales of 4.99 (market cap 9,837,705,464.91 against FY2025 revenue) is elevated for a capital-intensive shipowner and should be read against that already-priced move.",
+   "source_name": "data/chains/hormuz-maritime.json heat block; SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals",
    "source_date": "2026-09-04",
-   "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+   "url": "data/chains/hormuz-maritime.json",
    "tag": "INFERRED"
   }
  ],
  "data_gaps": [
-  "Filled 2026-09-04 from data/market/FRO.json: 5 of 12 canonical fields carry a sourced number; 7 remain NULL, each with a field-specific basis naming the missing series or state.",
-  "revenue_latest_fy is the fiscal year ended 2021-12-31 (640,327,000): companyfacts for this CIK carries no revenue_fy point after 2021, five fiscal years stale against this run's 2026-09-04 as_of. revenue_cagr_3y is NULL because no 2018-12-31 point exists to anchor a 3-year-back comparison against 2021.",
-  "operating_margin and operating_cash_flow_to_net_income are both computed on the same stale 2021-12-31 fiscal year for internal consistency (matching the only revenue point on file), not on a current year.",
-  "valuation.market_cap and price_to_sales mix a current market close (44.19, 2026-08-28) against the 2021 share count (203,530,979) and 2021 revenue: this is a genuine data limitation of companyfacts for this filer post-redomiciliation (Frontline Ltd. to Frontline plc), not an invented number, but price_to_sales in particular should be read as indicative only given the 5-year-old revenue denominator.",
-  "fcf_margin, net_debt_to_ebitda, piotroski, beneish_state and reverse_dcf all remain NULL: capex_fy, cash and total_debt are all null or absent in companyfacts for this filer, and piotroski/beneish are missing cost_of_revenue_fy.",
-  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/FRO.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality.piotroski/beneish are still missing cost_of_revenue_fy (and beneish additionally ppe_net_fy); fundamentals.cash and fundamentals.total_debt are both still entirely absent (taxonomy us-gaap). The FACT_MAP candidate list for these fields is fixed and was already exhausted against this filer's companyfacts by the fetch already on disk; a same-day re-queue would return identical results. No re-queue. Fields stay NULL with their existing bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A."
+  "Re-checked 2026-09-04 after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z): the redomiciliation-era CIK tagging gap this profile previously flagged (companyfacts silent past FY2021) is resolved. revenue_fy, net_income_fy, operating_income_fy, operating_cashflow_fy, capex_fy and shares_fy now all carry points through fiscal year 2025-12-31. Every income-statement and valuation canonical field is re-anchored on FY2025 (or FY2022-to-FY2025 for the 3-year CAGR) this run, replacing the prior FY2021-anchored figures.",
+  "leverage.net_debt_to_ebitda remains NULL: fundamentals.cash (251347000) and fundamentals.total_debt (3067745000) are both now populated (2025-12-31), but fundamentals.depreciation_fy is entirely absent from companyfacts for this filer (coverage.missing names 'depreciation'), so the EBITDA proxy (operating income plus depreciation) cannot be computed. Net debt alone (2816398000) is not written as a canonical field; the schema requires the ratio.",
+  "quality.piotroski and quality.beneish_state remain NULL: data/market/FRO.json quality.piotroski.state is PENDING_DATA (8 of 9 inputs found, missing cost_of_revenue_fy) and quality.beneish.state is PENDING_DATA (10 of 12 inputs found, missing cost_of_revenue_fy and depreciation_fy, the same absent concept that blocks leverage).",
+  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings), superseded this run by the commit 54cbeaa re-fetch: cost_of_revenue_fy and depreciation_fy remain absent from this filer's companyfacts under both taxonomy candidates tried by fetch.py's fixed FACT_MAP; a same-day re-queue would return identical results, so none was queued. quality and leverage stay NULL with their current field-specific bases; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A (critical canonical fields NULL)."
  ],
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": 640327000,
+    "value": 1971173000,
     "tag": "VERIFIED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
     "source_date": "2026-09-04",
-    "basis": "Revenue for the fiscal year ended 2021-12-31 as reported to SEC XBRL companyfacts for CIK 913290 (Frontline plc, FRO)."
+    "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 913290 (Frontline plc, FRO). Newly current 2026-09-04: prior run read the same concept's only available point, fiscal year 2021-12-31 (640327000); commit 54cbeaa's re-fetch now carries points through FY2025."
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Three-year revenue CAGR: no data point three fiscal years before the latest annual revenue figure is present in the series."
-   }
-  },
-  "margins": {
-   "operating_margin": {
-    "value": 0.019077752460852034,
+    "value": 0.110786,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
     "source_date": "2026-09-04",
-    "basis": "Operating income 12216000 divided by revenue 640327000, both for the fiscal year ended 2021-12-31, from companyfacts.",
+    "basis": "Three-year compound annual revenue growth computed as (1971173000 / 1438248000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. Newly fillable 2026-09-04: no 3-year-back anchor point existed under the prior FY2021-only read.",
+    "official_source": true
+   }
+  },
+  "margins": {
+   "operating_margin": {
+    "value": 0.303754,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+    "source_date": "2026-09-04",
+    "basis": "Operating income 598752000 divided by revenue 1971173000, both for the fiscal year ended 2025-12-31, from companyfacts.",
     "official_source": true
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": -5.64513814137065,
+    "value": 1.800301,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
     "source_date": "2026-09-04",
-    "basis": "Operating cash flow 62932000 divided by net income -11148000, both for the fiscal year ended 2021-12-31, from companyfacts.",
+    "basis": "Operating cash flow 682460000 divided by net income 379081000, both for the fiscal year ended 2025-12-31, from companyfacts.",
     "official_source": true
    },
    "fcf_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Free cash flow margin: no fiscal year with operating cash flow, capex and revenue all present in the same period."
+    "value": 0.339863,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+    "source_date": "2026-09-04",
+    "basis": "Free cash flow margin: operating cash flow 682460000 less capital expenditure 12531000 (free cash flow 669929000, matching data/market/FRO.json quality.derived.fcf), divided by revenue 1971173000, all for the fiscal year ended 2025-12-31, from companyfacts. Newly fillable 2026-09-04: no common fiscal year existed across operating cash flow, capex and revenue under the prior FY2021-only read.",
+    "official_source": true
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
     "value": null,
     "tag": "NULL",
-    "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+    "basis": "Net debt to EBITDA: fundamentals.cash (251347000) and fundamentals.total_debt (3067745000) are both now populated (2025-12-31, newly filled by commit 54cbeaa), but fundamentals.depreciation_fy is entirely absent from companyfacts for this filer (coverage.missing names 'depreciation'), so the EBITDA proxy (operating income plus depreciation) cannot be computed."
    }
   },
   "quality": {
    "piotroski": {
     "value": null,
     "tag": "NULL",
-    "basis": "Piotroski F-score: data/market/FRO.json quality.piotroski.state is PENDING_DATA."
+    "basis": "Piotroski F-score: data/market/FRO.json quality.piotroski.state is PENDING_DATA (8 of 9 inputs found, missing cost_of_revenue_fy)."
    },
    "beneish_state": {
     "value": null,
     "tag": "NULL",
-    "basis": "Beneish M-score: data/market/FRO.json quality.beneish.state is PENDING_DATA."
+    "basis": "Beneish M-score: data/market/FRO.json quality.beneish.state is PENDING_DATA (10 of 12 inputs found, missing cost_of_revenue_fy and depreciation_fy)."
    }
   },
   "valuation": {
    "market_cap": {
-    "value": 8994033962.01,
+    "value": 9837705464.91,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
     "source_date": "2026-09-04",
-    "basis": "Market capitalization 8994033962.01 computed in data/market/FRO.json quality.derived.market_cap from share count 203530979 (as of 2021-12-31) times the close 44.19 of 2026-08-28.",
+    "basis": "Market capitalization 9837705464.91 computed in data/market/FRO.json quality.derived.market_cap from share count 222622889 (as of 2025-12-31) times the close 44.19 of 2026-08-28. Corrects the prior 8994033962.01 figure, which used the stale 2021-12-31 share count (203530979).",
     "official_source": true
    },
    "price_to_sales": {
-    "value": 14.04600143678152,
+    "value": 4.990787,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FRO.json fundamentals (source sec-companyfacts)",
     "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
     "source_date": "2026-09-04",
-    "basis": "Market capitalization 8994033962.01 divided by fiscal year 2021-12-31 revenue 640327000.",
+    "basis": "Market capitalization 9837705464.91 divided by fiscal year 2025-12-31 revenue 1971173000. Recomputed 2026-09-04 with the corrected market cap and current revenue (prior figure mixed a current close against 2021 share count and 2021 revenue).",
     "official_source": true
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "implied_fcf_cagr not solved: data/market/FRO.json quality.reverse_dcf.state is PENDING_DATA."
+    "value": 0.0673,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/FRO.json quality.reverse_dcf",
+    "source_date": "2026-09-04",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+    "basis": "Free-cash-flow CAGR the current enterprise value 12654103464.91 implies over a 5-year explicit period on base FCF 669929000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure. Newly fillable 2026-09-04: PENDING_DATA under the prior FY2021-only read (no current fcf/enterprise_value)."
    },
    "horizon_spread": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
+    "value": 0.0183,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/FRO.json quality.reverse_dcf",
+    "source_date": "2026-09-04",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000913290.json",
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0673, '7': 0.0567, '10': 0.049})."
    }
   }
  },
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 from data/market/FRO.json (sec-companyfacts) after REQ-20260904 batch-4 requests were fulfilled. 5 of 12 canonical fields now carry a sourced number. Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+  "basis": "Re-profiled 2026-09-04 from data/market/FRO.json (sec-companyfacts) after commit 54cbeaa (foreign filer cash/debt fix) re-fetched the market file and resolved the redomiciliation-era CIK tagging gap. 7 of 12 canonical fields now carry a sourced number, up from 5 (revenue, growth, margins, both cash-conversion fields, valuation and reverse_dcf all re-anchored on FY2025 or newly solved; leverage and quality remain NULL). Status COMPLETE, opportunity_tier O2 unchanged. run profile FRO."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 4,
-  "SPECULATIVE": 0,
-  "NULL": 7,
+  "INFERRED": 6,
+  "SPECULATIVE": 2,
+  "NULL": 3,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 7 canonical field(s) remain NULL this run."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE covers the reverse-DCF solve. 3 canonical field(s) remain NULL this run (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state)."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -221,6 +233,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile FRONTLINE: gap-closing pass on CAMP-20260901-01 BLK-05/BLK-06. Re-read data/market file in full for quality.piotroski/beneish_state and leverage.net_debt_to_ebitda. No fetchable or fillable data found from disk; determined a fundamentals/quality re-fetch would not plausibly change the result (see data_gaps for the field-by-field basis) so none was queued. No numeric field changed. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical field NULL)."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile FRO: re-read data/market/FRO.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). companyfacts now carries revenue, net income, operating income, operating cash flow, capex and shares points through FY2025-12-31, resolving the prior FY2021-only tagging gap. Re-anchored revenue.latest_fy (1971173000), growth.revenue_cagr_3y (0.110786, newly fillable), margins.operating_margin (0.303754), cash_conversion.operating_cash_flow_to_net_income (1.800301) and fcf_margin (0.339863, newly fillable), valuation.market_cap (9837705464.91, corrected) and price_to_sales (4.990787, corrected) all on FY2025 (or FY2022-FY2025 for the CAGR). reverse_dcf newly SOLVED: implied_fcf_cagr 0.0673, horizon_spread 0.0183. leverage.net_debt_to_ebitda stays NULL: cash and total_debt are now both populated (251347000, 3067745000, both 2025-12-31) but depreciation_fy remains entirely absent from companyfacts for this filer, so the EBITDA proxy cannot be computed. quality.piotroski and beneish_state stay NULL: PENDING_DATA on missing cost_of_revenue_fy (and depreciation_fy for beneish). 7 of 12 canonical fields now sourced, up from 5. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: quality group and leverage still NULL). Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }

@@ -3,7 +3,7 @@
  "issuer_name": "Elbit Systems Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:30:00Z",
- "updated_at": "2026-09-04T18:05:00Z",
+ "updated_at": "2026-09-04T23:45:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -84,7 +84,7 @@
  "data_gaps": [
   "Filled 2026-09-04 from data/market/ESLT.json: 9 of 12 canonical fields carry a sourced number; 3 remain NULL, each with a field-specific basis naming the missing series or state.",
   "revenue_latest_fy, revenue_cagr_3y, operating_margin and fcf_margin are all anchored on fiscal year 2024-12-31: companyfacts revenue_fy for this filer has no 2025 point yet, even though operating_income_fy, operating_cashflow_fy and net_income_fy already carry a 2025 figure. operating_cash_flow_to_net_income therefore uses the more current FY2025 pair (both series overlap there); the two cash-conversion fields are consequently sourced from different fiscal years, each stated in its own basis.",
-  "net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both null in companyfacts for this filer, so no net debt or enterprise value figure exists.",
+  "net_debt_to_ebitda and reverse_dcf are now both sourced: re-checked 2026-09-04 after commit 54cbeaa (foreign filer cash/debt fix), fundamentals.cash and fundamentals.total_debt are both now populated (Elbit holds a net cash position).",
   "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): Re-read data/market/ESLT.json in full (fetched_at 2026-09-04T06:49:30Z, same batch-4/5 fetch already reflected in this profile's prior changelog entry). quality (piotroski 7 STRONG, beneish -2.437 CLEAN) is already complete and official-source cross-checkable. fundamentals.cash and fundamentals.total_debt are both still entirely absent under the same single fixed cash-concept limitation confirmed exhausted elsewhere in this pass (DHT, FRO, TEEKAY-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION, NORDIC-AMERICAN-TANKERS); a same-day re-queue would return identical results. No re-queue. net_debt_to_ebitda stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A.",
   "Checked 2026-09-04 after the fetcher's XBRL concept map was widened (commit 2d3ce3e) and data/market/ESLT.json was re-fetched under it: revenue_fy now carries a 2025-12-31 point, so revenue.latest_fy, growth.revenue_cagr_3y, margins.operating_margin, cash_conversion.fcf_margin and valuation.price_to_sales all move from a FY2024 base to FY2025 and are now internally consistent with cash_conversion.operating_cash_flow_to_net_income (already FY2025). quality.piotroski moved 7 to 8 and quality.beneish_state moved -2.437 to -2.473 (both states unchanged, STRONG/CLEAN) as the widened map changed which fiscal-year points the change-based criteria compare. net_debt_to_ebitda and reverse_dcf remain NULL: cash and total_debt are both still entirely absent in companyfacts for this filer."
  ],
@@ -143,9 +143,13 @@
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
+    "value": -0.7322,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+    "source_date": "2026-09-04",
+    "basis": "Net debt -617141000 (total debt 18000000 less cash 635141000, both as of 2025-12-31, a net cash position) divided by an EBITDA proxy 842858000 (operating income 671424000 plus depreciation 171434000, both for the fiscal year ended 2025-12-31), from companyfacts. The negative value reflects Elbit holding more cash than debt. Newly fillable 2026-09-04: commit 54cbeaa (foreign filer cash/debt fix) populated fundamentals.cash and fundamentals.total_debt for this filer, which previously read null.",
+    "official_source": true
    }
   },
   "quality": {
@@ -190,29 +194,35 @@
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "implied_fcf_cagr not solved: data/market/ESLT.json quality.reverse_dcf.state is PENDING_DATA."
+    "value": 0.3596,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/ESLT.json quality.reverse_dcf",
+    "source_date": "2026-09-04",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+    "basis": "Free-cash-flow CAGR the current enterprise value 31949165069.44 implies over a 5-year explicit period on base FCF 552810000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure. Newly fillable 2026-09-04: PENDING_DATA under the prior fetch (fcf/enterprise_value unresolved without cash/total_debt)."
    },
    "horizon_spread": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
+    "value": 0.1621,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/ESLT.json quality.reverse_dcf",
+    "source_date": "2026-09-04",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.3596, '7': 0.2644, '10': 0.1975})."
    }
   }
  },
  "disposition": {
   "state": "RETAIN",
   "as_of": "2026-09-04",
-  "basis": "Re-profiled 2026-09-04 after the widened XBRL concept map re-fetch (commit 2d3ce3e): revenue/growth/margins/fcf_margin/price_to_sales rebased from FY2024 to the now-available FY2025, and quality.piotroski/beneish_state updated (8 STRONG, -2.473 CLEAN). 9 of 12 canonical fields carry a sourced number (unchanged count, values updated). Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage.net_debt_to_ebitda and reverse_dcf remain NULL)."
+  "basis": "Re-profiled 2026-09-04 from data/market/ESLT.json (sec-companyfacts) after commit 54cbeaa (foreign filer cash/debt fix) re-fetched the market file. leverage.net_debt_to_ebitda (-0.7322, net cash) and reverse_dcf (implied_fcf_cagr 0.3596) newly SOLVED. All 12 of 12 canonical fields now carry a sourced number, up from 9. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers; run selection is a separate command not run this batch)."
  },
  "confidence_audit": {
   "VERIFIED": 1,
-  "INFERRED": 8,
-  "SPECULATIVE": 0,
-  "NULL": 3,
+  "INFERRED": 9,
+  "SPECULATIVE": 2,
+  "NULL": 0,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve. 3 canonical field(s) remain NULL this run (leverage.net_debt_to_ebitda, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread). Re-verified 2026-09-04 against the widened-concept-map re-fetch; VERIFIED/INFERRED/NULL split (1/8/3) unchanged, but every INFERRED value moved to the now-available FY2025 base or an updated quality score."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE covers the reverse-DCF solve. All 12 canonical fields now carry a sourced value; zero NULL this run."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -242,6 +252,12 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile ESLT: re-read data/market/ESLT.json in full after the fetcher's XBRL concept map was widened today (commit 2d3ce3e) and the file was re-fetched under it. revenue_fy now carries FY2025 (7,938,627,000, was FY2024's 6,827,871,000), so revenue.latest_fy, growth.revenue_cagr_3y, margins.operating_margin, cash_conversion.fcf_margin and valuation.price_to_sales all moved to the FY2025 base, now consistent with cash_conversion.operating_cash_flow_to_net_income (already FY2025, value unchanged at 1.457). quality.piotroski updated 7 to 8 (STRONG unchanged); quality.beneish_state updated -2.437 to -2.473 (CLEAN unchanged). valuation.market_cap unchanged (32,566,306,069.44, already on the current share count). leverage.net_debt_to_ebitda and reverse_dcf stay NULL naming missing cash/total_debt. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers); not O1-eligible under the critical-field rule (leverage and reverse_dcf still NULL)."
+  },
+  {
+   "ts": "2026-09-04T23:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile ESLT: re-read data/market/ESLT.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash (635141000) and fundamentals.total_debt (18000000), both as of 2025-12-31, are now populated (previously entirely absent). Computed leverage.net_debt_to_ebitda = -0.7322 (net debt -617141000, a net cash position, / EBITDA proxy 842858000 = operating income 671424000 + depreciation 171434000, FY2025). reverse_dcf newly SOLVED: implied_fcf_cagr 0.3596, horizon_spread 0.1621, base FCF 552810000, enterprise value 31949165069.44. Re-verified all other canonical fields against the current market file: unchanged. All 12 of 12 canonical fields now sourced, up from 9; zero NULL. Status COMPLETE, opportunity_tier O2 unchanged. Never invented a number; opportunity tier not touched (selection's job)."
   }
  ]
 }
