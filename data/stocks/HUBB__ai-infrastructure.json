@@ -13,7 +13,7 @@
   "clock_basis": "Inherited from the ai-infrastructure chain, which is COMPOUNDER (structural, multi-year grid and data-center electrification buildout repricing over 2-5 years), and stated explicitly per method section 2. scenario_ids is empty, so no scenario overrides it to an EVENT clock.",
   "status": "FINAL",
   "created_at": "2026-09-02",
-  "updated_at": "2026-09-02",
+  "updated_at": "2026-09-04",
   "as_of": "2026-09-02",
   "review_by": "2026-11-15",
   "verdict": "WATCH",
@@ -481,6 +481,13 @@
         "finding": "See red_team.pre_mortem below. The market-would-have-been-right story (continued margin expansion on Hubbell's own established multi-year trend) is answerable, so per method section 7 this does not force a downgrade below WATCH, which is already the floor a failed pre-mortem would impose.",
         "outcome": "CONFIRMED",
         "amendment": null
+      },
+      {
+        "dimension": "ENTRY_BASIS_STRESS_WOULD_BUY_ZONE",
+        "question": "Does the would-buy zone ($305.30-$378.70) survive the bear case this file already found, or is it the base case with a haircut?",
+        "finding": "The zone is forward-solved off the same canonical, pre-NSI-close net debt ($1,535.4M) the filed quality.reverse_dcf.enterprise_value already nets out, not off the 8-K's disclosed post-close net debt ($4,874.2M, 2026-06-30) that this file's own bear case, valuation_snapshot and watch_triggers[0] all treat as the operative current balance sheet. Re-running the identical forward solve (8.5% growth, same discount rate and terminal growth, same 5y/10y horizons) with the post-close net debt instead lowers the same growth-consistent band to $242.60-$316.01, roughly 21-25% below the drawn zone. The zone as drawn is therefore closer to the base case with a growth-path haircut already built in than to a level that has separately priced in the disclosed post-acquisition leverage; a buyer entering at the top of the drawn zone ($378.70) is not being compensated for the leverage risk this file's own bear case names.",
+        "outcome": "AMENDED",
+        "amendment": "would_buy_stress field added recording the post-close-leverage-adjusted band ($242.60-$316.01) as the more conservative alternative. would_buy_zone itself is left on the canonical, gap-table-consistent basis so its basis line matches the same reverse-DCF convention the expectations_gap table already uses; the leverage haircut is carried as stress, not folded silently into the zone or used to null it, per Ron's 2026-09-03 instruction that this leverage finding belongs in the stress of the zone, not as a cap. This does not change the WATCH verdict."
       }
     ],
     "pre_mortem": {
@@ -535,6 +542,14 @@
       "kind": "AMEND",
       "change": "Red team run in fresh context. Verdict SURVIVED at WATCH, COMPOUNDER clock, earnings grade B unchanged. Amended: bull[0] and crowdedness.basis (UNDISCOVERED tag now stated as contested, not confirmed), expectations_gap.rows[net_gap_direction].note (thin-survival, category-mismatch caveat added), watch_triggers[0].note (explicit derivation added for the 45% leverage level), independence_test.falsification (polarity corrected from a confirmer to an actual falsifier, the same defect class previously caught on VRT). Added red_team{} block with four challenges landing (CROWDEDNESS_REALITY, PRICED_IN_CHECK, CAPTURE_REALITY, ENTRY_BASIS_STRESS), one structural fix (EVIDENCE_BOUNDARY), and a pre_mortem that did not force a downgrade because a market-would-have-been-right story was answerable and the verdict was already at its floor. Status DRAFT to FINAL.",
       "prior": "status DRAFT; no red_team block; bull[0], crowdedness.basis, expectations_gap.rows[net_gap_direction].note, watch_triggers[0].note and independence_test.falsification as originally drafted 2026-09-02T00:55:00Z"
+    },
+    {
+      "ts": "2026-09-04T00:00:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5",
+      "change": "Fresh-context re-run to fill the new would_buy_zone field (Ron, 2026-09-03; method section 7). Forward-solved the filed reverse-DCF's own formula (base_fcf $874.7M, 9% discount rate, 2.5% terminal growth) for expectations_gap.rows[revenue_cagr_5y].mine (8.5%) instead of the market-implied 17.92%, on the same canonical net debt the filed enterprise_value already nets out, giving a would_buy_zone of $305.30-$378.70 (5-year to 10-year horizon convention), as_of 2026-09-04, strictly below price_ref.value (459.66) and inside 0.3x-2.0x of the last close. Added a would_buy_stress note and one new red_team.challenges entry (ENTRY_BASIS_STRESS_WOULD_BUY_ZONE, outcome AMENDED): re-solving the same band on the 8-K's disclosed post-close net debt ($4,874.2M) instead of the canonical pre-close figure lowers it to $242.60-$316.01, so the drawn zone is the base case with a growth-path haircut, not one that has separately priced in the post-acquisition leverage; this is recorded as stress on the zone, not as a cap, per Ron's instruction. Verdict (WATCH), clock (COMPOUNDER), earnings grade (B), status (FINAL), attacked_at, review_by and price_ref are unchanged.",
+      "prior": "would_buy_zone absent; would_buy_stress absent; red_team.challenges without the ENTRY_BASIS_STRESS_WOULD_BUY_ZONE entry, as filed 2026-09-02T01:13:00Z"
     }
   ],
   "confidence_audit": {
@@ -542,5 +557,12 @@
     "inferred": 26,
     "speculative": 1,
     "null": 3
-  }
+  },
+  "would_buy_zone": {
+    "low": 305.3,
+    "high": 378.7,
+    "basis": "Forward-solving the same growing-FCF-plus-Gordon-terminal-value formula behind quality.reverse_dcf (base_fcf $874.7M, 9% discount rate, 2.5% terminal growth; this formula reproduces the filed enterprise values at all three filed horizons [$26,011.5M at 5y vs filed $26,014.0M, $26,008.5M at 7y, $26,006.7M at 10y] to within 0.1%) for expectations_gap.rows[revenue_cagr_5y].mine (8.5%, this dive's own defended growth path) instead of the market-implied 17.92% gives an enterprise value of $17,793.6M at the 5-year explicit horizon actually filed and $21,702.9M at the 10-year horizon also carried in implied_by_horizon; subtracting the same canonical net debt the filed enterprise_value already nets out ($1,535.4M, quality.derived.enterprise_value minus quality.derived.market_cap) and dividing by FY2025 shares outstanding (53,253,805) gives $305.30 (5-year convention) to $378.70 (10-year convention), the band at which the market would be asking no more of Hubbell's FCF path than expectations_gap.rows[revenue_cagr_5y] already defends.",
+    "as_of": "2026-09-04"
+  },
+  "would_buy_stress": "Re-running the identical forward solve with the 8-K's disclosed post-close net debt ($4,874.2M, 2026-06-30, verbatim 'Net Debt (non-GAAP measure) $ 4,874.2') in place of the canonical pre-NSI-close net debt used above, holding base_fcf, the 9% discount rate and the 8.5% growth path fixed, lowers the same growth-consistent band to $242.60 (5-year convention) and $316.01 (10-year convention), roughly 21-25% below the drawn zone. The Net Debt to Total Capital move from 28% to 52% (watch_triggers[0]) is the reason: this zone is drawn on the same canonical net-debt convention the filed reverse_dcf and the expectations_gap table already use, so it is a base-case zone with a growth-path haircut built in, not a zone that has separately priced in the disclosed post-acquisition balance sheet. See red_team.challenges for the entry-basis stress finding this produces."
 }
