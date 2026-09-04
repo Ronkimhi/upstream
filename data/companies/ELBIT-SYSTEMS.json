@@ -3,13 +3,13 @@
  "issuer_name": "Elbit Systems Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:30:00Z",
- "updated_at": "2026-09-04T23:45:00Z",
+ "updated_at": "2026-09-04T23:58:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
  "data_tier_basis": "Nasdaq-primary-listed foreign private issuer (method section 6): Nasdaq:ESLT carries a real SEC CIK (1027664) per the mapping's own identity_evidence and files 20-F annually with the SEC. No data/market/ESLT.json file has been fetched yet. Provisionally T1 pending the fetch; may resolve to T3 if, as with some IFRS 20-F filers, companyfacts returns zero fields and only the vendor leg answers. UPDATED 2026-09-04: sec-companyfacts fundamentals and computed quality block now on disk in data/market/ESLT.json (fetched this run); profile moves from BLOCKED to COMPLETE.",
- "opportunity_tier": "O2",
- "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring per method section 6A; not examined for O1 promotion this run (run selection is a separate command not run this batch).",
+ "opportunity_tier": "O1",
+ "opportunity_tier_basis": "Promoted by run selection CAMP-20260901-01 on 2026-09-04, second selection run of the day. All 12 canonical metric fields sourced with zero NULL (up from 9 the first run, which examined this profile and found leverage and reverse_dcf still NULL): revenue.latest_fy VERIFIED and both cash-conversion fields INFERRED with official_source true, satisfying the 2026-09-01 O1 official cross-check rule. One ACTIVE, filing-evidenced placement on naval-escort-and-mine-clearance (Seagull USV mine-hunting/mine-sweeping role) and a matching campaign-v1 screen row in data/screens/hormuz-maritime.json (bucket second_order, status CANDIDATE). The link itself is CROWDED (crowdedness 72, the chain's most crowded, repricing_check PRICED_IN_ON_A_DIFFERENT_STORY) and not the chain's money corner, which selection_basis.heat and .capture record honestly rather than smoothing over; O1 is a research-priority promotion on complete, sourced evidence, not an investability claim. Full basis in selection_basis. Known gap for the next stage: the hormuz-maritime mapping's whole-census audit is FAIL (ACTIVE status) and carries zero placement_audits entries for this issuer, so Stocky's `run deepdive` cannot yet resolve the fresh-context audit requirement in CLAUDE.md's dive row; a placement-level `run universe-audit hormuz-maritime --placement ELBIT-SYSTEMS` is needed before this O1 can be dived.",
  "listing_refs": [
   "NASDAQ-ESLT"
  ],
@@ -258,6 +258,153 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile ESLT: re-read data/market/ESLT.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash (635141000) and fundamentals.total_debt (18000000), both as of 2025-12-31, are now populated (previously entirely absent). Computed leverage.net_debt_to_ebitda = -0.7322 (net debt -617141000, a net cash position, / EBITDA proxy 842858000 = operating income 671424000 + depreciation 171434000, FY2025). reverse_dcf newly SOLVED: implied_fcf_cagr 0.3596, horizon_spread 0.1621, base FCF 552810000, enterprise value 31949165069.44. Re-verified all other canonical fields against the current market file: unchanged. All 12 of 12 canonical fields now sourced, up from 9; zero NULL. Status COMPLETE, opportunity_tier O2 unchanged. Never invented a number; opportunity tier not touched (selection's job)."
+  },
+  {
+   "ts": "2026-09-04T23:58:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (second run today). Promoted opportunity_tier O2 -> O1. All 12 canonical fields now sourced with zero NULL (commit 54cbeaa foreign-filer cash/debt fix filled leverage.net_debt_to_ebitda and reverse_dcf, which blocked the first selection run). Wrote selection_basis with all seven dimensions (direct_exposure, capture, heat, quality, expectations_gap, evidence_confidence, duplicate_exposure) and screen_handoff{screen_ref: data/screens/hormuz-maritime.json, chain_id: hormuz-maritime, link_id: naval-escort-and-mine-clearance, listing_id: NASDAQ-ESLT}, resolving exactly to the profile's own ACTIVE placement and the matching campaign-v1 screen row (bucket second_order). Recorded honestly rather than smoothed: naval-escort-and-mine-clearance is CROWDED (crowdedness 72, repricing_check PRICED_IN_ON_A_DIFFERENT_STORY, zero legs met) and not the chain's money corner, and no placement-level or census-level PASS audit yet exists for this issuer, so Stocky cannot dive it until Atlas runs a fresh-context placement audit. O1 here is a research-priority promotion on complete, sourced evidence per method section 6A, not an investability claim; no verdict written."
   }
- ]
+ ],
+ "selection_basis": {
+  "as_of": "2026-09-04",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "selected_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01",
+  "direct_exposure": {
+   "state": "PRODUCT_LEVEL_ROLE_NO_DISCLOSED_PCT",
+   "placement": {
+    "chain_id": "hormuz-maritime",
+    "link_id": "naval-escort-and-mine-clearance",
+    "link_position": 6,
+    "placement_status": "ACTIVE",
+    "money_corner": false,
+    "mapping_ref": "data/mappings/hormuz-maritime.json"
+   },
+   "basis": "One ACTIVE, role-evidenced placement: Elbit's Seagull unmanned surface vessel is marketed by the company itself for mine detection, classification, localization and identification (elbitsystems.com product page, accessed 2026-09-01, VERIFIED, verbatim source_excerpt on file). This is a direct product-level role in the mission CENTCOM has already begun (chain link evidence: DefenseScoop, 2026-04-11), not an inferred sector association. No disclosed revenue percentage attributes any dollar figure to Seagull or to Hormuz mine-clearance specifically; Elbit is a multi-billion-dollar diversified defense-electronics prime and this program is one product line within it.",
+   "disclosed_theme_revenue_pct": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "No Hormuz-specific or Seagull-specific revenue percentage or dollar figure is disclosed anywhere on disk. The screen row's own theme_revenue_exposure field carries the same NULL for the same reason."
+   },
+   "source_refs": [
+    "data/mappings/hormuz-maritime.json",
+    "data/chains/hormuz-maritime.json",
+    "data/screens/hormuz-maritime.json"
+   ]
+  },
+  "capture": {
+   "state": "QUALIFIED_INCUMBENT_VALUE_NOT_DEMONSTRATED",
+   "link_capture_score": 55,
+   "link_investability": "PARTIAL",
+   "operating_margin_fy2025": 0.08457684181408195,
+   "basis": "The chain scores naval-escort-and-mine-clearance capture at 55 (middle of the map): 'naval qualification cycles are the real barrier here and they are long, which means the incumbents on the cited programmes capture the near-term work' (data/chains/hormuz-maritime.json). Elbit's Seagull is one of multiple autonomous platforms the cited CENTCOM operation is explicitly testing, not a single-source award, and the chain's own capture_inputs record 'who_posted_the_margin: Not established, no cited source attaches a contract value to this operation.' Elbit's own FY2025 operating margin of 8.46 percent is unremarkable for a defense prime and cannot itself be attributed to this one product line; it describes the whole company, not the mine-clearance placement.",
+   "what_would_change_it": "A disclosed Seagull contract value or unit order, or evidence the CENTCOM test has moved from evaluation to a sole-source award, would convert this from a qualification-barrier story to a demonstrated-margin one. Neither exists on disk today.",
+   "source_refs": [
+    "data/chains/hormuz-maritime.json"
+   ]
+  },
+  "heat": {
+   "link_verdict": "CROWDED",
+   "heat_as_of": "2026-08-30",
+   "scores": {
+    "impact": 55,
+    "crowdedness": 72,
+    "capture": 55
+   },
+   "money_corner": false,
+   "bottleneck_criticality": "HIGH",
+   "basis": "Ember scores naval-escort-and-mine-clearance CROWDED, the single most crowded link on this chain (crowdedness 72), on a repricing_check verdict of PRICED_IN_ON_A_DIFFERENT_STORY: the listed defense primes on this link, Elbit included by sector, are already run up on a multi-year European/US rearmament re-rating unconnected to Hormuz, with named peers (Saab, up nearly 200% over 12 months) rated significantly overvalued by Morningstar and sell-side advice already moved to selectivity over broad exposure. Zero repricing_check legs are met (no CROWDED-BUT-UNREPRICED flag), and the chain link's own explainer names this exact risk: 'buying a rearmament multiple to express a mine-clearance view.' This is recorded plainly, not smoothed: the link is not undiscovered, and this promotion rests on the profile's evidentiary completeness and the mission's genuineness (CENTCOM has begun clearance operations), not on a crowdedness argument.",
+   "source_refs": [
+    "data/chains/hormuz-maritime.json"
+   ]
+  },
+  "quality": {
+   "state": "COMPLETE_MEASURED_SET",
+   "piotroski": {
+    "value": 8,
+    "state": "STRONG",
+    "inputs": "9/9 present"
+   },
+   "beneish": {
+    "value": -2.473,
+    "state": "CLEAN",
+    "inputs": "12/12 present"
+   },
+   "net_debt_to_ebitda": -0.7322,
+   "fcf_margin": 0.06963546719098908,
+   "operating_cash_flow_to_net_income": 1.4567119375527522,
+   "basis": "Every canonical metric field on this profile resolves to a sourced number and none is NULL, filled this run after commit 54cbeaa (foreign filer cash/debt fix) populated fundamentals.cash and fundamentals.total_debt for this filer. Piotroski 8 of 9 (STRONG) and Beneish -2.473 (CLEAN) both compute from complete inputs. Net debt to EBITDA is -0.7322, a net cash position (cash 635,141,000 against total debt 18,000,000, both at 2025-12-31), against an EBITDA proxy of 842,858,000. Operating cash flow to net income of 1.4567 is well above 1, meaning cash earnings exceed reported net income. This is the strongest measured quality set among the ten hormuz-maritime screen rows examined this run: every other row still carries at least one genuine NULL canonical field (BLK-05).",
+   "counterweight": "Quality describes the balance sheet and earnings discipline of the whole company, not the size or durability of the Seagull mine-clearance line specifically; a strong F-score does not itself demonstrate that this one product captures the link's opportunity.",
+   "source_refs": [
+    "data/market/ESLT.json"
+   ]
+  },
+  "expectations_gap": {
+   "state": "MARKET_IMPLIES_MORE_THAN_ACHIEVED",
+   "market_implied_fcf_cagr_5y": 0.3596,
+   "implied_by_horizon": {
+    "5": 0.3596,
+    "7": 0.2644,
+    "10": 0.1975
+   },
+   "horizon_spread": 0.1621,
+   "achieved_revenue_cagr_3y": 0.12933791284329832,
+   "basis": "The reverse DCF in data/market/ESLT.json quality.reverse_dcf solves a 35.96 percent free-cash-flow CAGR over a five-year explicit period on base FCF 552,810,000 at a 0.09 discount rate and 0.025 terminal growth, against an enterprise value of 31,949,165,069.44. The achieved three-year revenue CAGR to fiscal year 2025 is 12.93 percent from companyfacts. The gap is wide and directionally unfavorable to a cheap-entry thesis: the market-implied bar is roughly 2.8 times the achieved revenue CAGR, and the gap (23.0 points at the five-year horizon) exceeds the 16.21-point horizon_spread, so this is a real gap and not merely a horizon-convention artifact. Recorded plainly rather than adjudicated: whether Elbit's backlog and the broader rearmament cycle can plausibly close a gap this size is Stocky's question, not this profile's.",
+   "horizon_caveat": "The horizon spread is 16.21 percentage points (35.96 percent at five years against 19.75 percent at ten, same price and base cash flow). Per method section 7 any gap Stocky claims on this name must exceed 16.21 points or must say which horizon it is claiming; the measured 23.0-point gap at five years clears that bar, but the ten-year implied CAGR (19.75 percent) is much closer to the achieved 12.93 percent and would read as a smaller, more defensible gap.",
+   "assumption_caveat": "The discount rate and terminal growth are assumed, so both reverse-DCF fields are tagged SPECULATIVE in the confidence audit. This dimension records the measured expectation state only.",
+   "source_refs": [
+    "data/market/ESLT.json"
+   ]
+  },
+  "evidence_confidence": {
+   "canonical_fields_written": 12,
+   "confidence_audit": {
+    "verified": 1,
+    "inferred": 9,
+    "speculative": 2,
+    "null": 0
+   },
+   "identity_chain": {
+    "mapping_status": "ACTIVE",
+    "mapping_audit_status": "FAIL",
+    "mapping_audited_at": "2026-09-04T03:53:11Z",
+    "listing_id": "NASDAQ-ESLT",
+    "cik": 1027664,
+    "screen_identity_schema": "campaign-v1",
+    "screen_row_audit_scope": "PLACEMENT"
+   },
+   "filing_evidence": "The mapping's whole-census audit is FAIL (status ACTIVE, audited 2026-09-04T03:53:11Z), unlike ai-infrastructure's or tibet-mega-dam's PASS census audits. This screen row was admitted under the narrower rule: an ACTIVE, un-audited-at-census-level mapping declares audit_scope PLACEMENT and rests on all-VERIFIED placement evidence, which the Seagull role_evidence item satisfies (VERIFIED, elbitsystems.com, verbatim source_excerpt). Method section 6A's O1 bar does not itself require a placement-level or census-level PASS audit; that requirement belongs to Stocky's `run deepdive` gate.",
+   "known_weaknesses": [
+    "No placement_audits entry exists for ELBIT-SYSTEMS in data/mappings/hormuz-maritime.json (zero entries in the array) and the census audit is FAIL, so neither of the two audit paths CLAUDE.md's dive row requires is currently satisfied. Stocky cannot yet run `run deepdive ESLT hormuz-maritime`; a fresh-context `run universe-audit hormuz-maritime --placement ELBIT-SYSTEMS` is the next needed stage, owned by Atlas.",
+    "The link is CROWDED with a PRICED_IN_ON_A_DIFFERENT_STORY repricing_check and zero legs met; this is a genuine caution recorded in the heat dimension above, not a data gap.",
+    "No disclosed revenue percentage or dollar figure ties Seagull specifically to Elbit's consolidated financials; the quality and valuation metrics describe the whole company.",
+    "reverse_dcf fields are SPECULATIVE by construction (assumption-dependent DCF solve), and the five-year implied CAGR is materially higher than the ten-year one, so any dive-stage gap claim must state its horizon."
+   ],
+   "basis": "Identity resolves end to end without a ticker fallback: issuer ELBIT-SYSTEMS, listing NASDAQ-ESLT (CIK 1027664, official SEC company_tickers_exchange registry), one ACTIVE placement, and one campaign-v1 screen row (bucket second_order, status CANDIDATE) carrying the same issuer_id, listing_id, chain_id and link_id. Confidence is highest on the metric set (12 of 12 sourced, zero NULL) and the product-role evidence; lowest on the audit chain needed for a future dive and on any dollar-denominated exposure claim.",
+   "source_refs": [
+    "data/mappings/hormuz-maritime.json",
+    "data/screens/hormuz-maritime.json",
+    "data/market/ESLT.json"
+   ]
+  },
+  "duplicate_exposure": {
+   "state": "SINGLE_PLACEMENT_CROSS_THEME_MAPPING_WATCH",
+   "placements_held": 1,
+   "listings_held": 1,
+   "secondary_links_on_screen_row": 0,
+   "basis": "ELBIT-SYSTEMS' profile carries exactly one ACTIVE placement (hormuz-maritime, naval-escort-and-mine-clearance) and one listing. No other name promoted to O1 this run shares this link, and no duplicate economic exposure exists within this profile's current placements array.",
+   "watchlist": "data/mappings/munitions-replenishment.json carries five further ACTIVE placements for ELBIT-SYSTEMS (energetic-materials, seekers-and-terminal-guidance, missile-final-assembly, artillery-and-bulk-munitions, allied-rearmament-demand), none of which are yet reflected in this profile's placements array because munitions-replenishment is still at stage PROFILED with only one profiled issuer (GENERAL-DYNAMICS). If a future `run profile ESLT` on that chain adds those placements, Elbit's O1 exposure would span two selected campaign themes on the same underlying defense-spending cycle; that is named here in advance rather than discovered later. Not a current defect: this run examines the profile as it exists today.",
+   "source_refs": [
+    "data/mappings/hormuz-maritime.json",
+    "data/mappings/munitions-replenishment.json"
+   ]
+  },
+  "screen_handoff": {
+   "screen_ref": "data/screens/hormuz-maritime.json",
+   "chain_id": "hormuz-maritime",
+   "link_id": "naval-escort-and-mine-clearance",
+   "listing_id": "NASDAQ-ESLT"
+  }
+ }
 }
