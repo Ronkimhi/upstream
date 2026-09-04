@@ -49,3 +49,31 @@ with a 2030-2035 diversification timeline, no retail gap"].
 
 **Origin:** METHOD · **First applied:** 2026-08-29 · **Status:** LIVE
 **Review:** re-test on a discrete geopolitical break that resets the timeline.
+
+## TASTE-003 — every new discovery gets its own card
+
+**Rule:** A credible new discovery is written as its own signal card by default, rather than
+folded into an existing card or left to sit as a candidate. Dedupe against an existing card's
+thesis still applies (a card that deepens gets an update plus a changelog entry, never a
+duplicate), and the promotion bar (method §0/§1: >=2 cited dated evidence items, occurrence
+block, unmappedness scored) is unchanged. This raises the default toward writing a card; it
+does not lower what a card needs to clear the bar. An occurrence that cannot support that bar
+stays a candidate with the reason named, exactly as before.
+
+**Why:** Ron's direct instruction, said while approving the promotion of the rare-earth
+candidate (CAND-20260830-21) to a full signal card.
+
+**Evidence:** Ron, 2026-09-01, verbatim: "every new discovery gets its own card."
+
+**Origin:** PREFERENCE · **First applied:** 2026-09-01 · **Status:** PROPOSED, applied
+immediately. This is a direct standing instruction from Ron, not an inferred pattern from a
+note or a dismissal, so it is followed starting the run it was given rather than waiting on a
+second occurrence. But `data/radar/scout-log.json`'s machine record (the mirror this file
+points to) enforces its two-occurrence HARDENED bar the same way for every PREFERENCE-origin
+rule regardless of how the first occurrence arose, and that gate is not silently worked around
+here: the log carries this rule PROPOSED with the conflict named in an `escalation_note`, for
+Ron to rule on whether a direct instruction should harden on first application the way a
+METHOD-origin rule does. The rule binds in practice either way, per CLAUDE.md's "working under
+Ron's direction": his asking for it is the authorization.
+**Review:** re-test if a run's card count against the 0-8 cap starts forcing a choice between
+this rule and the cap; the cap is not raised by this rule.
