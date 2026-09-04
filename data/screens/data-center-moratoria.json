@@ -1,0 +1,92 @@
+{
+ "id": "data-center-moratoria",
+ "chain_id": "data-center-moratoria",
+ "scenario_id": null,
+ "created_at": "2026-09-04",
+ "as_of": "2026-09-04",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+ "mapping_ref": "data/mappings/data-center-moratoria.json",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 11 links, worked in priority order: the UNDISCOVERED link first, then the two CHOKE_POINT-criticality links, then the rest by chain position. This chain has no money-corner link: heat.money_corner is false or null (heat not yet scored) on every one of the 11 links, heat_as_of 2026-09-04, so the run-day money-corner attribution check is vacuous this run.\n\nThe mapping (data/mappings/data-center-moratoria.json, 14 distinct issuers, 15 placements) carries no audit block at all: status ACTIVE, no census audit has ever run. Every row this run therefore had to clear Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED (tools/check_screen.py, _placement_admissible). None of this mapping's 15 placements clear that bar. Every single one carries exactly one evidence item tagged INFERRED, sourced to secondary media and trade-press coverage (Yahoo Finance, Environment Analyst Global, Insider Monkey, GlobeNewswire, Futurum Group, Utility Dive, Data Centre Magazine, a source titled Hallucination Yield, DatacenterDynamics, Industrial Info Resources, FTI Strategic Communications, Columbia Climate Law Blog), never a 10-K, 10-Q, 8-K, or an official exchange or registry record. This is unlike russian-diesel-ban's mapping (27 of 27 placements all-VERIFIED, screened 2026-09-04), where admission turned on profile status; here every link is blocked one level earlier, at the evidence tag itself. This run therefore seats zero rows on any of the 11 links, regardless of profile status, because no placement mechanically clears the gate.\n\npermitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5]: searched and empty, not for lack of candidates but for lack of VERIFIED evidence. All 5 placements (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, WILLDAN-GROUP, STANTEC) are ACTIVE and every one already has a COMPLETE O2 profile (T1) on disk, so this is the single link on the chain where five names are one Atlas audit away from seating. Evidence is INFERRED throughout: TETRA-TECH (Yahoo Finance, 2026-06-19) and WILLDAN-GROUP (Yahoo Finance / Insider Monkey, 2026-07-01) cite retail commentary; AECOM and JACOBS-SOLUTIONS both cite the same single Environment Analyst Global trade-press piece (2026-04-16); STANTEC cites Industrial Info Resources (2026-08-14). This is the highest-value single next step on this chain: a `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source on any of the 5, or a full census audit, converts a ready-to-seat name.\n\nstate-moratoria-and-siting-law [CHOKE_POINT criticality, zero-ticker by design]: searched and empty. The mapping's own link_coverage search (result_status NO_QUALIFYING_NAMES, tag VERIFIED, source: Governor Kathy Hochul, Executive Order No. 62, 2026-07-14) concludes the freeze is issued and administered by governors' offices, state environmental-conservation departments and utility commissions, government bodies, not public legal issuers, so no issuer can perform this role. Structurally uninvestable, matching the chain's own map_limitation, which names organized-opposition and state-moratoria-and-siting-law as carrying zero tickers by design.\n\nentitled-powered-land [CHOKE_POINT criticality, heat CROWDED]: searched and empty. Both placements (DIGITAL-REALTY, EQUINIX) are ACTIVE with COMPLETE O2 profiles (T1), blocked purely on evidence: DIGITAL-REALTY cites a GlobeNewswire press release about a Portugal market entry (2026-03-04, not directly about this link's role); EQUINIX cites a Futurum Group Q2 FY2026 earnings-commentary piece (2026-08-03). Same one-level-earlier block as permitting-and-environmental-consultancy: profiled and mechanically ready but for the evidence tag.\n\norganized-opposition [HIGH criticality, zero-ticker by design]: searched and empty. The mapping's own link_coverage search (result_status NO_QUALIFYING_NAMES, tag INFERRED, source: Futura-Sciences, 2026-08-28) concludes the 833 opposition groups it counts are residents, civic associations and county boards, not businesses; no public legal issuer performs this role, structurally, because it is not a commercial activity.\n\nutility-ratemaking-and-large-load-tariffs [HIGH criticality, heat CROWDED]: searched and empty. Sole placement AMERICAN-ELECTRIC-POWER (ACTIVE, INFERRED, Columbia Climate Law Blog, 2026-06-02) has no profile on disk; blocked at both the evidence bar and the profile bar.\n\nwater-permitting-and-hydrology [HIGH criticality, heat CROWDED]: searched and empty. Sole placement XYLEM (ACTIVE, INFERRED, Insider Monkey, 2026-06-17) has no profile on disk.\n\ncommunity-benefit-and-consent [MEDIUM criticality, heat QUIET]: searched and empty. Sole placement FTI-CONSULTING (ACTIVE, INFERRED, FTI Strategic Communications, 2025-09-24, the issuer's own material about itself) has a profile, but it is BLOCKED at O3; refused regardless of evidence status.\n\npower-equipment-shared [HIGH criticality, heat CROWDED]: zero placements, by design. Atlas's own chain note (SHARED STAGE DECLARATION, campaign blocker BLK-04) and the mapping's own search record declare this link IS ai-infrastructure/power-equipment, same 7 tickers (ETN, GEV, POWL, HUBB, ENR.DE, SU.PA, HPS-A.TO), deliberately duplicated so the overlap is visible rather than double-counted. No issuer is placed here; the mapping's own search record rejects Eaton, GE Vernova, Powell Industries and Hubbell by name for exactly this reason. Not a gap.\n\nus-secondary-market-shift [MEDIUM criticality, heat CROWDED]: searched and empty. Sole placement SOUTHERN-CO (ACTIVE, INFERRED, Utility Dive, 2026-05-01) has no profile on disk.\n\noffshore-and-periphery-capacity [MEDIUM criticality, heat EMERGING]: searched and empty. EQUINIX (ACTIVE, INFERRED, the same Futurum Group source as entitled-powered-land; a genuine secondary-link candidate on this issuer, not seated here either) has a COMPLETE O2 profile; GDS-HOLDINGS (ACTIVE, INFERRED, Data Centre Magazine, 2025-10-23) has none.\n\nhyperscale-buildout-demand [LOW criticality, heat OVER_CROWDED]: searched and empty. ALPHABET (ACTIVE, INFERRED, DatacenterDynamics, 2026-07-22) has a COMPLETE O2 profile; MICROSOFT (ACTIVE, INFERRED, a source titled Hallucination Yield: Microsoft Capex Tracker, 2026-07-29) has none. Per the chain's own ARCH-007 note this demand-anchor link is included for completeness only, never as the candidate, so its own OVER_CROWDED heat makes it lowest priority regardless.\n\nNet effect: 0 of 11 links produce rows (0 rows total). No money-corner link exists on this chain. Every link is documented searched-and-empty with a stated reason: 2 are structurally zero-ticker (government or civic bodies, not issuers), 1 is a deliberate duplicate of another theme's stage, 1 is profile-blocked at O3, 5 issuers across 5 links are unprofiled, and 8 distinct issuers across 4 links (permitting-and-environmental-consultancy's 5, entitled-powered-land's 2, hyperscale-buildout-demand's ALPHABET, plus EQUINIX's repeat placement on offshore-and-periphery-capacity) are COMPLETE O2 and mechanically ready but for the evidence tag alone. The single largest concrete next step is closing the evidence gap: a full-census `run universe-audit data-center-moratoria` cannot yet return PASS (7 of 11 links remain OPEN, none TARGET_MET or EXHAUSTED beyond permitting-and-environmental-consultancy), so a placement-scoped `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source, starting with any of the 5 permitting-and-environmental-consultancy names, is the faster path to this chain's first seated row. Flagged to tasks/backlog.md for Atlas.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/data-center-moratoria.json carrying ACTIVE status, joined to its official listing and evidence tags",
+   "forms": null,
+   "hits_examined": 15,
+   "names_extracted": 15
+  },
+  {
+   "query": "evidence-tag audit across all 15 placements: how many carry an all-VERIFIED role-evidence bar per tools/check_screen.py._placement_admissible",
+   "forms": null,
+   "hits_examined": 15,
+   "names_extracted": 0
+  },
+  {
+   "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a data-center-moratoria placement",
+   "forms": null,
+   "hits_examined": 14,
+   "names_extracted": 8
+  },
+  {
+   "query": "mapping's own link_coverage search records for organized-opposition and state-moratoria-and-siting-law confirming zero-ticker-by-design status",
+   "forms": null,
+   "hits_examined": 2,
+   "names_extracted": 0
+  }
+ ],
+ "buckets": {
+  "pure_play": [],
+  "picks_and_shovels": [],
+  "second_order": [],
+  "hedge": []
+ },
+ "data_gaps": [
+  "0 of 15 mapping placements carry all-VERIFIED role evidence; every placement is INFERRED, sourced to secondary media and trade-press coverage rather than a primary issuer filing or an official exchange or registry record. Under Ron's 2026-09-01 PLACEMENT-scope rule (tools/check_screen.py:_placement_admissible) this blocks every link on the chain from seating a row regardless of profile status. Flagged to tasks/backlog.md for Atlas.",
+  "permitting-and-environmental-consultancy (UNDISCOVERED, TARGET_MET at 5) is the highest-value fix: all 5 placements (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, WILLDAN-GROUP, STANTEC) already carry COMPLETE O2 profiles and are blocked on evidence alone.",
+  "entitled-powered-land (CHOKE_POINT criticality) is the second-highest-value fix: both placements (DIGITAL-REALTY, EQUINIX) already carry COMPLETE O2 profiles and are blocked on evidence alone.",
+  "5 issuers carry ACTIVE, INFERRED-evidence placements and no profile on disk: utility-ratemaking-and-large-load-tariffs (AMERICAN-ELECTRIC-POWER), water-permitting-and-hydrology (XYLEM), us-secondary-market-shift (SOUTHERN-CO), offshore-and-periphery-capacity (GDS-HOLDINGS), hyperscale-buildout-demand (MICROSOFT). These need both a profile and an evidence upgrade before seating.",
+  "community-benefit-and-consent's sole placement (FTI-CONSULTING) is profiled but BLOCKED at O3; refused regardless of evidence status.",
+  "The mapping carries no audit block: 7 of 11 links remain OPEN (utility-ratemaking-and-large-load-tariffs, water-permitting-and-hydrology, community-benefit-and-consent, entitled-powered-land, us-secondary-market-shift, offshore-and-periphery-capacity, hyperscale-buildout-demand), well short of TARGET_MET or EXHAUSTED, so a full-census `run universe-audit data-center-moratoria` cannot yet return PASS; a placement-scoped `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source is the faster path to a first seated row."
+ ],
+ "taste_filtered": [],
+ "health": {
+  "links_total": 11,
+  "links_worked": 11,
+  "money_corner_links_total": 0,
+  "money_corner_links_covered": 0,
+  "choke_point_links_total": 2,
+  "choke_point_links_covered": 0,
+  "undiscovered_links_total": 1,
+  "undiscovered_links_covered": 0,
+  "rows_written": 0,
+  "fully_scored": 0,
+  "pending": 0,
+  "errors": 0,
+  "distinct_issuers_seated": 0,
+  "distinct_placements_examined": 15,
+  "distinct_issuers_examined": 14,
+  "placements_with_verified_evidence": 0,
+  "placements_with_inferred_evidence": 15,
+  "profiled_complete_o2_blocked_by_evidence": 8,
+  "unprofiled_blocked_by_evidence": 5,
+  "blocked_o3_profile": 1,
+  "zero_ticker_by_design": 2,
+  "duplicate_stage_by_design": 1,
+  "profiles_available_repo_wide": 156,
+  "quotes_verified": 0
+ },
+ "notes": [],
+ "confidence_audit": {
+  "verified": 1,
+  "inferred": 16,
+  "speculative": 0,
+  "null": 0
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-04T00:00:00Z",
+   "by": "sieve-profiler",
+   "change": "First run screen data-center-moratoria (chain-level, scenario_id null). Built the per-link universe across all 11 links under audit_scope PLACEMENT (mapping has no audit block at all, status ACTIVE). Worked UNDISCOVERED first (permitting-and-environmental-consultancy), then the two CHOKE_POINT-criticality links (state-moratoria-and-siting-law, entitled-powered-land), then the rest by chain position. Found that 0 of the mapping's 15 placements carry all-VERIFIED role evidence: every one is INFERRED, sourced to secondary media and trade-press coverage. This blocks every link regardless of profile status, so this run seats 0 rows. 8 distinct issuers across 4 links are COMPLETE O2 profiles mechanically ready but for the evidence tag (permitting-and-environmental-consultancy's 5, entitled-powered-land's 2, hyperscale-buildout-demand's ALPHABET, offshore-and-periphery-capacity's EQUINIX repeat). 5 issuers carry ACTIVE placements with no profile on disk. 1 issuer (FTI-CONSULTING) is profiled but BLOCKED at O3. 2 links are structurally zero-ticker by design (organized-opposition, state-moratoria-and-siting-law: government or civic bodies, not issuers). 1 link (power-equipment-shared) is a declared duplicate of ai-infrastructure/power-equipment and carries no placements by design. No money-corner link exists on this chain. Documented every link's disposition in universe_note and data_gaps; flagged the evidence gap to tasks/backlog.md for Atlas, with permitting-and-environmental-consultancy named as the single highest-value placement-scoped audit target."
+  }
+ ]
+}
