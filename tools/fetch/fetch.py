@@ -355,13 +355,26 @@ FACT_MAP = {
     "revenue": (["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues",
                  "SalesRevenueNet", "RevenueFromContractWithCustomerIncludingAssessedTax"],
                 "duration", "USD"),
-    "net_income": (["NetIncomeLoss"], "duration", "USD"),
-    "cash": (["CashAndCashEquivalentsAtCarryingValue"], "instant", "USD"),
-    "total_debt": (["LongTermDebtNoncurrent", "LongTermDebt"], "instant", "USD"),
+    # Candidate lists widened 2026-09-04: seven screened shipping and defence filers
+    # (DHT, FRONTLINE, SFL, TSAKOS, NORDIC-AMERICAN, TEEKAY-TANKERS, ELBIT) tag none of
+    # the single cash/debt concepts this map carried, so net_debt_to_ebitda and the
+    # Piotroski/Beneish inputs read NULL on profiles whose 10-K/20-F carries the numbers.
+    "net_income": (["NetIncomeLoss", "ProfitLoss",
+                    "NetIncomeLossAvailableToCommonStockholdersBasic"], "duration", "USD"),
+    "cash": (["CashAndCashEquivalentsAtCarryingValue",
+              "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+              "CashAndCashEquivalentsFairValueDisclosure"], "instant", "USD"),
+    "total_debt": (["LongTermDebtNoncurrent", "LongTermDebt",
+                    "LongTermDebtAndCapitalLeaseObligations",
+                    "LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities",
+                    "DebtLongtermAndShorttermCombinedAmount", "SecuredLongTermDebt",
+                    "DebtInstrumentCarryingAmount"], "instant", "USD"),
     # --- widened 2026-08-29 for the analyst (Piotroski / Beneish / Altman / reverse DCF)
     "gross_profit": (["GrossProfit"], "duration", "USD"),
     "cost_of_revenue": (["CostOfGoodsAndServicesSold", "CostOfRevenue", "CostOfGoodsSold",
-                         "CostOfServices"], "duration", "USD"),
+                         "CostOfServices", "DirectOperatingCosts",
+                         "CostOfGoodsAndServiceExcludingDepreciationDepletionAndAmortization"],
+                        "duration", "USD"),
     "operating_income": (["OperatingIncomeLoss"], "duration", "USD"),
     "operating_cashflow": (["NetCashProvidedByUsedInOperatingActivities",
                             "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
@@ -386,10 +399,16 @@ FACT_MAP = {
     "inventory": (["InventoryNet"], "instant", "USD"),
     "ppe_net": (["PropertyPlantAndEquipmentNet"], "instant", "USD"),
     "shares": (["CommonStockSharesOutstanding", "CommonStockSharesIssued",
-                "WeightedAverageNumberOfDilutedSharesOutstanding"], "instant", "shares"),
+                "WeightedAverageNumberOfDilutedSharesOutstanding",
+                "WeightedAverageNumberOfSharesOutstandingBasic",
+                "EntityCommonStockSharesOutstanding"], "instant", "shares"),
     # Same concepts as total_debt, kept as its own field because Piotroski and Beneish
     # both take a long-term-debt SERIES while total_debt is stored as a single latest row.
-    "long_term_debt": (["LongTermDebtNoncurrent", "LongTermDebt"], "instant", "USD"),
+    "long_term_debt": (["LongTermDebtNoncurrent", "LongTermDebt",
+                        "LongTermDebtAndCapitalLeaseObligations",
+                        "LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities",
+                        "DebtLongtermAndShorttermCombinedAmount", "SecuredLongTermDebt",
+                        "DebtInstrumentCarryingAmount"], "instant", "USD"),
 }
 
 # The same fields under the `ifrs-full` taxonomy, for the 20-F / 40-F filer whose
@@ -481,6 +500,13 @@ def _fundamentals_sec(ticker, cik):
         else:
             names, shape, unit = FACT_MAP[key]
             src_map = gaap
+        # Every candidate concept is read and the one whose series runs LATEST wins
+        # (list order breaks ties). Until 2026-09-04 the first concept with any rows won,
+        # so a filer that had moved from NetIncomeLoss to ProfitLoss in 2015 kept a
+        # net_income series frozen a decade back while every other field ran to 2025,
+        # and the quality block found no common fiscal year: TEEKAY-TANKERS and
+        # HUNTINGTON-INGALLS read PENDING_DATA with every raw input present.
+        best, best_end = [], ""
         for n in names:
             src = dei if (n == "EntityCommonStockSharesOutstanding") else src_map
             vals = src.get(n, {}).get("units", {}).get(unit) or [] if unit else []
@@ -502,9 +528,9 @@ def _fundamentals_sec(ticker, cik):
                     else (frame_days and 60 < frame_days < 120)
                 if dur_ok:
                     keep[v["end"]] = v["val"]
-            if keep:
-                return sorted(keep.items())[-8:]
-        return []
+            if keep and max(keep) > best_end:
+                best, best_end = sorted(keep.items())[-8:], max(keep)
+        return best
 
     f = {
         "source": "sec-companyfacts", "cik": cik, "as_of": TODAY,
