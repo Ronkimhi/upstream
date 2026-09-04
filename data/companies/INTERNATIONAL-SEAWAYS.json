@@ -44,6 +44,27 @@
      "source_excerpt": "International Seaways owns and operates a fleet of approximately 70 vessels across the principal tanker asset classes including four vessels on order."
     }
    ]
+  },
+  {
+   "chain_id": "russian-diesel-ban",
+   "link_id": "clean-product-shipping",
+   "link_name": "Clean product tankers, LR2 and MR",
+   "link_position": 10,
+   "role": "Operates oceangoing tankers transporting crude oil and petroleum products in the International Flag trade.",
+   "placement_status": "ACTIVE",
+   "money_corner": false,
+   "link_heat": "CROWDED",
+   "mapping_ref": "data/mappings/russian-diesel-ban.json",
+   "role_evidence": [
+    {
+     "claim": "International Seaways operates a fleet of oceangoing vessels engaged primarily in the transportation of crude oil and petroleum products in the International Flag trade.",
+     "source_name": "International Seaways, Inc. Form 10-K for the fiscal year ended December 31, 2024",
+     "source_date": "2025-02-27",
+     "url": "https://www.annualreports.com/HostedData/AnnualReports/PDF/NYSE_INSW_2024.pdf",
+     "tag": "VERIFIED",
+     "source_excerpt": "fleet of oceangoing vessels engaged primarily in the transportation of crude oil and petroleum products in the International Flag trade."
+    }
+   ]
   }
  ],
  "sources": {
@@ -78,7 +99,7 @@
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": -0.00830,
+    "value": -0.0083,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INSW.json fundamentals (source sec-companyfacts)",
     "source_date": "2026-08-31",
@@ -100,7 +121,7 @@
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": 1.22890,
+    "value": 1.2289,
     "tag": "INFERRED",
     "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/INSW.json fundamentals (source sec-companyfacts)",
     "source_date": "2026-08-31",
@@ -202,7 +223,9 @@
   "Filled 2026-09-04 from data/market/INSW.json (sec-companyfacts, T1): revenue, growth, margins, cash-conversion (ocf/ni leg), leverage, valuation and reverse-DCF fields carry sourced numbers.",
   "fcf_margin is NULL: companyfacts' capex_fy series stops at 2018-12-31, so no current-year capex exists to compute free cash flow margin.",
   "piotroski and beneish_state are NULL: both are PENDING_DATA in data/market/INSW.json quality, missing only cost_of_revenue_fy, which companyfacts does not tag separately for this filer.",
-  "No Hormuz-specific or crude-tanker-link revenue percentage is disclosed; INSW's fleet spans multiple tanker classes and voyage geographies."
+  "No Hormuz-specific or crude-tanker-link revenue percentage is disclosed; INSW's fleet spans multiple tanker classes and voyage geographies.",
+  "Added 2026-09-04 per CAMP-20260901-01 BLK-06: this profile is reused by data/screens/russian-diesel-ban.json (INTERNATIONAL-SEAWAYS, clean-product-shipping), which flagged that the profile had not yet been amended with its own placement entry for that chain/link. Added from data/mappings/russian-diesel-ban.json's ACTIVE, all-VERIFIED (chain_id=russian-diesel-ban, link_id=clean-product-shipping, issuer_id=INTERNATIONAL-SEAWAYS) placement and data/chains/russian-diesel-ban.json's clean-product-shipping link (position 10, heat verdict CROWDED, money_corner false). The screen_handoff listing_id (NEW-YORK-STOCK-EXCHANGE:INSW / NYSE-INSW) and mapping placement now resolve to this profile's own placements array, closing the second, separate defect BLK-06 named (the first, quality.piotroski/beneish_state NULL, is addressed below and remains open).",
+  "Checked 2026-09-04 per CAMP-20260901-01 BLK-05/BLK-06 (run selection's O1 gap findings): quality.piotroski/beneish_state. Re-read data/market/INSW.json in full (fetched_at 2026-08-31T20:59:56Z). Both are still PENDING_DATA, missing only cost_of_revenue_fy; leverage.net_debt_to_ebitda is already complete (0.878). cost_of_revenue_fy is absent under tools/fetch/fetch.py's fixed FACT_MAP candidate list (CostOfGoodsAndServicesSold/CostOfRevenue/CostOfGoodsSold/CostOfServices), the identical structural gap independently confirmed exhausted this same pass for DHT-HOLDINGS, FRONTLINE, SFL-CORP and TSAKOS-ENERGY-NAVIGATION, all shipping filers that do not tag a distinct cost-of-revenue concept in SEC XBRL. A re-fetch of the same companyfacts document would return an identical result. No re-queue. quality stays NULL with its existing basis; profile remains COMPLETE/O2, correctly excluded from O1 under method section 6A (adding the missing placement above does not by itself clear the O1 bar)."
  ],
  "disposition": {
   "state": "RETAIN",
@@ -227,6 +250,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for INTERNATIONAL-SEAWAYS from data/mappings/hormuz-maritime.json (ACTIVE, current audit status FAIL, audited 2026-09-04) and data/market/INSW.json (sec-companyfacts, T1). 9 of 11 numeric canonical fields filled with sourced numbers, 3 honestly NULL (fcf_margin, piotroski, beneish_state) on named missing companyfacts inputs; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 4, written to unblock run screen hormuz-maritime on the crude-tanker-tonnage CHOKE_POINT link."
+  },
+  {
+   "ts": "2026-09-04T17:10:30Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile INTERNATIONAL-SEAWAYS: gap-closing pass on CAMP-20260901-01 BLK-06. Added the missing (russian-diesel-ban, clean-product-shipping) placement from data/mappings/russian-diesel-ban.json (ACTIVE, all-VERIFIED) and data/chains/russian-diesel-ban.json, closing the screen_handoff identity gap BLK-06 named. Re-checked quality.piotroski/beneish_state per BLK-05/BLK-06's data-completeness finding: still NULL on cost_of_revenue_fy, structurally absent from companyfacts for this filer (confirmed against 4 sibling shipping filers in the same pass); no re-queue, since a same-source re-fetch would not plausibly change the result. Status COMPLETE, opportunity_tier O2 unchanged; still excluded from O1 under method section 6A (critical canonical quality field NULL)."
   }
  ]
 }
