@@ -240,6 +240,16 @@
    "ts": "2026-08-29T20:40:00Z",
    "by": "atlas-cartographer",
    "text": "ESCALATION for Ron, not auto-applied: tools/acis/ holds 14 modules no document mentions, two of which implement method 3, governed by a decision-standards.md that exists only in ron-brain. Carried over from the scanner build and still open."
+  },
+  {
+   "ts": "2026-09-04T03:55:32Z",
+   "by": "atlas-cartographer",
+   "text": "run universe tibet-mega-dam (2026-09-04): reviewed the existing mapping before amending anything, per DEPTH mode's own instruction to census only money-corner and UNDISCOVERED links to 5 issuers. The chain's current heat has zero money-corner links and zero UNDISCOVERED-verdict links (all 11 read QUIET, EMERGING, or CROWDED per the 2026-09-02 rescore), so the DEPTH in-scope set for this theme is empty. The mapping already exceeds even the BREADTH bar regardless: all 11 links carry either TARGET_MET (>=10 ACTIVE issuer placements: copper-conductors, uhvdc-transmission, hydro-turbines, global-hydro-spillover, tunneling-tbm, civil-construction, riparian-risk-monitoring) or a proved EXHAUSTED multi-source record (cement-materials 3 issuers/3 searches, yajiang-developer 0 issuers/5 searches, india-counter-buildout 1 issuer/3 searches, power-offtake 0 issuers/9 searches), so no link has zero placements and zero searches. Mapping status is COMPLETE with a PASS fresh-context audit dated 2026-08-30T13:32:53Z whose signed mapping_fingerprint (cb6fff35...) still matches current material content: I made no material edit, so I left status COMPLETE rather than reopening it without a FAIL audit, which method 6A reserves for a newer FAIL review over unchanged content. check_map.py returns OK across all 6 maps including this one. Conclusion: the premise that handed me this run ('no COMPLETE issuer mapping for this chain') does not match repository state; nothing needed amending, and I amended nothing."
+  },
+  {
+   "ts": "2026-09-04T03:55:32Z",
+   "by": "atlas-cartographer",
+   "text": "ESCALATION for Ron, not auto-applied (found while reviewing tibet-mega-dam, tools/check_campaign.py is outside my lane to edit): _actual_theme_stage's DEPTH branch computes `scope = links_in_scope(chain, targets)` and then does `if not isinstance(mapping, dict) or not scope: return stage` before checking coverage. When a theme's chain has zero money-corner links and zero UNDISCOVERED-verdict links, scope is the empty set, and the empty check short-circuits the theme at SCENARIOS forever, no matter how complete its mapping actually is. tibet-mega-dam is exactly this case: mapping status COMPLETE, PASS audit, every one of 11 links TARGET_MET or EXHAUSTED, yet check_campaign.py and campaign_calibrate.py both leave the theme reading SCENARIOS because scope is falsy. An empty in-scope set should read as vacuously satisfied (there is nothing DEPTH owes this theme's map beyond what full coverage already gives it), not as not-yet-attempted. This is very likely what generated the 'no COMPLETE issuer mapping for this chain' premise that started this run: the dashboard reads the stuck stage, not the mapping file. Suggested fix for whoever touches tools/check_campaign.py next: treat `not scope` as MAPPED (vacuous truth) when `mapping.get('status') == 'COMPLETE'` or coverage is otherwise closed, rather than returning early."
   }
  ],
  "confidence_audit": {
@@ -455,12 +465,39 @@
    "kind": "AMEND",
    "change": "recomputed calibration from data/ (amend)",
    "prior": "2026-09-04T03:29:22Z"
+  },
+  {
+   "ts": "2026-09-04T03:53:31Z",
+   "by": "map_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-04T03:33:48Z"
+  },
+  {
+   "ts": "2026-09-04T03:55:32Z",
+   "by": "atlas-cartographer",
+   "kind": "STAGE",
+   "change": "run universe tibet-mega-dam: reviewed existing COMPLETE mapping against DEPTH targets, found full coverage already exceeds requirements (0 money-corner/UNDISCOVERED in-scope links, 7 TARGET_MET + 4 EXHAUSTED, 0 links with zero placements and zero searches), amended nothing; escalated a check_campaign.py DEPTH empty-scope stage-computation gap"
+  },
+  {
+   "ts": "2026-09-04T06:16:38Z",
+   "by": "map_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-04T03:53:31Z"
+  },
+  {
+   "ts": "2026-09-04T06:17:10Z",
+   "by": "map_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-04T06:16:38Z"
   }
  ],
  "as_of": "2026-09-04",
- "updated_at": "2026-09-04T03:33:48Z",
+ "updated_at": "2026-09-04T06:17:10Z",
  "calibration": {
-  "generated_at": "2026-09-04T03:33:48Z",
+  "generated_at": "2026-09-04T06:17:10Z",
   "link_yield": {
    "links_total": 138,
    "yielded_a_name": 64,
@@ -521,7 +558,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 250,
-     "heat_as_of_age_days": 6
+     "heat_as_of_age_days": 7
     }
    },
    "data-center-moratoria": {
@@ -570,7 +607,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 2586,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "glp1-fill-finish": {
@@ -620,7 +657,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 3059,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "hormuz-maritime": {
@@ -664,7 +701,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 2725,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "humanoid-actuators": {
@@ -717,7 +754,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 835,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "minor-nsr-permits": {
@@ -772,7 +809,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 3762,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "munitions-replenishment": {
@@ -815,7 +852,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 1766,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "offshore-counter-drone": {
@@ -868,7 +905,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 3347,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "prediction-market-plumbing": {
@@ -912,7 +949,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 2183,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "russian-diesel-ban": {
@@ -953,7 +990,7 @@
      "links_without_evidence": [],
      "verdict_mismatches": [],
      "map_limitation_chars": 1756,
-     "heat_as_of_age_days": 4
+     "heat_as_of_age_days": 5
     }
    },
    "tibet-mega-dam": {
@@ -997,7 +1034,7 @@
       "yajiang-developer: written CROWDED, computes EMERGING"
      ],
      "map_limitation_chars": 339,
-     "heat_as_of_age_days": 1
+     "heat_as_of_age_days": 2
     }
    }
   },
