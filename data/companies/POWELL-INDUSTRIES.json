@@ -3,13 +3,13 @@
   "issuer_name": "Powell Industries, Inc.",
   "as_of": "2026-09-04",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-09-04T03:20:00Z",
+  "updated_at": "2026-09-04T04:05:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US SEC filer, CIK 80420: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/POWL.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-04 (re-examined; also examined 2026-09-02 x2 and under CAMP-20260830-01 on 2026-08-31) and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are, and this bar is unrelated to and unaffected by the 2026-09-04 pre-split share-count correction (see data_gaps and valuation.market_cap.basis): reverse_dcf and valuation were never the reason this profile is barred from O1, and the corrected figures do not change the outcome. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NASDAQ-POWL"
   ],
@@ -150,58 +150,52 @@
     },
     "valuation": {
       "market_cap": {
-        "value": 2205342222.38,
+        "value": 6687916840.0,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/POWL.json quality.derived.market_cap",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Market capitalization 2205342222.38 = SEC companyfacts diluted share count 12070178 multiplied by the close 182.71; share count 12070178 as of 2025-09-30 is the official SEC companyfacts figure; the close 182.71 of 2026-08-28 is the repo's own market plane (data/market/POWL.json, price_status AGREED), not an issuer document."
+        "source_name": "Session-computed 2026-09-04, correcting a pre-split share-count defect in data/market/POWL.json quality.derived.market_cap: diluted weighted-average shares 36604000 (Powell Industries Q3 FY2026 8-K exhibit, accession 0000080420-26-000103, quarter ended 2026-06-30) multiplied by the close 182.71 (data/market/POWL.json, price_status AGREED, as of 2026-08-28)",
+        "source_date": "2026-09-04",
+        "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+        "basis": "The prior value 2205342222.38 used data/market/POWL.json quality.shares_used 12070178 as_of 2025-09-30, the PRE-split share count. Powell effected a three-for-one forward stock split effective 2026-04-02 (record date 2026-03-20), verbatim in the fetched 8-K: 'Each shareholder of record as of the close of trading on March 20, 2026 ... received ... two additional shares for every one share held ... Trading began on a split-adjusted basis at market open on April 6, 2026.' The market file's shares_used was never rolled forward past the split while price 182.71 already trades split-adjusted, so market_cap was understated roughly 3x. This corrected figure uses the split-adjusted diluted share count the 8-K itself reports for the quarter ended 2026-06-30 ('Weighted average shares ... Diluted 36,604'), verbatim-verified in data/edgar/docs/POWL.json. REQ-20260904-40/41/42 are PENDING to have the Actions venue recompute data/market/POWL.json quality.derived and quality.shares_used from a corrected post-split share count; this session-computed figure should be replaced by that recompute once it lands, per the venue rule (Sieve does not fetch market data, but combines two already-fetched, dated, sourced figures the same way this profile already computes operating_margin and cash_conversion from companyfacts inputs)."
       },
       "price_to_sales": {
-        "value": 1.997017,
+        "value": 6.056151,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/POWL.json quality.derived.market_cap over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Market capitalization 2205342222.38 divided by fiscal year 2025-09-30 revenue 1104318000; share count 12070178 as of 2025-09-30 is the official SEC companyfacts figure; the close 182.71 of 2026-08-28 is the repo's own market plane (data/market/POWL.json, price_status AGREED), not an issuer document."
+        "source_name": "Session-computed 2026-09-04 from the corrected market_cap above over SEC companyfacts revenue",
+        "source_date": "2026-09-04",
+        "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+        "basis": "Corrected market capitalization 6687916840.0 divided by fiscal year 2025-09-30 revenue 1104318000. See valuation.market_cap.basis for the pre-split share-count correction; the prior value 1.997017 was understated for the same reason."
       },
       "price_to_earnings": {
-        "value": 12.201266,
+        "value": 37.001537,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/POWL.json quality.derived.market_cap over SEC companyfacts net income",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Market capitalization 2205342222.38 divided by fiscal year 2025-09-30 GAAP net income 180747000; share count 12070178 as of 2025-09-30 is the official SEC companyfacts figure; the close 182.71 of 2026-08-28 is the repo's own market plane (data/market/POWL.json, price_status AGREED), not an issuer document."
+        "source_name": "Session-computed 2026-09-04 from the corrected market_cap above over SEC companyfacts net income",
+        "source_date": "2026-09-04",
+        "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+        "basis": "Corrected market capitalization 6687916840.0 divided by fiscal year 2025-09-30 GAAP net income 180747000. See valuation.market_cap.basis for the pre-split share-count correction; the prior value 12.201266 was understated for the same reason."
       },
       "ev_to_sales": {
-        "value": 1.423305,
+        "value": 5.482439,
         "tag": "INFERRED",
         "official_source": true,
-        "source_name": "Upstream market store data/market/POWL.json quality.derived.enterprise_value over SEC companyfacts revenue",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Enterprise value 1571781222.38 divided by fiscal year 2025-09-30 revenue 1104318000; share count 12070178 as of 2025-09-30 is the official SEC companyfacts figure; the close 182.71 of 2026-08-28 is the repo's own market plane (data/market/POWL.json, price_status AGREED), not an issuer document."
+        "source_name": "Session-computed 2026-09-04: corrected market_cap less cash plus debt, both from data/market/POWL.json fundamentals, over SEC companyfacts revenue",
+        "source_date": "2026-09-04",
+        "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+        "basis": "Corrected enterprise value 6054355840.0 = corrected market_cap 6687916840.0 minus cash 633561000 (data/market/POWL.json fundamentals.cash, as of 2026-06-30) plus debt 0 (data/market/POWL.json fundamentals.total_debt, the same stale 2022-09-30 zero observation already named NULL-basis under leverage.net_debt_to_ebitda; carried forward unchanged, same convention the original enterprise_value used), divided by revenue 1104318000. See valuation.market_cap.basis for the pre-split share-count correction; the prior value 1.423305 was understated for the same reason."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": -0.0734,
-        "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/POWL.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Free-cash-flow CAGR the current enterprise value 1571781222.38 implies over a 5-year explicit period on base FCF 154788000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth. The discount rate and terminal growth are assumed, so the solve is an assumption-dependent expectation reading, not a reported figure."
+        "value": null,
+        "tag": "NULL",
+        "basis": "The implied FCF CAGR is retracted 2026-09-04: the prior value -0.0734 was solved over enterprise_value 1571781222.38, which rested on the same pre-split share-count defect described in valuation.market_cap.basis (data/market/POWL.json quality.shares_used never rolled forward past the 2026-04-02 three-for-one forward split). Re-solving the implied FCF CAGR bisection by hand risks not matching the Actions fetcher's exact method and is outside Sieve's venue; REQ-20260904-40/41/42 are PENDING for a corrected recompute of data/market/POWL.json quality.reverse_dcf over the corrected enterprise value (approximately 6054355840, see ev_to_sales.basis). Do not cite the retracted -0.0734 reading or its NEGATIVE-growth framing; it is wrong, not merely stale."
       },
       "horizon_spread": {
-        "value": 0.0391,
-        "tag": "SPECULATIVE",
-        "source_name": "Upstream market store data/market/POWL.json quality.reverse_dcf",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': -0.0734, '7': -0.0511, '10': -0.0343}). It measures how much of the expectation reading is a horizon convention rather than a statement about price, and inherits the same assumed discount rate and terminal growth."
+        "value": null,
+        "tag": "NULL",
+        "basis": "The horizon spread is retracted 2026-09-04 for the same reason as reverse_dcf.implied_fcf_cagr: the prior value 0.0391 was computed over the same pre-split-corrupted enterprise value. Pending the same Actions recompute (REQ-20260904-40/41/42)."
       }
     }
   },
@@ -272,7 +266,7 @@
     "Net debt to EBITDA is NULL: the last total_debt observation in companyfacts is 2022-09-30 and reads zero, while the cash balance is 2026-06-30, so the two legs sit four fiscal years apart and pairing them would fabricate a ratio.",
     "Piotroski is PENDING_DATA in data/market/POWL.json quality: only one common fiscal period across the nine inputs, and the change legs need at least two.",
     "No end-market revenue split is disclosed, so the data-centre exposure is measurable only at order level and only for the orders the company chooses to name.",
-    "A three-for-one forward stock split effected 2026-04-02 is disclosed in the fetched release; per-share figures across the fetched series are not split-adjusted by this profile and none are used as canonical metrics.",
+    "A three-for-one forward stock split effected 2026-04-02 (record date 2026-03-20) is disclosed in the fetched release. Corrected 2026-09-04: this DID reach a canonical metric group. data/market/POWL.json quality.shares_used still carries the PRE-split share count (12070178, as_of 2025-09-30) multiplied against the post-split price 182.71, understating market_cap and enterprise_value roughly 3x and, downstream, corrupting the reverse-DCF solve to a false NEGATIVE implied growth reading. valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales are now session-computed from the 8-K's own split-adjusted diluted share count (36,604,000, quarter ended 2026-06-30) pending an Actions recompute; reverse_dcf.implied_fcf_cagr and horizon_spread are retracted to NULL rather than hand-resolved. REQ-20260904-40/41/42 are PENDING for the corrected data/market/POWL.json refetch; re-run run profile POWL once they land to replace the session-computed valuation figures with a fetched recompute.",
     "The fetched EDGAR document is a fiscal-Q3 8-K exhibit rather than the 10-K, so segment and backlog definitions come from the release footnotes only."
   ],
   "disposition": {
@@ -283,10 +277,10 @@
   "confidence_audit": {
     "verified": 1,
     "inferred": 9,
-    "speculative": 2,
-    "null": 2,
+    "speculative": 0,
+    "null": 4,
     "canonical_fields_written": 14,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/POWL.json, price_status AGREED) and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/POWL.json, price_status AGREED) and not an issuer document. Updated 2026-09-04: valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales moved from a market-file-derived read to a session-computed INFERRED figure correcting a pre-split share-count defect (see data_gaps); reverse_dcf.implied_fcf_cagr and horizon_spread moved from SPECULATIVE to NULL, retracted rather than hand-resolved, pending an Actions recompute over the corrected enterprise value. NULL is a field looked for and not found, or in this case a figure known to be wrong and not yet correctly refetched, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -322,10 +316,16 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile POWL, ahead of an immediate deepdive: re-read data/market/POWL.json (re-fetched 2026-09-02, same underlying FY2025 companyfacts and quality figures as the prior fetch, so all seven canonical metric groups are unchanged in value) and data/edgar/docs/POWL.json (fiscal Q3 2026 8-K, accession 0000080420-26-000103). Confirmed the closed canonical revenue.latest_fy field correctly still names fiscal year 2025-09-30, the latest completed fiscal year on disk; fiscal Q3 2026 (quarter ended 2026-06-30) is a completed quarter, not a completed fiscal year, so no canonical annual field changes. Added one catalyst quoting the Q3 FY2026 income-statement growth (revenue, gross profit, net income each up year over year, gross margin held near 30.6%) and one crowdedness_caveats item on trailing-year insider selling (89 Form 4 rows, 69 sales totaling roughly $68.4 million against 1 non-open-market purchase), both sourced to data already on disk. leverage.net_debt_to_ebitda and quality.piotroski remain NULL: data/market/POWL.json fundamentals.total_debt still carries only the single 2022-09-30 companyfacts observation after the 2026-09-02 re-fetch, so a fresh fetch does not close this gap, and the Q3 FY2026 8-K balance sheet is a condensed, unaudited exhibit with no explicit debt line to source a number from rather than infer one; no PENDING request queued because the gap is structural (the tag appears absent from SEC XBRL for FY2023-2025, not unfetched) rather than a missing fetch. Status COMPLETE, data tier T1, opportunity tier and selection_review left untouched (selection is a separate command); market_fetched_at updated to match the current file on disk."
+    },
+    {
+      "ts": "2026-09-04T04:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Data-integrity correction found and fixed while running run selection CAMP-20260901-01: data/market/POWL.json quality.shares_used (12070178, as_of 2025-09-30) is the PRE-split share count, multiplied against post-split price 182.71 in quality.derived, because Powell effected a three-for-one forward stock split effective 2026-04-02 (record date 2026-03-20; verbatim in data/edgar/docs/POWL.json: 'Trading began on a split-adjusted basis at market open on April 6, 2026') that the market file's shares_used was never rolled forward past. This understated market_cap and enterprise_value roughly 3x and corrupted quality.reverse_dcf to a false NEGATIVE implied FCF CAGR reading. Corrected valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales to session-computed INFERRED figures using the 8-K's own split-adjusted diluted weighted-average share count (36,604,000 for the quarter ended 2026-06-30, verbatim-verified in data/edgar/docs/POWL.json) times the on-disk AGREED price, combined with on-disk cash/companyfacts figures the same way this profile already computes operating_margin and cash_conversion; retracted reverse_dcf.implied_fcf_cagr and horizon_spread to NULL rather than hand-resolving the bisection, which is outside Sieve's venue. REQ-20260904-40/41/42 (prices, fundamentals, quality) were already PENDING (queued 2026-09-04T03:16:30Z by stocky ahead of a deepdive attempt that hit the same stale-price/expectations-gap problem); this profile does not duplicate them, and a future run profile POWL should replace these session-computed valuation figures once the Actions recompute lands. This correction does not change the opportunity tier: O1 remains barred by leverage.net_debt_to_ebitda and quality.piotroski, both unrelated to and untouched by the split issue, and neither the corrupted nor the corrected reverse_dcf reading was ever the stated bar. Status COMPLETE, data tier T1, opportunity tier O2 unchanged; confidence_audit and data_gaps updated to match."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-02",
+    "as_of": "2026-09-04",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
     "command": "run selection CAMP-20260901-01",
     "reviewed_by": "sieve-profiler",
@@ -335,7 +335,7 @@
       "leverage.net_debt_to_ebitda",
       "quality.piotroski"
     ],
-    "reason": "Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are.",
-    "revisit": "Revisit once the named canonical fields carry a sourced value (a fetch or an official-source cross-check), then re-run run selection CAMP-20260901-01."
+    "reason": "Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are. Unchanged from the 2026-09-02 review; ai-infrastructure is also already at its DEPTH o1_per_theme_max of 3 (HUBBELL, MYR-GROUP, VERTIV-HOLDINGS), so this profile would be barred from O1 today even without the two NULL fields. This run also found and corrected a pre-split share-count defect in the profile's valuation and reverse_dcf fields (see changelog 2026-09-04T04:05:00Z); the correction does not change this outcome, since neither field was ever the stated bar.",
+    "revisit": "Revisit once the named canonical fields carry a sourced value (a fetch or an official-source cross-check), then re-run run selection CAMP-20260901-01. Separately, ai-infrastructure's DEPTH o1_per_theme_max of 3 is already filled, so promotion also needs either a target-mode change or a demonstrated case for exceeding the per-theme cap before COMPLETE, both Ron's call."
   }
 }

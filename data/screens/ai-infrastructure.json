@@ -182,7 +182,7 @@
     "cik": 80420,
     "money_corner": true,
     "secondary_links": [],
-    "thesis_1line": "Custom switchgear and bus systems on the chain's money corner; a small cap with a record order book and the only row here whose reverse DCF prices NEGATIVE forward FCF growth.",
+    "thesis_1line": "Custom switchgear and bus systems on the chain's money corner; a small cap with a record order book. Reverse DCF retracted 2026-09-04 (pre-split share-count defect, see fundamentals.market_implied_fcf_cagr): do not cite the prior NEGATIVE-growth reading, it was wrong, not merely stale.",
     "theme_revenue_exposure": {
      "pct": null,
      "basis": "Powell reports by end market (petrochemical, LNG, utility, commercial including data centers) but does not break out a data-center revenue percentage in this 8-K. Undisclosed.",
@@ -206,12 +206,13 @@
       "tag": "VERIFIED"
      },
      "market_implied_fcf_cagr": {
-      "value": -0.0734,
-      "state": "SOLVED",
-      "horizon_spread": 0.0391,
-      "source": "data/market/POWL.json quality.reverse_dcf",
-      "as_of": "2026-08-31",
-      "tag": "VERIFIED"
+      "value": null,
+      "state": "RETRACTED",
+      "horizon_spread": null,
+      "source": "data/market/POWL.json quality.reverse_dcf (retracted; see basis)",
+      "as_of": "2026-09-04",
+      "tag": "NULL",
+      "basis": "Retracted 2026-09-04: the prior value -0.0734 (tagged VERIFIED here even though the profile itself carried the same figure as SPECULATIVE) was solved over an enterprise value corrupted by a pre-split share count in data/market/POWL.json quality.shares_used (12070178 as_of 2025-09-30, PRE the 2026-04-02 three-for-one forward split; price 182.71 already trades split-adjusted). Corrected market cap is approximately 6.69bn and enterprise value approximately 6.05bn, not the 2.21bn/1.57bn the prior solve used; the true expectations reading is a positive implied FCF CAGR, not a negative one. See data/companies/POWELL-INDUSTRIES.json valuation.market_cap.basis and reverse_dcf.implied_fcf_cagr.basis for the full correction. REQ-20260904-40/41/42 are PENDING for the Actions recompute; re-run run screen ai-infrastructure on this row once it lands."
      },
      "piotroski": null,
      "piotroski_state": "PENDING_DATA",
@@ -2610,6 +2611,13 @@
    "kind": "AMEND",
    "change": "HUBB row status CANDIDATE -> DIVED: data/stocks/HUBB__ai-infrastructure.json written (verdict WATCH, COMPOUNDER, earnings grade B, status DRAFT pending red team). No other field on the row was touched; the power-equipment link_id (money corner) was used as the primary attribution, matching the row bucket and the O1 profile screen_handoff.",
    "prior": "HUBB status CANDIDATE"
+  },
+  {
+   "ts": "2026-09-04T04:05:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "POWL row (buckets.pure_play[1]) corrected: found while running run selection CAMP-20260901-01 that fundamentals.market_implied_fcf_cagr -0.0734 (and its horizon_spread 0.0391) rested on a pre-split share count in data/market/POWL.json quality.shares_used, understating market cap/enterprise value roughly 3x and inverting the sign of the implied FCF CAGR reading. Retracted both to NULL/RETRACTED with a basis naming the correction, and rewrote thesis_1line to drop the false 'only row here whose reverse DCF prices NEGATIVE forward FCF growth' claim. No other field on the row touched; kept to this one row per instruction. See data/companies/POWELL-INDUSTRIES.json changelog 2026-09-04T04:05:00Z for the full correction and REQ-20260904-40/41/42.",
+   "prior": "POWL fundamentals.market_implied_fcf_cagr -0.0734 tagged VERIFIED, thesis_1line asserting NEGATIVE forward FCF growth"
   }
  ],
  "identity_schema": "campaign-v1",
