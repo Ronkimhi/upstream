@@ -13,7 +13,7 @@
   "clock_basis": "Inherited from the ai-infrastructure chain, which is COMPOUNDER (structural, multi-year grid buildout repricing over 2-5 years), and stated explicitly per method section 2. No scenario override applies: scenario_ids is empty, so nothing narrows this to an EVENT clock.",
   "status": "FINAL",
   "created_at": "2026-08-31",
-  "updated_at": "2026-08-31",
+  "updated_at": "2026-09-04",
   "as_of": "2026-08-31",
   "review_by": "2026-11-29",
   "verdict": "WATCH",
@@ -452,19 +452,28 @@
       "kind": "AMEND",
       "change": "Red team run in fresh context reading only this file and data/market/MYRG.json. Status DRAFT to FINAL. Verdict SURVIVES at WATCH on the COMPOUNDER clock, with the reasoning rebuilt rather than confirmed: the draft held WATCH on a cheap forward ask capped by capture and a partly-unwound multiple, and it now holds WATCH because the forward ask is unmeasurable. quality.reverse_dcf.base_fcf of $232.195M is exactly FY2025 free cash flow and 2.90x the FY2022-2025 average of $80.020M, so EV is 19.11x that base and 55.45x a normalised one, and the claimed 1.50pp gap sits inside the file's own 1.95pp horizon_spread. Capture confirmed by computation not inheritance: average revenue +63.8% against average FCF +24.6% between the two four-year windows with FCF margin falling 3.08% to 2.34%. Five attacks run, five landed, including a hard-rule violation: watch_triggers[2] carried an invented $260 level over a mis-stated price band and was replaced with 288.85 computed from the series. One amendment favours the bull: the April-to-June leg has essentially round-tripped at 294.42. Earnings grade B unchanged and still not load-bearing.",
       "prior": "WATCH (DRAFT), no red_team block, net_gap_direction MODEST_BULLISH_ON_FORWARD_ASK_CAPPED_BY_CAPTURE_AND_A_STILL_ELEVATED_MULTIPLE, watch_triggers[2] level $260"
+    },
+    {
+      "ts": "2026-09-04T00:00:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5",
+      "change": "Re-run in fresh context solely to fill the would_buy_zone Ron's 2026-09-03 method amendment requires on every WATCH. Verdict, clock, status, attacked_at, review_by and price_ref are unchanged. would_buy_zone{113.44, 136.48} added: quality.reverse_dcf's bisection formula was reproduced as an arithmetic check (matches the filed EV to within 0.02%) and re-based on the four-year average FCF of $80.020M in place of the 2.90x-outlier FY2025 base_fcf of $232.195M, then solved forward for the price at which the expectations_gap revenue_cagr_5y row's defended 8.5% growth closes, at the 5-year and 10-year horizons. A fifth attack, ENTRY_BASIS_STRESS_WOULD_BUY_ZONE, stress-tested the zone against this file's own bear[0] capture-conversion finding (revenue +63.8% against FCF +24.6%) and found the zone is optimistic by 18-30% against that ratio (bear-case fair value $92.64-$94.76); the zone is left as drawn per the prescribed method and the finding is recorded in red_team.challenges rather than used to redraw it. confidence_audit recounted mechanically.",
+      "prior": "would_buy_zone absent (file predates the 2026-09-03 method amendment)"
     }
   ],
   "confidence_audit": {
     "verified": 11,
     "inferred": 21,
-    "speculative": 1,
-    "null": 2
+    "speculative": 2,
+    "null": 2,
+    "basis": "Recounted mechanically 2026-09-04 (tools/check_analyst.py check 9 method: substring count of VERIFIED/INFERRED/SPECULATIVE/NULL in json.dumps of the file excluding this block). Prior counts {'verified': 11, 'inferred': 21, 'speculative': 1, 'null': 2}; new counts reflect the would_buy_zone addition (one new SPECULATIVE tag on the rebased-DCF derivation) and the new red_team.challenges entry, which quotes 'flat-conversion' and other prose without introducing new tag substrings beyond that one SPECULATIVE."
   },
   "red_team": {
     "attacked_at": "2026-08-31",
     "attacked_by": "stocky",
     "read_boundary": "data/stocks/MYRG__ai-infrastructure.json and data/market/MYRG.json only, plus .claude/agents/stocky.md and docs/method.md for the contract. The chain narrative, the signal card, the screen thesis line, the profile selection_basis and the author's ledger lines were not read.",
-    "challenge_count": 5,
+    "challenge_count": 6,
     "verdict_survived": true,
     "prior_verdict": "WATCH (DRAFT)",
     "final_verdict": "WATCH (FINAL)",
@@ -493,6 +502,11 @@
         "dimension": "EVIDENCE_BOUNDARY",
         "attack": "Which load-bearing assertions cannot be checked from the dive JSON and the market file alone? Fifth attack, added because the brief made unverifiable assertions a finding in their own right.",
         "outcome": "PARTIALLY CONFIRMS THE DIVE. Out of boundary and left unconfirmed: every chain and heat claim (bottleneck criticality, money corner, capture 40, position 3 of 12) and every 8-K-only figure (H1 margin 6.37%, segment margins, $3.16bn backlog, 19.6% backlog growth, 26.7% ROIC), though the last group is quote-verified by tools/check_analyst.py against data/edgar/docs/MYRG.json. Confirmed exactly from the market file: LTM revenue $4,006.051M and prior LTM $3,451.783M both reconstruct to the dollar from fundamentals.revenue_q plus revenue_fy (16.06% LTM growth), Q2 YoY 20.15%, three-year revenue CAGR 6.7312%, FY2025 operating margin 4.562%, P/S 0.6505x to 1.2494x, price +107.24%, drawdown -41.25%, run 2.883x, accruals -13.29%, Piotroski 8, Beneish -2.206, Altman 5.97, EV/LTM revenue 1.1076x. The dive's arithmetic is sound throughout; its interpretation of one number, base_fcf, is where it went wrong."
+      },
+      {
+        "dimension": "ENTRY_BASIS_STRESS_WOULD_BUY_ZONE",
+        "attack": "Re-run for Ron's 2026-09-03 would-buy-zone rule (method section 7, WATCH requires a would_buy_zone or a named cap). The zone was drawn by re-basing quality.reverse_dcf's own bisection formula onto the four-year average FCF ($80.020M, replacing the 2.90x-outlier FY2025 base_fcf) and solving forward for the price at which the expectations_gap revenue_cagr_5y row's defended 8.5% growth closes: $113.44 (5y horizon) to $136.48 (10y horizon). Entry-basis stress (stocky.md section 2): does that zone survive the bear case already on this file, that cash conversion does not scale with revenue, or is it the base case with a haircut?",
+        "outcome": "LANDED. The zone is not a naive base-case haircut: rebasing off the four-year average already absorbs one negative FCF year (FY2023, -$13.720M) and does not assume the current cash-conversion improvement persists. But it does assume the four-year average conversion rate holds FLAT as revenue grows at the defended 8.5%, and this file's own bear[0] finding is that conversion does not hold flat, it degrades: average revenue rose 63.8% against average free cash flow up only 24.6% between the FY2018-2021 and FY2022-2025 windows, a conversion ratio of 0.386. Applying that ratio to the 8.5% revenue assumption (0.386 x 8.5% = 3.28% FCF growth) and re-solving the identical rebased formula moves fair value to $92.64 (5y) and $94.76 (10y), 18% to 30% below the drawn zone and only just inside the 0.3x last-close floor ($88.33). The drawn zone is therefore optimistic relative to this file's own capture finding: it survives as a stated, arithmetic-backed level under the flat-conversion assumption named in its basis, but a buyer who takes bear[0] at face value has a materially lower true entry point than would_buy_zone states. Recorded here rather than silently redrawn: the zone's derivation method (rebase to the four-year average, solve to the defended growth row) was specified by the mission brief as the honest measure, and this attack's job is to say where that measure is fragile, not to keep re-solving until a number feels safe. would_buy_zone is left as drawn; a buyer applying this file's own capture math should treat $113.44-$136.48 as the upper half of the true range, not its center."
       }
     ],
     "amendments": "Verdict label unchanged at WATCH, reasoning rebuilt. (1) net_gap_direction changed from modestly bullish on the forward ask to UNMEASURED, because base_fcf is a 2.90x outlier. (2) bull[0] no longer claims the cheapest bar in the campaign, a cross-issuer superlative outside the read boundary, and now carries the base-year conditional. (3) All three bear bullets rewritten onto computed evidence: the eight-year cash-conversion test, the eight-year operating margin record, and the base-FCF outlier. (4) watch_triggers[2] rewritten: the invented $260 level and its mis-stated 390.32-407.40 band are replaced by 288.85, computed from the series. (5) independence_test why_the_gap_exists downgraded from reasoned hypothesis to contested, because the market kept selling 12.72% through the record print, not only before it. (6) crowdedness reliance relabelled to record that the price series contradicts the undiscovered conclusion. (7) Three data_gaps added naming what the boundary could not check. One amendment favours the bull: the April-to-June leg has essentially round-tripped at 294.42, which the draft's peak-denominator framing obscured.",
@@ -503,5 +517,13 @@
     ],
     "market_would_have_been_right_because": "A percentage-of-completion contractor's single best free-cash-flow year, at 2.90x its own four-year average and arriving with a -13.29% accrual reading, is exactly what a working-capital swing looks like from outside. The market sold this name 12.72% across a record-revenue, record-backlog print, which is the behaviour of buyers pricing a conversion reversal rather than of momentum holders leaving indiscriminately. If that is what happened, the drawdown was a repricing and not an overreaction, and the dive's whole reason for interest was an artifact of the base year the reverse DCF happened to stand on.",
     "surviving_bear_case": "MYR Group is a bid-competed electrical contractor whose cash generation does not scale with its revenue, and the one number that made it look cheap is an outlier. Over the eight years on disk, average revenue rose 63.8% between the FY2018-2021 and FY2022-2025 windows while average free cash flow rose only 24.6% and free-cash-flow margin fell from 3.08% to 2.34%, with FCF negative in FY2023; that is the capture ceiling measured from the filings rather than assigned by a chain score. The reverse DCF that produces the cheap-looking 7.0% five-year bar stands on FY2025 free cash flow of $232.195M, which is 2.90x that four-year average and comes from the year the dive itself flags at -13.29% accruals to average assets, so on a normalised base the enterprise value is 55.45x free cash flow rather than 19.11x and the claimed 1.50pp growth gap is both inside the file's own 1.95pp horizon spread and measured across mismatched categories. The margin assumption carrying the bull case, 5.5% steady state, is above every one of the eight fiscal years on record (1.608% to 4.746%, mean 3.522%) and the only mechanism the dive quotes for the current level is management's own non-recurring favourable job close-outs, in a P&L where operating income fell 58.1% on a 7.7% revenue decline two years ago. And the market is not asleep on any of this: the stock gapped 19.85% in a single session in April, ran 2.883x off its 2025 low, and then sold off 41.25%, including 12.72% through a record quarter, so the thin-coverage-overreaction story the dive uses to explain why it is right is contested by the same price series it cites. The bear case is not that the growth is fake, the growth reconstructs exactly from the filings at 16.06% LTM; it is that at this link the growth has never been worth what the multiple is paying for it."
+  },
+  "would_buy_zone": {
+    "low": 113.44,
+    "high": 136.48,
+    "basis": "The expectations_gap revenue_cagr_5y row's defended 'mine' growth of 8.5% closes at this price when quality.reverse_dcf's own bisection formula (reproduced here as an arithmetic check against its own stated assumptions only, matching the filed EV of $4,437,082,786 to within 0.02% at 9% discount rate, 2.5% terminal growth, 5y and 10y explicit horizons) is re-based on the file's four-year average free cash flow of $80.020M (FY2022-2025), replacing the FY2025 outlier base_fcf of $232.195M that is 2.90x it: solving forward for enterprise value at g=8.5% gives $1,627.8M at the 5-year horizon and $1,985.4M at the 10-year horizon, which at the file's own 15,522,834 FY2025 shares and -$133.15M net cash (both already used elsewhere in this file) convert to $113.44 and $136.48 a share; today's 294.42 close instead demands 34.77% (5y) or 19.19% (10y) growth on that same rebased base, the arithmetic form of this file's own 'floor, not measurement' finding on the priced-in ask.",
+    "as_of": "2026-09-04",
+    "tag": "SPECULATIVE",
+    "would_buy_stress": "Arithmetic check only, never a re-solve of the filed reverse_dcf: reproduced its bisection formula (constant-growth explicit period plus Gordon-growth terminal value, discounted at the filed 9% rate) and confirmed it returns the filed enterprise value of $4,437,082,786 to within 0.02% at g=0.07/n=5, g=0.0588/n=7 and g=0.0505/n=10 before using it on the rebased four-year-average FCF of $80.020M."
   }
 }
