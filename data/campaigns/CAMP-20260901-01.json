@@ -2083,6 +2083,20 @@
    "theme_id": "data-center-moratoria",
    "finding": "The ai-infrastructure/power-equipment link is shared by three selected themes. Until the second and third chains declare it, there is nothing structural preventing one issuer being counted toward two themes' coverage. The declaration obligation is recorded in all three rationales and in notes.power_equipment_overlap.",
    "owner": "atlas-cartographer"
+  },
+  {
+   "id": "BLK-05",
+   "severity": "WARNING",
+   "theme_id": "hormuz-maritime",
+   "finding": "run selection 2026-09-04 examined all 10 campaign-v1 rows in data/screens/hormuz-maritime.json (7 crude-tanker-tonnage, 3 naval-escort-and-mine-clearance) against their COMPLETE O2 profiles. None currently clears the O1 bar: every one retains at least one NULL critical canonical field, which tools/check_profile.py refuses on an O1 profile (line ~260, 'O1 cannot retain a NULL critical canonical field'). FRONTLINE, DHT-HOLDINGS, INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS, TSAKOS-ENERGY-NAVIGATION, SFL-CORP and HUNTINGTON-INGALLS carry NULL quality.piotroski/beneish_state (PENDING_DATA, missing cost_of_revenue_fy or no market file) and/or NULL leverage.net_debt_to_ebitda. NORDIC-AMERICAN-TANKERS and ELBIT-SYSTEMS have complete quality (piotroski+beneish present) but NULL leverage.net_debt_to_ebitda ('cash and/or total_debt fields are null or missing in fundamentals'). EXAIL-TECHNOLOGIES has complete leverage and piotroski but NULL beneish_state. This is a data-completeness blocker, not a finding that no qualifying stock exists on this chain, so no no_candidate_finding is written: closing the theme on this basis would misrepresent an open data gap as an economic conclusion. INTERNATIONAL-SEAWAYS and EXAIL-TECHNOLOGIES are the nearest to clearing (single missing field each: quality and beneish_state respectively) and are the natural target for a follow-up run profile pass once fetched data can fill cost_of_revenue_fy / cash and total_debt series. The chain's true money-corner link, specialty-marine-broking (UNDISCOVERED), has zero screen rows and zero mapped placements yet; no candidate on it exists to evaluate at all.",
+   "owner": "sieve-profiler"
+  },
+  {
+   "id": "BLK-06",
+   "severity": "WARNING",
+   "theme_id": "russia-diesel-ban",
+   "finding": "run selection 2026-09-04 examined the one campaign-v1 row in data/screens/russian-diesel-ban.json: INTERNATIONAL-SEAWAYS on clean-product-shipping. Two independent reasons block O1 this run. First, the same canonical-field defect as BLK-05: data/companies/INTERNATIONAL-SEAWAYS.json carries NULL quality.piotroski and quality.beneish_state (PENDING_DATA, missing cost_of_revenue_fy), which tools/check_profile.py refuses on O1. Second, and separate: the profile's placements array carries exactly one placement, (hormuz-maritime, crude-tanker-tonnage); it carries no (russian-diesel-ban, clean-product-shipping) placement matching the screen row that names it on this chain. Method section 6A requires the screen_handoff to resolve to the profile's own placement, so even a quality-complete INSW profile could not be handed off to this theme without a profile amendment adding the second placement first. No no_candidate_finding is written for the same reason as BLK-05: this is an open data and identity gap, not a researched absence of a qualifying stock.",
+   "owner": "sieve-profiler"
   }
  ],
  "confidence_audit": {
@@ -3560,6 +3574,21 @@
   },
   {
    "ts": "2026-09-04T16:53:32Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 131
+  },
+  {
+   "ts": "2026-09-04T18:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01: examined all screened COMPLETE profiles on the four themes carrying a screen file (ai-infrastructure, tibet-mega-dam, hormuz-maritime, russia-diesel-ban). ai-infrastructure already holds 3 O1 (VERTIV-HOLDINGS/liquid-cooling, HUBBELL/power-equipment, MYR-GROUP/grid-interconnect) at the DEPTH per-theme cap; tibet-mega-dam already holds 2 O1 (ANDRITZ/global-hydro-spillover, CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY/tunneling-tbm) within the 1-3 range; neither needed new promotion and neither was touched. hormuz-maritime (10 screened candidates) and russia-diesel-ban (1 screened candidate, INTERNATIONAL-SEAWAYS) promoted zero new O1: every candidate on both themes retains at least one NULL critical canonical field (quality.piotroski/beneish_state or leverage.net_debt_to_ebitda), which tools/check_profile.py refuses on O1 regardless of data tier. Recorded as BLK-05 and BLK-06 naming the exact blocking field per issuer, not as a no_candidate_finding, because the block is an open data-completeness and (for INSW on russia-diesel-ban) placement-identity gap, not a researched conclusion that no qualifying stock exists. No profile files were amended; no opportunity_tier changed.",
+   "o1_before": 5,
+   "o1_after": 5
+  },
+  {
+   "ts": "2026-09-04T16:57:31Z",
    "by": "campaign_calibrate",
    "kind": "AMEND",
    "change": "recomputed campaign completion and advanced proven stages",
