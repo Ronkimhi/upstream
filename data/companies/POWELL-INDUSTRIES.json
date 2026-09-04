@@ -1,9 +1,9 @@
 {
   "issuer_id": "POWELL-INDUSTRIES",
   "issuer_name": "Powell Industries, Inc.",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-04",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-04T03:20:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -54,7 +54,7 @@
     },
     "chain": "data/chains/ai-infrastructure.json",
     "market": "data/market/POWL.json",
-    "market_fetched_at": "2026-08-30T00:17:15.218249+00:00",
+    "market_fetched_at": "2026-09-02T00:12:38.980312+00:00",
     "filing": {
       "form": "8-K",
       "filing_date": "2026-08-03",
@@ -209,7 +209,8 @@
     "This is the least covered name in the batch and the one where the un-crowded claim survives contact with the data: data/market/POWL.json pcs records 4 analysts as of 2026-08-29 against 25 for Eaton and 33 for GE Vernova.",
     "Institutional ownership is nonetheless 93.5% and short interest 10.2% of float in the same pcs block, so thin sell-side coverage is not the same as an unowned or uncontested stock; the short interest is the highest in this batch by a wide margin.",
     "Axis-A is COVERAGE-THIN at 100.0 rather than DARK, which is the honest reading: the retail-attention measurement is thin rather than confidently quiet, and the pcs gate state is ADVISORY.",
-    "The 52-week range in data/market/POWL.json runs 85.7167 to 322.05, a spread that makes any single-date crowdedness reading fragile."
+    "The 52-week range in data/market/POWL.json runs 85.7167 to 322.05, a spread that makes any single-date crowdedness reading fragile.",
+    "data/market/POWL.json insider records 89 Form 4 transactions in the trailing year to 2026-09-02: 69 open-market sales totaling roughly $68.4 million in value against 18 distinct insiders and only 1 non-derivative purchase (a $0.01 exercise-and-sell, not an open-market buy). Heavy, broad insider selling into a name this thinly covered is itself a crowdedness signal, distinct from the short interest already noted."
   ],
   "catalysts": [
     {
@@ -229,6 +230,15 @@
       "accession": "0000080420-26-000103",
       "tag": "VERIFIED",
       "source_excerpt": "Powell was awarded three mega (4) orders during the fiscal third quarter, including the previously announced data center order with a value exceeding $400 million"
+    },
+    {
+      "claim": "The fiscal third-quarter 2026 income statement itself, not just the order book, grew: revenue, gross profit and net income each rose year over year with gross margin held flat near 30.6%.",
+      "source_name": "Powell Industries, Inc. Form 8-K exhibit, 2026-08-03",
+      "source_date": "2026-08-03",
+      "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000103/ex991-powlq3xfy2026earning.htm",
+      "accession": "0000080420-26-000103",
+      "tag": "VERIFIED",
+      "source_excerpt": "Revenues of $312 million increased 9%; • Gross profit of $95 million, or 30.6% of revenue, increased 8%; • Net income of $52 million, or $1.42 per diluted share (1) , increased 8%;"
     }
   ],
   "risks": [
@@ -306,6 +316,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['leverage.net_debt_to_ebitda', 'quality.piotroski']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-04T03:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile POWL, ahead of an immediate deepdive: re-read data/market/POWL.json (re-fetched 2026-09-02, same underlying FY2025 companyfacts and quality figures as the prior fetch, so all seven canonical metric groups are unchanged in value) and data/edgar/docs/POWL.json (fiscal Q3 2026 8-K, accession 0000080420-26-000103). Confirmed the closed canonical revenue.latest_fy field correctly still names fiscal year 2025-09-30, the latest completed fiscal year on disk; fiscal Q3 2026 (quarter ended 2026-06-30) is a completed quarter, not a completed fiscal year, so no canonical annual field changes. Added one catalyst quoting the Q3 FY2026 income-statement growth (revenue, gross profit, net income each up year over year, gross margin held near 30.6%) and one crowdedness_caveats item on trailing-year insider selling (89 Form 4 rows, 69 sales totaling roughly $68.4 million against 1 non-open-market purchase), both sourced to data already on disk. leverage.net_debt_to_ebitda and quality.piotroski remain NULL: data/market/POWL.json fundamentals.total_debt still carries only the single 2022-09-30 companyfacts observation after the 2026-09-02 re-fetch, so a fresh fetch does not close this gap, and the Q3 FY2026 8-K balance sheet is a condensed, unaudited exhibit with no explicit debt line to source a number from rather than infer one; no PENDING request queued because the gap is structural (the tag appears absent from SEC XBRL for FY2023-2025, not unfetched) rather than a missing fetch. Status COMPLETE, data tier T1, opportunity tier and selection_review left untouched (selection is a separate command); market_fetched_at updated to match the current file on disk."
     }
   ],
   "selection_review": {
