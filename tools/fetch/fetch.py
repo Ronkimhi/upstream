@@ -25,7 +25,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -400,8 +400,7 @@ FACT_MAP = {
     "ppe_net": (["PropertyPlantAndEquipmentNet"], "instant", "USD"),
     "shares": (["CommonStockSharesOutstanding", "CommonStockSharesIssued",
                 "WeightedAverageNumberOfDilutedSharesOutstanding",
-                "WeightedAverageNumberOfSharesOutstandingBasic",
-                "EntityCommonStockSharesOutstanding"], "instant", "shares"),
+                "WeightedAverageNumberOfSharesOutstandingBasic"], "instant", "shares"),
     # Same concepts as total_debt, kept as its own field because Piotroski and Beneish
     # both take a long-term-debt SERIES while total_debt is stored as a single latest row.
     "long_term_debt": (["LongTermDebtNoncurrent", "LongTermDebt",
@@ -506,7 +505,11 @@ def _fundamentals_sec(ticker, cik):
         # net_income series frozen a decade back while every other field ran to 2025,
         # and the quality block found no common fiscal year: TEEKAY-TANKERS and
         # HUNTINGTON-INGALLS read PENDING_DATA with every raw input present.
-        best, best_end = [], ""
+        # Among the concepts whose series reaches within ~13 months of the latest one,
+        # the LONGEST series wins (list order breaks ties): a concept with one fresh row
+        # must not beat one with eight rows ending a quarter earlier, because the quality
+        # block needs common fiscal periods, not the single newest date.
+        found_series = []
         for n in names:
             src = dei if (n == "EntityCommonStockSharesOutstanding") else src_map
             vals = src.get(n, {}).get("units", {}).get(unit) or [] if unit else []
@@ -528,9 +531,49 @@ def _fundamentals_sec(ticker, cik):
                     else (frame_days and 60 < frame_days < 120)
                 if dur_ok:
                     keep[v["end"]] = v["val"]
-            if keep and max(keep) > best_end:
-                best, best_end = sorted(keep.items())[-8:], max(keep)
-        return best
+            if keep:
+                found_series.append((max(keep), sorted(keep.items())[-8:]))
+        if not found_series:
+            return []
+        latest = max(end for end, _ in found_series)
+        try:
+            cutoff = (datetime.fromisoformat(latest) - timedelta(days=400)).date().isoformat()
+        except Exception:  # noqa: BLE001
+            cutoff = ""
+        fresh = [(end, rows) for end, rows in found_series if end >= cutoff]
+        return max(fresh, key=lambda er: len(er[1]))[1]  # max() keeps the first on ties
+
+    def concept_hints(missing_keys):
+        """For every field the map could not read: the filer's own concept names that
+        look like candidates, with each one's latest end date. Diagnostic only, so a
+        session can widen FACT_MAP from evidence instead of guessing concept names
+        (2026-09-04: seven shipping filers read NULL on cash and debt and nobody could
+        say which tag they used without opening companyfacts by hand)."""
+        words = {"cash": ("Cash",), "total_debt": ("Debt", "Borrowing", "Notes", "Loan"),
+                 "long_term_debt": ("Debt", "Borrowing", "Notes", "Loan"),
+                 "cost_of_revenue": ("Cost", "Voyage", "Vessel", "Expense"),
+                 "gross_profit": ("Gross",), "sga": ("Administrative", "Selling"),
+                 "capex": ("Payments", "Purchase", "Acquire"),
+                 "ppe_net": ("PropertyPlant", "Vessel"), "inventory": ("Inventor",),
+                 "shares": ("Shares",), "total_liabilities": ("Liabilit",),
+                 "net_income": ("Income", "Profit"), "receivables": ("Receivable",),
+                 "retained_earnings": ("Retained",), "equity": ("Equity",),
+                 "depreciation": ("Depreciation", "Amortization", "Amortisation"),
+                 "operating_income": ("Operating",), "operating_cashflow": ("Operating",),
+                 "current_assets": ("Current",), "current_liabilities": ("Current",),
+                 "revenue": ("Revenue", "Sales")}
+        out = {}
+        for key in missing_keys:
+            hits = []
+            for name, body in src_map.items():
+                if not any(w in name for w in words.get(key, ())):
+                    continue
+                ends = [v.get("end") for units in (body.get("units") or {}).values()
+                        for v in units if v.get("form") in ANNUAL_FORMS]
+                if ends:
+                    hits.append((max(ends), name))
+            out[key] = [f"{n} ({e})" for e, n in sorted(hits, reverse=True)[:8]]
+        return out
 
     f = {
         "source": "sec-companyfacts", "cik": cik, "as_of": TODAY,
@@ -553,6 +596,13 @@ def _fundamentals_sec(ticker, cik):
         if rows:
             f[f"{key}_fy"] = rows
             found.append(key)
+    missing_keys = [k for k in attempted if k not in found]
+    if not f.get("cash"):
+        missing_keys.append("cash")
+    if not f.get("total_debt"):
+        missing_keys.append("total_debt")
+    if missing_keys:
+        f["concept_hints"] = concept_hints(missing_keys)
     f["coverage"] = {"annual_fields_found": len(found), "annual_fields_attempted": len(attempted),
                      "missing": [k for k in attempted if k not in found]}
     if not f["revenue_fy"] and not f["revenue_q"]:
