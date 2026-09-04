@@ -3,13 +3,13 @@
   "issuer_name": "Indian Oil Corporation Limited",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T22:30:00Z",
-  "updated_at": "2026-09-04T22:30:00Z",
+  "updated_at": "2026-09-04T23:10:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T3",
-  "data_tier_basis": "Indian NSE-listed issuer with no SEC CIK (method section 6): data/market/IOC-NS.json has a fetched prices block only, no fundamentals or quality block on disk this run. Provisional T3 (vendor-leg expectation, no official SEC cross-check available for a non-SEC-filing foreign issuer) pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "Local-only listing (method section 6): NSE:IOC carries no SEC CIK; data/market/IOC-NS.json fundamentals rest on the yfinance-statements vendor block, not sec-companyfacts. Best-effort fundamentals cited from the vendor normalization with INFERRED tags, per T3.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profile awaiting run selection; not yet examined for O1 promotion this batch (profiling only, per method section 6A).",
   "listing_refs": [
     "NATIONAL-STOCK-EXCHANGE-OF-INDIA-LIMITED:IOC"
   ],
@@ -49,7 +49,7 @@
           "source_date": "2025-08-06",
           "url": "https://iocl.com/uploads/AnnualReport2024-25/public/docs/Directors-Report.pdf",
           "tag": "VERIFIED",
-          "source_excerpt": "Petrochemical Intensity Index (PII) is planned to be increased to 15% by 2030 through PX-PTA plant and major petrochemical complex at Bhadrak, Polybutadiene rubber project at Panipat among others."
+          "source_excerpt": "Petrochemical Intensity Index (PII) is planned to be increased to 15% by 2030 through PX-PTA plant and major petrochemical complex at Paradip, yarn project at Bhadrak, Polybutadiene rubber project at Panipat among others."
         }
       ]
     }
@@ -62,108 +62,176 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/russian-diesel-ban.json",
-    "market": "data/market/IOC.NS.json"
+    "market": "data/market/IOC-NS.json"
   },
-  "business_summary": "Indian Oil Corporation Limited (NSE: IOC) is India's largest refiner by capacity and is expanding at Panipat, Gujarat and Barauni, placing it on the refinery-capacity-response link alongside Hindustan Petroleum. Fundamentals cannot be sourced this run: no fundamentals or quality block exists in data/market/IOC-NS.json (prices only).",
+  "business_summary": "Indian Oil Corporation Limited (NSE: IOC) is India's largest refiner. It sits on the russian-diesel-ban chain's refinery-capacity-response link, operating the country's biggest current capacity expansions at Panipat, Gujarat and Barauni, the Indian half of the non-Russian conversion capacity that eventually closes the distillate gap this chain trades. No SEC CIK exists for this NSE-India-only listing (REQ-20260904-97/98 fulfilled), so all fundamentals rest on the yfinance-statements vendor block, current through FY2026 (year ended March), with all 12 canonical fields computable.",
   "exposure_summary": {
-    "narrative": "INDIAN-OIL has 1 placement on russian-diesel-ban (refinery-capacity-response, UNDISCOVERED, money_corner False). Every canonical metric is NULL: no fundamentals data is available for IOC.NS this run."
+    "narrative": "INDIAN-OIL has 1 placement on russian-diesel-ban (refinery-capacity-response, UNDISCOVERED, not money-corner). Panipat, Gujarat and Barauni are specific, sourced capacity expansions, but no percentage of Indian Oil's total revenue attributable to those three refineries alone is disclosed or sourced this run."
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
-  "data_gaps": [
-    "Queued this run: fundamentals (REQ-20260904-97), quality (REQ-20260904-98). Profile stays BLOCKED, all 11-12 canonical fields NULL, until the fetch workflow settles these requests."
-  ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 7739928000000.0,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Vendor-normalized fiscal-year revenue (INR) for the period ended 2026-03-31, yfinance-statements aggregation of Indian Oil Corporation Limited's local financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote). No SEC CIK exists for this NSE-India-only listing.",
+        "official_source": false
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "value": -0.022054,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Three-year compound annual revenue growth computed as (7739928000000.0 / 8275473300000.0) ** (1/3) - 1 from the yfinance-statements INR revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+        "official_source": false
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "value": 0.088184,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Operating income 682538900000.0 divided by revenue 7739928000000.0, both INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
+        "value": 1.808761,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Operating cash flow 761420800000.0 divided by net income 420962600000.0, both INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "value": 0.061731,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Free cash flow margin: operating cash flow 761420800000.0 less capex 283627300000.0, divided by revenue 7739928000000.0, all INR for the period ended 2026-03-31, from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "value": 1.499748,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Net debt 1299893100000.0 (total debt 1318223900000.0 less cash 18330800000.0, both as of 2026-03-31) divided by an EBITDA proxy 866741300000.0 (operating income 682538900000.0 plus depreciation 184202400000.0, both for the period ended 2026-03-31), from the yfinance-statements series.",
+        "official_source": false
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "value": 7,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/IOC-NS.json quality.piotroski, 9 of 9 inputs found.",
+        "official_source": false
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "value": -3.115,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Beneish M-score -3.115 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/IOC-NS.json quality.beneish, 12 of 12 inputs found.",
+        "official_source": false
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 1888080971832.9,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Market capitalization 1888080971832.9 INR computed in data/market/IOC-NS.json quality.derived.market_cap from vendor share count and price (method section 6A vendor-aggregate fundamentals).",
+        "official_source": false
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "value": 0.24394,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Market capitalization 1888080971832.9 divided by revenue 7739928000000.0, both INR, for the period ended 2026-03-31.",
+        "official_source": false
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "value": -0.1619,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Reverse-DCF solve from data/market/IOC-NS.json quality.reverse_dcf: base FCF 477793500000.0, enterprise value 3187974071832.9 (both current, total_debt and cash both dated 2026-03-31), 5-year horizon, discount rate 9%, terminal growth 2.5% (SPECULATIVE assumptions, method's standard reverse-DCF).",
+        "official_source": false
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "value": 0.0688,
+        "tag": "INFERRED",
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-04",
+        "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+        "basis": "Spread between the 5-year (-0.1619) and 10-year (-0.0931) implied FCF CAGR solves from the same data/market/IOC-NS.json quality.reverse_dcf block as implied_fcf_cagr.",
+        "official_source": false
       }
     }
   },
+  "crowdedness_caveats": [
+    "INDIAN-OIL's placement sits on a link scored UNDISCOVERED (Indian conversion-capacity response to the ban is not yet a widely covered trade); no pcs block exists locally for data/market/IOC-NS.json to corroborate the read at the issuer level."
+  ],
+  "catalysts": [
+    {
+      "claim": "8.82% operating margin, a STRONG Piotroski F-score of 7 and a CLEAN Beneish state (FY2026 vendor statements) sit inside a real, evidenced role: India's largest refiner, operating the country's biggest current capacity expansions at Panipat, Gujarat and Barauni.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Every canonical figure for Indian Oil rests on the yfinance-statements vendor normalization, not an official filing: no SEC CIK exists for this NSE-India-only listing. The reverse-DCF implied FCF CAGR solves negative (-16.2%), meaning the current enterprise value already prices in cash-flow growth above what the FY2026 base FCF and standard assumptions imply.",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/IOC.NS/financials",
+      "tag": "INFERRED"
+    }
+  ],
+  "data_gaps": [
+    "Filled 2026-09-04 from data/market/IOC-NS.json (yfinance-statements vendor block, fulfilled requests REQ-20260904-97/98, T3): all 12 of 12 canonical fields carry a sourced number, none NULL.",
+    "No percentage of Indian Oil's total revenue attributable specifically to Panipat, Gujarat and Barauni is disclosed or sourced this run.",
+    "Every figure is vendor-normalized (INFERRED, official_source false); O1 promotion would require an official-source cross-check on revenue.latest_fy and cash conversion per method section 6A, not done this batch (profiling only)."
+  ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "No fundamentals data on disk for IOC.NS this run. Queued fundamentals (REQ-20260904-97), quality (REQ-20260904-98). Status BLOCKED, data tier T3, opportunity tier O3."
+    "basis": "Fundamentals and quality fetched (REQ-20260904-97/98 FULFILLED) from data/market/IOC-NS.json (yfinance-statements vendor block, T3). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; all 12 canonical fields carry a sourced number. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
+    "INFERRED": 12,
     "SPECULATIVE": 0,
-    "NULL": 12,
+    "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no fundamentals data fetched for this listing yet."
+    "basis": "Counts cover the canonical metric fields only. Every field is INFERRED, official_source false, resting directly on the yfinance-statements vendor block per method section 6A's 2026-09-01 vendor-aggregate-fundamentals decision (T3 filer: no SEC CIK for this NSE-India-only listing)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -175,6 +243,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for INDIAN-OIL from data/mappings/russian-diesel-ban.json (ACTIVE, current audit status FAIL). No fundamentals data on disk for IOC.NS. Queued fundamentals (REQ-20260904-97), quality (REQ-20260904-98). Status BLOCKED, opportunity_tier O3. run profile --campaign CAMP-20260901-01, batch 5."
+    },
+    {
+      "ts": "2026-09-04T23:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Fundamentals and quality landed (REQ-20260904-97/98 FULFILLED). Amended from BLOCKED to COMPLETE: all 12 of 12 canonical fields filled from data/market/IOC-NS.json (yfinance-statements vendor block, T3), none NULL (total debt and cash both dated 2026-03-31, no staleness issue). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 6."
     }
   ]
 }
