@@ -26,6 +26,8 @@ What it measured on 2026-08-30, after the fixture's chain size was corrected fro
     60 dives at full analytical fidelity                     3,581,934
     everything at full fidelity                             ~6,290,000
     the budget                                               2,000,000
+    (raised to 12,000,000 on 2026-09-03: Ron chose the higher SIZE_WARN_MB option
+    below, "I don't care about the sizes ... I need all the data")
 
 The floor — the page with no written analysis in it at all — is 91% of the budget. So at
 the campaign the manifest locked, this one file holds the navigation for ten themes, two
@@ -133,7 +135,7 @@ class TestProjectedCampaignScaleFitsThePage(ScaleFixtureCase):
             "at the finished campaign's scale the page is "
             f"{size:,} bytes against app/build.py's own {HTML_BUDGET:,}-byte threshold. "
             "Heaviest stores: " + ", ".join(f"{k} {v:,}" for k, v in biggest) +
-            ". Raise a projection's fidelity knob in app/build.py, never SIZE_WARN_MB")
+            ". Raise a projection's fidelity knob in app/build.py before SIZE_WARN_MB")
 
     def test_no_store_silently_takes_over_the_page(self):
         overruns = build.store_overruns(self.payload)
@@ -151,9 +153,15 @@ class TestProjectedCampaignScaleFitsThePage(ScaleFixtureCase):
         self.assertGreater(raw["stocks"], 3_000_000)
         self.assertGreater(raw["market"], 5_000_000)
         self.assertGreater(raw["impact"], 1_000_000)
-        for store in ("stocks", "market", "impact"):
+        for store in ("market", "impact"):
             with self.subTest(store=store):
                 self.assertLess(self.sizes[store], raw[store] / 4)
+        # Ron, 2026-09-03: "I need all the data." Dives are the product; at the 12 MB
+        # ceiling every one is carried whole and the page says so in its own note.
+        note = self.payload["carried"]["stocks"]
+        self.assertEqual(note["carried"], note["total"],
+                         f"{note['total'] - note['carried']} dive(s) cut from the page: "
+                         "the ceiling is meant to carry every dive whole")
 
 
 class TestEveryCutIsDeclaredInThePayload(ScaleFixtureCase):
@@ -240,9 +248,14 @@ class TestEveryCutIsDeclaredInThePayload(ScaleFixtureCase):
                 self.assertIn("notes_total", chain,
                               "a chain whose notes were dropped must still say how many "
                               "there are, or the page prints its 'None — add one' state")
-        self.assertGreater(len(seen), 1,
-                           "at campaign scale more than one chain fidelity must be in "
-                           "play, or this test is watching an unexercised mechanism")
+        # Ron, 2026-09-03: at the 12 MB ceiling every chain is carried whole. The
+        # reduced fidelities stay tested directly (project_chains with a small budget);
+        # this checks the real build never reaches them at the finished campaign's scale.
+        self.assertEqual(seen, {"FULL"},
+                         f"chain fidelities in play at campaign scale: {sorted(seen)}; "
+                         "the ceiling is meant to carry every chain whole")
+        note = self.payload["carried"]["chains"]
+        self.assertEqual(note["carried"], note["total"])
 
     def test_the_chain_kept_whole_is_the_campaign_top_ranked_theme(self):
         """The order is evidence-backed, not alphabetical, and that is the point."""

@@ -1402,9 +1402,14 @@
       return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
         '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
         seclabel("Price") + "<div class='card'>" + priceChart(mk, st) + "</div>" +
-        seclabel("The case") +
-        '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
-        '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
+        /* Only when the summary fidelity carried them. An index-only dive has no bull or
+           bear on the page, and empty Bull/Bear headers read as "never written" (seen on
+           VRT, 2026-09-03), which the card below is there to prevent. */
+        (((st.bull || []).length || (st.bear || []).length)
+          ? seclabel("The case") +
+            '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
+            '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>"
+          : "") +
         ((st.red_team || {}).surviving_bear_case
           ? "<div class='card redteam' style='margin-top:14px'><div class='rt-label'>Red team — attacked " +
             esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") +

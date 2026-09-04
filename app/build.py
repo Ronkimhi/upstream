@@ -16,7 +16,14 @@ ROOT = Path(__file__).resolve().parent.parent
 APP = ROOT / "app"
 DATA = ROOT / "data"
 TOOLS = ROOT / "tools"
-SIZE_WARN_MB = 2.0
+# Ron, 2026-09-03: "I don't care about the sizes. It's the least thing that I care
+# about. I need all the data." The 2.0 MB ceiling had cut four of five dives and nine of
+# eleven chains down to navigation on a 1.9 MB page. The only real cap is the artifact
+# platform's 16 MB; 12 MB carries the finished ten-theme campaign whole (~6.3 MB measured
+# in tools/tests/test_page_scale.py) with room to spare, and still warns before the
+# platform refuses. The elastic budgets below are kept as machinery, but at this ceiling
+# they hand every chain and every dive its full need.
+SIZE_WARN_MB = 12.0
 CAMPAIGN_PROJECTION_MAX_BYTES = 250_000
 OCCURRENCE_ROWS_INLINED = 150
 # Price points carried per ticker that has a dive. data/market/<T>.json holds ~550 rows
@@ -51,10 +58,10 @@ FEED_ITEMS_INLINED = 120
 # store chains legitimately take 680 KB, and at the ten-theme scale they take 419 KB
 # because nine of the ten have been reduced to navigation.
 STORE_SHARE_BYTES = {
-    "chains": 720_000,
+    "chains": 1_400_000,   # ten campaign chains whole, measured 1,258,003
     "screens": 240_000,
     "signals": 220_000,
-    "stocks": 260_000,
+    "stocks": 3_800_000,   # sixty dives whole, measured 3,581,934
     "market": 200_000,
     "impact": 160_000,
     "agentix": 140_000,
