@@ -1,0 +1,84 @@
+{
+ "id": "offshore-counter-drone",
+ "chain_id": "offshore-counter-drone",
+ "scenario_id": null,
+ "created_at": "2026-09-04",
+ "as_of": "2026-09-04",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+ "mapping_ref": "data/mappings/offshore-counter-drone.json",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first (c2-and-sensor-fusion), then the two CHOKE_POINT links (counter-uas-funding-and-requirements, c2-and-sensor-fusion again), then the rest by chain position.\n\nThe mapping (data/mappings/offshore-counter-drone.json, 14 issuers, 21 placements) is status ACTIVE with no audit block at all (audit is null, never run), so it has no current PASS census audit and every row on this chain must rest on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's evidence is entirely VERIFIED.\n\nTHE FINDING THIS RUN PRODUCES: none of the mapping's 21 placements clear that bar. Every single placement on every one of the 13 links carries evidence tagged INFERRED and nothing else; zero placements anywhere in this mapping carry a VERIFIED evidence item. This is a uniform property of the whole census, not a per-link accident: rf-and-radar-front-end-components (RFHIC, INFERRED), maritime-detection-radar (HENSOLDT, LEONARDO, LEONARDO-DRS, all INFERRED), electro-optical-and-acoustic-sensing (HENSOLDT, TELEDYNE-TECHNOLOGIES, both INFERRED), rf-detection-and-jamming (RFHIC, DRONESHIELD, both INFERRED), subsea-and-underwater-sensing (KONGSBERG-GRUPPEN, TELEDYNE-TECHNOLOGIES, both INFERRED), c2-and-sensor-fusion [MONEY CORNER, CHOKE_POINT] (HENSOLDT, THALES, TELEDYNE-TECHNOLOGIES, KONGSBERG-GRUPPEN, all INFERRED), short-range-effectors (LEONARDO, INFERRED), reinsurance-and-lloyds-capacity (CHUBB, SWISS-RE, both INFERRED), offshore-war-and-property-underwriting (AXA, INFERRED), platform-integration-and-hardening (SAIPEM, INFERRED), offshore-energy-operator (OMV-PETROM, ROMGAZ, both INFERRED). counter-uas-funding-and-requirements and uncrewed-patrol-and-mcm-response carry zero placements by chain design (buyer-only alliance link and three sovereign navies respectively, per the chain's own map_limitation), not by mapping omission. Consequently this run seats zero rows on all 13 links. Every link is genuinely searched, and every link is genuinely empty, for the same single reason recorded once here rather than repeated 21 times.\n\nc2-and-sensor-fusion [MONEY CORNER, CHOKE_POINT, verdict UNDISCOVERED]: searched and empty. This is the link this whole screen was built to clear first. It carries 4 placements: HENSOLDT, THALES and TELEDYNE-TECHNOLOGIES each already hold a COMPLETE O2 profile on disk and would pass every downstream check_screen.py gate (profile status, data_tier match, listing resolution) the moment their placement evidence includes one VERIFIED item; KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused regardless of evidence. So the money corner is not thin on candidates or on profiling work already done. It is blocked entirely on one mechanical fact: the mapping's role_evidence for this link, and for every link, is INFERRED (drawn from vendor blog posts, trade press and a NATO-adjacent news article, per the chain's own evidence blocks), never a VERIFIED primary source the placement author fetched and tagged as such. Fixing this money corner is a mapping-quality action (re-run universe research with VERIFIED-tagged primary sources, or a fresh-context universe-audit that PASSes the whole census on its current INFERRED evidence, which method section 6A ties to the census's OPEN/EXHAUSTED link_coverage rather than to evidence tags directly), not a screen action; Sieve does not write to data/mappings/.\n\ncounter-uas-funding-and-requirements [CHOKE_POINT, verdict OVER_CROWDED]: searched and empty by chain design. Zero tickers on this link intentionally: the buyers are NATO, the NATO Support and Procurement Agency and the European Commission, none of which is purchasable. This is not a mapping defect.\n\nrf-and-radar-front-end-components [verdict QUIET]: searched and empty. 1 placement (RFHIC, INFERRED evidence, no profile on disk). Blocked on both evidence and profile.\n\nmaritime-detection-radar [verdict CROWDED]: searched and empty. 3 placements, all INFERRED. HENSOLDT holds a COMPLETE O2 profile and would clear every other gate; LEONARDO and LEONARDO-DRS have no profile on disk.\n\nelectro-optical-and-acoustic-sensing [verdict QUIET]: searched and empty. 2 placements, both INFERRED. HENSOLDT and TELEDYNE-TECHNOLOGIES both hold COMPLETE O2 profiles and are blocked on evidence alone.\n\nrf-detection-and-jamming [verdict CROWDED]: searched and empty. 2 placements, both INFERRED. RFHIC and DRONESHIELD have no profile on disk.\n\nsubsea-and-underwater-sensing [verdict EMERGING]: searched and empty. 2 placements, both INFERRED. TELEDYNE-TECHNOLOGIES holds a COMPLETE O2 profile and is blocked on evidence alone; KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused regardless.\n\nshort-range-effectors [verdict EMERGING]: searched and empty. 1 placement (LEONARDO, INFERRED, no profile).\n\nuncrewed-patrol-and-mcm-response [verdict EMERGING]: searched and empty by chain design. Zero tickers on this link intentionally: the response is three sovereign navies, per the chain's own map_limitation. Not a mapping defect.\n\nreinsurance-and-lloyds-capacity [verdict QUIET]: searched and empty. 2 placements, both INFERRED. CHUBB and SWISS-RE have no profile on disk.\n\noffshore-war-and-property-underwriting [verdict QUIET]: searched and empty. 1 placement (AXA, INFERRED, no profile).\n\nplatform-integration-and-hardening [verdict CROWDED]: searched and empty. 1 placement (SAIPEM, INFERRED, no profile).\n\noffshore-energy-operator [verdict CROWDED]: searched and empty. 2 placements, both INFERRED. OMV-PETROM and ROMGAZ have no profile on disk.\n\nDISTINCT ISSUER TALLY across the mapping's 14 issuers: 3 already carry a COMPLETE O2 profile and are blocked purely by the missing-VERIFIED-evidence gate (HENSOLDT, TELEDYNE-TECHNOLOGIES, THALES); 1 is BLOCKED at O3 and would be refused on tier grounds regardless of evidence (KONGSBERG-GRUPPEN); the remaining 10 carry no profile on disk at all (RFHIC, LEONARDO, LEONARDO-DRS, DRONESHIELD, CHUBB, SWISS-RE, AXA, SAIPEM, OMV-PETROM, ROMGAZ). No fundamentals, market, or EDGAR data was fetched for this run: the blocker here is a mapping-evidence property, not a missing market or filing figure, so no PENDING_DATA request rows were queued. Backlogged to Atlas: the offshore-counter-drone mapping needs either VERIFIED-tagged primary-source role evidence per placement (at minimum on c2-and-sensor-fusion, the money corner) or a fresh-context run universe-audit that resolves the census to COMPLETE, before this chain can produce a single strict screen row.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/offshore-counter-drone.json, its status, and every evidence item's tag",
+   "forms": null,
+   "hits_examined": 21,
+   "names_extracted": 0
+  },
+  {
+   "query": "COMPLETE O1/O2 profile lookup under data/companies/ for all 14 issuers named in the mapping",
+   "forms": null,
+   "hits_examined": 14,
+   "names_extracted": 3
+  },
+  {
+   "query": "mapping audit block presence and status for offshore-counter-drone (current PASS census audit check)",
+   "forms": null,
+   "hits_examined": 1,
+   "names_extracted": 0
+  }
+ ],
+ "data_gaps": [
+  "The mapping's audit block is null: no fresh-context census audit has ever run for offshore-counter-drone, so the whole-mapping COMPLETE path (method 6A) is unavailable and every row must clear the narrower PLACEMENT scope instead.",
+  "Every one of the mapping's 21 placements carries INFERRED-only evidence, so none clears the PLACEMENT scope's all-VERIFIED bar. This blocks all 13 links uniformly, including the money-corner link c2-and-sensor-fusion where 3 of 4 placed issuers already carry COMPLETE O2 profiles and would otherwise seat immediately.",
+  "10 of the mapping's 14 issuers (RFHIC, LEONARDO, LEONARDO-DRS, DRONESHIELD, CHUBB, SWISS-RE, AXA, SAIPEM, OMV-PETROM, ROMGAZ) carry no profile on disk at all, a second independent blocker behind the evidence gate.",
+  "KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused as a screen input regardless of evidence tags."
+ ],
+ "buckets": {
+  "pure_play": [],
+  "picks_and_shovels": [],
+  "second_order": [],
+  "hedge": []
+ },
+ "taste_filtered": [],
+ "health": {
+  "tickers_examined": 21,
+  "rows_written": 0,
+  "fully_scored": 0,
+  "pending": 0,
+  "errors": 0,
+  "rows_superseded": 0,
+  "rows_with_quality_gaps": 0,
+  "links_worked": 13,
+  "links_total": 13,
+  "target_links_covered": 0,
+  "money_corner_links_total": 1,
+  "money_corner_links_covered": 0,
+  "choke_point_links_total": 2,
+  "choke_point_links_covered": 0,
+  "quotes_verified": 0,
+  "distinct_issuers": 0,
+  "profiles_available_repo_wide": 164,
+  "admissible_placements_all_verified_evidence": 0,
+  "placements_examined": 21,
+  "placements_inferred_only_evidence": 21,
+  "distinct_issuers_in_mapping": 14,
+  "issuers_complete_o2_blocked_solely_by_evidence_gate": 3,
+  "issuers_blocked_o3": 1,
+  "issuers_with_no_profile": 10
+ },
+ "notes": [],
+ "confidence_audit": {
+  "verified": 0,
+  "inferred": 0,
+  "speculative": 0,
+  "null": 0
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-04T18:00:00Z",
+   "by": "sieve-profiler",
+   "change": "First run screen offshore-counter-drone (chain-level, scenario_id null). Built the per-link universe across all 13 links under audit_scope PLACEMENT (mapping ACTIVE, audit block null, no census audit has ever run). Found that all 21 placements across all 13 links carry INFERRED-only evidence, zero VERIFIED, so none clears the PLACEMENT admission bar; this holds uniformly including on the money-corner link c2-and-sensor-fusion, where 3 of 4 placed issuers (HENSOLDT, TELEDYNE-TECHNOLOGIES, THALES) already carry COMPLETE O2 profiles and would seat immediately once evidence clears. counter-uas-funding-and-requirements and uncrewed-patrol-and-mcm-response carry zero placements by chain design (uninvestable buyers, sovereign navies), not by mapping omission. Wrote 0 rows across 0 of 13 links; documented every link's disposition, the full distinct-issuer tally (3 COMPLETE O2 blocked on evidence alone, 1 BLOCKED O3, 10 unprofiled), and the money-corner and both choke-point links' searched-and-empty status in universe_note and data_gaps. No market or EDGAR data was fetched and no PENDING_DATA requests were queued, because the blocker is a mapping-evidence property Sieve cannot write to (data/mappings/ is Atlas-owned), not missing fetched data. Backlogged to Atlas: this mapping needs VERIFIED-tagged primary-source role evidence, at minimum on c2-and-sensor-fusion, or a fresh-context universe-audit to COMPLETE, before any strict row can be written on this chain."
+  }
+ ]
+}
