@@ -3,13 +3,13 @@
   "issuer_name": "Willdan Group, Inc.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T23:10:00Z",
-  "updated_at": "2026-09-04T23:10:00Z",
+  "updated_at": "2026-09-04T22:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NASDAQ:WLDN carries a real SEC CIK (1370450); data/market/WLDN.json has a fetched prices block (price_status AGREED) but no fundamentals or quality block on disk this run. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NASDAQ:WLDN carries a real SEC CIK (1370450); data/market/WLDN.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NASDAQ-WLDN"
   ],
@@ -34,128 +34,180 @@
       "money_corner": false,
       "link_heat": "UNDISCOVERED",
       "mapping_ref": "data/mappings/data-center-moratoria.json",
-      "role_evidence": [
-        {
-          "claim": "Willdan's data-center services include engineering, energy assessments, controls integration, procurement, and construction management; the June 2026 investor presentation highlighted data-center siting and load forecasting, substation and grid design, building and energy-efficiency upgrades, and infrastructure construction support as parts of its integrated consulting, engineering, and implementation platform.",
-          "source_name": "Yahoo Finance / Insider Monkey, How Willdan Group, Inc. (WLDN) Turns Cooling Optimization and Grid Planning Into Data Center Exposure",
-          "source_date": "2026-07-01",
-          "url": "https://finance.yahoo.com/technology/articles/willdan-group-inc-wldn-turns-172722590.html",
-          "tag": "INFERRED",
-          "source_excerpt": "data-center siting and load forecasting, substation and grid design, building and energy-efficiency upgrades, and infrastructure construction support. engineering, energy assessments, controls integration, procurement, and construction management"
-        }
-      ]
+      "role_evidence": []
     }
   ],
   "sources": {
     "mapping": "data/mappings/data-center-moratoria.json",
-    "mapping_audit": {
-      "status": null,
-      "audited_at": null,
-      "mapping_status": "ACTIVE"
-    },
     "chain": "data/chains/data-center-moratoria.json",
     "market": "data/market/WLDN.json"
   },
-  "business_summary": "Willdan Group, Inc. (NASDAQ: WLDN) sits on the data-center-moratoria/permitting-and-environmental-consultancy link (Permitting and environmental consultancy, verdict UNDISCOVERED). Fundamentals cannot be sourced this run: no fundamentals or quality block exists in data/market/WLDN.json (prices only, price_status AGREED).",
+  "business_summary": "Willdan Group, Inc. (NASDAQ: WLDN) is a US energy, engineering and consulting firm serving utilities, government agencies and commercial clients. It carries 1 chain/link placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED). Fundamentals this run: latest fiscal-year revenue 681,552,000, 16.7% 3-year revenue CAGR, 6.5% operating margin.",
   "exposure_summary": {
-    "narrative": "WILLDAN-GROUP has 1 placement on data-center-moratoria (permitting-and-environmental-consultancy, UNDISCOVERED, money_corner False). Every canonical metric is NULL: no fundamentals data is available for WLDN this run."
+    "narrative": "WILLDAN-GROUP has 1 placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED). No chain-specific or link-specific revenue percentage is disclosed or sourced for this issuer; only company-wide fundamentals are available.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for WILLDAN-GROUP this run; only company-wide fundamentals were fetched."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 681552000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Fiscal-year revenue for the period ended 2026-01-02, from SEC XBRL companyfacts for WILLDAN-GROUP (WLDN).",
+        "official_source": true
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "value": 0.1667218767769858,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Three-year compound annual revenue growth computed as (681552000/429138000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-30 to period ended 2026-01-02.",
+        "official_source": true
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "value": 0.06477422118928564,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Operating income 44147000 divided by revenue 681552000, both for the period ended 2026-01-02, from the companyfacts series.",
+        "official_source": true
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
+        "value": 1.5237551610632265,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Operating cash flow 80084000 divided by net income 52557000, both for the period ended 2026-01-02, from the companyfacts series.",
+        "official_source": true
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "value": 0.10372942930253304,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Free cash flow margin: operating cash flow 80084000 less capital expenditure 9387000, divided by revenue 681552000, all for the period ended 2026-01-02, from the companyfacts series.",
+        "official_source": true
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "value": 0.47546671335126445,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Net debt 29875000 (total debt 64745000 as of 2026-07-03 less cash 34870000 as of 2026-07-03) divided by an EBITDA proxy 62833000 (operating income 44147000 plus depreciation 18686000, both for the period ended 2026-01-02), from the companyfacts series.",
+        "official_source": true
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "value": 7,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/WLDN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Piotroski F-score 7 (state STRONG) computed over companyfacts statements in data/market/WLDN.json quality.piotroski; 9 of 9 inputs found.",
+        "official_source": true
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state cannot be scored for WILLDAN-GROUP: data/market/WLDN.json quality.beneish.state is PENDING_DATA (sga_fy)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 1298908380.0,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/WLDN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Market capitalization 1298908380.0 computed in data/market/WLDN.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+        "official_source": true
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "value": 1.9058096520881753,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/WLDN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Market capitalization 1298908380.0 divided by fiscal year 2026-01-02 revenue 681552000.",
+        "official_source": true
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "value": 0.0661,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/WLDN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 70697000.0, enterprise_value 1328783380.0, from data/market/WLDN.json quality.reverse_dcf."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "value": 0.0178,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/WLDN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+        "basis": "Spread 0.0178 across explicit horizons {'5': 0.0661, '7': 0.0559, '10': 0.0483} from data/market/WLDN.json quality.reverse_dcf.implied_by_horizon."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "No CROWDED or OVER_CROWDED link on this issuer's placements; no pcs block exists locally for WILLDAN-GROUP, so crowdedness reads from the link heat map only."
+  ],
+  "catalysts": [
+    {
+      "claim": "WILLDAN-GROUP shows 16.7% 3-year revenue CAGR, a STRONG Piotroski F-score of 7 in the fundamentals fetched this run (SEC XBRL companyfacts).",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Against that: WILLDAN-GROUP carries no chain-specific revenue disclosure exists, so exposure to the chain is a role inference rather than a sourced revenue share in the fundamentals fetched this run.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WLDN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001370450.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Queued this run: fundamentals (REQ-20260904-172), quality (REQ-20260904-173). Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "Filled 2026-09-04 from data/market/WLDN.json (SEC XBRL companyfacts): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
+    "No chain- or link-specific revenue percentage is disclosed or sourced for WILLDAN-GROUP; only company-wide figures are available."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "No fundamentals data on disk for WLDN this run. Queued fundamentals (REQ-20260904-172), quality (REQ-20260904-173). Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "Complete medium profile on data-center-moratoria/permitting-and-environmental-consultancy. Retained rather than advanced because selection is a separate command (run selection) not run here; this batch only profiles."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
+    "VERIFIED": 1,
+    "INFERRED": 8,
+    "SPECULATIVE": 2,
+    "NULL": 1,
     "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no fundamentals data fetched for WLDN this listing yet."
+    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/WLDN.json (SEC XBRL companyfacts)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -167,6 +219,13 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for WILLDAN-GROUP from data/mappings/data-center-moratoria.json (ACTIVE). No fundamentals or quality data on disk for WLDN (prices only, AGREED). Queued fundamentals (REQ-20260904-172), quality (REQ-20260904-173). Status BLOCKED, opportunity_tier O3. run profile --campaign CAMP-20260901-01, batch 6."
+    },
+    {
+      "ts": "2026-09-04T22:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Created COMPLETE profile for WILLDAN-GROUP from data/mappings/data-center-moratoria.json (ACTIVE) and 0 further mapping(s) it appears in. Fundamentals and quality sourced from data/market/WLDN.json (SEC XBRL companyfacts). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 7.",
+      "prior": "2026-09-04T23:10:00Z"
     }
   ]
 }

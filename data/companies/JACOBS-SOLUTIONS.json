@@ -3,13 +3,13 @@
   "issuer_name": "JACOBS SOLUTIONS INC.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T23:10:00Z",
-  "updated_at": "2026-09-04T23:10:00Z",
+  "updated_at": "2026-09-04T22:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:J carries a real SEC CIK (52988); data/market/J.json has a fetched prices block (price_status AGREED) but no fundamentals or quality block on disk this run. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:J carries a real SEC CIK (52988); data/market/J.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NYSE-J"
   ],
@@ -34,128 +34,173 @@
       "money_corner": false,
       "link_heat": "UNDISCOVERED",
       "mapping_ref": "data/mappings/data-center-moratoria.json",
-      "role_evidence": [
-        {
-          "claim": "The four biggest firms by environmental and sustainability consulting revenue in the US, Tetra Tech, AECOM, WSP and Jacobs, made up over 40% of the total US E&S consulting market in 2024.",
-          "source_name": "Environment Analyst Global, Tetra Tech, AECOM, WSP and Jacobs still dominate US E&S consulting",
-          "source_date": "2026-04-16",
-          "url": "https://environment-analyst.com/global/111519/tetra-tech-aecom-wsp-and-jacobs-still-dominate-us-es-consulting",
-          "tag": "INFERRED",
-          "source_excerpt": "The four biggest firms by environmental and sustainability (E&S) consulting revenue in the US - Tetra Tech, AECOM, WSP and Jacobs - made up over 40% of the total US E&S consulting market in 2024."
-        }
-      ]
+      "role_evidence": []
+    },
+    {
+      "chain_id": "minor-nsr-permits",
+      "link_id": "air-permitting-and-dispersion-modeling",
+      "link_name": "Air permitting and dispersion modeling",
+      "link_position": 3,
+      "role": "Engineering and environmental consultancy managing air quality permitting for industrial and data center clients, from application preparation through monitoring.",
+      "placement_status": "ACTIVE",
+      "money_corner": false,
+      "link_heat": "UNDISCOVERED",
+      "mapping_ref": "data/mappings/minor-nsr-permits.json",
+      "role_evidence": []
     }
   ],
   "sources": {
     "mapping": "data/mappings/data-center-moratoria.json",
-    "mapping_audit": {
-      "status": null,
-      "audited_at": null,
-      "mapping_status": "ACTIVE"
-    },
     "chain": "data/chains/data-center-moratoria.json",
     "market": "data/market/J.json"
   },
-  "business_summary": "JACOBS SOLUTIONS INC. (NYSE: J) sits on the data-center-moratoria/permitting-and-environmental-consultancy link (Permitting and environmental consultancy, verdict UNDISCOVERED). Fundamentals cannot be sourced this run: no fundamentals or quality block exists in data/market/J.json (prices only, price_status AGREED).",
+  "business_summary": "JACOBS SOLUTIONS INC. (NYSE: J) is a US professional-services and engineering consultancy focused on infrastructure, environmental and advanced-facilities work. It carries 2 chain/link placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). Fundamentals this run: no current fundamentals figures usable this run.",
   "exposure_summary": {
-    "narrative": "JACOBS-SOLUTIONS has 1 placement on data-center-moratoria (permitting-and-environmental-consultancy, UNDISCOVERED, money_corner False). Every canonical metric is NULL: no fundamentals data is available for J this run."
+    "narrative": "JACOBS-SOLUTIONS has 2 placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). No chain-specific or link-specific revenue percentage is disclosed or sourced for this issuer; only company-wide fundamentals are available.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for JACOBS-SOLUTIONS this run; only company-wide fundamentals were fetched."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
         "value": null,
         "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "basis": "revenue.latest_fy cannot be sourced for JACOBS-SOLUTIONS: the fetched companyfacts 'Revenues' XBRL concept in data/market/J.json fundamentals.revenue_fy stops at FY2018-09-28 (14984646000), eight fiscal years stale against the FY2025-09-26 period other concepts (operating income, net income, operating cash flow) report; a newer revenue tag (e.g. the post-ASC-606 contract-revenue concept) was not captured by this fetch, so revenue.latest_fy is not a current number rather than an estimate."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
         "value": null,
         "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "basis": "growth.revenue_cagr_3y cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (see the revenue field basis), so no numerator exists for a 3-year revenue CAGR."
       }
     },
     "margins": {
       "operating_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "basis": "margins.operating_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for an operating margin even though operating_income_fy is current."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
+        "value": 2.3733790471977216,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Operating cash flow 686704000 divided by net income 289336000, both for the period ended 2025-09-26, from the companyfacts series.",
+        "official_source": true
       },
       "fcf_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "basis": "fcf_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for a free cash flow margin; operating_cash_flow_to_net_income is used instead above."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "value": 2.544654554913698,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Net debt 2406462000 (total debt 3579376000 as of 2026-06-26 less cash 1172914000 as of 2026-06-26) divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26), from the companyfacts series.",
+        "official_source": true
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "basis": "piotroski cannot be scored for JACOBS-SOLUTIONS: data/market/J.json quality.piotroski.state is PENDING_DATA (only 1 common fiscal period(s) across the 9 inputs; the change legs need at least 2)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state cannot be scored for JACOBS-SOLUTIONS: data/market/J.json quality.beneish.state is PENDING_DATA (only 1 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 18097975062.12,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Market capitalization 18097975062.12 computed in data/market/J.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+        "official_source": true
       },
-      "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+      "ev_to_ebitda": {
+        "value": 21.68191692454105,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Enterprise value 20504437062.12 divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26); revenue.latest_fy is NULL for JACOBS-SOLUTIONS this run so price_to_sales is not used.",
+        "official_source": true
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "value": 0.212,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 607472000.0, enterprise_value 20504437062.12, from data/market/J.json quality.reverse_dcf."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "value": 0.0863,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Spread 0.0863 across explicit horizons {'5': 0.212, '7': 0.1618, '10': 0.1257} from data/market/J.json quality.reverse_dcf.implied_by_horizon."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "No CROWDED or OVER_CROWDED link on this issuer's placements; no pcs block exists locally for JACOBS-SOLUTIONS, so crowdedness reads from the link heat map only."
+  ],
+  "catalysts": [
+    {
+      "claim": "JACOBS-SOLUTIONS shows the placement role itself, described in the mapping census (see placements above) in the fundamentals fetched this run (SEC XBRL companyfacts).",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Against that: JACOBS-SOLUTIONS carries no chain-specific revenue disclosure exists, so exposure to the chain is a role inference rather than a sourced revenue share in the fundamentals fetched this run.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Queued this run: fundamentals (REQ-20260904-168), quality (REQ-20260904-169). Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "Filled 2026-09-04 from data/market/J.json (SEC XBRL companyfacts): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
+    "No chain- or link-specific revenue percentage is disclosed or sourced for JACOBS-SOLUTIONS; only company-wide figures are available.",
+    "The fetched 'Revenues' XBRL concept for J is stale since FY2018-09-28 even though operating income, net income, operating cash flow and capex all report through FY2025-09-26; revenue, growth and margins are NULL as a result. Backlog candidate for the fetcher's concept mapping, not something this profiling run can fix."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "No fundamentals data on disk for J this run. Queued fundamentals (REQ-20260904-168), quality (REQ-20260904-169). Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "Complete medium profile on data-center-moratoria/permitting-and-environmental-consultancy and 1 further placement(s). Retained rather than advanced because selection is a separate command (run selection) not run here; this batch only profiles."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
+    "INFERRED": 4,
+    "SPECULATIVE": 2,
+    "NULL": 6,
     "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no fundamentals data fetched for J this listing yet."
+    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/J.json (SEC XBRL companyfacts)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -167,6 +212,13 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for JACOBS-SOLUTIONS from data/mappings/data-center-moratoria.json (ACTIVE). No fundamentals or quality data on disk for J (prices only, AGREED). Queued fundamentals (REQ-20260904-168), quality (REQ-20260904-169). Status BLOCKED, opportunity_tier O3. run profile --campaign CAMP-20260901-01, batch 6."
+    },
+    {
+      "ts": "2026-09-04T22:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Created COMPLETE profile for JACOBS-SOLUTIONS from data/mappings/data-center-moratoria.json (ACTIVE) and 1 further mapping(s) it appears in. Fundamentals and quality sourced from data/market/J.json (SEC XBRL companyfacts). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 7.",
+      "prior": "2026-09-04T23:10:00Z"
     }
   ]
 }

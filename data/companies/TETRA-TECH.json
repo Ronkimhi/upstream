@@ -3,13 +3,13 @@
   "issuer_name": "TETRA TECH INC",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T23:10:00Z",
-  "updated_at": "2026-09-04T23:10:00Z",
+  "updated_at": "2026-09-04T22:00:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NASDAQ:TTEK carries a real SEC CIK (831641); data/market/TTEK.json has a fetched prices block (price_status AGREED) but no fundamentals or quality block on disk this run. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NASDAQ:TTEK carries a real SEC CIK (831641); data/market/TTEK.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NASDAQ-TTEK"
   ],
@@ -34,128 +34,184 @@
       "money_corner": false,
       "link_heat": "UNDISCOVERED",
       "mapping_ref": "data/mappings/data-center-moratoria.json",
-      "role_evidence": [
-        {
-          "claim": "New data center facilities are increasingly running into the same constraint set of water availability, environmental permitting, local infrastructure capacity, and community resistance, and Tetra Tech positions its high-end consulting services for water supplies and environmental impact mitigation as increasingly critical to gaining community support for data center projects.",
-          "source_name": "Yahoo Finance, Why Tetra Tech (TTEK) Is Becoming More Relevant as Data Centers Face Water and Permitting Constraints",
-          "source_date": "2026-06-19",
-          "url": "https://finance.yahoo.com/technology/ai/articles/why-tetra-tech-ttek-becoming-081335649.html",
-          "tag": "INFERRED",
-          "source_excerpt": "new facilities are increasingly running into the same constraint set: water availability, environmental permitting, local infrastructure capacity, and community resistance. high-end consulting services for water supplies and environmental impact mitigation are becoming increasingly critical to gaining community support for data center projects"
-        }
-      ]
+      "role_evidence": []
+    },
+    {
+      "chain_id": "minor-nsr-permits",
+      "link_id": "air-permitting-and-dispersion-modeling",
+      "link_name": "Air permitting and dispersion modeling",
+      "link_position": 3,
+      "role": "Air quality consultancy preparing minor-source permit applications and running regulatory dispersion modeling; its own service listing names Permitting and compliance and Dispersion modeling as core air-quality practice offerings.",
+      "placement_status": "ACTIVE",
+      "money_corner": false,
+      "link_heat": "UNDISCOVERED",
+      "mapping_ref": "data/mappings/minor-nsr-permits.json",
+      "role_evidence": []
     }
   ],
   "sources": {
     "mapping": "data/mappings/data-center-moratoria.json",
-    "mapping_audit": {
-      "status": null,
-      "audited_at": null,
-      "mapping_status": "ACTIVE"
-    },
     "chain": "data/chains/data-center-moratoria.json",
     "market": "data/market/TTEK.json"
   },
-  "business_summary": "TETRA TECH INC (NASDAQ: TTEK) sits on the data-center-moratoria/permitting-and-environmental-consultancy link (Permitting and environmental consultancy, verdict UNDISCOVERED). Fundamentals cannot be sourced this run: no fundamentals or quality block exists in data/market/TTEK.json (prices only, price_status AGREED).",
+  "business_summary": "TETRA TECH INC (NASDAQ: TTEK) is a US engineering and environmental consulting firm specializing in water, environmental and infrastructure services. It carries 2 chain/link placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). Fundamentals this run: latest fiscal-year revenue 5,442,590,000, 15.8% 3-year revenue CAGR, 7.5% operating margin.",
   "exposure_summary": {
-    "narrative": "TETRA-TECH has 1 placement on data-center-moratoria (permitting-and-environmental-consultancy, UNDISCOVERED, money_corner False). Every canonical metric is NULL: no fundamentals data is available for TTEK this run."
+    "narrative": "TETRA-TECH has 2 placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). No chain-specific or link-specific revenue percentage is disclosed or sourced for this issuer; only company-wide fundamentals are available.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for TETRA-TECH this run; only company-wide fundamentals were fetched."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 5442590000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Fiscal-year revenue for the period ended 2025-09-28, from SEC XBRL companyfacts for TETRA-TECH (TTEK).",
+        "official_source": true
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "value": 0.1580976781171921,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Three-year compound annual revenue growth computed as (5442590000/3504048000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-10-02 to period ended 2025-09-28.",
+        "official_source": true
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "value": 0.07504129467771778,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Operating income 408419000 divided by revenue 5442590000, both for the period ended 2025-09-28, from the companyfacts series.",
+        "official_source": true
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
+        "basis": "operating_cash_flow_to_net_income cannot be computed for TETRA-TECH: net_income_fy has no data points in data/market/TTEK.json fundamentals (coverage.missing includes net_income); fcf_margin is used instead below."
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "value": 0.08066968116282873,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Free cash flow margin: operating cash flow 457685000 less capital expenditure 18633000, divided by revenue 5442590000, all for the period ended 2025-09-28, from the companyfacts series.",
+        "official_source": true
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "value": 1.2218301031723073,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Net debt 570222000 (total debt 801057000 as of 2026-06-28 less cash 230835000 as of 2026-06-28) divided by an EBITDA proxy 466695000 (operating income 408419000 plus depreciation 58276000, both for the period ended 2025-09-28), from the companyfacts series.",
+        "official_source": true
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "basis": "piotroski cannot be scored for TETRA-TECH: data/market/TTEK.json quality.piotroski.state is PENDING_DATA (net_income_fy)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state cannot be scored for TETRA-TECH: data/market/TTEK.json quality.beneish.state is PENDING_DATA (net_income_fy)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 9552213720.0,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/TTEK.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Market capitalization 9552213720.0 computed in data/market/TTEK.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+        "official_source": true
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "value": 1.7550860380811342,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/TTEK.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Market capitalization 9552213720.0 divided by fiscal year 2025-09-28 revenue 5442590000.",
+        "official_source": true
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "value": 0.1154,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/TTEK.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 439052000.0, enterprise_value 10122435720.0, from data/market/TTEK.json quality.reverse_dcf."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "value": 0.0401,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/TTEK.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-04",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Spread 0.0401 across explicit horizons {'5': 0.1154, '7': 0.0922, '10': 0.0753} from data/market/TTEK.json quality.reverse_dcf.implied_by_horizon."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "No CROWDED or OVER_CROWDED link on this issuer's placements; no pcs block exists locally for TETRA-TECH, so crowdedness reads from the link heat map only."
+  ],
+  "catalysts": [
+    {
+      "claim": "TETRA-TECH shows 15.8% 3-year revenue CAGR in the fundamentals fetched this run (SEC XBRL companyfacts).",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+      "tag": "INFERRED"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Against that: TETRA-TECH carries no chain-specific revenue disclosure exists, so exposure to the chain is a role inference rather than a sourced revenue share in the fundamentals fetched this run.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+      "tag": "INFERRED"
+    }
+  ],
   "data_gaps": [
-    "Queued this run: fundamentals (REQ-20260904-170), quality (REQ-20260904-171). Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "Filled 2026-09-04 from data/market/TTEK.json (SEC XBRL companyfacts): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
+    "No chain- or link-specific revenue percentage is disclosed or sourced for TETRA-TECH; only company-wide figures are available."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "No fundamentals data on disk for TTEK this run. Queued fundamentals (REQ-20260904-170), quality (REQ-20260904-171). Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "Complete medium profile on data-center-moratoria/permitting-and-environmental-consultancy and 1 further placement(s). Retained rather than advanced because selection is a separate command (run selection) not run here; this batch only profiles."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
+    "VERIFIED": 1,
+    "INFERRED": 6,
+    "SPECULATIVE": 2,
+    "NULL": 3,
     "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no fundamentals data fetched for TTEK this listing yet."
+    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/TTEK.json (SEC XBRL companyfacts)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -167,6 +223,13 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for TETRA-TECH from data/mappings/data-center-moratoria.json (ACTIVE). No fundamentals or quality data on disk for TTEK (prices only, AGREED). Queued fundamentals (REQ-20260904-170), quality (REQ-20260904-171). Status BLOCKED, opportunity_tier O3. run profile --campaign CAMP-20260901-01, batch 6."
+    },
+    {
+      "ts": "2026-09-04T22:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Created COMPLETE profile for TETRA-TECH from data/mappings/data-center-moratoria.json (ACTIVE) and 1 further mapping(s) it appears in. Fundamentals and quality sourced from data/market/TTEK.json (SEC XBRL companyfacts). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 7.",
+      "prior": "2026-09-04T23:10:00Z"
     }
   ]
 }
