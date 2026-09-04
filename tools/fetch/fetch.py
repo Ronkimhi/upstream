@@ -563,9 +563,10 @@ def _fundamentals_sec(ticker, cik):
                  "current_assets": ("Current",), "current_liabilities": ("Current",),
                  "revenue": ("Revenue", "Sales")}
         out = {}
+        hint_map = ifrs if taxonomy == "ifrs-full" else gaap
         for key in missing_keys:
             hits = []
-            for name, body in src_map.items():
+            for name, body in hint_map.items():
                 if not any(w in name for w in words.get(key, ())):
                     continue
                 ends = [v.get("end") for units in (body.get("units") or {}).values()
