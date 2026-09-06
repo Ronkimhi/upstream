@@ -5081,6 +5081,12 @@
       "by": "atlas-fresh-context",
       "kind": "NOTE",
       "change": "run universe-audit hormuz-maritime --placement PETROCHINA: fresh-context placement audit PASS. Opened both cited sources live: the SEC EDGAR submissions API (data.sec.gov/submissions/CIK0001108329.json) confirms CIK 1108329, name PETROCHINA CO LTD, ticker PCCYF, exchange OTC, matching the OTC-PCCYF listing's identity_evidence exactly (the bulk company_tickers_exchange.json registry file truncated before PetroChina's row under WebFetch's size limit, so the per-issuer submissions endpoint was used instead, same official SEC source). The live ENGINE article (Bunker House Petroleum enters MPA's top 10 bunker suppliers list for 2025, published 2026-01-14) confirms PetroChina International on Singapore MPA's official top-10 bunker supplier list for 2025, matching the placement's cited source_excerpt and source_date on link bunker-and-voyage-services. No defects found. Mapping status and the whole-census EXHAUSTED audit for this link are untouched; this PASS admits PETROCHINA to run deepdive on this placement without the whole census being COMPLETE."
+    },
+    {
+      "ts": "2026-09-06T15:47:00Z",
+      "by": "atlas-fresh-context",
+      "kind": "NOTE",
+      "change": "run universe-audit hormuz-maritime --placement CBL-INTERNATIONAL: fresh-context placement audit FAIL. Opened both cited sources live in a browser tab (WebFetch's own summarizer returned no match against the large SEC registry JSON and an empty result against the Barchart page, so the raw page text was read directly instead): the SEC company_tickers_exchange.json registry row for CIK 1914805 (CBL International Ltd, BANL, Nasdaq) matches the NASDAQ-BANL listing's identity_evidence exactly, and the placement's own cited Barchart article verbatim-supports the role claim (\"CBL International is a trusted bunkering services facilitator, serving nine of the world's top twelve container liner companies\"), matching the placement's source_excerpt exactly. The defect is the cited date: the placement's evidence declares source_date 2025-12-18, but the article's own byline reads \"ACN Newswire - Tue Dec 30, 2025 Press Release\" with no Dec 18 date anywhere on the page, a twelve-day mismatch. identity_ok true, role_ok true, source_date_ok false. Mapping status and the whole-census audit block are untouched; the author corrects the evidence date in a later run universe."
     }
   ],
   "audit": {
@@ -6045,6 +6051,32 @@
       "identity_source_date": "2026-09-06",
       "identity_source_excerpt": "SEC EDGAR submissions API live fetch 2026-09-06: {\"cik\": \"0001108329\", \"name\": \"PETROCHINA CO LTD\", \"tickers\": [\"PCCYF\"], \"exchanges\": [\"OTC\"]} -- matches the OTC-PCCYF listing's identity_evidence (legal_issuer PetroChina Co Ltd, exchange OTC, ticker PCCYF) exactly.",
       "record_digest": "45254d549b7ff3b3f6a073293deb8f34b717a0efe63348516b8cf8740eed74bf"
+    },
+    {
+      "chain_id": "hormuz-maritime",
+      "link_id": "bunker-and-voyage-services",
+      "issuer_id": "CBL-INTERNATIONAL",
+      "audited_at": "2026-09-06T15:47:00Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context/batch-2026-09-06/audit-hormuz-maritime-cbl-international",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this batch-lander run, reading only the CBL-INTERNATIONAL placement on link bunker-and-voyage-services and its NASDAQ-BANL listing within data/mappings/hormuz-maritime.json, the hormuz-maritime chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, and the tools/check_map.py placement_claim_digest/placement_audit_for contract; it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Two live sources were opened via a browser tab rendering each URL directly, after WebFetch's own small-model summarizer twice returned empty or no-match results against both the large SEC registry JSON and the Barchart page: the SEC company_tickers_exchange.json registry file (searched in-page for the BANL row) and the placement's own cited Barchart article. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the prior whole-census audit; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "source_url": "https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen",
+      "source_date": "2026-09-06",
+      "identity_ok": true,
+      "role_ok": true,
+      "source_date_ok": false,
+      "source_excerpt": "CBL International is a trusted bunkering services facilitator, serving nine of the world’s top twelve container liner companies.",
+      "identity_source_url": "https://www.sec.gov/files/company_tickers_exchange.json",
+      "identity_source_date": "2026-09-06",
+      "identity_source_excerpt": "Registry row (live fetch 2026-09-06, read in-browser because WebFetch's summarizer reported no match against this 500KB+ file): [1914805,\"CBL International Ltd\",\"BANL\",\"Nasdaq\"] -- matches the NASDAQ-BANL listing's identity_evidence (legal_issuer CBL International Ltd, exchange Nasdaq, ticker BANL) exactly.",
+      "defects": [
+        "source_date_mismatch: the placement's evidence cites source_date \"2025-12-18\" for the Barchart article, but the article opened live carries its own byline \"ACN Newswire - Tue Dec 30, 2025 Press Release\" and no Dec 18 date appears anywhere on the page (Dec 30, 2025 is independently confirmed a Tuesday). The role claim itself is verbatim-supported: the article states \"CBL International is a trusted bunkering services facilitator, serving nine of the world's top twelve container liner companies,\" matching the placement's source_excerpt exactly, and CBL International's identity (Nasdaq:BANL) is corroborated on the same page and against the live SEC registry. Only the cited date is wrong, by twelve days, which fails the dated-evidence requirement on an otherwise sound placement."
+      ],
+      "record_digest": "6f1ff6231102efef830857d09c7e8c317c09901aa8e7b567cd8e0fe8f1c0745a"
     }
   ]
 }
