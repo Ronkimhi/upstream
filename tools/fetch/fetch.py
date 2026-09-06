@@ -394,7 +394,7 @@ FACT_MAP = {
     "equity": (["StockholdersEquity",
                 "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
                "instant", "USD"),
-    "receivables": (["AccountsReceivableNetCurrent",
+    "receivables": (["AccountsReceivableNetCurrent", "AccountsReceivableNet",
                      "ReceivablesNetCurrent"], "instant", "USD"),
     "inventory": (["InventoryNet",
                    "InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings"],
@@ -506,6 +506,7 @@ def _fundamentals_sec(ticker, cik):
     else:
         taxonomy = "us-gaap" if gaap else ("ifrs-full" if ifrs else "us-gaap")
     ifrs_ccy = _ifrs_currency(ifrs) if taxonomy == "ifrs-full" else None
+    merged_concepts = {}  # key -> concept names unioned when the fresh one had 1 period
 
     def pick(key, annual):
         """Latest 8 periods for one field. Instant facts have no duration to test."""
@@ -549,16 +550,29 @@ def _fundamentals_sec(ticker, cik):
                 if dur_ok:
                     keep[v["end"]] = v["val"]
             if keep:
-                found_series.append((max(keep), sorted(keep.items())[-8:]))
+                found_series.append((max(keep), sorted(keep.items())[-8:], n))
         if not found_series:
             return []
-        latest = max(end for end, _ in found_series)
+        latest = max(end for end, _, _ in found_series)
         try:
             cutoff = (datetime.fromisoformat(latest) - timedelta(days=400)).date().isoformat()
         except Exception:  # noqa: BLE001
             cutoff = ""
-        fresh = [(end, rows) for end, rows in found_series if end >= cutoff]
-        return max(fresh, key=lambda er: len(er[1]))[1]  # max() keeps the first on ties
+        fresh = [(end, rows) for end, rows, _ in found_series if end >= cutoff]
+        best = max(fresh, key=lambda er: len(er[1]))[1]  # max() keeps the first on ties
+        if len(best) < 3 and len(found_series) > 1:
+            # A filer that switched concept names leaves the fresh concept with one
+            # period and the old one with the history (DKNG's long_term_debt on
+            # 2026-09-06: one 2025 row). Union the candidates by period, freshest concept
+            # winning each period, so the change legs have something to change from;
+            # the merge is declared on the block, never silent.
+            merged = {}
+            for _, rows, _n in sorted(found_series):  # oldest-ending concept first
+                for end, val in rows:
+                    merged[end] = val  # a fresher concept overwrites the same period
+            merged_concepts.setdefault(key, [_n for _, _, _n in sorted(found_series)])
+            return sorted(merged.items())[-8:]
+        return best
 
     def concept_hints(missing_keys):
         """For every field the map could not read: the filer's own concept names that
@@ -619,6 +633,39 @@ def _fundamentals_sec(ticker, cik):
         if rows:
             f[f"{key}_fy"] = rows
             found.append(key)
+    # A field whose series stops more than ~13 months before the filer's latest annual
+    # period is a dead concept, not data: HII's cost_of_revenue ran 2014-2017 and TTEK's
+    # sga stopped in 2011 while every other field ran to 2025, and the quality block
+    # found "0 common fiscal periods" with every input present. Such a field is dropped
+    # here, named under coverage.stale_dropped, and sent to concept_hints so the next
+    # widening is evidence.
+    latest_ends = {k: f[f"{k}_fy"][-1][0] for k in found if f.get(f"{k}_fy")}
+    if latest_ends:
+        overall_latest = max(latest_ends.values())
+        try:
+            stale_cutoff = (datetime.fromisoformat(overall_latest)
+                            - timedelta(days=400)).date().isoformat()
+        except Exception:  # noqa: BLE001
+            stale_cutoff = ""
+        stale = [k for k, end in latest_ends.items() if end < stale_cutoff]
+        for k in stale:
+            f.pop(f"{k}_fy", None)
+            found.remove(k)
+        if stale:
+            f["stale_dropped"] = {k: latest_ends[k] for k in stale}
+    # Liabilities is the one balance-sheet total many filers never tag (TTEK, J on
+    # 2026-09-06); total_liabilities = total_assets - equity is an accounting identity,
+    # computed per common period and declared as derived.
+    if "total_liabilities" not in found and f.get("total_assets_fy") and f.get("equity_fy"):
+        eq = dict(f["equity_fy"])
+        derived = [(end, val - eq[end]) for end, val in f["total_assets_fy"]
+                   if end in eq and val is not None and eq[end] is not None]
+        if len(derived) >= 2:
+            f["total_liabilities_fy"] = derived[-8:]
+            found.append("total_liabilities")
+            f.setdefault("derived", {})["total_liabilities_fy"] = "total_assets_fy - equity_fy"
+    if merged_concepts:
+        f["merged_concepts"] = merged_concepts
     missing_keys = [k for k in attempted if k not in found]
     if not f.get("cash"):
         missing_keys.append("cash")
