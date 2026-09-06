@@ -3,13 +3,13 @@
  "issuer_name": "Lonza Group Ltd",
  "as_of": "2026-09-06",
  "created_at": "2026-09-06T15:45:00Z",
- "updated_at": "2026-09-06T15:45:00Z",
+ "updated_at": "2026-09-06T17:24:58Z",
  "generated_by": "sieve-profiler",
- "status": "BLOCKED",
+ "status": "COMPLETE",
  "data_tier": "T3",
- "data_tier_basis": "Foreign local listing (SIX Swiss Exchange) with no SEC CIK: no data/market/LONN-SW.json file exists on disk this run (confirmed after a fresh read of the exact path). A prices+fundamentals+quality PENDING request is queued this run.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "Newly profiled this run (run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06)); no selection has been run over it yet. BLOCKED profile stays O3 until fundamentals and quality data land and the profile is amended to COMPLETE.",
+ "data_tier_basis": "Foreign local listing (SIX Swiss Exchange) with no SEC CIK:. Pass 2 (2026-09-06 15:56Z fetch): data/market/LONN-SW.json now carries a full yfinance-statements fundamentals and quality block.",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE this run (run profile --campaign CAMP-20260901-01, pass 2, parallel batch, 2026-09-06): filled from LONN-SW.json, fetched by the 15:56Z run (REQ-20260906-114, REQ-20260906-115, REQ-20260906-116). O2 because run selection has not been run over this issuer; the profile stage writes no tier above O2.",
  "listing_refs": [
   "SIX-LONN"
  ],
@@ -56,9 +56,9 @@
   "chain": "data/chains/glp1-fill-finish.json",
   "market": "data/market/LONN-SW.json"
  },
- "business_summary": "Lonza Group Ltd (SIX Swiss Exchange: LONN) is profiled this run with an ACTIVE mapping placement on glp1-fill-finish/sterile-fill-finish-capacity, but data/market/LONN-SW.json carries no fundamentals or quality block yet. A prices/fundamentals/quality request is queued (REQ-20260906-113, REQ-20260906-114, REQ-20260906-115).",
+ "business_summary": "Lonza Group Ltd (SIX Swiss Exchange: LONN) is a global CDMO whose contract drug-product business runs dedicated sterile aseptic fill-finish lines for liquid and lyophilized vials, including new GMP-licensed capacity at its Stein, Switzerland site brought online in 2025; this is the mapped exposure to the glp1-fill-finish chain's sterile-fill-finish-capacity link. Filled 2026-09-06 (pass 2) from data/market/LONN-SW.json (yfinance-statements vendor aggregate): status COMPLETE, O2.",
  "exposure_summary": {
-  "narrative": "Lonza Group Ltd (SIX Swiss Exchange: LONN) is profiled this run with an ACTIVE mapping placement on glp1-fill-finish/sterile-fill-finish-capacity, but data/market/LONN-SW.json carries no fundamentals or quality block yet. A prices/fundamentals/quality request is queued (REQ-20260906-113, REQ-20260906-114, REQ-20260906-115).",
+  "narrative": "Lonza's Stein, Switzerland site added Swissmedic-approved sterile fill-finish capacity for liquid and lyophilized vials in 2025, the CDMO convergence layer this link tracks. No chain-specific revenue percentage is disclosed; see data_gaps.",
   "disclosed_revenue_exposure": {
    "value": null,
    "tag": "NULL",
@@ -68,109 +68,157 @@
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field latest_fy: fiscal year not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Fiscal-year revenue for the period ended 2025-12-31: 6,531,000,000 CHF from the yfinance-statements statements in LONN-SW.json.",
+    "value": 6531000000.0
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field revenue_cagr_3y: revenue cagr not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Compound annual revenue growth computed as (6,531,000,000/6,223,000,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+    "value": 0.016229
    }
   },
   "margins": {
    "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field operating_margin: operating margin not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Operating income 1,358,000,000 CHF divided by revenue 6,531,000,000 CHF, both for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 0.20793140407288319
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field operating_cash_flow_to_net_income: operating cash flow to net income not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Operating cash flow 1,156,000,000 CHF divided by net income -275,000,000 CHF (FY2025 net loss), both for the period ended 2025-12-31, from the yfinance-statements series. A negative net income makes this ratio's sign an artifact of the loss, not a cash-conversion read; see fcf_margin for the cleaner signal.",
+    "value": -4.203636363636364
    },
    "fcf_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field fcf_margin: fcf margin not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Free cash flow margin: operating cash flow 1,156,000,000 CHF less capex 1,373,000,000 CHF, divided by revenue 6,531,000,000 CHF, all for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": -0.03322615219721329
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Net debt 3,821,000,000 CHF (total debt 4,540,000,000 less cash 719,000,000, as of 2025-12-31) divided by an EBITDA proxy 2,171,000,000 CHF (operating income 1,358,000,000 plus depreciation 813,000,000 for the period ended 2025-12-31), from the yfinance-statements series.",
+    "value": 1.7600184246890833
    }
   },
   "quality": {
    "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field piotroski: piotroski not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in LONN-SW.json quality.piotroski, 9 of 9 inputs found.",
+    "value": 7
    },
    "beneish_state": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field beneish_state: beneish not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Beneish M-score -3.219 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in LONN-SW.json quality.beneish, 12 of 12 inputs found.",
+    "value": -3.219
    }
   },
   "valuation": {
    "market_cap": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field market_cap: market cap not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Market capitalization 39,615,646,688.80 CHF computed in LONN-SW.json quality.derived.market_cap from vendor/official share count and price (method section 6A vendor-aggregate fundamentals).",
+    "value": 39615646688.8
    },
    "price_to_sales": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field price_to_sales: price to sales not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+    "basis": "Market capitalization 39,615,646,688.80 CHF divided by revenue 6,531,000,000 CHF for the period ended 2025-12-31.",
+    "value": 6.065785743193998
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+    "basis": "Implied FCF CAGR: data/market/LONN-SW.json quality.reverse_dcf.state is NOT_APPLICABLE, reason 'base-year free cash flow is not positive; a growth rate on a negative base is meaningless' (FY2025 free cash flow -217,000,000 CHF, quality.derived.fcf)."
    },
    "horizon_spread": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/LONN-SW.json fundamentals: null, quality: null; not yet fetched. (canonical field horizon_spread: horizon spread not available.)"
+    "basis": "Horizon spread: not available for LONZA-GROUP for the same NOT_APPLICABLE reverse-DCF reason as implied_fcf_cagr (base-year free cash flow negative, data/market/LONN-SW.json quality.reverse_dcf)."
    }
   }
  },
  "crowdedness_caveats": [
-  "Profile is BLOCKED; no fundamentals or quality data has been fetched yet, so crowdedness cannot be assessed this run."
+  "Profile filled 2026-09-06 (pass 2) from the yfinance-statements vendor aggregate; crowdedness positioning (ownership, short interest, sell-side coverage) is not sourced this run and remains a data gap, not a finding either way."
  ],
- "catalysts": [],
+ "catalysts": [
+  {
+   "claim": "Operating income recovered to CHF 1,358,000,000 in FY2025 (operating margin 20.79%, up from CHF 879,000,000 / 16.0% in FY2024) with a STRONG Piotroski score (7/9) and a CLEAN Beneish read (-3.219).",
+   "source_name": "yfinance-statements",
+   "source_date": "2026-09-06",
+   "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
+   "tag": "INFERRED"
+  }
+ ],
  "risks": [
   {
-   "claim": "No fundamentals or quality data exists yet for LONZA-GROUP in data/market/LONN-SW.json; a prices/fundamentals/quality PENDING request is queued this run (REQ-20260906-113, REQ-20260906-114, REQ-20260906-115).",
-   "source_name": "data/market/LONN-SW.json (fundamentals: null or absent, quality: null or absent)",
+   "claim": "FY2025 net income was a loss of CHF -275,000,000 (versus a CHF 636,000,000 profit in FY2024) and free cash flow was negative (CHF -217,000,000, FCF margin -3.32%) as capex (CHF 1,373,000,000) exceeded operating cash flow (CHF 1,156,000,000), which is why the reverse-DCF solve is NOT_APPLICABLE.",
+   "source_name": "yfinance-statements",
    "source_date": "2026-09-06",
-   "url": "https://www.sec.gov/",
+   "url": "https://finance.yahoo.com/quote/LONN.SW/financials",
    "tag": "INFERRED"
   }
  ],
  "data_gaps": [
-  "All 12 canonical metric fields are NULL: data/market/LONN-SW.json has no fundamentals or quality block for LONN.SW. A prices/fundamentals/quality PENDING request is queued this run (REQ-20260906-113, REQ-20260906-114, REQ-20260906-115); re-run once fulfilled."
+  "Filled 2026-09-06 (pass 2) from data/market/LONN-SW.json (yfinance-statements vendor aggregate): 10 of 12 canonical fields carry a sourced number; 2 (reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread) stay NULL because the solver correctly declines on a negative base-year FCF."
  ],
  "disposition": {
-  "state": "BLOCKED",
+  "state": "RETAIN",
   "as_of": "2026-09-06",
-  "basis": "Shaped BLOCKED profile built under run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06): data/market/LONN-SW.json carries no fundamentals or quality block. A prices/fundamentals/quality PENDING request is queued this run (REQ-20260906-113, REQ-20260906-114, REQ-20260906-115). BLOCKED and O3 per method section 6A until the data lands."
+  "basis": "Filled this run from LONN-SW.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01 (pass 2, parallel batch, 2026-09-06)."
  },
  "confidence_audit": {
   "VERIFIED": 0,
-  "INFERRED": 0,
+  "INFERRED": 10,
   "SPECULATIVE": 0,
-  "NULL": 12,
+  "NULL": 2,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the 12 canonical metric fields only. All 12 are NULL pending the fetch queued this run."
+  "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A Vendor-aggregate fundamentals); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are repo-standard assumptions, not filed facts. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -182,6 +230,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "created shaped BLOCKED profile for LONZA-GROUP from the ACTIVE glp1-fill-finish mapping (VERIFIED placement evidence); status BLOCKED, data tier T3, opportunity tier O3, all 12 canonical metric fields NULL pending fetch (REQ-20260906-113, REQ-20260906-114, REQ-20260906-115). run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06)."
+  },
+  {
+   "ts": "2026-09-06T17:24:58Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "Pass 2 of run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06): amended from BLOCKED to COMPLETE now that LONN-SW.json carries a full yfinance-statements fundamentals and quality block (REQ-20260906-114, REQ-20260906-115, REQ-20260906-116 fulfilled by the 15:56Z fetch). Filled canonical metric fields from the vendor statements and computed quality block; status COMPLETE, opportunity tier O2 (no selection run this batch)."
   }
  ]
 }

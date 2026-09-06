@@ -3,13 +3,13 @@
  "issuer_name": "Kambi Group plc",
  "as_of": "2026-09-06",
  "created_at": "2026-09-06T15:45:00Z",
- "updated_at": "2026-09-06T15:45:00Z",
+ "updated_at": "2026-09-06T17:24:58Z",
  "generated_by": "sieve-profiler",
- "status": "BLOCKED",
+ "status": "COMPLETE",
  "data_tier": "T3",
- "data_tier_basis": "Foreign local listing (Nasdaq First North Growth Market, Sweden) with no SEC CIK: data/market/KAMBI-ST.json has a price series (price_status SINGLE_SOURCE) but no fundamentals or quality block; a fundamentals+quality PENDING request is queued this run.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "Newly profiled this run (run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06)); no selection has been run over it yet. BLOCKED profile stays O3 until fundamentals and quality data land and the profile is amended to COMPLETE.",
+ "data_tier_basis": "Foreign local listing (Nasdaq First North Growth Market, Sweden) with no SEC CIK: data/market/KAMBI-ST.json has a price series (price_status SINGLE_SOURCE) but no fundamentals or quality block; a fundamentals+quality PENDING request is queued this run. Pass 2 (2026-09-06 15:56Z fetch): data/market/KAMBI-ST.json now carries a full yfinance-statements fundamentals and quality block.",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE this run (run profile --campaign CAMP-20260901-01, pass 2, parallel batch, 2026-09-06): filled from KAMBI-ST.json, fetched by the 15:56Z run (REQ-20260906-103, REQ-20260906-104). O2 because run selection has not been run over this issuer; the profile stage writes no tier above O2.",
  "listing_refs": [
   "FN-KAMBI"
  ],
@@ -56,9 +56,9 @@
   "chain": "data/chains/prediction-market-plumbing.json",
   "market": "data/market/KAMBI-ST.json"
  },
- "business_summary": "Kambi Group plc (Nasdaq First North Growth Market: KAMBI) is profiled this run with an ACTIVE mapping placement on prediction-market-plumbing/sportsbook-platform-and-trading, but data/market/KAMBI-ST.json carries no fundamentals or quality block yet. A prices/fundamentals/quality request is queued (REQ-20260906-102, REQ-20260906-103).",
+ "business_summary": "Kambi Group plc (Nasdaq First North Growth Market: KAMBI) is a third-party sportsbook platform and trading vendor, integrated into Rush Street Interactive's online sports betting platform and under a separate 10-year platform agreement with Station Casinos; this is the mapped exposure to the prediction-market-plumbing chain's sportsbook-platform-and-trading link. Filled 2026-09-06 (pass 2) from data/market/KAMBI-ST.json (yfinance-statements vendor aggregate): status COMPLETE, O2.",
  "exposure_summary": {
-  "narrative": "Kambi Group plc (Nasdaq First North Growth Market: KAMBI) is profiled this run with an ACTIVE mapping placement on prediction-market-plumbing/sportsbook-platform-and-trading, but data/market/KAMBI-ST.json carries no fundamentals or quality block yet. A prices/fundamentals/quality request is queued (REQ-20260906-102, REQ-20260906-103).",
+  "narrative": "Kambi is this link's only genuine third-party platform vendor; the other four counted issuers (DraftKings, Rush Street Interactive, Bally's, Caesars) run their own in-house plumbing rather than buying a vendor platform. No chain-specific revenue percentage is disclosed; see data_gaps.",
   "disclosed_revenue_exposure": {
    "value": null,
    "tag": "NULL",
@@ -68,109 +68,142 @@
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field latest_fy: fiscal year not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+    "basis": "Fiscal-year revenue for the period ended 2025-12-31: 162,019,000 EUR from the yfinance-statements statements in KAMBI-ST.json.",
+    "value": 162019000.0
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field revenue_cagr_3y: revenue cagr not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+    "basis": "Compound annual revenue growth computed as (162,019,000/166,006,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+    "value": -0.008069
    }
   },
   "margins": {
    "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field operating_margin: operating margin not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+    "basis": "Operating income 12,019,000 EUR divided by revenue 162,019,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 0.07418265758954197
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field operating_cash_flow_to_net_income: operating cash flow to net income not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+    "basis": "Operating cash flow 31,678,000 EUR divided by net income 6,811,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 4.6510057260314195
    },
    "fcf_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field fcf_margin: fcf margin not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+    "basis": "Free cash flow margin: operating cash flow 31,678,000 EUR less capex 27,861,000 EUR, divided by revenue 162,019,000 EUR, all for the period ended 2025-12-31, from the yfinance-statements series.",
+    "value": 0.023558965306538122
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+    "tag": "INFERRED",
+    "official_source": false,
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-06",
+    "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+    "basis": "Net debt -27,903,000 EUR (total debt 4,990,000 less cash 32,893,000, as of 2025-12-31; a net cash position) divided by an EBITDA proxy 52,217,000 EUR (operating income 12,019,000 plus depreciation 40,198,000 for the period ended 2025-12-31), from the yfinance-statements series. Both debt and cash are reported in the statement currency (EUR), so this leverage ratio does not depend on the EUR/SEK trading-currency mismatch that blocks the valuation group below.",
+    "value": -0.5343662025777046
    }
   },
   "quality": {
    "piotroski": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field piotroski: piotroski not available.)"
+    "basis": "Piotroski F-score: data/market/KAMBI-ST.json quality.piotroski state is PENDING_DATA ('only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2'), despite 9 of 9 raw inputs found; the fetcher's own scorer declines to compute a score without at least two overlapping fiscal periods across every input series."
    },
    "beneish_state": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field beneish_state: beneish not available.)"
+    "basis": "Beneish M-score: data/market/KAMBI-ST.json quality.beneish state is PENDING_DATA ('only 0 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio'), despite 12 of 12 raw inputs found; the fetcher's own scorer declines to compute an index without at least two overlapping fiscal periods."
    }
   },
   "valuation": {
    "market_cap": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field market_cap: market cap not available.)"
+    "basis": "Market capitalization: data/market/KAMBI-ST.json fundamentals report in the statement currency EUR while the listing trades in SEK (fundamentals.statement_currency vs .price_currency), with no FX source on disk; per method section 6A, market cap is NULL rather than mixed-currency arithmetic (quality.derived.market_cap is null, quality.currency_note confirms the reason)."
    },
    "price_to_sales": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field price_to_sales: price to sales not available.)"
+    "basis": "Price to sales ratio: requires market_cap, which is NULL for KAMBI-GROUP for the same EUR statement-currency versus SEK trading-currency mismatch with no FX source on disk; see the market_cap field's basis above."
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+    "basis": "Implied FCF CAGR: data/market/KAMBI-ST.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value, because enterprise value itself depends on the market cap that is NULL for the EUR/SEK statement-versus-trading currency mismatch (no FX source on disk)."
    },
    "horizon_spread": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/KAMBI-ST.json fundamentals: null, quality: null; not yet fetched. (canonical field horizon_spread: horizon spread not available.)"
+    "basis": "Horizon spread: not available for KAMBI for the same reason as implied_fcf_cagr, data/market/KAMBI-ST.json quality.reverse_dcf missing enterprise_value."
    }
   }
  },
  "crowdedness_caveats": [
-  "Profile is BLOCKED; no fundamentals or quality data has been fetched yet, so crowdedness cannot be assessed this run."
+  "Profile filled 2026-09-06 (pass 2) from the yfinance-statements vendor aggregate; crowdedness positioning (ownership, short interest, sell-side coverage) is not sourced this run and remains a data gap, not a finding either way.",
+  "Valuation and reverse-DCF fields are NULL because the vendor fundamentals report in EUR while the SEK listing trades in Swedish kronor, and no FX source is on disk to convert between them (method section 6A); this is a currency-mismatch gap, not a finding about crowdedness."
  ],
- "catalysts": [],
+ "catalysts": [
+  {
+   "claim": "Operating cash flow to net income of 4.65x and a positive FCF margin (2.36%) in FY2025, against a net-cash balance sheet (net debt -27,903,000 EUR): total debt of only 4,990,000 EUR versus cash of 32,893,000 EUR.",
+   "source_name": "yfinance-statements",
+   "source_date": "2026-09-06",
+   "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
+   "tag": "INFERRED"
+  }
+ ],
  "risks": [
   {
-   "claim": "No fundamentals or quality data exists yet for KAMBI in data/market/KAMBI-ST.json; a prices/fundamentals/quality PENDING request is queued this run (REQ-20260906-102, REQ-20260906-103).",
-   "source_name": "data/market/KAMBI-ST.json (fundamentals: null or absent, quality: null or absent)",
+   "claim": "Revenue declined slightly over three years (162,019,000 EUR in FY2025 versus 166,006,000 EUR in FY2022, a -0.81% CAGR) and net income fell from 26,451,000 EUR (FY2022) to 6,811,000 EUR (FY2025), a 74% drop; the fetcher's own Piotroski and Beneish scorers decline to score at all for lack of overlapping fiscal periods, so no quality-manipulation read exists this run.",
+   "source_name": "yfinance-statements",
    "source_date": "2026-09-06",
-   "url": "https://www.sec.gov/",
+   "url": "https://finance.yahoo.com/quote/KAMBI.ST/financials",
    "tag": "INFERRED"
   }
  ],
  "data_gaps": [
-  "All 12 canonical metric fields are NULL: data/market/KAMBI-ST.json has no fundamentals or quality block for KAMBI.ST. A prices/fundamentals/quality PENDING request is queued this run (REQ-20260906-102, REQ-20260906-103); re-run once fulfilled."
+  "Filled 2026-09-06 (pass 2) from data/market/KAMBI-ST.json (yfinance-statements vendor aggregate): 6 of 12 canonical fields carry a sourced number (revenue, growth, margins, both cash-conversion fields, leverage). The other 6 stay NULL: quality.piotroski and quality.beneish_state because the fetcher's own scorer found zero overlapping fiscal periods across its inputs (PENDING_DATA, not a missing fetch); valuation.market_cap and valuation.price_to_sales because the statement currency (EUR) differs from the trading currency (SEK) with no FX source on disk; reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread because the DCF solver needs the enterprise value that depends on the blocked market cap."
  ],
  "disposition": {
-  "state": "BLOCKED",
+  "state": "RETAIN",
   "as_of": "2026-09-06",
-  "basis": "Shaped BLOCKED profile built under run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06): data/market/KAMBI-ST.json carries no fundamentals or quality block. A prices/fundamentals/quality PENDING request is queued this run (REQ-20260906-102, REQ-20260906-103). BLOCKED and O3 per method section 6A until the data lands."
+  "basis": "Filled this run from KAMBI-ST.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01 (pass 2, parallel batch, 2026-09-06)."
  },
  "confidence_audit": {
   "VERIFIED": 0,
-  "INFERRED": 0,
+  "INFERRED": 6,
   "SPECULATIVE": 0,
-  "NULL": 12,
+  "NULL": 6,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the 12 canonical metric fields only. All 12 are NULL pending the fetch queued this run."
+  "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A Vendor-aggregate fundamentals); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are repo-standard assumptions, not filed facts. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -182,6 +215,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "created shaped BLOCKED profile for KAMBI from the ACTIVE prediction-market-plumbing mapping (VERIFIED placement evidence); status BLOCKED, data tier T3, opportunity tier O3, all 12 canonical metric fields NULL pending fetch (REQ-20260906-102, REQ-20260906-103). run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06)."
+  },
+  {
+   "ts": "2026-09-06T17:24:58Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "Pass 2 of run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06): amended from BLOCKED to COMPLETE now that KAMBI-ST.json carries a full yfinance-statements fundamentals and quality block (REQ-20260906-103, REQ-20260906-104 fulfilled by the 15:56Z fetch). Filled canonical metric fields from the vendor statements and computed quality block; status COMPLETE, opportunity tier O2 (no selection run this batch)."
   }
  ]
 }
