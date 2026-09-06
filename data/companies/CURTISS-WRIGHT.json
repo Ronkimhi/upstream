@@ -3,13 +3,13 @@
   "issuer_name": "Curtiss-Wright Corporation",
   "as_of": "2026-09-06",
   "created_at": "2026-09-06T17:56:19Z",
-  "updated_at": "2026-09-06T17:56:19Z",
+  "updated_at": "2026-09-06T18:45:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "NYSE:CW is a US-domestic SEC filer (Curtiss-Wright Corporation, CIK 26324, 10-K cover page confirms NYSE listing under ticker CW). T1 expected once fetched: no cik override needed, the plain ticker CW resolves to this CIK. No data/market/CW.json file exists yet on disk to confirm the fetch outcome.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "NYSE:CW is a US-domestic SEC filer (Curtiss-Wright Corporation, CIK 26324, 10-K cover page confirms NYSE listing under ticker CW). T1 confirmed on fetched data: data/market/CW.json (fetched 2026-09-06T18:20:59.280927+00:00) carries AGREED prices (yfinance and stockanalysis both closing 566.75 on 2026-09-04), sec-companyfacts fundamentals through FY2025, a computed quality block (Piotroski 9/9 inputs, Beneish 12/12 inputs, Altman 8/8 inputs, reverse DCF SOLVED), a pcs block, and 58 rows of Form 4 insider transactions.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profile per method section 6A. run profile does not select or promote; O2 retains CURTISS-WRIGHT for monitoring until an explicit run selection <CAMP-ID> considers it for O1.",
   "listing_refs": [
     "NYSE-CW"
   ],
@@ -58,109 +58,193 @@
     "chain": "data/chains/humanoid-actuators.json",
     "market": "data/market/CW.json"
   },
-  "business_summary": "Curtiss-Wright Corporation (NYSE: CW) is a diversified US industrial and aerospace-defense manufacturer newly placed on the roller-screws link of humanoid-actuators through its Exlar brand, which builds planetary-roller-screw linear actuators (FT Series) marketed as a direct replacement for hydraulic and pneumatic cylinders. No market data has been fetched for the CW listing yet.",
+  "business_summary": "Curtiss-Wright Corporation (NYSE: CW, CIK 26324) is a diversified US aerospace-defense and industrial manufacturer. It sits on the humanoid-actuators chain's roller-screws link (Planetary roller screws & linear guides; heat verdict EMERGING; not money-corner) through its Exlar brand's FT Series planetary-roller-screw linear actuators. SEC companyfacts gives revenue, operating income, cash flow and capex cleanly through FY2025 (calendar fiscal year); FY2025 revenue was $3.4984 billion. Q2-2026 results (Form 8-K, filed 2026-08-06) show 5% sales growth, operating margin expansion to 19.3%, a record $4.5 billion backlog (up 10%), and a raised full-year guide, with 'higher sales of electromechanical actuation equipment' named among the A&D growth drivers. All 12 canonical fields now carry a sourced number.",
   "exposure_summary": {
-    "narrative": "CURTISS-WRIGHT has 1 placement on humanoid-actuators (roller-screws, link heat verdict EMERGING, not the money corner per the chain's heat block). Every canonical metric is NULL: no data/market/CW.json file exists on disk."
+    "narrative": "CURTISS-WRIGHT has 1 placement on humanoid-actuators (roller-screws, EMERGING heat, not money-corner). No Exlar-brand or roller-screw-specific revenue is broken out in SEC filings; the Q2-2026 release attributes 'higher sales of electromechanical actuation equipment' to broad A&D-market growth and to the Aerospace & Industrial segment, without isolating Exlar or the humanoid/robotics angle as a separate line.",
+    "disclosed_revenue_exposure": {
+      "pct": null,
+      "tag": "NULL",
+      "basis": "No Exlar-specific or roller-screw-specific share of Curtiss-Wright's revenue is disclosed or sourced this run; the Q2-2026 8-K names 'electromechanical actuation equipment' only as a qualitative growth driver inside the Aerospace & Industrial segment and the broader A&D market, not as a reporting segment or disclosed dollar figure."
+    }
   },
-  "crowdedness_caveats": [
-    "Chain heat scores roller-screws crowdedness 48/100 (\"regular coverage without saturation\"): the largest listed Western/Japanese linear-motion names already sit inside the first US humanoid-robotics ETF (KOID) at index weight, and a single Chinese entrant is planning 980,000 sets of annual capacity. Curtiss-Wright is a large diversified aerospace-defense name where the Exlar humanoid-actuator angle is a small, newly-identified sliver of a much larger business; the roller-screw exposure itself is not yet named in sell-side or ETF-holdings coverage the way THK is, which cuts against reading it as crowded on this specific thesis but also means it has not been market-tested as a humanoid-actuator play."
-  ],
-  "catalysts": [],
-  "risks": [],
-  "data_gaps": [
-    "No data/market/CW.json file exists on disk this run: never fetched (confirmed after a fresh read of the exact dashed path per the pull-data skill). Queued prices, fundamentals, quality, pcs, insider and edgar_doc this run (REQ-20260906-124 through REQ-20260906-129).",
-    "Exlar's share of Curtiss-Wright's consolidated revenue, margin, and growth profile is not separately disclosed in any source read this run; once fundamentals land, all canonical metrics will describe the consolidated corporation, not the humanoid-actuator segment specifically. This is a data_gap for the O1 official-source cross-check step, not blocking BLOCKED status now."
-  ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no data/market/CW.json file exists yet."
+        "value": 3498372000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 26324 (Curtiss-Wright Corporation, NYSE: CW)."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no data/market/CW.json file exists yet."
+        "value": 0.110138,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Three-year compound annual revenue growth computed as (3498372000 / 2557025000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no data/market/CW.json file exists yet."
+        "value": 0.18109,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Operating income 633521000 divided by revenue 3498372000, both for the fiscal year ended 2025-12-31, from companyfacts."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no data/market/CW.json file exists yet."
+        "value": 1.328717,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Operating cash flow 643402000 divided by net income 484228000, both for the fiscal year ended 2025-12-31, from companyfacts."
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no data/market/CW.json file exists yet."
+        "value": 0.158276,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Free cash flow margin: operating cash flow 643402000 less capital expenditure 89692000 = 553710000 (matches data/market/CW.json quality.derived.fcf), divided by revenue 3498372000, all for the fiscal year ended 2025-12-31, from companyfacts."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no data/market/CW.json file exists yet."
+        "value": 0.545852,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Net debt to EBITDA: total debt 757387000 (as of 2026-06-30) less cash 343447000 (as of 2026-03-31, the latest cash figure companyfacts resolves for this filer) = net debt 413940000, divided by an EBITDA proxy 758338000 (operating income 633521000 plus depreciation 124817000, both for the fiscal year ended 2025-12-31), from companyfacts. The cash and total-debt balances are as of different quarter-ends because companyfacts does not carry a matching-quarter cash figure; both are the latest available."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no data/market/CW.json file exists yet."
+        "value": 8,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Piotroski F-score 8 (state STRONG), computed over companyfacts statements in data/market/CW.json quality.piotroski, 9 of 9 inputs found."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Beneish M-score: no data/market/CW.json file exists yet."
+        "value": -2.533,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Beneish M-score -2.533 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/CW.json quality.beneish, 12 of 12 inputs found."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no data/market/CW.json file exists yet."
+        "value": 20890026977.75,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Market capitalization 20890026977.75 computed in data/market/CW.json quality.derived.market_cap from SEC companyfacts share count 36859333 (as of 2025-12-31) times the repo's own market-plane close of 566.75 (yfinance and stockanalysis AGREED, 2026-09-04). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales cannot be computed without a market capitalization or revenue figure."
+        "value": 5.971357,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Market capitalization 20890026977.75 divided by fiscal year 2025-12-31 revenue 3498372000."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr not solved: no data/market/CW.json file exists yet."
+        "value": 0.2466,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/CW.json quality.reverse_dcf",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 21303966977.75 implies over a 5-year explicit period on base FCF 553710000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread not available: no data/market/CW.json file exists yet."
+        "value": 0.1035,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/CW.json quality.reverse_dcf",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000026324.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.2466, '7': 0.1863, '10': 0.1431}). Measures how much of the expectation reading is a horizon convention rather than a price statement; inherits the same assumed discount rate and terminal growth."
       }
     }
   },
+  "crowdedness_caveats": [
+    "Chain heat scores roller-screws crowdedness 48/100 (\"regular coverage without saturation\"): the largest listed Western/Japanese linear-motion names already sit inside the first US humanoid-robotics ETF (KOID) at index weight, and a single Chinese entrant is planning 980,000 sets of annual capacity. Curtiss-Wright is a large diversified aerospace-defense name (FY2025 revenue $3.50 billion, market cap $20.9 billion) where the Exlar humanoid-actuator angle is a small, newly-identified sliver of a much larger business; the roller-screw exposure itself is not yet named in sell-side or ETF-holdings coverage the way THK is, which cuts against reading it as crowded on this specific thesis but also means it has not been market-tested as a humanoid-actuator play. data/market/CW.json's own pcs block scores axis_a (attention) 100/100 state DARK and axis_b (positioning) band SATURATED (7 analysts, 89.8% institutional ownership, 2.3% short float), but that reflects Curtiss-Wright as a whole diversified defense name, not the Exlar sliver specifically."
+  ],
+  "catalysts": [
+    {
+      "claim": "Curtiss-Wright's Q2-2026 results named higher electromechanical actuation equipment sales among the drivers of A&D market growth, alongside record order backlog of $4.5 billion (up 10%) and a raised full-year outlook.",
+      "source_name": "Curtiss-Wright Corporation: Curtiss-Wright Reports Second Quarter 2026 Financial Results and Raises Full-Year 2026 Guidance (Exhibit 99.1, Form 8-K)",
+      "source_date": "2026-08-06",
+      "url": "https://www.sec.gov/Archives/edgar/data/26324/000162828026053847/ex991_cwxq226xearnings.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "In our A&D mark ets, we experienced solid growth in the defense markets, principally driven by higher naval defense revenues, overall higher sales of electromechanical actuation equipment and continued strong OEM sales growth in the commercial aerospace market"
+    },
+    {
+      "claim": "Backlog reached $4.5 billion, up 10% from year-end 2025, reflecting strong demand across both the Aerospace & Defense and Commercial markets that the Exlar actuation line sells into.",
+      "source_name": "Curtiss-Wright Corporation: Curtiss-Wright Reports Second Quarter 2026 Financial Results and Raises Full-Year 2026 Guidance (Exhibit 99.1, Form 8-K)",
+      "source_date": "2026-08-06",
+      "url": "https://www.sec.gov/Archives/edgar/data/26324/000162828026053847/ex991_cwxq226xearnings.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Backlog of $4.5 billion, up 10% from December 31, 2025, reflecting strong demand across the A&D and Commercial markets"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "The Defense Electronics segment's Q2-2026 sales fell 3% year-over-year to $246 million, driven by lower ground-defense tactical communications revenue and helicopter-program declines, even as the Aerospace & Industrial and Naval & Power segments grew.",
+      "source_name": "Curtiss-Wright Corporation: Curtiss-Wright Reports Second Quarter 2026 Financial Results and Raises Full-Year 2026 Guidance (Exhibit 99.1, Form 8-K)",
+      "source_date": "2026-08-06",
+      "url": "https://www.sec.gov/Archives/edgar/data/26324/000162828026053847/ex991_cwxq226xearnings.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Sales of $246 million, down $7 million, or 3%"
+    },
+    {
+      "claim": "Curtiss-Wright's own forward-looking-statement disclosure names evolving tariff impacts between the US and other countries, including new tariffs and retaliatory measures, among the risks that could cause actual results to differ from guidance.",
+      "source_name": "Curtiss-Wright Corporation: Curtiss-Wright Reports Second Quarter 2026 Financial Results and Raises Full-Year 2026 Guidance (Exhibit 99.1, Form 8-K)",
+      "source_date": "2026-08-06",
+      "url": "https://www.sec.gov/Archives/edgar/data/26324/000162828026053847/ex991_cwxq226xearnings.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "evolving impacts from tariffs between the U.S. and other countries (including implementation of new tariffs and retaliatory measures)"
+    }
+  ],
+  "data_gaps": [
+    "No Exlar-brand or roller-screw-specific revenue share is disclosed for Curtiss-Wright; electromechanical actuation equipment is named only qualitatively inside broader A&D-market and Aerospace & Industrial segment commentary, not as a separate reporting segment or disclosed dollar figure in SEC companyfacts or the Q2-2026 8-K.",
+      "leverage.net_debt_to_ebitda mixes a cash balance as of 2026-03-31 with a total-debt balance as of 2026-06-30 because companyfacts does not resolve a matching-quarter cash figure for this filer; both are the latest available and the mismatch is named in the field's own basis."
+  ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-06",
-    "basis": "No data/market/CW.json file exists on disk. Queued prices, fundamentals, quality, pcs, insider and edgar_doc this run (REQ-20260906-124 through REQ-20260906-129). Status BLOCKED, data tier provisionally T1 (US domestic SEC filer, CIK 26324), opportunity tier O3."
+    "basis": "Amended this run from the 2026-09-06T18:20:59Z fetch of data/market/CW.json (sec-companyfacts, T1) and data/edgar/docs/CW.json (Form 8-K, filed 2026-08-06). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; all 12 canonical fields now carry a sourced number. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 1,
-    "SPECULATIVE": 0,
-    "NULL": 11,
-    "canonical_fields_written": 11,
-    "basis": "All 11 canonical metric fields NULL this run: no market file exists for this ticker yet. The one INFERRED item is the placement's role_evidence quote, not a canonical metric. Queued prices, fundamentals, quality, pcs, insider and edgar_doc."
+    "VERIFIED": 1,
+    "INFERRED": 9,
+    "SPECULATIVE": 2,
+    "NULL": 0,
+    "canonical_fields_written": 12,
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is revenue.latest_fy, read directly off SEC companyfacts as reported. INFERRED (official_source true) covers growth, margins, both cash_conversion fields, leverage, both quality fields, and both valuation fields, all computed from SEC companyfacts. SPECULATIVE covers the two reverse_dcf fields, which rest on an assumed discount rate and terminal growth rather than a reported figure. No canonical field is NULL this run."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -173,6 +257,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for CURTISS-WRIGHT from data/mappings/humanoid-actuators.json (ACTIVE, current placement audit PASS for chain_id=humanoid-actuators, link_id=roller-screws, issuer_id=CURTISS-WRIGHT, audited_at 2026-09-06T17:50:04Z). No data/market/CW.json file exists; 0 of 11 canonical fields sourced, all NULL. Status BLOCKED, opportunity_tier O3. Queued prices+fundamentals+quality+pcs+insider+edgar_doc (REQ-20260906-124 through REQ-20260906-129). run profile NYSE:CW, parallel batch 2026-09-06."
+    },
+    {
+      "ts": "2026-09-06T18:45:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "data/market/CW.json (fetched 2026-09-06T18:20:59Z, sec-companyfacts) and data/edgar/docs/CW.json (Form 8-K, filed 2026-08-06) landed after the prior BUILD wrote this profile BLOCKED with every canonical field NULL. Amended all 12 canonical metric fields from the fetched sec-companyfacts fundamentals and computed quality block: revenue (VERIFIED), growth, margins, both cash_conversion fields, leverage, both quality fields (Piotroski 8/STRONG, Beneish -2.533/CLEAN), and both valuation fields are INFERRED official_source true; both reverse_dcf fields are SPECULATIVE. Zero canonical fields NULL. Added two catalysts (electromechanical actuation equipment growth; $4.5B backlog up 10%) and two risks (Defense Electronics segment sales down 3%; tariff exposure disclosure) from the Q2-2026 Form 8-K (Exhibit 99.1) with verbatim source_excerpt, one crowdedness caveat update, and one leverage data-quarter-mismatch data_gap. Status BLOCKED to COMPLETE, opportunity_tier O3 to O2 (run profile does not select; O1 needs an explicit run selection). run profile CW, parallel batch 2026-09-06."
     }
   ]
 }
