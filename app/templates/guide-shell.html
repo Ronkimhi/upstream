@@ -1,0 +1,40 @@
+<meta charset="utf-8">
+<title>Upstream Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+{{APP_CSS}}
+</style>
+<div class="topbar">
+  <a href="index.html" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>
+  <nav class="nav">
+    <a href="index.html">Dashboard</a>
+    <a href="guide.html" class="on">Guide</a>
+  </nav>
+  <span class="spacer"></span>
+</div>
+<main>
+{{GUIDE_HTML}}
+<div class="footer">Upstream is a private research tool for Ron and the collaborators he invites. Verdicts, zones, and levels are analytical outputs from public data with stated methods and gaps — not investment advice. This guide is <span class="mono">app/guide.html</span> in the repository, built from <span class="mono">app/templates/guide.html</span>; the same text is the Guide tab of the dashboard.</div>
+</main>
+<script>
+(function () {
+  function fallbackCopy(txt) {
+    var ta = document.createElement("textarea");
+    ta.value = txt; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (err) { /* nothing to do: the text stays selectable */ }
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      e.preventDefault();
+      var txt = b.getAttribute("data-copy");
+      function done() { b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400); }
+      try { navigator.clipboard.writeText(txt).then(done, function () { fallbackCopy(txt); done(); }); }
+      catch (err) { fallbackCopy(txt); done(); }
+    });
+  });
+})();
+</script>

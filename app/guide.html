@@ -1,0 +1,1282 @@
+<meta charset="utf-8">
+<title>Upstream Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Upstream UI v2 — calm SaaS register (Linear/Vercel), one expressive layer: the funnel.
+   Token-driven, three-state theming per the artifact contract. */
+:root {
+  --bg: #FAFAFB; --surface: #FFFFFF; --surface-2: #F3F3F7; --surface-3: #EDEDF2;
+  --border: #ECECF1; --border-strong: #DCDCE4;
+  --ink: #17171E; --ink-2: #55555F; --ink-3: #8A8A96;
+  --accent: #5B5BD6; --accent-ink: #4646C8; --accent-soft: #EFEFFC; --accent-line: #C9C9F2;
+  --und: #1F9D5B; --und-ink: #14713F; --und-bg: #E7F6EE;
+  --emg: #C08A0B; --emg-ink: #7D5A05; --emg-bg: #FAF2DA;
+  --crd: #D2622B; --crd-ink: #96421B; --crd-bg: #FBEBE0;
+  --ovr: #C13A52; --ovr-ink: #92223C; --ovr-bg: #F9E5EA;
+  --gold: #B8860B; --quiet: #8A8A96; --quiet-ink: #6B6B78; --quiet-bg: #F2F2F5;
+  --good: #1F9D5B; --warn: #C08A0B; --bad: #C13A52;
+  --band-good: rgba(31, 157, 91, 0.10); --band-bad: rgba(193, 58, 82, 0.07);
+  --chart-grid: #EEEEF3; --chart-axis: #B9B9C4;
+  --shadow: 0 1px 2px rgba(23, 23, 30, 0.04), 0 6px 24px rgba(23, 23, 30, 0.05);
+  --shadow-lift: 0 2px 4px rgba(23, 23, 30, 0.06), 0 12px 32px rgba(23, 23, 30, 0.09);
+  --btn-ink: #FFFFFF;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C0C10; --surface: #14141A; --surface-2: #1A1A22; --surface-3: #22222B;
+    --border: #222229; --border-strong: #32323C;
+    --ink: #EDEDF3; --ink-2: #A6A6B3; --ink-3: #70707E;
+    --accent: #8687F0; --accent-ink: #A7A8F6; --accent-soft: #1D1D31; --accent-line: #3A3A66;
+    --und: #34C77E; --und-ink: #83E2B1; --und-bg: rgba(52, 199, 126, 0.12);
+    --emg: #E3B23C; --emg-ink: #F0CF83; --emg-bg: rgba(227, 178, 60, 0.12);
+    --crd: #E97F4E; --crd-ink: #F4AC87; --crd-bg: rgba(233, 127, 78, 0.12);
+    --ovr: #E25C78; --ovr-ink: #F19AAC; --ovr-bg: rgba(226, 92, 120, 0.13);
+    --gold: #D9A94B; --quiet: #7B8496; --quiet-ink: #9AA1B0; --quiet-bg: rgba(123, 132, 150, 0.14); --quiet: #7B8496; --quiet-ink: #9AA1B0; --quiet-bg: rgba(123, 132, 150, 0.14);
+    --good: #34C77E; --warn: #E3B23C; --bad: #E25C78;
+    --band-good: rgba(52, 199, 126, 0.10); --band-bad: rgba(226, 92, 120, 0.08);
+    --chart-grid: #1F1F28; --chart-axis: #4A4A58;
+    --shadow: none; --shadow-lift: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --btn-ink: #0C0C10;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C0C10; --surface: #14141A; --surface-2: #1A1A22; --surface-3: #22222B;
+  --border: #222229; --border-strong: #32323C;
+  --ink: #EDEDF3; --ink-2: #A6A6B3; --ink-3: #70707E;
+  --accent: #8687F0; --accent-ink: #A7A8F6; --accent-soft: #1D1D31; --accent-line: #3A3A66;
+  --und: #34C77E; --und-ink: #83E2B1; --und-bg: rgba(52, 199, 126, 0.12);
+  --emg: #E3B23C; --emg-ink: #F0CF83; --emg-bg: rgba(227, 178, 60, 0.12);
+  --crd: #E97F4E; --crd-ink: #F4AC87; --crd-bg: rgba(233, 127, 78, 0.12);
+  --ovr: #E25C78; --ovr-ink: #F19AAC; --ovr-bg: rgba(226, 92, 120, 0.13);
+  --gold: #D9A94B;
+  --good: #34C77E; --warn: #E3B23C; --bad: #E25C78;
+  --band-good: rgba(52, 199, 126, 0.10); --band-bad: rgba(226, 92, 120, 0.08);
+  --chart-grid: #1F1F28; --chart-axis: #4A4A58;
+  --shadow: none; --shadow-lift: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --btn-ink: #0C0C10;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 14.5px/1.6 Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+}
+.mono, code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+a { color: var(--accent-ink); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+button { font: inherit; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ================= shell ================= */
+/* Wraps at ANY width rather than at one breakpoint. The nav grew from six items to eight
+   when the agent pages landed, and the eighth pushed the theme button 11px off the right
+   edge at exactly 768px, which is between the old 760px breakpoint and the width where the
+   desktop row still fits. A fixed height cannot express that; min-height plus wrap can, and
+   the cortex already re-measures --cx-top from the real topbar with a ResizeObserver. */
+.topbar {
+  position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 18px;
+  flex-wrap: wrap; row-gap: 4px;
+  padding: 0 26px; min-height: 52px;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+}
+.wordmark { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: 0.05em;
+  font-size: 13.5px; color: var(--ink); }
+.wordmark .tick { color: var(--accent); font-size: 11px; }
+.nav { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; min-width: 0; row-gap: 4px; }
+.nav a { color: var(--ink-3); font-size: 13px; font-weight: 500; padding: 5px 11px; border-radius: 7px; }
+.nav a:hover { color: var(--ink); background: var(--surface-2); text-decoration: none; }
+.nav a.on { color: var(--ink); background: var(--surface-2); font-weight: 600; }
+.topbar .spacer { flex: 1; }
+.builtat { font-size: 11px; color: var(--ink-3); }
+.healthdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; }
+.tb-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 3.5px 11px; background: var(--surface); }
+.tb-btn { cursor: pointer; border: none; background: none; color: var(--ink-3); border-radius: 7px;
+  padding: 5px 9px; font-size: 12.5px; }
+.tb-btn:hover { color: var(--ink); background: var(--surface-2); }
+@media (max-width: 760px) {
+  .topbar { padding: 8px 16px; gap: 8px 12px; row-gap: 6px; }
+  .nav a { padding: 4px 8px; font-size: 12.5px; }
+  .tb-chip { font-size: 11px; padding: 2.5px 8px; }
+  main { padding: 8px 16px 70px; }
+  .crumbs { padding: 12px 16px 0; }
+}
+
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 16px 26px 0;
+  max-width: 1160px; margin: 0 auto; font-size: 12.5px; color: var(--ink-3); }
+.crumbs a { color: var(--ink-3); }
+.crumbs a:hover { color: var(--ink); text-decoration: none; }
+.crumbs .here { color: var(--ink); font-weight: 550; }
+.crumbs .sep { color: var(--border-strong); }
+
+main { max-width: 1160px; margin: 0 auto; padding: 10px 26px 90px; }
+h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; margin: 14px 0 6px; text-wrap: balance; }
+.sub { color: var(--ink-2); font-size: 14px; max-width: 76ch; margin: 0 0 10px; }
+.seclabel { font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--ink-3); margin: 44px 0 14px; display: flex; align-items: center; gap: 10px; }
+.seclabel::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+
+/* ================= primitives ================= */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; box-shadow: var(--shadow); }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 650;
+  letter-spacing: 0.04em; text-transform: uppercase; border-radius: 6px; padding: 2.5px 7px; white-space: nowrap; }
+.chip.neutral { background: var(--surface-2); color: var(--ink-2); }
+.chip.accent { background: var(--accent-soft); color: var(--accent-ink); }
+.chip.UNDISCOVERED, .chip.INVESTABLE, .chip.DARK, .chip.RIGHT { background: var(--und-bg); color: var(--und-ink); }
+.chip.EMERGING, .chip.WATCH, .chip.MIXED { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.CROWDED { background: var(--crd-bg); color: var(--crd-ink); }
+.chip.OVER_CROWDED, .chip.TOO_LATE, .chip.WRONG { background: var(--ovr-bg); color: var(--ovr-ink); }
+.chip.QUIET { background: var(--quiet-bg); color: var(--quiet-ink); }
+.chip.stale { background: var(--emg-bg); color: var(--emg-ink); text-transform: none; letter-spacing: 0; }
+.chip.verystale { background: var(--ovr-bg); color: var(--ovr-ink); text-transform: none; letter-spacing: 0; }
+.chip.tier { background: transparent; color: var(--ink-2); border: 1px solid var(--border-strong);
+  border-radius: 4px; font-family: "JetBrains Mono", monospace; }
+.chip.opportunity { border-radius: 999px; border: 1px solid currentColor;
+  font-family: "JetBrains Mono", monospace; font-weight: 700; letter-spacing: .08em; }
+.chip.opp-O1 { background: var(--accent-soft); color: var(--accent-ink); }
+.chip.opp-O2 { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.opp-O3 { background: var(--quiet-bg); color: var(--quiet-ink); }
+.chip.opp-none { background: var(--surface-2); color: var(--ink-3); }
+/* Impact bands (method 0.2). Reuses the existing heat palette rather than introducing a
+   second colour language for the same idea: PRIME reads like UNDISCOVERED because both mean
+   "worth owning and nobody is there", LEAKY and COMPETED read like OVER_CROWDED because both
+   mean "the money does not end up yours", and UNRANKED is deliberately colourless so an
+   un-appraised occurrence never looks like a scored one. */
+.chip.impact-PRIME { background: var(--und-bg); color: var(--und-ink); }
+.chip.impact-REACHABLE { background: var(--emg-bg); color: var(--emg-ink); }
+.chip.impact-COMPETED, .chip.impact-LEAKY { background: var(--ovr-bg); color: var(--ovr-ink); }
+.chip.impact-THIN { background: var(--quiet-bg); color: var(--quiet-ink); }
+.chip.impact-UNRANKED { background: transparent; color: var(--ink-3);
+  border: 1px dashed var(--border-strong); }
+.num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); font-size: 12px; }
+.small { font-size: 12.5px; color: var(--ink-2); }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; }
+
+/* run affordance: primary button + subdued command line */
+.runwrap { display: inline-flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.btn-run { cursor: pointer; border: none; border-radius: 9px; padding: 8px 16px;
+  font-weight: 600; font-size: 13px; letter-spacing: 0.01em;
+  background: var(--accent); color: var(--btn-ink); transition: transform 0.06s, box-shadow 0.12s; }
+.btn-run:hover { box-shadow: var(--shadow-lift); transform: translateY(-1px); }
+.btn-run:active { transform: translateY(0); }
+.btn-run:disabled { opacity: 0.55; cursor: default; transform: none; box-shadow: none; }
+.btn-run.q { background: var(--und-bg); color: var(--und-ink); box-shadow: none; cursor: default; }
+.cmdline { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-3); }
+.cmdline code { font-size: 11px; color: var(--ink-3); background: var(--surface-2);
+  border-radius: 5px; padding: 1.5px 6px; }
+.cmdline button { cursor: pointer; border: none; background: none; color: var(--ink-3);
+  font-size: 11px; padding: 1px 4px; border-radius: 4px; }
+.cmdline button:hover { color: var(--ink); background: var(--surface-2); }
+
+.toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90;
+  background: var(--ink); color: var(--bg); border-radius: 10px; padding: 10px 18px;
+  font-size: 13px; box-shadow: var(--shadow-lift); max-width: 88vw; }
+
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--ink-3); font-weight: 650; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); }
+
+/* ================= home ================= */
+.hero { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; margin-top: 18px; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.today h2 { font-size: 17px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 4px; }
+.today .when { font-size: 12px; color: var(--ink-3); margin-bottom: 12px; }
+.delta { list-style: none; margin: 0; padding: 0; }
+.delta li { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; font-size: 13.5px;
+  border-top: 1px solid var(--border); }
+.delta li:first-child { border-top: none; }
+.delta .k { flex: none; font-size: 10.5px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.05em;
+  border-radius: 5px; padding: 2px 6px; margin-top: 1px; }
+.delta .k.new { background: var(--accent-soft); color: var(--accent-ink); }
+.delta .k.trip { background: var(--ovr-bg); color: var(--ovr-ink); }
+.delta .k.due { background: var(--emg-bg); color: var(--emg-ink); }
+.delta .k.upd { background: var(--surface-2); color: var(--ink-2); }
+.quiet { display: flex; flex-direction: column; gap: 2px; padding: 10px 0 4px; }
+.quiet .big { font-size: 19px; font-weight: 650; letter-spacing: -0.02em; }
+
+.funnelcard { display: flex; flex-direction: column; }
+.funnelcard .fc-title { font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-3); margin-bottom: 14px; }
+.funnel { width: 100%; }
+.funnel .stagelabel { font-size: 11px; fill: var(--ink-2); font-weight: 550; }
+.funnel .stagecount { font-family: "JetBrains Mono", monospace; font-size: 17px; font-weight: 600; fill: var(--ink); }
+.funnel a { cursor: pointer; }
+.funnel a:hover .fseg { filter: brightness(1.06); }
+
+.siglist { display: flex; flex-direction: column; }
+.sigrow { display: grid; grid-template-columns: 1fr auto; gap: 6px 18px; padding: 16px 20px;
+  background: var(--surface); border: 1px solid var(--border); border-top: none; text-decoration: none; color: inherit; }
+.sigrow:first-child { border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; }
+.sigrow:last-child { border-radius: 0 0 12px 12px; }
+.sigrow:only-child { border-radius: 12px; }
+.sigrow { cursor: pointer; }
+.sigrow:hover { background: color-mix(in srgb, var(--surface-2) 45%, var(--surface)); text-decoration: none; }
+.sigrow .t { font-size: 15.5px; font-weight: 600; letter-spacing: -0.015em; margin: 2px 0 3px; }
+.sigrow .th { font-size: 13px; color: var(--ink-2); max-width: 68ch;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sigrow .meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--ink-3); }
+.sigrow .right { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 8px; }
+@media (max-width: 700px) { .sigrow { grid-template-columns: 1fr; } .sigrow .right { flex-direction: row; align-items: center; justify-content: space-between; } }
+.gauge { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--ink-3); }
+.gauge .track { width: 74px; height: 5px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+.gauge .track i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+
+.sysline { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-3);
+  padding: 9px 0; border-top: 1px solid var(--border); }
+.sysline:first-of-type { border-top: none; }
+.sysline .mono { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ================= chain ================= */
+.pagehead { margin-top: 16px; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 9px; padding: 3px; margin: 20px 0 20px; }
+.seg button { cursor: pointer; border: none; background: none; color: var(--ink-3); font-weight: 550;
+  font-size: 13px; padding: 6px 15px; border-radius: 7px; }
+.seg button.on { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-weight: 600; }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px 6px; }
+.fnode { position: relative; cursor: pointer; background: var(--surface); border: 1px solid var(--border);
+  border-left-width: 3px; border-radius: 11px; padding: 11px 13px 10px; width: 170px; flex: 0 1 170px;
+  box-shadow: var(--shadow); transition: transform 0.07s, box-shadow 0.12s; }
+.fnode:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.fnode.v-UNDISCOVERED { border-left-color: var(--und); }
+.fnode.v-EMERGING { border-left-color: var(--emg); }
+.fnode.v-CROWDED { border-left-color: var(--crd); }
+.fnode.v-OVER_CROWDED { border-left-color: var(--ovr); }
+.fnode.v-QUIET { border-left-color: var(--quiet); }
+.fnode.v-none { border-left-color: var(--border-strong); border-style: dashed; }
+.fnode .pos { font-size: 9.5px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; margin-bottom: 3px; }
+.fnode .nm { font-size: 13px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; min-height: 34px; }
+.fnode .verd { font-size: 9.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 7px; }
+.fnode .verd.v-UNDISCOVERED { color: var(--und-ink); } .fnode .verd.v-EMERGING { color: var(--emg-ink); }
+.fnode .verd.v-CROWDED { color: var(--crd-ink); } .fnode .verd.v-OVER_CROWDED { color: var(--ovr-ink); }
+.fnode .verd.v-QUIET { color: var(--quiet-ink); }
+.fnode .verd.v-none { color: var(--ink-3); text-transform: none; letter-spacing: 0; }
+.triad { display: flex; align-items: flex-end; gap: 3px; height: 22px; position: absolute; right: 12px; bottom: 10px; }
+.triad i { display: block; width: 5px; border-radius: 2px 2px 1px 1px; min-height: 2px; }
+.triad .ti { background: var(--accent); } .triad .tc { background: var(--crd); } .triad .tv { background: var(--und); }
+.fnode .star { position: absolute; top: 8px; right: 10px; color: var(--gold); font-size: 13px; }
+.fnode .choke { position: absolute; top: -5px; left: 10px; width: 9px; height: 9px; border-radius: 50%;
+  border: 2px solid var(--ovr); background: var(--bg); }
+.farrow { align-self: center; color: var(--border-strong); font-size: 14px; padding: 0 1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; font-size: 11.5px; color: var(--ink-2); align-items: center; }
+.legend .sw { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend .tri-demo { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; margin-right: 6px; vertical-align: -2px; }
+.legend .tri-demo i { width: 4px; border-radius: 1px; }
+
+/* Hebrew explainer layer (chain graph tab and the link modal). Heebo carries the Hebrew;
+   every Latin token (tickers, link names, dates) sits inside a <bdi> so bidi reordering
+   cannot scramble it. Colors are tokens, so both dark states inherit without additions. */
+.he { direction: rtl; unicode-bidi: isolate; text-align: right; line-height: 1.7;
+  font-family: Heebo, Inter, -apple-system, "Segoe UI", Arial, sans-serif; }
+.he p { margin: 4px 0 12px; font-size: 13.5px; color: var(--ink); }
+.he h3, .modal-card .he h3 { text-align: right; text-transform: none; letter-spacing: 0; font-size: 12.5px;
+  font-weight: 650; color: var(--ink-3); margin-top: 14px; }
+.he .stamp { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; }
+.he bdi { direction: ltr; unicode-bidi: isolate; font-family: Inter, -apple-system, "Segoe UI", sans-serif; }
+.he .absent { color: var(--ink-3); font-size: 13px; }
+.card.he { padding: 16px 20px; }
+
+/* chain graph: the real DAG from upstream_of / downstream_of, columns are layers */
+.gnode { cursor: pointer; }
+.gnode .body { fill: var(--surface); stroke: var(--border-strong); }
+.gnode:hover .body, .gnode:focus-visible .body { stroke: var(--accent); stroke-width: 1.6; }
+.gnode:focus { outline: none; }
+.gnode .body.unscored { stroke-dasharray: 4 3; }
+.gnode .nm { fill: var(--ink); font-size: 11px; font-weight: 600; }
+.gnode .pos { fill: var(--ink-3); font-size: 9px; font-family: "JetBrains Mono", monospace; }
+.gnode .verd { font-size: 8.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
+.gnode .verd.v-UNDISCOVERED { fill: var(--und-ink); } .gnode .verd.v-EMERGING { fill: var(--emg-ink); }
+.gnode .verd.v-CROWDED { fill: var(--crd-ink); } .gnode .verd.v-OVER_CROWDED { fill: var(--ovr-ink); }
+.gnode .verd.v-QUIET { fill: var(--quiet-ink); } .gnode .verd.v-none { fill: var(--ink-3); text-transform: none; }
+.gnode .star { fill: var(--gold); font-size: 12px; }
+.gedge { fill: none; stroke: var(--border-strong); stroke-width: 1.5; transition: opacity 0.12s, stroke 0.12s; }
+.gedge.hi { stroke: var(--accent); stroke-width: 2.2; } .gedge.dim { opacity: 0.22; }
+.gshape { font-size: 12.5px; color: var(--ink-2); margin: 10px 0 0; }
+
+.callout { border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 11px;
+  background: var(--surface); padding: 13px 16px; font-size: 13px; color: var(--ink-2); box-shadow: var(--shadow); }
+.callout b { color: var(--ink); }
+
+/* drawer */
+.scrim { position: fixed; inset: 0; z-index: 49; background: rgba(0, 0, 0, 0.28); }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 94vw); z-index: 50; background: var(--surface);
+  border-left: 1px solid var(--border); box-shadow: -16px 0 48px rgba(0, 0, 0, 0.18); padding: 22px 24px; overflow-y: auto; }
+.drawer .x { position: absolute; top: 14px; right: 16px; cursor: pointer; border: none; background: var(--surface-2);
+  border-radius: 7px; width: 28px; height: 28px; color: var(--ink-2); font-size: 13px; }
+.drawer h2 { font-size: 18px; font-weight: 650; letter-spacing: -0.02em; margin: 10px 0 6px; }
+.scorebar { display: grid; grid-template-columns: 100px 1fr 40px; align-items: center; gap: 12px; margin: 8px 0; }
+.scorebar .lb { font-size: 12px; color: var(--ink-2); font-weight: 550; }
+.scorebar .tk { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+.scorebar .tk i { display: block; height: 100%; border-radius: 3px; }
+.scorebar .vl { font-family: "JetBrains Mono", monospace; font-size: 12.5px; text-align: right; }
+.evli { font-size: 12.5px; color: var(--ink-2); margin: 6px 0; padding-left: 11px; border-left: 2px solid var(--border); }
+.drawer h3 { margin-top: 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); }
+
+/* link modal: the ~70% takeover opened by clicking a value-chain link.
+   Analysis and its "why" on the left, the stocks screened onto the link on the right.
+   Sits over the shared .scrim (z 49); the card is z 50, so a scrim click closes it. */
+.modal-card { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(1180px, 72vw); height: min(88vh, 940px); z-index: 50; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.modal-card .x { position: absolute; top: 16px; right: 18px; cursor: pointer; border: none; background: var(--surface-2);
+  border-radius: 7px; width: 30px; height: 30px; color: var(--ink-2); font-size: 14px; z-index: 2; }
+.modal-card .x:hover { background: var(--surface-3); color: var(--ink); }
+.modal-head { padding: 22px 26px 16px; border-bottom: 1px solid var(--border); }
+.modal-card h2 { font-size: 20px; font-weight: 650; letter-spacing: -0.02em; margin: 10px 0 4px; }
+.modal-card h3 { margin-top: 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); }
+.modal-card h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); }
+.modal-body { display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 58%); min-height: 0; }
+.modal-pane { overflow-y: auto; padding: 20px 26px 28px; }
+.modal-analysis { border-right: 1px solid var(--border); }
+.modal-stocks { background: var(--surface-2); }
+.stocks-h { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-bottom: 14px; }
+.stocks-h .num { font-family: "JetBrains Mono", monospace; color: var(--accent); margin-left: 4px; }
+.stockcard { background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 14px 16px; margin-bottom: 12px; }
+.sc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sc-id { display: flex; align-items: center; gap: 7px; }
+.sc-tk { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.sc-id .star { color: var(--gold); }
+.sc-bkt { font-size: 11px; color: var(--ink-3); }
+.sc-co { font-size: 12px; color: var(--ink-2); }
+.sc-thesis { font-size: 12.5px; color: var(--ink-2); margin: 9px 0 12px; line-height: 1.45; }
+.sc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+.sc-stat { display: flex; flex-direction: column; gap: 2px; }
+.sc-l { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); }
+.sc-v { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--ink); }
+.sc-cw { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+.sc-nug { margin-top: 11px; font-size: 12px; }
+.sc-nug summary { cursor: pointer; color: var(--ink-2); }
+.sc-nug blockquote { margin: 8px 0 0; padding-left: 11px; border-left: 2px solid var(--border); color: var(--ink-2); font-size: 12px; }
+.sc-act { margin-top: 12px; }
+.stk-more { margin-top: 6px; padding-top: 14px; border-top: 1px dashed var(--border); }
+.stk-empty { color: var(--ink-2); font-size: 13px; line-height: 1.5; }
+@media (max-width: 900px) {
+  .modal-card { width: 94vw; height: 92vh; }
+  .modal-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
+  .modal-analysis { border-right: none; border-bottom: 1px solid var(--border); }
+  .sc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* scenarios */
+.scen { padding: 18px 20px; margin-bottom: 12px; }
+.scen .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.scen .head .t { font-size: 15.5px; font-weight: 650; letter-spacing: -0.015em; }
+.scen .p { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 21px; font-weight: 600; }
+.scen .p small { font-size: 11px; color: var(--ink-3); font-weight: 400; margin-left: 2px; }
+.pbar { height: 4px; border-radius: 2px; background: var(--surface-3); overflow: hidden; margin: 10px 0 12px; }
+.pbar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+.mv { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; border-radius: 7px;
+  padding: 3px 9px; margin: 2px 4px 2px 0; background: var(--surface-2); color: var(--ink-2); }
+.mv .up { color: var(--good); font-weight: 700; } .mv .down { color: var(--bad); font-weight: 700; }
+details { border: none; padding: 0; margin: 10px 0 0; }
+summary { cursor: pointer; font-size: 12.5px; font-weight: 550; color: var(--ink-3); list-style: none; }
+summary::before { content: "▸ "; font-size: 10px; }
+details[open] summary::before { content: "▾ "; }
+summary:hover { color: var(--ink); }
+details .body { margin: 10px 0 0 14px; }
+.bullets { margin: 0; padding-left: 0; list-style: none; font-size: 13px; }
+.bullets li { margin: 7px 0; padding-left: 16px; position: relative; }
+.bullets li::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); }
+.bullets.good li::before { background: var(--good); }
+.bullets.bad li::before { background: var(--bad); }
+
+/* ================= screen ================= */
+.tk-name { font-weight: 650; font-size: 14px; }
+.tk-co { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+.pend { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--emg-ink); }
+.pend .dot { background: var(--warn); }
+blockquote { margin: 8px 0; padding: 9px 13px; border-left: 3px solid var(--accent); background: var(--surface-2);
+  border-radius: 0 9px 9px 0; font-size: 12.5px; color: var(--ink-2); }
+.healthline { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-3); margin-top: 14px; }
+
+/* ================= stock ================= */
+.fixturebanner { background: var(--emg-bg); color: var(--emg-ink); border-radius: 10px;
+  padding: 9px 14px; font-size: 12.5px; font-weight: 550; margin-top: 16px; }
+.vhero { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; border-radius: 14px;
+  padding: 20px 24px; margin-top: 14px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
+.vhero .vword { display: flex; align-items: center; gap: 11px; font-size: 21px; font-weight: 750; letter-spacing: -0.02em; }
+.vhero .vword .dot { width: 11px; height: 11px; }
+.vhero.INVESTABLE .vword { color: var(--und-ink); } .vhero.INVESTABLE .vword .dot { background: var(--und); }
+.vhero.WATCH .vword { color: var(--emg-ink); } .vhero.WATCH .vword .dot { background: var(--emg); }
+.vhero.TOO_LATE .vword { color: var(--ovr-ink); } .vhero.TOO_LATE .vword .dot { background: var(--ovr); }
+.vhero .zone { display: flex; flex-direction: column; gap: 1px; }
+.vhero .zone .zl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); font-weight: 650; }
+.vhero .zone .zv { font-family: "JetBrains Mono", monospace; font-size: 19px; font-weight: 600; }
+.vhero .right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 7px 16px; font-size: 13px; }
+.kv dt { color: var(--ink-3); } .kv dd { margin: 0; }
+.redteam { border-left: 3px solid var(--ovr); }
+.rt-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ovr-ink); }
+.note { background: var(--surface-2); border-radius: 10px; padding: 10px 14px; font-size: 13px; margin: 8px 0; }
+.note .who { font-weight: 650; color: var(--ink-2); font-size: 11px; }
+.timeline { border-left: 2px solid var(--border); margin: 6px 0 0 6px; padding-left: 16px; }
+.timeline .t { margin-bottom: 12px; font-size: 13px; }
+.timeline .t .when { color: var(--ink-3); font-size: 11px; font-family: "JetBrains Mono", monospace; }
+
+/* stat tile */
+.stat { display: flex; flex-direction: column; gap: 2px; }
+.stat .v { font-family: "JetBrains Mono", monospace; font-size: 30px; font-weight: 650; letter-spacing: -0.02em; }
+.stat .l { font-size: 12px; color: var(--ink-3); }
+
+/* ================= charts ================= */
+.chartwrap { overflow-x: auto; }
+svg text { font-family: Inter, sans-serif; fill: var(--ink-2); }
+svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+.tooltip { position: fixed; z-index: 80; pointer-events: none; background: var(--ink); color: var(--bg);
+  border-radius: 8px; padding: 6px 11px; font-size: 12px; box-shadow: var(--shadow-lift); }
+
+.emptystate { text-align: center; padding: 44px 20px; color: var(--ink-3); border: 1.5px dashed var(--border-strong);
+  border-radius: 14px; font-size: 13.5px; }
+.emptystate .runwrap { align-items: center; margin-top: 14px; }
+.footer { margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--ink-3); max-width: 90ch; }
+
+/* ================= campaign ================= */
+.campaign-summary { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); margin: 18px 0 8px; }
+.campaign-stat { padding: 14px 16px; }
+.campaign-stat .stat .v { font-size: 23px; }
+.campaign-target { color: var(--ink-3); font-size: .58em; font-weight: 500; }
+.campaign-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.campaign-theme { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.campaign-theme-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.campaign-theme h3 { font-size: 15px; margin: 8px 0 0; }
+.campaign-open { flex: none; font-size: 11.5px; }
+.coverage-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  color: var(--ink-3); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.coverage-line b { color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.coverage-track { height: 5px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.coverage-track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.coverage-track[data-empty="true"] { border: 1px dashed var(--border-strong); background: transparent; }
+.campaign-mini { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 14px;
+  padding-top: 2px; color: var(--ink-3); font-size: 11.5px; }
+.campaign-mini span { display: inline-flex; align-items: center; gap: 5px; }
+.campaign-mini b { color: var(--ink-2); font-weight: 600; }
+.campaign-warn { color: var(--emg-ink) !important; }
+.campaign-bad { color: var(--ovr-ink) !important; }
+.campaign-blockers { margin: 14px 0; border-left-color: var(--ovr); }
+.campaign-blockers .bullets { margin-top: 7px; }
+.campaign-theme-stats { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); margin: 18px 0; }
+.campaign-links td:nth-child(n+3) { white-space: nowrap; }
+.campaign-links td:last-child { min-width: 190px; white-space: normal; }
+.campaign-links .chip.stale, .campaign-links .chip.verystale { display: flex; width: max-content; margin-top: 5px; }
+.campaign-chain-link { margin-top: 16px; font-size: 12.5px; }
+.campaign-o1 .btn-run { padding: 5px 9px; font-size: 11.5px; border-radius: 7px; white-space: nowrap; }
+.campaign-o1 .chip.stale, .campaign-o1 .chip.verystale { display: flex; width: max-content; margin-top: 5px; }
+.tier-plane { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.plane-label { font-size: 8.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; }
+.campaign-empty b { color: var(--ink); }
+.campaign-empty-small { padding: 24px 18px; text-align: left; }
+@media (max-width: 760px) {
+  .campaign-grid { grid-template-columns: 1fr; }
+  .campaign-theme-head { align-items: baseline; }
+}
+
+/* ---------------- cortex ---------------- */
+/* The map IS the page: the field fills the viewport and every piece of interface
+   floats over it, hideable in one keystroke. It commits to its own dark ground in
+   every theme, because it is a map, not a card. */
+body.cortex-page { overflow: hidden; }
+body.cortex-page .topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 6;
+  background: rgba(8, 8, 13, 0.72); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #16161f; color: #dde0ef;
+}
+body.cortex-page .topbar .wordmark { color: #dde0ef; }
+body.cortex-page .topbar .nav a { color: #6e7288; }
+body.cortex-page .topbar .nav a:hover, body.cortex-page .topbar .nav a.on { color: #fff; background: #1b1b28; }
+body.cortex-page .topbar .tb-chip { background: rgba(20, 20, 29, 0.8); border-color: #232332; color: #9296ad; }
+body.cortex-page .topbar .tb-btn { color: #6e7288; }
+body.cortex-page .topbar .tb-btn:hover { color: #fff; background: #1b1b28; }
+body.cx-ui-hidden .topbar { display: none; }
+
+.cxfull { position: fixed; inset: 0; z-index: 1; background: #08080d; }
+.cxfull .cx-stage { position: absolute; inset: 0; }
+.cx-stage canvas { display: block; width: 100%; height: 100%; outline: none; cursor: grab; }
+
+/* left overlay: title, info button, ranked opportunities, filters, registers */
+/* --cx-top is measured from the real topbar at runtime: it wraps to ~109px on a phone,
+   and chrome pinned to a hardcoded 64px hides underneath it. */
+.cx-ovl-left {
+  position: absolute; z-index: 4; left: 12px; top: var(--cx-top, 64px); bottom: 52px; width: 208px;
+  display: flex; flex-direction: column; min-height: 0;
+  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
+  border: 1px solid #1b1b26; border-radius: 12px;
+}
+.cx-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none;
+  padding: 9px 10px 8px; border-bottom: 1px solid #16161f;
+}
+.cx-head .cx-title {
+  font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; color: #dde0ef;
+}
+.cx-rail-l { flex: 1; min-height: 0; overflow: hidden auto; padding: 10px 11px 12px; }
+.cx-note {
+  flex: none; padding: 6px 11px 7px; border-top: 1px solid #16161f;
+  font-family: "JetBrains Mono", monospace; font-size: 8px; line-height: 1.5;
+  letter-spacing: .04em; text-transform: uppercase; color: #43465a;
+}
+.cx-rail-l, .cx-strip {
+  font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7;
+  letter-spacing: .04em; color: #585c72; text-transform: uppercase;
+}
+.cxfull .cx-strip {
+  position: absolute; z-index: 4; left: 12px; right: 12px; bottom: 12px; height: 30px;
+  display: flex; align-items: center; gap: 16px; padding: 0 13px; overflow: hidden;
+  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
+  border: 1px solid #1b1b26; border-radius: 9px;
+}
+.cx-strip .cx-read { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9296ad; }
+.cx-strip .cx-s1 { color: #dde0ef; }
+.cx-uibtn {
+  position: absolute; z-index: 7; top: var(--cx-top, 64px); right: 12px; cursor: pointer;
+  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
+  border: 1px solid #232332; border-radius: 999px; padding: 5px 11px;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .1em;
+  color: #6e7288;
+}
+.cx-uibtn:hover { color: #dde0ef; border-color: #35354a; }
+.cx-uibtn:focus-visible { outline: 1px solid #8687f0; }
+.cxfull.ui-hidden .cx-ovl-left,
+.cxfull.ui-hidden .cx-strip,
+.cxfull.ui-hidden .cx-toprail,
+.cxfull.ui-hidden .cx-phase,
+.cxfull.ui-hidden .cx-gaugerail,
+.cxfull.ui-hidden .cxinfo { display: none; }
+.cxfull.ui-hidden .cx-uibtn { top: 12px; opacity: .35; }
+.cxfull.ui-hidden .cx-uibtn:hover { opacity: 1; }
+.cxfull .cxinfo {
+  position: absolute; z-index: 5; left: 232px; top: var(--cx-top, 64px); width: min(46ch, calc(100vw - 300px));
+  margin: 0; background: rgba(11, 11, 17, 0.92); backdrop-filter: blur(10px);
+  border: 1px solid #232332; border-radius: 10px; color: #9296ad; font-size: 12.5px;
+}
+.cx-brackets { position: absolute; inset: 8px; pointer-events: none; }
+.cx-brackets i { position: absolute; width: 18px; height: 18px; }
+.cx-brackets i:nth-child(1) { top: 0; left: 0; border-top: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
+.cx-brackets i:nth-child(2) { top: 0; right: 0; border-top: 1px solid #2c2c3d; border-right: 1px solid #2c2c3d; }
+.cx-brackets i:nth-child(3) { bottom: 0; left: 0; border-bottom: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
+.cx-brackets i:nth-child(4) { bottom: 0; right: 0; border-bottom: 1px solid #2c2c3d; border-right: 1px solid #2c2c3d; }
+.cx-grp { color: #3e4258; margin: 12px 0 4px; padding-bottom: 3px; border-bottom: 1px solid #16161f; }
+.cx-grp:first-child { margin-top: 0; }
+.cx-reg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.cx-reg .v { color: #dde0ef; font-variant-numeric: tabular-nums; }
+.cx-reg .v.dim { color: #585c72; }
+.cx-bar { height: 2px; margin: 1px 0 3px; background: #16161f; }
+.cx-bar i { display: block; height: 2px; }
+.cx-ev { padding: 5px 0; border-bottom: 1px solid #12121a; cursor: default; }
+.cx-ev .t { color: #9296ad; }
+.cx-ev .k { font-weight: 600; }
+.cx-ev .s { display: block; color: #4c5065; text-transform: none; letter-spacing: 0; font-size: 9.5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 860px) {
+  .cx-ovl-left { width: 178px; bottom: 48px; }
+  .cxfull .cxinfo { left: 12px; right: 12px; top: auto; bottom: 52px; width: auto; }
+}
+@media (max-width: 620px) {
+  /* a phone has no room for a side rail beside the field: it becomes a bottom sheet,
+     and the field keeps everything above it */
+  .cx-ovl-left { left: 10px; right: 10px; width: auto; top: auto; bottom: 50px; max-height: 42vh; }
+  .cxfull .cx-strip { left: 10px; right: 10px; bottom: 10px; }
+}
+/* cortex v4: hover card, filters, rotation controls */
+.cxcard {
+  position: fixed; z-index: 60; display: none; pointer-events: none;
+  width: 300px; max-width: 42vw; background: #12121a; border: 1px solid #262635;
+  border-radius: 8px; padding: 11px 13px 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+  color: #dde0ef;
+}
+.cxcard .hd { display: flex; align-items: center; gap: 7px; margin-bottom: 4px;
+  font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #585c72; }
+.cxcard .pip { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cxcard .tt { font-family: "Baloo 2", "Inter", sans-serif; font-weight: 600; font-size: 14.5px;
+  line-height: 1.25; margin-bottom: 6px; }
+.cxcard .bd { font: 11.5px/1.45 Inter, sans-serif; color: #9296ad; margin-bottom: 7px; }
+.cxcard .bd.dim { color: #585c72; }
+.cxcard .r { display: flex; justify-content: space-between; gap: 10px;
+  font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7; color: #9296ad; }
+.cxcard .r .k { color: #585c72; text-transform: uppercase; letter-spacing: 0.05em; flex: none; }
+.cxcard .r .pip { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 4px; vertical-align: -1px; }
+.cxcard .ft { margin-top: 6px; padding-top: 5px; border-top: 1px solid #1c1c28;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #43465a; }
+.cxsearch {
+  width: 100%; box-sizing: border-box; margin: 2px 0 7px; padding: 5px 8px;
+  background: #0f0f16; border: 1px solid #232332; border-radius: 5px; color: #dde0ef;
+  font-family: "JetBrains Mono", monospace; font-size: 10.5px;
+}
+.cxsearch:focus { outline: none; border-color: #8687f0; }
+.cxsearch::placeholder { color: #43465a; }
+.cxchips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
+.cxfchip {
+  background: #14141d; border: 1px solid #232332; border-radius: 4px; cursor: pointer;
+  color: #9296ad; font-family: "JetBrains Mono", monospace; font-size: 9px;
+  letter-spacing: 0.05em; text-transform: uppercase; padding: 2.5px 6px;
+}
+.cxfchip:hover { color: #dde0ef; border-color: #35354a; }
+.cxfchip:focus-visible { outline: 1px solid #8687f0; }
+.cxfchip.off { opacity: 0.32; text-decoration: line-through; }
+.cxfchip.sel { border-bottom-width: 2px; }
+.cxfchip.sel.on { color: #fff; background: #1d1d31; border-color: #8687f0; }
+.cxfreset {
+  float: right; background: none; border: none; cursor: pointer; color: #585c72;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; text-transform: uppercase;
+  letter-spacing: 0.05em; padding: 0;
+}
+.cxfreset:hover { color: #dde0ef; }
+.cx-rbtn {
+  background: #14141d; border: 1px solid #232332; border-radius: 4px; cursor: pointer;
+  color: #9296ad; font-size: 12px; line-height: 1; padding: 2px 7px 3px; flex: none;
+}
+.cx-rbtn:hover { color: #dde0ef; border-color: #35354a; }
+.cx-rbtn:focus-visible { outline: 1px solid #8687f0; }
+
+/* ---------------- chain screen action ---------------- */
+.chainaction {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  margin: 14px 0 4px; padding: 12px 16px;
+  border: 1px solid var(--border); border-left: 2px solid var(--accent); border-radius: 0 10px 10px 0;
+  background: var(--surface);
+}
+.chainaction .lbl { display: block; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.chainaction .val { display: block; font-size: 15px; font-weight: 550; color: var(--ink); margin: 3px 0; }
+.linkhead {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 20px 0 8px; padding-left: 10px; border-left: 3px solid var(--border-strong);
+}
+.linkhead.v-UNDISCOVERED { border-left-color: var(--und); }
+.linkhead.v-EMERGING { border-left-color: var(--emg); }
+.linkhead.v-CROWDED { border-left-color: var(--crd); }
+.linkhead.v-OVER_CROWDED { border-left-color: var(--ovr); }
+.linkhead.v-QUIET { border-left-color: var(--quiet); }
+.linkhead .nm { font-weight: 600; font-size: 14.5px; }
+.linkhead .ct { margin-left: auto; font-size: 11.5px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
+.pxdot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 7px; vertical-align: 1px;
+  border: 1px solid var(--border-strong); background: transparent;
+}
+.pxdot.on { background: var(--accent); border-color: var(--accent); }
+
+/* ---------------- stock page big value ---------------- */
+.bigval { margin: 4px 0 12px; }
+.bigval > div { display: flex; align-items: baseline; gap: 12px; }
+.bigval .v { font-size: 38px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.bigval .spark { width: 66px; height: 22px; overflow: visible; }
+.bigval .l { display: block; margin-top: 2px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--ink-3); }
+
+/* ---------------- radar signal card: corner brackets + occurrence register ---------------- */
+.sigrow.bracket { position: relative; border-color: transparent; background: var(--surface); }
+.sigrow.bracket:hover { border-color: transparent; }
+.sigrow.bracket .bk { position: absolute; width: 13px; height: 13px; pointer-events: none; border-color: var(--border-strong); border-style: solid; border-width: 0; }
+.sigrow.bracket:hover .bk { border-color: var(--accent); }
+.sigrow.bracket .bk.tl { top: -1px; left: -1px; border-top-width: 1.5px; border-left-width: 1.5px; }
+.sigrow.bracket .bk.tr { top: -1px; right: -1px; border-top-width: 1.5px; border-right-width: 1.5px; }
+.sigrow.bracket .bk.bl { bottom: -1px; left: -1px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.sigrow.bracket .bk.br { bottom: -1px; right: -1px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+.occline {
+  font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .12em;
+  color: var(--ink-3); text-transform: uppercase; margin-bottom: 7px;
+}
+.occline .ol { text-transform: none; letter-spacing: 0; color: var(--ink-2); margin-left: 8px; }
+
+/* scout panel (radar view): the intake grading itself */
+.scrow { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0 8px; }
+.scstat { min-width: 74px; }
+.scnum { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums; font-size: 19px; line-height: 1.15;
+  color: var(--ink); letter-spacing: -0.01em; }
+.scstat .muted { display: block; margin-top: 2px; }
+/* cortex v5: ranked opportunities register */
+.cxopp {
+  display: grid; grid-template-columns: 16px 1fr auto; grid-template-areas: "rk nm un" "rk mc mc";
+  width: 100%; text-align: left; gap: 0 6px; margin-bottom: 4px; padding: 4px 6px;
+  background: #10101a; border: 1px solid #1e1e2c; border-radius: 5px; cursor: pointer;
+  color: #dde0ef;
+}
+.cxopp:hover { border-color: #8687f0; background: #151527; }
+.cxopp:focus-visible { outline: 1px solid #8687f0; }
+.cxopp .rk { grid-area: rk; font-family: "JetBrains Mono", monospace; font-size: 11px; color: #585c72; align-self: start; }
+.cxopp .nm { grid-area: nm; font-family: "Baloo 2", sans-serif; font-weight: 600; font-size: 11.5px; line-height: 1.25; text-transform: none; letter-spacing: 0; }
+.cxopp .un { grid-area: un; font-family: "JetBrains Mono", monospace; font-size: 11px; color: #8687f0; font-variant-numeric: tabular-nums; }
+.cxopp .mc { grid-area: mc; font-family: "JetBrains Mono", monospace; font-size: 8.5px; color: #d4a017; text-transform: none; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cxopp .mc.dim { color: #585c72; }
+.cx-tierlbl { font-size: 8.5px; letter-spacing: 0.14em; color: #43465a; margin: 7px 0 3px; }
+.cx-tiernone { font-size: 9px; color: #43465a; text-transform: none; letter-spacing: 0.02em; margin-bottom: 5px; line-height: 1.5; }
+
+/* --- analyst surfaces (2026-08-29): the expectations gap table --- */
+.gaptable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.gaptable th {
+  text-align: left; font-weight: 600; color: var(--ink-3); padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.gaptable td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.gaptable tr:last-child td { border-bottom: 0; }
+.gaptable td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* --- cortex v6 (2026-08-30): two-level focus — family rail, sub-rail, phase toggle ---
+   Chrome floats over the field rather than boxing it in, so the map keeps the full stage.
+   Like the panel itself these commit to the dark ground in every theme. */
+.cx-toprail {
+  position: absolute; top: var(--cx-top, 64px); left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  z-index: 3; pointer-events: none;
+  /* centred between two unequal gutters, so the bound is twice the larger one: the left
+     rail (208 + 12 margin + 12 gap) on one side, the hide-UI button on the other */
+  max-width: calc(100% - 470px);
+}
+.cx-famrow, .cx-subrail {
+  display: flex; gap: 5px; align-items: center; max-width: 100%;
+  overflow-x: auto; scrollbar-width: none; pointer-events: auto;
+  border-radius: 999px; border: 1px solid #1e1e2c;
+}
+.cx-famrow::-webkit-scrollbar, .cx-subrail::-webkit-scrollbar { display: none; }
+.cx-famrow { padding: 5px 7px; background: rgba(16, 16, 26, .88); }
+.cx-subrail { padding: 4px 7px; background: rgba(16, 16, 26, .75); }
+.cx-famchip, .cx-subchip {
+  display: inline-flex; align-items: center; gap: 5px; flex: none; white-space: nowrap;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .04em;
+  padding: 3px 9px; border-radius: 999px; background: #14141d; border: 1px solid #232332;
+  color: #585c72; cursor: pointer;
+}
+.cx-famchip .dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.cx-famchip:hover, .cx-subchip:hover { color: #dde0ef; border-color: #34344a; }
+.cx-famchip.on { background: #1d1d31; color: #fff; font-weight: 600; }
+.cx-famchip:focus-visible, .cx-subchip:focus-visible, .cx-phbtn:focus-visible { outline: 1px solid #8687f0; }
+.cx-subchip { font-size: 8.5px; padding: 2.5px 8px; color: #dde0ef; }
+.cx-subchip.dim { color: #9296ad; }
+.cx-subchip.on { background: #1d1d31; border-color: #8687f0; color: #fff; font-weight: 600; }
+.cx-subrail .lbl {
+  font-family: "JetBrains Mono", monospace; font-size: 8px; font-weight: 500;
+  letter-spacing: .12em; padding: 0 4px; white-space: nowrap; flex: none;
+}
+.cx-subnone {
+  font-family: "JetBrains Mono", monospace; font-size: 8px; color: #585c72;
+  letter-spacing: .02em; padding: 0 6px; max-width: 460px; white-space: normal; line-height: 1.5;
+}
+.cx-phase {
+  position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; align-items: center; z-index: 3;
+}
+.cx-phbtn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 600;
+  letter-spacing: .12em; color: #585c72; cursor: pointer; white-space: nowrap;
+}
+.cx-phbtn:hover:not([disabled]) { color: #dde0ef; border-color: #34344a; }
+.cx-phbtn.on { background: #1d1d31; border-color: #8687f0; color: #fff; }
+.cx-phbtn[disabled] { opacity: .45; cursor: default; }
+@media (max-width: 860px) {
+  .cx-subnone { max-width: 260px; }
+  .cx-phase { bottom: 52px; }
+}
+@media (max-width: 620px) {
+  /* the rail is a bottom sheet here, so the top rail keeps only the button's gutter,
+     and the phase toggle moves up out of the sheet's way */
+  .cx-toprail { left: 12px; transform: none; align-items: flex-start; max-width: calc(100% - 116px); }
+  .cx-phase { bottom: auto; top: calc(var(--cx-top, 64px) + 46px); }
+}
+.cxopp.on { border-color: #8687f0; background: #1d1d31; }
+
+/* cortex: eye info button replaces the standing explainer paragraph */
+.cxinfo-btn {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; flex: none;
+  background: #14141d; color: #6e7288;
+  border: 1px solid #232332; border-radius: 999px;
+  padding: 4px 9px 4px 8px; font: inherit; font-size: 11px; line-height: 1;
+}
+.cxinfo-btn:hover { color: #dde0ef; border-color: #35354a; }
+.cxinfo-btn.on { color: #fff; border-color: #8687f0; background: #1d1d31; }
+.cxinfo-btn:focus-visible { outline: 1px solid #8687f0; }
+.cxinfo-btn svg { flex: none; }
+.cxinfo { margin: 0 0 12px; padding: 12px 14px; border-radius: 10px; line-height: 1.6; }
+.cxinfo p { margin: 0; }
+@media (max-width: 980px) { .cxinfo-btn span { display: none; } }
+
+/* ---------------- agents ----------------
+   The contract viewer and its editor. `.contract` renders the markdown the eight
+   .claude/agents/*.md files actually use: headings, tables, lists, fenced code. It is
+   deliberately narrow-measure: these are documents to read, not dashboards to scan. */
+.runhead { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip.agent { background: var(--accent-soft); color: var(--accent-ink);
+  border: 1px solid var(--accent-line); text-transform: none; letter-spacing: 0; }
+.chip.agent:hover { background: var(--accent-line); text-decoration: none; }
+.runstrip { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+
+.agentgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.agentcard { cursor: pointer; transition: box-shadow 0.12s ease, transform 0.12s ease; }
+.agentcard:hover { box-shadow: var(--shadow-lift); transform: translateY(-1px); }
+.agentcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.agentcmds { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.cmdrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+.cmdrow code { font-size: 11.5px; color: var(--ink-2); background: var(--surface-2);
+  padding: 2px 7px; border-radius: 6px; }
+
+.contract { max-width: 78ch; line-height: 1.6; font-size: 13.5px; color: var(--ink-2); }
+.contract h2 { font-size: 18px; color: var(--ink); margin: 26px 0 10px; }
+.contract h3 { font-size: 15px; color: var(--ink); margin: 22px 0 8px; }
+.contract h4, .contract h5, .contract h6 { font-size: 13px; color: var(--ink); margin: 18px 0 6px; }
+.contract h2:first-child, .contract h3:first-child { margin-top: 0; }
+.contract p { margin: 10px 0; }
+.contract ul, .contract ol { margin: 10px 0; padding-left: 22px; }
+.contract li { margin: 5px 0; }
+/* Contracts quote long paths and long identifiers inline. A code span is a single
+   unbreakable token by default, and one of Stocky's ran 468px wide on a 375px phone,
+   scrolling the whole page sideways. */
+.contract code, .cmdrow code { overflow-wrap: anywhere; word-break: break-word; }
+.contract code { font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; color: var(--ink); }
+.contract pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px;
+  padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.5; margin: 12px 0; }
+.contract hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+.contract b { color: var(--ink); }
+/* Wide tables scroll inside their own box; the page body never scrolls sideways. */
+.mdtable { overflow-x: auto; margin: 12px 0; }
+.contract table { border-collapse: collapse; font-size: 12px; min-width: 100%; }
+.contract th, .contract td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
+.contract th { background: var(--surface-2); color: var(--ink); font-weight: 650; }
+
+.editwrap { display: flex; flex-direction: column; gap: 10px; }
+.contractedit { width: 100%; min-height: 62vh; resize: vertical; box-sizing: border-box;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; line-height: 1.55; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--border-strong); border-radius: 10px; padding: 14px 16px; }
+.contractedit:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.btn-ghost { cursor: pointer; border: 1px solid var(--border-strong); border-radius: 9px;
+  padding: 8px 16px; font: inherit; font-size: 12.5px; font-weight: 600;
+  background: var(--surface); color: var(--ink-2); }
+.btn-ghost:hover { color: var(--ink); background: var(--surface-2); }
+
+/* ---------------- occurrence log ----------------
+   The week-by-theme grid answers one question: did a week pile up under one theme. Cell
+   shading is relative to the busiest cell in this table, because that is a comparison
+   inside the grid and nothing else. */
+.thgrid { border-collapse: collapse; font-size: 12px; min-width: 100%; }
+.thgrid th, .thgrid td { border: 1px solid var(--border); padding: 5px 8px; text-align: center; }
+.thgrid tr:first-child th { background: var(--surface-2); color: var(--ink-3);
+  font-weight: 600; font-size: 11px; letter-spacing: 0.04em; }
+.thgrid .thname { text-align: left; white-space: nowrap; font-weight: 500; color: var(--ink-2); }
+.thgrid .thname a { color: var(--ink); }
+.thgrid .thtot { font-weight: 650; color: var(--ink); background: var(--surface-2); }
+.thgrid .thc { font-variant-numeric: tabular-nums; color: var(--ink); }
+.thgrid .thc.zero { color: var(--ink-3); background: none; }
+.thgrid tr.unassigned .thname { color: var(--ink-3); font-weight: 400; }
+.chip.surge { background: var(--emg-bg); color: var(--emg-ink); margin-left: 7px; }
+.chip.unclaimed { background: var(--crd-bg); color: var(--crd-ink); margin-left: 5px; }
+.chip.claimed { background: var(--und-bg); color: var(--und-ink); margin-left: 5px; }
+.chip.origin { text-transform: none; letter-spacing: 0; background: var(--surface-2); color: var(--ink-3); }
+.chip.origin.o-signal { background: var(--accent-soft); color: var(--accent-ink); }
+.chip.origin.o-candidate { background: var(--emg-bg); color: var(--emg-ink); }
+
+.occlist { display: flex; flex-direction: column; gap: 2px; }
+.occrow { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+.occrow:hover { background: var(--surface-2); }
+.occmeta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+  font-size: 11px; color: var(--ink-3); margin-bottom: 3px; }
+.occtitle { font-size: 13px; color: var(--ink); line-height: 1.45; }
+.occbasis { font-size: 11.5px; margin-top: 3px; }
+
+/* cortex: right-side gauges — per-type size and visibility, viewer-local */
+.cx-gaugerail {
+  position: absolute; right: 14px; top: calc(var(--cx-top, 64px) + 46px); z-index: 3;
+  width: 178px; padding: 10px 12px 12px;
+  background: rgba(14, 14, 20, .86); border: 1px solid #262635; border-radius: 12px;
+  font-family: "JetBrains Mono", monospace;
+}
+.cx-gaugerail .lbl { font-size: 8px; font-weight: 600; letter-spacing: .12em;
+  color: #585c72; margin-bottom: 8px; }
+.cx-gaugerail .row { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+.cx-gaugerail label { font-size: 8px; letter-spacing: .08em; color: #9296ad;
+  flex: none; width: 58px; }
+.cx-gaugerail input[type="range"] { flex: 1; min-width: 0; height: 3px;
+  accent-color: #8687f0; cursor: pointer; }
+.cx-gaugerail .val { font-size: 8px; color: #585c72; flex: none; width: 34px;
+  text-align: right; }
+.cx-gaugerail .rst {
+  margin-top: 8px; width: 100%; padding: 5px 0;
+  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: 8.5px; font-weight: 600;
+  letter-spacing: .12em; color: #585c72; cursor: pointer;
+}
+.cx-gaugerail .rst:hover { color: #dde0ef; border-color: #34344a; }
+@media (max-width: 860px) { .cx-gaugerail { display: none; } }
+
+/* cortex gauges: view-mode buttons */
+.cx-gaugerail .btns { display: flex; gap: 6px; margin-top: 4px; }
+.cx-gaugerail .vw {
+  flex: 1; padding: 5px 0;
+  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: 8.5px; font-weight: 600;
+  letter-spacing: .1em; color: #585c72; cursor: pointer;
+}
+.cx-gaugerail .vw:hover { color: #dde0ef; border-color: #34344a; }
+.cx-gaugerail .vw.on { background: #1d1d31; border-color: #8687f0; color: #fff; }
+
+</style>
+<div class="topbar">
+  <a href="index.html" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>
+  <nav class="nav">
+    <a href="index.html">Dashboard</a>
+    <a href="guide.html" class="on">Guide</a>
+  </nav>
+  <span class="spacer"></span>
+</div>
+<main>
+<!-- The onboarding guide. One fragment, shipped twice by app/build.py: inlined into
+     app/index.html inside the upstream-guide template element (the Guide tab renders it)
+     and wrapped into the standalone app/guide.html, the page a friend gets as a link.
+     Static trusted markup: no data, no script, and none of the three strings
+     build.GUIDE_FORBIDDEN lists (a closing script or template tag, a double brace). -->
+<style>
+.gd { --gd-measure: 74ch; }
+.gd .gd-eyebrow { font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--accent-ink); margin-top: 22px; }
+.gd h1 { margin-top: 6px; }
+.gd .sub { max-width: var(--gd-measure); font-size: 14.5px; line-height: 1.6; }
+.gd h2 { font-size: 19px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 8px; text-wrap: balance; }
+.gd h3 { font-size: 14.5px; margin: 0; }
+.gd p { max-width: var(--gd-measure); margin: 0 0 10px; }
+.gd p:last-child { margin-bottom: 0; }
+.gd .lead { color: var(--ink-2); font-size: 13.5px; }
+.gd code { font-size: 12.5px; background: var(--surface-2); border-radius: 5px; padding: 1.5px 6px; white-space: nowrap; }
+.gd pre { margin: 10px 0 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.6; }
+.gd pre code { background: none; padding: 0; white-space: pre; }
+.gd ol, .gd ul { margin: 6px 0 0; padding-left: 22px; }
+.gd li { margin: 6px 0; max-width: var(--gd-measure); }
+.gd li::marker { color: var(--ink-3); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+.gd .gd-note { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; max-width: var(--gd-measure); }
+
+/* three doors: the whole page in one row */
+.gd-doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+@media (max-width: 860px) { .gd-doors { grid-template-columns: 1fr; } }
+.gd-door { display: flex; flex-direction: column; gap: 8px; }
+.gd-door .k { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--accent-ink); }
+.gd-door h3 { font-size: 16.5px; letter-spacing: -0.015em; }
+.gd-door p { font-size: 13.5px; color: var(--ink-2); margin: 0; }
+.gd-door .need { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+.gd-door .need b { color: var(--ink-2); font-weight: 600; }
+
+/* the funnel as a numbered grid: the order is real, so the numbers carry information */
+.gd-stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.gd-stage { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.gd-stage .n { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-3); }
+.gd-stage .nm { font-weight: 600; font-size: 13.5px; letter-spacing: -0.01em; }
+.gd-stage .w { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.gd-stage .at { margin-top: auto; padding-top: 6px; font-size: 11px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
+.gd-stage.final { border-color: var(--accent-line); background: var(--accent-soft); }
+.gd-stage.final .n, .gd-stage.final .at { color: var(--accent-ink); }
+
+/* two clouds side by side */
+.gd-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 900px) { .gd-cols { grid-template-columns: 1fr; } }
+.gd-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.gd-colhead { display: flex; align-items: baseline; gap: 10px; padding: 4px 2px 0; }
+.gd-colhead h2 { margin: 0; }
+.gd-colhead .plan { font-size: 12px; color: var(--ink-3); }
+.gd-path { display: flex; flex-direction: column; gap: 6px; }
+.gd-path .ph { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gd-path .best { font-size: 12.5px; color: var(--ink-2); }
+.gd-path ol { padding-left: 20px; }
+.gd-path li { font-size: 13.5px; }
+
+/* command rows: one object, repeated */
+.gd-cmds { display: flex; flex-direction: column; }
+.gd-cmd { display: grid; grid-template-columns: minmax(200px, 300px) 1fr auto; gap: 8px 16px; align-items: start;
+  padding: 11px 16px; background: var(--surface); border: 1px solid var(--border); border-top: none; }
+.gd-cmd:first-child { border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; }
+.gd-cmd:last-child { border-radius: 0 0 12px 12px; }
+.gd-cmd code { white-space: normal; word-break: break-word; }
+.gd-cmd .d { font-size: 13px; color: var(--ink-2); }
+.gd-cmd .d b { color: var(--ink); font-weight: 600; }
+.gd-cmd button { cursor: pointer; border: 1px solid var(--border-strong); background: none; color: var(--ink-3);
+  font-size: 11px; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.gd-cmd button:hover { color: var(--ink); background: var(--surface-2); }
+@media (max-width: 700px) { .gd-cmd { grid-template-columns: 1fr auto; } .gd-cmd .d { grid-column: 1 / -1; } }
+
+/* the rules: five, no more */
+.gd-rules { counter-reset: rule; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.gd-rules li { counter-increment: rule; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
+  padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; max-width: none; margin: 0; }
+.gd-rules li::before { content: counter(rule); font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 15px;
+  color: var(--accent-ink); line-height: 1.3; }
+.gd-rules li b { display: block; font-weight: 600; margin-bottom: 2px; }
+.gd-rules li span { font-size: 13px; color: var(--ink-2); }
+
+.gd-owner { border-color: var(--accent-line); }
+.gd-owner .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.gd-faq dt { font-weight: 600; margin-top: 12px; }
+.gd-faq dd { margin: 3px 0 0; color: var(--ink-2); font-size: 13.5px; max-width: var(--gd-measure); }
+.gd-faq dt:first-child { margin-top: 0; }
+</style>
+<div class="gd">
+  <div class="pagehead">
+    <div class="gd-eyebrow">Guide · read, ask, work</div>
+    <h1>Upstream, and how to get in</h1>
+    <p class="sub">Upstream is a research machine Ron built to find listed companies that retail investors have not caught up to yet. It starts from something that already happened in the world, walks the value chain behind it link by link, looks for the links nobody is crowding, and stops only at a verdict it has tried to kill. Everything it knows is a dated file with its sources. Everything it does is a typed command. This page is how you read it, ask it questions, and work in it with your own Claude or ChatGPT.</p>
+  </div>
+
+  <div class="gd-doors">
+    <div class="card gd-door">
+      <div class="k">READ</div>
+      <h3>Open the dashboard</h3>
+      <p>Everything the machine has found, on one page: the board of what changed, every signal, every chain with its heat and scenarios, the company screens, the stock pages with their verdicts, the trade book. Every figure on it was fetched and dated, or is shown as missing. Nothing is typed from memory.</p>
+      <div class="need"><b>You need:</b> the link Ron sent you. Nothing to install, nothing to sign up for.</div>
+    </div>
+    <div class="card gd-door">
+      <div class="k">ASK</div>
+      <h3>Connect your own AI to it</h3>
+      <p>Point your Claude or your ChatGPT at the repository and ask in plain words: what is the verdict on a name and what would make it wrong, which links have money and nobody in them, what moved this week. The answer comes from the files, with the file names, so you can check it.</p>
+      <div class="need"><b>You need:</b> a free GitHub account with Ron's invitation accepted, and a paid Claude plan (Pro or above) or a paid ChatGPT plan (Plus or above).</div>
+    </div>
+    <div class="card gd-door">
+      <div class="k">WORK</div>
+      <h3>Run the machine yourself</h3>
+      <p>The same connection, in Claude Code or Codex. Type a command and one of eight named agents runs one stage on one object: maps a chain, scores its heat, profiles a company, dives a stock, attacks the dive. Gates check the result before it lands, and it lands as a commit everyone sees.</p>
+      <div class="need"><b>You need:</b> the same as Ask. Your sessions run on your own subscription; the repository holds no keys.</div>
+    </div>
+  </div>
+
+  <div class="seclabel">Where things live</div>
+  <p class="lead">The funnel runs top-down and nothing is analysed until a command asks for it. Each stage writes one kind of file under <code>data/</code> and shows up on one part of the dashboard.</p>
+  <div class="gd-stages">
+    <div class="gd-stage"><span class="n">1</span><span class="nm">Occurrence</span><span class="w">Something that happened, is underway, or is scheduled. Feeds and calendar entries are swept into an occurrence log and clustered into themes.</span><span class="at">data/themes · Log tab</span></div>
+    <div class="gd-stage"><span class="n">2</span><span class="nm">Signal</span><span class="w">An occurrence worth chasing, on a 2 to 5 year horizon, with dated evidence, a why-now and a retail gap. Written by Nell, the scanner.</span><span class="at">data/signals · Radar tab</span></div>
+    <div class="gd-stage"><span class="n">3</span><span class="nm">Impact</span><span class="w">How much money the occurrence moves and how much of it can reach listed companies. Sized by Tally so chains get built where the money is.</span><span class="at">data/impact · Radar tab</span></div>
+    <div class="gd-stage"><span class="n">4</span><span class="nm">Chain</span><span class="w">The value chain behind the signal: 8 to 15 links from raw input to demand anchor, every link and edge with a cited source. Mapped by Atlas.</span><span class="at">data/chains · Chains tab</span></div>
+    <div class="gd-stage"><span class="n">5</span><span class="nm">Heat</span><span class="w">Per link, three scores: impact, crowdedness, value capture. UNDISCOVERED through OVER_CROWDED, and the money corner marked. Scored by Ember.</span><span class="at">chain file · Heat view</span></div>
+    <div class="gd-stage"><span class="n">6</span><span class="nm">Scenarios</span><span class="w">Three to six ways the chain could move, each with the links it moves, indicators to watch and what would invalidate it.</span><span class="at">chain file · Scenarios view</span></div>
+    <div class="gd-stage"><span class="n">7</span><span class="nm">Universe</span><span class="w">A census of the listed companies on each link, every placement backed by official identity evidence and audited in fresh context.</span><span class="at">data/mappings · Campaign tab</span></div>
+    <div class="gd-stage"><span class="n">8</span><span class="nm">Profile</span><span class="w">A reusable company file from fetched fundamentals and filings, tiered O1, O2 or O3 for opportunity. Written by Sieve.</span><span class="at">data/companies · Campaign tab</span></div>
+    <div class="gd-stage"><span class="n">9</span><span class="nm">Screen</span><span class="w">The shortlist per link, with earnings quotes verified word for word against the filing on disk.</span><span class="at">data/screens · chain Screen view</span></div>
+    <div class="gd-stage"><span class="n">10</span><span class="nm">Deep dive</span><span class="w">The full stock page: expectations gap, earnings quality, entry zone, three bull and three bear points. Written by Stocky, verdict still DRAFT.</span><span class="at">data/stocks · stock page</span></div>
+    <div class="gd-stage final"><span class="n">11</span><span class="nm">Red team</span><span class="w">Stocky attacks his own draft in a fresh context, including a pre-mortem. What survives becomes FINAL: INVESTABLE, WATCH or TOO_LATE.</span><span class="at">Board tab · Shadow tab</span></div>
+  </div>
+  <p class="gd-note">Two clocks run underneath: COMPOUNDER for a multi-year thesis and EVENT for a dated one. Data comes in three tiers (T1 US filers with full machine data, T2 foreign filers with prices and 20-F facts, T3 local listings with best-effort prices) and the page prints the tier next to every name. The dashboard tabs: <b>Board</b> is what changed and every verdict, <b>Cortex</b> is the whole machine as one field, <b>Radar</b> the signals, <b>Chains</b> the flow, heat and scenarios, <b>Campaign</b> the ten-theme census, <b>Log</b> the occurrences and themes, <b>Agents</b> the eight contracts, <b>Book</b> the trades, <b>Shadow</b> the calls the machine made on names it judged TOO_LATE, repriced later to keep it honest.</p>
+
+  <div class="seclabel">Get in with Claude</div>
+  <div class="gd-cols">
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>In the browser</h2><span class="plan">no install · Claude Pro, Max, Team or Enterprise</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Claude Code on the web</h3><span class="chip accent">start here</span></div>
+        <div class="best">Best for asking questions, running a stage, and reviewing what it did, from any computer.</div>
+        <ol>
+          <li>Accept Ron's invitation. It arrives from GitHub by email; a free GitHub account is enough.</li>
+          <li>Go to <a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a> and sign in with your Claude account.</li>
+          <li>Choose <b>Sign in with GitHub</b> and approve it. Claude can then reach every repository your GitHub account can see, this private one included.</li>
+          <li>Pick <code>Ronkimhi/upstream</code>, keep the default environment, and start a session.</li>
+          <li>Type a question or a command. The session reads <code>CLAUDE.md</code> first and works under the same rules and the same eight agents Ron's sessions do.</li>
+          <li>When it changes files it pushes a branch. Choose <b>Create PR</b>, then merge on GitHub once the checks are green.</li>
+        </ol>
+        <div class="gd-note">A web session cannot open web pages itself; it queues them for the fetcher and cites them on the next run. Stages that need fresh web evidence in the same turn (<code>run radar</code>, chain mapping, universe audits) go faster from a local session below.</div>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>From your phone</h3></div>
+        <ol>
+          <li>Open <a href="https://claude.ai/code/new" target="_blank" rel="noopener">claude.ai/code/new</a> in the Claude app to start a session, or pick up one you started on a laptop.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>On your computer</h2><span class="plan">full power · the gates and web fetches run locally</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Claude desktop app</h3></div>
+        <div class="best">Best for real work: local sessions can open web pages, run every gate, and push straight to main.</div>
+        <ol>
+          <li>Install the Claude desktop app and open its <b>Code</b> tab.</li>
+          <li>Clone the repository once. macOS has Git already; Windows needs Git installed first.
+            <pre><code>git clone https://github.com/Ronkimhi/upstream.git</code></pre></li>
+          <li>Choose <b>Select folder</b> and pick the clone. Or choose <b>Cloud</b> to skip the clone and work as in the browser.</li>
+          <li>Type commands. The postlude runs the gates, rebuilds the page, writes the ledger line and pushes through the push queue.</li>
+        </ol>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Terminal</h3></div>
+        <ol>
+          <li>Install Claude Code, clone, and start it inside the folder:
+            <pre><code>curl -fsSL https://claude.ai/install.sh | bash
+git clone https://github.com/Ronkimhi/upstream.git
+cd upstream
+claude</code></pre>
+            On Windows PowerShell the first line is <code>irm https://claude.ai/install.ps1 | iex</code>.</li>
+          <li>Log in when asked. The gates need Python 3.12 (python.org) and the test suite needs <code>pip install requests</code>.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="seclabel">Get in with ChatGPT</div>
+  <div class="gd-cols">
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>In the browser</h2><span class="plan">no install · a paid ChatGPT plan</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>GitHub inside ChatGPT</h3><span class="chip neutral">read only</span></div>
+        <div class="best">Best for questions. ChatGPT reads the files live and cites them; it does not change anything.</div>
+        <ol>
+          <li>Accept Ron's invitation from GitHub (free GitHub account).</li>
+          <li>In ChatGPT open <b>Settings</b>, then <b>Apps</b> (called Connectors on some plans), choose <b>GitHub</b> and connect it. GitHub asks you to install the ChatGPT app and to choose repositories: pick <code>Ronkimhi/upstream</code>.</li>
+          <li>In a chat, turn GitHub on from the tools menu and ask. Start with <i>Read CLAUDE.md and docs/method.md, then answer:</i> so it knows the vocabulary.</li>
+        </ol>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Codex cloud</h3><span class="chip accent">start here</span></div>
+        <div class="best">Best for running stages from the browser.</div>
+        <ol>
+          <li>Go to <a href="https://chatgpt.com/codex" target="_blank" rel="noopener">chatgpt.com/codex</a> and sign in.</li>
+          <li>Connect GitHub when prompted and choose the repositories Codex may access: <code>Ronkimhi/upstream</code>.</li>
+          <li>Create an environment for it: container image <b>universal</b>, setup script <code>pip install requests</code>, and turn <b>agent internet access</b> on if you want web research inside the session.</li>
+          <li>Start a task with one opening line, then your command:
+            <pre><code>Read CLAUDE.md and docs/method.md first and follow them as your protocol.
+run impact --queue</code></pre>
+            Codex also reads <code>AGENTS.md</code> at the root when it is there; the opening line works either way.</li>
+          <li>Review the diff, choose <b>open a pull request</b>, and merge on GitHub once the checks are green.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>On your computer</h2><span class="plan">full power</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Codex in the terminal</h3></div>
+        <div class="best">Best for real work. Local sessions can open web pages, run every gate, and push straight to main.</div>
+        <ol>
+          <li>Install Codex (needs Node.js), clone, and start it inside the folder:
+            <pre><code>npm install -g @openai/codex
+git clone https://github.com/Ronkimhi/upstream.git
+cd upstream
+codex</code></pre></li>
+          <li>Sign in with ChatGPT when asked. Python 3.12 for the gates, <code>pip install requests</code> for the tests.</li>
+          <li>Open every task with the same line: <i>Read CLAUDE.md and docs/method.md first and follow them as your protocol.</i></li>
+        </ol>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>What is the same on both clouds</h3></div>
+        <ul>
+          <li>The protocol is the file, not the vendor. <code>CLAUDE.md</code> names the commands, the agents and the gates; <code>docs/method.md</code> is the scoring constitution. An assistant that reads them behaves like Ron's.</li>
+          <li>Market data never comes from the assistant. It queues a request, GitHub Actions fetches it in a few minutes, and the stage re-runs on what landed.</li>
+          <li>Your work is signed. Every run ends with one line in <code>data/ledger.md</code> naming the command, what it wrote, the result, and <code>by:</code> your GitHub login.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="seclabel">What you can do</div>
+  <p class="lead">Three kinds of thing. Ask in your own words. Add what you know. Run a stage. The copy button puts the text on your clipboard for pasting into a session.</p>
+  <h3 style="margin:14px 0 8px">Ask</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>What is the verdict on VRT in ai-infrastructure, and what would make it wrong?</code><span class="d">Reads the FINAL dive and its red team, and answers from them.</span><button data-copy="What is the verdict on VRT in ai-infrastructure, and what would make it wrong?">copy</button></div>
+    <div class="gd-cmd"><code>Which chain links are money corners with no dive behind them yet?</code><span class="d">Heat maps across every chain, matched against the stock files.</span><button data-copy="Which chain links are money corners with no dive behind them yet?">copy</button></div>
+    <div class="gd-cmd"><code>What changed in the last two weeks? Read the ledger and the latest digest.</code><span class="d">The append-only record and Adam's Saturday brief.</span><button data-copy="What changed in the last two weeks? Read the ledger and the latest digest.">copy</button></div>
+    <div class="gd-cmd"><code>Explain how the heat scores on hormuz-maritime were sourced.</code><span class="d">Every score carries its rationale and dated evidence; ask for them.</span><button data-copy="Explain how the heat scores on hormuz-maritime were sourced.">copy</button></div>
+    <div class="gd-cmd"><code>Where is the campaign stuck, and what is the next command?</code><span class="d">The ten-theme census and its recorded blockers.</span><button data-copy="Where is the campaign stuck, and what is the next command?">copy</button></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Add</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>note VRT "I think the entry zone is stale after the Q2 print"</code><span class="d"><b>Annotate anything</b>: a signal, chain, ticker or candidate. Notes show on the dashboard, and a repeated rejection becomes a taste rule.</span><button data-copy="note VRT &quot;your note here&quot;">copy</button></div>
+    <div class="gd-cmd"><code>log trade VRT bought 112 "starter"</code><span class="d"><b>Your real position</b>, so the machine can grade its calls against what you actually did. Never an account number.</span><button data-copy="log trade VRT bought 112 &quot;starter&quot;">copy</button></div>
+    <div class="gd-cmd"><code>request data POWL</code><span class="d"><b>Fetch a ticker</b>: prices, fundamentals, quality scores, insider data and filings land in about five minutes.</span><button data-copy="request data POWL">copy</button></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Run the funnel</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>run radar</code><span class="d"><b>Nell</b> scans the world for new occurrences and writes or updates signal cards. Local session preferred.</span><button data-copy="run radar">copy</button></div>
+    <div class="gd-cmd"><code>run impact --queue</code><span class="d"><b>Tally</b> sizes the money behind up to fifteen unappraised occurrences.</span><button data-copy="run impact --queue">copy</button></div>
+    <div class="gd-cmd"><code>run chain SIG-20260828-02</code><span class="d"><b>Atlas</b> maps the value chain behind a signal, 8 to 15 links, every link cited.</span><button data-copy="run chain SIG-20260828-02">copy</button></div>
+    <div class="gd-cmd"><code>run heat ai-infrastructure</code><span class="d"><b>Ember</b> scores every link of a chain: impact, crowdedness, value capture.</span><button data-copy="run heat ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run scenarios ai-infrastructure</code><span class="d"><b>Ember</b> writes three to six scenarios with indicators and invalidations.</span><button data-copy="run scenarios ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run universe ai-infrastructure</code><span class="d"><b>Atlas</b> censuses the listed companies on each link; <code>run universe-audit</code> checks it in fresh context.</span><button data-copy="run universe ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run profile POWL</code><span class="d"><b>Sieve</b> writes a reusable company file from fetched data. Refuses a ticker no chain has placed.</span><button data-copy="run profile POWL">copy</button></div>
+    <div class="gd-cmd"><code>run screen ai-infrastructure</code><span class="d"><b>Sieve</b> shortlists names per link, every earnings quote verified against the filing on disk.</span><button data-copy="run screen ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run deepdive VRT ai-infrastructure</code><span class="d"><b>Stocky</b> writes the full stock page. The verdict stays DRAFT.</span><button data-copy="run deepdive VRT ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run redteam VRT ai-infrastructure</code><span class="d"><b>Stocky</b>, in a fresh context, attacks the draft. What survives is FINAL.</span><button data-copy="run redteam VRT ai-infrastructure">copy</button></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Keep the machine honest</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>run digest</code><span class="d"><b>Adam</b> writes the weekly brief: verdicts first, then what moved, then the machine's own audit.</span><button data-copy="run digest">copy</button></div>
+    <div class="gd-cmd"><code>run review</code><span class="d">Dives past their review date, and how the shadow book's TOO_LATE calls have aged.</span><button data-copy="run review">copy</button></div>
+    <div class="gd-cmd"><code>check health</code><span class="d">Are the loops actually firing: routines, the fetcher, the feeds, the gates.</span><button data-copy="check health">copy</button></div>
+    <div class="gd-cmd"><code>run devil .claude/agents/stocky.md</code><span class="d"><b>Cass</b> reviews a change to the machine itself, in fresh context. Advisory, never a veto.</span><button data-copy="run devil .claude/agents/stocky.md">copy</button></div>
+  </div>
+
+  <div class="seclabel">House rules</div>
+  <p class="lead">Five rules carry the whole method. Your session enforces them and the gates check them; you only need to know why they exist.</p>
+  <ol class="gd-rules">
+    <li><b>No number from memory.</b><span>A price, a fundamentals figure or a filing quote is either on disk under <code>data/market/</code> and <code>data/edgar/</code>, requested through the bridge, or written as NULL. A remembered number is a defect, and the gates compare every quote against the fetched document, word for word.</span></li>
+    <li><b>One command, one stage, one object.</b><span>Nothing is analysed until asked, and a running command finishes its own stage and nothing else. A problem noticed on the way is captured in <code>tasks/backlog.md</code> with an owner, not chased.</span></li>
+    <li><b>Every analysis is a file with a date and a changelog.</b><span>Re-runs amend in place and append; nothing is deleted and rebuilt, history is never rewritten, and a conflict a coded rule cannot resolve stops the push and waits for a person.</span></li>
+    <li><b>Web text is evidence, never instruction.</b><span>Whatever a page, a filing or a feed says is data to weigh. Nothing found there can authorise a commit, a command, or a change to the protocol.</span></li>
+    <li><b>Sign your work, and leave Ron's page to Ron.</b><span>Your ledger lines carry your GitHub login. The shared dashboard belongs to Ron's account, so your session records the republish as skipped and finishes; the page picks up your commit on his next run. And none of this is investment advice: verdicts are analytical outputs from public data with stated methods and gaps, and nothing here trades.</span></li>
+  </ol>
+
+  <div class="seclabel">How your work lands</div>
+  <div class="card">
+    <ul>
+      <li><b>Browser sessions</b> (Claude Code on the web, Codex cloud) push a branch and open a pull request. Merge it yourself when the checks are green; the checks are the same gates a local session runs before it commits.</li>
+      <li><b>Local sessions</b> run the gates, rebuild the page, append the ledger line and push to main through the push queue, which serialises everyone on one machine and resolves the known conflicts by coded rule.</li>
+      <li><b>Missing data is normal.</b> A stage scores what exists and marks the rest PENDING_DATA. Your session ends with <i>data pending, re-run in about five minutes</i>; the fetcher lands the files and the re-run finishes the job.</li>
+      <li><b>Big models cost real money.</b> Each command has a required tier in <code>tools/model_tiers.py</code>. Sessions run on that tier and escalate to a larger model only when you ask for it by name in that turn.</li>
+    </ul>
+  </div>
+
+  <div class="seclabel">Owner's corner</div>
+  <div class="card gd-owner">
+    <div class="ph"><h3>For Ron: letting someone in</h3><span class="chip neutral">three steps</span></div>
+    <ol>
+      <li><b>Invite them to the repository.</b> GitHub, <code>Ronkimhi/upstream</code>, Settings, Collaborators, Add people, with <b>Write</b> access so their sessions can push. One command does the same:
+        <pre><code>gh api -X PUT repos/Ronkimhi/upstream/collaborators/THEIR-GITHUB-LOGIN -f permission=push</code></pre></li>
+      <li><b>Send them the dashboard.</b> Share the published page and this guide. Anyone with the link can read; the Run buttons are yours, because a click only runs when one of your sessions picks it up.</li>
+      <li><b>Optional: a plain web address that only your list can open.</b> Cloudflare Pages serves the repository's <code>app/</code> folder at a stable address and redeploys on every push, and Cloudflare Access puts an email one-time-code login in front of it, free for up to fifty people. In Cloudflare: Workers &amp; Pages, Create, Pages, Connect to Git, pick the repository, leave the build command empty and set the output directory to <code>app</code>. Then Zero Trust, Access, Applications, Add, Self-hosted, enter the <code>pages.dev</code> address, and add an Allow policy listing their email addresses with One-time PIN as the login method.</li>
+    </ol>
+  </div>
+
+  <div class="seclabel">Questions people ask first</div>
+  <div class="card">
+    <dl class="gd-faq">
+      <dt>Can I break something?</dt>
+      <dd>Not quietly. Every store is append-only, every commit is in history, the gates refuse a malformed file before it is committed, and CI re-runs them on every push. If a gate refuses your run, fix the data it names or ask; never work around a gate and never delete a file.</dd>
+      <dt>Why does the page say NULL, unscored, or PENDING_DATA?</dt>
+      <dd>Because nobody fetched that number yet. The machine prints a gap rather than a guess. Request the data or re-run in five minutes.</dd>
+      <dt>Who pays for what?</dt>
+      <dd>Your AI runs on your own subscription and its sessions bill you. Data fetching runs on GitHub Actions inside the repository's free minutes. The repository holds no API keys.</dd>
+      <dt>Who sees my work?</dt>
+      <dd>Everyone with access to the repository, on the next dashboard build. The ledger names you on every line, which is the point: a call with a name on it can be graded later.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="footer">Upstream is a private research tool for Ron and the collaborators he invites. Verdicts, zones, and levels are analytical outputs from public data with stated methods and gaps — not investment advice. This guide is <span class="mono">app/guide.html</span> in the repository, built from <span class="mono">app/templates/guide.html</span>; the same text is the Guide tab of the dashboard.</div>
+</main>
+<script>
+(function () {
+  function fallbackCopy(txt) {
+    var ta = document.createElement("textarea");
+    ta.value = txt; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (err) { /* nothing to do: the text stays selectable */ }
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      e.preventDefault();
+      var txt = b.getAttribute("data-copy");
+      function done() { b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400); }
+      try { navigator.clipboard.writeText(txt).then(done, function () { fallbackCopy(txt); done(); }); }
+      catch (err) { fallbackCopy(txt); done(); }
+    });
+  });
+})();
+</script>

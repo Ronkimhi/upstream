@@ -1315,6 +1315,40 @@ def compare_committed(payload: dict) -> list:
     return drift
 
 
+GUIDE_FRAGMENT = APP / "templates" / "guide.html"
+GUIDE_SHELL = APP / "templates" / "guide-shell.html"
+GUIDE_PAGE = APP / "guide.html"
+# A string that would end the element the fragment is inlined into, or that the
+# substitution below would treat as a placeholder. Refused, never escaped: the guide is
+# hand-written markup and a fix belongs in the template.
+GUIDE_FORBIDDEN = ("</script", "</template", "{{")
+
+
+def read_guide_fragment(text=None) -> str:
+    """The onboarding guide (app/templates/guide.html), checked for the three strings
+    that would break its two hosts. Shipped inside <template id="upstream-guide"> in
+    index.html and wrapped into the standalone app/guide.html."""
+    if text is None:
+        if not GUIDE_FRAGMENT.exists():
+            raise ValueError(f"missing guide template {GUIDE_FRAGMENT}")
+        text = GUIDE_FRAGMENT.read_text()
+    for bad in GUIDE_FORBIDDEN:
+        if bad in text:
+            raise ValueError(
+                f"guide.html contains {bad!r}, which would terminate the element it is "
+                "inlined into or read as a template placeholder; rewrite the fragment")
+    return text
+
+
+def assemble_guide_html() -> str:
+    """The standalone guide page: the fragment inside its own small shell, sharing the
+    dashboard's stylesheet so both copies look identical. Deterministic by design (no
+    build stamp), so --check can compare the committed file byte for byte."""
+    shell = GUIDE_SHELL.read_text()
+    css = (APP / "templates" / "app.css").read_text()
+    return shell.replace("{{APP_CSS}}", css).replace("{{GUIDE_HTML}}", read_guide_fragment())
+
+
 def assemble_html(payload: dict) -> str:
     """Assemble the single-file artifact in memory, without validation or writes."""
     shell = (APP / "templates" / "shell.html").read_text()
@@ -1351,6 +1385,7 @@ def assemble_html(payload: dict) -> str:
     return (shell.replace("{{APP_CSS}}", css)
                  .replace("{{VENDOR_JS}}", vendor_js)
                  .replace("{{APP_JS}}", js)
+                 .replace("{{GUIDE_HTML}}", read_guide_fragment())
                  .replace("{{UPSTREAM_DATA}}", blob))
 
 
@@ -1581,6 +1616,7 @@ def main() -> int:
     try:
         payload = build_payload()
         html = assemble_html(payload)
+        guide_html = assemble_guide_html()
     except (ValueError, PayloadTooLarge) as exc:
         print(f"build: refused — {exc}")
         return 1
@@ -1600,6 +1636,11 @@ def main() -> int:
 
     if check:
         drift = compare_committed(payload)
+        # The standalone guide is deterministic, so staleness is an exact comparison.
+        if not GUIDE_PAGE.exists():
+            drift.append("guide: app/guide.html has not been built")
+        elif GUIDE_PAGE.read_text() != guide_html:
+            drift.append("guide: app/guide.html does not match app/templates/guide.html")
         if drift:
             print("build: --check FAILED — app/index.html does not match data/:")
             for d in drift:
@@ -1613,6 +1654,8 @@ def main() -> int:
 
     (APP / "index.html").write_text(html)
     print(f"build: wrote app/index.html ({size_mb:.2f} MB) at {payload['built_at']}")
+    GUIDE_PAGE.write_text(guide_html)
+    print(f"build: wrote app/guide.html ({len(guide_html.encode()) / 1e3:.0f} KB)")
     return 0
 
 

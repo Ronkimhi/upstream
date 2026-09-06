@@ -1,6 +1,6 @@
 # Upstream
 
-A private investment research machine for two people. It hunts what retail has not caught up to yet, top-down:
+A private investment research machine for Ron and the collaborators he invites. It hunts what retail has not caught up to yet, top-down:
 
 **known occurrence → value chain (8-15 links) → heat map (impact × crowdedness × value capture) → scenarios → stock screen → deep dive → red-teamed verdict (INVESTABLE / WATCH / TOO LATE)**
 
@@ -10,7 +10,7 @@ Two contracts:
 
 ## Using it
 
-Open a Claude session on this repo (claude.ai with the repo connected, or Claude Code in a clone) and type commands:
+New here? Open [app/guide.html](app/guide.html) (also the **Guide** tab of the dashboard): what is inside, how to read it, and how to connect your own Claude or ChatGPT to this repository, in the browser or on your computer. The short version: accept the GitHub invitation, open Claude Code (claude.ai/code) or Codex (chatgpt.com/codex) on `Ronkimhi/upstream`, and type commands:
 
 ```
 run radar                        # scan for new signals (also runs on a weekday routine)

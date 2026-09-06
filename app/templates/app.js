@@ -479,6 +479,7 @@
       na("#/agents", "Agents", "agents") +
       na("#/book", "Book", "book") +
       na("#/shadow", "Shadow", "shadow") +
+      na("#/guide", "Guide", "guide") +
       "</nav>" +
       '<span class="spacer"></span>' +
       (q ? '<span class="tb-chip" title="queued commands awaiting a live Claude session"><span class="healthdot" style="background:var(--accent)"></span>' + q + " queued</span>" : "") +
@@ -497,7 +498,7 @@
     return h + "</div>";
   }
   function footer() {
-    return '<div class="footer">Upstream is a private research tool for its two users. Verdicts, zones, and levels are analytical outputs from public data with stated methods and gaps — not investment advice. Built ' + esc(D.built_at || "?") + " · canonical copy: <span class='mono'>app/index.html</span> in the repo.</div>";
+    return '<div class="footer">Upstream is a private research tool for Ron and the collaborators he invites. Verdicts, zones, and levels are analytical outputs from public data with stated methods and gaps — not investment advice. Built ' + esc(D.built_at || "?") + " · canonical copy: <span class='mono'>app/index.html</span> in the repo.</div>";
   }
 
   /* ---------------- what changed ---------------- */
@@ -4749,6 +4750,17 @@
       footer() + "</main>";
   }
 
+  /* The onboarding guide: static markup app/build.py inlines from app/templates/guide.html
+     into <template id="upstream-guide">, so the page carries its own instructions for
+     getting in (Claude and ChatGPT, browser and local) and the same file is also served
+     standalone as app/guide.html. A template element is inert until read, so the guide
+     costs nothing on the other views. */
+  function guideView() {
+    var t = document.getElementById("upstream-guide");
+    var body = t ? t.innerHTML : "<div class='emptystate'>The guide did not reach this build: app/templates/guide.html is missing.</div>";
+    return topbar("guide") + "<main>" + body + footer() + "</main>";
+  }
+
   function notFound(what) {
     return topbar() + "<main><div class='emptystate' style='margin-top:40px'>Not found: " + esc(what) + '<br><br><a href="#/radar">back to radar</a></div>' + footer() + "</main>";
   }
@@ -4773,6 +4785,7 @@
     else if (p[0] === "campaign") html = campaignView(p[1]);
     else if (p[0] === "book") html = bookView();
     else if (p[0] === "shadow") html = shadowView();
+    else if (p[0] === "guide") html = guideView();
     else if (!p[0]) html = cortexView();
     else html = notFound("route #/" + p.join("/"));
     app.innerHTML = html;

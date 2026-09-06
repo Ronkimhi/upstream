@@ -1,0 +1,320 @@
+<!-- The onboarding guide. One fragment, shipped twice by app/build.py: inlined into
+     app/index.html inside the upstream-guide template element (the Guide tab renders it)
+     and wrapped into the standalone app/guide.html, the page a friend gets as a link.
+     Static trusted markup: no data, no script, and none of the three strings
+     build.GUIDE_FORBIDDEN lists (a closing script or template tag, a double brace). -->
+<style>
+.gd { --gd-measure: 74ch; }
+.gd .gd-eyebrow { font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--accent-ink); margin-top: 22px; }
+.gd h1 { margin-top: 6px; }
+.gd .sub { max-width: var(--gd-measure); font-size: 14.5px; line-height: 1.6; }
+.gd h2 { font-size: 19px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 8px; text-wrap: balance; }
+.gd h3 { font-size: 14.5px; margin: 0; }
+.gd p { max-width: var(--gd-measure); margin: 0 0 10px; }
+.gd p:last-child { margin-bottom: 0; }
+.gd .lead { color: var(--ink-2); font-size: 13.5px; }
+.gd code { font-size: 12.5px; background: var(--surface-2); border-radius: 5px; padding: 1.5px 6px; white-space: nowrap; }
+.gd pre { margin: 10px 0 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.6; }
+.gd pre code { background: none; padding: 0; white-space: pre; }
+.gd ol, .gd ul { margin: 6px 0 0; padding-left: 22px; }
+.gd li { margin: 6px 0; max-width: var(--gd-measure); }
+.gd li::marker { color: var(--ink-3); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+.gd .gd-note { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; max-width: var(--gd-measure); }
+
+/* three doors: the whole page in one row */
+.gd-doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+@media (max-width: 860px) { .gd-doors { grid-template-columns: 1fr; } }
+.gd-door { display: flex; flex-direction: column; gap: 8px; }
+.gd-door .k { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--accent-ink); }
+.gd-door h3 { font-size: 16.5px; letter-spacing: -0.015em; }
+.gd-door p { font-size: 13.5px; color: var(--ink-2); margin: 0; }
+.gd-door .need { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+.gd-door .need b { color: var(--ink-2); font-weight: 600; }
+
+/* the funnel as a numbered grid: the order is real, so the numbers carry information */
+.gd-stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.gd-stage { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.gd-stage .n { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-3); }
+.gd-stage .nm { font-weight: 600; font-size: 13.5px; letter-spacing: -0.01em; }
+.gd-stage .w { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.gd-stage .at { margin-top: auto; padding-top: 6px; font-size: 11px; color: var(--ink-3); font-family: "JetBrains Mono", monospace; }
+.gd-stage.final { border-color: var(--accent-line); background: var(--accent-soft); }
+.gd-stage.final .n, .gd-stage.final .at { color: var(--accent-ink); }
+
+/* two clouds side by side */
+.gd-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 900px) { .gd-cols { grid-template-columns: 1fr; } }
+.gd-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.gd-colhead { display: flex; align-items: baseline; gap: 10px; padding: 4px 2px 0; }
+.gd-colhead h2 { margin: 0; }
+.gd-colhead .plan { font-size: 12px; color: var(--ink-3); }
+.gd-path { display: flex; flex-direction: column; gap: 6px; }
+.gd-path .ph { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gd-path .best { font-size: 12.5px; color: var(--ink-2); }
+.gd-path ol { padding-left: 20px; }
+.gd-path li { font-size: 13.5px; }
+
+/* command rows: one object, repeated */
+.gd-cmds { display: flex; flex-direction: column; }
+.gd-cmd { display: grid; grid-template-columns: minmax(200px, 300px) 1fr auto; gap: 8px 16px; align-items: start;
+  padding: 11px 16px; background: var(--surface); border: 1px solid var(--border); border-top: none; }
+.gd-cmd:first-child { border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; }
+.gd-cmd:last-child { border-radius: 0 0 12px 12px; }
+.gd-cmd code { white-space: normal; word-break: break-word; }
+.gd-cmd .d { font-size: 13px; color: var(--ink-2); }
+.gd-cmd .d b { color: var(--ink); font-weight: 600; }
+.gd-cmd button { cursor: pointer; border: 1px solid var(--border-strong); background: none; color: var(--ink-3);
+  font-size: 11px; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.gd-cmd button:hover { color: var(--ink); background: var(--surface-2); }
+@media (max-width: 700px) { .gd-cmd { grid-template-columns: 1fr auto; } .gd-cmd .d { grid-column: 1 / -1; } }
+
+/* the rules: five, no more */
+.gd-rules { counter-reset: rule; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.gd-rules li { counter-increment: rule; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
+  padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; max-width: none; margin: 0; }
+.gd-rules li::before { content: counter(rule); font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 15px;
+  color: var(--accent-ink); line-height: 1.3; }
+.gd-rules li b { display: block; font-weight: 600; margin-bottom: 2px; }
+.gd-rules li span { font-size: 13px; color: var(--ink-2); }
+
+.gd-owner { border-color: var(--accent-line); }
+.gd-owner .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.gd-faq dt { font-weight: 600; margin-top: 12px; }
+.gd-faq dd { margin: 3px 0 0; color: var(--ink-2); font-size: 13.5px; max-width: var(--gd-measure); }
+.gd-faq dt:first-child { margin-top: 0; }
+</style>
+<div class="gd">
+  <div class="pagehead">
+    <div class="gd-eyebrow">Guide · read, ask, work</div>
+    <h1>Upstream, and how to get in</h1>
+    <p class="sub">Upstream is a research machine Ron built to find listed companies that retail investors have not caught up to yet. It starts from something that already happened in the world, walks the value chain behind it link by link, looks for the links nobody is crowding, and stops only at a verdict it has tried to kill. Everything it knows is a dated file with its sources. Everything it does is a typed command. This page is how you read it, ask it questions, and work in it with your own Claude or ChatGPT.</p>
+  </div>
+
+  <div class="gd-doors">
+    <div class="card gd-door">
+      <div class="k">READ</div>
+      <h3>Open the dashboard</h3>
+      <p>Everything the machine has found, on one page: the board of what changed, every signal, every chain with its heat and scenarios, the company screens, the stock pages with their verdicts, the trade book. Every figure on it was fetched and dated, or is shown as missing. Nothing is typed from memory.</p>
+      <div class="need"><b>You need:</b> the link Ron sent you. Nothing to install, nothing to sign up for.</div>
+    </div>
+    <div class="card gd-door">
+      <div class="k">ASK</div>
+      <h3>Connect your own AI to it</h3>
+      <p>Point your Claude or your ChatGPT at the repository and ask in plain words: what is the verdict on a name and what would make it wrong, which links have money and nobody in them, what moved this week. The answer comes from the files, with the file names, so you can check it.</p>
+      <div class="need"><b>You need:</b> a free GitHub account with Ron's invitation accepted, and a paid Claude plan (Pro or above) or a paid ChatGPT plan (Plus or above).</div>
+    </div>
+    <div class="card gd-door">
+      <div class="k">WORK</div>
+      <h3>Run the machine yourself</h3>
+      <p>The same connection, in Claude Code or Codex. Type a command and one of eight named agents runs one stage on one object: maps a chain, scores its heat, profiles a company, dives a stock, attacks the dive. Gates check the result before it lands, and it lands as a commit everyone sees.</p>
+      <div class="need"><b>You need:</b> the same as Ask. Your sessions run on your own subscription; the repository holds no keys.</div>
+    </div>
+  </div>
+
+  <div class="seclabel">Where things live</div>
+  <p class="lead">The funnel runs top-down and nothing is analysed until a command asks for it. Each stage writes one kind of file under <code>data/</code> and shows up on one part of the dashboard.</p>
+  <div class="gd-stages">
+    <div class="gd-stage"><span class="n">1</span><span class="nm">Occurrence</span><span class="w">Something that happened, is underway, or is scheduled. Feeds and calendar entries are swept into an occurrence log and clustered into themes.</span><span class="at">data/themes · Log tab</span></div>
+    <div class="gd-stage"><span class="n">2</span><span class="nm">Signal</span><span class="w">An occurrence worth chasing, on a 2 to 5 year horizon, with dated evidence, a why-now and a retail gap. Written by Nell, the scanner.</span><span class="at">data/signals · Radar tab</span></div>
+    <div class="gd-stage"><span class="n">3</span><span class="nm">Impact</span><span class="w">How much money the occurrence moves and how much of it can reach listed companies. Sized by Tally so chains get built where the money is.</span><span class="at">data/impact · Radar tab</span></div>
+    <div class="gd-stage"><span class="n">4</span><span class="nm">Chain</span><span class="w">The value chain behind the signal: 8 to 15 links from raw input to demand anchor, every link and edge with a cited source. Mapped by Atlas.</span><span class="at">data/chains · Chains tab</span></div>
+    <div class="gd-stage"><span class="n">5</span><span class="nm">Heat</span><span class="w">Per link, three scores: impact, crowdedness, value capture. UNDISCOVERED through OVER_CROWDED, and the money corner marked. Scored by Ember.</span><span class="at">chain file · Heat view</span></div>
+    <div class="gd-stage"><span class="n">6</span><span class="nm">Scenarios</span><span class="w">Three to six ways the chain could move, each with the links it moves, indicators to watch and what would invalidate it.</span><span class="at">chain file · Scenarios view</span></div>
+    <div class="gd-stage"><span class="n">7</span><span class="nm">Universe</span><span class="w">A census of the listed companies on each link, every placement backed by official identity evidence and audited in fresh context.</span><span class="at">data/mappings · Campaign tab</span></div>
+    <div class="gd-stage"><span class="n">8</span><span class="nm">Profile</span><span class="w">A reusable company file from fetched fundamentals and filings, tiered O1, O2 or O3 for opportunity. Written by Sieve.</span><span class="at">data/companies · Campaign tab</span></div>
+    <div class="gd-stage"><span class="n">9</span><span class="nm">Screen</span><span class="w">The shortlist per link, with earnings quotes verified word for word against the filing on disk.</span><span class="at">data/screens · chain Screen view</span></div>
+    <div class="gd-stage"><span class="n">10</span><span class="nm">Deep dive</span><span class="w">The full stock page: expectations gap, earnings quality, entry zone, three bull and three bear points. Written by Stocky, verdict still DRAFT.</span><span class="at">data/stocks · stock page</span></div>
+    <div class="gd-stage final"><span class="n">11</span><span class="nm">Red team</span><span class="w">Stocky attacks his own draft in a fresh context, including a pre-mortem. What survives becomes FINAL: INVESTABLE, WATCH or TOO_LATE.</span><span class="at">Board tab · Shadow tab</span></div>
+  </div>
+  <p class="gd-note">Two clocks run underneath: COMPOUNDER for a multi-year thesis and EVENT for a dated one. Data comes in three tiers (T1 US filers with full machine data, T2 foreign filers with prices and 20-F facts, T3 local listings with best-effort prices) and the page prints the tier next to every name. The dashboard tabs: <b>Board</b> is what changed and every verdict, <b>Cortex</b> is the whole machine as one field, <b>Radar</b> the signals, <b>Chains</b> the flow, heat and scenarios, <b>Campaign</b> the ten-theme census, <b>Log</b> the occurrences and themes, <b>Agents</b> the eight contracts, <b>Book</b> the trades, <b>Shadow</b> the calls the machine made on names it judged TOO_LATE, repriced later to keep it honest.</p>
+
+  <div class="seclabel">Get in with Claude</div>
+  <div class="gd-cols">
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>In the browser</h2><span class="plan">no install · Claude Pro, Max, Team or Enterprise</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Claude Code on the web</h3><span class="chip accent">start here</span></div>
+        <div class="best">Best for asking questions, running a stage, and reviewing what it did, from any computer.</div>
+        <ol>
+          <li>Accept Ron's invitation. It arrives from GitHub by email; a free GitHub account is enough.</li>
+          <li>Go to <a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a> and sign in with your Claude account.</li>
+          <li>Choose <b>Sign in with GitHub</b> and approve it. Claude can then reach every repository your GitHub account can see, this private one included.</li>
+          <li>Pick <code>Ronkimhi/upstream</code>, keep the default environment, and start a session.</li>
+          <li>Type a question or a command. The session reads <code>CLAUDE.md</code> first and works under the same rules and the same eight agents Ron's sessions do.</li>
+          <li>When it changes files it pushes a branch. Choose <b>Create PR</b>, then merge on GitHub once the checks are green.</li>
+        </ol>
+        <div class="gd-note">A web session cannot open web pages itself; it queues them for the fetcher and cites them on the next run. Stages that need fresh web evidence in the same turn (<code>run radar</code>, chain mapping, universe audits) go faster from a local session below.</div>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>From your phone</h3></div>
+        <ol>
+          <li>Open <a href="https://claude.ai/code/new" target="_blank" rel="noopener">claude.ai/code/new</a> in the Claude app to start a session, or pick up one you started on a laptop.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>On your computer</h2><span class="plan">full power · the gates and web fetches run locally</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Claude desktop app</h3></div>
+        <div class="best">Best for real work: local sessions can open web pages, run every gate, and push straight to main.</div>
+        <ol>
+          <li>Install the Claude desktop app and open its <b>Code</b> tab.</li>
+          <li>Clone the repository once. macOS has Git already; Windows needs Git installed first.
+            <pre><code>git clone https://github.com/Ronkimhi/upstream.git</code></pre></li>
+          <li>Choose <b>Select folder</b> and pick the clone. Or choose <b>Cloud</b> to skip the clone and work as in the browser.</li>
+          <li>Type commands. The postlude runs the gates, rebuilds the page, writes the ledger line and pushes through the push queue.</li>
+        </ol>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Terminal</h3></div>
+        <ol>
+          <li>Install Claude Code, clone, and start it inside the folder:
+            <pre><code>curl -fsSL https://claude.ai/install.sh | bash
+git clone https://github.com/Ronkimhi/upstream.git
+cd upstream
+claude</code></pre>
+            On Windows PowerShell the first line is <code>irm https://claude.ai/install.ps1 | iex</code>.</li>
+          <li>Log in when asked. The gates need Python 3.12 (python.org) and the test suite needs <code>pip install requests</code>.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="seclabel">Get in with ChatGPT</div>
+  <div class="gd-cols">
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>In the browser</h2><span class="plan">no install · a paid ChatGPT plan</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>GitHub inside ChatGPT</h3><span class="chip neutral">read only</span></div>
+        <div class="best">Best for questions. ChatGPT reads the files live and cites them; it does not change anything.</div>
+        <ol>
+          <li>Accept Ron's invitation from GitHub (free GitHub account).</li>
+          <li>In ChatGPT open <b>Settings</b>, then <b>Apps</b> (called Connectors on some plans), choose <b>GitHub</b> and connect it. GitHub asks you to install the ChatGPT app and to choose repositories: pick <code>Ronkimhi/upstream</code>.</li>
+          <li>In a chat, turn GitHub on from the tools menu and ask. Start with <i>Read CLAUDE.md and docs/method.md, then answer:</i> so it knows the vocabulary.</li>
+        </ol>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Codex cloud</h3><span class="chip accent">start here</span></div>
+        <div class="best">Best for running stages from the browser.</div>
+        <ol>
+          <li>Go to <a href="https://chatgpt.com/codex" target="_blank" rel="noopener">chatgpt.com/codex</a> and sign in.</li>
+          <li>Connect GitHub when prompted and choose the repositories Codex may access: <code>Ronkimhi/upstream</code>.</li>
+          <li>Create an environment for it: container image <b>universal</b>, setup script <code>pip install requests</code>, and turn <b>agent internet access</b> on if you want web research inside the session.</li>
+          <li>Start a task with one opening line, then your command:
+            <pre><code>Read CLAUDE.md and docs/method.md first and follow them as your protocol.
+run impact --queue</code></pre>
+            Codex also reads <code>AGENTS.md</code> at the root when it is there; the opening line works either way.</li>
+          <li>Review the diff, choose <b>open a pull request</b>, and merge on GitHub once the checks are green.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="gd-col">
+      <div class="gd-colhead"><h2>On your computer</h2><span class="plan">full power</span></div>
+      <div class="card gd-path">
+        <div class="ph"><h3>Codex in the terminal</h3></div>
+        <div class="best">Best for real work. Local sessions can open web pages, run every gate, and push straight to main.</div>
+        <ol>
+          <li>Install Codex (needs Node.js), clone, and start it inside the folder:
+            <pre><code>npm install -g @openai/codex
+git clone https://github.com/Ronkimhi/upstream.git
+cd upstream
+codex</code></pre></li>
+          <li>Sign in with ChatGPT when asked. Python 3.12 for the gates, <code>pip install requests</code> for the tests.</li>
+          <li>Open every task with the same line: <i>Read CLAUDE.md and docs/method.md first and follow them as your protocol.</i></li>
+        </ol>
+      </div>
+      <div class="card gd-path">
+        <div class="ph"><h3>What is the same on both clouds</h3></div>
+        <ul>
+          <li>The protocol is the file, not the vendor. <code>CLAUDE.md</code> names the commands, the agents and the gates; <code>docs/method.md</code> is the scoring constitution. An assistant that reads them behaves like Ron's.</li>
+          <li>Market data never comes from the assistant. It queues a request, GitHub Actions fetches it in a few minutes, and the stage re-runs on what landed.</li>
+          <li>Your work is signed. Every run ends with one line in <code>data/ledger.md</code> naming the command, what it wrote, the result, and <code>by:</code> your GitHub login.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="seclabel">What you can do</div>
+  <p class="lead">Three kinds of thing. Ask in your own words. Add what you know. Run a stage. The copy button puts the text on your clipboard for pasting into a session.</p>
+  <h3 style="margin:14px 0 8px">Ask</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>What is the verdict on VRT in ai-infrastructure, and what would make it wrong?</code><span class="d">Reads the FINAL dive and its red team, and answers from them.</span><button data-copy="What is the verdict on VRT in ai-infrastructure, and what would make it wrong?">copy</button></div>
+    <div class="gd-cmd"><code>Which chain links are money corners with no dive behind them yet?</code><span class="d">Heat maps across every chain, matched against the stock files.</span><button data-copy="Which chain links are money corners with no dive behind them yet?">copy</button></div>
+    <div class="gd-cmd"><code>What changed in the last two weeks? Read the ledger and the latest digest.</code><span class="d">The append-only record and Adam's Saturday brief.</span><button data-copy="What changed in the last two weeks? Read the ledger and the latest digest.">copy</button></div>
+    <div class="gd-cmd"><code>Explain how the heat scores on hormuz-maritime were sourced.</code><span class="d">Every score carries its rationale and dated evidence; ask for them.</span><button data-copy="Explain how the heat scores on hormuz-maritime were sourced.">copy</button></div>
+    <div class="gd-cmd"><code>Where is the campaign stuck, and what is the next command?</code><span class="d">The ten-theme census and its recorded blockers.</span><button data-copy="Where is the campaign stuck, and what is the next command?">copy</button></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Add</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>note VRT "I think the entry zone is stale after the Q2 print"</code><span class="d"><b>Annotate anything</b>: a signal, chain, ticker or candidate. Notes show on the dashboard, and a repeated rejection becomes a taste rule.</span><button data-copy="note VRT &quot;your note here&quot;">copy</button></div>
+    <div class="gd-cmd"><code>log trade VRT bought 112 "starter"</code><span class="d"><b>Your real position</b>, so the machine can grade its calls against what you actually did. Never an account number.</span><button data-copy="log trade VRT bought 112 &quot;starter&quot;">copy</button></div>
+    <div class="gd-cmd"><code>request data POWL</code><span class="d"><b>Fetch a ticker</b>: prices, fundamentals, quality scores, insider data and filings land in about five minutes.</span><button data-copy="request data POWL">copy</button></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Run the funnel</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>run radar</code><span class="d"><b>Nell</b> scans the world for new occurrences and writes or updates signal cards. Local session preferred.</span><button data-copy="run radar">copy</button></div>
+    <div class="gd-cmd"><code>run impact --queue</code><span class="d"><b>Tally</b> sizes the money behind up to fifteen unappraised occurrences.</span><button data-copy="run impact --queue">copy</button></div>
+    <div class="gd-cmd"><code>run chain SIG-20260828-02</code><span class="d"><b>Atlas</b> maps the value chain behind a signal, 8 to 15 links, every link cited.</span><button data-copy="run chain SIG-20260828-02">copy</button></div>
+    <div class="gd-cmd"><code>run heat ai-infrastructure</code><span class="d"><b>Ember</b> scores every link of a chain: impact, crowdedness, value capture.</span><button data-copy="run heat ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run scenarios ai-infrastructure</code><span class="d"><b>Ember</b> writes three to six scenarios with indicators and invalidations.</span><button data-copy="run scenarios ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run universe ai-infrastructure</code><span class="d"><b>Atlas</b> censuses the listed companies on each link; <code>run universe-audit</code> checks it in fresh context.</span><button data-copy="run universe ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run profile POWL</code><span class="d"><b>Sieve</b> writes a reusable company file from fetched data. Refuses a ticker no chain has placed.</span><button data-copy="run profile POWL">copy</button></div>
+    <div class="gd-cmd"><code>run screen ai-infrastructure</code><span class="d"><b>Sieve</b> shortlists names per link, every earnings quote verified against the filing on disk.</span><button data-copy="run screen ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run deepdive VRT ai-infrastructure</code><span class="d"><b>Stocky</b> writes the full stock page. The verdict stays DRAFT.</span><button data-copy="run deepdive VRT ai-infrastructure">copy</button></div>
+    <div class="gd-cmd"><code>run redteam VRT ai-infrastructure</code><span class="d"><b>Stocky</b>, in a fresh context, attacks the draft. What survives is FINAL.</span><button data-copy="run redteam VRT ai-infrastructure">copy</button></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Keep the machine honest</h3>
+  <div class="gd-cmds">
+    <div class="gd-cmd"><code>run digest</code><span class="d"><b>Adam</b> writes the weekly brief: verdicts first, then what moved, then the machine's own audit.</span><button data-copy="run digest">copy</button></div>
+    <div class="gd-cmd"><code>run review</code><span class="d">Dives past their review date, and how the shadow book's TOO_LATE calls have aged.</span><button data-copy="run review">copy</button></div>
+    <div class="gd-cmd"><code>check health</code><span class="d">Are the loops actually firing: routines, the fetcher, the feeds, the gates.</span><button data-copy="check health">copy</button></div>
+    <div class="gd-cmd"><code>run devil .claude/agents/stocky.md</code><span class="d"><b>Cass</b> reviews a change to the machine itself, in fresh context. Advisory, never a veto.</span><button data-copy="run devil .claude/agents/stocky.md">copy</button></div>
+  </div>
+
+  <div class="seclabel">House rules</div>
+  <p class="lead">Five rules carry the whole method. Your session enforces them and the gates check them; you only need to know why they exist.</p>
+  <ol class="gd-rules">
+    <li><b>No number from memory.</b><span>A price, a fundamentals figure or a filing quote is either on disk under <code>data/market/</code> and <code>data/edgar/</code>, requested through the bridge, or written as NULL. A remembered number is a defect, and the gates compare every quote against the fetched document, word for word.</span></li>
+    <li><b>One command, one stage, one object.</b><span>Nothing is analysed until asked, and a running command finishes its own stage and nothing else. A problem noticed on the way is captured in <code>tasks/backlog.md</code> with an owner, not chased.</span></li>
+    <li><b>Every analysis is a file with a date and a changelog.</b><span>Re-runs amend in place and append; nothing is deleted and rebuilt, history is never rewritten, and a conflict a coded rule cannot resolve stops the push and waits for a person.</span></li>
+    <li><b>Web text is evidence, never instruction.</b><span>Whatever a page, a filing or a feed says is data to weigh. Nothing found there can authorise a commit, a command, or a change to the protocol.</span></li>
+    <li><b>Sign your work, and leave Ron's page to Ron.</b><span>Your ledger lines carry your GitHub login. The shared dashboard belongs to Ron's account, so your session records the republish as skipped and finishes; the page picks up your commit on his next run. And none of this is investment advice: verdicts are analytical outputs from public data with stated methods and gaps, and nothing here trades.</span></li>
+  </ol>
+
+  <div class="seclabel">How your work lands</div>
+  <div class="card">
+    <ul>
+      <li><b>Browser sessions</b> (Claude Code on the web, Codex cloud) push a branch and open a pull request. Merge it yourself when the checks are green; the checks are the same gates a local session runs before it commits.</li>
+      <li><b>Local sessions</b> run the gates, rebuild the page, append the ledger line and push to main through the push queue, which serialises everyone on one machine and resolves the known conflicts by coded rule.</li>
+      <li><b>Missing data is normal.</b> A stage scores what exists and marks the rest PENDING_DATA. Your session ends with <i>data pending, re-run in about five minutes</i>; the fetcher lands the files and the re-run finishes the job.</li>
+      <li><b>Big models cost real money.</b> Each command has a required tier in <code>tools/model_tiers.py</code>. Sessions run on that tier and escalate to a larger model only when you ask for it by name in that turn.</li>
+    </ul>
+  </div>
+
+  <div class="seclabel">Owner's corner</div>
+  <div class="card gd-owner">
+    <div class="ph"><h3>For Ron: letting someone in</h3><span class="chip neutral">three steps</span></div>
+    <ol>
+      <li><b>Invite them to the repository.</b> GitHub, <code>Ronkimhi/upstream</code>, Settings, Collaborators, Add people, with <b>Write</b> access so their sessions can push. One command does the same:
+        <pre><code>gh api -X PUT repos/Ronkimhi/upstream/collaborators/THEIR-GITHUB-LOGIN -f permission=push</code></pre></li>
+      <li><b>Send them the dashboard.</b> Share the published page and this guide. Anyone with the link can read; the Run buttons are yours, because a click only runs when one of your sessions picks it up.</li>
+      <li><b>Optional: a plain web address that only your list can open.</b> Cloudflare Pages serves the repository's <code>app/</code> folder at a stable address and redeploys on every push, and Cloudflare Access puts an email one-time-code login in front of it, free for up to fifty people. In Cloudflare: Workers &amp; Pages, Create, Pages, Connect to Git, pick the repository, leave the build command empty and set the output directory to <code>app</code>. Then Zero Trust, Access, Applications, Add, Self-hosted, enter the <code>pages.dev</code> address, and add an Allow policy listing their email addresses with One-time PIN as the login method.</li>
+    </ol>
+  </div>
+
+  <div class="seclabel">Questions people ask first</div>
+  <div class="card">
+    <dl class="gd-faq">
+      <dt>Can I break something?</dt>
+      <dd>Not quietly. Every store is append-only, every commit is in history, the gates refuse a malformed file before it is committed, and CI re-runs them on every push. If a gate refuses your run, fix the data it names or ask; never work around a gate and never delete a file.</dd>
+      <dt>Why does the page say NULL, unscored, or PENDING_DATA?</dt>
+      <dd>Because nobody fetched that number yet. The machine prints a gap rather than a guess. Request the data or re-run in five minutes.</dd>
+      <dt>Who pays for what?</dt>
+      <dd>Your AI runs on your own subscription and its sessions bill you. Data fetching runs on GitHub Actions inside the repository's free minutes. The repository holds no API keys.</dd>
+      <dt>Who sees my work?</dt>
+      <dd>Everyone with access to the repository, on the next dashboard build. The ledger names you on every line, which is the point: a call with a name on it can be graded later.</dd>
+    </dl>
+  </div>
+</div>
