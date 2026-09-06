@@ -3,13 +3,13 @@
   "issuer_name": "The Timken Company",
   "as_of": "2026-09-06",
   "created_at": "2026-09-06T17:56:42Z",
-  "updated_at": "2026-09-06T17:56:42Z",
+  "updated_at": "2026-09-06T18:28:51Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
+  "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:TKR carries an SEC CIK (98362, visible in the identity-evidence filing URL data/98362/... in data/mappings/humanoid-actuators.json). No data/market/TKR.json file exists on disk this run (checked under the exact ticker, no dots to map to dashes), so no prices, fundamentals, quality, pcs or insider block is available yet. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:TKR carries SEC CIK 98362 (identity evidence in data/mappings/humanoid-actuators.json). data/market/TKR.json fetched 2026-09-06T18:20:59.280927+00:00 carries AGREED prices (yfinance and stockanalysis both closing 123.16 on 2026-09-04), sec-companyfacts fundamentals through FY2025, a computed quality block (Piotroski 9/9 inputs, Beneish PENDING_DATA at 11/12 inputs, reverse DCF SOLVED), a pcs block, and 68 rows of Form 4 insider transactions. T1 confirmed on fetched data, not provisional.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE profile per method section 6A. run profile does not select or promote; O2 retains TIMKEN for monitoring until an explicit run selection <CAMP-ID> considers it for O1.",
   "listing_refs": [
     "NYSE-TKR"
   ],
@@ -56,106 +56,173 @@
     "chain": "data/chains/humanoid-actuators.json",
     "market": "data/market/TKR.json"
   },
-  "business_summary": "The Timken Company (NYSE: TKR) is a US-listed SEC filer newly placed on the humanoid-actuators/roller-screws link (Planetary roller screws & linear guides, heat verdict EMERGING, money_corner false) through its Rollon/Intelligent Machine Solutions/Nadella linear-motion acquisitions. Fundamentals cannot be sourced this run: data/market/TKR.json does not exist on disk, so every canonical metric is NULL.",
+  "business_summary": "The Timken Company (NYSE: TKR, CIK 98362) is a diversified industrial-bearings and motion-technology manufacturer. It sits on the humanoid-actuators chain's roller-screws link (Planetary roller screws & linear guides; heat verdict EMERGING; not money-corner) through the linear-motion business it built via the 2018 Rollon acquisition and later Intelligent Machine Solutions and Nadella deals. SEC companyfacts gives revenue, operating income, cash flow and capex cleanly through FY2025 (calendar fiscal year); FY2025 revenue was $4.5818 billion. Q2-2026 results (Form 8-K, 2026-08-04) show 7.5% sales growth and a raised full-year adjusted EPS outlook, alongside a margin-denting impairment tied to the planned belts-business divestiture. All 12 canonical fields now carry a sourced number except quality.beneish_state, which the fetched quality block reports PENDING_DATA (missing the ppe_net_fy input).",
   "exposure_summary": {
-    "narrative": "TIMKEN has 1 placement on humanoid-actuators (roller-screws, EMERGING, money_corner False). Every canonical metric is NULL: no market file (prices, fundamentals, quality, pcs, insider) is available for TKR this run."
+    "narrative": "TIMKEN has 1 placement on humanoid-actuators (roller-screws, EMERGING heat, not money-corner). No roller-screw- or humanoid-actuator-specific revenue is broken out in SEC filings; the linear-motion product line (Rollon/IMS/Nadella) is folded into Timken's reported segments without a separate humanoid/robotics revenue line.",
+    "disclosed_revenue_exposure": {
+      "pct": null,
+      "tag": "NULL",
+      "basis": "No humanoid-actuator- or roller-screw-specific share of Timken's revenue is disclosed or sourced this run; the linear-motion business is not broken out as a separate reporting segment in SEC companyfacts."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet; data/market/TKR.json does not exist."
+        "value": 4581800000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 98362 (The Timken Company, NYSE: TKR)."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data; data/market/TKR.json does not exist."
+        "value": 0.006269,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Three-year compound annual revenue growth computed as (4581800000 / 4496700000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data; data/market/TKR.json does not exist."
+        "value": 0.117989,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Operating income 540600000 divided by revenue 4581800000, both for the fiscal year ended 2025-12-31, from companyfacts."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data; data/market/TKR.json does not exist."
+        "value": 1.921983,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Operating cash flow 554300000 divided by net income 288400000, both for the fiscal year ended 2025-12-31, from companyfacts."
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data; data/market/TKR.json does not exist."
+        "value": 0.088633,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Free cash flow margin: operating cash flow 554300000 less capital expenditure 148200000 = 406100000 (matches data/market/TKR.json quality.derived.fcf), divided by revenue 4581800000, all for the fiscal year ended 2025-12-31, from companyfacts."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data; data/market/TKR.json does not exist."
+        "value": 2.123913,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Net debt to EBITDA: total debt 2036000000 less cash 399100000 = net debt 1636900000, both as of 2026-06-30, divided by an EBITDA proxy 770700000 (operating income 540600000 plus depreciation 230100000, both for the fiscal year ended 2025-12-31), from companyfacts."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched; data/market/TKR.json does not exist."
+        "value": 4,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Piotroski F-score 4 (state MIDDLING), computed over companyfacts statements in data/market/TKR.json quality.piotroski, 9 of 9 inputs found."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched; data/market/TKR.json does not exist."
+        "basis": "Beneish M-score not computed for TKR: data/market/TKR.json quality.beneish reports state PENDING_DATA with 11 of 12 inputs found, missing ppe_net_fy (net property-plant-and-equipment did not resolve to a stable companyfacts concept for this filer; fundamentals.stale_dropped and coverage.missing both name ppe_net). NULL is permitted at O2; O1 promotion would need this input resolved."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched; data/market/TKR.json does not exist."
+        "value": 9804957635.88,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Market capitalization 9804957635.88 computed in data/market/TKR.json quality.derived.market_cap from SEC companyfacts share count 79611543 (as of 2025-12-31) times the repo's own market-plane close of 123.16 (yfinance, 2026-09-04). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data; data/market/TKR.json does not exist."
+        "value": 2.139979,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TKR.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Market capitalization 9804957635.88 divided by fiscal year 2025-12-31 revenue 4581800000."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched; data/market/TKR.json does not exist."
+        "value": 0.1654,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/TKR.json quality.reverse_dcf",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 11441857635.88 implies over a 5-year explicit period on base FCF 406100000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched; data/market/TKR.json does not exist."
+        "value": 0.0636,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/TKR.json quality.reverse_dcf",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000098362.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1654, '7': 0.1285, '10': 0.1018}). Measures how much of the expectation reading is a horizon convention rather than a price statement; inherits the same assumed discount rate and terminal growth."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "Timken's roller-screws placement (EMERGING heat, not money-corner) is a small, non-broken-out slice of a $4.58B diversified bearings and industrial-motion company; no roller-screw- or humanoid-actuator-specific revenue line exists, and no pcs (positioning/attention) block corroborates a crowding read at the issuer level beyond the whole-company pcs block already in data/market/TKR.json (axis_a DARK, axis_b SATURATED on analyst/institutional coverage)."
+  ],
+  "catalysts": [
+    {
+      "claim": "Timken raised its 2026 outlook in the Q2-2026 release on 7.5% sales growth to $1.26 billion (4.4% organic) and a 19.6% adjusted EBITDA margin: adjusted EPS guidance moved to $6.05-$6.35. The linear-motion business anchoring the roller-screws placement (built on the 2018 Rollon acquisition) sits inside this same profitable-growth push.",
+      "source_name": "The Timken Company: Timken Reports Second-Quarter 2026 Results (Exhibit 99.1, Form 8-K)",
+      "source_date": "2026-08-04",
+      "url": "https://www.sec.gov/Archives/edgar/data/98362/000009836226000048/tkrq22026exhibit991.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Updates 2026 EPS outlook; now expects 2026 EPS of $3.75-$4.05, raising adjusted EPS outlook to $6.05-$6.35"
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Net income margin fell to 2.3% in Q2-2026 (from 6.7% a year earlier) after an impairment charge tied to the planned divestiture of Timken's belts business, even as adjusted EBITDA margin improved to 19.6%. The gap between reported and adjusted profitability signals live portfolio-restructuring risk running alongside the newer linear-motion/actuator line this placement rests on.",
+      "source_name": "The Timken Company: Timken Reports Second-Quarter 2026 Results (Exhibit 99.1, Form 8-K)",
+      "source_date": "2026-08-04",
+      "url": "https://www.sec.gov/Archives/edgar/data/98362/000009836226000048/tkrq22026exhibit991.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Net income in the current period includes an impairment charge related to the anticipated divestiture of the company\u2019s belts business."
+    }
+  ],
   "data_gaps": [
-    "No data/market/TKR.json on disk this run: prices, fundamentals, quality, pcs and insider all missing. Queued this run: prices (REQ-20260906-124), fundamentals (REQ-20260906-125), quality (REQ-20260906-126), pcs (REQ-20260906-127), insider (REQ-20260906-128), edgar_doc (REQ-20260906-129). Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "quality.beneish_state is NULL: the fetched quality block reports state PENDING_DATA, 11 of 12 inputs found, missing ppe_net_fy for CIK 98362. NULL is permitted at O2; O1 promotion would need this input resolved.",
+    "No humanoid-actuator- or roller-screw-specific revenue share is disclosed for Timken; the linear-motion product line (Rollon/IMS/Nadella) is not broken out as a separate reporting segment in SEC companyfacts."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-06",
-    "basis": "No market file on disk for TKR this run (no prices, fundamentals, quality, pcs or insider). Queued prices (REQ-20260906-124), fundamentals (REQ-20260906-125), quality (REQ-20260906-126), pcs (REQ-20260906-127), insider (REQ-20260906-128), edgar_doc (REQ-20260906-129). Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "Amended this run from the 2026-09-06T18:20:59Z fetch of data/market/TKR.json (sec-companyfacts, T1) and data/edgar/docs/TKR.json (Form 8-K, 2026-08-04). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 11 of 12 canonical fields now carry a sourced number, with quality.beneish_state NULL on a missing companyfacts input. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
+    "VERIFIED": 1,
+    "INFERRED": 8,
+    "SPECULATIVE": 2,
+    "NULL": 1,
     "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no market file fetched for TKR yet."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is revenue.latest_fy, read directly off SEC companyfacts as reported. INFERRED (official_source true) covers growth, margins, both cash_conversion fields, leverage, quality.piotroski, and both valuation fields, all computed from SEC companyfacts. SPECULATIVE covers the two reverse_dcf fields, which rest on an assumed discount rate and terminal growth rather than a reported figure. NULL covers quality.beneish_state, PENDING_DATA in the fetched quality block on a missing ppe_net_fy input."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -167,6 +234,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for TIMKEN from data/mappings/humanoid-actuators.json (ACTIVE, single ACTIVE placement on roller-screws). No market file on disk for TKR (no prices, fundamentals, quality, pcs or insider). Queued prices (REQ-20260906-124), fundamentals (REQ-20260906-125), quality (REQ-20260906-126), pcs (REQ-20260906-127), insider (REQ-20260906-128), edgar_doc (REQ-20260906-129). Status BLOCKED, opportunity_tier O3. run profile NYSE:TKR, parallel batch 2026-09-06."
+    },
+    {
+      "ts": "2026-09-06T18:28:51Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Repaired a false missing-file claim: data/market/TKR.json and data/edgar/docs/TKR.json landed on origin/main after the prior BUILD wrote this profile BLOCKED with every canonical field NULL on a 'file does not exist' basis that was already false at commit time. Amended all 12 canonical metric fields from the fetched sec-companyfacts fundamentals and computed quality block: revenue, growth, margins, both cash_conversion fields, leverage, quality.piotroski, both valuation fields, and both reverse_dcf fields now carry sourced numbers; quality.beneish_state stays NULL (fetched quality block reports PENDING_DATA, missing ppe_net_fy, 11/12 inputs). Added one catalyst and one risk from the Q2-2026 Form 8-K (Exhibit 99.1, 2026-08-04) with verbatim source_excerpt, and one crowdedness caveat. Status BLOCKED to COMPLETE, opportunity_tier O3 to O2 (run profile does not select; O1 needs an explicit run selection). This repairs the validate.py failure that was blocking every session's landing."
     }
   ]
 }
