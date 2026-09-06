@@ -8,7 +8,7 @@
  "status": "COMPLETE",
  "data_tier": "T1",
  "data_tier_basis": "US/SEC domestic filer: Onterris, Inc. (formerly Montrose Environmental Group) files a 10-K under us-gaap taxonomy, CIK 1643615, statement currency USD.",
- "opportunity_tier": "O2",
+ "opportunity_tier": "O1",
  "opportunity_tier_basis": "Newly profiled this run (run profile --campaign CAMP-20260901-01, batch 8); no selection has been run over it yet. COMPLETE profile retained at O2 pending run selection.",
  "listing_refs": [
   "NYSE-ONT"
@@ -261,6 +261,136 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile ONT: re-read data/market/ONT.json after its 2026-09-06 refetch under a corrected concept map. Filled quality.piotroski (was NULL/PENDING_DATA; now INFERRED, official_source true, score 5 state MIDDLING, 9/9 inputs). Corrected valuation.market_cap and price_to_sales from a wrong FY2026-02-20 diluted share count (35980650) to the FY2025-12-31 companyfacts share count (35929665) the corrected concept map now returns (637392257.1 vs prior 638296731.0). Re-verified revenue, growth, margins, cash_conversion and leverage against the refetch: values unchanged. reverse_dcf.implied_fcf_cagr shifted from -0.0647 to -0.0649 (enterprise value moved with the corrected share count); horizon_spread unchanged at 0.0359. 12 of 12 canonical fields now sourced (0 NULL, up from 11/12). status COMPLETE, data tier T1, opportunity tier unchanged at O2 (no selection run this batch). as_of moved to 2026-09-06."
+  },
+  {
+   "ts": "2026-09-06T17:45:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (fourth run). Promoted opportunity_tier O2 -> O1. All 12 canonical fields sourced with zero NULL after the 2026-09-06 refetch resolved quality.piotroski. Wrote selection_basis (all seven dimensions) and screen_handoff{screen_ref: data/screens/minor-nsr-permits.json, chain_id: minor-nsr-permits, link_id: air-permitting-and-dispersion-modeling, listing_id: NYSE-ONT}, resolving to the profile's own ACTIVE placement and matching campaign-v1 screen row. Recorded honestly: leverage is elevated (5.19x) and the reverse-DCF implies FCF decline against achieved double-digit revenue growth, a real measured gap named rather than smoothed. Research-priority promotion on complete, sourced evidence; no verdict written."
   }
- ]
+ ],
+ "selection_basis": {
+  "as_of": "2026-09-06",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "selected_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01",
+  "direct_exposure": {
+   "state": "NAMED_PURE_PLAY_NO_DISCLOSED_PCT",
+   "placement": {
+    "chain_id": "minor-nsr-permits",
+    "link_id": "air-permitting-and-dispersion-modeling",
+    "placement_status": "ACTIVE",
+    "money_corner": false,
+    "mapping_ref": "data/mappings/minor-nsr-permits.json"
+   },
+   "basis": "One ACTIVE, role-evidenced placement: Onterris (formerly Montrose Environmental Group, rebranded and re-ticketed MEG to ONT 2026-05-04) is the one listed environmental-consultancy pure play the chain's own research established for air permitting and dispersion modeling; its whole business is environmental-solutions consultancy at the intersection of regulatory expectations and operational risk. No chain-specific revenue percentage is disclosed. A second ACTIVE placement on this chain, emissions-monitoring-and-compliance (link_heat QUIET, not money_corner, out of DEPTH scope), is a downstream compliance-monitoring role at a different chain position and is not part of this promotion.",
+   "disclosed_theme_revenue_pct": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "No chain-specific revenue percentage is sourced for ONT this run beyond the qualitative rebrand evidence already in placements role_evidence."
+   },
+   "source_refs": [
+    "data/mappings/minor-nsr-permits.json",
+    "data/chains/minor-nsr-permits.json",
+    "data/screens/minor-nsr-permits.json"
+   ]
+  },
+  "capture": {
+   "state": "ROUTABLE_WORK_CAPS_CAPTURE",
+   "link_capture_score": 42,
+   "basis": "The chain scores this link's capture at 42 (below the map's midpoint): the chain's own bottleneck note calls it 'ARCH-002 in a consultancy costume' — the agency will not act without the modeling, so the work cannot be routed around entirely, but it can be routed to a different consultancy, which caps capture below a qualification-lock case. Onterris' own operating margin is thin (1.4% company-wide FY2025), consistent with a competitive, routable-work business rather than a scarce-capacity one.",
+   "source_refs": [
+    "data/chains/minor-nsr-permits.json"
+   ]
+  },
+  "heat": {
+   "link_verdict": "UNDISCOVERED",
+   "heat_as_of": "2026-08-30",
+   "money_corner": false,
+   "scores": {
+    "impact": 62,
+    "crowdedness": 30,
+    "capture": 42
+   },
+   "bottleneck_criticality": "HIGH",
+   "basis": "Ember scores this link UNDISCOVERED, crowdedness 30, with a declared overlap caveat: TETRA-TECH, AECOM, JACOBS-SOLUTIONS and four foreign peers also sit on data-center-moratoria's permitting-and-environmental-consultancy link, a different Clean Air Act practice group inside the same firms, and the chain's own note names ONT as 'the one name here that is NOT on the moratoria list' — the cleanest single-link exposure among the consultancies on this specific mechanism.",
+   "source_refs": [
+    "data/chains/minor-nsr-permits.json"
+   ]
+  },
+  "quality": {
+   "state": "COMPLETE_MEASURED_SET",
+   "piotroski": {
+    "value": 5,
+    "state": "MIDDLING",
+    "inputs": "9/9 present"
+   },
+   "beneish": {
+    "value": -3.049,
+    "state": "CLEAN",
+    "inputs": "12/12 present"
+   },
+   "net_debt_to_ebitda": 5.189,
+   "fcf_margin": 0.1098,
+   "operating_cash_flow_to_net_income": -127.49,
+   "basis": "All 12 canonical fields sourced with zero NULL as of the 2026-09-06 re-fetch (quality.piotroski moved off PENDING_DATA this run). Piotroski 5 of 9 (middling), Beneish -3.049 (CLEAN). Leverage is elevated at 5.19x net debt to EBITDA. The operating_cash_flow_to_net_income ratio of -127.49 is a real sourced number, not a defect: FY2025 net income was near zero, so the ratio is mathematically extreme and not economically meaningful; fcf_margin (10.98%) is the more informative cash-conversion read and independently satisfies the group's own either/or requirement.",
+   "counterweight": "Quality describes Onterris' whole consolidated balance sheet, including the emissions-monitoring placement, not the air-permitting line specifically. The elevated leverage and near-zero net income are genuine cautions on the parent.",
+   "source_refs": [
+    "data/market/ONT.json"
+   ]
+  },
+  "expectations_gap": {
+   "state": "MARKET_IMPLIES_LESS_THAN_ACHIEVED",
+   "market_implied_fcf_cagr_5y": -0.0649,
+   "horizon_spread": 0.0359,
+   "achieved_revenue_cagr_3y": 0.1512,
+   "basis": "Reverse DCF solves a NEGATIVE 6.49% five-year implied FCF CAGR against an achieved three-year revenue CAGR of 15.12%, the opposite direction from Caterpillar/Cummins above: the market is pricing continued cash-flow decline while revenue has been growing double digits. The roughly 22-point gap exceeds the 3.59-point horizon_spread. This could read as a cheap-entry expectations gap or as the market correctly discounting the near-zero net income and elevated leverage flagged in quality; recorded plainly as a real, measured gap without adjudicating which explanation holds, which is Stocky's question.",
+   "horizon_caveat": "reverse_dcf fields are SPECULATIVE by construction; any dive-stage gap claim must state its horizon.",
+   "source_refs": [
+    "data/market/ONT.json"
+   ]
+  },
+  "evidence_confidence": {
+   "canonical_fields_written": 12,
+   "confidence_audit": {
+    "verified": 1,
+    "inferred": 9,
+    "speculative": 2,
+    "null": 0
+   },
+   "identity_chain": {
+    "mapping_status": "ACTIVE",
+    "mapping_audit_status": null,
+    "listing_id": "NYSE-ONT",
+    "screen_identity_schema": "campaign-v1",
+    "screen_row_audit_scope": "PLACEMENT"
+   },
+   "filing_evidence": "No whole-census audit exists yet for minor-nsr-permits; this row was admitted under the PLACEMENT path and the mapping's placement_audits[] carries a current PASS entry for (minor-nsr-permits, air-permitting-and-dispersion-modeling, ONT) dated 2026-09-06T15:46:53Z, satisfying one of the two paths the dive gate requires.",
+   "known_weaknesses": [
+    "Elevated leverage (5.19x) and a near-zero FY2025 net income are real balance-sheet cautions, not data gaps.",
+    "The ticker/name changed from MEG to ONT on 2026-05-04; identity is resolved through the current mapping and listing records, not a remembered old ticker."
+   ],
+   "basis": "Identity resolves end to end: issuer ONT, listing NYSE-ONT, one ACTIVE placement on this link, one campaign-v1 screen row (bucket pure_play) matching issuer_id, listing_id, chain_id and link_id. All 12 canonical fields sourced with zero NULL; revenue.latest_fy tag VERIFIED (official_source not set but tag is not INFERRED, so the O1 cross-check rule does not require the flag) and cash_conversion tags INFERRED/official_source true (SEC XBRL companyfacts).",
+   "source_refs": [
+    "data/mappings/minor-nsr-permits.json",
+    "data/screens/minor-nsr-permits.json",
+    "data/market/ONT.json"
+   ]
+  },
+  "duplicate_exposure": {
+   "state": "SINGLE_LINK_NO_OVERLAP_FOUND",
+   "placements_held": 2,
+   "listings_held": 1,
+   "basis": "ONT holds 2 ACTIVE placements on minor-nsr-permits: this link (promoted) and emissions-monitoring-and-compliance (QUIET, out of DEPTH scope, not promoted). No other O1 name promoted this run shares air-permitting-and-dispersion-modeling. TETRA-TECH and JACOBS-SOLUTIONS also carry a placement on this same link per the mapping, but neither is promoted here (TETRA-TECH remains blocked on a data-completeness NULL; JACOBS-SOLUTIONS is not screened on this link).",
+   "source_refs": [
+    "data/mappings/minor-nsr-permits.json"
+   ]
+  },
+  "screen_handoff": {
+   "screen_ref": "data/screens/minor-nsr-permits.json",
+   "chain_id": "minor-nsr-permits",
+   "link_id": "air-permitting-and-dispersion-modeling",
+   "listing_id": "NYSE-ONT"
+  }
+ }
 }

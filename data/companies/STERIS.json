@@ -8,7 +8,7 @@
  "status": "COMPLETE",
  "data_tier": "T1",
  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:STE carries a real SEC CIK (1757898); data/market/STE.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
- "opportunity_tier": "O2",
+ "opportunity_tier": "O1",
  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
  "listing_refs": [
   "NYSE-STE"
@@ -29,7 +29,7 @@
    "link_id": "aseptic-filling-and-isolator-equipment",
    "link_name": "Aseptic filling lines, isolators and barrier systems",
    "link_position": 7,
-   "role": "STERIS's VHP bio-decontamination and isolator systems are the barrier technology behind aseptic filling lines and RABs, the equipment layer that gates how fast GLP-1 sterile capacity can be qualified and scaled. Re-fetched live 2026-09-04, verbatim confirmed; tag raised INFERRED\u2192VERIFIED.",
+   "role": "STERIS's VHP bio-decontamination and isolator systems are the barrier technology behind aseptic filling lines and RABs, the equipment layer that gates how fast GLP-1 sterile capacity can be qualified and scaled. Re-fetched live 2026-09-04, verbatim confirmed; tag raised INFERRED→VERIFIED.",
    "placement_status": "ACTIVE",
    "money_corner": false,
    "link_heat": "UNDISCOVERED",
@@ -231,6 +231,136 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for STERIS from data/mappings/glp1-fill-finish.json (ACTIVE). Fundamentals and quality sourced from data/market/STE.json (SEC XBRL companyfacts). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01 (parallel batch, 2026-09-06)."
+  },
+  {
+   "ts": "2026-09-06T18:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (fourth run). Promoted opportunity_tier O2 -> O1. All 12 canonical fields sourced with zero NULL. Wrote selection_basis (all seven dimensions) and screen_handoff{screen_ref: data/screens/glp1-fill-finish.json, chain_id: glp1-fill-finish, link_id: aseptic-filling-and-isolator-equipment, listing_id: NYSE-STE}, resolving to the profile's own ACTIVE placement (STERIS's only placement on this chain) and matching campaign-v1 screen row. Revenue VERIFIED, cash_conversion INFERRED/official_source true: no further cross-check web work needed. Strongest quality read of this run's ten promotions (Piotroski 9/9, CLEAN Beneish, low leverage) and the smallest, most horizon-consistent expectations gap. Named honestly: unlike the chain's other two O1 promotions this run, no placement_audits[] entry exists yet for STERIS on this link (admitted via all-VERIFIED placement evidence instead), so a fresh-context placement audit is still needed before Stocky can dive it. No overlap with the two autoinjector-platform O1 names on this same chain (different link). Research-priority promotion on complete, sourced evidence; no verdict written."
   }
- ]
+ ],
+ "selection_basis": {
+  "as_of": "2026-09-06",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "selected_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01",
+  "direct_exposure": {
+   "state": "PRODUCT_LEVEL_ROLE_NO_DISCLOSED_PCT",
+   "placement": {
+    "chain_id": "glp1-fill-finish",
+    "link_id": "aseptic-filling-and-isolator-equipment",
+    "placement_status": "ACTIVE",
+    "money_corner": false,
+    "mapping_ref": "data/mappings/glp1-fill-finish.json"
+   },
+   "basis": "One ACTIVE, role-evidenced placement, and STERIS's only placement on this chain: STERIS's VHP bio-decontamination and isolator systems are the barrier technology behind aseptic filling lines and RABs (restricted access barrier systems), the equipment layer gating how fast GLP-1 sterile capacity can be qualified and scaled. The role evidence was re-fetched live 2026-09-04 and verbatim-confirmed, raising its tag from INFERRED to VERIFIED. No chain-specific revenue percentage is disclosed.",
+   "disclosed_theme_revenue_pct": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "No chain- or link-specific revenue percentage is disclosed or sourced for STERIS this run; only company-wide fundamentals are available."
+   },
+   "source_refs": [
+    "data/mappings/glp1-fill-finish.json",
+    "data/chains/glp1-fill-finish.json",
+    "data/screens/glp1-fill-finish.json"
+   ]
+  },
+  "capture": {
+   "state": "CHOKE_POINT_THIN_LISTED_COVERAGE",
+   "link_capture_score": 55,
+   "basis": "The chain flags this link's bottleneck as a CHOKE_POINT (its purest expression on the map): the two largest filling-line OEMs, Syntegon and OPTIMA, are private, and IMA was taken private, so most of the order book publishes nothing; what is listed is the isolator/barrier half (SKAN) plus diversified machine builders including STERIS. Capture scores 55, middle of the map: real qualification-cycle barriers exist, but STERIS's own decontamination-systems business sits alongside its much larger core sterilization and surgical businesses, diluting a pure read. STERIS's own operating margin is 18.6% company-wide (FY2025), the second-highest of the O1 names promoted this run.",
+   "source_refs": [
+    "data/chains/glp1-fill-finish.json"
+   ]
+  },
+  "heat": {
+   "link_verdict": "UNDISCOVERED",
+   "heat_as_of": "2026-08-30",
+   "money_corner": false,
+   "scores": {
+    "impact": 72,
+    "crowdedness": 25,
+    "capture": 55
+   },
+   "bottleneck_criticality": "CHOKE_POINT",
+   "basis": "Ember scores this link UNDISCOVERED with crowdedness 25, the thinnest of the three O1 links promoted on this chain this run, precisely because the layer's two purest expressions (Syntegon, OPTIMA) are private and IMA went private, leaving STERIS as one of very few listed proxies for a genuine CHOKE_POINT mechanism.",
+   "source_refs": [
+    "data/chains/glp1-fill-finish.json"
+   ]
+  },
+  "quality": {
+   "state": "COMPLETE_MEASURED_SET",
+   "piotroski": {
+    "value": 9,
+    "state": "STRONG",
+    "inputs": "9/9 present"
+   },
+   "beneish": {
+    "value": -2.677,
+    "state": "CLEAN",
+    "inputs": "12/12 present"
+   },
+   "net_debt_to_ebitda": 0.735,
+   "fcf_margin": 0.1638,
+   "operating_cash_flow_to_net_income": 1.715,
+   "basis": "All 12 canonical fields sourced with zero NULL. Piotroski 9 of 9, a perfect STRONG score and the highest of any O1 name promoted this run, Beneish -2.677 (CLEAN), low leverage (0.74x net debt to EBITDA), and operating cash flow well above net income (1.71x). The strongest overall quality profile among this run's ten promotions.",
+   "counterweight": "Quality describes STERIS's whole medical-device and life-sciences business, the large majority of which is sterilization and surgical products unrelated to GLP-1 fill-finish specifically; the aseptic-filling-and-isolator placement is one product line within a much larger, diversified company.",
+   "source_refs": [
+    "data/market/STE.json"
+   ]
+  },
+  "expectations_gap": {
+   "state": "GAP_WITHIN_HORIZON_NOISE",
+   "market_implied_fcf_cagr_5y": 0.1229,
+   "horizon_spread": 0.0436,
+   "achieved_revenue_cagr_3y": 0.0938,
+   "basis": "Reverse DCF solves a 12.29% five-year implied FCF CAGR against an achieved 9.38% three-year revenue CAGR, a roughly 3-point gap that is smaller than the 4.36-point horizon_spread: the smallest, most horizon-consistent expectations gap among this run's O1 promotions. This reads as a modest, credible extrapolation of recent growth rather than a wide mispricing claim in either direction.",
+   "horizon_caveat": "reverse_dcf fields are SPECULATIVE by construction; the gap here is within horizon-convention noise and should not be oversold as a mispricing thesis.",
+   "source_refs": [
+    "data/market/STE.json"
+   ]
+  },
+  "evidence_confidence": {
+   "canonical_fields_written": 12,
+   "confidence_audit": {
+    "verified": 1,
+    "inferred": 9,
+    "speculative": 2,
+    "null": 0
+   },
+   "identity_chain": {
+    "mapping_status": "ACTIVE",
+    "mapping_audit_status": null,
+    "listing_id": "NYSE-STE",
+    "screen_identity_schema": "campaign-v1",
+    "screen_row_audit_scope": "PLACEMENT"
+   },
+   "filing_evidence": "No whole-census audit exists yet for glp1-fill-finish, and unlike the other two glp1-fill-finish O1 names promoted this run, STERIS carries no placement_audits[] entry (the array's four entries are all on the autoinjector-and-pen-platforms link, not this one). This row was admitted under the PLACEMENT path on all-VERIFIED placement evidence (a single evidence item, tag VERIFIED, re-fetched and verbatim-confirmed 2026-09-04), which the screen contract accepts as an alternative to a placement audit for row admission. Stocky's future `run deepdive` will still need either a fresh-context placement audit or the mapping's whole-census PASS audit, neither of which exists yet; this is named as a known weakness below.",
+   "known_weaknesses": [
+    "No placement_audits[] entry exists for STERIS on this link, unlike the other two O1 names on this chain (see filing_evidence); a future fresh-context `run universe-audit glp1-fill-finish --placement STERIS` is the next needed stage before Stocky can dive it, owned by Atlas.",
+    "No disclosed revenue percentage ties the aseptic-filling-and-isolator business specifically to STERIS's consolidated financials, most of which is unrelated sterilization and surgical products."
+   ],
+   "basis": "Identity resolves end to end: issuer STERIS, listing NYSE-STE, one ACTIVE placement, one campaign-v1 screen row (bucket picks_and_shovels) matching issuer_id, listing_id, chain_id and link_id. All 12 canonical fields sourced with zero NULL; revenue.latest_fy tag VERIFIED and cash_conversion tags INFERRED/official_source true (SEC XBRL companyfacts).",
+   "source_refs": [
+    "data/mappings/glp1-fill-finish.json",
+    "data/screens/glp1-fill-finish.json",
+    "data/market/STE.json"
+   ]
+  },
+  "duplicate_exposure": {
+   "state": "SINGLE_LINK_NO_OVERLAP_FOUND",
+   "placements_held": 1,
+   "listings_held": 1,
+   "basis": "STERIS holds exactly one ACTIVE placement, on a different link (aseptic-filling-and-isolator-equipment) from the two autoinjector-platform names (West Pharmaceutical Services, Halozyme Therapeutics) promoted this same run on this chain. No overlap: this is a distinct mechanism (barrier/decontamination equipment for filling lines) from the device-platform layer, so the three O1 names on this chain this run span two separate links rather than concentrating on one.",
+   "source_refs": [
+    "data/mappings/glp1-fill-finish.json"
+   ]
+  },
+  "screen_handoff": {
+   "screen_ref": "data/screens/glp1-fill-finish.json",
+   "chain_id": "glp1-fill-finish",
+   "link_id": "aseptic-filling-and-isolator-equipment",
+   "listing_id": "NYSE-STE"
+  }
+ }
 }
