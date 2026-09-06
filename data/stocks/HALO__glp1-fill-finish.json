@@ -1,0 +1,311 @@
+{
+  "ticker": "HALO",
+  "name": "Halozyme Therapeutics, Inc.",
+  "issuer_id": "HALOZYME-THERAPEUTICS",
+  "listing_id": "NASDAQ-HALO",
+  "chain_id": "glp1-fill-finish",
+  "link_id": "autoinjector-and-pen-platforms",
+  "link_id_basis": "Exact match to the O1 profile's selection_basis.screen_handoff (link_id autoinjector-and-pen-platforms, position 11, heat UNDISCOVERED, money_corner true) and to the picks_and_shovels bucket row in data/screens/glp1-fill-finish.json. Halozyme's only ACTIVE placement on this chain is this one link, so there is no secondary placement to disambiguate. Flagged for the record (see bear[0] and independence_test): Halozyme does not appear among the chain link's own four example_tickers (YPSN.SW, BDX, GXI.DE, STVN), all of which the chain's heat block cites with specific GLP-1 pen or autoinjector evidence; Halozyme entered this link solely through the mapping's own placement evidence, a 2022 acquisition press release with no GLP-1-specific content.",
+  "screen_ref": "data/screens/glp1-fill-finish.json",
+  "scenario_ids": [],
+  "tier": "T1",
+  "tier_basis": "US-listed SEC filer (method section 6): Nasdaq:HALO carries a real SEC CIK (1159036); data/market/HALO.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block (Piotroski, Beneish, Altman, reverse DCF), matching the O1 profile's own data_tier_basis. data/edgar/docs/HALO.json holds one verbatim-fetched filing (a Q2 2026 8-K exhibit), so this dive can VERIFY filing quotes rather than relying solely on WebFetch/WebSearch reads, unlike several prior dives in this corpus.",
+  "clock": "COMPOUNDER",
+  "clock_basis": "Inherited from the glp1-fill-finish chain, whose own clock field reads COMPOUNDER: a multi-year device-and-fill-finish capacity buildout repricing, not a dated binary resolution (method section 2). scenario_ids is empty, so nothing overrides it to EVENT. review_by is set to 2026-11-15, 70 days from updated_at (2026-09-06), inside the 90-day COMPOUNDER cap and timed to land just after Halozyme's expected Q3 2026 earnings release: the company's disclosed 2026 cadence so far is Q1 reported in May and Q2 reported 2026-08-06, so a roughly-13-week cadence points to early-to-mid November for Q3.",
+  "status": "DRAFT",
+  "created_at": "2026-09-06",
+  "updated_at": "2026-09-06",
+  "as_of": "2026-09-06",
+  "review_by": "2026-11-15",
+  "verdict": "WATCH",
+  "shadow_ref": null,
+  "entry_zone": null,
+  "no_entry_above": null,
+  "watch_triggers": [
+    {
+      "metric": "A disclosed Halozyme collaboration, license or product-development agreement pairing its Antares/VIBEX/QuickShot autoinjector platform or its Hypercon microparticle technology with a GLP-1 or incretin molecule (semaglutide, tirzepatide, retatrutide or a successor)",
+      "level": "1 confirmed agreement (zero found this run)",
+      "direction": "above",
+      "note": "This is the single fact that would validate the chain placement this dive is chartered to test. Every deal named in Halozyme's own Q2 2026 release (Vertex, Oruka, GSK, Incyte, an undisclosed nucleic-acid partner) is an ENHANZE or Hypercon deal for an unrelated indication (oncology, psoriasis, myeloproliferative neoplasms), not GLP-1. Absent this by review_by, the honest reading stays that this placement has no confirmed basis, independent of price."
+    },
+    {
+      "metric": "Device or product-sales revenue disclosure attributing a nonzero dollar figure or percentage specifically to GLP-1- or incretin-related use, in a 10-Q, 10-K or investor presentation",
+      "level": "0% (currently blended into product sales and collaboration revenue with no molecule-level breakout)",
+      "direction": "above",
+      "note": "Halozyme's income statement reports 'Product sales, net' ($129.6M Q2 2026) and 'Revenues under collaborative agreements' ($43.7M Q2 2026) as single blended lines (data/edgar/docs/HALO.json, Q2 2026 8-K exhibit); no GLP-1 attribution exists inside either."
+    },
+    {
+      "metric": "Q3 2026 GAAP operating margin, at Halozyme's next quarterly release (expected inside review_by on the company's own cadence)",
+      "level": "45%",
+      "direction": "below",
+      "note": "Tests the operating_margin gap-table row's own assumption that the FY2025 compression (33.6% full-year, against 54.3% FY2024 and 55.06% for H1 2026 standalone: 472,171/857,707 from the Q2 2026 8-K) was driven by temporary Q4 2025 Elektrofi/Surf Bio integration costs rather than a new, lower structural run-rate. A print below 45% at Q3 would say the normalization this dive assumes is not holding."
+    }
+  ],
+  "price_ref": {
+    "value": 109.875,
+    "source": "data/market/HALO.json series.rows last close (2026-09-04); price_status SINGLE_SOURCE",
+    "as_of": "2026-09-04"
+  },
+  "price_source_note": "data/market/HALO.json price_status is SINGLE_SOURCE: the stockanalysis second leg answered (110.76) but for 2026-09-03, a different trading session than the yfinance close this dive reasons from (109.875, 2026-09-04), so method section 1's own compare_prints rule refuses to call that an agreement (a stale peer print is not a second reading of today's close). Every level in this file is therefore a function of one confirmed source for that specific close.",
+  "what_is_priced_in": [
+    {
+      "expectation": "The 12-month move is large (+49.69%, 73.40 on 2025-09-04 to 109.875 on 2026-09-04) and it IS substantially a story of multiple expansion, on a GAAP basis: FY2025 net income fell 28.66% (444,091,000 to 316,889,000) even as the price rose, so trailing P/E roughly doubled, from about 20.4x to about 40.8x. Read naively this looks exactly like the multiple-expansion-eats-the-runway shape method section 7 defines as TOO_LATE.",
+      "evidence": "computed from data/market/HALO.json series.rows (73.40 on 2025-09-04, 109.875 on 2026-09-04) and fundamentals.net_income_fy (444,091,000 FY2024, 316,889,000 FY2025) and quality.shares_used (117,782,000 FY2025, 123,138,000 FY2024)",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "But the GAAP earnings decline itself has a disclosed, one-time driver rather than a business slowdown: revenue grew 37.6% in FY2025 while operating income fell 14.96% (551,475,000 to 469,006,000), and Halozyme's own Q2 2026 filing attributes the increased amortization and R&D expense behind that compression to the Elektrofi (November 2025) and Surf Bio (Q4 2025) acquisitions. H1 2026 operating income (472,171,000) already exceeds the ENTIRE FY2025 print, and non-GAAP diluted EPS, which excludes the acquisition-related amortization, grew 48% in Q2 2026 alone. The naive GAAP-P/E read is fooled by a temporarily depressed earnings base, not by fundamentals catching down to price.",
+      "evidence": "data/edgar/docs/HALO.json (Q2 2026 8-K exhibit, accession 0001159036-26-000103): quoted verbatim in filing_evidence; H1 2026 operating income and non-GAAP EPS growth from the same document's condensed statements and reconciliation tables",
+      "tag": "VERIFIED"
+    },
+    {
+      "expectation": "The market's own reverse-DCF, at this SINGLE_SOURCE close, asks for only an 11.3% five-year FCF CAGR (7.4% at ten years) — well below both Halozyme's own just-raised FY2026 guidance (31-37% total revenue growth, 86-95% adjusted EBITDA growth, 108-117% non-GAAP EPS growth) and this dive's own deliberately decelerated 18% revenue / 50% margin build (net_gap_direction, roughly 22.1% FCF-CAGR-equivalent). On the company's ACTUAL growth engine (ENHANZE royalties), the market's forward ask looks modest, not stretched.",
+      "evidence": "data/market/HALO.json quality.reverse_dcf (implied_fcf_cagr 0.113, implied_by_horizon {5: 0.113, 7: 0.0905, 10: 0.074}, state SOLVED); guidance figures quoted verbatim in filing_evidence; this dive's own build in expectations_gap.rows[net_gap_direction]",
+      "tag": "SPECULATIVE"
+    },
+    {
+      "expectation": "None of this growth is confirmed to touch GLP-1s or autoinjector pen platforms, which is the actual chartered question. Halozyme's entire named 2026 deal slate (Vertex, Oruka, GSK, Incyte, an undisclosed nucleic-acid partner) targets oncology, psoriasis and myeloproliferative disease, not obesity or diabetes; its own device business (Hylenex, XYOSTED, the Teva and Viatris/McDermott partnerships) is described in one short paragraph with no GLP-1 mention at all; and Halozyme is absent from the chain's own four example tickers and from every GLP-1/weight-loss thematic ETF and beneficiary list this dive searched.",
+      "evidence": "data/edgar/docs/HALO.json (device-business paragraph, quoted verbatim in filing_evidence); data/chains/glp1-fill-finish.json link example_tickers; WebSearch, 2026-09-06, over Halozyme-GLP-1 pairings, the Amplify Weight Loss Drug and Treatment ETF holdings (per the chain's own crowdedness evidence), and general HALO analyst coverage, none of which surfaced a GLP-1 connection",
+      "tag": "INFERRED"
+    }
+  ],
+  "priced_in_summary": "Not TOO_LATE, on the method's own test, though it is closer to that shape than any other dive in this corpus: trailing GAAP P/E roughly doubled over the past year (20.4x to 40.8x) even as GAAP net income fell 28.7%, which is the multiple-expansion signature TOO_LATE looks for. But the decomposition does not stop there, and going one layer deeper reverses the reading: the GAAP earnings decline is a disclosed, one-time artifact of two Q4 2025 acquisitions (Elektrofi, Surf Bio), non-GAAP EPS and H1 2026 operating income are both already running ahead of the full FY2025 print, and the market's own reverse-DCF ask (11.3% five-year FCF CAGR) sits well below both Halozyme's raised FY2026 guidance and this dive's own conservative build. The runway has not been eaten; if anything the forward ask looks modest. WATCH is nonetheless the honest verdict, and it is capped by the independence test rather than by price or by earnings quality: this dive cannot name a category of market error specific to GLP-1 fill-finish or autoinjector-pen capture, because no evidence found this run connects Halozyme's device platform, or any part of its actual growth engine (ENHANZE royalties), to a GLP-1 product. The valuation gap above is real but it is evidence for a different, off-thesis investment case, not for the placement this dive was chartered to test.",
+  "bull": [
+    {
+      "point": "Company-wide growth is genuinely strong and broadening, verified against the filed Q2 2026 8-K: total revenue +48% YoY to $481.0M, royalty revenue +50% YoY to $307.7M, and FY2026 guidance was just raised to $1.835-1.910B total revenue (31-37% growth), $1.220-1.245B royalty revenue (41-43%) and $1.225-1.280B adjusted EBITDA (86-95% growth), with five new ENHANZE and Hypercon collaborations signed year to date against a full-year goal of three.",
+      "evidence": "Halozyme Therapeutics, Inc., Form 8-K exhibit 99.1, filed 2026-08-06, accession 0001159036-26-000103, https://www.sec.gov/Archives/edgar/data/1159036/000115903626000103/ex991q220268-k.htm, quote: \"Total Revenue Increased 48% YOY to $481 million Royalty Revenue Increased 50% YOY to $308 million\" and \"Total Revenue of $1.835 - $1.910 billion, YOY Growth of 31% - 37% Royalty Revenue of $1.220 - $1.245 billion, YOY Growth of 41% - 43% Adjusted EBITDA of $1.225 - $1.280 billion, YOY Growth of 86% - 95%\" and \"Signed Five New ENHANZE ® and Hypercon ™ Collaboration Agreements YTD 2026, Exceeding Goal of Three for Full Year 2026\"",
+      "tag": "VERIFIED"
+    },
+    {
+      "point": "Every mechanically computable earnings-quality input is clean, and the one large flag (a -14.59% FY2025 accrual ratio against the 5% caution band) runs in the conservative direction (cash exceeds earnings) and has a disclosed, non-manipulation driver: Beneish M-score -2.56 against a -1.78 review threshold (CLEAN, 12 of 12 inputs), Piotroski's own binary accrual criterion passes (cash flow above net income), Altman Z 4.64 (SAFE), cash conversion 205.6% and FCF margin 46.2%, both far above the 90% grade-A cash-conversion floor.",
+      "evidence": "data/market/HALO.json quality.piotroski, quality.beneish, quality.altman; accruals and cash-conversion ratios computed in this dive from fundamentals.net_income_fy, operating_cashflow_fy, capex_fy and total_assets_fy, shown in earnings_quality.inputs",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "On the company's own filed reverse-DCF, the market's forward ask (11.3% five-year FCF CAGR) sits well below both Halozyme's own raised guidance and this dive's own deliberately conservative build (roughly 22.1% FCF-CAGR-equivalent from an 18% revenue-growth, 50%-margin path, versus an achieved trailing three-year revenue CAGR of 28.4%), a gap that survives a downside stress on the most volatile input in the build (the cash-conversion assumption).",
+      "evidence": "data/market/HALO.json quality.reverse_dcf (implied_fcf_cagr 0.113, state SOLVED, base_fcf 644,588,000.0, enterprise_value 14,715,843,250.0, 9% discount rate, 2.5% terminal growth, 5-year horizon); this dive's own forward replication and stress computations in expectations_gap.rows[net_gap_direction]",
+      "tag": "SPECULATIVE"
+    }
+  ],
+  "bear": [
+    {
+      "point": "No evidence found this run connects Halozyme's Antares/Hypercon device business, or any other part of Halozyme's business, to a GLP-1 or incretin molecule. Halozyme is not one of the glp1-fill-finish chain's own four example tickers for this link (YPSN.SW, BDX, GXI.DE, STVN); the sole piece of mapping evidence is a 2022 SEC 8-K describing the newly-acquired Antares platform as suitable for \"a broad range of medications\", naming no GLP-1 product; and the company's actual FY2026 growth (48% YoY revenue) is overwhelmingly ENHANZE enzyme-royalty revenue on unrelated large-molecule biologics (argenx's VYVGART Hytrulo, Janssen's DARZALEX SC), a different technology from a mechanical autoinjector and unconnected to GLP-1 fill-finish capacity. This is the dive's headline finding: see independence_test.",
+      "evidence": "data/mappings/glp1-fill-finish.json placement evidence (2022 Halozyme/Antares 8-K exhibit); data/chains/glp1-fill-finish.json link example_tickers and bottleneck.note; data/edgar/docs/HALO.json Q2 2026 8-K (ENHANZE partner list and device-business paragraph, quoted verbatim in filing_evidence); WebSearch, 2026-09-06, for any Halozyme-GLP-1 pairing (Antares VIBEX/QuickShot device history: testosterone, sumatriptan, epinephrine, hydroxyprogesterone caproate; no GLP-1 use found)",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "The stock has already re-rated sharply, and largely on multiple expansion rather than GAAP earnings growth: trailing P/E roughly doubled over the trailing year (about 20.4x on 2025-09-04 to about 40.8x on 2026-09-04) even as GAAP net income fell 28.7% (444,091,000 to 316,889,000, FY2024 to FY2025), while the price rose 49.7% and now sits within 0.8% of its 52-week high (110.76). Every sell-side price target found this run ($95 H.C. Wainwright, $96 Morgan Stanley) sits below the current $109.875 close.",
+      "evidence": "computed from data/market/HALO.json series.rows (73.40 on 2025-09-04, 109.875 and week52.high 110.76 on/near 2026-09-04) and fundamentals.net_income_fy and quality.shares_used; price targets from WebSearch, 2026-09-06, MarketBeat instant-alert summaries dated 2026-07-10 and 2026-08-06",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "The balance sheet has re-levered materially to fund an aggressive buyback rather than growth capex: long-term debt rose from $1,505.8M (FY2024) to $2,142.6M (FY2025), stockholders' equity fell to just $48.8M (from $363.8M), and net debt to EBITDA is 3.69x, the highest among this chain's O1 promotions this run; a new $1.0B repurchase authorization runs through 2028 with at least $400M planned for 2026, on top of $332.8M already repurchased in Q2 2026 alone. The CFO seat also turned over twice in the trailing year: Nicole LaBrosse's departure was announced 2025-11-18, an interim CFO covered the gap, and Darren Snellgrove (ex-J&J Pharmaceuticals CFO) started 2026-06-08.",
+      "evidence": "data/market/HALO.json fundamentals.long_term_debt_fy and equity_fy; data/edgar/docs/HALO.json Q2 2026 8-K (buyback figures, quoted verbatim in filing_evidence); WebSearch, 2026-09-06, Halozyme Form 8-K press releases and news coverage on the LaBrosse transition (2025-11-18) and the Snellgrove appointment (effective 2026-06-08)",
+      "tag": "INFERRED"
+    }
+  ],
+  "events": [],
+  "valuation_snapshot": {
+    "price": 109.875,
+    "price_as_of": "2026-09-04",
+    "currency": "USD",
+    "market_cap": 12941297250.0,
+    "enterprise_value": 14715843250.0,
+    "ev_to_base_fcf": 22.831,
+    "price_to_sales": 9.266214608076265,
+    "week52_low": 61.63,
+    "week52_high": 110.76,
+    "pct_below_52w_high": 0.008,
+    "pct_above_52w_low": 0.7829,
+    "twelve_month_price_change": 0.4969,
+    "net_debt_to_ebitda": 3.694,
+    "trailing_pe_now": 40.84,
+    "trailing_pe_1y_ago": 20.36,
+    "basis": "Every field here is read from data/market/HALO.json (series.rows, week52, quality.derived, quality.reverse_dcf) or from the O1 profile's canonical metrics, which themselves cite that file, except trailing_pe_now and trailing_pe_1y_ago, which this dive computes as price / (net_income_fy / shares_fy) for the FY2025 and FY2024 net-income prints against the 2026-09-04 and 2025-09-04 closes respectively (109.875 / (316,889,000/117,782,000) = 40.84; 73.40 / (444,091,000/123,138,000) = 20.36), and net_debt_to_ebitda, which is the O1 profile's own computed figure (net debt 1,774,546,000 over an EBITDA proxy of 469,006,000 operating income plus 11,389,000 depreciation, both FY2025). EV/base FCF is 14,715,843,250 over 644,588,000. The 12-month change is 109.875 over 73.40 minus 1.",
+    "tag": "INFERRED"
+  },
+  "crowdedness": {
+    "state": "UNSCOREABLE_NO_CONFIRMED_THEME_EXPOSURE",
+    "pcs": null,
+    "basis": "data/market/HALO.json carries no pcs block, so PCS Axis A/B cannot be scored quantitatively (method section 6 T1/T3 gap). More important than the missing data: the chain's own link-level heat score (crowdedness 38/100, scored against Ypsomed, Nemera and the broader pen-platform peer set) is not really a crowdedness read on HALO specifically, because HALO is not one of the four tickers that heat score was built against, and this dive's own searches (the Amplify Weight Loss Drug and Treatment ETF holdings the chain itself cites, and a dedicated WebSearch for a Halozyme-GLP-1 pairing) found zero mentions of Halozyme anywhere in GLP-1/weight-loss thematic material. That absence is not evidence of an undiscovered real exposure (the UNDISCOVERED read the chain applies to the link as a whole); for this specific ticker it is more consistent with there being no real exposure to discover. Separately, and unrelated to the GLP-1 theme, the stock trades within 0.8% of its 52-week high on a trailing P/E that has roughly doubled over the past year (see valuation_snapshot and bear[1]), which is its own, different, crowding signal on the ENHANZE-royalty growth story actually being priced.",
+    "tag": "INFERRED"
+  },
+  "expectations_gap": {
+    "market_implied_source": "data/market/HALO.json quality.reverse_dcf [implied_fcf_cagr 0.113, state SOLVED, base_fcf 644,588,000.0, enterprise_value 14,715,843,250.0, 9% discount rate, 2.5% terminal growth, 5-year explicit period, bisection method; implied_by_horizon 7y 0.0905, 10y 0.074, horizon_spread 0.039; as_of 2026-09-04; assumptions tagged SPECULATIVE in the file itself]",
+    "denominator": "5 of 5 required rows populated. Market-implied column: 2 of 5 rows carry a number from the solve (revenue_cagr_5y as a labelled FCF-CAGR proxy, terminal), 2 are explicitly NULL because the filed solve does not decompose them (operating_margin, reinvestment_return), and net_gap_direction is a direction rather than a level. Tags across the table: 3 INFERRED (mine values), 2 SPECULATIVE (market-implied revenue_cagr_5y proxy, terminal), 2 NULL (market-implied operating_margin, reinvestment_return).",
+    "category_mismatch_note": "quality.reverse_dcf solves a FREE CASH FLOW CAGR, and the required row is a REVENUE CAGR; they are not the same quantity, a defect this analyst's own log has flagged three times before (MYRG, HUBB, and named again on ESLT). Row 1 carries the solve as a labelled proxy under a stated flat-margin/flat-conversion assumption, and this dive additionally builds its own FCF-CAGR-equivalent (roughly 22.1% at the 5-year horizon) from its own revenue, margin and conversion assumptions in net_gap_direction, so the comparison that actually matters is like for like.",
+    "rows": [
+      {
+        "driver": "revenue_cagr_5y",
+        "market_implied": 0.113,
+        "market_implied_note": "This is the solved 5-year FCF CAGR, not a decomposed revenue CAGR. Held here as the closest proxy under a flat-margin/flat-conversion assumption, and named as such.",
+        "mine": 0.18,
+        "percentile": 60,
+        "why": "18% is a deliberate deceleration from both the achieved trailing three-year revenue CAGR (28.4%) and Halozyme's own just-raised FY2026 guidance midpoint (roughly 34%), reflecting the base-rate caution that >20% growers median-revert hard and only 1-3% sustain 20%+ for a decade (docs/analyst-sources.md). It is still well above the market's own 11.3% ask.",
+        "structural_reason": "Five new ENHANZE/Hypercon collaborations signed in 2026 alone (Vertex, Oruka, GSK, Incyte, an undisclosed nucleic-acid partner) have not yet contributed meaningful royalties; each is a multi-year runway of newly launching products layering on top of already-scaling royalty streams from argenx's VYVGART Hytrulo and Janssen's DARZALEX SC.",
+        "leading_indicator": "Q3 2026 royalty revenue growth at or above 40% year over year (inside the 41-43% FY2026 guided range), reportable at the company's next quarterly release, expected inside review_by.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "operating_margin",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a margin path from the headline FCF CAGR. Recorded NULL rather than invented.",
+        "mine": 0.5,
+        "percentile": 65,
+        "why": "50% sits between the FY2024 print (54.3%) and a haircut for the still-integrating Elektrofi and Surf Bio businesses; well above the depressed FY2025 print (33.6%, per fundamentals.operating_income_fy 469,006,000 over revenue 1,396,611,000) but below the H1 2026 run-rate (472,171,000/857,707,000 = 55.06%), because H1 2026 has not yet carried a full year of the new intangible-amortization base or the roughly $60M of incremental Hypercon/Surf Bio investment management's own FY2026 guidance names.",
+        "structural_reason": "A royalty-heavy revenue mix (royalty revenue guided to 41-43% growth against 31-37% total revenue growth) carries close to incremental-margin economics once the fixed cost of administering the ENHANZE licensing book is covered.",
+        "leading_indicator": "Q3 2026 GAAP operating margin at or above 45% (watch_triggers[2]).",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "reinvestment_return",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a reinvestment return, and no company-disclosed ROIC or ROCE figure appears in any source read this run. Recorded NULL rather than invented.",
+        "mine": 0.1446,
+        "percentile": 45,
+        "why": "A crude FY2025 return on invested capital, computed here and not disclosed, is 14.46%: net income 316,889,000 over invested capital of 2,191,444,000 (long-term debt 2,142,630,000 plus equity 48,814,000). Net income is used as the NOPAT proxy deliberately, so no tax rate is assumed anywhere in this file. Held roughly flat rather than extrapolated, because the denominator is unusually fragile: equity has been driven down to just $48.8M by two years of buybacks funded partly by new convertible debt, so a further buyback funded by more debt could mechanically move this ratio without any change in operating fundamentals, which this dive treats as a reason for caution rather than for extrapolating the ratio upward.",
+        "leading_indicator": "FY2026 year-end long-term debt and equity figures, against this year's 2,191,444,000 invested-capital base, at the FY2026 release (beyond review_by).",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "terminal",
+        "market_implied": 0.025,
+        "mine": 0.025,
+        "percentile": 50,
+        "why": "No disagreement, and saying so is worth a row. 2.5% perpetual growth is a reasonable long-run nominal assumption. The assumption this dive would question is the discount rate: 9% is applied to a company that has just taken on a large convertible-note-funded debt load to fund buybacks (bear[2]), which arguably warrants a higher rate, not a lower one. A higher discount rate would LOWER the enterprise value the filed solve attributes to any given growth path, meaning the SAME price would then require an even higher implied FCF CAGR to justify it, widening rather than closing this dive's own 'the market's ask is modest' finding. Method section 7 forbids re-solving in session for the filed column itself, so this is named as a factor rather than acted on.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "net_gap_direction",
+        "mine": "MARKET_IMPLIES_LESS_THAN_THIS_DIVE_DEFENDS_AT_BOTH_HORIZONS",
+        "note": "Built like for like rather than compared revenue against FCF, and built as a 2x2 sensitivity rather than one declared convention, because this analyst's own log has flagged an undeclared or untested margin/conversion assumption as a recurring defect (MYRG, ANDR.VI, 688425.SS). Two levers: whether operating margin stays at its FY2025 actual level (33.58%, 469,006,000/1,396,611,000) or normalizes to a 50% steady state (operating_margin row), and whether the cash-conversion ratio (free cash flow over operating income) stays at its elevated FY2025 print (1.3744) or reverts to the FY2022-FY2025 four-year average (1.0523). Revenue compounding at this row's own 18% for five years gives approximately 3,195,107,648 in FY2030 revenue under all four combinations (the lever is margin and conversion, not revenue). BASE CASE, both held flat at their FY2025 actual levels (no margin-recovery assumption at all): FY2030 FCF approximately 1,474,661,197, a 5-year FCF CAGR of exactly 18.00% (when margin and conversion are both unchanged, FCF necessarily grows at the revenue rate). Against the filed 5-year market-implied 11.3%, that is a gap of +6.70 percentage points, outside the file's own 3.9-point horizon_spread: a real gap under the single most conservative combination tested. UPSIDE (margin normalizes to 50%, conversion also normalizes to the 4-year average 1.0523): FY2030 FCF approximately 1,681,105,889, CAGR 21.13%, gap +9.83 points. FURTHER UPSIDE (margin normalizes to 50%, conversion holds at the elevated FY2025 print): FY2030 FCF approximately 2,195,630,812, CAGR 27.78%, gap +16.48 points. FLOOR (margin stays at its depressed FY2025 level, conversion reverts to the lower 4-year average): FY2030 FCF approximately 1,129,088,556, CAGR 11.86%, gap only +0.56 points, INSIDE the horizon_spread — the one combination of the four where this dive's own build finds NO measurable gap. So the 'real gap' finding survives three of four tested combinations and depends on NOT assuming the worst plausible case (permanently depressed margin AND normalized, lower conversion) at the same time; disclosed rather than hidden, per this analyst's own 'declare and vary' discipline. At the filed 10-year market-implied 7.4%, the BASE CASE (flat margin and conversion, which by construction gives the same 18.00% CAGR at any horizon) produces a gap of +10.6 points, WIDER than the 5-year base-case gap (+6.70 points): the opposite pattern from every other multi-horizon finding in this corpus (VRT, MYRG, HUBB, ANDR.VI and 688425.SS all found gaps that shrank or flipped sign at ten years). This widening is a mechanical feature of comparing a FLAT growth assumption against the market's own implied ask, which itself DECLINES from 11.3% to 7.4% across the two horizons — a structural reason distinct from margin or conversion, and one this dive flags rather than resolves. Forward-solving the filed bisection formula at each of the four 5-year CAGRs (reproducing the filed enterprise value of 14,715,843,250 to within 0.002% at the market's own 11.3% before varying the target) gives illustrative fair values of $148.19 (base case), $169.17 (upside), $221.21 (further upside) and $112.76 (floor case), all ABOVE the $109.875 reference price under every combination tested — the opposite problem from a typical WATCH in this corpus, where the zone this analyst draws sits well below spot. Finally and most importantly: none of this arithmetic, however constructed, is a claim about GLP-1 fill-finish or autoinjector-pen capture. It is a valuation statement about Halozyme's CONSOLIDATED business, which is overwhelmingly ENHANZE royalty revenue on unrelated large-molecule biologics (bear[0]). See independence_test and would_buy_basis for why this real, computed gap cannot be used to clear the chain placement this dive was chartered to test."
+      }
+    ]
+  },
+  "independence_test": {
+    "largest_disagreement": "This dive cannot identify a market disagreement about GLP-1 fill-finish or autoinjector-and-pen-platform capture specifically, because no evidence found this run (Halozyme's own Q2 2026 earnings release, its Antares/Hypercon device-business description, the chain's own link evidence, or a dedicated WebSearch for any Halozyme-GLP-1 pairing) shows Halozyme's device platform being used in, licensed for, or even discussed in connection with a GLP-1 or incretin molecule. The one piece of evidence that placed Halozyme on this chain (a 2022 SEC 8-K describing the newly-acquired Antares platform as 'suitable for use with a broad range of medications') is four years old, generic, and names no GLP-1 product; Halozyme is not among the chain's own four example_tickers for this link (YPSN.SW, BDX, GXI.DE, STVN), each of which the chain's heat block cites with specific GLP-1 pen or autoinjector evidence. What the market IS pricing, on the reverse-DCF evidence this file holds, is a completely different, unrelated growth story: royalty revenue from Halozyme's ENHANZE enzyme-based drug-delivery platform, licensed to argenx (VYVGART Hytrulo), Janssen (DARZALEX SC) and, in 2026 alone, five newly-signed partners (Vertex, Oruka, GSK, Incyte and an undisclosed nucleic-acid partner) across oncology, psoriasis and myeloproliferative disease — none GLP-1-related.",
+    "why_the_gap_exists": "Not answerable for the chartered thesis: there is no GLP-1-fill-finish-specific gap to explain, because there is no confirmed GLP-1-fill-finish exposure to misprice. Separately, and explicitly NOT a substitute for the answer above: for the actual ENHANZE-royalty story the market is pricing, a real and answerable disagreement does exist (net_gap_direction), and a plausible category of market error for it is that GAAP net income fell sharply in FY2025 (444,091,000 to 316,889,000) on disclosed, one-time, non-cash charges tied to the Elektrofi and Surf Bio acquisitions closing in Q4 2025, which likely fooled trailing-GAAP-P/E-based screens (trailing P/E roughly doubled, 20.4x to 40.8x, even as GAAP EPS fell) into reading the name as expensive on a metric the underlying cash-generative royalty business does not actually support. That is real and worth recording (bull[2], what_is_priced_in), but it is evidence for a different investment thesis than the one this dive was chartered to test, and it cannot be used to clear this chain placement. Per method section 7: not being able to say why the market is wrong about the chartered thesis is the finding, not a gap in the writeup.",
+    "falsification": "Stated to prove this dive's central finding (no confirmed GLP-1 capture) WRONG, not to confirm it: Halozyme disclosing, in an SEC filing, earnings release or investor presentation by review_by (2026-11-15) or after, a named collaboration, license or product-development agreement pairing its Antares/VIBEX/QuickShot autoinjector platform or its Hypercon microparticle technology with a GLP-1 or incretin molecule (semaglutide, tirzepatide, retatrutide or a successor), or a device/product revenue breakout attributing a nonzero dollar figure or percentage to GLP-1-related use (watch_triggers[0] and [1]). Absent either, this dive's skepticism about the chain placement stands; a re-run should route the finding to Atlas/Sieve (mapping and profile owners) rather than treat repeated re-dives at a lower price as the fix, since price is not what is missing."
+  },
+  "earnings_quality": {
+    "grade": "B",
+    "basis": "Grade B: a mechanically clean earnings-quality battery carrying two mild, disclosed and defensible flags, not a clean A and not a Beneish-breach C. Clean: Beneish M-score -2.56 against the -1.78 review threshold (CLEAN, 12 of 12 inputs found); Altman Z 4.64 (SAFE, 8 of 8 inputs found); Piotroski 5 of 9 (MIDDLING, 9 of 9 inputs found, missing d_roa, d_leverage, d_current and gross_margin), and critically, Piotroski's own binary accrual criterion PASSES (operating cash flow exceeds net income), the quality-positive direction; DSO 111.4 days FY2025 against 102.7-127.8 days across FY2022-FY2024, noisy around the 2022 acquisition year but not a sustained multi-year upward drift; capex-to-depreciation 0.61x FY2025 (down from 1.04x-1.38x FY2023-FY2024), unremarkable for an asset-light royalty licensor with net PP&E of just $44.4M against $1.4B revenue. FLAG 1: accruals of -14.59% of average total assets in FY2025 (net income 316,889,000 against operating cash flow 651,558,000, average total assets 2,294,400,000), well outside the 5% caution band in absolute magnitude but in the CONSERVATIVE direction (cash exceeds earnings, consistent with Piotroski's own accrual test passing), driven by a disclosed, one-time cause: Halozyme's own Q2 2026 filing attributes the FY2025 amortization and R&D step-up to the Elektrofi (November 2025) and Surf Bio (Q4 2025) acquisitions, non-cash and integration items rather than revenue-recognition aggression. Multi-year context supports this reading: the same ratio was -1.84% (FY2024) and -5.99% (FY2023), both modest, so FY2025's magnitude is the acquisition year, not a trend. FLAG 2: a full CFO-turnover cycle within the trailing year (Nicole LaBrosse's departure announced 2025-11-18, an interim CFO, then Darren Snellgrove, an external J&J Pharmaceuticals veteran, starting 2026-06-08), orderly and disclosed via a transition and release agreement rather than an abrupt departure, per this run's WebSearch, not filing-verified this run. No auditor change found: Ernst & Young LLP was ratified at the 2026 annual meeting (2026-05-05); this run's searches surfaced no change announcement, though the search was not exhaustive back through EY's full tenure. No related-party dealings found (web search, not exhaustive; historical Intrexon board-overlap arrangement from before 2015 was reviewed and approved, per public sources, and predates the period this dive examines by a decade). Not A because the accrual magnitude and the CFO transition are real, even though both are explainable; not C because none of the accrual, Beneish, DSO or capex-to-depreciation tests independently breach C-grade territory, and the accrual sign runs the conservative way, not the manipulation-consistent way.",
+    "inputs": {
+      "accruals_pct_avg_assets_fy2025": -0.14586,
+      "accruals_pct_avg_assets_fy2024": -0.01842,
+      "accruals_pct_avg_assets_fy2023": -0.05985,
+      "beneish": -2.56,
+      "beneish_state": "CLEAN",
+      "beneish_threshold": -1.78,
+      "piotroski": 5,
+      "piotroski_state": "MIDDLING",
+      "piotroski_misses": "d_roa, d_leverage, d_current, gross_margin",
+      "piotroski_accrual_criterion": "PASS (operating cash flow exceeds net income, the quality-positive direction, corroborating the conservative reading of the large negative accrual ratio above)",
+      "altman": 4.64,
+      "altman_state": "SAFE",
+      "ocf_to_net_income_fy2025": 2.0561,
+      "fcf_margin_fy2025": 0.4615,
+      "dso_days_fy2022": 127.77,
+      "dso_days_fy2023": 102.67,
+      "dso_days_fy2024": 103.61,
+      "dso_days_fy2025": 111.41,
+      "capex_to_depreciation_fy2022": 0.7408,
+      "capex_to_depreciation_fy2023": 1.38,
+      "capex_to_depreciation_fy2024": 1.0422,
+      "capex_to_depreciation_fy2025": 0.612,
+      "source": "data/market/HALO.json quality (piotroski, beneish, altman) plus ratios computed in this session from fundamentals.receivables_fy, revenue_fy, capex_fy, depreciation_fy, net_income_fy, operating_cashflow_fy and total_assets_fy",
+      "governance": {
+        "cfo_change": "Confirmed. Nicole LaBrosse (CFO since February 2022) departure announced 2025-11-18 via a transition and release agreement (SEC 8-K exhibit); an interim CFO (David Ramsay) covered the gap; Darren Snellgrove, formerly CFO of Johnson & Johnson's Pharmaceuticals sector, started as permanent CFO 2026-06-08.",
+        "auditor_change": "No change found. Ernst & Young LLP ratified as independent registered public accounting firm at the 2026 annual meeting (2026-05-05, SEC 8-K/proxy materials). Not a verbatim quote from a fetched DEF 14A this run; named as a gap in data_gaps.",
+        "related_party": "No current related-party transaction found. Not specifically targeted by an exhaustive search this run beyond the general auditor/CFO queries; named as a gap in data_gaps.",
+        "source": "WebSearch, 2026-09-06, over Halozyme SEC 8-K filings, press releases (Halozyme, BioSpace, Contract Pharma, citybiz) and the 2026 annual-meeting results",
+        "as_of": "2026-09-06",
+        "tag": "INFERRED",
+        "note": "Secondary-source and not exhaustive. None of these facts sets a level; all three feed the grade only."
+      }
+    },
+    "veto_applied": "Grade B has no cap effect on this verdict (method section 7): the veto only binds C, D or an uncomputable (NULL) grade. This dive's WATCH is reached independently, on the independence-test failure over GLP-1-specific capture (independence_test, bear[0]), not on any earnings-quality caution. The grade is recorded here because method section 7 requires it on every dive regardless of what else binds the verdict."
+  },
+  "filing_evidence": [
+    {
+      "claim": "Halozyme's Q2 2026 total revenue rose 48% year over year to $481 million and royalty revenue rose 50% to $308 million.",
+      "source_name": "Halozyme Therapeutics, Inc., Form 8-K exhibit 99.1: HALOZYME REPORTS RECORD SECOND QUARTER 2026 RESULTS",
+      "source_date": "2026-08-06",
+      "accession": "0001159036-26-000103",
+      "form": "8-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1159036/000115903626000103/ex991q220268-k.htm",
+      "tag": "VERIFIED",
+      "quote": "Total Revenue Increased 48% YOY to $481 million Royalty Revenue Increased 50% YOY to $308 million"
+    },
+    {
+      "claim": "Halozyme raised FY2026 guidance to $1.835-1.910 billion total revenue (31-37% growth), $1.220-1.245 billion royalty revenue (41-43% growth) and $1.225-1.280 billion adjusted EBITDA (86-95% growth).",
+      "source_name": "Halozyme Therapeutics, Inc., Form 8-K exhibit 99.1",
+      "source_date": "2026-08-06",
+      "accession": "0001159036-26-000103",
+      "form": "8-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1159036/000115903626000103/ex991q220268-k.htm",
+      "tag": "VERIFIED",
+      "quote": "Total Revenue of $1.835 - $1.910 billion, YOY Growth of 31% - 37% Royalty Revenue of $1.220 - $1.245 billion, YOY Growth of 41% - 43% Adjusted EBITDA of $1.225 - $1.280 billion, YOY Growth of 86% - 95%"
+    },
+    {
+      "claim": "Halozyme's device business is described as auto-injector technology with two proprietary products (Hylenex, XYOSTED) and partnered programs with Teva and Viatris/McDermott — no GLP-1 product is named anywhere in this description.",
+      "source_name": "Halozyme Therapeutics, Inc., Form 8-K exhibit 99.1",
+      "source_date": "2026-08-06",
+      "accession": "0001159036-26-000103",
+      "form": "8-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1159036/000115903626000103/ex991q220268-k.htm",
+      "tag": "VERIFIED",
+      "quote": "Halozyme also develops, manufactures and commercializes drug-device combination products using advanced auto-injector technologies designed to improve convenience, reliability and tolerability, enhancing patient comfort and adherence. The Company has two proprietary commercial products, Hylenex ® and XYOSTED ® , partnered commercial products and ongoing development programs with Teva Pharmaceuticals and McDermott Laboratories Limited, an affiliate of Viatris Inc."
+    },
+    {
+      "claim": "Halozyme repurchased $332.8 million of shares in Q2 2026 alone, at an average price of $69.30, well below the $109.875 close this dive reasons from.",
+      "source_name": "Halozyme Therapeutics, Inc., Form 8-K exhibit 99.1",
+      "source_date": "2026-08-06",
+      "accession": "0001159036-26-000103",
+      "form": "8-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1159036/000115903626000103/ex991q220268-k.htm",
+      "tag": "VERIFIED",
+      "quote": "During the second quarter of 2026, the Company repurchased 4.8 million shares for $332.8 million at an average price of $69.30 per share under the May 2026 and February 2024 share repurchase programs."
+    },
+    {
+      "claim": "Halozyme signed five new ENHANZE and Hypercon collaboration agreements year to date in 2026, exceeding its own full-year goal of three — every named partner and indication is unrelated to GLP-1s.",
+      "source_name": "Halozyme Therapeutics, Inc., Form 8-K exhibit 99.1",
+      "source_date": "2026-08-06",
+      "accession": "0001159036-26-000103",
+      "form": "8-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1159036/000115903626000103/ex991q220268-k.htm",
+      "tag": "VERIFIED",
+      "quote": "Signed Five New ENHANZE ® and Hypercon ™ Collaboration Agreements YTD 2026, Exceeding Goal of Three for Full Year 2026"
+    }
+  ],
+  "filing_evidence_note": "data/edgar/docs/HALO.json holds one fetched filing (the Q2 2026 8-K exhibit 99.1, accession 0001159036-26-000103, filed 2026-08-06), so every quote above is verified verbatim (whitespace-normalized, case-folded, dash/quote-folded) against actual filing text, not a WebFetch/WebSearch read. This does NOT cover governance facts (CFO/auditor/related-party, sourced from press releases and WebSearch, tagged INFERRED in earnings_quality.inputs.governance) or the FY2025 10-K's own MD&A, which is not on disk and would be needed to itemize the exact one-time charges behind the FY2025 H2 operating-income decline named in data_gaps.",
+  "data_gaps": [
+    "No disclosed revenue percentage or dollar figure ties Halozyme's Antares/Hypercon device business, let alone any GLP-1-specific portion of it, to a segment-level number; device/product sales are reported blended with collaboration revenue and royalties in a single consolidated income statement. This is the data gap behind the dive's headline finding (independence_test, bear[0]), not a peripheral one.",
+    "No deferred-revenue or contract-liability line exists in data/market/HALO.json fundamentals (the same gap this analyst's log has flagged on ANDR.VI); Halozyme's balance sheet bundles it inside 'Other long-term liabilities' ($102.7M at 2026-06-30, $113.9M at 2025-12-31) per the fetched 8-K, too small and too aggregated to isolate a drift figure. Not treated as a grade-forcing NULL here (unlike ANDR.VI) because the other veto inputs (Beneish, DSO, capex-to-depreciation, accruals, cash conversion) are all independently computable and mutually consistent with a B grade.",
+    "Governance facts (CFO turnover, auditor continuity, related-party dealings) rest on secondary sources (press releases, news coverage), not a verbatim quote from Halozyme's own DEF 14A proxy; no proxy statement is fetched to data/edgar/docs/HALO.json, only the Q2 2026 8-K earnings exhibit.",
+    "The exact one-time charge(s) behind the FY2025 H2 operating-income collapse (H1 2025 operating income was 343,976,000 against a full-year 469,006,000, implying H2 2025 was only about 125,030,000) are inferred from the 8-K's own stated reasons (Elektrofi and Surf Bio Q4 2025 acquisition costs) but not itemized into a specific dollar charge; the FY2025 10-K MD&A would quantify this and is not on disk.",
+    "data/market/HALO.json carries no pcs block, so PCS Axis A/B crowdedness cannot be scored quantitatively; this dive's crowdedness read rests on the chain's own link-level heat score (38/100, scored against a different ticker set) and this dive's own web-search findings (absence from every GLP-1/weight-loss thematic list and ETF checked), not on positioning data.",
+    "price_status is SINGLE_SOURCE: the stockanalysis second leg answered 2026-09-03 (110.76), a different trading session than the yfinance close this dive reasons from (2026-09-04, 109.875), so method's compare_prints rule does not call it an agreement."
+  ],
+  "red_team": null,
+  "confidence_audit": {
+    "verified": 7,
+    "inferred": 14,
+    "speculative": 5,
+    "null": 8
+  },
+  "notes": [],
+  "changelog": [
+    {
+      "ts": "2026-09-06T00:00:00Z",
+      "by": "stocky",
+      "kind": "BUILD",
+      "model": "claude-sonnet-5",
+      "change": "First dive on HALOZYME-THERAPEUTICS / glp1-fill-finish / autoinjector-and-pen-platforms, promoted to O1 by run selection CAMP-20260901-01 at 18:15Z 2026-09-06. Status DRAFT (red team not yet run). Verdict WATCH, COMPOUNDER clock, earnings grade B. The dive's headline and most consequential finding is a capture-reality failure more complete than any prior dive in this corpus: no evidence found this run (Halozyme's own Q2 2026 8-K, its device-business description, the chain's own link evidence, or a dedicated WebSearch) connects Halozyme's Antares/Hypercon autoinjector platform, or any part of its actual growth engine (ENHANZE enzyme-royalty revenue, which is a different technology), to a GLP-1 or incretin molecule. Halozyme is not one of the chain link's own four example_tickers. Separately and honestly disclosed: this dive's own reverse-DCF work finds the company's ACTUAL (non-GLP-1) growth story priced modestly, not richly, on the market's own solve (11.3% 5-year implied FCF CAGR against a guided FY2026 path of 31-37% revenue growth and this dive's own 18%-21% independent build), and finds that the trailing GAAP P/E doubling that makes the stock LOOK expensive is an artifact of one-time, disclosed Q4 2025 M&A integration costs depressing GAAP earnings, not of fundamentals catching down to price. Neither finding is evidence for the chartered GLP-1 thesis; both are recorded for the independence test and net_gap_direction's own honesty. Verdict capped at WATCH by the independence test (method section 7): this dive cannot name a category of market error specific to GLP-1 capture, because there is no confirmed GLP-1 exposure to misprice. would_buy_zone is null with would_buy_basis naming that cap, per the 2026-09-03 rule; no would_buy_if_uncapped conditional is offered because the cap is an identity mismatch that price does not resolve. Earnings quality graded B: clean Beneish/Altman/DSO/capex-to-depreciation, one large but conservative-direction accrual flag (-14.59% of average assets, explained by disclosed Q4 2025 acquisition amortization) and a full CFO-turnover cycle in the trailing year (LaBrosse to Ramsay-interim to Snellgrove), neither severe enough for C. This finding is routed to Atlas/Sieve in the ledger as a mapping-quality concern (the placement's sole evidence is a generic 2022 acquisition press release), per this analyst's own rule against editing another agent's files to make a dive easier."
+    }
+  ],
+  "would_buy_zone": null,
+  "would_buy_basis": "Capped at WATCH by the independence test (method section 7), not by price, and not fixable by price: this dive cannot name a category of market error specific to GLP-1 fill-finish or autoinjector-pen capture, because no evidence found this run connects Halozyme's device platform, or any part of its actual growth engine (ENHANZE royalties), to a GLP-1 product (independence_test, bear[0]). Unlike this analyst's prior capped dives (ANDR.VI, 688425.SS), where a lower price could not fix a data or earnings-quality gap, here a lower price could not fix an identity gap either, but for a different reason worth stating plainly: this dive's own valuation work (expectations_gap.rows[net_gap_direction]) finds Halozyme's CONSOLIDATED business already looks fundamentally cheap-to-fair at the current close under three of four cash-conversion/margin combinations tested (illustrative fair values of $148.19, $169.17 and $221.21, all above the $109.875 reference price; only the single most conservative floor combination, $112.76, sits close to spot). There is no natural would-buy band below spot to draw for the mapped GLP-1 thesis, and drawing one would misstate the direction of this dive's own finding. No would_buy_if_uncapped conditional zone is offered for the same reason: the cap here is an identity mismatch between the chain placement and the company's actual business, not a valuation gap, and price does not resolve it."
+}
