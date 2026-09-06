@@ -1,13 +1,13 @@
 {
   "issuer_id": "JACOBS-SOLUTIONS",
   "issuer_name": "JACOBS SOLUTIONS INC.",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-06",
   "created_at": "2026-09-04T23:10:00Z",
-  "updated_at": "2026-09-04T22:00:00Z",
+  "updated_at": "2026-09-06T00:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:J carries a real SEC CIK (52988); data/market/J.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:J carries a real SEC CIK (52988); data/market/J.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block (Piotroski 7 STRONG, Beneish -2.582 CLEAN, reverse DCF SOLVED), re-fetched 2026-09-06 under a corrected concept map that now carries revenue_fy through FY2025-09-26.",
   "opportunity_tier": "O2",
   "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "listing_refs": [
@@ -54,7 +54,7 @@
     "chain": "data/chains/data-center-moratoria.json",
     "market": "data/market/J.json"
   },
-  "business_summary": "JACOBS SOLUTIONS INC. (NYSE: J) is a US professional-services and engineering consultancy focused on infrastructure, environmental and advanced-facilities work. It carries 2 chain/link placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). Fundamentals this run: no current fundamentals figures usable this run.",
+  "business_summary": "JACOBS SOLUTIONS INC. (NYSE: J) is a US professional-services and engineering consultancy focused on infrastructure, environmental and advanced-facilities work. It carries 2 chain/link placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). Fundamentals this run: FY2025-09-26 revenue $12.03B (7.1% 3-year CAGR), operating margin 7.2%, Piotroski 7/9 (STRONG), Beneish -2.58 (CLEAN), EV/EBITDA 21.7x.",
   "exposure_summary": {
     "narrative": "JACOBS-SOLUTIONS has 2 placement(s): data-center-moratoria/permitting-and-environmental-consultancy (UNDISCOVERED); minor-nsr-permits/air-permitting-and-dispersion-modeling (UNDISCOVERED). No chain-specific or link-specific revenue percentage is disclosed or sourced for this issuer; only company-wide fundamentals are available.",
     "disclosed_revenue_exposure": {
@@ -66,23 +66,35 @@
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "revenue.latest_fy cannot be sourced for JACOBS-SOLUTIONS: the fetched companyfacts 'Revenues' XBRL concept in data/market/J.json fundamentals.revenue_fy stops at FY2018-09-28 (14984646000), eight fiscal years stale against the FY2025-09-26 period other concepts (operating income, net income, operating cash flow) report; a newer revenue tag (e.g. the post-ASC-606 contract-revenue concept) was not captured by this fetch, so revenue.latest_fy is not a current number rather than an estimate."
+        "value": 12029783000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Revenues for the fiscal year ended 2025-09-26 as reported to SEC XBRL companyfacts for CIK 52988 (Jacobs Solutions Inc., NYSE: J). Newly fillable 2026-09-06: the prior fetch's 'Revenues' concept stopped at FY2018-09-28 (14984646000); the corrected concept map re-fetched today carries revenue_fy through FY2025-09-26 (12029783000), consistent year over year with the 2018-2025 series now on file.",
+        "official_source": true
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "growth.revenue_cagr_3y cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (see the revenue field basis), so no numerator exists for a 3-year revenue CAGR."
+        "value": 0.07134,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Three-year compound annual revenue growth computed as (12029783000 / 9783074000) ** (1/3) - 1 from the companyfacts revenue_fy series, fiscal year ended 2022-09-30 to fiscal year ended 2025-09-26. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy).",
+        "official_source": true
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "margins.operating_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for an operating margin even though operating_income_fy is current."
+        "value": 0.071791,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Operating income 863634000 divided by revenue 12029783000, both for the fiscal year ended 2025-09-26, from the companyfacts series. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy).",
+        "official_source": true
       }
     },
     "cash_conversion": {
@@ -90,15 +102,19 @@
         "value": 2.3733790471977216,
         "tag": "INFERRED",
         "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-09-04",
+        "source_date": "2026-09-06",
         "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-        "basis": "Operating cash flow 686704000 divided by net income 289336000, both for the period ended 2025-09-26, from the companyfacts series.",
+        "basis": "Operating cash flow 686704000 divided by net income 289336000, both for the period ended 2025-09-26, from the companyfacts series. Re-read 2026-09-06 against the re-fetched file: unchanged.",
         "official_source": true
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "fcf_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for a free cash flow margin; operating_cash_flow_to_net_income is used instead above."
+        "value": 0.050497,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Free cash flow 607472000 (operating cash flow 686704000 less capex 79232000, period ended 2025-09-26) divided by revenue 12029783000 for the same period. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy); the 607472000 FCF figure matches data/market/J.json quality.derived.fcf exactly.",
+        "official_source": true
       }
     },
     "leverage": {
@@ -106,22 +122,30 @@
         "value": 2.544654554913698,
         "tag": "INFERRED",
         "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
-        "source_date": "2026-09-04",
+        "source_date": "2026-09-06",
         "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-        "basis": "Net debt 2406462000 (total debt 3579376000 as of 2026-06-26 less cash 1172914000 as of 2026-06-26) divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26), from the companyfacts series.",
+        "basis": "Net debt 2406462000 (total debt 3579376000 as of 2026-06-26 less cash 1172914000 as of 2026-06-26) divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26), from the companyfacts series. Re-read 2026-09-06 against the re-fetched file: unchanged.",
         "official_source": true
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "piotroski cannot be scored for JACOBS-SOLUTIONS: data/market/J.json quality.piotroski.state is PENDING_DATA (only 1 common fiscal period(s) across the 9 inputs; the change legs need at least 2)."
+        "value": 7,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json quality.piotroski (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Piotroski F-score 7 of 9, state STRONG, computed over sec-companyfacts statements in data/market/J.json quality.piotroski, 9 of 9 inputs found. Newly fillable 2026-09-06: the prior fetch's quality block read PENDING_DATA (only 1 common fiscal period across the 9 inputs); the corrected concept map re-fetched today gives multiple common fiscal periods, so the change-leg criteria now score.",
+        "official_source": true
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "beneish_state cannot be scored for JACOBS-SOLUTIONS: data/market/J.json quality.beneish.state is PENDING_DATA (only 1 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio)."
+        "value": -2.582,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json quality.beneish (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Beneish M-score -2.582 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/J.json quality.beneish, 12 of 12 inputs found. Newly fillable 2026-09-06: the prior fetch's quality block read PENDING_DATA (only 1 common fiscal period across the 12 inputs); the corrected concept map re-fetched today resolves it.",
+        "official_source": true
       }
     },
     "valuation": {
@@ -129,18 +153,27 @@
         "value": 18097975062.12,
         "tag": "INFERRED",
         "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
-        "source_date": "2026-09-04",
+        "source_date": "2026-09-06",
         "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-        "basis": "Market capitalization 18097975062.12 computed in data/market/J.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+        "basis": "Market capitalization 18097975062.12 computed in data/market/J.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close. Re-read 2026-09-06 against the re-fetched file: unchanged.",
         "official_source": true
       },
       "ev_to_ebitda": {
         "value": 21.68191692454105,
         "tag": "INFERRED",
         "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
-        "source_date": "2026-09-04",
+        "source_date": "2026-09-06",
         "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-        "basis": "Enterprise value 20504437062.12 divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26); revenue.latest_fy is NULL for JACOBS-SOLUTIONS this run so price_to_sales is not used.",
+        "basis": "Enterprise value 20504437062.12 divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26). Re-read 2026-09-06 against the re-fetched file: unchanged.",
+        "official_source": true
+      },
+      "price_to_sales": {
+        "value": 1.504431,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/J.json quality.derived.market_cap over SEC companyfacts revenue",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+        "basis": "Market capitalization 18097975062.12 divided by fiscal year 2025-09-26 revenue 12029783000. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy).",
         "official_source": true
       }
     },
@@ -149,17 +182,17 @@
         "value": 0.212,
         "tag": "SPECULATIVE",
         "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
-        "source_date": "2026-09-04",
+        "source_date": "2026-09-06",
         "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-        "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 607472000.0, enterprise_value 20504437062.12, from data/market/J.json quality.reverse_dcf."
+        "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 607472000.0, enterprise_value 20504437062.12, from data/market/J.json quality.reverse_dcf. Re-read 2026-09-06 against the re-fetched file: unchanged."
       },
       "horizon_spread": {
         "value": 0.0863,
         "tag": "SPECULATIVE",
         "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
-        "source_date": "2026-09-04",
+        "source_date": "2026-09-06",
         "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-        "basis": "Spread 0.0863 across explicit horizons {'5': 0.212, '7': 0.1618, '10': 0.1257} from data/market/J.json quality.reverse_dcf.implied_by_horizon."
+        "basis": "Spread 0.0863 across explicit horizons {'5': 0.212, '7': 0.1618, '10': 0.1257} from data/market/J.json quality.reverse_dcf.implied_by_horizon. Re-read 2026-09-06 against the re-fetched file: unchanged."
       }
     }
   },
@@ -185,28 +218,35 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-04 from data/market/J.json (SEC XBRL companyfacts): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
+    "Re-filled 2026-09-06 from data/market/J.json (SEC XBRL companyfacts), re-fetched today under a corrected concept map: every canonical field across all eight metric groups now carries a sourced number (revenue, growth, margins and both quality scores were the four groups previously NULL because the prior fetch's 'Revenues' concept stopped at FY2018-09-28 and the quality block had only 1 common fiscal period; the corrected concept map resolves both).",
     "No chain- or link-specific revenue percentage is disclosed or sourced for JACOBS-SOLUTIONS; only company-wide figures are available.",
-    "The fetched 'Revenues' XBRL concept for J is stale since FY2018-09-28 even though operating income, net income, operating cash flow and capex all report through FY2025-09-26; revenue, growth and margins are NULL as a result. Backlog candidate for the fetcher's concept mapping, not something this profiling run can fix."
+    "No canonical metric field remains NULL this run. Remaining gap: data/market/J.json fundamentals.concept_hints records 'inventory' as an unfetched concept, but inventory is not a canonical field in method section 6A, so it does not block any group here."
   ],
   "disposition": {
     "state": "RETAIN",
-    "as_of": "2026-09-04",
+    "as_of": "2026-09-06",
     "basis": "Complete medium profile on data-center-moratoria/permitting-and-environmental-consultancy and 1 further placement(s). Retained rather than advanced because selection is a separate command (run selection) not run here; this batch only profiles."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 4,
+    "VERIFIED": 1,
+    "INFERRED": 10,
     "SPECULATIVE": 2,
-    "NULL": 6,
-    "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/J.json (SEC XBRL companyfacts)."
+    "NULL": 0,
+    "canonical_fields_written": 13,
+    "basis": "Counts cover the canonical metric fields only, recomputed 2026-09-06 from the re-fetched data/market/J.json (SEC XBRL companyfacts) under its corrected concept map. All 13 canonical fields written this run carry a sourced number; zero remain NULL."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
     "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other."
   ],
   "changelog": [
+    {
+      "ts": "2026-09-06T00:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Re-read all eight canonical metric groups for JACOBS-SOLUTIONS from data/market/J.json after its 2026-09-06 re-fetch under a corrected XBRL concept map. Filled revenue.latest_fy (12029783000, VERIFIED), growth.revenue_cagr_3y (0.07134), margins.operating_margin (0.071791), quality.piotroski (7, STRONG) and quality.beneish_state (-2.582, CLEAN), previously NULL because the prior fetch's 'Revenues' concept stopped at FY2018-09-28 and the quality block had only 1 common fiscal period. Also added cash_conversion.fcf_margin (0.050497) and valuation.price_to_sales (1.504431), newly computable now that revenue is current. operating_cash_flow_to_net_income, net_debt_to_ebitda, market_cap, ev_to_ebitda, implied_fcf_cagr and horizon_spread were re-read against the same file and are unchanged. Zero canonical fields remain NULL. Status stays COMPLETE, opportunity_tier stays O2 (no selection run this batch). run profile J.",
+      "prior": "2026-09-04T22:00:00Z"
+    },
     {
       "ts": "2026-09-04T23:10:00Z",
       "by": "sieve-profiler",
