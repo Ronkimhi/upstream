@@ -549,6 +549,41 @@ def check_price_source_note(n: str, ticker, pstatus, d) -> None:
              f"that is no longer true. Amend it, or drop it if the condition is gone")
 
 
+def dive_ledger_failures(ledger: str, today: str) -> list[str]:
+    """Rule 10, the ledger line, as a pure function so it can be tested.
+
+    Matched on the COMMAND field (split on |, field index 2), never on the whole line, and
+    every matching line is checked, not just the last (backlog 2026-08-31,
+    unanchored-ledger-matchers). One exemption, 2026-09-06: a NOTE line whose command field
+    is `run deepdive ...` but whose result field opens with PENDING_DATA or BLOCKED records
+    a dive that could NOT be attempted (stale price series, admission refused). It carries
+    no verdict because none was reached, and demanding one of it refused every real dive
+    landed later that day (three such notes, CAT / J / STE, blocked the ONT dive)."""
+    todays = [ln for ln in ledger.splitlines() if ln.startswith(today)]
+    dive_lines = []
+    for ln in todays:
+        parts = ln.split("|")
+        cmd = parts[2].strip() if len(parts) > 2 else ""
+        if not re.match(r"^(run )?(deepdive|redteam)\b", cmd):
+            continue
+        kind = parts[1].strip() if len(parts) > 1 else ""
+        result = next((p.strip()[len("result:"):].strip() for p in parts
+                       if p.strip().startswith("result:")), "")
+        if kind == "NOTE" and re.match(r"^(PENDING_DATA|BLOCKED)\b", result):
+            continue
+        dive_lines.append(ln)
+    out = []
+    if not dive_lines:
+        out.append(f"no ledger line dated {today} whose command field names deepdive or redteam")
+    else:
+        for line in dive_lines:
+            for token, what in (("verdict:", "the verdict"), ("clock:", "the clock"),
+                                ("grade:", "the earnings grade")):
+                if token not in line:
+                    out.append(f"ledger line must name {what} as `{token}<value>`: {line[:120]}")
+    return out
+
+
 def main() -> int:
     argv = sys.argv[1:]
     root = Path(argv[argv.index("--root") + 1]).resolve() if "--root" in argv \
@@ -845,21 +880,8 @@ def main() -> int:
     # unanchored-ledger-matchers, second failure — promoted per the two-failure rule).
     # Every matching line is checked, not just the last, for the same reason.
     ledger = (data / "ledger.md").read_text() if (data / "ledger.md").exists() else ""
-    todays = [ln for ln in ledger.splitlines() if ln.startswith(today)]
-    dive_lines = []
-    for ln in todays:
-        parts = ln.split("|")
-        cmd = parts[2].strip() if len(parts) > 2 else ""
-        if re.match(r"^(run )?(deepdive|redteam)\b", cmd):
-            dive_lines.append(ln)
-    if not dive_lines:
-        fail(f"no ledger line dated {today} whose command field names deepdive or redteam")
-    else:
-        for line in dive_lines:
-            for token, what in (("verdict:", "the verdict"), ("clock:", "the clock"),
-                                ("grade:", "the earnings grade")):
-                if token not in line:
-                    fail(f"ledger line must name {what} as `{token}<value>`: {line[:120]}")
+    for msg in dive_ledger_failures(ledger, today):
+        fail(msg)
 
     report(f"dives: {len(touched)} updated today of {len(dives)} total")
     report(f"shadow book: {len(shadow_ids)} row(s) available for TOO_LATE refs")
