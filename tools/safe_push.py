@@ -46,9 +46,24 @@ def sh(root, *args):
                           env={**os.environ, "GIT_EDITOR": "true"})
 
 
+def git_dir(root, common: bool = False) -> Path:
+    """The worktree's own git dir, or the dir shared by every worktree of the repo.
+
+    In a linked worktree (`git worktree add`, which every Claude worktree session uses)
+    `root/.git` is a FILE pointing at .git/worktrees/<name>, so `root / ".git" / ...`
+    raised NotADirectoryError and the queue could not run there at all (2026-09-06).
+    Rebase state lives in the worktree's own dir; the push lock belongs in the common
+    dir, because the sessions it serializes are all worktrees of one repository.
+    """
+    flag = "--git-common-dir" if common else "--git-dir"
+    out = (sh(root, "rev-parse", flag).stdout or "").strip()
+    path = Path(out) if out else root / ".git"
+    return path if path.is_absolute() else (root / path).resolve()
+
+
 def in_rebase(root):
-    return (root / ".git" / "rebase-merge").exists() or \
-           (root / ".git" / "rebase-apply").exists()
+    gd = git_dir(root)
+    return (gd / "rebase-merge").exists() or (gd / "rebase-apply").exists()
 
 
 def rebuild_page(root) -> bool:
@@ -119,7 +134,7 @@ def main() -> int:
               "abort it first. Refusing to stack a second one")
         return 1
 
-    lock_path = root / ".git" / "upstream-push.lock"
+    lock_path = git_dir(root, common=True) / "upstream-push.lock"
     started = time.time()
     with open(lock_path, "w") as lk:
         while True:

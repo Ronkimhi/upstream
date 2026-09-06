@@ -1,0 +1,187 @@
+# Ron: apply with `git apply tools/patches/check-map-superseded-fail-audit.patch`, then run
+# `python3 -m unittest tools.tests.test_map_proof -q` and `python3 tools/check_map.py`.
+#
+# What it fixes (backlog bucket universe-audit-unexaminable-open-links, four occurrences:
+# munitions-replenishment since 2026-09-01, hormuz-maritime 2026-09-04, and russian-diesel-ban
+# 2026-09-06 under run universe-audit --placement ALBEMARLE): tools/check_map.py re-validates a
+# mapping's stored census `audit` block against CURRENT content on every run (fingerprint, every
+# sampled_checks record_digest, sampled links == link_coverage, denominators, and audited_at
+# newer than every material changelog entry) with no exemption for audit.status == FAIL. A FAIL
+# audit names defects for the author to correct, and the correction is by definition a later
+# material change to the very content the audit sampled, so under the current gate the method
+# 6A flow "FAIL, then run universe corrects in a later context" cannot be committed at all.
+#
+# The change: once a FAIL audit is followed by a material (non-NOTE) changelog entry it is a
+# superseded historical record and the content-currency checks stop binding it; its shape,
+# provenance and non-empty amendments_required are still enforced, and a FAIL audit with NO
+# later material entry is still held to currency (its fingerprint proves it examined what is on
+# disk). PASS audits are untouched: a material change after a PASS still fails freshness,
+# fingerprint and digest currency exactly as before (REV-20260830-01 attack test kept).
+# Adds test_fail_audit_superseded_by_author_correction_does_not_block covering all four cases.
+# Verified 2026-09-06 on a scratch copy: 20/20 tests pass and the drafted russian-diesel-ban
+# amendment (ALBEMARLE -> REJECTED) passes validate_mapping under the patched module.
+#
+# Not applied by the session that wrote it: the auto-mode classifier refused an edit to the gate
+# file, and a gate change is Ron's to authorize. Cass (run devil) should review the landing SHA.
+--- a/tools/check_map.py
++++ b/tools/check_map.py
+@@ -347,6 +347,43 @@
+         failures.append(
+             f"audit.status {audit_status!r} not in {sorted(AUDIT_STATUS)}"
+         )
++    # Material changelog entries (any kind but NOTE) dated after audited_at. A PASS audit
++    # is a live claim about current content and must be fresher than every material
++    # change. A FAIL audit is the list of defects the author is expected to correct, and
++    # that correction is by definition a later material change to the very content the
++    # audit sampled, so once one exists the FAIL block is a superseded historical record
++    # and the content-currency checks below (fingerprint, sample resolution, coverage and
++    # denominators against current content) no longer bind it. Until then a FAIL audit is
++    # held to currency like any other: its fingerprint proves it examined what is on disk.
++    # Before this, correcting a FAIL audit's findings could not be committed at all
++    # (backlog bucket universe-audit-unexaminable-open-links: munitions-replenishment,
++    # hormuz-maritime 2026-09-04, russian-diesel-ban 2026-09-06).
++    material_times = []
++    changelog = mapping.get("changelog")
++    if isinstance(changelog, list):
++        for i, entry in enumerate(changelog):
++            if not isinstance(entry, dict):
++                failures.append(f"changelog[{i}] must be an object for audit freshness")
++                continue
++            if str(entry.get("kind") or "").upper() == "NOTE":
++                continue
++            changed_at = _utc_datetime(entry.get("ts"))
++            if changed_at is None:
++                failures.append(
++                    f"changelog[{i}].ts must be a UTC timestamp for audit freshness"
++                )
++            else:
++                material_times.append((i, changed_at))
++    latest_material = (
++        max(material_times, key=lambda item: item[1]) if material_times else None
++    )
++    superseded_fail = (
++        audit_status == "FAIL"
++        and audited_at is not None
++        and latest_material is not None
++        and audited_at < latest_material[1]
++    )
++
+     fingerprint = audit.get("mapping_fingerprint")
+     if not isinstance(fingerprint, str) or not SHA256_RE.fullmatch(fingerprint):
+         failures.append("audit.mapping_fingerprint must be a lowercase SHA-256 digest")
+@@ -355,7 +392,7 @@
+     except (TypeError, ValueError):
+         current_fingerprint = None
+     is_current = fingerprint == current_fingerprint
+-    if current_fingerprint is not None and not is_current:
++    if current_fingerprint is not None and not is_current and not superseded_fail:
+         failures.append("audit.mapping_fingerprint does not match current material content")
+ 
+     for field in (
+@@ -390,24 +427,8 @@
+     if not str(audit.get("surviving_limitation") or "").strip():
+         failures.append("audit.surviving_limitation must be non-empty")
+ 
+-    material_times = []
+-    changelog = mapping.get("changelog")
+-    if isinstance(changelog, list):
+-        for i, entry in enumerate(changelog):
+-            if not isinstance(entry, dict):
+-                failures.append(f"changelog[{i}] must be an object for audit freshness")
+-                continue
+-            if str(entry.get("kind") or "").upper() == "NOTE":
+-                continue
+-            changed_at = _utc_datetime(entry.get("ts"))
+-            if changed_at is None:
+-                failures.append(
+-                    f"changelog[{i}].ts must be a UTC timestamp for audit freshness"
+-                )
+-            else:
+-                material_times.append((i, changed_at))
+-    if audited_at is not None and material_times:
+-        latest_index, latest_material_at = max(material_times, key=lambda item: item[1])
++    if audited_at is not None and latest_material is not None and not superseded_fail:
++        latest_index, latest_material_at = latest_material
+         if audited_at < latest_material_at:
+             failures.append(
+                 "audit.audited_at is earlier than material mapping changelog "
+@@ -552,6 +573,10 @@
+             failures.append(f"{where}.source_excerpt must be substantive")
+         if not isinstance(record_digest, str) or not SHA256_RE.fullmatch(record_digest):
+             failures.append(f"{where}.record_digest must be a lowercase SHA-256 digest")
++        if superseded_fail:
++            # Shape is validated above; resolution against current content is not owed
++            # by a FAIL audit the author has since corrected (see material_times).
++            continue
+ 
+         if has_listing:
+             check_keys.append(("listing", listing_id))
+@@ -633,6 +658,15 @@
+             "audit.sampled_checks contains duplicate placement, listing, or search rows"
+         )
+ 
++    if superseded_fail:
++        # The recorded denominators describe the content the FAIL audit examined, not the
++        # content on disk after the author's correction; they stay as history.
++        if not issue_lists.get("amendments_required"):
++            failures.append("FAIL audit requires non-empty amendments_required")
++        if mapping.get("status") == "COMPLETE":
++            failures.append("COMPLETE mapping requires audit.status PASS")
++        return failures
++
+     coverage_links = {str(row.get("link_id")) for row in coverage}
+     target_links = {
+         str(row.get("link_id"))
+
+--- a/tools/tests/test_map_proof.py
++++ b/tools/tests/test_map_proof.py
+@@ -788,6 +788,49 @@
+             )
+ 
+ 
++    def test_fail_audit_superseded_by_author_correction_does_not_block(self):
++        """A FAIL audit lists defects for the author to fix; the fix is a later material
++        change to the sampled content and must be committable (backlog bucket
++        universe-audit-unexaminable-open-links, three blocked corrections by 2026-09-06).
++        A FAIL audit with no later material change is still held to currency, and a PASS
++        audit followed by a material change still fails (REV-20260830-01 attack)."""
++        current = self.mapping()
++        current["status"] = "ACTIVE"
++        current["audit"]["status"] = "FAIL"
++        current["audit"]["audited_at"] = "2026-08-30T03:00:00Z"
++        current["audit"]["role_conflicts"] = ["placements[0].role is stale"]
++        current["audit"]["amendments_required"] = ["Rewrite placements[0].role"]
++        current["audit"]["mapping_fingerprint"] = check_map.mapping_fingerprint(current)
++        self.assertEqual(self.failures(current), [])
++        stale = copy.deepcopy(current)
++        stale["placements"][0]["role"] = "Changed without any changelog entry"
++        self.assertTrue(
++            any("does not match current material content" in item
++                for item in self.failures(stale)),
++            "a FAIL audit with no later material amendment must still be current",
++        )
++        corrected = copy.deepcopy(current)
++        corrected["placements"][0]["role"] = "Corrected role, as the FAIL audit required"
++        corrected["changelog"].append({
++            "ts": "2026-08-30T04:00:00Z",
++            "by": "atlas-cartographer",
++            "kind": "AMEND",
++            "change": "run universe correcting the FAIL audit's amendments_required.",
++            "prior": "Stale role wording.",
++        })
++        self.assertEqual(self.failures(corrected), [])
++        still_pass = copy.deepcopy(corrected)
++        still_pass["status"] = "COMPLETE"
++        still_pass["audit"]["status"] = "PASS"
++        still_pass["audit"]["role_conflicts"] = []
++        still_pass["audit"]["amendments_required"] = []
++        self.assertTrue(
++            any("earlier than material mapping changelog" in item
++                for item in self.failures(still_pass)),
++            "a PASS audit followed by a material amendment must still fail",
++        )
++
++
+ class TestDatedGateHardenings(MapProofTree):
+     """The two 2026-08-31 hardenings: token-anchored short-code excerpt matching and
+     control_probe required whenever control_probe_passed is asserted. Both bind only
