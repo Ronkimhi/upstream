@@ -3,11 +3,11 @@
  "chain_id": "minor-nsr-permits",
  "scenario_id": null,
  "created_at": "2026-09-04",
- "as_of": "2026-09-04",
+ "as_of": "2026-09-06",
  "identity_schema": "campaign-v1",
  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
  "mapping_ref": "data/mappings/minor-nsr-permits.json",
- "universe_note": "THIRD RUN, 2026-09-04, same day as the first two. tools/check_screen.py commit 5e5f3b5 (landed after the second run above) changed _placement_admissible to also accept a current PASS placement_audits[] entry as an alternative to all-VERIFIED evidence tags, closing exactly the gap the second run's note flagged for Atlas/Ron. Re-checked this run, empirically, before writing any row: check_map.placement_audit_for and check_screen._placement_admissible both now return True for (minor-nsr-permits, emissions-aftertreatment-and-catalyst, X) for X in {CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL}, each backed by Atlas's commit f187057 placement_audits[] PASS entry (audited 2026-09-04T18:51:30Z through 18:54:00Z, evidence_index 0, record_digest current against the placement as it stands now). TETRA-TECH's placement on air-permitting-and-dispersion-modeling (commit 5b36277) and both of ONT's placements (air-permitting-and-dispersion-modeling, emissions-monitoring-and-compliance) carry a single all-VERIFIED evidence item apiece and were already admissible on the tag rule alone, unrelated to the placement-audit path; ONT itself gained a COMPLETE O2 profile this same day (batch 8), clearing the profile-completeness half that blocked it in the first two runs. All 6 issuers now resolve a COMPLETE O2 profile (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL, TETRA-TECH, ONT). Net result: 7 rows seated across 3 links (4 on the money-corner link, 2 on air-permitting-and-dispersion-modeling including ONT's primary placement, 1 on emissions-monitoring-and-compliance as ONT's stated secondary_link_basis placement). Money corner: emissions-aftertreatment-and-catalyst goes from EXHAUSTED-at-4/5 searched-and-empty to 4/4 of its EXHAUSTED-established issuers seated (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL; no 5th public issuer exists per the mapping's own EXHAUSTED record, and JMAT.L could not be added for lack of a fetchable official UK securities source, unchanged from the first run). CHOKE_POINT (state-air-permitting-authority) remains EXHAUSTED at 0/5 by construction, a governmental function with no possible public issuer, unchanged. No earnings nuggets are written this run: none of CAT, CMI, FTEK, CECO, TTEK or ONT has a document on disk at data/edgar/docs/<T>.json (checked directly, all 6 absent), so per method section 1 (fail closed if no document) every earnings-nugget field is left an empty list rather than an unverifiable quote; edgar_doc requests are queued below for all 6 tickers with their CIKs so a future run can add verbatim nuggets once fetched. All fundamentals, quality and valuation figures on the 7 rows are copied unchanged from each issuer's own COMPLETE O2 profile (data/companies/<issuer_id>.json), which already sourced them from data/market/<T>.json SEC XBRL companyfacts this same day; no number here was computed fresh or remembered. Remaining unseated links and their reasons are unchanged from the first two runs (see below) except air-permitting-and-dispersion-modeling and emissions-monitoring-and-compliance, now partially seated as described above; AECOM, JACOBS-SOLUTIONS and ICF-INTERNATIONAL on air-permitting-and-dispersion-modeling remain blocked (AECOM and JACOBS-SOLUTIONS on evidence tier, no placement audit yet; ICF-INTERNATIONAL on both evidence tier and no profile), and CATERPILLAR's second placement on onsite-reciprocating-gensets remains blocked (INFERRED evidence, no placement audit on that specific link/issuer pair — the placement audit landed only covers the emissions-aftertreatment-and-catalyst placement).\n\nSECOND RUN, 2026-09-04, same day as the first. Atlas landed 4 fresh-context placement audits (commit f187057, run universe-audit minor-nsr-permits --placement) on CATERPILLAR, CUMMINS, FUEL-TECH and CECO-ENVIRONMENTAL, all on the money-corner link emissions-aftertreatment-and-catalyst, all status PASS. This run was asked to seat those four rows under audit_scope PLACEMENT on the strength of that PASS. Checked and refused: CLAUDE.md's `run universe-audit --placement` clause states in its own text that a current PASS entry 'admits that issuer to run deepdive without the whole census being COMPLETE' -- it names deepdive, never screen. The screen row's own admission rule (CLAUDE.md's `run screen` row, and tools/check_screen.py's `_placement_admissible`) tests only the placement's own `evidence[]` tags, never `placement_audits[]`; commit f187057's diff (checked directly) added the four `placement_audits[]` entries and touched nothing else on any of the four placements -- `evidence[0].tag` is still INFERRED on all four, unchanged. Confirmed empirically before writing this file: a draft CAT row with audit_scope PLACEMENT and placement_audit_ref pointed at the PASS entry still fails tools/check_screen.py with 'audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit' -- reverted before commit. So the four placement audits are real, correctly independent, and genuinely useful (they will unblock `run deepdive` on these four issuers once selection promotes any of them to O1), but they do not and structurally cannot seat a screen row by themselves under the currently committed gate: doing so would require either promoting the placement's own evidence tag to VERIFIED (data/mappings/, which I do not own and did not touch) or a full census audit bringing the mapping to status COMPLETE with audit.status PASS (also not this run's lane). This is named here rather than silently worked around; it belongs to Atlas/Ron to decide whether check_screen.py's admission rule should also recognize a current PASS placement_audits[] entry, or whether the --placement mechanism is deliberately scoped to deepdive only. Net result: identical to the first run, zero rows seated, for the same reason (evidence tier), now with the placement-audit path checked and ruled out rather than merely flagged as a next step.\n\nFirst-run note, unchanged below: Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 14 links, worked in priority order: the one money-corner link first, then the one CHOKE_POINT link, then the rest by chain position. The mapping (data/mappings/minor-nsr-permits.json, 15 issuers, 18 placements) is ACTIVE and carries no audit block at all (no fresh-context census audit has ever run on it), so every row this run rests entirely on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED. That mechanical bar turns out to be the whole story here: of the mapping's 18 placements, only 2 (both ONT, on air-permitting-and-dispersion-modeling and emissions-monitoring-and-compliance) carry all-VERIFIED evidence; the other 16, covering all 7 issuers this campaign has already profiled to COMPLETE (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL, TETRA-TECH, AECOM, JACOBS-SOLUTIONS), carry a single INFERRED-tagged role-evidence item apiece and are blocked by tools/check_screen.py's _placement_admissible regardless of profile status. ONT itself has no profile on disk. Net result: every one of this mapping's 18 placements is inadmissible this run, by one of the two independent gates (evidence tier, or profile completeness), and this screen seats zero rows across all 14 links. This is a structural finding about the mapping's evidence, not a search failure: nothing here was left unsearched.\n\nemissions-aftertreatment-and-catalyst [MONEY CORNER, UNDISCOVERED, EXHAUSTED at 4/5]: searched and empty. The mapping's own link_coverage record closed this link EXHAUSTED with 4 public issuers established (Caterpillar, Cummins, Fuel Tech, CECO Environmental) via a 25-hit SEC EDGAR full-text search plus direct confirmation that the named private specialist (EcoCAT) is not public; a fifth known-public candidate, Johnson Matthey plc (LSE:JMAT, owner of Cormetech), could not be added for lack of a fetchable official UK securities source. All 4 counted issuers carry COMPLETE O2 profiles on disk (written this campaign) and would mechanically clear the profile-completeness half of admission. All 4 fail the other half: each placement's sole evidence item is tagged INFERRED (a Power Generation Enterprises compliance-guide citation for Caterpillar; comparable single-source citations for the other three), never VERIFIED. The chain's own money-corner link is therefore genuinely empty this run because of the evidence tier alone, not because of missing coverage or missing profiles. The 4 placement audits landed this run (commit f187057) do not change this: they PASS the placement's identity and role claim in fresh context but leave the placement's own evidence tag INFERRED, and per CLAUDE.md text they admit these issuers to run deepdive, not to this screen. Promoting these 4 placements to screen-admissible needs either the placement's evidence tag itself raised to VERIFIED, or the whole mapping brought to a COMPLETE census audit; that is the corrected highest-leverage next step for this chain's money corner (see data_gaps).\n\nstate-air-permitting-authority [CHOKE_POINT, UNDISCOVERED, EXHAUSTED at 0/5]: searched and empty by construction. The mapping's own link_coverage record closes this link EXHAUSTED with 0 issuers: state and local minor-source air permitting authority is a governmental function performed by environmental agencies (Virginia DEQ and its Air Pollution Control Board stand in as the representative state) under Clean Air Act State Implementation Plans, and no private company anywhere performs this role. Zero placements exist on this link in the mapping; there is nothing for a screen to seat or to block, and the chain's own bottleneck note independently confirms this is the true gate on the map precisely because it has no instrument.\n\nfederal-minor-nsr-rule [UNDISCOVERED, EXHAUSTED at 0/5]: searched and empty by construction, same reasoning as state-air-permitting-authority one position downstream: the rulemaking (Federal Register 2026-13667) is published and administered solely by the U.S. EPA, a federal agency with no listed equity. Zero placements.\n\nair-permitting-and-dispersion-modeling [UNDISCOVERED, TARGET_MET at 5/5]: searched and empty. Five issuers are mapped (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, ONT, ICF-INTERNATIONAL), all ACTIVE placements. TETRA-TECH, AECOM and JACOBS-SOLUTIONS each carry a COMPLETE O2 profile but a single INFERRED-tagged evidence item, blocked on evidence tier exactly as the money-corner link above. ONT carries all-VERIFIED evidence (SEC EDGAR company-submissions metadata, tag VERIFIED) but has no profile on disk anywhere in the repo; it is mechanically admissible on the mapping side and blocked only by profile completeness, so it is this chain's best near-term candidate for run profile --campaign. ICF-INTERNATIONAL is blocked on both counts (INFERRED evidence, no profile).\n\nonsite-reciprocating-gensets [CROWDED, OPEN at 1/5]: searched and empty. Sole placement CATERPILLAR (COMPLETE O2 profile, INFERRED evidence) is blocked on evidence tier, the same defect as its emissions-aftertreatment-and-catalyst placement; this is a second, independently-evidenced placement for the same issuer and both need their own placement audit.\n\npackaged-gas-turbines [CROWDED, OPEN at 1/5]: searched and empty. Sole placement BAKER-HUGHES (INFERRED evidence, no profile) is blocked on both counts.\n\nfuel-cell-permit-avoidance [OVER_CROWDED, OPEN at 1/5]: searched and empty. Sole placement BLOOM-ENERGY (INFERRED evidence, no profile) is blocked on both counts.\n\ngas-supply-and-interconnection [CROWDED, OPEN at 2/5]: searched and empty. Both placements, ENERGY-TRANSFER and WILLIAMS-COMPANIES (INFERRED evidence each, neither profiled), are blocked on both counts.\n\nliquid-fuel-logistics-and-storage [QUIET, OPEN at 0/5]: searched and empty. The mapping's own link_coverage record shows one search on file (not a formal EXHAUSTED census) finding every firm actually performing this role privately held (Mansfield Energy, Sun Coast Resources, Foster Fuels, Ricochet Fuel); listed distributors (World Kinect, Sunoco LP, Global Partners) were considered and left uncounted because no fetched source places them in this specific role. Zero placements on this link.\n\npower-equipment-shared [None verdict, OPEN at 0/5]: searched and empty by declared design. The chain's own bottleneck note and the mapping's link_coverage record both mark this a SHARED STAGE DECLARATION (campaign blocker BLK-04): it IS ai-infrastructure/power-equipment, the identical seven-ticker stage (ETN, GEV, POWL, HUBB, ENR.DE, SU.PA, HPS-A.TO), deliberately mirrored so the duplication is visible. No issuer is placed here; all seven are counted once, at ai-infrastructure/power-equipment, and must not be double-counted toward this theme.\n\nemissions-monitoring-and-compliance [QUIET, OPEN at 1/5]: searched and empty. Sole placement ONT (all-VERIFIED evidence) is mechanically admissible on the mapping side, the same finding as its air-permitting-and-dispersion-modeling placement, and is blocked only by having no profile on disk.\n\nbridge-power-rental-fleets [EMERGING, OPEN at 1/5]: searched and empty. Sole placement UNITED-RENTALS (INFERRED evidence, no profile) is blocked on both counts.\n\nbehind-the-meter-power-developers [EMERGING, OPEN at 1/5]: searched and empty. Sole placement WILLIAMS-COMPANIES (INFERRED evidence, no profile) is blocked on both counts; this is the issuer's second placement on this chain (also on gas-supply-and-interconnection) and would need a stated secondary_link_basis even once admissible.\n\ndata-center-developer-demand [OVER_CROWDED, OPEN at 1/5, anchor]: searched and empty. Sole placement ORACLE (INFERRED evidence, no profile) is blocked on both counts.",
+ "universe_note": "FOURTH RUN, 2026-09-06. Two things changed since the third run (2026-09-04): (1) Atlas landed 5 fresh-context placement_audits[] entries on air-permitting-and-dispersion-modeling as part of today's parallel batch (worktrees audit-minor-nsr-permits-aecom, -tetra-tech, -jacobs-solutions, -ont, -icf-international): PASS for AECOM (2026-09-06T15:45:53Z, evidence_index 1), TETRA-TECH (2026-09-06T15:45:48Z, evidence_index 0, re-confirming what the tag rule already admitted), JACOBS-SOLUTIONS (2026-09-06T15:46:29Z, evidence_index 1) and ONT (2026-09-06T15:46:53Z, evidence_index 0, likewise a re-confirmation), and FAIL for ICF-INTERNATIONAL (2026-09-06T15:47:14Z): the audit's own role_conflict field records that ICF-INTERNATIONAL's cited page (icf.com/work/environment/regulatory-compliance-permitting) is the company's species/habitat/NEPA environmental-permitting practice, re-fetched live and found to contain none of the words air, air quality, emissions, dispersion modeling, Clean Air Act, or NSR anywhere on the page; the placement's role claim (air quality permitting, dispersion modeling, EPA air-program track record) is not supported by its own cited source. Re-verified directly against check_map.placement_audit_for and check_screen._placement_admissible before writing: AECOM and JACOBS-SOLUTIONS are now admissible (both COMPLETE O2 T1 profiles, confirmed unchanged this run), seated as two new picks_and_shovels rows on air-permitting-and-dispersion-modeling, the same link TETRA-TECH and ONT already sat on. ICF-INTERNATIONAL remains correctly unseated: its evidence tag stays INFERRED-only and the new audit is FAIL, so per this run's instruction it is not written as a row. (2) Six edgar_doc requests queued in the third run (REQ-20260904-291..296, CAT/CMI/FTEK/CECO/TTEK/ONT) plus the AECOM and J requests from the fourth-run seating (REQ-20260904-298/299) have all been fetched and are now on disk at data/edgar/docs/<T>.json; a fresh check confirmed all 8 tickers now seated on this chain (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL, TETRA-TECH, ONT, AECOM, JACOBS-SOLUTIONS) have a document on disk, so every row this run carries at least one verbatim earnings nugget (FUEL-TECH carries two) verified against tools/check_screen.py's normalize() rule before being written; none is a paraphrase or a summary. Net result: 9 rows now seated across 3 links and 8 distinct issuers (was 7 rows / 6 issuers): 4 on the money corner (emissions-aftertreatment-and-catalyst, unchanged from the third run), 4 on air-permitting-and-dispersion-modeling (TETRA-TECH, ONT, AECOM, JACOBS-SOLUTIONS, +2 from this run), 1 on emissions-monitoring-and-compliance (ONT's second placement, unchanged). Money corner stays 4/4 of its EXHAUSTED-established issuers seated, unchanged; CHOKE_POINT (state-air-permitting-authority) stays EXHAUSTED at 0/5 by construction, unchanged. Remaining blockers, unchanged from the third run except as noted: CATERPILLAR's second placement (onsite-reciprocating-gensets) stays blocked (INFERRED evidence, no placement audit covers this specific link/issuer pair, only the emissions-aftertreatment-and-catalyst one); BAKER-HUGHES, BLOOM-ENERGY, ENERGY-TRANSFER, WILLIAMS-COMPANIES (x2 placements), UNITED-RENTALS and ORACLE remain blocked on both evidence tier (INFERRED-only, no placement audit) and profile completeness (none profiled); federal-minor-nsr-rule and state-air-permitting-authority remain EXHAUSTED at 0/5 by construction (federal/state government functions, no possible public issuer); liquid-fuel-logistics-and-storage and power-equipment-shared remain at 0 seatable placements (all-private specialist list; declared shared-stage duplicate of ai-infrastructure/power-equipment), all unchanged from the third run and detailed in that run's note below.\n\nTHIRD RUN, 2026-09-04, same day as the first two. tools/check_screen.py commit 5e5f3b5 (landed after the second run above) changed _placement_admissible to also accept a current PASS placement_audits[] entry as an alternative to all-VERIFIED evidence tags, closing exactly the gap the second run's note flagged for Atlas/Ron. Re-checked this run, empirically, before writing any row: check_map.placement_audit_for and check_screen._placement_admissible both now return True for (minor-nsr-permits, emissions-aftertreatment-and-catalyst, X) for X in {CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL}, each backed by Atlas's commit f187057 placement_audits[] PASS entry (audited 2026-09-04T18:51:30Z through 18:54:00Z, evidence_index 0, record_digest current against the placement as it stands now). TETRA-TECH's placement on air-permitting-and-dispersion-modeling (commit 5b36277) and both of ONT's placements (air-permitting-and-dispersion-modeling, emissions-monitoring-and-compliance) carry a single all-VERIFIED evidence item apiece and were already admissible on the tag rule alone, unrelated to the placement-audit path; ONT itself gained a COMPLETE O2 profile this same day (batch 8), clearing the profile-completeness half that blocked it in the first two runs. All 6 issuers now resolve a COMPLETE O2 profile (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL, TETRA-TECH, ONT). Net result: 7 rows seated across 3 links (4 on the money-corner link, 2 on air-permitting-and-dispersion-modeling including ONT's primary placement, 1 on emissions-monitoring-and-compliance as ONT's stated secondary_link_basis placement). Money corner: emissions-aftertreatment-and-catalyst goes from EXHAUSTED-at-4/5 searched-and-empty to 4/4 of its EXHAUSTED-established issuers seated (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL; no 5th public issuer exists per the mapping's own EXHAUSTED record, and JMAT.L could not be added for lack of a fetchable official UK securities source, unchanged from the first run). CHOKE_POINT (state-air-permitting-authority) remains EXHAUSTED at 0/5 by construction, a governmental function with no possible public issuer, unchanged. No earnings nuggets are written this run: none of CAT, CMI, FTEK, CECO, TTEK or ONT has a document on disk at data/edgar/docs/<T>.json (checked directly, all 6 absent), so per method section 1 (fail closed if no document) every earnings-nugget field is left an empty list rather than an unverifiable quote; edgar_doc requests are queued below for all 6 tickers with their CIKs so a future run can add verbatim nuggets once fetched. All fundamentals, quality and valuation figures on the 7 rows are copied unchanged from each issuer's own COMPLETE O2 profile (data/companies/<issuer_id>.json), which already sourced them from data/market/<T>.json SEC XBRL companyfacts this same day; no number here was computed fresh or remembered. Remaining unseated links and their reasons are unchanged from the first two runs (see below) except air-permitting-and-dispersion-modeling and emissions-monitoring-and-compliance, now partially seated as described above; AECOM, JACOBS-SOLUTIONS and ICF-INTERNATIONAL on air-permitting-and-dispersion-modeling remain blocked (AECOM and JACOBS-SOLUTIONS on evidence tier, no placement audit yet; ICF-INTERNATIONAL on both evidence tier and no profile), and CATERPILLAR's second placement on onsite-reciprocating-gensets remains blocked (INFERRED evidence, no placement audit on that specific link/issuer pair — the placement audit landed only covers the emissions-aftertreatment-and-catalyst placement).\n\nSECOND RUN, 2026-09-04, same day as the first. Atlas landed 4 fresh-context placement audits (commit f187057, run universe-audit minor-nsr-permits --placement) on CATERPILLAR, CUMMINS, FUEL-TECH and CECO-ENVIRONMENTAL, all on the money-corner link emissions-aftertreatment-and-catalyst, all status PASS. This run was asked to seat those four rows under audit_scope PLACEMENT on the strength of that PASS. Checked and refused: CLAUDE.md's `run universe-audit --placement` clause states in its own text that a current PASS entry 'admits that issuer to run deepdive without the whole census being COMPLETE' -- it names deepdive, never screen. The screen row's own admission rule (CLAUDE.md's `run screen` row, and tools/check_screen.py's `_placement_admissible`) tests only the placement's own `evidence[]` tags, never `placement_audits[]`; commit f187057's diff (checked directly) added the four `placement_audits[]` entries and touched nothing else on any of the four placements -- `evidence[0].tag` is still INFERRED on all four, unchanged. Confirmed empirically before writing this file: a draft CAT row with audit_scope PLACEMENT and placement_audit_ref pointed at the PASS entry still fails tools/check_screen.py with 'audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit' -- reverted before commit. So the four placement audits are real, correctly independent, and genuinely useful (they will unblock `run deepdive` on these four issuers once selection promotes any of them to O1), but they do not and structurally cannot seat a screen row by themselves under the currently committed gate: doing so would require either promoting the placement's own evidence tag to VERIFIED (data/mappings/, which I do not own and did not touch) or a full census audit bringing the mapping to status COMPLETE with audit.status PASS (also not this run's lane). This is named here rather than silently worked around; it belongs to Atlas/Ron to decide whether check_screen.py's admission rule should also recognize a current PASS placement_audits[] entry, or whether the --placement mechanism is deliberately scoped to deepdive only. Net result: identical to the first run, zero rows seated, for the same reason (evidence tier), now with the placement-audit path checked and ruled out rather than merely flagged as a next step.\n\nFirst-run note, unchanged below: Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 14 links, worked in priority order: the one money-corner link first, then the one CHOKE_POINT link, then the rest by chain position. The mapping (data/mappings/minor-nsr-permits.json, 15 issuers, 18 placements) is ACTIVE and carries no audit block at all (no fresh-context census audit has ever run on it), so every row this run rests entirely on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED. That mechanical bar turns out to be the whole story here: of the mapping's 18 placements, only 2 (both ONT, on air-permitting-and-dispersion-modeling and emissions-monitoring-and-compliance) carry all-VERIFIED evidence; the other 16, covering all 7 issuers this campaign has already profiled to COMPLETE (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL, TETRA-TECH, AECOM, JACOBS-SOLUTIONS), carry a single INFERRED-tagged role-evidence item apiece and are blocked by tools/check_screen.py's _placement_admissible regardless of profile status. ONT itself has no profile on disk. Net result: every one of this mapping's 18 placements is inadmissible this run, by one of the two independent gates (evidence tier, or profile completeness), and this screen seats zero rows across all 14 links. This is a structural finding about the mapping's evidence, not a search failure: nothing here was left unsearched.\n\nemissions-aftertreatment-and-catalyst [MONEY CORNER, UNDISCOVERED, EXHAUSTED at 4/5]: searched and empty. The mapping's own link_coverage record closed this link EXHAUSTED with 4 public issuers established (Caterpillar, Cummins, Fuel Tech, CECO Environmental) via a 25-hit SEC EDGAR full-text search plus direct confirmation that the named private specialist (EcoCAT) is not public; a fifth known-public candidate, Johnson Matthey plc (LSE:JMAT, owner of Cormetech), could not be added for lack of a fetchable official UK securities source. All 4 counted issuers carry COMPLETE O2 profiles on disk (written this campaign) and would mechanically clear the profile-completeness half of admission. All 4 fail the other half: each placement's sole evidence item is tagged INFERRED (a Power Generation Enterprises compliance-guide citation for Caterpillar; comparable single-source citations for the other three), never VERIFIED. The chain's own money-corner link is therefore genuinely empty this run because of the evidence tier alone, not because of missing coverage or missing profiles. The 4 placement audits landed this run (commit f187057) do not change this: they PASS the placement's identity and role claim in fresh context but leave the placement's own evidence tag INFERRED, and per CLAUDE.md text they admit these issuers to run deepdive, not to this screen. Promoting these 4 placements to screen-admissible needs either the placement's evidence tag itself raised to VERIFIED, or the whole mapping brought to a COMPLETE census audit; that is the corrected highest-leverage next step for this chain's money corner (see data_gaps).\n\nstate-air-permitting-authority [CHOKE_POINT, UNDISCOVERED, EXHAUSTED at 0/5]: searched and empty by construction. The mapping's own link_coverage record closes this link EXHAUSTED with 0 issuers: state and local minor-source air permitting authority is a governmental function performed by environmental agencies (Virginia DEQ and its Air Pollution Control Board stand in as the representative state) under Clean Air Act State Implementation Plans, and no private company anywhere performs this role. Zero placements exist on this link in the mapping; there is nothing for a screen to seat or to block, and the chain's own bottleneck note independently confirms this is the true gate on the map precisely because it has no instrument.\n\nfederal-minor-nsr-rule [UNDISCOVERED, EXHAUSTED at 0/5]: searched and empty by construction, same reasoning as state-air-permitting-authority one position downstream: the rulemaking (Federal Register 2026-13667) is published and administered solely by the U.S. EPA, a federal agency with no listed equity. Zero placements.\n\nair-permitting-and-dispersion-modeling [UNDISCOVERED, TARGET_MET at 5/5]: searched and empty. Five issuers are mapped (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, ONT, ICF-INTERNATIONAL), all ACTIVE placements. TETRA-TECH, AECOM and JACOBS-SOLUTIONS each carry a COMPLETE O2 profile but a single INFERRED-tagged evidence item, blocked on evidence tier exactly as the money-corner link above. ONT carries all-VERIFIED evidence (SEC EDGAR company-submissions metadata, tag VERIFIED) but has no profile on disk anywhere in the repo; it is mechanically admissible on the mapping side and blocked only by profile completeness, so it is this chain's best near-term candidate for run profile --campaign. ICF-INTERNATIONAL is blocked on both counts (INFERRED evidence, no profile).\n\nonsite-reciprocating-gensets [CROWDED, OPEN at 1/5]: searched and empty. Sole placement CATERPILLAR (COMPLETE O2 profile, INFERRED evidence) is blocked on evidence tier, the same defect as its emissions-aftertreatment-and-catalyst placement; this is a second, independently-evidenced placement for the same issuer and both need their own placement audit.\n\npackaged-gas-turbines [CROWDED, OPEN at 1/5]: searched and empty. Sole placement BAKER-HUGHES (INFERRED evidence, no profile) is blocked on both counts.\n\nfuel-cell-permit-avoidance [OVER_CROWDED, OPEN at 1/5]: searched and empty. Sole placement BLOOM-ENERGY (INFERRED evidence, no profile) is blocked on both counts.\n\ngas-supply-and-interconnection [CROWDED, OPEN at 2/5]: searched and empty. Both placements, ENERGY-TRANSFER and WILLIAMS-COMPANIES (INFERRED evidence each, neither profiled), are blocked on both counts.\n\nliquid-fuel-logistics-and-storage [QUIET, OPEN at 0/5]: searched and empty. The mapping's own link_coverage record shows one search on file (not a formal EXHAUSTED census) finding every firm actually performing this role privately held (Mansfield Energy, Sun Coast Resources, Foster Fuels, Ricochet Fuel); listed distributors (World Kinect, Sunoco LP, Global Partners) were considered and left uncounted because no fetched source places them in this specific role. Zero placements on this link.\n\npower-equipment-shared [None verdict, OPEN at 0/5]: searched and empty by declared design. The chain's own bottleneck note and the mapping's link_coverage record both mark this a SHARED STAGE DECLARATION (campaign blocker BLK-04): it IS ai-infrastructure/power-equipment, the identical seven-ticker stage (ETN, GEV, POWL, HUBB, ENR.DE, SU.PA, HPS-A.TO), deliberately mirrored so the duplication is visible. No issuer is placed here; all seven are counted once, at ai-infrastructure/power-equipment, and must not be double-counted toward this theme.\n\nemissions-monitoring-and-compliance [QUIET, OPEN at 1/5]: searched and empty. Sole placement ONT (all-VERIFIED evidence) is mechanically admissible on the mapping side, the same finding as its air-permitting-and-dispersion-modeling placement, and is blocked only by having no profile on disk.\n\nbridge-power-rental-fleets [EMERGING, OPEN at 1/5]: searched and empty. Sole placement UNITED-RENTALS (INFERRED evidence, no profile) is blocked on both counts.\n\nbehind-the-meter-power-developers [EMERGING, OPEN at 1/5]: searched and empty. Sole placement WILLIAMS-COMPANIES (INFERRED evidence, no profile) is blocked on both counts; this is the issuer's second placement on this chain (also on gas-supply-and-interconnection) and would need a stated secondary_link_basis even once admissible.\n\ndata-center-developer-demand [OVER_CROWDED, OPEN at 1/5, anchor]: searched and empty. Sole placement ORACLE (INFERRED evidence, no profile) is blocked on both counts.",
  "queries_run": [
   {
    "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/minor-nsr-permits.json carrying ACTIVE status, joined to its role-evidence tags",
@@ -38,6 +38,12 @@
    "forms": null,
    "hits_examined": 18,
    "names_extracted": 7
+  },
+  {
+   "query": "fourth run: re-check all 18 placements against the mapping after today's parallel-batch fresh-context placement audits (Atlas, worktrees audit-minor-nsr-permits-{aecom,tetra-tech,jacobs-solutions,ont,icf-international}); attach earnings nuggets to the 6 already-seated tickers now that data/edgar/docs/<T>.json exists for all of them.",
+   "forms": null,
+   "hits_examined": 18,
+   "names_extracted": 2
   }
  ],
  "buckets": {
@@ -165,7 +171,28 @@
      "tag": "NULL",
      "basis": "data/market/FTEK.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "a technology company using advanced engineering processes to provide emissions control systems and water treatment technologies in utility and industrial applications",
+      "accession": "0001437749-26-025707",
+      "url": "https://www.sec.gov/Archives/edgar/data/846913/000143774926025707/ex_993595.htm",
+      "form": "8-K",
+      "filed": "2026-08-04",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/FTEK.json (SEC EDGAR 8-K exhibit, fetched 2026-08-04 filing)",
+      "basis": "Q2 2026 earnings release (8-K EX-99.3), fetched via REQ-20260904-293. Directly evidences FUEL-TECH's emissions-aftertreatment-and-catalyst placement: the company's own self-description names emissions control systems as its core technology, the tightest match on the chain to this link's mechanism."
+     },
+     {
+      "quote": "Fuel Tech is a leader in nitrogen oxide (NO x ) reduction and particulate control technologies and its solutions have been installed on over 2,100 utility, industrial and municipal units worldwide.",
+      "accession": "0001437749-26-025707",
+      "url": "https://www.sec.gov/Archives/edgar/data/846913/000143774926025707/ex_993595.htm",
+      "form": "8-K",
+      "filed": "2026-08-04",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/FTEK.json (SEC EDGAR 8-K exhibit, fetched 2026-08-04 filing)",
+      "basis": "Same filing as above. FUEL-TECH names itself a leader in NOx reduction and particulate control technologies, the SCR/APC product category the money-corner link's mechanism (aftertreatment specified in a minor-NSR permit condition) is built on."
+     }
+    ],
     "status": "CANDIDATE"
    },
    {
@@ -298,7 +325,18 @@
      "tag": "NULL",
      "basis": "data/market/ONT.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "a global environmental solutions company solving complex challenges for planet and progress",
+      "accession": "0001193125-26-335022",
+      "url": "https://www.sec.gov/Archives/edgar/data/1643615/000119312526335022/ont-ex99_1.htm",
+      "form": "8-K",
+      "filed": "2026-08-05",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/ONT.json (SEC EDGAR 8-K exhibit, fetched 2026-08-05 filing)",
+      "basis": "Q2 2026 earnings release (8-K EX-99.1), fetched via REQ-20260904-296. General corporate self-description confirming ONT's (formerly Montrose Environmental Group) identity as the environmental-solutions pure play named on the air-permitting-and-dispersion-modeling placement."
+     }
+    ],
     "status": "CANDIDATE"
    }
   ],
@@ -426,7 +464,18 @@
      "tag": "NULL",
      "basis": "data/market/CAT.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "Power Generation – Sales increased in large reciprocating engines and in turbines and turbine-related services, primarily in data center applications.",
+      "accession": "0000018230-26-000040",
+      "url": "https://www.sec.gov/Archives/edgar/data/18230/000001823026000040/ex991toformcat2q2026earnin.htm",
+      "form": "8-K",
+      "filed": "2026-08-04",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/CAT.json (SEC EDGAR 8-K exhibit, fetched 2026-08-04 filing)",
+      "basis": "Q2 FY2026 earnings release (8-K EX-99.1), fetched via REQ-20260904-291. Directly evidences CATERPILLAR's emissions-aftertreatment-and-catalyst placement: Power Generation segment sales growth is attributed to large reciprocating engines and turbines, primarily in data-center applications, the platforms this chain's link characterizes as needing minor-NSR permit aftertreatment."
+     }
+    ],
     "status": "CANDIDATE"
    },
    {
@@ -560,7 +609,18 @@
      "tag": "NULL",
      "basis": "data/market/CMI.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "critical components such as aftertreatment, turbochargers, fuel systems, controls, transmissions, axles and brakes",
+      "accession": "0000026172-26-000026",
+      "url": "https://www.sec.gov/Archives/edgar/data/26172/000002617226000026/cmi2026q28-kex99.htm",
+      "form": "8-K",
+      "filed": "2026-08-04",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/CMI.json (SEC EDGAR 8-K exhibit, fetched 2026-08-04 filing)",
+      "basis": "Q2 2026 earnings release (8-K EX-99), fetched via REQ-20260904-292. Directly evidences CUMMINS's emissions-aftertreatment-and-catalyst placement: aftertreatment is named as one of the 'critical components' across the company's Engine, Components, Distribution and Power Systems segments."
+     }
+    ],
     "status": "CANDIDATE"
    },
    {
@@ -691,7 +751,18 @@
      "tag": "NULL",
      "basis": "data/market/CECO.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "CECO solutions improve air and water quality, optimize emissions management, and increase energy efficiency for highly-engineered applications in power generation, midstream and downstream hydrocarbon processing and transport",
+      "accession": "0001193125-26-341191",
+      "url": "https://www.sec.gov/Archives/edgar/data/3197/000119312526341191/ceco-ex99_1.htm",
+      "form": "8-K",
+      "filed": "2026-08-10",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/CECO.json (SEC EDGAR 8-K exhibit, fetched 2026-08-10 filing)",
+      "basis": "Q2 2026 earnings release (8-K EX-99.1), fetched via REQ-20260904-294. Directly evidences CECO-ENVIRONMENTAL's emissions-aftertreatment-and-catalyst placement (Peerless Emissions Control / SCR injection modules): the company's own description names emissions management among its core solution lines, including power generation applications."
+     }
+    ],
     "status": "CANDIDATE"
    },
    {
@@ -817,7 +888,340 @@
      "tag": "NULL",
      "basis": "data/market/TTEK.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "Tetra Tech, Inc. (NASDAQ: TTEK), a global provider of high-end technical and engineering services, Le ading with Science ® in water, environment and sustainable infrastructure",
+      "accession": "0001104659-26-088213",
+      "url": "https://www.sec.gov/Archives/edgar/data/831641/000110465926088213/tm2621536d1_ex99-1.htm",
+      "form": "8-K",
+      "filed": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/TTEK.json (SEC EDGAR 8-K exhibit, fetched 2026-07-29 filing)",
+      "basis": "Q3 FY2026 earnings release (8-K EX-99.1), fetched via REQ-20260904-295 / REQ-20260904-297. General corporate self-description confirming TETRA-TECH's identity as the environment and sustainable-infrastructure consultancy named on the air-permitting-and-dispersion-modeling placement; the filing's Recent Key Wins section separately names a 'Hyperscale AI Data Center power system digital automation and cybersecurity contract', corroborating live data-center-sector work, though not the air-permitting practice specifically."
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "AECOM",
+    "listing_id": "NYSE-ACM",
+    "ticker": "ACM",
+    "market_ticker": "ACM",
+    "chain_id": "minor-nsr-permits",
+    "link_id": "air-permitting-and-dispersion-modeling",
+    "mapping_ref": "data/mappings/minor-nsr-permits.json",
+    "profile_ref": "data/companies/AECOM.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence carries one INFERRED and one VERIFIED item (not all-VERIFIED), so admission rests on the current PASS placement_audits[] entry (Atlas, fresh-context, 2026-09-06T15:45:53Z, evidence_index 1) for (minor-nsr-permits, air-permitting-and-dispersion-modeling, AECOM), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "name": "AECOM",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 868857,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Global infrastructure and environmental engineering consultancy whose Environmental Services group offers air permitting and atmospheric dispersion, accidental-release and CFD modeling as representative services, with air-quality consulting and engineering experience the mapping's own evidence says spans tall stacks, cooling towers and data centers explicitly; also carries a separately mapped placement on data-center-moratoria's permitting-and-environmental-consultancy link (one of four firms holding over 40% of US E&S consulting revenue), so air permitting is one practice group inside a much larger multi-service engineering business.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No minor-nsr-permits-specific or link-specific revenue percentage is disclosed by AECOM; company-wide fundamentals only, matching the sourced profile's exposure_summary.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 16139622000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Revenues for the fiscal year ended 2025-09-30 as reported to SEC XBRL companyfacts for CIK 868857 (AECOM, NYSE: ACM)."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.07072,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Three-year compound annual revenue growth computed as (16139622000 / 13148182000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-09-30 to fiscal year ended 2025-09-30.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.063603,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Operating income 1026522000 divided by revenue 16139622000, both for the fiscal year ended 2025-09-30, from companyfacts.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.462513,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Operating cash flow 821602000 divided by net income 561774000, both for the fiscal year ended 2025-09-30, from companyfacts.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.042438,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Free cash flow margin: operating cash flow 821602000 less capital expenditure 136675000, divided by revenue 16139622000, all for the fiscal year ended 2025-09-30, from companyfacts.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 1.363109,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Net debt to EBITDA: total debt 2651988000 less cash 1012932000 = net debt 1639056000, both as of 2026-06-30, divided by an EBITDA proxy 1202439000 (operating income 1026522000 plus depreciation 175917000, both for the fiscal year ended 2025-09-30), from companyfacts. Corrected 2026-09-06: the prior run's total_debt was frozen at 2011-03-31; the 2026-09-06T15:29:04Z re-fetch under a corrected concept map now carries total_debt as of 2026-06-30."
+     },
+     "piotroski": {
+      "value": 7,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Piotroski F-score 7 (state STRONG), computed over companyfacts statements in data/market/ACM.json quality.piotroski, 9 of 9 inputs found. Corrected 2026-09-06: the prior run found 0 common fiscal periods across the 9 inputs; the re-fetch resolves this."
+     },
+     "beneish_state": {
+      "value": -2.673,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Beneish M-score -2.673 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/ACM.json quality.beneish, 12 of 12 inputs found. Corrected 2026-09-06: the prior run found 0 common fiscal periods across the 12 inputs; the re-fetch resolves this."
+     },
+     "market_cap": {
+      "value": 9115386602.07,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Market capitalization 9115386602.07 computed in data/market/ACM.json quality.derived.market_cap from SEC companyfacts share count 131782371 (as of 2025-09-30) times the repo's own market-plane close. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 0.564783,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Market capitalization 9115386602.07 divided by fiscal year 2025-09-30 revenue 16139622000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.024,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/ACM.json quality.reverse_dcf",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Free-cash-flow CAGR the current enterprise value 10754442602.07 implies over a 5-year explicit period on base FCF 684927000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure. Corrected 2026-09-06: the prior run's enterprise_value rested on total_debt frozen at 2011-03-31; the 2026-09-06T15:29:04Z re-fetch carries total_debt as of 2026-06-30, so enterprise_value (10754442602.07 = market_cap 9115386602.07 + net debt 1639056000) is now a current-price statement."
+     },
+     "horizon_spread": {
+      "value": 0.0004,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/ACM.json quality.reverse_dcf",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.024, '7': 0.0242, '10': 0.0244}). Measures how much of the expectation reading is a horizon convention rather than a price statement; inherits the same assumed discount rate and terminal growth."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/ACM.json",
+     "as_of": "2026-09-06",
+     "tag": "NULL",
+     "basis": "data/market/ACM.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "AECOM (NYSE: ACM) is the global infrastructure leader, committed to delivering a better world. As a trusted professional services firm powered by deep technical abilities, we solve our clients’ complex challenges in water, environment, energy, transportation and buildings.",
+      "accession": "0001104659-26-093421",
+      "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+      "form": "8-K",
+      "filed": "2026-08-10",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/ACM.json (SEC EDGAR 8-K exhibit, fetched 2026-08-10 filing)",
+      "basis": "Q2 2026 earnings release (8-K EX-99.1), fetched via REQ-20260904-298. General corporate self-description confirming AECOM's identity as the global infrastructure/environmental engineering consultancy named on the air-permitting-and-dispersion-modeling placement; the filing itself does not name air permitting specifically, which is why the placement's own evidence carries one INFERRED item alongside the VERIFIED item the 2026-09-06 placement audit sampled."
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "JACOBS-SOLUTIONS",
+    "listing_id": "NYSE-J",
+    "ticker": "J",
+    "market_ticker": "J",
+    "chain_id": "minor-nsr-permits",
+    "link_id": "air-permitting-and-dispersion-modeling",
+    "mapping_ref": "data/mappings/minor-nsr-permits.json",
+    "profile_ref": "data/companies/JACOBS-SOLUTIONS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence carries one INFERRED and one VERIFIED item (not all-VERIFIED), so admission rests on the current PASS placement_audits[] entry (Atlas, fresh-context, 2026-09-06T15:46:29Z, evidence_index 1) for (minor-nsr-permits, air-permitting-and-dispersion-modeling, JACOBS-SOLUTIONS), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "name": "JACOBS SOLUTIONS INC.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 52988,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Global engineering and environmental consultancy whose Air Quality and Acoustics practice manages air and noise quality from permitting to monitoring for industrial and data-center clients, the placement's own evidence says including facilities subject to New Source Review; also carries a separately mapped placement on data-center-moratoria's permitting-and-environmental-consultancy link (one of four firms holding over 40% of US E&S consulting revenue), so air permitting is one practice group inside a much larger multi-service consultancy.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No minor-nsr-permits-specific or link-specific revenue percentage is disclosed by JACOBS-SOLUTIONS; company-wide fundamentals only, matching the sourced profile's exposure_summary.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 12029783000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Revenues for the fiscal year ended 2025-09-26 as reported to SEC XBRL companyfacts for CIK 52988 (Jacobs Solutions Inc., NYSE: J). Newly fillable 2026-09-06: the prior fetch's 'Revenues' concept stopped at FY2018-09-28 (14984646000); the corrected concept map re-fetched today carries revenue_fy through FY2025-09-26 (12029783000), consistent year over year with the 2018-2025 series now on file.",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.07134,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Three-year compound annual revenue growth computed as (12029783000 / 9783074000) ** (1/3) - 1 from the companyfacts revenue_fy series, fiscal year ended 2022-09-30 to fiscal year ended 2025-09-26. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy).",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.071791,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Operating income 863634000 divided by revenue 12029783000, both for the fiscal year ended 2025-09-26, from the companyfacts series. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy).",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.3733790471977216,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Operating cash flow 686704000 divided by net income 289336000, both for the period ended 2025-09-26, from the companyfacts series. Re-read 2026-09-06 against the re-fetched file: unchanged.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.050497,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Free cash flow 607472000 (operating cash flow 686704000 less capex 79232000, period ended 2025-09-26) divided by revenue 12029783000 for the same period. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy); the 607472000 FCF figure matches data/market/J.json quality.derived.fcf exactly.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 2.544654554913698,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Net debt 2406462000 (total debt 3579376000 as of 2026-06-26 less cash 1172914000 as of 2026-06-26) divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26), from the companyfacts series. Re-read 2026-09-06 against the re-fetched file: unchanged.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 7,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json quality.piotroski (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Piotroski F-score 7 of 9, state STRONG, computed over sec-companyfacts statements in data/market/J.json quality.piotroski, 9 of 9 inputs found. Newly fillable 2026-09-06: the prior fetch's quality block read PENDING_DATA (only 1 common fiscal period across the 9 inputs); the corrected concept map re-fetched today gives multiple common fiscal periods, so the change-leg criteria now score.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.582,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json quality.beneish (source sec-companyfacts)",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Beneish M-score -2.582 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/J.json quality.beneish, 12 of 12 inputs found. Newly fillable 2026-09-06: the prior fetch's quality block read PENDING_DATA (only 1 common fiscal period across the 12 inputs); the corrected concept map re-fetched today resolves it.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 18097975062.12,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Market capitalization 18097975062.12 computed in data/market/J.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close. Re-read 2026-09-06 against the re-fetched file: unchanged.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 1.504431,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/J.json quality.derived.market_cap over SEC companyfacts revenue",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Market capitalization 18097975062.12 divided by fiscal year 2025-09-26 revenue 12029783000. Newly fillable 2026-09-06 under the corrected concept map (see revenue.latest_fy).",
+      "official_source": true
+     },
+     "ev_to_ebitda": {
+      "value": 21.68191692454105,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Enterprise value 20504437062.12 divided by an EBITDA proxy 945693000 (operating income 863634000 plus depreciation 82059000, both for the period ended 2025-09-26). Re-read 2026-09-06 against the re-fetched file: unchanged.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.212,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 607472000.0, enterprise_value 20504437062.12, from data/market/J.json quality.reverse_dcf. Re-read 2026-09-06 against the re-fetched file: unchanged."
+     },
+     "horizon_spread": {
+      "value": 0.0863,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/J.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-06",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Spread 0.0863 across explicit horizons {'5': 0.212, '7': 0.1618, '10': 0.1257} from data/market/J.json quality.reverse_dcf.implied_by_horizon. Re-read 2026-09-06 against the re-fetched file: unchanged."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/J.json",
+     "as_of": "2026-09-06",
+     "tag": "NULL",
+     "basis": "data/market/J.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "we provide end-to-end services in advanced manufacturing, cities & places, energy, environmental, life sciences, transportation and water",
+      "accession": "0001628280-26-052563",
+      "url": "https://www.sec.gov/Archives/edgar/data/52988/000162828026052563/jfy2026q3earningsrelease.htm",
+      "form": "8-K",
+      "filed": "2026-08-04",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/J.json (SEC EDGAR 8-K exhibit, fetched 2026-08-04 filing)",
+      "basis": "Q3 FY2026 earnings release (8-K EX-99.1), fetched via REQ-20260904-299 (existing doc on disk, verified this run). General corporate self-description confirming JACOBS-SOLUTIONS's identity as the diversified engineering/environmental consultancy named on the air-permitting-and-dispersion-modeling placement (Air Quality and Acoustics practice); the filing itself does not name air permitting specifically, which is why the placement's own evidence carries one INFERRED item alongside the VERIFIED item the 2026-09-06 placement audit sampled."
+     }
+    ],
     "status": "CANDIDATE"
    }
   ],
@@ -952,7 +1356,18 @@
      "tag": "NULL",
      "basis": "data/market/ONT.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a T1 name with no pcs block on disk)."
     },
-    "earnings_nuggets": [],
+    "earnings_nuggets": [
+     {
+      "quote": "a global environmental solutions company solving complex challenges for planet and progress",
+      "accession": "0001193125-26-335022",
+      "url": "https://www.sec.gov/Archives/edgar/data/1643615/000119312526335022/ont-ex99_1.htm",
+      "form": "8-K",
+      "filed": "2026-08-05",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/ONT.json (SEC EDGAR 8-K exhibit, fetched 2026-08-05 filing)",
+      "basis": "Same filing as above, cited here against ONT's second, separately evidenced placement on emissions-monitoring-and-compliance (secondary_link_basis row)."
+     }
+    ],
     "status": "CANDIDATE",
     "secondary_link_basis": "Onterris's primary row on this chain is air-permitting-and-dispersion-modeling (link position 3); this is the issuer's second, separately evidenced ACTIVE placement, on emissions-monitoring-and-compliance (link position 11), with its own role_evidence in data/mappings/minor-nsr-permits.json."
    }
@@ -960,19 +1375,18 @@
   "hedge": []
  },
  "data_gaps": [
-  "6 issuers now seat 7 rows on this chain (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL on the money-corner link; TETRA-TECH and ONT on air-permitting-and-dispersion-modeling; ONT's second placement on emissions-monitoring-and-compliance). No earnings nuggets are attached to any of the 7 rows: none of CAT, CMI, FTEK, CECO, TTEK or ONT has an EDGAR document on disk (data/edgar/docs/<T>.json absent for all 6, checked directly this run); edgar_doc requests are queued this run for all 6 tickers with their CIKs so a future run can verify and attach verbatim quotes.",
-  "AECOM and JACOBS-SOLUTIONS (both COMPLETE O2, both on air-permitting-and-dispersion-modeling) remain blocked on evidence tier: each placement's evidence carries an INFERRED item alongside a VERIFIED one (not all-VERIFIED), and neither has a placement_audits[] PASS entry yet on this chain/link. A fresh-context `run universe-audit minor-nsr-permits --placement` on either would very likely unblock it, by the same mechanism that unblocked CATERPILLAR/CUMMINS/FUEL-TECH/CECO-ENVIRONMENTAL this run.",
-  "ICF-INTERNATIONAL (air-permitting-and-dispersion-modeling) remains blocked on both counts: INFERRED-only evidence and no profile on disk.",
-  "CATERPILLAR's second placement, onsite-reciprocating-gensets, remains blocked: its evidence is INFERRED-only and the placement audits landed this run (commit f187057) cover only the emissions-aftertreatment-and-catalyst placement, not this one. A separate placement audit on (minor-nsr-permits, onsite-reciprocating-gensets, CATERPILLAR) would be needed.",
-  "BAKER-HUGHES, BLOOM-ENERGY, ENERGY-TRANSFER, WILLIAMS-COMPANIES (x2 placements), UNITED-RENTALS and ORACLE remain blocked on both evidence tier (INFERRED-only) and profile completeness (none profiled); unchanged from the first two runs.",
+  "8 issuers now seat 9 rows on this chain (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL on the money-corner link; TETRA-TECH, ONT, AECOM, JACOBS-SOLUTIONS on air-permitting-and-dispersion-modeling; ONT's second placement on emissions-monitoring-and-compliance). All 9 rows now carry at least one verbatim earnings nugget (FUEL-TECH carries two), verified against data/edgar/docs/<T>.json this run: no gap remains here.",
+  "ICF-INTERNATIONAL (air-permitting-and-dispersion-modeling, COMPLETE O2 profile) is correctly unseated: its 2026-09-06 fresh-context placement audit FAILED (role_conflict: the cited page is ICF's species/habitat/NEPA permitting practice, not air quality; the words air, emissions, dispersion modeling, Clean Air Act, and NSR do not appear on it) and its evidence tag stays INFERRED-only, so neither admission path is satisfied. Re-mapping ICF-INTERNATIONAL against its actual air-quality practice, if one exists and is separately citable, would be Atlas's to do; this screen does not invent a role the audit found unsupported.",
+  "CATERPILLAR's second placement, onsite-reciprocating-gensets, remains blocked: its evidence is INFERRED-only and no placement audit has landed on this specific link/issuer pair (the two audits on file for CATERPILLAR both cover emissions-aftertreatment-and-catalyst). A separate `run universe-audit minor-nsr-permits --placement CATERPILLAR` scoped to onsite-reciprocating-gensets would unblock it.",
+  "BAKER-HUGHES, BLOOM-ENERGY, ENERGY-TRANSFER, WILLIAMS-COMPANIES (x2 placements), UNITED-RENTALS and ORACLE remain blocked on both evidence tier (INFERRED-only, no placement audit) and profile completeness (none profiled); unchanged from prior runs.",
   "state-air-permitting-authority (CHOKE_POINT) and federal-minor-nsr-rule remain EXHAUSTED at 0/5 by construction: both are governmental functions with no possible public issuer, unchanged.",
-  "liquid-fuel-logistics-and-storage and power-equipment-shared remain at 0 seatable placements for the reasons recorded in the first-run note below (all-private specialist list; declared shared-stage duplicate of ai-infrastructure/power-equipment), unchanged."
+  "liquid-fuel-logistics-and-storage and power-equipment-shared remain at 0 seatable placements for the reasons recorded in the first-run note (all-private specialist list; declared shared-stage duplicate of ai-infrastructure/power-equipment), unchanged."
  ],
  "taste_filtered": [],
  "health": {
   "tickers_examined": 18,
-  "rows_written": 7,
-  "fully_scored": 7,
+  "rows_written": 9,
+  "fully_scored": 9,
   "pending": 0,
   "errors": 0,
   "rows_superseded": 0,
@@ -984,23 +1398,23 @@
   "money_corner_links_covered": 1,
   "choke_point_links_total": 1,
   "choke_point_links_covered": 0,
-  "quotes_verified": 0,
-  "distinct_issuers": 6,
-  "profiles_available_repo_wide": 156,
+  "quotes_verified": 10,
+  "distinct_issuers": 8,
+  "profiles_available_repo_wide": 189,
   "mapping_placements_total": 18,
   "admissible_placements_all_verified_evidence": 3,
-  "admissible_placements_via_placement_audit": 4,
+  "admissible_placements_via_placement_audit": 6,
   "admissible_but_unprofiled_issuers": 0,
-  "profiled_but_blocked_on_evidence_tier": 3,
-  "blocked_on_both_evidence_tier_and_profile": 4,
-  "placements_with_zero_mapped_issuers": 4
+  "profiled_but_blocked_on_evidence_tier": 2,
+  "blocked_on_both_evidence_tier_and_profile": 7,
+  "placements_with_zero_mapped_issuers_links": 4
  },
  "notes": [],
  "confidence_audit": {
-  "verified": 7,
-  "inferred": 50,
-  "speculative": 6,
-  "null": 28
+  "VERIFIED": 19,
+  "INFERRED": 69,
+  "SPECULATIVE": 10,
+  "NULL": 32
  },
  "changelog": [
   {
@@ -1017,6 +1431,11 @@
    "ts": "2026-09-04T19:30:00Z",
    "by": "sieve-profiler",
    "change": "Third run, same day. tools/check_screen.py commit 5e5f3b5 (landed after the second run) extended _placement_admissible to accept a current PASS placement_audits[] entry as an alternative basis to all-VERIFIED evidence tags. Re-verified directly against check_map.placement_audit_for and check_screen._placement_admissible before writing: CATERPILLAR, CUMMINS, FUEL-TECH and CECO-ENVIRONMENTAL are now admissible on emissions-aftertreatment-and-catalyst (the money-corner link) via Atlas's commit f187057 placement_audits[] PASS entries, each current against its placement's digest. TETRA-TECH (air-permitting-and-dispersion-modeling, commit 5b36277) and both of ONT's placements (air-permitting-and-dispersion-modeling, emissions-monitoring-and-compliance) were already admissible on all-VERIFIED evidence alone. ONT gained a COMPLETE O2 profile this same day (batch 8), clearing the profile-completeness blocker that left it unseated in the first two runs. Seated 7 rows across 3 links and 6 distinct issuers: 4 on the money corner (CATERPILLAR, CUMMINS picks_and_shovels; FUEL-TECH pure_play; CECO-ENVIRONMENTAL picks_and_shovels), 2 on air-permitting-and-dispersion-modeling (TETRA-TECH picks_and_shovels; ONT pure_play, primary placement), 1 on emissions-monitoring-and-compliance (ONT second_order, ONT's secondary placement with a stated secondary_link_basis). All fundamentals/quality/valuation figures copied unchanged from each issuer's COMPLETE O2 profile (data/companies/<issuer_id>.json), sourced there from data/market/<T>.json SEC XBRL companyfacts. No earnings nuggets attached: data/edgar/docs/<T>.json is absent for all 6 tickers (checked directly); queued 6 edgar_doc requests (REQ-20260904-291..296) with each ticker's CIK for a future run. Remaining unseated placements (AECOM, JACOBS-SOLUTIONS, ICF-INTERNATIONAL on the same link; CATERPILLAR's second placement; BAKER-HUGHES, BLOOM-ENERGY, ENERGY-TRANSFER, WILLIAMS-COMPANIES x2, UNITED-RENTALS, ORACLE) and the two by-construction-empty links (state-air-permitting-authority CHOKE_POINT, federal-minor-nsr-rule) are named in data_gaps with their exact blockers."
+  },
+  {
+   "ts": "2026-09-06T17:29:00Z",
+   "by": "sieve-profiler",
+   "change": "Fourth run, 2026-09-06 (Ron's parallel batch). Atlas landed 5 fresh-context placement_audits[] entries on air-permitting-and-dispersion-modeling: PASS for AECOM, TETRA-TECH, JACOBS-SOLUTIONS and ONT; FAIL for ICF-INTERNATIONAL (its cited source is ICF's species/habitat/NEPA permitting practice, not air quality; re-fetched live, contains none of the words air, emissions, dispersion modeling, Clean Air Act, or NSR). Re-verified directly against check_map.placement_audit_for and check_screen._placement_admissible before writing: seated 2 new rows, AECOM and JACOBS-SOLUTIONS, both picks_and_shovels on air-permitting-and-dispersion-modeling under audit_scope PLACEMENT (both COMPLETE O2 T1 profiles, confirmed unchanged this run). ICF-INTERNATIONAL correctly left unseated per its FAILED audit and INFERRED-only evidence. Separately, all 6 edgar_doc requests queued in the third run (REQ-20260904-291..296) plus the AECOM/J requests (REQ-20260904-298/299) have been fetched; attached one verbatim earnings nugget each to CATERPILLAR, CUMMINS, CECO-ENVIRONMENTAL, TETRA-TECH and both ONT rows, two to FUEL-TECH, and one each to the two new AECOM and JACOBS-SOLUTIONS rows, every quote checked against data/edgar/docs/<T>.json's normalize() rule before being written (9/9 rows now carry at least one nugget, up from 0/7). Net result: 9 rows seated across 3 links and 8 distinct issuers (was 7/6). Money corner unchanged at 4/4 seated; CHOKE_POINT unchanged at 0/5 by construction. No new PENDING_DATA requests queued: all fundamentals for AECOM and JACOBS-SOLUTIONS were already sourced on their COMPLETE O2 profiles."
   }
  ]
 }
