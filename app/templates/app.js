@@ -2174,448 +2174,541 @@
   }
 
   /* ---------------- cortex ---------------- */
-  /* v3: the whole machine as one field. d3-force (vendored, ISC) lays out every
-     research object — signals, chains, links, scenarios, screens, names, dives,
-     shadow rows, candidates, known future events — plus a dust halo of raw feed
-     headlines. One graph<->screen transform; zoom, pan, drag, neighbour-dim. */
+  /* v7 (2026-09-06). Ron's pick from the "Cortex, Second Edition" canvas: direction A,
+     the observatory field, with B's crisp square link markers. The field is a WHEEL, not
+     a force layout, so every position says something: angle is the occurrence family
+     (sectors, labelled at the rim with their real headline and signal counts); distance
+     from the centre is how unmapped the signal still is (the eye of the field is the
+     biggest gap); size is the money Tally found reachable (the impact score). Each signal
+     wears its chain as a ring of links coloured by heat: a gold star is the money corner,
+     a white ring a choke point, an amber square a verdict, a dashed orbit a signal with no
+     chain yet. The raw feed is a belt at the rim, one dot per headline, in its family's
+     sector. Three phases share one camera: NETWORK (the wheel), RADIAL (one signal's links
+     ranked by heat with the three factor bars), TIMELINE (distance is time from today,
+     past left, future right, the feed a crescent at NOW). Nothing here invents a number:
+     a missing score draws as an empty track or a hollow marker and prints as unscored. */
   var CXP = {
-    bg0: "#08080d", bg1: "#0f0f16",
-    ink: "#dde0ef", ink2: "#9296ad", ink3: "#7a7e99",
-    accent: "#8687f0",
-    verd: { QUIET: "#7b8496", UNDISCOVERED: "#34c77e", EMERGING: "#e3b23c", CROWDED: "#e97f4e", OVER_CROWDED: "#c14a62" },
-    dive: { INVESTABLE: "#34c77e", WATCH: "#e3b23c", TOO_LATE: "#c14a62" },
-    none: "#6a6e86", gold: "#d4a017", bad: "#e05a72",
-    fam: { POLICY: "#e3b23c", CORPORATE: "#8687f0", TECH: "#34c77e", PHYSICAL: "#e97f4e", GEO: "#c14a62", MACRO: "#e3b23c", LEGAL: "#e3b23c" }
+    bg0: "#07070C", bg1: "#0D0D18",
+    ink: "#ECEDF6", ink2: "#A9ACC0", ink3: "#6C7089", ink4: "#3D4058",
+    accent: "#8687F0", accent2: "#C4C5FF",
+    verd: { QUIET: "#7B8496", UNDISCOVERED: "#34C77E", EMERGING: "#E3B23C", CROWDED: "#E97F4E", OVER_CROWDED: "#E25C78" },
+    dive: { INVESTABLE: "#34C77E", WATCH: "#E3B23C", TOO_LATE: "#E25C78" },
+    none: "#3A3C52", gold: "#D9A94B", bad: "#E25C78", dust: "#B3B6D8", ambient: "#B4B7D6",
+    fam: { POLICY: "#E3B23C", CORPORATE: "#8687F0", TECH: "#34C77E", PHYSICAL: "#E97F4E", GEO: "#E25C78", MACRO: "#E3B23C", LEGAL: "#E3B23C" }
   };
-  // In the radial, a node with no seat on the ranked circle used to fade to nothing, so
-  // companies, verdicts and the raw feed vanished the moment you ranked. These kinds keep a
-  // faint resting opacity instead, so the ranking still shows the field it ranks. Structural
-  // kinds (sig/chain/link/scen) are absent here → floor 0, so a FOCUSED radial still
-  // collapses to its one chain.
-  // Floor multiplies each kind's own base node alpha, so it is calibrated per base to land
-  // every backdrop kind at roughly the same faint level: dust's base is ~0.4 (needs a high
-  // floor to read), a verdict's is 0.92 (needs less).
-  var CX_RADIAL_FLOOR = { co: 0.30, dive: 0.26, screen: 0.16, shadow: 0.15, cand: 0.13, evt: 0.17, dust: 0.42 };
-  var CX_W = 1200, CX_H = 760, CX_NOWX = 720, CX_CLAMP = 1460;
-  var CX_CHARGE = { sig: -900, chain: -700, scen: -420, screen: -380, dive: -320, shadow: -260, link: -180, evt: -110, cand: -70, co: -60, socket: 0, dust: -3 };
-  var CX_EDGE = {
-    "sig-chain":   { d: 90,  s: 0.55, a: 0.16 },
-    "chain-link":  { d: 120, s: 0.22, a: 0.07 },
-    "link-link":   { d: 58,  s: 0.30, a: 0.13 },
-    "chain-scen":  { d: 150, s: 0.35, a: 0.10 },
-    "scen-link":   { d: 105, s: 0.06, a: 0.035 },
-    "scen-screen": { d: 80,  s: 0.50, a: 0.14 },
-    "screen-co":   { d: 60,  s: 0.35, a: 0.09 },
-    "co-link":     { d: 34,  s: 0.10, a: 0.04 },
-    "dive-co":     { d: 40,  s: 0.60, a: 0.18 },
-    "dive-shadow": { d: 30,  s: 0.70, a: 0.18 }
-  };
-  var CX_ORDER = { sig: 0, chain: 1, link: 2, scen: 3, screen: 4, co: 5, dive: 6, shadow: 7, cand: 8, evt: 9, socket: 10 };
-  function cxTrim(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
-  function cxTimeX(dateStr) {
-    var dx = daysBetween(TODAY, dateStr);
-    if (isNaN(dx)) dx = 0;
-    var t = Math.sqrt(Math.min(Math.abs(dx), CX_CLAMP) / CX_CLAMP);
-    return dx < 0 ? CX_NOWX - t * 560 : CX_NOWX + t * 380;
-  }
-
-  /* ---- graph model: every research object in the payload ---- */
-  function cxBuild() {
-    var nodes = [], edges = [], byKey = {}, i;
-    function add(n) {
-      n.key = n.kind + ":" + n.id;
-      if (byKey[n.key]) return byKey[n.key];
-      n.x = n.x0; n.y = n.y0;
-      byKey[n.key] = n; nodes.push(n); return n;
-    }
-    function join(aKey, bKey, type) {
-      if (!byKey[aKey] || !byKey[bKey] || aKey === bKey) return;
-      edges.push({ source: aKey, target: bKey, type: type, alpha: (CX_EDGE[type] || {}).a || 0.06 });
-    }
-    var cx0 = CX_W / 2, cy0 = CX_H / 2;
-    function seedX(t) { return cx0 + (t - 0.5) * 460 + (Math.random() - 0.5) * 90; }
-    function seedY(t) { return cy0 + (t - 0.5) * 300 + (Math.random() - 0.5) * 90; }
-
-    // signals
-    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
-    sigs.forEach(function (sg, si) {
-      var occ = sg.occurrence || null;
-      var anchor = (occ && occ.anchor_date) || sg.created_at || TODAY;
-      var un = (sg.unmappedness || {}).score || 0;
-      var tx = cxTimeX(anchor);
-      add({
-        kind: "sig", id: sg.id, ref: sg, rSem: 10 + 42 * Math.pow(un / 100, 1.8),
-        tier: un >= 80 ? "MAJOR" : un >= 60 ? "MID" : "TAIL", color: CXP.accent,
-        dashed: !!(occ && occ.kind === "SCHEDULED"), tx: tx, txw: 0.012,
-        label: cxTrim(sg.title, 34),
-        sub: occ ? cxTrim(occ.label, 40) + " · " + anchor : "occurrence undated",
-        tip: sg.title + " — " + (occ ? occ.kind + " · " + anchor : "undated"),
-        x0: tx + (Math.random() - 0.5) * 60,
-        y0: CX_H * (0.26 + 0.5 * ((si % 3) / 2)) + (Math.random() - 0.5) * 70
-      });
-    });
-
-    // chains (iterate directly; attach via signal_id so an orphaned chain still draws)
-    (D.chains || []).forEach(function (c, ci) {
-      var links = (c.links || []).slice().sort(function (a, b) { return a.position - b.position; });
-      var scored = links.filter(function (l) { return l.heat && l.heat.crowdedness && l.heat.crowdedness.score != null; }).length;
-      var host = c.signal_id && byKey["sig:" + c.signal_id];
-      var hx = host ? host.x0 : seedX(ci / Math.max(1, (D.chains || []).length));
-      var hy = host ? host.y0 + 120 : cy0;
-      add({
-        kind: "chain", id: c.id, ref: c, rSem: 10 + 6 * (links.length ? scored / links.length : 0),
-        color: CXP.accent, label: cxTrim(c.title, 30),
-        sub: links.length + " links · " + scored + " scored",
-        tip: c.title + " — " + links.length + " links, " + scored + " scored",
-        arcs: links.map(function (l) { return (l.heat || {}).verdict || null; }),
-        x0: hx + (Math.random() - 0.5) * 40, y0: hy + (Math.random() - 0.5) * 40
-      });
-      if (host) { host.sigChain = c.id; join("chain:" + c.id, "sig:" + c.signal_id, "sig-chain"); }
-      links.forEach(function (l, li) {
-        var a = (-90 + li * (360 / Math.max(1, links.length))) * Math.PI / 180;
-        var h = l.heat || {};
-        add({
-          kind: "link", id: c.id + "/" + l.id, ref: l, chainId: c.id,
-          rSem: (3.0 + (h.impact && h.impact.score != null ? h.impact.score : 0) / 50) * ((h.money_corner || (l.bottleneck || {}).criticality === "CHOKE_POINT") ? 1.4 : 1),
-          color: h.verdict ? CXP.verd[h.verdict] : CXP.none,
-          gold: !!h.money_corner, choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
-          label: cxTrim(l.name, 22),
-          sub: (h.verdict ? h.verdict.replace(/_/g, " ").toLowerCase() : "unscored") +
-               (h.money_corner ? " · ★ money corner" : "") +
-               ((l.bottleneck || {}).criticality === "CHOKE_POINT" ? " · choke point" : ""),
-          tip: l.name + (h.verdict ? " — " + h.verdict.replace("_", " ") : " — unscored") + (h.money_corner ? " · ★ money corner" : ""),
-          x0: hx + 130 * Math.cos(a), y0: hy + 130 * Math.sin(a)
-        });
-        join("link:" + c.id + "/" + l.id, "chain:" + c.id, "chain-link");
-      });
-      links.forEach(function (l) {
-        (l.upstream_of || []).forEach(function (u) {
-          join("link:" + c.id + "/" + l.id, "link:" + c.id + "/" + u, "link-link");
-        });
-      });
-      (c.scenarios || []).forEach(function (s, si2) {
-        var col = s.status === "SCREENED" ? CXP.verd.UNDISCOVERED
-          : (s.status === "INVALIDATED" || s.status === "PLAYED_OUT") ? CXP.ink3 : CXP.accent;
-        add({
-          kind: "scen", id: c.id + "/" + s.id, ref: s, chainId: c.id,
-          rSem: 4.5 + 7 * ((s.probability_pct || 0) / 100), color: col,
-          label: cxTrim(s.title, 26), sub: s.id + (s.probability_pct != null ? " · " + s.probability_pct + "%" : " · unscored"),
-          ty: CX_H * 0.16, tyw: 0.006,
-          tip: s.id + " · " + s.title + " — " + s.probability_pct + "%",
-          x0: hx + (si2 - 1.5) * 90, y0: hy - 180 + (Math.random() - 0.5) * 40
-        });
-        join("scen:" + c.id + "/" + s.id, "chain:" + c.id, "chain-scen");
-        (s.links_moved || []).forEach(function (m) {
-          join("scen:" + c.id + "/" + s.id, "link:" + c.id + "/" + m.link_id, "scen-link");
-        });
-      });
-    });
-
-    // companies: union of example tickers, screened names, dived and shadowed tickers
-    var coSeen = {};
-    function co(ticker, seedNear) {
-      var t = String(ticker || "").trim();
-      if (!t) return null;
-      var k = "co:" + t;
-      if (coSeen[t]) return byKey[k];
-      coSeen[t] = 1;
-      var near = seedNear || { x0: cx0, y0: cy0 };
-      return add({
-        kind: "co", id: t, rSem: 2.0, color: CXP.ink3, label: t,
-        tip: t, hollow: !marketFor(t),
-        x0: near.x0 + (Math.random() - 0.5) * 90, y0: near.y0 + (Math.random() - 0.5) * 90
-      });
-    }
-    (D.chains || []).forEach(function (c) {
-      (c.links || []).forEach(function (l) {
-        var ln = byKey["link:" + c.id + "/" + l.id];
-        (l.example_tickers || []).forEach(function (t) {
-          var n = co(t, ln);
-          if (!n) return;
-          join("co:" + n.id, "link:" + c.id + "/" + l.id, "co-link");
-          n.chainIds = n.chainIds || []; n.chains = n.chains || [];
-          if (n.chainIds.indexOf(c.id) < 0) { n.chainIds.push(c.id); n.chains.push(cxTrim(c.title, 26)); }
-        });
-      });
-    });
-
-    // screens
-    (D.screens || []).forEach(function (sc) {
-      var names = [];
-      ["pure_play", "picks_and_shovels", "second_order", "hedge"].forEach(function (b) {
-        ((sc.buckets || {})[b] || []).forEach(function (r) { names.push(r); });
-      });
-      var anchorScen = byKey["scen:" + sc.chain_id + "/" + sc.scenario_id];
-      add({
-        kind: "screen", id: sc.id, ref: sc, rSem: 6 + 0.9 * Math.sqrt(names.length || 1),
-        color: CXP.ink2, label: "SCREEN " + sc.scenario_id,
-        sub: names.length + " names", tip: sc.id + " — " + names.length + " names screened",
-        x0: (anchorScen ? anchorScen.x0 : cx0) + 60, y0: (anchorScen ? anchorScen.y0 : cy0) - 60
-      });
-      if (anchorScen) join("scen:" + sc.chain_id + "/" + sc.scenario_id, "screen:" + sc.id, "scen-screen");
-      names.forEach(function (r) {
-        var n = co(r.ticker, byKey["screen:" + sc.id]);
-        if (!n) return;
-        n.tier = r.tier; n.screened = true; n.coName = r.name || n.coName;
-        n.color = r.tier === "T1" ? CXP.ink : r.tier === "T2" ? CXP.ink2 : CXP.ink3;
-        n.tip = r.ticker + (r.name ? " · " + r.name : "") + " — " + (r.tier || "") + " " + (r.status || "");
-        join("screen:" + sc.id, "co:" + n.id, "screen-co");
-      });
-    });
-
-    // dives
-    (D.stocks || []).forEach(function (st) {
-      var w = st.verdict === "INVESTABLE" ? 1 : st.verdict === "WATCH" ? 0.6 : 0.3;
-      var target = byKey["co:" + st.ticker];
-      add({
-        kind: "dive", id: st.ticker + "__" + st.chain_id, ref: st,
-        rSem: 7 + 4 * w, color: CXP.dive[st.verdict] || CXP.none,
-        dashed: st.status === "DRAFT", label: st.ticker,
-        sub: (st.verdict || "").replace("_", " ").toLowerCase(),
-        tip: st.ticker + " — " + st.verdict + " (" + st.clock + ", " + st.status + ")",
-        ty: CX_H * 0.86, tyw: 0.008,
-        x0: target ? target.x0 : cx0, y0: CX_H * 0.84
-      });
-      var cn = co(st.ticker, byKey["dive:" + st.ticker + "__" + st.chain_id]);
-      if (cn) { cn.dived = true; join("dive:" + st.ticker + "__" + st.chain_id, "co:" + cn.id, "dive-co"); }
-    });
-
-    // shadow rows
-    var sres = (D.shadow || {}).results || {};
-    (((D.shadow || {}).book || {}).rows || []).forEach(function (r, ri) {
-      var call = (sres[r.id] || {}).call;
-      add({
-        kind: "shadow", id: r.id, ref: r, rSem: 4,
-        color: call === "RIGHT" ? CXP.verd.UNDISCOVERED : call === "WRONG" ? CXP.verd.OVER_CROWDED : CXP.none,
-        label: r.ticker, tip: r.ticker + " — shadow " + (call || "awaiting +90d"),
-        ty: CX_H * 0.9, tyw: 0.008, x0: CX_W * 0.8 + ri * 26, y0: CX_H * 0.9
-      });
-      co(r.ticker, byKey["shadow:" + r.id]);
-      (D.stocks || []).forEach(function (st) {
-        if (st.shadow_ref && st.shadow_ref.indexOf(r.id) > -1) join("dive:" + st.ticker + "__" + st.chain_id, "shadow:" + r.id, "dive-shadow");
-      });
-    });
-
-    // ambient candidates + known future events
-    (((D.candidates || {}).candidates) || []).forEach(function (cd) {
-      if (cd.status !== "AMBIENT") return;
-      var tx = cxTimeX(cd.date);
-      add({
-        kind: "cand", id: cd.id, ref: cd, rSem: 3.5, color: CXP.fam[cd.family] || CXP.none,
-        tx: tx, txw: 0.010, label: cxTrim(cd.title, 20),
-        tip: cd.title + " — " + cd.family + " · " + cd.date,
-        x0: tx + (Math.random() - 0.5) * 90, y0: CX_H * (0.62 + Math.random() * 0.26)
-      });
-    });
-    (((D.calendar || {}).events) || []).forEach(function (ev) {
-      if (ev.status !== "WATCHING") return;
-      var tx = cxTimeX(ev.date);
-      add({
-        kind: "evt", id: ev.id, ref: ev, rSem: 4, dashed: true, color: CXP.fam[ev.kind] || CXP.none,
-        tx: tx, txw: 0.014, label: cxTrim(ev.title, 20),
-        tip: ev.title + " — " + ev.kind + " · " + ev.date,
-        x0: tx + (Math.random() - 0.5) * 60, y0: CX_H * (0.2 + Math.random() * 0.3)
-      });
-    });
-
-    // sockets: an empty funnel stage still shows its shape
-    function socket(id, label, gx, gy, nav, note) {
-      add({ kind: "socket", id: id, rSem: 16, color: CXP.ink3, dashed: true, socket: true,
-            label: label + " · 0", nav: nav, tip: note, fx: gx, fy: gy, x0: gx, y0: gy });
-    }
-    if (!(D.screens || []).length) socket("screen", "SCREEN", CX_W * 0.80, CX_H * 0.30, null, "no scenario screened yet");
-    if (!(D.stocks || []).length) socket("dive", "DIVE", CX_W * 0.72, CX_H * 0.86, null, "no deep dive yet");
-    if (!(((D.shadow || {}).book || {}).rows || []).length) socket("shadow", "SHADOW", CX_W * 0.90, CX_H * 0.86, "#/shadow", "no TOO LATE verdict graded yet");
-    if (!(((D.candidates || {}).candidates) || []).filter(function (c) { return c.status === "AMBIENT"; }).length)
-      socket("cand", "AMBIENT", CX_NOWX - 300, CX_H * 0.80, null, "run radar to triage the feed");
-    if (!(((D.calendar || {}).events) || []).filter(function (e) { return e.status === "WATCHING"; }).length)
-      socket("evt", "KNOWN FUTURE", CX_NOWX + 230, CX_H * 0.22, null, "no dated future event tracked yet");
-
-    // adjacency + degree-weighted radii (bounded, additive: degree never swamps semantics)
-    var adj = {}, deg = {};
-    nodes.forEach(function (n) { adj[n.key] = {}; deg[n.key] = 0; });
-    edges.forEach(function (e) {
-      adj[e.source][e.target] = 1; adj[e.target][e.source] = 1;
-      deg[e.source]++; deg[e.target]++;
-    });
-    nodes.forEach(function (n) {
-      n.r = n.rSem + (n.kind === "socket" ? 0 : Math.min(6, 1.25 * Math.sqrt(Math.max(0, deg[n.key] - 1))));
-    });
-
-    // feed dust: real headlines, laid out on an annulus (seats filled after warm-up)
-    var dust = ((D.feeds || {}).items || []);
-    for (i = 0; i < dust.length; i++) {
-      var it = dust[i];
-      add({
-        kind: "dust", id: "d" + i, ref: it, rSem: 1.5, r: 1.5,
-        color: CXP.fam[it.f] || CXP.ink3, seat: i,
-        tip: cxTrim(it.t, 84) + " — " + (it.s || "") + " · " + ((it.d || "").slice(0, 10)),
-        x0: cx0 + (Math.random() - 0.5) * 900, y0: cy0 + (Math.random() - 0.5) * 620
-      });
-    }
-    // z = time (depth axis): sqrt-compressed days from today, past negative, future positive
-    function zOf(dateStr) {
-      var dx = daysBetween(TODAY, dateStr);
-      if (isNaN(dx)) dx = 0;
-      var zt = Math.sqrt(Math.min(Math.abs(dx), CX_CLAMP) / CX_CLAMP) * 480;
-      return dx < 0 ? -zt : zt;
-    }
-    nodes.forEach(function (n) {
-      if (n.kind !== "sig") return;
-      var occ = (n.ref || {}).occurrence || {};
-      n.z = zOf(occ.anchor_date || (n.ref || {}).created_at || TODAY);
-    });
-    nodes.forEach(function (n) {
-      if (n.kind !== "chain") return;
-      var host = byKey["sig:" + ((n.ref || {}).signal_id || "")];
-      n.z = (host ? host.z : 0) + (Math.random() - 0.5) * 20;
-    });
-    nodes.forEach(function (n) {
-      if (n.z != null) return;
-      var chz = n.chainId && byKey["chain:" + n.chainId] ? byKey["chain:" + n.chainId].z : null;
-      if (n.kind === "link") n.z = (chz || 0) + (Math.random() - 0.5) * 40;
-      else if (n.kind === "scen") n.z = (chz || 0) + 70 + Math.random() * 25;
-      else if (n.kind === "screen") n.z = ((byKey["chain:" + ((n.ref || {}).chain_id || "")] || {}).z || 0) + 85;
-      else if (n.kind === "co") {
-        var c0 = (n.chainIds || [])[0];
-        n.z = (c0 && byKey["chain:" + c0] ? byKey["chain:" + c0].z : 0) + (Math.random() - 0.5) * 40;
-      }
-      else if (n.kind === "dive" || n.kind === "shadow") n.z = zOf((n.ref || {}).as_of || (n.ref || {}).verdict_date || TODAY);
-      else if (n.kind === "cand") n.z = zOf((n.ref || {}).date);
-      else if (n.kind === "evt") n.z = Math.max(60, zOf((n.ref || {}).date));
-      else if (n.kind === "dust") n.z = (Math.random() - 0.5) * 70;
-      else n.z = 0;
-    });
-    return { nodes: nodes, edges: edges, byKey: byKey, adj: adj, deg: deg, ring: null, builtAt: D.built_at };
-  }
-
-  /* ---- simulation (vendored d3-force; we own the clock) ---- */
-  function cxRingForce(g) {
-    var ns;
-    function force(alpha) {
-      if (!g.ring) return;
-      for (var i = 0; i < ns.length; i++) {
-        var n = ns[i];
-        if (n.kind === "cand" && n.hx != null) {
-          n.vx += (n.hx - n.x) * 0.05 * alpha;
-          n.vy += (n.hy - n.y) * 0.05 * alpha;
-          continue;
-        }
-        if (n.kind !== "dust" || n.sx == null) continue;
-        n.vx += (n.sx - n.x) * 0.08 * alpha;
-        n.vy += (n.sy - n.y) * 0.08 * alpha;
-      }
-    }
-    force.initialize = function (_) { ns = _; };
-    return force;
-  }
-  function cxSeats(g) {
-    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-    g.nodes.forEach(function (n) {
-      if (n.kind === "dust") return;
-      if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
-      if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
-    });
-    if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
-    var cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-    var r0 = 0.62 * Math.max(maxX - minX, maxY - minY), band = 0.28 * r0;
-    // one arc per family, sized by nothing but order: the halo reads as five labelled
-    // sectors so a headline's family is legible from its position, not only its colour.
-    var span = Math.PI * 2 / CX_FAMS.length, gap = 0.055;
-    var arcOf = {}, seen = {};
-    CX_FAMS.forEach(function (f, fi) {
-      arcOf[f] = { i: fi, a0: -Math.PI / 2 + fi * span + gap, a1: -Math.PI / 2 + (fi + 1) * span - gap, n: 0 };
-      seen[f] = 0;
-    });
-    g.nodes.forEach(function (n) { if (n.kind === "dust" && arcOf[(n.ref || {}).f]) arcOf[(n.ref || {}).f].n++; });
-    g.ring = { cx: cx, cy: cy, r0: r0, band: band, arcs: arcOf, span: span, gap: gap };
-    g.nodes.forEach(function (n) {
-      if (n.kind !== "dust") return;
-      var f = (n.ref || {}).f, arc = arcOf[f], ang, rad;
-      if (arc && arc.n > 0) {
-        var j = seen[f]++;
-        ang = arc.a0 + (arc.a1 - arc.a0) * ((j + 0.5) / arc.n);
-        rad = r0 + band * ((j * 0.6180339) % 1);
-      } else {
-        // no family on the item: it keeps the old free seat rather than being filed by guess
-        ang = n.seat * 2.399963 + 0.13;
-        rad = r0 + band * ((n.seat * 0.6180339) % 1);
-      }
-      n.sx = cx + rad * Math.cos(ang);
-      n.sy = cy + rad * Math.sin(ang) * 0.92;
-      n.famArc = arc ? f : null;
-    });
-    // ambient candidates ride the outer halo, named, in their own family's arc
-    var candSeen = {};
-    g.nodes.forEach(function (n) {
-      if (n.kind !== "cand") return;
-      var f = (n.ref || {}).family, arc = arcOf[f];
-      if (!arc) return;
-      var k = candSeen[f] = (candSeen[f] || 0) + 1;
-      var ang2 = arc.a0 + (arc.a1 - arc.a0) * (k / (1 + countCand(g, f)));
-      var rad2 = r0 + band * 1.32;
-      n.hx = cx + rad2 * Math.cos(ang2);
-      n.hy = cy + rad2 * Math.sin(ang2) * 0.92;
-    });
-  }
-  function countCand(g, f) {
-    var n = 0;
-    g.nodes.forEach(function (x) { if (x.kind === "cand" && (x.ref || {}).family === f) n++; });
-    return n;
-  }
-  function cxSim(g) {
-    var sim = d3.forceSimulation(g.nodes)
-      .velocityDecay(0.55)
-      .force("charge", d3.forceManyBody().theta(0.9).distanceMin(2).distanceMax(420)
-        .strength(function (n) { return CX_CHARGE[n.kind] != null ? CX_CHARGE[n.kind] : -80; }))
-      .force("link", d3.forceLink(g.edges).id(function (n) { return n.key; })
-        .distance(function (e) { return (CX_EDGE[e.type] || {}).d || 80; })
-        .strength(function (e) { return (CX_EDGE[e.type] || {}).s || 0.2; }))
-      .force("collide", d3.forceCollide(function (n) { return n.kind === "dust" ? 1.8 : n.r + 2; }).strength(0.65))
-      .force("x", d3.forceX(CX_W / 2).strength(function (n) { return n.kind === "dust" ? 0 : 0.0022; }))
-      .force("y", d3.forceY(CX_H / 2).strength(function (n) { return n.kind === "dust" ? 0 : 0.0035; }))
-      .force("ring", cxRingForce(g));
-    sim.stop();
-    var i;
-    for (i = 0; i < 70; i++) sim.tick();     // structure first, dust free
-    cxSeats(g);                               // annulus from the settled core
-    for (i = 0; i < 20; i++) sim.tick();     // dust snaps toward its seats
-    var bad = false;
-    g.nodes.forEach(function (n) { if (!isFinite(n.x) || !isFinite(n.y)) bad = true; });
-    if (bad) {
-      g.nodes.forEach(function (n) { n.x = n.x0; n.y = n.y0; n.vx = n.vy = 0; });
-      for (i = 0; i < 60; i++) sim.tick();
-    }
-    return sim;
-  }
-
-  /* ---- view: one graph<->screen transform for everything ---- */
+  var CX_FAMS = ["GEO", "CORPORATE", "TECH", "POLICY", "PHYSICAL"];
+  // sector order around the wheel: signal-heavy families face each other so neither
+  // half of the field crowds (POLICY and the unfiled signals sit across from each other)
+  var CX_SECTOR_ORDER = ["GEO", "POLICY", "TECH", "UNFILED", "CORPORATE", "PHYSICAL", "MACRO", "LEGAL"];
+  var CX_RIM = 396, CX_DUST0 = 326, CX_DUST1 = 384, CX_AMB0 = 262, CX_AMB1 = 296, CX_HUB0 = 72, CX_HUB1 = 248;
+  var CX_CLAMP = 1460;   // days: the time scale saturates at four years
+  var CX_HEAT_ORDER = { UNDISCOVERED: 0, EMERGING: 1, CROWDED: 2, OVER_CROWDED: 3, QUIET: 4 };
+  var CX_FACTORS = [["impact", "IMPACT", "#8687F0"], ["crowdedness", "CROWDEDNESS", "#E97F4E"], ["capture", "CAPTURE", "#34C77E"]];
+  var CX_MODE = { phase: "network", sig: null };
+  var CX_FILTER = { kinds: {}, fam: null, q: "" };
+  var CX_KIND_CHIPS = [["sig", "signals"], ["link", "links"], ["scen", "scenarios"], ["co", "names"], ["dive", "verdicts"], ["cand", "ambient"], ["evt", "future"], ["dust", "feed"]];
   var CX_CACHE = null;
-  var CX_F = 900; // focal length; effective zoom k = CX_F / cam.dist
-  function cxCam(g, w, h) {
-    // frame the research core; the dust halo may bleed off-frame
-    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-    g.nodes.forEach(function (n) {
-      if (n.kind === "dust") return;
-      if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
-      if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
+  // viewer-tuned render gains: per-type size multipliers plus a label density cut.
+  // Per-viewer convenience only: never touches the data, a cleared localStorage restores
+  // the defaults.
+  var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1, labels: 0.7 };
+  var CX_GAIN = (function () {
+    var d = {};
+    Object.keys(CX_GAIN_DEF).forEach(function (k) { d[k] = CX_GAIN_DEF[k]; });
+    try {
+      var s = JSON.parse(localStorage.getItem("upstream.cxGain") || "null");
+      if (s && typeof s === "object") Object.keys(CX_GAIN_DEF).forEach(function (k) {
+        if (typeof s[k] === "number" && s[k] >= 0 && s[k] <= 3) d[k] = s[k];
+      });
+    } catch (e) {}
+    return d;
+  })();
+  function cxSaveGain() { try { localStorage.setItem("upstream.cxGain", JSON.stringify(CX_GAIN)); } catch (e) {} }
+  function cxGainOf(kind) {
+    if (kind === "sig") return CX_GAIN.sig;
+    if (kind === "link") return CX_GAIN.link;
+    if (kind === "scen") return CX_GAIN.scen;
+    if (kind === "co" || kind === "dive") return CX_GAIN.co;
+    if (kind === "cand" || kind === "evt") return CX_GAIN.intake;
+    if (kind === "dust") return CX_GAIN.dust;
+    return 1;
+  }
+  function cxTrim(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+  function cxFmtDate(d) { return d ? String(d).slice(0, 10) : ""; }
+  function cxSigFamily(sigId) {
+    var cands = (D.candidates || {}).candidates || [];
+    for (var i = 0; i < cands.length; i++) {
+      if (cands[i].promoted_signal_id === sigId && cands[i].family) return cands[i].family;
+    }
+    return null;
+  }
+  /* The short map name: the part of the title before its colon, the way a chart
+     abbreviates a long feature name. The full title lives in the panel and the inspector. */
+  function cxShort(title) {
+    var t = String(title || "");
+    var i = t.indexOf(":");
+    if (i > 0 && i <= 60) return t.slice(0, i).trim();
+    if (t.length <= 44) return t;
+    var cut = t.lastIndexOf(" ", 42);
+    return (cut > 20 ? t.slice(0, cut) : t.slice(0, 40)) + "…";
+  }
+  function cxTier(un) { return un == null ? "LONG TAIL" : un >= 80 ? "MAJOR" : un >= 60 ? "WATCH" : "LONG TAIL"; }
+  function cxLiveSignals() {
+    return (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
+  }
+  function cxRanked() {
+    return cxLiveSignals().slice().sort(function (a, b) {
+      var ua = (a.unmappedness || {}).score, ub = (b.unmappedness || {}).score;
+      return (ub == null ? -1 : ub) - (ua == null ? -1 : ua);
     });
-    if (minX > maxX) { minX = 0; maxX = CX_W; minY = 0; maxY = CX_H; }
-    var gw = Math.max(maxX - minX, 300), gh = Math.max(maxY - minY, 240);
-    var s = Math.min((w * 0.78) / gw, (h * 0.8) / gh);
-    return {
-      yaw: -0.45, pitch: -0.22,
-      dist: Math.max(CX_F / 4, Math.min(3600, CX_F / Math.max(0.2, s))),
-      tx: (minX + maxX) / 2, ty: (minY + maxY) / 2, tz: 0
+  }
+  function cxScore(l, leg) { var h = (l.heat || {})[leg]; return h && h.score != null ? h.score : null; }
+  function cxHeatRank(l) { var v = (l.heat || {}).verdict; return v in CX_HEAT_ORDER ? CX_HEAT_ORDER[v] : 5; }
+  function cxRankedLinks(c) {
+    return (c.links || []).slice().sort(function (a, b) {
+      var d = cxHeatRank(a) - cxHeatRank(b);
+      if (d) return d;
+      var ia = cxScore(a, "impact"), ib = cxScore(b, "impact");
+      return (ib == null ? -1 : ib) - (ia == null ? -1 : ia);
+    });
+  }
+  function cxDays(dateStr) { var d = daysBetween(TODAY, cxFmtDate(dateStr)); return isNaN(d) ? null : d; }
+  function cxTimeR(days) { return 40 + 320 * Math.sqrt(Math.min(Math.abs(days == null ? 0 : days), CX_CLAMP) / CX_CLAMP); }
+  // deterministic jitter so the belt and the ambient band sit still between rebuilds
+  function cxRng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
+  function cxPol(r, deg) { var a = deg * Math.PI / 180; return { x: r * Math.sin(a), y: -r * Math.cos(a) }; }
 
-  /* ---- instrument rails: every register is real data ---- */
+  /* ---- sectors: angle is family ---- */
+  function cxSectors() {
+    var feedFam = (D.feeds || {}).families || null;
+    var heads = {};
+    if (feedFam) Object.keys(feedFam).forEach(function (f) { heads[f] = feedFam[f]; });
+    else ((D.feeds || {}).items || []).forEach(function (it) { if (it.f) heads[it.f] = (heads[it.f] || 0) + 1; });
+    var sigs = {}, unfiled = 0;
+    cxLiveSignals().forEach(function (s) {
+      var f = cxSigFamily(s.id);
+      if (f) sigs[f] = (sigs[f] || 0) + 1; else unfiled++;
+    });
+    var cands = {};
+    (((D.candidates || {}).candidates) || []).forEach(function (c) { if (c.status === "AMBIENT" && c.family) cands[c.family] = (cands[c.family] || 0) + 1; });
+    var fams = CX_SECTOR_ORDER.filter(function (f) {
+      if (f === "UNFILED") return unfiled > 0;
+      return (heads[f] || 0) + (sigs[f] || 0) + (cands[f] || 0) > 0;
+    });
+    // a family the feed store names that the order list does not know still gets a sector
+    Object.keys(heads).forEach(function (f) { if (fams.indexOf(f) < 0) fams.push(f); });
+    if (!fams.length) fams = ["UNFILED"];
+    var tf = 0, ts = 0, fw = {}, sw = {};
+    fams.forEach(function (f) {
+      fw[f] = Math.sqrt(heads[f] || 0); sw[f] = (f === "UNFILED" ? unfiled : (sigs[f] || 0)) + 1;
+      tf += fw[f]; ts += sw[f];
+    });
+    var out = [], a = 0;
+    fams.forEach(function (f) {
+      // width: 35% feed volume, 65% signal count, so the sectors with the analysis get the room
+      var w = (tf ? 0.35 * fw[f] / tf : 0) + 0.65 * sw[f] / ts;
+      out.push({ fam: f, a0: a, w: w, heads: heads[f] || 0, sigs: f === "UNFILED" ? unfiled : (sigs[f] || 0), cands: cands[f] || 0 });
+      a += w;
+    });
+    var tot = a || 1;
+    a = 0;
+    out.forEach(function (s) { s.a0 = a; s.a1 = a + 360 * s.w / tot; s.mid = (s.a0 + s.a1) / 2; a = s.a1; });
+    return out;
+  }
+  function cxSectorOf(secs, fam) {
+    for (var i = 0; i < secs.length; i++) if (secs[i].fam === fam) return secs[i];
+    for (var j = 0; j < secs.length; j++) if (secs[j].fam === "UNFILED") return secs[j];
+    return secs[0];
+  }
+
+  /* ---- graph model: every research object with its wheel, timeline and radial seats ---- */
+  function cxBuild() {
+    var nodes = [], byKey = {}, rng = cxRng(7), i;
+    var secs = cxSectors();
+    function add(n) { n.key = n.kind + ":" + n.id; byKey[n.key] = n; nodes.push(n); return n; }
+    function hubR(imp) { return imp == null ? 6.5 : 6.5 + 13 * Math.pow(Math.max(0, Math.min(1, (imp - 30) / 55)), 1.15); }
+    function unR(un) { return Math.max(CX_HUB0, Math.min(CX_HUB1, 62 + (100 - (un == null ? 0 : un)) * 4.1)); }
+
+    // signals: one system each (hub + chain ring)
+    var perSec = {};
+    cxRanked().forEach(function (sg) {
+      var fam = cxSigFamily(sg.id) || "UNFILED";
+      var sec = cxSectorOf(secs, fam);
+      var c = sg.chain_id ? byId(D.chains, sg.chain_id) : null;
+      var nLinks = c ? (c.links || []).length : 0;
+      var un = (sg.unmappedness || {}).score;
+      var ap = impactFor(sg.id);
+      var imp = ap && ap.impact_score != null ? ap.impact_score : null;
+      var occ = sg.occurrence || {};
+      var n = add({
+        kind: "sig", id: sg.id, ref: sg, chain: c, fam: fam, sec: sec, un: un, imp: imp,
+        band: ap ? ap.impact_band : null, tier: cxTier(un), color: CXP.accent,
+        hr: hubR(imp), R: nLinks ? 18 + 1.9 * nLinks : 24, sysR: (nLinks ? 18 + 1.9 * nLinks : 24) + 6,
+        dashed: occ.kind === "SCHEDULED", r: hubR(imp), rWorld: unR(un),
+        label: cxShort(sg.title),
+        sub: "UNMAPPED " + num(un, "?") + " · " + (ap ? (ap.impact_band || "").toUpperCase() + " " + (imp == null ? "?" : Math.round(imp)) : "UNAPPRAISED") +
+             " · " + (c ? (occ.anchor_date || "undated") : "UNCHAINED"),
+        tip: sg.title + " — " + (occ.kind || "undated") + (occ.anchor_date ? " · " + occ.anchor_date : ""),
+        days: cxDays(occ.anchor_date || sg.created_at)
+      });
+      (perSec[sec.fam] = perSec[sec.fam] || []).push(n);
+    });
+    // angle: spread by rank inside the sector; radius: how unmapped; then relax overlaps
+    Object.keys(perSec).forEach(function (f) {
+      var ns = perSec[f], sec = ns[0].sec, pad = 9;
+      ns.forEach(function (n, k) {
+        n.th = ns.length > 1 ? sec.a0 + pad + (sec.a1 - sec.a0 - 2 * pad) * ((k + 0.5) / ns.length) : sec.mid;
+        n.rw = n.rWorld;
+      });
+    });
+    var sigsN = nodes.filter(function (n) { return n.kind === "sig"; });
+    function place(n) { var p = cxPol(n.rw, n.th); n.wx = p.x; n.wy = p.y; }
+    sigsN.forEach(place);
+    for (var it = 0; it < 140; it++) {
+      var moved = false;
+      for (var a = 0; a < sigsN.length; a++) for (var b = a + 1; b < sigsN.length; b++) {
+        var A = sigsN[a], B = sigsN[b];
+        var dx = B.wx - A.wx, dy = B.wy - A.wy, d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+        var need = A.sysR + B.sysR + 22;
+        if (d >= need) continue;
+        var push = (need - d) / 2 * 0.55, ux = dx / d, uy = dy / d;
+        [[A, -1], [B, 1]].forEach(function (pr) {
+          var N = pr[0], sg = pr[1];
+          var x = N.wx + sg * ux * push, y = N.wy + sg * uy * push;
+          N.rw = Math.sqrt(x * x + y * y);
+          var th = Math.atan2(x, -y) * 180 / Math.PI;
+          var s0 = N.sec.a0, s1 = N.sec.a1;
+          while (th < s0 - 180) th += 360;
+          while (th > s1 + 180) th -= 360;
+          N.th = Math.max(s0 + 6, Math.min(s1 - 6, th));
+          N.rw = Math.max(N.rWorld - 46, Math.min(N.rWorld + 46, Math.max(CX_HUB0, Math.min(CX_HUB1, N.rw))));
+          place(N);
+        });
+        moved = true;
+      }
+      if (!moved) break;
+    }
+    // TIMELINE seats for signals: radius is time from today, the angle spreads the ranked
+    // list over the correct half so labels breathe (angle carries no family meaning there)
+    var past = sigsN.filter(function (n) { return (n.days == null ? 0 : n.days) < 0; });
+    var futu = sigsN.filter(function (n) { return (n.days == null ? 0 : n.days) >= 0; });
+    [[past, 196, 344], [futu, 40, 140]].forEach(function (grp) {
+      var ns = grp[0], lo = grp[1], hi = grp[2];
+      var order = [];
+      for (var k = 0; k < ns.length; k++) order.push(k);
+      order.sort(function (p, q) { return (p % 2) - (q % 2) || p - q; });
+      ns.forEach(function (n, k) {
+        var slot = order.indexOf(k);
+        var th = ns.length > 1 ? lo + (hi - lo) * ((slot + 0.5) / ns.length) : (lo + hi) / 2;
+        var p = cxPol(cxTimeR(n.days), th);
+        n.tx = p.x; n.ty = p.y; n.tth = th;
+      });
+    });
+
+    // chain rings: links in position order, companies and scenarios around them
+    sigsN.forEach(function (n) {
+      var c = n.chain;
+      if (!c) return;
+      var links = (c.links || []).slice().sort(function (p, q) { return p.position - q.position; });
+      var m = links.length || 1;
+      links.forEach(function (l, k) {
+        var th = -90 + 360 * k / m, ht = l.heat || {};
+        var ln = add({
+          kind: "link", id: c.id + "/" + l.id, ref: l, chainId: c.id, sig: n, ringA: th, ringIx: k,
+          verdict: ht.verdict || null, money: !!ht.money_corner,
+          choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
+          color: ht.verdict ? CXP.verd[ht.verdict] : CXP.none, r: 2.4,
+          label: l.name, sub: ht.verdict ? "i" + num(cxScore(l, "impact")) + " · c" + num(cxScore(l, "crowdedness")) + " · v" + num(cxScore(l, "capture")) : "unscored",
+          tip: l.name + " — " + (ht.verdict ? ht.verdict.replace(/_/g, " ") : "unscored") + (ht.money_corner ? " · money corner" : "")
+        });
+        n.links = n.links || []; n.links.push(ln);
+        var ticks = (l.example_tickers || []).slice(0, 6);
+        ticks.forEach(function (t, q) {
+          var key = "co:" + t;
+          if (byKey[key]) { byKey[key].also = (byKey[key].also || []).concat([c.title + " · " + l.name]); return; }
+          add({ kind: "co", id: t, r: 1.4, color: "#C9CBE3", link: ln, sig: n, chainIds: [c.id],
+                ringA: th + (q - (ticks.length - 1) / 2) * 5.5, hollow: !marketFor(t),
+                label: t, tip: t + " — named at " + l.name, chains: [cxTrim(c.title, 26)] });
+        });
+      });
+      (c.scenarios || []).forEach(function (s, k, arr) {
+        var th = -120 + 360 * (k + 0.5) / Math.max(1, arr.length);
+        add({ kind: "scen", id: c.id + "/" + s.id, ref: s, chainId: c.id, sig: n, ringA: th, r: 3.6,
+              color: s.status === "SCREENED" ? CXP.verd.UNDISCOVERED : (s.status === "INVALIDATED" || s.status === "PLAYED_OUT") ? CXP.ink3 : "#C9CBE3",
+              label: s.id + " · " + (s.probability_pct == null ? "unscored" : s.probability_pct + "%"),
+              tip: s.id + " · " + s.title + " — " + (s.probability_pct == null ? "unscored" : s.probability_pct + "%") });
+      });
+    });
+    // dives: an amber square on the link they were dived from
+    (D.stocks || []).forEach(function (st) {
+      var ln = byKey["link:" + st.chain_id + "/" + st.link_id] || null;
+      var sg = ln ? ln.sig : null;
+      if (!sg) sigsN.forEach(function (n) { if (!sg && n.chain && n.chain.id === st.chain_id) sg = n; });
+      add({ kind: "dive", id: st.ticker + "__" + st.chain_id, ref: st, sig: sg, link: ln, ringA: ln ? ln.ringA : -90,
+            color: CXP.dive[st.verdict] || CXP.none, r: 3, dashed: st.status === "DRAFT",
+            label: st.ticker + " · " + (st.verdict || "").replace("_", " "),
+            tip: st.ticker + " — " + st.verdict + " (" + st.clock + ", " + st.status + ")" });
+    });
+    // ambient candidates: hollow circles in their family's band; PRIME ones carry a core
+    var cands = (((D.candidates || {}).candidates) || []).filter(function (c) { return c.status === "AMBIENT"; });
+    var perFam = {};
+    cands.forEach(function (c) { var f = c.family || "UNFILED"; (perFam[f] = perFam[f] || []).push(c); });
+    Object.keys(perFam).forEach(function (f) {
+      var sec = cxSectorOf(secs, f), cs = perFam[f];
+      cs.forEach(function (c, k) {
+        var th = sec.a0 + (sec.a1 - sec.a0) * ((k + 0.5) / cs.length) + (rng() - 0.5) * 6;
+        var rw = CX_AMB0 + (CX_AMB1 - CX_AMB0) * rng();
+        var p = cxPol(rw, th), ap = impactFor(c.id);
+        var d = cxDays(c.date), pt = cxPol(cxTimeR(d), cxFold(th, d));
+        add({ kind: "cand", id: c.id, ref: c, wx: p.x, wy: p.y, tx: pt.x, ty: pt.y, r: ap && ap.impact_band === "PRIME" ? 3.2 : 2.4,
+              prime: !!(ap && ap.impact_band === "PRIME"), color: CXP.ambient, hollow: true,
+              label: cxTrim(c.title, 44), tip: c.title + " — " + (c.family || "?") + " · " + (c.date || ""), days: d });
+      });
+    });
+    // known future events: dashed diamonds, spread around the band (they carry no family)
+    var evs = (((D.calendar || {}).events) || []).filter(function (e) { return e.status === "WATCHING"; });
+    evs.forEach(function (e, k) {
+      var th = (k + 0.5) / evs.length * 360 + (rng() - 0.5) * 8;
+      var rw = CX_AMB0 + 4 + (CX_AMB1 - CX_AMB0 - 8) * rng();
+      var p = cxPol(rw, th), d = cxDays(e.date), pt = cxPol(cxTimeR(d), cxFold(th, d == null ? 200 : d));
+      add({ kind: "evt", id: e.id, ref: e, wx: p.x, wy: p.y, tx: pt.x, ty: pt.y, r: 3.4, color: CXP.ambient, dashed: true,
+            label: cxFmtDate(e.date).slice(0, 7) + " · " + cxTrim(e.title, 44), tip: e.title + " — " + (e.kind || "") + " · " + (e.date || ""), days: d });
+    });
+    // feed dust: one dot per headline the page carries, in its family's stretch of the belt
+    var items = (D.feeds || {}).items || [];
+    for (i = 0; i < items.length; i++) {
+      var it = items[i], sec2 = cxSectorOf(secs, it.f || "UNFILED");
+      var th2 = sec2.a0 + 2 + (sec2.a1 - sec2.a0 - 4) * rng();
+      var u = (rng() + rng()) / 2;
+      var rw2 = CX_DUST0 + (CX_DUST1 - CX_DUST0) * u;
+      var p2 = cxPol(rw2, th2);
+      var dd = cxDays(it.d);
+      var p3 = cxPol(cxTimeR(dd == null ? -3 : dd), cxFold(th2, dd == null ? -3 : dd));
+      add({ kind: "dust", id: "d" + i, ref: it, wx: p2.x, wy: p2.y, tx: p3.x, ty: p3.y, r: 0.55 + 0.6 * rng(),
+            a: 0.16 + 0.34 * rng(), color: CXP.dust, seat: i,
+            tip: cxTrim(it.t, 84) + " — " + (it.s || "") + " · " + cxFmtDate(it.d) });
+    }
+    nodes.forEach(function (n) { if (n.x == null) { n.x = n.wx || 0; n.y = n.wy || 0; } });
+    return { nodes: nodes, byKey: byKey, sectors: secs, builtAt: D.built_at, sigs: sigsN };
+  }
+  // fold a wheel angle onto the timeline's half circles: past left, future right
+  function cxFold(th, d) {
+    th = ((th % 360) + 360) % 360;
+    return (d != null && d < 0) ? 180 + th / 360 * 180 : th / 360 * 180;
+  }
+
+  /* ---- layouts: every node has a seat in each phase; the draw eases toward it ---- */
+  function cxSeatNetwork(g) {
+    g.nodes.forEach(function (n) {
+      if (n.kind === "sig") { n.gx = n.wx; n.gy = n.wy; n.gR = n.R; return; }
+      if (n.kind === "link" || n.kind === "co" || n.kind === "scen" || n.kind === "dive") {
+        var h = n.sig;
+        if (!h) { n.gx = 0; n.gy = 0; return; }
+        var rr = n.kind === "link" ? h.R : n.kind === "co" ? h.R + 13 : n.kind === "scen" ? h.R + 24 : h.R + 9;
+        var a = n.ringA * Math.PI / 180;
+        n.gx = h.wx + rr * Math.cos(a); n.gy = h.wy + rr * Math.sin(a);
+        return;
+      }
+      n.gx = n.wx; n.gy = n.wy;
+    });
+    g.scale = 1; g.dim = 0;
+  }
+  function cxSeatTimeline(g) {
+    g.nodes.forEach(function (n) {
+      if (n.kind === "sig") { n.gx = n.tx; n.gy = n.ty; n.gR = n.R * 0.7; return; }
+      if (n.kind === "link" || n.kind === "co" || n.kind === "scen" || n.kind === "dive") {
+        var h = n.sig;
+        if (!h) { n.gx = 0; n.gy = 0; return; }
+        var rr = (n.kind === "link" ? h.R : n.kind === "co" ? h.R + 13 : n.kind === "scen" ? h.R + 24 : h.R + 9) * 0.7;
+        var a = n.ringA * Math.PI / 180;
+        n.gx = h.tx + rr * Math.cos(a); n.gy = h.ty + rr * Math.sin(a);
+        return;
+      }
+      n.gx = n.tx; n.gy = n.ty;
+    });
+    g.scale = 1; g.dim = 0;
+  }
+  /* The focused radial: one signal's links on a ranked circle at the origin, most
+     investable first from twelve o'clock; the rest of the wheel pushed outward and dimmed
+     so the ranking still shows the field it ranks. */
+  function cxSeatRadial(g, sig) {
+    var K = 1.6, R = 200;
+    g.nodes.forEach(function (n) {
+      var mine = n === sig || n.sig === sig;
+      if (!mine) {
+        var base = n.kind === "sig" ? { x: n.wx, y: n.wy } : null;
+        if (n.kind === "link" || n.kind === "co" || n.kind === "scen" || n.kind === "dive") {
+          var h = n.sig;
+          if (!h) { n.gx = 0; n.gy = 0; return; }
+          var rr = n.kind === "link" ? h.R : n.kind === "co" ? h.R + 13 : n.kind === "scen" ? h.R + 24 : h.R + 9;
+          var a = n.ringA * Math.PI / 180;
+          n.gx = (h.wx + rr * Math.cos(a)) * K; n.gy = (h.wy + rr * Math.sin(a)) * K;
+          return;
+        }
+        n.gx = (base ? base.x : n.wx) * K; n.gy = (base ? base.y : n.wy) * K;
+        if (n.kind === "sig") n.gR = n.R * K;
+        return;
+      }
+      if (n.kind === "sig") { n.gx = 0; n.gy = 0; n.gR = R; return; }
+    });
+    var ranked = cxRankedLinks(sig.chain), m = ranked.length || 1;
+    var angleOf = {};
+    ranked.forEach(function (l, k) { angleOf[l.id] = -90 + 360 * k / m; });
+    sig.radialAngles = angleOf; sig.radialN = m; sig.radialR = R;
+    var scenAngles = [];
+    g.nodes.forEach(function (n) {
+      if (n.sig !== sig) return;
+      var lid = n.kind === "link" ? n.ref.id : n.link ? n.link.ref.id : null;
+      var th = lid != null && angleOf[lid] != null ? angleOf[lid] : n.ringA;
+      if (n.kind === "co") {
+        var k0 = 0, q = 0;
+        // spread a link's names as a short row of ticks just outside the ring
+        var sibs = g.nodes.filter(function (o) { return o.kind === "co" && o.link === n.link; });
+        k0 = sibs.length; q = sibs.indexOf(n);
+        th = th + (q - (k0 - 1) / 2) * 3.2;
+        var a1 = th * Math.PI / 180;
+        n.gx = (R + 16) * Math.cos(a1); n.gy = (R + 16) * Math.sin(a1);
+        return;
+      }
+      if (n.kind === "scen") {
+        var moved = (n.ref.links_moved || []).map(function (x) { return angleOf[x.link_id]; }).filter(function (v) { return v != null; });
+        var sth = moved.length ? moved.reduce(function (p, c) { return p + c; }, 0) / moved.length : n.ringA;
+        sth += 360 / m / 2;
+        // two scenarios moving the same links would share a marker: one spoke apart
+        while (scenAngles.some(function (v) { return Math.abs((((sth - v) % 360) + 540) % 360 - 180) < 12; })) sth += 360 / m;
+        scenAngles.push(sth);
+        var a2 = sth * Math.PI / 180;
+        n.gx = (R + 62) * Math.cos(a2); n.gy = (R + 62) * Math.sin(a2);
+        n.radialA = sth;
+        return;
+      }
+      var a3 = th * Math.PI / 180, rr2 = n.kind === "dive" ? R + 16 : R;
+      n.gx = rr2 * Math.cos(a3); n.gy = rr2 * Math.sin(a3);
+      n.radialA = th;
+    });
+    g.scale = K; g.dim = 1;
+  }
+
+  /* ---- chrome (HTML) ---- */
+  function cxUIHidden() { try { return localStorage.getItem("upstream.cxUI") === "hidden"; } catch (e) { return false; } }
+  function cxMeasureTop() {
+    var tb = document.querySelector(".topbar");
+    if (!tb) return;
+    document.documentElement.style.setProperty("--cx-top", Math.round(tb.getBoundingClientRect().height) + 12 + "px");
+    if (!tb.__cxRO && window.ResizeObserver) {
+      tb.__cxRO = new ResizeObserver(function () {
+        var b = document.querySelector(".topbar");
+        if (b) document.documentElement.style.setProperty("--cx-top", Math.round(b.getBoundingClientRect().height) + 12 + "px");
+      });
+      tb.__cxRO.observe(tb);
+    }
+  }
+  function cxToggleUI() {
+    var full = document.getElementById("cxFull");
+    if (!full) return;
+    var hid = !full.classList.contains("ui-hidden");
+    full.classList.toggle("ui-hidden", hid);
+    document.body.classList.toggle("cx-ui-hidden", hid);
+    var b = document.getElementById("cxUIBtn");
+    if (b) { b.textContent = hid ? "SHOW UI" : "HIDE UI"; b.setAttribute("aria-pressed", hid ? "true" : "false"); }
+    try { localStorage.setItem("upstream.cxUI", hid ? "hidden" : "shown"); } catch (e) {}
+  }
+  var CX_ICON = {
+    network: '<svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><circle cx="3" cy="11" r="1.8" fill="currentColor"/><circle cx="7" cy="3.2" r="1.8" fill="currentColor"/><circle cx="11.5" cy="9" r="1.8" fill="currentColor"/><path d="M4 9.6 6.3 4.8 M8.6 4.2 10.4 7.6 M4.8 11 9.7 9.4" stroke="currentColor" stroke-width="1.1" fill="none"/></svg>',
+    radial: '<svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="5.6"/><circle cx="7" cy="7" r="1.6" fill="currentColor"/><path d="M7 1.4V4 M7 10V12.6 M1.4 7H4 M10 7H12.6"/></svg>',
+    timeline: '<svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 7H13 M3.5 4.5V9.5 M7 3V11 M10.5 4.5V9.5"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1.6 12S5.3 5.2 12 5.2 22.4 12 22.4 12 18.7 18.8 12 18.8 1.6 12 1.6 12Z"/><circle cx="12" cy="12" r="3.1"/></svg>',
+    search: '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="6" cy="6" r="4.3"/><path d="M9.3 9.3 12.5 12.5"/></svg>',
+    sliders: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M2 4h12 M2 8h12 M2 12h12"/><circle cx="6" cy="4" r="1.6" fill="#0C0C15"/><circle cx="11" cy="8" r="1.6" fill="#0C0C15"/><circle cx="5" cy="12" r="1.6" fill="#0C0C15"/></svg>'
+  };
+  function cxPhaseCtl() {
+    var ph = CX_MODE.phase;
+    return '<div class="cx-phasectl" role="group" aria-label="phase">' +
+      [["network", "Network"], ["radial", "Radial"], ["timeline", "Timeline"]].map(function (p) {
+        return '<button class="cx-phbtn' + (ph === p[0] ? " on" : "") + '" data-cxphase="' + p[0] + '" aria-pressed="' + (ph === p[0] ? "true" : "false") + '">' + CX_ICON[p[0]] + p[1] + "</button>";
+      }).join("") + "</div>";
+  }
+  function cxTopRight() {
+    var hid = cxUIHidden();
+    return '<div class="cx-topright">' +
+      '<label class="cx-search"><span class="ic">' + CX_ICON.search + '</span><input id="cxSearch" type="search" placeholder="Search signals, links, names" autocomplete="off" aria-label="search the field" value="' + esc(CX_FILTER.q) + '"><kbd>/</kbd></label>' +
+      '<button class="cx-iconbtn" id="cxViewBtn" title="view settings: what shows, how big" aria-expanded="false" aria-controls="cxViewPop">' + CX_ICON.sliders + "</button>" +
+      '<button class="cx-uibtn" id="cxUIBtn" aria-pressed="' + (hid ? "true" : "false") + '" title="hide or show the interface (H)">' + (hid ? "SHOW UI" : "HIDE UI") + ' <kbd>H</kbd></button>' +
+      "</div>" + cxViewPop();
+  }
+  function cxViewPop() {
+    function row(key, label, title) {
+      var v = CX_GAIN[key];
+      var lo = key === "contrast" ? 0.6 : key === "labels" ? 0 : 0.3;
+      var hi = key === "contrast" ? 1.8 : key === "labels" ? 1 : 2.5;
+      return '<div class="row" title="' + esc(title) + '"><label for="cxg-' + key + '">' + esc(label) + "</label>" +
+        '<input type="range" id="cxg-' + key + '" data-cxgain="' + key + '" min="' + lo + '" max="' + hi + '" step="0.05" value="' + v + '">' +
+        '<span class="val" id="cxgv-' + key + '">×' + v.toFixed(2) + "</span></div>";
+    }
+    return '<div class="cx-viewpop" id="cxViewPop" hidden>' +
+      '<div class="lbl">SHOW</div><div class="cxchips">' + CX_KIND_CHIPS.map(function (kc) {
+        return '<button class="cxfchip' + (CX_FILTER.kinds[kc[0]] === false ? " off" : "") + '" data-cxk="' + kc[0] + '">' + kc[1] + "</button>";
+      }).join("") + "</div>" +
+      '<div class="lbl">SIZE</div>' +
+      row("contrast", "CONTRAST", "above 1: the biggest nodes grow, the smallest shrink; below 1 they even out") +
+      row("sig", "SIGNALS", "signal hubs") + row("link", "LINKS", "value-chain links") + row("scen", "SCENARIOS", "scenarios") +
+      row("co", "NAMES", "companies and verdicts") + row("intake", "INTAKE", "candidates and calendar events") + row("dust", "FEED", "raw feed dust") +
+      row("labels", "LABELS", "label density: left shows only the most important names, right shows everything") +
+      '<button class="cx-rst" id="cxGainReset">RESET VIEW</button></div>';
+  }
+  function cxOppRows() {
+    var ranked = cxRanked(), out = [], last = null;
+    ranked.forEach(function (s, i) {
+      var un = (s.unmappedness || {}).score, t = cxTier(un);
+      if (t !== last) { out.push('<div class="cx-tierlbl">' + t + "</div>"); last = t; }
+      var title = String(s.title || ""), ci = title.indexOf(":");
+      var head = ci > 0 ? title.slice(0, ci).trim() : title, rest = ci > 0 ? title.slice(ci + 1).trim() : "";
+      var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+      var money = c ? (c.links || []).filter(function (l) { return l.heat && l.heat.money_corner; }).map(function (l) { return l.name; }) : [];
+      var ap = impactFor(s.id);
+      var on = CX_MODE.sig === s.id;
+      if (t === "MAJOR") {
+        out.push('<button class="cxopp major' + (on ? " on" : "") + '" data-cxfly="sig:' + esc(s.id) + '" title="' + esc(s.title) + '">' +
+          '<span class="rk">' + (i < 9 ? "0" : "") + (i + 1) + "</span>" +
+          '<span class="body"><span class="nm">' + esc(head) + "</span>" + (rest ? '<span class="rest">' + esc(rest) + "</span>" : "") +
+          (money.length ? '<span class="mc">★ ' + esc(money.join(", ")) + "</span>" : '<span class="mc dim">' + (c ? "no money corner yet" : "unchained · run chain") + "</span>") + "</span>" +
+          '<span class="sc"><span class="un">' + num(un, "?") + '</span><span class="band">' + (ap ? esc((ap.impact_band || "").toUpperCase()) + " " + (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) : "UNAPPRAISED") + "</span></span></button>");
+      } else {
+        out.push('<button class="cxopp' + (on ? " on" : "") + '" data-cxfly="sig:' + esc(s.id) + '" title="' + esc(s.title) + '">' +
+          '<span class="rk">' + (i < 9 ? "0" : "") + (i + 1) + "</span>" +
+          '<span class="body"><span class="nm">' + esc(head) + "</span></span>" +
+          '<span class="sc"><span class="un">' + num(un, "?") + "</span></span></button>");
+      }
+    });
+    return out.join("");
+  }
   function cxReg(k, v, dim) { return '<div class="cx-reg"><span class="k">' + esc(k) + '</span><span class="v' + (dim ? " dim" : "") + '">' + esc(v) + "</span></div>"; }
   function cxBar(share, color) { return '<div class="cx-bar"><i style="width:' + Math.round(share * 100) + "%;background:" + color + '"></i></div>'; }
   function cxAgeDays(ts) { if (!ts) return null; var d = daysBetween(String(ts).slice(0, 10), TODAY); return isNaN(d) ? null : d; }
-  function cxRailLeft() {
-    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
+  /* Adam's weekly machine sweep, surfaced from the latest digest (CLAUDE.md postlude 1i).
+     Two registers, never one: a finding count without the denominator it was found over is
+     exactly the unfalsifiable number method section 9 and Rule 21 forbid. When the digest has
+     no machine section this renders "not audited", because "0 findings" over an unaudited
+     machine is the false all-clear the audit itself exists to catch. */
+  function machineReg() {
+    var m = (((D.digests || [])[0] || {}).machine) || null;
+    if (!m) return cxReg("machine", "not audited", true);
+    var ex = m.examined || {};
+    var denom = ex.commands != null ? ex.commands + " cmds" : "";
+    return cxReg("machine", (m.findings != null ? m.findings + " findings" : "—") + (denom ? " / " + denom : "")) +
+      cxReg("v8 tree", m.v8_reachable === true ? "read" : "unreachable", m.v8_reachable !== true);
+  }
+  function cxRegisters() {
+    var sigs = cxLiveSignals();
     var links = [], scens = 0;
     (D.chains || []).forEach(function (c) { links = links.concat(c.links || []); scens += (c.scenarios || []).length; });
     var names = {};
@@ -2634,8 +2727,6 @@
       if (l.heat && l.heat.money_corner) money++;
       if ((l.bottleneck || {}).criticality === "CHOKE_POINT") choke++;
     });
-    var fam = {}, items = (D.feeds || {}).items || [];
-    items.forEach(function (it) { fam[it.f] = (fam[it.f] || 0) + 1; });
     var rs = ((D.health || {}).sessions || {}).routine_status || {};
     var act = (D.health || {}).actions || {};
     var fs = (act.feeds || {}).summary || {};
@@ -2649,750 +2740,148 @@
     (D.screens || []).forEach(function (s) { var a = cxAgeDays(s.as_of); if (a > stalest) stalest = a; });
     var cands = ((D.candidates || {}).candidates || []).filter(function (c) { return c.status === "AMBIENT"; }).length;
     var evts = ((D.calendar || {}).events || []).filter(function (e) { return e.status === "WATCHING"; }).length;
-    var h = '<div class="cx-grp">FUNNEL</div>' +
-      cxReg("signals", sigs.length) + cxReg("chains", (D.chains || []).length) +
-      cxReg("links", links.length) + cxReg("scenarios", scens) +
-      cxReg("screens", (D.screens || []).length) + cxReg("names", nNames) +
-      cxReg("dives", (D.stocks || []).length) +
-      cxReg("shadow", ((((D.shadow || {}).book) || {}).rows || []).length) +
-      cxReg("ambient", cands) + cxReg("known future", evts);
+    var items = (D.feeds || {}).items || [];
+    var feedHeld = (D.feeds || {}).total != null ? (D.feeds || {}).total : items.length;
     var scoredN = links.length - unscored;
-    h += '<div class="cx-grp">HEAT · ' + scoredN + "/" + links.length + " SCORED</div>";
-    [["undiscovered", vc.UNDISCOVERED, "var(--und)"], ["emerging", vc.EMERGING, "var(--emg)"],
-     ["crowded", vc.CROWDED, "var(--crd)"], ["over-crowded", vc.OVER_CROWDED, "var(--ovr)"],
-     ["quiet", vc.QUIET, "var(--quiet)"]].forEach(function (r) {
-      h += cxReg(r[0], r[1]) + cxBar(links.length ? r[1] / links.length : 0, r[2]);
-    });
-    h += cxReg("unscored", unscored, !unscored) + cxReg("money corner", money) + cxReg("choke point", choke);
-    // MAP register: the cartographer's own report card, on the same principle as the sockets.
-    // A link that has never produced a name is a finding about the map, so it is rendered.
-    var mcal = (D.map || {}).calibration;
+    var mixbar = '<div class="cx-mix">' + ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].map(function (k) {
+      return '<i style="width:' + (links.length ? (100 * vc[k] / links.length).toFixed(1) : 0) + "%;background:" + CXP.verd[k] + '"></i>';
+    }).join("") + "</div>";
+    function stat(s) { return String(s || "?").toLowerCase().replace(/\s*\(.*\)$/, ""); }
+    var summary = cxReg("funnel", sigs.length + " · " + (D.chains || []).length + " · " + links.length + " · " + scens + " · " + (D.stocks || []).length) +
+      '<div class="cx-cap">SIGNALS · CHAINS · LINKS · SCENARIOS · VERDICTS</div>' +
+      cxReg("heat scored", scoredN + " / " + links.length) + mixbar +
+      cxReg("money corners", money + " · choke " + choke) +
+      cxReg("feed", feedHeld + " held · " + (fs.sources_ok != null ? fs.sources_ok + "/" + (fs.sources_ok + (fs.sources_failed || []).length) : "—") +
+        (cxAgeDays((act.feeds || {}).last_run) != null ? " · " + cxAgeDays((act.feeds || {}).last_run) + "d" : "")) +
+      cxReg("requests", pendingCount() + "P / " + failedCount() + "F" + ((D.requests || {}).settled ? " / " + D.requests.settled + " done" : ""), !pendingCount() && !failedCount()) +
+      cxReg("radar / digest", stat(rs.radar) + " · " + stat(rs.digest));
+    var mcal = (D.map || {}).calibration, mapReg = "";
     if (mcal) {
       var mly = mcal.link_yield || {}, mper = mcal.per_chain || {};
       var mFind = 0, mThin = 0, mUncited = 0;
       Object.keys(mper).forEach(function (k) {
         var st = mper[k].structure || {};
-        mFind += (st.orphans || []).length + (st.one_way_edges || []).length +
-                 (st.wrong_direction_edges || []).length + (st.verdict_mismatches || []).length;
+        mFind += (st.orphans || []).length + (st.one_way_edges || []).length + (st.wrong_direction_edges || []).length + (st.verdict_mismatches || []).length;
         mThin += (st.thin_choke_points || []).length;
         mUncited += (st.links_without_evidence || []).length;
       });
-      h += '<div class="cx-grp">MAP · ' + (mly.yielded_a_name || 0) + "/" + (mly.links_total || 0) + " YIELDED</div>";
-      h += cxReg("dead links", (mly.links_total || 0) - (mly.yielded_a_name || 0)) +
-           cxBar(mly.links_total ? (mly.yielded_a_name || 0) / mly.links_total : 0, "var(--und)") +
-           cxReg("structural findings", mFind, !mFind) +
-           cxReg("thin choke points", mThin, !mThin) +
-           cxReg("uncited links", mUncited, !mUncited) +
-           cxReg("archetypes", ((D.map || {}).archetypes || []).filter(function (a) { return a.status === "HARDENED"; }).length);
+      mapReg = '<div class="cx-grp">MAP · ' + (mly.yielded_a_name || 0) + "/" + (mly.links_total || 0) + " YIELDED</div>" +
+        cxReg("dead links", (mly.links_total || 0) - (mly.yielded_a_name || 0)) +
+        cxBar(mly.links_total ? (mly.yielded_a_name || 0) / mly.links_total : 0, CXP.verd.UNDISCOVERED) +
+        cxReg("structural findings", mFind, !mFind) + cxReg("thin choke points", mThin, !mThin) + cxReg("uncited links", mUncited, !mUncited) +
+        cxReg("archetypes", ((D.map || {}).archetypes || []).filter(function (a) { return a.status === "HARDENED"; }).length);
     }
-    var feedTotal = (D.feeds || {}).total;
-    h += '<div class="cx-grp">FEED · ' + (feedTotal == null || feedTotal === items.length
-      ? items.length + " HELD"
-      : items.length + " OF " + feedTotal + " HELD") + "</div>";
-    Object.keys(fam).sort(function (a, b) { return fam[b] - fam[a]; }).forEach(function (f) {
-      h += cxReg(f.toLowerCase(), fam[f]) + cxBar(items.length ? fam[f] / items.length : 0, CXP.fam[f] || CXP.ink3);
-    });
-    h += '<div class="cx-grp">SYSTEM</div>' +
-      /* The page carries only the PENDING and FAILED rows of data/requests.json — the two
-         states it filters for. `settled` is the count of the rows it did not carry, so
-         the register prints the whole store rather than implying 134 requests were 18. */
-      cxReg("requests", pendingCount() + "P / " + failedCount() + "F" +
-        ((D.requests || {}).settled ? " / " + D.requests.settled + " done" : ""),
-        !pendingCount() && !failedCount()) +
-      cxReg("radar", (rs.radar || "?").toLowerCase()) + cxReg("digest", (rs.digest || "?").toLowerCase()) +
-      cxReg("feeds", (fs.sources_ok != null ? fs.sources_ok + "/" + (fs.sources_ok + (fs.sources_failed || []).length) : "—") +
-        (cxAgeDays((act.feeds || {}).last_run) != null ? " · " + cxAgeDays((act.feeds || {}).last_run) + "d" : "")) +
+    var fam = {};
+    items.forEach(function (it) { fam[it.f] = (fam[it.f] || 0) + 1; });
+    var famTot = (D.feeds || {}).families || fam;
+    var more = '<div class="cx-grp">FUNNEL</div>' +
+      cxReg("screens", (D.screens || []).length) + cxReg("names", nNames) +
+      cxReg("shadow", ((((D.shadow || {}).book) || {}).rows || []).length) +
+      cxReg("ambient", cands) + cxReg("known future", evts) +
+      '<div class="cx-grp">HEAT</div>' +
+      [["undiscovered", vc.UNDISCOVERED, CXP.verd.UNDISCOVERED], ["emerging", vc.EMERGING, CXP.verd.EMERGING], ["crowded", vc.CROWDED, CXP.verd.CROWDED],
+       ["over-crowded", vc.OVER_CROWDED, CXP.verd.OVER_CROWDED], ["quiet", vc.QUIET, CXP.verd.QUIET]].map(function (r) {
+        return cxReg(r[0], r[1]) + cxBar(links.length ? r[1] / links.length : 0, r[2]);
+      }).join("") + cxReg("unscored", unscored, !unscored) +
+      mapReg +
+      '<div class="cx-grp">FEED · ' + feedHeld + " HELD</div>" +
+      Object.keys(famTot).sort(function (a, b) { return famTot[b] - famTot[a]; }).map(function (f) {
+        return cxReg(f.toLowerCase(), famTot[f]) + cxBar(feedHeld ? famTot[f] / feedHeld : 0, CXP.fam[f] || CXP.ink3);
+      }).join("") +
+      '<div class="cx-grp">SYSTEM</div>' +
       cxReg("fetch", cxAgeDays((act.fetch || {}).last_run) != null ? cxAgeDays((act.fetch || {}).last_run) + "d" : "—") +
       cxReg("trips", ((D.indicators || {}).trips || []).length, !((D.indicators || {}).trips || []).length) +
       cxReg("pcs armed", pcsOk + "/" + nNames, !pcsOk) +
       cxReg("queued", (QUEUE.queue || []).length, !(QUEUE.queue || []).length) +
       cxReg("digest wk", ((D.digests || [])[0] || {}).week || "—") +
-      // Adam's sweep. Rendered ONLY when the digest actually carries it: an absent machine
-      // section must read as "not audited", never as a healthy zero. `machineReg` returns ""
-      // rather than a register showing 0 findings over nothing examined.
       machineReg() +
       cxReg("stalest", stalest ? stalest + "d" : "—") +
       cxReg("since visit", deltaItems().items.length);
-    return h;
+    return '<div class="cx-machine"><button class="cx-mhead" id="cxMachineBtn" aria-expanded="false"><span>MACHINE</span><span class="dim">registers · more ▾</span></button>' +
+      '<div class="cx-msum">' + summary + '</div><div class="cx-mmore" id="cxMachineMore" hidden>' + more + "</div></div>";
   }
-  /* Adam's weekly machine sweep, surfaced from the latest digest (CLAUDE.md postlude 1i).
-     Two registers, never one: a finding count without the denominator it was found over is
-     exactly the unfalsifiable number method section 9 and Rule 21 forbid. When the digest has
-     no machine section this renders NOTHING, because "0 findings" over an unaudited machine
-     is the false all-clear the audit itself exists to catch. */
-  function machineReg() {
-    var m = (((D.digests || [])[0] || {}).machine) || null;
-    if (!m) return cxReg("machine", "not audited", true);
-    var ex = m.examined || {};
-    var denom = ex.commands != null ? ex.commands + " cmds" : "";
-    return cxReg("machine", (m.findings != null ? m.findings + " findings" : "—")
-                 + (denom ? " / " + denom : "")) +
-      cxReg("v8 tree", m.v8_reachable === true ? "read" : "unreachable", m.v8_reachable !== true);
+  function cxPanel() {
+    return '<div class="cx-panel" id="cxPanel">' +
+      '<div class="cx-head"><span class="cx-title">CORTEX</span>' +
+      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="what am I looking at?">' + CX_ICON.eye + "<span>How to read this</span></button></div>" +
+      '<div class="cx-oppshead"><div class="cx-serif">Opportunities</div><div class="cx-sub">' + cxLiveSignals().length + " SIGNALS · RANKED BY HOW UNMAPPED · CLICK TO FLY</div></div>" +
+      '<div class="cx-opps" id="cxOpps">' + cxOppRows() + "</div>" +
+      cxRegisters() +
+      '<div class="cx-note">Analytical outputs from public data · not investment advice</div>' +
+      "</div>";
   }
-
-  var CX_LTYPE = { RUN: "#8687f0", AMEND: "#e3b23c", RADAR: "#34c77e", "RADAR-DEGRADED": "#e97f4e", DIGEST: "#8687f0", NOTE: "#6a6e86" };
-  function cxLedgerRows() {
-    return (D.ledger || []).slice().reverse().slice(0, 26).map(function (line) {
-      var f = line.split("|").map(function (x) { return x.trim(); });
-      var ts = (f[0] || "").slice(11) || (f[0] || "").slice(0, 10);
-      var type = f[1] || "NOTE", cmd = f[2] || "", by = "", res = "", art = "";
-      for (var i = 3; i < f.length; i++) {
-        var s = f[i];
-        if (s.indexOf("by:") === 0) by = s.slice(3).trim();
-        else if (s.indexOf("result:") === 0) res = s.slice(7).trim();
-        else if (s.indexOf("artifact:") === 0) art = s.slice(9).trim();
-        else if (res) res += " | " + s;
-      }
-      return '<div class="cx-ev" title="' + esc(res) + '"><span class="t">' + esc(ts) + '</span> <span class="k" style="color:' +
-        (CX_LTYPE[type] || CXP.none) + '">' + esc(type) + "</span>" +
-        '<span class="s">' + esc(cmd) + (by ? " · " + esc(by) : "") + "</span>" +
-        '<span class="s" style="color:' + (art.indexOf("skipped(") === 0 ? CXP.bad : "#3e4258") + '">' + esc(res.slice(0, 74)) + "</span></div>";
-    }).join("");
+  function cxInspectorHTML(sigId) {
+    var s = byId(D.signals, sigId);
+    if (!s) return "";
+    var occ = s.occurrence || {}, un = (s.unmappedness || {}).score, ap = impactFor(s.id);
+    var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
+    var links = c ? (c.links || []) : [];
+    var scored = links.filter(function (l) { return (l.heat || {}).verdict; }).length;
+    var money = links.filter(function (l) { return l.heat && l.heat.money_corner; }).map(function (l) { return l.name; });
+    var chokes = links.filter(function (l) { return (l.bottleneck || {}).criticality === "CHOKE_POINT"; }).map(function (l) { return l.name; });
+    var dives = (D.stocks || []).filter(function (st) { return c && st.chain_id === c.id; });
+    var fam = cxSigFamily(s.id);
+    function kv(k, v) { return '<div class="kv"><span class="k">' + k + '</span><span class="v">' + v + "</span></div>"; }
+    var mix = c ? '<div class="cx-mix">' + ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].map(function (k) {
+      var n = links.filter(function (l) { return (l.heat || {}).verdict === k; }).length;
+      return '<i style="width:' + (links.length ? (100 * n / links.length).toFixed(1) : 0) + "%;background:" + CXP.verd[k] + '"></i>';
+    }).join("") + "</div>" : "";
+    var scens = c ? (c.scenarios || []) : [];
+    return '<div class="cx-inspector" id="cxInspector" role="complementary" aria-label="selected signal">' +
+      '<div class="ihead"><span class="eyebrow"><i class="pip"></i>SIGNAL · ' + esc(occ.kind || "undated") + " · " + esc(s.lane || "") + (fam ? " · " + esc(fam) : "") + "</span>" +
+      '<span class="id mono">' + esc(s.id) + "</span></div>" +
+      '<div class="ititle">' + esc(s.title) + "</div>" +
+      '<div class="ithesis">' + esc(s.thesis || "") + "</div>" +
+      '<div class="ikv">' +
+      kv("OCCURRENCE", esc(occ.label || "undated") + (occ.anchor_date ? '<br><span class="mono dim">' + esc(occ.anchor_date) + (occ.window ? " · " + esc(occ.window) : "") + "</span>" : "")) +
+      kv("UNMAPPED", '<span class="big">' + num(un, "?") + '</span> <span class="dim">/ 100</span>' +
+        (un != null ? '<div class="cx-bar"><i style="width:' + un + "%;background:" + CXP.accent + '"></i></div>' : "")) +
+      kv("IMPACT", ap ? '<span class="big">' + (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) + '</span> <span class="dim">· ' + esc(ap.impact_band || "") + " · money reachable by listed issuers</span>" : '<span class="dim">not appraised · run impact</span>') +
+      (c ? kv("CHAIN", esc(c.title) + mix + '<span class="mono dim">' + links.length + " links · " + scored + " scored · " + scens.length + " scenarios · heat " + esc(c.heat_as_of || "unscored") + "</span>")
+         : kv("CHAIN", '<span class="dim">unchained</span> <span class="mono dim">· run chain maps it</span>')) +
+      (c ? kv("MONEY CORNER", (money.length ? '<span class="gold">★ ' + esc(money.join(", ")) + "</span>" : '<span class="dim">none yet</span>') +
+        (chokes.length ? ' <span class="mono dim">· CHOKE POINT: ' + esc(chokes.join(", ")) + "</span>" : "")) : "") +
+      (c ? kv("VERDICTS", dives.length ? dives.map(function (st) {
+        // a TOO LATE verdict's shadow row is part of the verdict: the page shows the pairing
+        return '<a class="mono verd" href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '" style="color:' + (CXP.dive[st.verdict] || CXP.ink2) + '">▢ ' + esc(st.ticker) + " " + esc((st.verdict || "").replace("_", " ")) +
+          (st.shadow_ref ? ' <span class="dim">· shadow ' + esc(st.shadow_ref) + "</span>" : "") + "</a>";
+      }).join(" · ") : '<span class="dim">none</span>') : "") +
+      (scens.length ? kv("SCENARIOS", scens.map(function (sc) {
+        return '<span class="mono">' + esc(sc.id) + " · " + (sc.probability_pct == null ? "unscored" : sc.probability_pct + "%") + "</span> " + esc(cxTrim(sc.title, 60));
+      }).join("<br>")) : "") +
+      kv("EVIDENCE", (s.evidence || []).length + " cited · horizon " + ((s.horizon_years || []).join("-") || "?") + "y · review by " + esc(s.review_by || "—")) +
+      "</div>" +
+      '<div class="ibtns"><button class="cx-btn primary" data-cxopen="' + esc(s.id) + '">OPEN CARD</button>' +
+      (c ? '<a class="cx-btn" href="#/chain/' + esc(c.id) + '">OPEN CHAIN</a>' : '<button class="cx-btn" data-cxopen="' + esc(s.id) + '">RUN CHAIN</button>') +
+      '<button class="cx-btn" data-cxfly="sig:' + esc(s.id) + '">FLY TO</button><button class="cx-btn x" id="cxInspClose" title="clear selection (Esc)">×</button></div>' +
+      "</div>";
   }
-  /* ---- v6 two-level focus: family census, then one signal's links ranked by heat ----
-     A family is a real field on feed items and ambient candidates (validate.py enforces it
-     there). It is NOT a field on a signal card, so a signal's family is DERIVED from the
-     candidate that promoted into it and is otherwise stated as unfiled. Never inferred from
-     the title: an invented tag would be the same defect class as an invented price. */
-  var CX_FAMS = ["GEO", "CORPORATE", "TECH", "POLICY", "PHYSICAL"];
-  function cxSigFamily(sigId) {
-    var cands = (D.candidates || {}).candidates || [];
-    for (var i = 0; i < cands.length; i++) {
-      if (cands[i].promoted_signal_id === sigId && cands[i].family) return cands[i].family;
-    }
-    return null;
-  }
-  function cxNodeFamily(n) {
-    if (n.kind === "sig") return cxSigFamily(n.id);
-    var cid = n.chainId || (n.kind === "chain" && n.id) || (n.kind === "sig" && n.sigChain) || null;
-    if (!cid) return null;
-    var c = byId(D.chains, cid);
-    return c && c.signal_id ? cxSigFamily(c.signal_id) : null;
-  }
-  function cxFamilies() {
-    var out = {}, i;
-    CX_FAMS.forEach(function (f) { out[f] = { fam: f, headlines: 0, cands: 0, sigs: 0 }; });
-    // counted over the whole feed store when the build carried those totals, so the
-    // chips agree with the HELD number beside them; else over what the page inlines
-    var ftot = (D.feeds || {}).families;
-    if (ftot) CX_FAMS.forEach(function (f) { if (ftot[f] != null) out[f].headlines = ftot[f]; });
-    else ((D.feeds || {}).items || []).forEach(function (it) { if (out[it.f]) out[it.f].headlines++; });
-    ((D.candidates || {}).candidates || []).forEach(function (c) {
-      if (c.status === "AMBIENT" && out[c.family]) out[c.family].cands++;
-    });
-    (D.signals || []).forEach(function (s) {
-      var f = cxSigFamily(s.id);
-      if (f && out[f]) out[f].sigs++;
-    });
-    return CX_FAMS.map(function (f) { return out[f]; })
-      .sort(function (a, b) { return b.headlines - a.headlines; });
-  }
-  function cxUnfiledSignals() {
-    return (D.signals || []).filter(function (s) {
-      return s.status !== "DISMISSED" && s.status !== "EXPIRED" && !cxSigFamily(s.id);
-    }).length;
-  }
-
-  function cxOppRail() {
-    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; })
-      .slice().sort(function (a, b) { return ((b.unmappedness || {}).score || 0) - ((a.unmappedness || {}).score || 0); });
-    function moneyOf(sig) {
-      var out = null;
-      (D.chains || []).forEach(function (c) {
-        if (c.signal_id !== sig.id) return;
-        (c.links || []).forEach(function (l) { if (l.heat && l.heat.money_corner && !out) out = l.name; });
-      });
-      return out;
-    }
-    function row(s, i) {
-      var un = (s.unmappedness || {}).score || 0;
-      var m = moneyOf(s);
-      // a chained signal opens its own ranking; an unchained one can only be flown to
-      return '<button class="cxopp' + (CX_MODE.sig === s.id ? " on" : "") + '" ' +
-        (s.chain_id ? 'data-cxradial="' + esc(s.id) + '"' : 'data-cxfly="sig:' + esc(s.id) + '"') + ">" +
-        '<span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(cxTrim(s.title, 26)) + '</span><span class="un">' + un + "</span>" +
-        (m ? '<span class="mc">★ ' + esc(cxTrim(m, 30)) + "</span>" : '<span class="mc dim">' + esc((s.suggested_clock || "").toLowerCase()) + "</span>") +
-        "</button>";
-    }
-    var majors = sigs.filter(function (s) { return ((s.unmappedness || {}).score || 0) >= 80; });
-    var mids = sigs.filter(function (s) { var u = (s.unmappedness || {}).score || 0; return u >= 60 && u < 80; });
-    var tail = sigs.length - majors.length - mids.length;
-    var nC = ((D.candidates || {}).candidates || []).filter(function (x) { return x.status === "AMBIENT"; }).length;
-    var nE = ((D.calendar || {}).events || []).filter(function (x) { return x.status === "WATCHING"; }).length;
-    var h = '<div class="cx-grp">OPPORTUNITIES · CLICK TO FLY</div>';
-    h += '<div class="cx-tierlbl">MAJOR</div>' + (majors.map(row).join("") || '<div class="cx-tiernone">none ≥ 80 unmapped</div>');
-    h += '<div class="cx-tierlbl">WATCH</div>' + (mids.map(function (s, i) { return row(s, majors.length + i); }).join("") || '<div class="cx-tiernone">none</div>');
-    h += '<div class="cx-tierlbl">LONG TAIL</div><div class="cx-tiernone">' + tail + " smaller signal(s) · " + nC + " candidates · " + nE + " future events · feed dust</div>";
-    return h;
-  }
-  /* ---- v6 phase 2: the radial ranking ----
-     The field answers "what is out there"; the radial answers "in what order".
-     Both are the same nodes: the morph blends each node from its projected position in
-     the 3D field to its seat on the circle, so nothing appears or disappears without
-     being watched moving. Every ring, bar and number below is read off the payload:
-     a score that is absent stays absent and says so. */
-  /* The halo is not decoration: each labelled arc is one family of raw headlines, and the
-     count beside it is how many the feed store actually holds for that family. */
-  function cxFamilyArcs(ctx, proj3, g, gc, M) {
-    var ring = g.ring;
-    if (!ring || !ring.arcs) return;
-    ctx.save();
-    CX_FAMS.forEach(function (f) {
-      var arc = ring.arcs[f];
-      if (!arc || !arc.n) return;
-      var col = CXP.fam[f] || CXP.ink3;
-      var dim = CX_FILTER.fam && CX_FILTER.fam !== f;
-      ctx.globalAlpha = (1 - M) * (dim ? 0.16 : 0.5);
-      ctx.strokeStyle = col; ctx.lineWidth = 1;
-      ctx.beginPath();
-      var started = false;
-      for (var i = 0; i <= 24; i++) {
-        var a = arc.a0 + (arc.a1 - arc.a0) * (i / 24);
-        var rr = ring.r0 + ring.band + 14;
-        var p = proj3(ring.cx + rr * Math.cos(a), ring.cy + rr * Math.sin(a) * 0.92, 0);
-        if (!p) { started = false; continue; }
-        if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
-      }
-      ctx.stroke();
-      var am = (arc.a0 + arc.a1) / 2, lr = ring.r0 + ring.band + 42;
-      var lp = proj3(ring.cx + lr * Math.cos(am), ring.cy + lr * Math.sin(am) * 0.92, 0);
-      if (!lp) return;
-      ctx.globalAlpha = (1 - M) * (dim ? 0.3 : 1);
-      ctx.font = "8.5px 'JetBrains Mono', monospace";
-      ctx.fillStyle = dim ? CXP.ink3 : col;
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(f + " · " + arc.n, lp.x, lp.y);
-    });
-    ctx.restore();
-  }
-  /* One line that always says exactly what is being shown and how to leave it. */
-  function cxStatusLine(ctx, w, h, g) {
-    var pair = cxRadialChain();
-    var txt;
-    if (CX_MODE.phase === "radial" && pair) {
-      var fam = cxSigFamily(pair.sig.id);
-      txt = "FOCUSED · " + (fam ? fam + " ▸ " : "") + pair.sig.title.toUpperCase() +
-        " · " + (pair.chain.links || []).length + " LINKS RANKED BY HEAT · ESC TO CLEAR";
-    } else if (CX_MODE.phase === "radial") {
-      var ns = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; }).length;
-      txt = "RANKED · " + ns + " SIGNALS BY UNMAPPEDNESS · ESC FOR THE FIELD";
-    } else if (CX_FILTER.fam) {
-      var f = CX_FILTER.fam;
-      var shown = 0, links = 0, heads = 0;
-      (D.signals || []).forEach(function (s) {
-        if (cxSigFamily(s.id) !== f) return;
-        shown++;
-        var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
-        if (c) links += (c.links || []).length;
-      });
-      var ft = (D.feeds || {}).families;
-      if (ft && ft[f] != null) heads = ft[f];
-      else ((D.feeds || {}).items || []).forEach(function (it) { if (it.f === f) heads++; });
-      txt = "FILTERED · " + f + " · " + shown + " SIGNALS · " + links + " LINKS · " +
-        heads + " HEADLINES · ESC TO CLEAR";
-    } else {
-      var held = ((D.feeds || {}).total != null) ? (D.feeds || {}).total : ((D.feeds || {}).items || []).length;
-      txt = "RAW FEED · " + held + " HELD · EACH DOT A HEADLINE · RUN RADAR TO TRIAGE";
-    }
-    ctx.save();
-    ctx.font = "8px 'JetBrains Mono', monospace";
-    ctx.fillStyle = "rgba(88,92,114,.85)";
-    ctx.textAlign = "right"; ctx.textBaseline = "middle";
-    ctx.fillText(txt, w - 20, h - 22);
-    ctx.restore();
-  }
-
-  var CX_MODE = { phase: "network", sig: null, morph: 0 };
-  var CX_HEAT_ORDER = { UNDISCOVERED: 0, EMERGING: 1, CROWDED: 2, OVER_CROWDED: 3, QUIET: 4 };
-  var CX_FACTORS = [["impact", "IMPACT", "#8687f0"], ["crowdedness", "CROWDEDNESS", "#e97f4e"], ["capture", "CAPTURE", "#34c77e"]];
-  // stacking order for the global radial's spoke bars: most investable innermost
-  var CX_MIX_ORDER = ["UNDISCOVERED", "EMERGING", "QUIET", "CROWDED", "OVER_CROWDED"];
-  // screen-space geometry of the global radial's spoke bars, refreshed every frame the
-  // radial draws, so mousemove can hit-test the bars themselves (they are not nodes)
-  var CX_RADHIT = null;
-  // viewer-tuned render gains: per-type size multipliers plus a contrast exponent that
-  // makes big nodes bigger and small ones smaller. Per-viewer convenience only — it
-  // never touches the data, and a cleared localStorage just restores the defaults.
-  // TIMELINE mode: a flat screen-space layout where a node's distance from the field
-  // center is |time from today| and the side is the sign — past left, future right —
-  // so one ring is year +k on its right half and year -k on its left half.
-  var CX_TL_MODE = false, CX_TL = 0, CX_TL_K0 = null;
-  var CX_GAIN_DEF = { contrast: 1, sig: 1, link: 1, scen: 1, co: 1, intake: 1, dust: 1, labels: 0.7 };
-  var CX_GAIN = (function () {
-    var d = {};
-    Object.keys(CX_GAIN_DEF).forEach(function (k) { d[k] = CX_GAIN_DEF[k]; });
-    try {
-      var s = JSON.parse(localStorage.getItem("upstream.cxGain") || "null");
-      if (s && typeof s === "object") Object.keys(CX_GAIN_DEF).forEach(function (k) {
-        if (typeof s[k] === "number" && s[k] >= 0 && s[k] <= 3) d[k] = s[k];
-      });
-    } catch (e) {}
-    return d;
-  })();
-  function cxSaveGain() { try { localStorage.setItem("upstream.cxGain", JSON.stringify(CX_GAIN)); } catch (e) {} }
-  function cxGainOf(kind) {
-    var k = kind === "sig" || kind === "chain" ? "sig"
-      : kind === "link" ? "link"
-      : kind === "scen" || kind === "screen" ? "scen"
-      : kind === "co" || kind === "dive" || kind === "shadow" ? "co"
-      : kind === "cand" || kind === "evt" ? "intake"
-      : kind === "dust" ? "dust" : null;
-    return k ? CX_GAIN[k] : 1;
-  }
-  function cxHeatRank(l) {
-    var v = (l.heat || {}).verdict;
-    return CX_HEAT_ORDER[v] != null ? CX_HEAT_ORDER[v] : 5;
-  }
-  function cxScore(l, leg) {
-    var h = l.heat || {}, f = h[leg];
-    return f && f.score != null ? f.score : null;
-  }
-  /* Chain-level factor read: the mean of each heat leg over the links that actually
-     scored it. A leg no link has scored stays null, and an unchained signal returns
-     all nulls — the empty track is the statement, never an invented midpoint. */
-  function cxChainMeans(c) {
-    var out = { impact: null, crowdedness: null, capture: null };
-    if (!c) return out;
-    CX_FACTORS.forEach(function (f) {
-      var vs = (c.links || []).map(function (l) { return cxScore(l, f[0]); })
-        .filter(function (v) { return v != null; });
-      if (vs.length) out[f[0]] = vs.reduce(function (a, b) { return a + b; }, 0) / vs.length;
-    });
-    return out;
-  }
-  function cxRadialChain() {
-    if (!CX_MODE.sig) return null;
-    var s = byId(D.signals, CX_MODE.sig);
-    if (!s || !s.chain_id) return null;
-    var c = byId(D.chains, s.chain_id);
-    return c ? { sig: s, chain: c } : null;
-  }
-  /* Screen-space seats for the current radial. Returns {targets, draw} where draw()
-     paints the rings, spokes, meters and labels at the given alpha. */
-  function cxRadial(g, w, h, ctx) {
-    var pair = cxRadialChain();
-    // the circle is sized so its labels fit inside the stage: a name that runs off the
-    // edge is worse than a smaller ring, and the read-out is the point of the ranking
-    var gutter = Math.min(250, Math.max(150, w * 0.27));
-    var cx = w / 2, cy = h * 0.52;
-    var R = Math.max(80, Math.min(w * 0.5 - gutter, h * 0.5 - 66));
-    var lblMax = Math.max(10, Math.round((gutter - 30) / 6.6));
-    var targets = {};
-    function seat(key, x, y, r) { targets[key] = { x: x, y: y, r: r }; }
-
-    if (pair) {
-      var links = (pair.chain.links || []).slice().sort(function (a, b) {
-        var d = cxHeatRank(a) - cxHeatRank(b);
-        if (d) return d;
-        var ia = cxScore(a, "impact"), ib = cxScore(b, "impact");
-        return (ib == null ? -1 : ib) - (ia == null ? -1 : ia);
-      });
-      var n = links.length || 1;
-      var scens = pair.chain.scenarios || [];
-      links.forEach(function (l, i) {
-        var a = -Math.PI / 2 + i * 2 * Math.PI / n;
-        var imp = cxScore(l, "impact");
-        // radius reads impact; an unscored link gets the floor size, never an invented one
-        var rr = imp == null ? 3.2 : 4 + 12 * Math.pow(Math.max(0, imp - 45) / 50, 1.2);
-        l._ca = a;
-        seat("link:" + pair.chain.id + "/" + l.id, cx + R * 0.86 * Math.cos(a), cy + R * 0.86 * Math.sin(a), rr);
-      });
-      scens.forEach(function (s, j) {
-        var a2 = [-Math.PI * 0.11, Math.PI * 0.89, -Math.PI * 0.89, Math.PI * 0.11, -Math.PI * 0.5, Math.PI * 0.5][j % 6];
-        var p = s.probability_pct;
-        seat("scen:" + pair.chain.id + "/" + s.id, cx + R * 0.34 * Math.cos(a2), cy + R * 0.34 * Math.sin(a2),
-             p == null ? 2.4 : 2.5 + 4 * p / 50);
-        s._ca = a2;
-      });
-      seat("sig:" + pair.sig.id, cx, cy, 11);
-      seat("chain:" + pair.chain.id, cx, cy, 0);
-      CX_RADHIT = null;                     // the focused ranking has no spoke bars
-
-      return { targets: targets, focus: pair, draw: function (al) {
-        ctx.save(); ctx.globalAlpha = al;
-        ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(88,92,114,0.38)"; ctx.lineWidth = 1;
-        [0.34, 0.86].forEach(function (f) { ctx.beginPath(); ctx.arc(cx, cy, R * f, 0, 7); ctx.stroke(); });
-        ctx.setLineDash([]);
-        ctx.font = "7.5px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillStyle = "rgba(88,92,114,0.85)";
-        ctx.fillText("LINKS · RANKED BY HEAT", cx, cy - R * 0.86 - 24);
-        if (scens.length) ctx.fillText("SCENARIOS", cx, cy - R * 0.34 - 12);
-        // per-link factor meters, rank numbers and read-out
-        links.forEach(function (l, i) {
-          var a = l._ca, ca = Math.cos(a), sa = Math.sin(a);
-          var t = targets["link:" + pair.chain.id + "/" + l.id];
-          var b0 = R * 0.48, b1 = R * 0.78;
-          ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "round";
-          CX_FACTORS.forEach(function (f, q) {
-            var v = cxScore(l, f[0]), off = (q - 1) * 6;
-            ctx.strokeStyle = "#16161f"; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b1, off); ctx.stroke();
-            if (v == null) return;             // no fill for an unscored leg: the empty track is the statement
-            ctx.strokeStyle = f[2];
-            ctx.beginPath(); ctx.moveTo(b0, off); ctx.lineTo(b0 + (b1 - b0) * v / 100, off); ctx.stroke();
-          });
-          ctx.restore();
-          if (!t) return;
-          ctx.font = "8.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3; ctx.textAlign = "center";
-          ctx.fillText((i < 9 ? "0" : "") + (i + 1), cx + R * 0.42 * ca, cy + R * 0.42 * sa - 10);
-          var side = ca >= 0 ? 1 : -1, align = side > 0 ? "left" : "right";
-          var lx = t.x + (t.r + 13) * side;
-          var vd = (l.heat || {}).verdict, col = vd ? CXP.verd[vd] : CXP.none;
-          var choke = (l.bottleneck || {}).criticality === "CHOKE_POINT";
-          ctx.textAlign = align;
-          ctx.font = "600 12px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
-          ctx.fillText(cxTrim(l.name, lblMax) + ((l.heat || {}).money_corner ? " ★" : ""), lx, t.y - 13);
-          ctx.font = "7.5px 'JetBrains Mono', monospace";
-          ctx.fillStyle = choke ? CXP.bad : col;
-          ctx.fillText((vd ? vd.replace(/_/g, " ") : "UNSCORED") + (choke ? " · CHOKE POINT" : ""), lx, t.y);
-          ctx.fillStyle = CXP.ink3; ctx.font = "8px 'JetBrains Mono', monospace";
-          ctx.fillText("IMP " + num(cxScore(l, "impact")) + " · CRW " + num(cxScore(l, "crowdedness")) +
-                       " · CAP " + num(cxScore(l, "capture")), lx, t.y + 12);
-        });
-        // scenarios by their real names
-        scens.forEach(function (s) {
-          var t2 = targets["scen:" + pair.chain.id + "/" + s.id];
-          if (!t2) return;
-          var ca2 = Math.cos(s._ca), align2 = ca2 >= 0 ? "left" : "right";
-          ctx.font = "7.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2; ctx.textAlign = align2;
-          ctx.fillText(cxTrim(s.title, 28).toUpperCase() + " " + num(s.probability_pct, "unscored") +
-                       (s.probability_pct == null ? "" : "%"), t2.x + 14 * (ca2 >= 0 ? 1 : -1), t2.y);
-        });
-        cxRadialCore(ctx, cx, cy, R, pair, links.length, al);
-        cxRadialLegend(ctx, w, h, al, "FACTORS · PER LINK", "DOT SIZE — IMPACT");
-        ctx.restore();
-      } };
-    }
-
-    // global radial: every live signal ranked by how unmapped it still is
-    var sigs = (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; })
-      .slice().sort(function (a, b) {
-        var ua = (a.unmappedness || {}).score, ub = (b.unmappedness || {}).score;
-        return (ub == null ? -1 : ub) - (ua == null ? -1 : ua);
-      });
-    var m = sigs.length || 1;
-    sigs.forEach(function (s, i) {
-      var a = -Math.PI / 2 + (i + 0.5) * 2 * Math.PI / m;
-      var un = (s.unmappedness || {}).score;
-      s._ca = a;
-      seat("sig:" + s.id, cx + R * 0.93 * Math.cos(a), cy + R * 0.93 * Math.sin(a),
-           un == null ? 4.5 : 5 + 7 * un / 100);
-      var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
-      if (!c) return;
-      seat("chain:" + c.id, cx + R * 0.72 * Math.cos(a), cy + R * 0.72 * Math.sin(a), 0);
-      var ls = (c.links || []).slice().sort(function (p, q) { return cxHeatRank(p) - cxHeatRank(q); });
-      var ln = ls.length || 1, spread = (2 * Math.PI / m) * 0.78;
-      ls.forEach(function (l, j) {
-        var la = a + (j - (ln - 1) / 2) * spread / ln;
-        var lr = R * (0.50 + (j % 2) * 0.06);
-        seat("link:" + c.id + "/" + l.id, cx + lr * Math.cos(la), cy + lr * Math.sin(la), 3.4);
-      });
-      (c.scenarios || []).forEach(function (sc, j, arr) {
-        var sa2 = a + (j - (arr.length - 1) / 2) * 0.30;
-        var sr = R * (j % 2 ? 0.30 : 0.24);
-        var p = sc.probability_pct;
-        seat("scen:" + c.id + "/" + sc.id, cx + sr * Math.cos(sa2), cy + sr * Math.sin(sa2),
-             p == null ? 2.2 : 2.2 + 3.5 * p / 50);
-      });
-    });
-    CX_RADHIT = { cx: cx, cy: cy, r0: R * 0.60, r1: R * 0.84,
-                  spokes: sigs.map(function (s) { return { a: s._ca, id: s.id }; }) };
-    return { targets: targets, focus: null, draw: function (al) {
-      ctx.save(); ctx.globalAlpha = al;
-      ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(88,92,114,0.38)"; ctx.lineWidth = 1;
-      [[0.27, "SCENARIOS"], [0.54, "LINKS"], [0.97, "SIGNALS"]].forEach(function (r) {
-        ctx.beginPath(); ctx.arc(cx, cy, R * r[0], 0, 7); ctx.stroke();
-      });
-      ctx.setLineDash([]);
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      [[0.27, "SCENARIOS"], [0.54, "LINKS"], [0.97, "SIGNALS"]].forEach(function (r) {
-        var ly = cy - R * r[0];
-        ctx.fillStyle = "rgba(8,8,13,0.85)"; ctx.fillRect(cx - 32, ly - 6, 64, 12);
-        ctx.font = "7.5px 'JetBrains Mono', monospace"; ctx.fillStyle = "rgba(88,92,114,0.8)";
-        ctx.fillText(r[1], cx, ly);
-      });
-      sigs.forEach(function (s, i) {
-        var a = s._ca, ca = Math.cos(a), sa = Math.sin(a), t = targets["sig:" + s.id];
-        var un = (s.unmappedness || {}).score;
-        var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
-        var hm = cxChainMeans(c);
-        // the spoke bar is the chain's link mix by heat verdict, stacked most-investable
-        // first: factor MEANS cluster in a 43-77 band and every spoke looked identical,
-        // while the verdict mix is what actually differs chain to chain. The dark
-        // remainder at the outer end is the unscored share, never an invented segment.
-        var b0 = R * 0.60, b1 = R * 0.84;
-        ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.lineCap = "butt";
-        ctx.strokeStyle = "#16161f"; ctx.lineWidth = 4.5;
-        ctx.beginPath(); ctx.moveTo(b0, 0); ctx.lineTo(b1, 0); ctx.stroke();
-        var links2 = c ? (c.links || []) : [];
-        if (links2.length) {
-          var span = b1 - b0, x0 = b0;
-          CX_MIX_ORDER.forEach(function (k) {
-            var cnt = links2.filter(function (l) { return (l.heat || {}).verdict === k; }).length;
-            if (!cnt) return;
-            var seg = span * cnt / links2.length;
-            ctx.strokeStyle = CXP.verd[k];
-            ctx.beginPath(); ctx.moveTo(x0 + 0.75, 0); ctx.lineTo(x0 + seg - 0.75, 0); ctx.stroke();
-            x0 += seg;
-          });
-        }
-        ctx.restore();
-        if (!t) return;
-        var side = ca >= 0 ? 1 : -1, align = side > 0 ? "left" : "right";
-        var lx = t.x + (t.r + 13) * side;
-        ctx.textAlign = align; ctx.textBaseline = "middle";
-        ctx.font = "600 12.5px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
-        ctx.fillText(cxTrim(s.title, lblMax), lx, t.y - 13);
-        ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-        ctx.fillText((i < 9 ? "0" : "") + (i + 1) + " · UN " + num(un, "unscored") + " · " +
-                     (c ? (c.links || []).length + " LINKS" : "UNCHAINED"), lx, t.y);
-        // the chain means cluster in a narrow band, so the bars alone read as identical:
-        // print the numbers, the same read-out the per-link view carries
-        if (hm.impact != null || hm.crowdedness != null || hm.capture != null) {
-          ctx.fillText("IMP " + num(hm.impact == null ? null : Math.round(hm.impact)) +
-                       " · CRW " + num(hm.crowdedness == null ? null : Math.round(hm.crowdedness)) +
-                       " · CAP " + num(hm.capture == null ? null : Math.round(hm.capture)), lx, t.y + 12);
-        }
-      });
-      ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); ctx.stroke();
-      ctx.textAlign = "center";
-      ctx.font = "600 14px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
-      ctx.fillText("UPSTREAM", cx, cy + 56);
-      var nl = 0;
-      (D.chains || []).forEach(function (c) { nl += (c.links || []).length; });
-      ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-      ctx.fillText(sigs.length + " SIGNALS · " + nl + " LINKS · NOW", cx, cy + 72);
-      ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2;
-      ctx.fillText("SPOKE — SHARE OF LINKS BY HEAT VERDICT", 20, h - 40);
-      cxRadialLegend(ctx, w, h, al, null, "DOT SIZE — UNMAPPEDNESS");
-      ctx.restore();
-    } };
-  }
-  function cxRadialCore(ctx, cx, cy, R, pair, nLinks, al) {
-    ctx.strokeStyle = "rgba(134,135,240,0.30)"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(cx, cy, 34, 0, 7); ctx.stroke();
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.font = "600 14px 'Baloo 2', sans-serif"; ctx.fillStyle = CXP.ink;
-    ctx.fillText(cxTrim(pair.sig.title, 34), cx, cy + 52);
-    var un = (pair.sig.unmappedness || {}).score;
-    var fam = cxSigFamily(pair.sig.id);
-    ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-    ctx.fillText((fam ? fam + " ▸ " : "") + "UN " + num(un, "unscored") + " · " + nLinks +
-                 " LINKS · " + pair.sig.id, cx, cy + 68);
-  }
-  /* The flat TIMELINE read-out: concentric screen-space rings around the field center,
-     one per year of distance from today, with the vertical NOW line through the middle.
-     A ring reads as year +k on its right half and year -k on its left half, which is
-     the whole trick: distance is |time|, the side is the sign. */
-  function cxTimeRings(ctx, w, h, cx, cy, Rmax, al) {
-    if (al <= 0.01) return;
-    ctx.save(); ctx.globalAlpha = al;
-    var y0 = parseInt(TODAY.slice(0, 4), 10);
-    // NOW: the vertical axis
-    ctx.strokeStyle = "rgba(167,168,246,0.6)"; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy - Rmax - 18); ctx.lineTo(cx, cy + Rmax + 18); ctx.stroke();
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.font = "600 11px 'JetBrains Mono', monospace";
-    ctx.fillStyle = "rgba(8,8,13,0.85)"; ctx.fillRect(cx - 24, cy - Rmax - 34, 48, 14);
-    ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.fillText("N O W", cx, cy - Rmax - 27);
-    ctx.font = "600 10px 'JetBrains Mono', monospace";
-    ctx.fillStyle = "rgba(134,135,240,0.7)";
-    ctx.fillText("« PAST", cx - Rmax * 0.55, cy + Rmax + 12);
-    ctx.fillText("FUTURE »", cx + Rmax * 0.55, cy + Rmax + 12);
-    for (var k = 1; k <= 3; k++) {
-      var rr = Math.sqrt(Math.min(365 * k, CX_CLAMP) / CX_CLAMP) * Rmax;
-      ctx.strokeStyle = "rgba(134,135,240," + (k === 1 ? 0.34 : 0.24) + ")";
-      ctx.lineWidth = k === 1 ? 1.6 : 1.2;
-      ctx.beginPath(); ctx.arc(cx, cy, rr, 0, 7); ctx.stroke();
-      // the same ring is a future year on the right and its mirror past year on the left
-      ctx.font = "600 10.5px 'JetBrains Mono', monospace";
-      [[cx + rr, y0 + k], [cx - rr, y0 - k]].forEach(function (lab) {
-        ctx.fillStyle = "rgba(8,8,13,0.85)"; ctx.fillRect(lab[0] - 18, cy - 8, 36, 15);
-        ctx.fillStyle = "rgba(167,168,246,0.9)"; ctx.fillText(String(lab[1]), lab[0], cy);
-      });
-    }
-    ctx.textBaseline = "alphabetic";
-    ctx.restore();
-  }
-  function cxRadialLegend(ctx, w, h, al, factorsLabel, sizeLabel) {
-    ctx.textAlign = "left"; ctx.textBaseline = "middle";
-    if (factorsLabel) {
-      ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = "#3e4258";
-      ctx.fillText(factorsLabel, 20, h - 96);
-      CX_FACTORS.forEach(function (f, q) {
-        var ly = h - 76 + q * 17;
-        ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
-        ctx.beginPath(); ctx.moveTo(20, ly); ctx.lineTo(42, ly); ctx.stroke();
-        ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink2;
-        ctx.fillText(f[1], 50, ly + 0.5);
-      });
-    }
-    if (sizeLabel) {
-      ctx.font = "8px 'JetBrains Mono', monospace";
-      ctx.fillStyle = CXP.ink2; ctx.fillText(sizeLabel, 20, h - 22);
-    }
-    // verdict legend, bottom right
-    var keys = ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"];
-    ctx.textAlign = "right";
-    ctx.font = "8px 'JetBrains Mono', monospace"; ctx.fillStyle = "#3e4258";
-    ctx.fillText("HEAT", w - 20, h - 96);
-    keys.forEach(function (k, q) {
-      var ly = h - 76 + q * 15;
-      ctx.fillStyle = CXP.verd[k];
-      ctx.beginPath(); ctx.arc(w - 26, ly, 3.2, 0, 7); ctx.fill();
-      ctx.fillStyle = CXP.ink2; ctx.textAlign = "right";
-      ctx.fillText(k.replace(/_/g, " "), w - 34, ly + 0.5);
-    });
-  }
-
-  function cxTopRail() {
-    var fams = cxFamilies();
-    var h = '<div class="cx-toprail"><div class="cx-famrow">';
-    h += '<button class="cx-famchip' + (CX_FILTER.fam ? "" : " on") + '" data-cxfam="">ALL</button>';
-    fams.forEach(function (f) {
-      var on = CX_FILTER.fam === f.fam;
-      h += '<button class="cx-famchip' + (on ? " on" : "") + '" data-cxfam="' + esc(f.fam) + '"' +
-        (on ? ' style="border-color:' + (CXP.fam[f.fam] || CXP.ink3) + '"' : "") + '>' +
-        '<i class="dot" style="background:' + (CXP.fam[f.fam] || CXP.ink3) + '"></i>' +
-        esc(f.fam) + " " + f.headlines + (on ? " ✕" : "") + "</button>";
-    });
-    h += "</div>" + cxSubRail() + "</div>";
-    return h;
-  }
-  function cxSubRail() {
-    var f = CX_FILTER.fam;
-    if (!f) return "";
-    var sigs = (D.signals || []).filter(function (s) {
-      return s.status !== "DISMISSED" && s.status !== "EXPIRED" && cxSigFamily(s.id) === f;
-    }).sort(function (a, b) {
-      var ua = (a.unmappedness || {}).score, ub = (b.unmappedness || {}).score;
-      return (ub == null ? -1 : ub) - (ua == null ? -1 : ua);
-    });
-    var cands = ((D.candidates || {}).candidates || []).filter(function (c) {
-      return c.status === "AMBIENT" && c.family === f;
-    });
-    var h = '<div class="cx-subrail"><span class="lbl" style="color:' + (CXP.fam[f] || CXP.ink3) + '">IN ' + esc(f) + " · PRIORITIZED</span>";
-    if (sigs.length) {
-      sigs.forEach(function (s, i) {
-        var un = (s.unmappedness || {}).score;
-        var chained = !!s.chain_id;
-        h += '<button class="cx-subchip' + (CX_MODE.sig === s.id ? " on" : "") + '"' +
-          (chained ? ' data-cxradial="' + esc(s.id) + '"' : ' data-cxfly="sig:' + esc(s.id) + '"') +
-          ' title="' + esc(s.title) + '">' +
-          (i < 9 ? "0" : "") + (i + 1) + " " + esc(cxTrim(s.title, 26).toUpperCase()) +
-          " · " + (un == null ? "unscored" : un) + (CX_MODE.sig === s.id ? " ✕" : "") + "</button>";
-      });
-    } else {
-      h += '<span class="cx-subnone">no signal is filed to ' + esc(f) +
-        " · a signal takes its family from the candidate it was promoted from, and " +
-        cxUnfiledSignals() + " of " + (D.signals || []).length + " are unfiled</span>";
-    }
-    cands.forEach(function (c) {
-      h += '<button class="cx-subchip dim" data-cxfly="cand:' + esc(c.id) + '" title="' + esc(c.title) + '">' +
-        esc(cxTrim(c.title, 24).toUpperCase()) + "</button>";
-    });
-    return h + "</div>";
-  }
-  function cxPhaseBar() {
-    var s = CX_MODE.sig ? byId(D.signals, CX_MODE.sig) : null;
-    return '<div class="cx-phase">' +
-      '<button class="cx-phbtn' + (CX_MODE.phase === "network" && !CX_TL_MODE ? " on" : "") + '" data-cxphase="network">◉ NETWORK</button>' +
-      '<button class="cx-phbtn' + (CX_MODE.phase === "radial" ? " on" : "") + '" data-cxphase="radial"' +
-      ' title="every signal ranked by unmappedness; click a chained signal for its own ranking">◎ RADIAL' +
-      (s ? " · " + esc(cxTrim(s.title, 22).toUpperCase()) : "") + "</button>" +
-      '<button class="cx-phbtn' + (CX_MODE.phase === "network" && CX_TL_MODE ? " on" : "") + '" data-cxphase="timeline"' +
-      ' title="flat time rings: distance from center is time from today, past on the left, future on the right">◔ TIMELINE</button></div>';
-  }
-
-  function cxFilterRail() {
-    var h = '<div class="cx-grp">FILTER <button id="cxFReset" class="cxfreset" title="clear all filters">reset</button></div>';
-    h += '<input id="cxSearch" class="cxsearch" type="text" placeholder="search the field…" aria-label="search the field">';
-    h += '<div class="cxchips">' + CX_KIND_CHIPS.map(function (kc) {
-      return '<button class="cxfchip' + (CX_FILTER.kinds[kc[0]] === false ? " off" : "") + '" data-cxk="' + kc[0] + '">' + kc[1] + "</button>";
-    }).join("") + "</div>";
-    h += '<div class="cxchips">' + (D.chains || []).map(function (c) {
-      return '<button class="cxfchip sel' + (CX_FILTER.chain === c.id ? " on" : "") + '" data-cxchain="' + esc(c.id) + '">' + esc(cxTrim(c.id.replace(/-/g, " "), 18)) + "</button>";
-    }).join("") + "</div>";
-    return h;
-  }
-  function cxUIHidden() {
-    try { return localStorage.getItem("upstream.cxUI") === "hidden"; } catch (e) { return false; }
-  }
-  /* The floating chrome clears the topbar by measurement, never by a guessed constant:
-     the topbar wraps to roughly twice its height under 760px, and anything pinned to a
-     hardcoded 64px disappears underneath it on a phone. */
-  var CX_TOP_OBS = null;
-  function cxMeasureTop() {
-    var tb = document.querySelector(".topbar");
-    if (!tb) return;
-    document.documentElement.style.setProperty("--cx-top", Math.round(tb.getBoundingClientRect().height) + 12 + "px");
-    // the webfonts land after first paint and change that height, so watch the bar
-    // itself rather than measuring once and trusting it
-    if (window.ResizeObserver) {
-      if (CX_TOP_OBS) CX_TOP_OBS.disconnect();
-      CX_TOP_OBS = new ResizeObserver(function () {
-        var b = document.querySelector(".topbar");
-        if (b) document.documentElement.style.setProperty("--cx-top", Math.round(b.getBoundingClientRect().height) + 12 + "px");
-      });
-      CX_TOP_OBS.observe(tb);
-    }
-  }
-  function cxToggleUI() {
-    var full = document.getElementById("cxFull");
-    if (!full) return;
-    var hid = full.classList.toggle("ui-hidden");
-    document.body.classList.toggle("cx-ui-hidden", hid);
-    var b = document.getElementById("cxUIBtn");
-    if (b) { b.textContent = hid ? "◱ SHOW UI" : "◲ HIDE UI"; b.setAttribute("aria-pressed", hid ? "true" : "false"); }
-    try { localStorage.setItem("upstream.cxUI", hid ? "hidden" : "shown"); } catch (e) {}
-  }
-  function cxGaugeRail() {
-    function row(key, label, title) {
-      var v = CX_GAIN[key];
-      var lo = key === "contrast" ? 0.6 : key === "labels" ? 0 : 0.3;
-      var hi2 = key === "contrast" ? 1.8 : key === "labels" ? 1 : 2.5;
-      return '<div class="row" title="' + esc(title) + '"><label for="cxg-' + key + '">' + esc(label) + "</label>" +
-        '<input type="range" id="cxg-' + key + '" data-cxgain="' + key + '" min="' + lo + '" max="' + hi2 +
-        '" step="0.05" value="' + v + '">' +
-        '<span class="val" id="cxgv-' + key + '">×' + v.toFixed(2) + "</span></div>";
-    }
-    return '<div class="cx-gaugerail" id="cxGauges"><div class="lbl">GAUGES · SIZE &amp; VISIBILITY</div>' +
-      row("contrast", "CONTRAST", "above 1: the biggest nodes grow, the smallest shrink; below 1 they even out") +
-      row("sig", "SIGNALS", "signals and their chain hubs") +
-      row("link", "LINKS", "value-chain links") +
-      row("scen", "SCENARIOS", "scenarios and screens") +
-      row("co", "COMPANIES", "companies, dives, shadow rows") +
-      row("intake", "INTAKE", "candidates and calendar events") +
-      row("dust", "FEED", "raw feed dust") +
-      row("labels", "LABELS", "label density: left shows only the most important names, right shows everything") +
-      '<button class="rst" id="cxGainReset" title="back to defaults">RESET</button></div>';
+  function cxFoot() {
+    return '<div class="cx-foot" aria-live="polite">' +
+      '<div class="l"><div class="read" id="cxRead"></div><div class="legend">' +
+      ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].map(function (k) {
+        return '<span><i style="background:' + CXP.verd[k] + '"></i>' + k.replace("_", " ") + "</span>";
+      }).join("") +
+      '<span class="sep">|</span><span><b style="color:' + CXP.gold + '">★</b> money corner</span><span><b>◎</b> choke point</span><span><b>◇</b> scenario</span><span><b style="color:' + CXP.verd.EMERGING + '">▢</b> verdict</span>' +
+      "</div></div>" +
+      '<div class="r"><div><span id="cxCounts"></span> · <span id="cxZoom"></span> · <button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button></div>' +
+      "<div>BUILT " + esc(D.built_at || TODAY) + "</div><div>ANALYTICAL OUTPUTS FROM PUBLIC DATA · NOT INVESTMENT ADVICE</div></div></div>";
   }
   function cortexView() {
     var hid = cxUIHidden();
     return topbar("cortex") +
       '<div class="cxfull' + (hid ? " ui-hidden" : "") + '" id="cxFull">' +
-      '<div class="cx-stage">' +
-      '<canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas>' +
-      '<div class="cx-brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
-      cxTopRail() + cxPhaseBar() + cxGaugeRail() +
-      "</div>" +
-      '<div class="cx-ovl-left">' +
-      '<div class="cx-head"><span class="cx-title">CORTEX</span>' +
-      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="what am I looking at?">' +
-      '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1.6 12S5.3 5.2 12 5.2 22.4 12 22.4 12 18.7 18.8 12 18.8 1.6 12 1.6 12Z"/><circle cx="12" cy="12" r="3.1"/></svg>' +
-      '<span>How to read this</span></button></div>' +
-      '<div class="cx-rail-l">' + cxOppRail() + cxFilterRail() + cxRailLeft() + "</div>" +
-      '<div class="cx-note">Analytical outputs from public data · not investment advice</div>' +
-      "</div>" +
-      '<div class="cxinfo" id="cxInfo" hidden><p>The machine as a constellation. Bright hubs are signals, sized by how unmapped they still are; around each, its value chain, scenarios, names and verdicts; the halo is the raw feed. Depth is time: past sinks away, the future comes toward you, the NOW ring marks today. Drag to orbit the field in 3D, scroll to fly closer (detail appears as you approach), shift-drag to pan, ⟲ ⟳ or Q / E to spin. Hover any dot for its story, click to open it. The ranked opportunities on the left fly you straight to them. H hides the interface.</p></div>' +
-      '<div class="cx-strip" aria-live="polite"><span class="cx-s1">CORTEX</span><span class="cx-s2" id="cxCounts"></span><span class="cx-s3" id="cxZoom"></span><span class="cx-read" id="cxRead"></span><button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button><span class="cx-s4">BUILT ' + esc(D.built_at || TODAY) + "</span></div>" +
-      '<button class="cx-uibtn" id="cxUIBtn" aria-pressed="' + (hid ? "true" : "false") + '" title="hide or show the interface (H)">' + (hid ? "◱ SHOW UI" : "◲ HIDE UI") + "</button>" +
+      '<div class="cx-stage"><canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas></div>' +
+      cxPanel() +
+      '<div class="cxinfo" id="cxInfo" hidden><p>The machine as a wheel. Angle is the occurrence family, with the real headline and signal counts at the rim. Distance from the centre is how unmapped a signal still is: the eye of the field is the biggest gap. Size is the money Tally found reachable. Each signal wears its chain as a ring of links coloured by heat: a gold star is the money corner, a white ring a choke point, an amber square a verdict, a dashed orbit a signal with no chain yet. The belt at the rim is the raw feed, one dot per headline. Drag to pan, scroll to fly closer (names, then companies appear as you approach), Q and E turn the wheel. Hover any mark for its story, click a hub to select it, click anything else to open it. RADIAL ranks the selected signal\'s links by heat; TIMELINE makes distance time from today, past left, future right. H hides the interface.</p></div>' +
+      '<div class="cx-top">' + cxPhaseCtl() + cxTopRight() + "</div>" +
+      '<div id="cxInspHost">' + (CX_MODE.sig ? cxInspectorHTML(CX_MODE.sig) : "") + "</div>" +
+      cxFoot() +
       "</div>" +
       "<div id='drawerHost'></div>";
   }
 
+  /* ---- drawers (the record behind a mark) ---- */
   function cxShowDrawer(html) {
     var host = document.getElementById("drawerHost");
     if (!host || !html) return;
@@ -3413,7 +2902,6 @@
       });
     });
   }
-
   function cxNodeDrawer(n) {
     var o = n.ref;
     if (n.kind === "sig") return cortexDrawer("sig", n.id);
@@ -3421,21 +2909,7 @@
     if (n.kind === "evt") return cortexDrawer("evt", n.id);
     if (n.kind === "link") { var c = byId(D.chains, n.chainId); return c ? linkModal(c, o) : ""; }
     if (n.kind === "dust") return cxDustDrawer(o);
-    if (n.kind === "chain") {
-      var money = (o.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
-      return cxDrawerShell(o.title,
-        chip(o.clock) + chip(o.status) + staleChip(o.heat_as_of),
-        "<p class='small'>" + (o.links || []).length + " links · " + (o.scenarios || []).length + " scenarios" +
-        (money.length ? " · ★ money corner: " + esc(money.map(function (l) { return l.name; }).join(", ")) : "") + "</p>" +
-        (o.map_limitation ? "<div class='muted small'>" + esc(o.map_limitation) + "</div>" : "") +
-        (o.chain_fidelity && o.chain_fidelity !== "FULL"
-          ? "<div class='muted small' style='margin-top:8px'>Reduced fidelity on this page — the written analysis is in <span class='mono'>" + esc(chainPath(o)) + "</span>.</div>" : "") +
-        '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/chain/' + esc(o.id) + '">Open chain →</a>' +
-        '<a class="chip accent" href="#/chain/' + esc(o.id) + '/heat">Heat map →</a>' +
-        '<a class="chip accent" href="#/chain/' + esc(o.id) + '/scen">Scenarios →</a></div>');
-    }
     if (n.kind === "scen") {
-      var ch = byId(D.chains, n.chainId);
       return cxDrawerShell(o.id + " — " + o.title,
         chip(o.status) + chip(o.probability_pct + "%", "accent") + (o.clock ? chip(o.clock) : ""),
         "<p class='small'>" + esc(o.narrative) + "</p>" +
@@ -3447,15 +2921,12 @@
           ? '<a class="chip accent" href="#/screen/' + esc(n.chainId) + "/" + esc(o.id) + '">Open screen →</a>'
           : runButton("run screen " + n.chainId + " " + o.id, "screens stocks for this scenario")) + "</div>");
     }
-    if (n.kind === "screen") { location.hash = "#/screen/" + o.chain_id + "/" + o.scenario_id; return ""; }
     if (n.kind === "dive") { location.hash = "#/stock/" + o.ticker + "/" + o.chain_id; return ""; }
-    if (n.kind === "shadow") { location.hash = "#/shadow"; return ""; }
-    if (n.kind === "socket") { if (n.nav) location.hash = n.nav; return ""; }
     if (n.kind === "co") {
       var t = n.id, where = [], mk = marketFor(t), srow = null;
-      (D.chains || []).forEach(function (c) {
-        (c.links || []).forEach(function (l) {
-          if ((l.example_tickers || []).indexOf(t) > -1) where.push(c.title + " · " + l.name);
+      (D.chains || []).forEach(function (c2) {
+        (c2.links || []).forEach(function (l) {
+          if ((l.example_tickers || []).indexOf(t) > -1) where.push(c2.title + " · " + l.name);
         });
       });
       (D.screens || []).forEach(function (sc) {
@@ -3491,50 +2962,10 @@
       "<div style='margin-top:16px'>" + runButton("run radar", "triage the feed into candidates and signals") + "</div>");
   }
 
-  /* ---- renderer + interaction ---- */
-  /* ---- semantic info + rich hover card ---- */
-  function cxInfo(n) {
-    var o = n.ref || {};
-    if (n.kind === "sig") return "unmapped " + num((o.unmappedness || {}).score, "?") + " · " + (o.evidence || []).length + " ev · " + (o.horizon_years || []).join("–") + "y";
-    if (n.kind === "link") { var h = o.heat || {}; return h.verdict ? "i" + num((h.impact || {}).score) + " · c" + num((h.crowdedness || {}).score) + " · v" + num((h.capture || {}).score) : "unscored"; }
-    if (n.kind === "scen") return num(o.probability_pct, "?") + "% · " + (o.status || "").toLowerCase();
-    if (n.kind === "cand") return (o.family || "") + " · " + (o.date || "");
-    if (n.kind === "evt") return (o.kind || "") + " · " + (o.date || "");
-    if (n.kind === "dive") return (o.verdict || "").replace("_", " ").toLowerCase() + " · " + (o.clock || "").toLowerCase();
-    if (n.kind === "co") return n.tier || "";
-    return "";
-  }
+  /* ---- hover card: the story behind a mark, from the record itself ---- */
   function cxCardRow(k, v) { return "<div class='r'><span class='k'>" + esc(k) + "</span><span>" + esc(v) + "</span></div>"; }
-  /* The spec card for a spoke bar in the global radial: what each segment is, counted
-     from the chain's links on disk — the same arithmetic that sized the segments. */
-  function cxSpokeCard(sigId) {
-    var s = byId(D.signals, sigId) || {};
-    var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
-    var links = c ? (c.links || []) : [];
-    var h = "<div class='hd'><span class='pip' style='background:" + CXP.accent + "'></span>" +
-            "<span class='kind'>spoke bar · link mix by heat verdict</span></div>" +
-            "<div class='tt'>" + esc(s.title || sigId) + "</div>";
-    if (!links.length) return h + "<div class='bd'>unchained — no links to score yet, so the bar stays an empty track</div>";
-    var n = links.length, seen = 0;
-    h += "<div class='bd'>each segment is the share of this chain's " + n + " links at that heat verdict, most investable at the center</div>";
-    CX_MIX_ORDER.forEach(function (k) {
-      var cnt = links.filter(function (l) { return (l.heat || {}).verdict === k; }).length;
-      if (!cnt) return;
-      seen += cnt;
-      h += "<div class='r'><span class='k'><span class='pip' style='background:" + CXP.verd[k] + "'></span> " +
-           esc(k.replace(/_/g, " ")) + "</span><span>" + cnt + " of " + n + " · " + Math.round(100 * cnt / n) + "%</span></div>";
-    });
-    if (seen < n) {
-      h += "<div class='r'><span class='k'><span class='pip' style='background:#3a3a4a'></span> UNSCORED</span>" +
-           "<span>" + (n - seen) + " of " + n + " · dark remainder</span></div>";
-    }
-    var hm = cxChainMeans(c);
-    if (hm.impact != null || hm.crowdedness != null || hm.capture != null) {
-      h += cxCardRow("mean scores", "impact " + num(hm.impact == null ? null : Math.round(hm.impact)) +
-                     " · crowded " + num(hm.crowdedness == null ? null : Math.round(hm.crowdedness)) +
-                     " · capture " + num(hm.capture == null ? null : Math.round(hm.capture)));
-    }
-    return h;
+  function cxCardBar(lab, v, col) {
+    return "<div class='bar'><span class='k'>" + esc(lab) + "</span><span class='t'>" + (v == null ? "" : "<i style='width:" + v + "%;background:" + col + "'></i>") + "</span><span class='n'>" + num(v, "unscored") + "</span></div>";
   }
   function cxHoverCard(n) {
     var o = n.ref || {}, h = "";
@@ -3542,54 +2973,41 @@
       return "<div class='hd'><span class='pip' style='background:" + (color || n.color) + "'></span><span class='kind'>" + esc(kind) + "</span></div><div class='tt'>" + esc(title) + "</div>";
     }
     if (n.kind === "sig") {
-      var occ = o.occurrence || {};
-      h = head("signal · " + (occ.kind || "undated"), o.title) +
+      var occ = o.occurrence || {}, ap = impactFor(o.id);
+      h = head("signal · " + (occ.kind || "undated") + (n.fam && n.fam !== "UNFILED" ? " · " + n.fam : ""), o.title) +
         "<div class='bd'>" + esc(cxTrim(o.thesis, 200)) + "</div>" +
         cxCardRow("occurrence", (occ.label ? cxTrim(occ.label, 34) + " · " : "") + (occ.anchor_date || "?")) +
         cxCardRow("unmapped", num((o.unmappedness || {}).score, "?") + " / 100") +
-        cxCardRow("evidence", (o.evidence || []).length + " cited · horizon " + (o.horizon_years || []).join("–") + "y") +
+        cxCardRow("impact", ap ? (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) + " · " + (ap.impact_band || "") : "not appraised") +
+        cxCardRow("chain", n.chain ? (n.chain.links || []).length + " links · " + (n.chain.scenarios || []).length + " scenarios" : "unchained") +
         cxCardRow("review by", o.review_by || "—");
-    } else if (n.kind === "chain") {
-      var money = (o.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
-      h = head("value chain", o.title) +
-        cxCardRow("links", (o.links || []).length + " · " + (o.scenarios || []).length + " scenarios") +
-        (money.length ? cxCardRow("★ money corner", money.map(function (l) { return l.name; }).join(", ")) : "") +
-        cxCardRow("heat as of", o.heat_as_of || "unscored");
     } else if (n.kind === "link") {
-      var ht = o.heat || {};
-      h = head("chain link" + (ht.money_corner ? " · ★ money corner" : ""), o.name) +
-        "<div class='bd'>" + esc(cxTrim(o.role, 160)) + "</div>" +
-        (ht.verdict ? cxCardRow("verdict", ht.verdict.replace("_", " ")) +
-          cxCardRow("scores", "impact " + num((ht.impact || {}).score) + " · crowded " + num((ht.crowdedness || {}).score) + " · capture " + num((ht.capture || {}).score))
-          : cxCardRow("verdict", "unscored")) +
-        ((o.bottleneck || {}).criticality === "CHOKE_POINT" ? cxCardRow("bottleneck", "CHOKE POINT") : "") +
+      var ht = o.heat || {}, c = byId(D.chains, n.chainId);
+      h = head("link " + o.position + (c ? " of " + (c.links || []).length : "") + (ht.money_corner ? " · ★ money corner" : "") + (n.choke ? " · choke point" : ""), o.name) +
+        "<div class='bd'>" + esc(cxTrim(o.role, 170)) + "</div>" +
+        "<div class='vd' style='color:" + n.color + "'>" + esc(ht.verdict ? ht.verdict.replace("_", " ") : "UNSCORED") + "</div>" +
+        cxCardBar("IMPACT", cxScore(o, "impact"), CXP.accent) + cxCardBar("CROWDEDNESS", cxScore(o, "crowdedness"), "#E97F4E") + cxCardBar("CAPTURE", cxScore(o, "capture"), "#34C77E") +
         ((o.example_tickers || []).length ? cxCardRow("names", o.example_tickers.slice(0, 5).join(" · ")) : "");
     } else if (n.kind === "scen") {
       h = head("scenario " + o.id, o.title) +
         "<div class='bd'>" + esc(cxTrim(o.narrative, 180)) + "</div>" +
         cxCardRow("probability", num(o.probability_pct, "?") + "% · " + (o.status || "")) +
         cxCardRow("indicators", (o.leading_indicators || []).length + " (" + (o.leading_indicators || []).filter(function (x) { return x.armed; }).length + " armed)");
-    } else if (n.kind === "screen") {
-      h = head("stock screen", o.id) + cxCardRow("scenario", o.scenario_id || "") + cxCardRow("as of", o.as_of || "");
     } else if (n.kind === "co") {
-      h = head("company", n.id + (n.coName ? " — " + n.coName : "")) +
-        (n.tier ? cxCardRow("tier", n.tier) : "") +
+      h = head("company", n.id) + cxCardRow("named at", n.link ? n.link.ref.name : "—") +
         cxCardRow("market data", n.hollow ? "none yet" : "fetched") +
-        (n.chains && n.chains.length ? cxCardRow("named in", n.chains.join(", ")) : "");
+        (n.chains && n.chains.length ? cxCardRow("chain", n.chains.join(", ")) : "");
     } else if (n.kind === "dive") {
       h = head("deep dive", o.ticker) +
         cxCardRow("verdict", (o.verdict || "") + " · " + (o.clock || "") + (o.status === "DRAFT" ? " · draft" : "")) +
-        (o.entry_zone ? cxCardRow("entry zone", o.entry_zone.low + "–" + o.entry_zone.high) : "") +
+        (o.entry_zone ? cxCardRow("entry zone", o.entry_zone.low + " to " + o.entry_zone.high) : "") +
         cxCardRow("review by", o.review_by || "—");
-    } else if (n.kind === "shadow") {
-      h = head("shadow row", o.ticker) + cxCardRow("origin", (o.origin || "").replace(/_/g, " ")) + cxCardRow("reprice at", o.review_at || "");
     } else if (n.kind === "cand") {
       var ca = impactFor(o.id);
       h = head("ambient candidate", o.title) +
         "<div class='bd'>" + esc(cxTrim(o.why, 200)) + "</div>" +
         cxCardRow("family", (o.family || "") + " · " + (o.date || "")) +
-        (ca ? cxCardRow("impact", (ca.impact_band || "").toLowerCase() +
-          (ca.impact_score != null ? " " + ca.impact_score : "") + " · " + impactTitle(ca)) : "") +
+        (ca ? cxCardRow("impact", (ca.impact_band || "").toLowerCase() + (ca.impact_score != null ? " " + ca.impact_score : "") + " · " + impactTitle(ca)) : "") +
         cxCardRow("source", cxTrim(o.source_name, 44));
     } else if (n.kind === "evt") {
       h = head("known future event", o.title) +
@@ -3599,516 +3017,596 @@
     } else if (n.kind === "dust") {
       h = head("raw feed", o.t) + cxCardRow("source", (o.s || "") + " · " + ((o.d || "").slice(0, 10))) + cxCardRow("family", o.f || "?") +
         "<div class='bd dim'>untriaged — the radar sweep judges promotion</div>";
-    } else if (n.kind === "socket") {
-      h = head("empty stage", n.label) + "<div class='bd dim'>" + esc(n.tip || "") + "</div>";
     }
-    return h + "<div class='ft'>click to open</div>";
-  }
-
-  /* ---- filters (visual only; layout never moves) ---- */
-  var CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
-  var CX_KIND_CHIPS = [["sig", "signals"], ["chain", "chains"], ["link", "links"], ["scen", "scenarios"], ["co", "names"], ["dive", "verdicts"], ["cand", "ambient"], ["evt", "future"], ["dust", "feed"]];
-  function cxChipKind(n) {
-    if (n.kind === "screen" || n.kind === "shadow") return "dive";
-    return n.kind;
+    return h + "<div class='ft'>" + (n.kind === "sig" ? "click to select · double-click to open" : "click to open") + "</div>";
   }
   function cxMatch(n) {
-    if (n.kind === "socket") return true;
-    var ck = cxChipKind(n);
-    if (CX_FILTER.kinds[ck] === false) return false;
-    if (CX_FILTER.chain) {
-      var ch = n.chainId || (n.kind === "chain" && n.id) || (n.kind === "sig" && n.sigChain) ||
-        (n.kind === "screen" && (n.ref || {}).chain_id) || (n.kind === "dive" && (n.ref || {}).chain_id) ||
-        (n.kind === "co" && n.chains && n.chains.length === 1 && n.chainIds && n.chainIds[0]);
-      if (n.kind === "co") { if (!(n.chainIds || []).length || n.chainIds.indexOf(CX_FILTER.chain) < 0) return false; }
-      else if (ch !== CX_FILTER.chain) return false;
-    }
+    var kk = n.kind;
+    if (CX_FILTER.kinds[kk] === false) return false;
     if (CX_FILTER.fam) {
-      var f = n.kind === "dust" ? (n.ref || {}).f
-        : n.kind === "cand" ? (n.ref || {}).family
-        : n.kind === "evt" ? (n.ref || {}).kind
-        : cxNodeFamily(n);
-      if (f !== CX_FILTER.fam) return false;
+      var f = n.kind === "sig" ? n.fam : n.sig ? n.sig.fam : n.kind === "cand" ? ((n.ref || {}).family || "UNFILED") : n.kind === "dust" ? ((n.ref || {}).f || "UNFILED") : null;
+      if (f && f !== CX_FILTER.fam) return false;
     }
     if (CX_FILTER.q) {
-      var hay = ((n.label || "") + " " + (n.tip || "") + " " + (n.sub || "")).toLowerCase();
+      var hay = ((n.label || "") + " " + (n.tip || "") + " " + (n.kind === "sig" ? (n.ref || {}).title : "")).toLowerCase();
       if (hay.indexOf(CX_FILTER.q) < 0) return false;
     }
     return true;
   }
 
-  /* ---- renderer + interaction (v5: 3D orbit — depth is time; hierarchy tiers) ---- */
+  /* ---- renderer + interaction ---- */
   function initCortex() {
     var canvas = document.getElementById("cortexCanvas");
     if (!canvas || canvas.__cxRunning) return;
     canvas.__cxRunning = true;
     var ctx = canvas.getContext("2d");
     var REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var g, sim, cam;
-    if (CX_CACHE && CX_CACHE.builtAt === D.built_at) {
-      g = CX_CACHE.g; sim = CX_CACHE.sim; cam = CX_CACHE.cam;
-    } else {
-      g = cxBuild(); sim = cxSim(g); cam = null;
-      CX_CACHE = { builtAt: D.built_at, g: g, sim: sim, cam: null };
-    }
-    var hover = null, focus = null, drag = null, orbit = null, panMove = null, raf = 0, frames = 0;
-    var viewTween = null;   // eased yaw/pitch target for the FIELD / TIMELINE view buttons
-    var pinned = null, fly = null;
-    var userView = !!(CX_CACHE && CX_CACHE.userView), settled = !!(CX_CACHE && CX_CACHE.settled);
+    var g, cam;
+    if (CX_CACHE && CX_CACHE.builtAt === D.built_at) { g = CX_CACHE.g; cam = CX_CACHE.cam; }
+    else { g = cxBuild(); cam = null; CX_CACHE = { builtAt: D.built_at, g: g, cam: null }; }
+    var hover = null, drag = null, fly = null, raf = 0, pinned = null, phaseSeated = null;
     var card = document.getElementById("cxcard");
     if (!card) { card = document.createElement("div"); card.className = "cxcard"; card.id = "cxcard"; card.style.display = "none"; document.body.appendChild(card); }
     var readEl = document.getElementById("cxRead"), zoomEl = document.getElementById("cxZoom"), cntEl = document.getElementById("cxCounts");
-    if (cntEl) {
-      var nd = g.nodes.filter(function (n) { return n.kind !== "dust"; }).length;
-      cntEl.textContent = "OBJECTS " + nd + " · EDGES " + g.edges.length + " · DUST " + (g.nodes.length - nd);
-      canvas.setAttribute("aria-label", "Cortex field in 3D: " + nd + " research objects on a past-to-future depth axis; drag to orbit");
-    }
-    var gc = { x: 0, y: 0 };
-    (function () {
-      var sx = 0, sy = 0, n0 = 0;
-      g.nodes.forEach(function (n) { if (n.kind !== "dust") { sx += n.x; sy += n.y; n0++; } });
-      if (n0) { gc.x = sx / n0; gc.y = sy / n0; }
-    })();
+    // a read-only handle for the browser console and the verification pass: no data, no writes
+    window.__cx = { g: g, cam: function () { return cam; }, mode: CX_MODE };
+    // the camera exists before the first frame: a row clicked in a throttled tab (no
+    // animation frame yet) must fly, not throw
+    if (!cam) { cam = fitCam(440); CX_CACHE.k0 = cam.k; }
+    var nObj = g.nodes.filter(function (n) { return n.kind !== "dust"; }).length;
+    var nDust = g.nodes.length - nObj;
+    if (cntEl) cntEl.textContent = nObj + " OBJECTS · " + nDust + " HEADLINES";
+    canvas.setAttribute("aria-label", "Cortex wheel: " + nObj + " research objects by family, unmappedness and reachable money, with " + nDust + " feed headlines at the rim");
+    // the serif for names arrives from Google Fonts; the loop simply starts using it
+    try { if (document.fonts && document.fonts.load) { document.fonts.load("italic 400 21px Newsreader"); document.fonts.load("italic 400 15px Newsreader"); } } catch (e) {}
 
-    var sprites = {}, spriteN = 0;
-    function quant(r) { return r <= 8 ? Math.round(r * 2) / 2 : r <= 32 ? Math.round(r) : Math.round(r / 4) * 4; }
-    function sprite(color, r, soft) {
-      var key = color + "/" + r + "/" + soft;
+    var noise = (function () {
+      var c = document.createElement("canvas"); c.width = c.height = 128;
+      var x = c.getContext("2d"), im = x.createImageData(128, 128), r = cxRng(3);
+      for (var i = 0; i < im.data.length; i += 4) { var v = 150 + Math.floor(r() * 60); im.data[i] = v; im.data[i + 1] = v; im.data[i + 2] = 200; im.data[i + 3] = 255; }
+      x.putImageData(im, 0, 0);
+      return c;
+    })();
+    var sprites = {};
+    function haloSprite(color, r) {
+      var key = color + "/" + Math.round(r);
       if (sprites[key]) return sprites[key];
-      if (spriteN > 600) { sprites = {}; spriteN = 0; }
-      var s = Math.min(Math.ceil(r * soft), 256), c = document.createElement("canvas");
+      var s = Math.ceil(r), c = document.createElement("canvas");
       c.width = c.height = s * 2;
-      var x = c.getContext("2d");
-      var gr = x.createRadialGradient(s, s, 0, s, s, s);
-      gr.addColorStop(0, color); gr.addColorStop(soft > 3 ? 0.34 : 0.5, color); gr.addColorStop(1, "rgba(0,0,0,0)");
-      x.globalAlpha = soft > 3 ? 0.18 : 1;
-      x.fillStyle = gr; x.fillRect(0, 0, s * 2, s * 2);
-      spriteN++; sprites[key] = { c: c, s: s };
+      var x = c.getContext("2d"), gr = x.createRadialGradient(s, s, 0, s, s, s);
+      gr.addColorStop(0, color); gr.addColorStop(0.45, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+      x.globalAlpha = 0.2; x.fillStyle = gr; x.fillRect(0, 0, s * 2, s * 2);
+      sprites[key] = { c: c, s: s };
       return sprites[key];
     }
 
-    var T = {}; // per-frame trig + viewport
-    function setT(w, h) {
-      T.cy = Math.cos(cam.yaw); T.sy = Math.sin(cam.yaw);
-      T.cp = Math.cos(cam.pitch); T.sp = Math.sin(cam.pitch);
-      T.w = w; T.h = h; T.k = CX_F / cam.dist;
+    /* the free area: the stage minus the panel and the inspector, where the wheel centres */
+    function freeRect() {
+      var w = canvas.clientWidth, h = canvas.clientHeight, top = 0, left = 0, right = w, bottom = h;
+      var full = document.getElementById("cxFull");
+      var hidden = full && full.classList.contains("ui-hidden");
+      var tb = document.querySelector(".topbar");
+      if (tb && !hidden) top = tb.getBoundingClientRect().height;
+      var phone = w < 640;
+      if (!hidden) {
+        var panel = document.getElementById("cxPanel");
+        if (panel && !phone) left = panel.getBoundingClientRect().right + 8;
+        if (panel && phone) bottom = h - panel.getBoundingClientRect().height - 8;
+        var insp = document.getElementById("cxInspector");
+        if (insp && !phone) right = insp.getBoundingClientRect().left - 8;
+        top += 44;
+        if (!phone) bottom = h - 60;
+      }
+      return { x0: left, y0: top, x1: right, y1: bottom, w: Math.max(120, right - left), h: Math.max(120, bottom - top) };
     }
-    function proj3(x, y, z) {
-      var dx = x - cam.tx, dy = y - cam.ty, dz = (z || 0) - cam.tz;
-      var x1 = dx * T.cy + dz * T.sy, z1 = -dx * T.sy + dz * T.cy, y1 = dy;
-      var y2 = y1 * T.cp - z1 * T.sp, z2 = y1 * T.sp + z1 * T.cp;
-      var d = cam.dist - z2;
-      if (d < 60) return null;
-      var s = CX_F / d;
-      return { x: T.w / 2 + x1 * s, y: T.h / 2 + y2 * s, s: s, d: d };
+    function fitCam(radius) {
+      var fr = freeRect();
+      var k = Math.min(fr.w / (2 * radius), fr.h / (2 * radius));
+      return { k: k, rot: 0, tx: 0, ty: 0, cx: fr.x0 + fr.w / 2, cy: fr.y0 + fr.h / 2 };
     }
-    function camBasis() {
-      return {
-        rx: T.cy, ry: 0, rz: -T.sy,
-        ux: T.sy * T.sp, uy: T.cp, uz: T.cy * T.sp
-      };
+    function proj(x, y) {
+      var c = Math.cos(cam.rot), s = Math.sin(cam.rot), dx = x - cam.tx, dy = y - cam.ty;
+      return { x: cam.cx + cam.k * (dx * c - dy * s), y: cam.cy + cam.k * (dx * s + dy * c) };
+    }
+    function unproj(px, py) {
+      var c = Math.cos(-cam.rot), s = Math.sin(-cam.rot), dx = (px - cam.cx) / cam.k, dy = (py - cam.cy) / cam.k;
+      return { x: cam.tx + dx * c - dy * s, y: cam.ty + dx * s + dy * c };
     }
     function pick(px, py) {
       var best = null, bd = 1e9;
       for (var i = 0; i < g.nodes.length; i++) {
         var n = g.nodes[i];
-        if (n._px == null) continue;
+        if (n._px == null || n._hid) continue;
         var dx = n._px - px, dy = n._py - py, d = Math.sqrt(dx * dx + dy * dy);
-        if (d < n.r * n._s + 6 && d < bd) { bd = d; best = n; }
+        var reach = n.kind === "dust" ? 3 : n.kind === "sig" ? n._R + 6 : n._R + 5;
+        if (d < reach && d < bd) { bd = d; best = n; }
       }
       return best;
     }
-    /* Frame a whole section (a chain and everything hanging off it) rather than a point:
-       a 12-link chain read at the field's default distance is a pile of overlapping names. */
-    function flyToFit(ns, lead) {
-      var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9, minZ = 1e9, maxZ = -1e9, k = 0;
-      ns.forEach(function (n) {
-        if (!n || n.x == null) return;
-        k++;
-        if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
-        if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
-        var z = n.z || 0;
-        if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
-      });
-      if (!k || !cam) return;
-      var w2 = canvas.clientWidth, h2 = canvas.clientHeight;
-      var gw = Math.max(maxX - minX, 120), gh = Math.max(maxY - minY, 100);
-      var sc = Math.min((w2 * 0.62) / gw, (h2 * 0.62) / gh);
-      fly = {
-        t0: Date.now(), ms: 700,
-        from: { tx: cam.tx, ty: cam.ty, tz: cam.tz, dist: cam.dist },
-        to: { tx: (minX + maxX) / 2, ty: (minY + maxY) / 2, tz: (minZ + maxZ) / 2,
-              dist: Math.max(240, Math.min(3600, CX_F / Math.max(0.2, sc))) },
-        n: lead || null
-      };
-      focus = lead || null; pinned = null;
-      userView = true; CX_CACHE.userView = true; CX_CACHE.touched = true;
+    function flyToFit(pts, pad) {
+      var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9, k = 0;
+      pts.forEach(function (p) { if (!p) return; k++; if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x; if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y; });
+      if (!k) return;
+      var fr = freeRect(), gw = Math.max(maxX - minX, 40) + (pad || 60), gh = Math.max(maxY - minY, 40) + (pad || 60);
+      var kk = Math.min(fr.w / gw, fr.h / gh, 6);
+      fly = { t0: Date.now(), ms: 700, from: { tx: cam.tx, ty: cam.ty, k: cam.k, rot: cam.rot }, to: { tx: (minX + maxX) / 2, ty: (minY + maxY) / 2, k: kk, rot: cam.rot } };
     }
     function camHome() {
-      if (!cam) return;
-      cam = cxCam(g, canvas.clientWidth, canvas.clientHeight);
-      cam.tx = gc.x; cam.ty = gc.y;
-      focus = null; pinned = null; userView = false; CX_CACHE.userView = false;
+      var fit = fitCam(CX_MODE.phase === "radial" ? 400 : 440);
+      var tx = CX_MODE.phase === "timeline" ? -70 : 0;
+      fly = { t0: Date.now(), ms: 700, from: { tx: cam.tx, ty: cam.ty, k: cam.k, rot: cam.rot }, to: { tx: tx, ty: 0, k: fit.k, rot: cam.rot } };
     }
-    function flyTo(n, dist) {
-      if (!cam) return;
-      fly = {
-        t0: Date.now(), ms: 650,
-        from: { tx: cam.tx, ty: cam.ty, tz: cam.tz, dist: cam.dist },
-        to: { tx: n.x, ty: n.y, tz: n.z || 0, dist: dist || Math.max(300, CX_F / 1.7) },
-        n: n
-      };
-      focus = n; pinned = null;
-      userView = true; CX_CACHE.userView = true; CX_CACHE.touched = true;
+    function flyToSig(n) {
+      // frame the system with its neighbourhood: close enough to read its links, far
+      // enough that the wheel around it still shows where it sits
+      var k0 = CX_CACHE.k0 || cam.k, kk = Math.min(k0 * 3.2, Math.max(k0 * 1.6, (freeRect().h * 0.5) / (n.sysR + 60)));
+      fly = { t0: Date.now(), ms: 700, from: { tx: cam.tx, ty: cam.ty, k: cam.k, rot: cam.rot }, to: { tx: n.gx, ty: n.gy, k: kk, rot: cam.rot } };
+    }
+    function seatPhase() {
+      var key = CX_MODE.phase + ":" + (CX_MODE.sig || "");
+      if (phaseSeated === key) return;
+      phaseSeated = key;
+      var sig = CX_MODE.sig ? g.byKey["sig:" + CX_MODE.sig] : null;
+      if (CX_MODE.phase === "radial" && sig && sig.chain) cxSeatRadial(g, sig);
+      else if (CX_MODE.phase === "timeline") cxSeatTimeline(g);
+      else cxSeatNetwork(g);
+      if (REDUCED) g.nodes.forEach(function (n) { n.x = n.gx; n.y = n.gy; });
+    }
+
+    /* text helpers: an outlined label reads over dust; an arc label follows the rim */
+    function label(txt, x, y, font, color, align, alpha) {
+      ctx.font = font; ctx.textAlign = align || "left"; ctx.textBaseline = "middle";
+      ctx.globalAlpha = alpha == null ? 1 : alpha;
+      ctx.lineJoin = "round"; ctx.lineWidth = 4; ctx.strokeStyle = CXP.bg0;
+      ctx.strokeText(txt, x, y); ctx.fillStyle = color; ctx.fillText(txt, x, y);
+    }
+    function arcText(txt, r, midDeg, font, color, alpha) {
+      // characters laid along the circle; the bottom half runs the other way so it stays upright
+      ctx.font = font; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = color;
+      ctx.globalAlpha = alpha == null ? 1 : alpha;
+      var bottom = ((midDeg % 360) + 360) % 360 > 90 && ((midDeg % 360) + 360) % 360 < 270;
+      var chars = txt.split(""), widths = chars.map(function (ch) { return ctx.measureText(ch).width; });
+      var total = widths.reduce(function (p, c) { return p + c; }, 0) + (chars.length - 1) * 2.2;
+      var rr = r * cam.k, arc = total / rr;
+      var a0 = (midDeg * Math.PI / 180) + cam.rot - (bottom ? -arc / 2 : arc / 2);
+      var acc = 0;
+      chars.forEach(function (ch, i) {
+        var w = widths[i], a = bottom ? a0 - (acc + w / 2) / rr : a0 + (acc + w / 2) / rr;
+        var p = proj(0, 0);
+        var px = p.x + rr * Math.sin(a), py = p.y - rr * Math.cos(a);
+        ctx.save(); ctx.translate(px, py); ctx.rotate(bottom ? a + Math.PI : a);
+        ctx.lineJoin = "round"; ctx.lineWidth = 3; ctx.strokeStyle = CXP.bg0; ctx.strokeText(ch, 0, 0);
+        ctx.fillText(ch, 0, 0); ctx.restore();
+        acc += w + 2.2;
+      });
+    }
+    function star(x, y, r, col) {
+      ctx.beginPath();
+      for (var i = 0; i < 10; i++) {
+        var rr = i % 2 === 0 ? r : r * 0.42, a = -Math.PI / 2 + i * Math.PI / 5;
+        if (i === 0) ctx.moveTo(x + rr * Math.cos(a), y + rr * Math.sin(a)); else ctx.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a));
+      }
+      ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+    }
+    function diamond(x, y, s, col, dashed) {
+      ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s, y); ctx.lineTo(x, y + s); ctx.lineTo(x - s, y); ctx.closePath();
+      ctx.strokeStyle = col; ctx.lineWidth = 1;
+      if (dashed) ctx.setLineDash([2, 1.6]);
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    function square(x, y, s, col, fill) {
+      if (fill) { ctx.fillStyle = col; ctx.fillRect(x - s, y - s, s * 2, s * 2); }
+      else { ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.strokeRect(x - s + 0.5, y - s + 0.5, s * 2 - 1, s * 2 - 1); }
+    }
+    var rimHits = [];   // sector labels are clickable: family focus
+
+    function drawWheel(w, h, al, scale) {
+      // sectors, rim, names and counts: the wheel's own chart furniture
+      var o = proj(0, 0), K = cam.k * scale;
+      var fam = CX_FILTER.fam;
+      rimHits = [];
+      g.sectors.forEach(function (s, i) {
+        var a0 = s.a0 * Math.PI / 180 + cam.rot, a1 = s.a1 * Math.PI / 180 + cam.rot;
+        var dimS = fam && fam !== s.fam;
+        // wedge tint, alternating like a clock face
+        ctx.globalAlpha = al * (i % 2 === 0 ? 0.03 : 0.012) * (dimS ? 0.4 : 1);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.arc(o.x, o.y, CX_RIM * K, a0 - Math.PI / 2, a1 - Math.PI / 2); ctx.closePath(); ctx.fill();
+        // rim arc with a gap and a tick at the boundary
+        ctx.globalAlpha = al * (dimS ? 0.3 : 0.9); ctx.strokeStyle = "#33355A"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(o.x, o.y, CX_RIM * K, a0 - Math.PI / 2 + 0.028, a1 - Math.PI / 2 - 0.028); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(o.x + (CX_RIM - 5) * K * Math.sin(a0), o.y - (CX_RIM - 5) * K * Math.cos(a0));
+        ctx.lineTo(o.x + (CX_RIM + 5) * K * Math.sin(a0), o.y - (CX_RIM + 5) * K * Math.cos(a0)); ctx.stroke();
+        var name = s.fam === "UNFILED" ? "NO FAMILY" : s.fam;
+        var col = s.fam === "UNFILED" ? "#5E617C" : (fam === s.fam ? "#FFFFFF" : "#C7CAE0");
+        var fsz = Math.max(9, Math.min(13, 10.5 * Math.sqrt(cam.k / (CX_CACHE.k0 || cam.k))));
+        arcText(name, (CX_RIM + 16) * scale, s.mid, "600 " + fsz.toFixed(1) + "px Inter, sans-serif", col, al * (dimS ? 0.45 : 1));
+        var sub = s.fam === "UNFILED" ? s.sigs + " signal" + (s.sigs === 1 ? "" : "s") + " not yet filed"
+          : s.heads + " headline" + (s.heads === 1 ? "" : "s") + " · " + s.sigs + " signal" + (s.sigs === 1 ? "" : "s");
+        var md = ((s.mid % 360) + 360) % 360, inside = md > 140 && md < 220;
+        var lp = cxPol((inside ? CX_RIM - 26 : CX_RIM + 32) * scale, s.mid), sp = proj(lp.x, lp.y);
+        var mdr = ((s.mid + cam.rot * 180 / Math.PI) % 360 + 360) % 360;
+        var align = inside ? "center" : (mdr > 0 && mdr < 180 ? "left" : mdr > 180 ? "right" : "center");
+        label(sub, sp.x, sp.y, "9px 'JetBrains Mono', monospace", CXP.ink3, align, al * (dimS ? 0.45 : 1));
+        var np = cxPol((CX_RIM + 16) * scale, s.mid), npp = proj(np.x, np.y);
+        rimHits.push({ x: npp.x, y: npp.y, fam: s.fam, r: 46 });
+      });
+      // the belt: a faint halo under the dust
+      ctx.globalAlpha = al * 0.035; ctx.strokeStyle = "#9FA3C8"; ctx.lineWidth = 58 * K;
+      ctx.beginPath(); ctx.arc(o.x, o.y, ((CX_DUST0 + CX_DUST1) / 2) * K, 0, 7); ctx.stroke();
+      // the eye of the field
+      var eg = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, 150 * K);
+      eg.addColorStop(0, "rgba(134,135,240,0.13)"); eg.addColorStop(0.6, "rgba(134,135,240,0.03)"); eg.addColorStop(1, "rgba(134,135,240,0)");
+      ctx.globalAlpha = al; ctx.fillStyle = eg; ctx.beginPath(); ctx.arc(o.x, o.y, 150 * K, 0, 7); ctx.fill();
+      ctx.strokeStyle = CXP.ink3; ctx.globalAlpha = al * 0.7; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(o.x - 5, o.y); ctx.lineTo(o.x + 5, o.y); ctx.moveTo(o.x, o.y - 5); ctx.lineTo(o.x, o.y + 5); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    function drawTimeRings(w, h, al) {
+      var o = proj(0, 0), K = cam.k, y0 = parseInt(TODAY.slice(0, 4), 10);
+      ctx.globalAlpha = al;
+      for (var k = 1; k <= 4; k++) {
+        var rr = cxTimeR(k * 365) * K;
+        ctx.strokeStyle = "#33355A"; ctx.globalAlpha = al * 0.7; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(o.x, o.y, rr, 0, 7); ctx.stroke();
+        var left = k === 4 ? "≤" + (y0 - k) : String(y0 - k), right = k === 4 ? (y0 + k) + "+" : String(y0 + k);
+        label(left, o.x - rr - 6, o.y, "9.5px 'JetBrains Mono', monospace", CXP.ink3, "right", al);
+        label(right, o.x + rr + 6, o.y, "9.5px 'JetBrains Mono', monospace", CXP.ink3, "left", al);
+      }
+      var top = cxTimeR(CX_CLAMP) * K + 32;
+      ctx.globalAlpha = al * 0.55; ctx.strokeStyle = CXP.accent2; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(o.x, o.y - top); ctx.lineTo(o.x, o.y + top); ctx.stroke();
+      label("NOW · " + TODAY, o.x + 8, o.y - top + 10, "9.5px 'JetBrains Mono', monospace", CXP.accent2, "left", al);
+      label("PAST", o.x - top - 10, o.y - top + 10, "600 10.5px Inter, sans-serif", "#C7CAE0", "left", al);
+      label("FUTURE", o.x + top + 10, o.y - top + 10, "600 10.5px Inter, sans-serif", "#C7CAE0", "right", al);
+      ctx.globalAlpha = 1;
     }
 
     function draw() {
       if (!canvas.isConnected) { canvas.__cxRunning = false; cancelAnimationFrame(raf); card.style.display = "none"; return; }
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var w = canvas.clientWidth, h = canvas.clientHeight;
-      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-      }
-      if (!cam) { cam = cxCam(g, w, h); cam.tx = gc.x; cam.ty = gc.y; }
-      CX_CACHE.cam = cam;
+      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!cam) { cam = fitCam(440); CX_CACHE.k0 = cam.k; }
+      else { var fr0 = freeRect(); cam.cx = fr0.x0 + fr0.w / 2; cam.cy = fr0.y0 + fr0.h / 2; }
+      CX_CACHE.cam = cam;
+      seatPhase();
       var t = Date.now() / 1000;
-      var parked = sim.alpha() < sim.alphaMin();
-      if (!parked) sim.tick();
-      if (parked && !settled) { settled = true; CX_CACHE.settled = true; if (!userView) { cam = cxCam(g, w, h); cam.tx = gc.x; cam.ty = gc.y; } }
       if (fly) {
-        // eased by wall clock, but with a per-frame floor: a throttled tab (hidden,
-        // battery saver) may render only a handful of frames during fly.ms, and a
-        // purely time-based ease then strands the camera mid-flight forever
         var ft = Math.min(1, (Date.now() - fly.t0) / fly.ms);
         fly.fp = (fly.fp || 0) + 1 / 40;
         if (fly.fp > ft) ft = Math.min(1, fly.fp);
         var e = ft < 0.5 ? 2 * ft * ft : 1 - Math.pow(-2 * ft + 2, 2) / 2;
-        cam.tx = fly.from.tx + (fly.to.tx - fly.from.tx) * e;
-        cam.ty = fly.from.ty + (fly.to.ty - fly.from.ty) * e;
-        cam.tz = fly.from.tz + (fly.to.tz - fly.from.tz) * e;
-        cam.dist = fly.from.dist + (fly.to.dist - fly.from.dist) * e;
-        if (ft >= 1) { pinned = fly.n; fly = null; }
-      } else if (!CX_CACHE.touched && !REDUCED && !hover && !focus) {
-        cam.yaw += 0.0012; // idle drift until first touch
+        cam.tx = fly.from.tx + (fly.to.tx - fly.from.tx) * e; cam.ty = fly.from.ty + (fly.to.ty - fly.from.ty) * e;
+        cam.k = fly.from.k + (fly.to.k - fly.from.k) * e; cam.rot = fly.from.rot + (fly.to.rot - fly.from.rot) * e;
+        if (ft >= 1) fly = null;
       }
-      if (viewTween) {
-        cam.yaw += (viewTween.yaw - cam.yaw) * 0.12;
-        cam.pitch += (viewTween.pitch - cam.pitch) * 0.12;
-        if (Math.abs(cam.yaw - viewTween.yaw) < 0.004 && Math.abs(cam.pitch - viewTween.pitch) < 0.004) {
-          cam.yaw = viewTween.yaw; cam.pitch = viewTween.pitch; viewTween = null;
-        }
-      }
-      setT(w, h);
+      // seats: every node eases toward its seat in the current phase
+      var ease = REDUCED ? 1 : 0.14;
+      g.nodes.forEach(function (n) {
+        if (n.gx == null) return;
+        n.x += (n.gx - n.x) * ease; n.y += (n.gy - n.y) * ease;
+        if (n.kind === "sig") { n.Rc = n.Rc == null ? n.gR : n.Rc + (n.gR - n.Rc) * ease; }
+      });
+      var dimBg = g.dim ? 1 : 0;
+      var isTL = CX_MODE.phase === "timeline", isRad = CX_MODE.phase === "radial" && g.dim;
 
-      // phase morph: nodes travel between the field and the circle, never teleport
-      var mTarget = CX_MODE.phase === "radial" ? 1 : 0;
-      if (REDUCED) CX_MODE.morph = mTarget;
-      else if (CX_MODE.morph !== mTarget) {
-        var step = 0.055;
-        CX_MODE.morph += Math.sign(mTarget - CX_MODE.morph) * step;
-        if (Math.abs(mTarget - CX_MODE.morph) < step) CX_MODE.morph = mTarget;
-      }
-      var M = CX_MODE.morph, RAD = M > 0.001 ? cxRadial(g, w, h, ctx) : null;
-      // timeline morph, same easing pattern as the radial phase
-      var tlTarget = CX_TL_MODE && CX_MODE.phase !== "radial" ? 1 : 0;
-      if (REDUCED) CX_TL = tlTarget;
-      else if (CX_TL !== tlTarget) {
-        var tstep = 0.055;
-        CX_TL += Math.sign(tlTarget - CX_TL) * tstep;
-        if (Math.abs(tlTarget - CX_TL) < tstep) CX_TL = tlTarget;
-      }
-      var TL = CX_TL;
-      // the timeline layout is screen-space, so the camera zoom must scale it by hand:
-      // otherwise scrolling only fattens the dots while the layout stays condensed
-      if (TL > 0.001 && CX_TL_K0 == null) CX_TL_K0 = T.k;
-      if (TL <= 0.001) CX_TL_K0 = null;
-      var tlZoom = CX_TL_K0 ? Math.max(0.4, T.k / CX_TL_K0) : 1;
-      var tlCx = w / 2, tlCy = h * 0.52, tlR = Math.min(w, h) * 0.44 * tlZoom;
-
+      // ground
       var bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, Math.max(w, h) * 0.72);
       bg.addColorStop(0, CXP.bg1); bg.addColorStop(1, CXP.bg0);
       ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = 0.05; ctx.fillStyle = ctx.createPattern(noise, "repeat"); ctx.fillRect(0, 0, w, h); ctx.globalAlpha = 1;
+      if (isTL) drawTimeRings(w, h, 1);
+      else drawWheel(w, h, isRad ? 0.22 : 1, g.scale || 1);
 
-      // NOW plane (translucent disc at z = 0) + the time axis with year ticks
-      // (the 3D read-out; it yields to the flat TIMELINE rings as they morph in)
-      ctx.globalAlpha = (1 - M) * (1 - TL);
-      if (M < 0.995 && TL < 0.995) {
-      var planeR = (g.ring ? g.ring.r0 * 1.02 : 520);
-      ctx.strokeStyle = "rgba(134,135,240,0.38)"; ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      var first = true, topPt = null;
-      for (var ai = 0; ai <= 64; ai++) {
-        var aa = ai * Math.PI * 2 / 64;
-        var pp = proj3(gc.x + planeR * Math.cos(aa), gc.y + planeR * Math.sin(aa), 0);
-        if (!pp) { first = true; continue; }
-        if (ai === 48) topPt = pp;
-        if (first) { ctx.moveTo(pp.x, pp.y); first = false; } else ctx.lineTo(pp.x, pp.y);
-      }
-      ctx.stroke();
-      ctx.setLineDash([2, 8]);
-      ctx.beginPath();
-      [[-planeR, 0, planeR, 0], [0, -planeR, 0, planeR]].forEach(function (ln) {
-        var p1 = proj3(gc.x + ln[0], gc.y + ln[1], 0), p2 = proj3(gc.x + ln[2], gc.y + ln[3], 0);
-        if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
-      });
-      ctx.stroke(); ctx.setLineDash([]);
-      ctx.font = "600 11px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
-      if (topPt) { ctx.fillStyle = "rgba(167,168,246,0.95)"; ctx.fillText("N O W", topPt.x, topPt.y - 7); }
-      // The 3D time axis (year ticks + PAST/FUTURE labels through the field center)
-      // was removed at Ron's request (2026-09-01), after the in-field year rings went
-      // the same way earlier that day. The opt-in TIMELINE view is the time read-out.
-      cxFamilyArcs(ctx, proj3, g, gc, M);
-      }
-      ctx.globalAlpha = 1;
-      if (RAD) RAD.draw(M);
-      if (TL > 0.001) cxTimeRings(ctx, w, h, tlCx, tlCy, tlR, TL * (1 - M));
-
-      // project all nodes
-      g.nodes.forEach(function (n, ni) {
-        var pp = proj3(n.x, n.y, n.z || 0);
-        var tg = RAD ? RAD.targets[n.key] : null;
-        // TIMELINE seat: radius = |time from today|, side = its sign. The node keeps
-        // its layout direction, folded into the correct half so past stays left and
-        // future right; one ring is +k years on the right and -k on the left.
-        var tls = null;
-        if (TL > 0.001 && !RAD) {
-          var rt = Math.min(1, Math.abs(n.z || 0) / 480) * tlR;
-          var dxL = (n.x - gc.x) || 0.001, dyL = (n.y - gc.y) || 0.001;
-          var nL = Math.sqrt(dxL * dxL + dyL * dyL);
-          var ux = Math.abs(dxL / nL) * ((n.z || 0) >= 0 ? 1 : -1), uy = dyL / nL;
-          tls = { x: tlCx + rt * ux, y: tlCy + rt * uy };
-        }
-        if (!pp) {
-          // Clipped by the near plane. A node holding a seat on the ring still has a
-          // place to be: the seat is screen-space and owes nothing to the camera, so a
-          // camera drift that carries a node behind the eye must not delete it from the
-          // ranking. Without this the idle yaw ate the radial one node at a time.
-          if (tg) {
-            n._px = tg.x; n._py = tg.y;
-            n._s = tg.r / Math.max(0.001, n.r); n._d = cam.dist;
-            n._fade = M;                   // arrives with the morph instead of popping
-            n._radial = true;
-            return;
-          }
-          if (tls) {                       // a timeline seat also owes nothing to the camera
-            n._px = tls.x; n._py = tls.y;
-            n._s = T.k; n._d = cam.dist; n._fade = TL; n._radial = false;
-            return;
-          }
-          n._px = null; return;
-        }
-        n._px = pp.x + (n.kind === "dust" || REDUCED ? 0 : Math.sin(t * 0.4 + ni));
-        n._py = pp.y + (n.kind === "dust" || REDUCED ? 0 : Math.cos(t * 0.33 + ni * 2) * 0.8);
-        n._s = pp.s; n._d = pp.d; n._fade = 1;
-        if (tls) {
-          var eT = TL < 0.5 ? 2 * TL * TL : 1 - Math.pow(-2 * TL + 2, 2) / 2;
-          n._px += (tls.x - n._px) * eT;
-          n._py += (tls.y - n._py) * eT;
-          n._d += (cam.dist - n._d) * eT;  // flat read-out: even fog at full morph
-          n._radial = false;
-        }
-        if (!RAD) return;
-        if (tg) {
-          var e2 = M < 0.5 ? 2 * M * M : 1 - Math.pow(-2 * M + 2, 2) / 2;
-          n._px += (tg.x - n._px) * e2;
-          n._py += (tg.y - n._py) * e2;
-          n._s += (tg.r / Math.max(0.001, n.r) - n._s) * e2;
-          // depth travels with the node. Alpha is fogged by _d, and a seat that kept the
-          // field's depth kept the field's fog: idle camera drift swung a ring node's
-          // world position away, fog hit its 0.3 floor, and the dot faded to nothing
-          // while sitting still on the circle. The ring is a flat screen-space read-out,
-          // so at full morph every seat is lit the same.
-          n._d += (cam.dist - n._d) * e2;
-          n._radial = true;
-        } else {
-          // no seat on the circle: ambient kinds (co/dive/dust/…) settle at a faint floor
-          // rather than snapping to the middle or vanishing; structural kinds floor at 0
-          var fl = CX_RADIAL_FLOOR[n.kind] || 0;
-          n._fade = Math.max(fl, 1 - M);
-          n._radial = false;
-          if (fl && M > 0.001) {                       // recede in place: shrink to a small backdrop dot
-            var e3 = M < 0.5 ? 2 * M * M : 1 - Math.pow(-2 * M + 2, 2) / 2;
-            n._s += (n._s * 0.6 - n._s) * e3;
-          }
-        }
-      });
-
-      var hi = hover || focus;
-      var hadj = hi ? g.adj[hi.key] : null;
-      var anyFilter = CX_FILTER.q || CX_FILTER.chain || CX_FILTER.fam ||
-        CX_KIND_CHIPS.some(function (kc) { return CX_FILTER.kinds[kc[0]] === false; });
-      function fog(n) { return Math.max(0.3, Math.min(1.15, cam.dist / n._d)); }
-      function nodeAlpha(n) {
-        var base = n.kind === "dust" ? 0.34 + 0.14 * Math.sin(t * 0.8 + n.seat * 1.7) : n.kind === "co" ? 0.72 : n.kind === "socket" ? 0.32 : 0.92;
-        base *= fog(n);
-        base *= n._fade == null ? 1 : n._fade;
+      var zoomF = cam.k / (CX_CACHE.k0 || cam.k);   // 1 = the wheel as first seen
+      // on a phone the wheel fits at a third of the desktop zoom; markers and names
+      // shrink with it so the field stays a field, not a pile of labels
+      var ui = Math.min(1, Math.max(0.55, (CX_CACHE.k0 || cam.k) / 0.85));
+      var hi = hover, sel = CX_MODE.sig ? g.byKey["sig:" + CX_MODE.sig] : null;
+      var anyFilter = CX_FILTER.q || CX_FILTER.fam || CX_KIND_CHIPS.some(function (kc) { return CX_FILTER.kinds[kc[0]] === false; });
+      function sysOf(n) { return n.kind === "sig" ? n : n.sig || null; }
+      var hiSys = hi ? sysOf(hi) : null;
+      function alphaOf(n, base) {
+        var a = base;
+        if (isRad) a *= (n === sel || n.sig === sel) ? 1 : 0.18;
+        if (anyFilter && !cxMatch(n)) a *= 0.08;
+        if (hi && hiSys && n.kind !== "dust") a *= (sysOf(n) === hiSys || n === hi) ? 1 : 0.35;
         var gv = cxGainOf(n.kind);
-        if (gv < 1) base *= Math.max(0.08, 0.35 + 0.65 * gv);   // a turned-down type also fades
-        if (anyFilter && !cxMatch(n)) base *= 0.07;
-        if (!hi) return base;
-        return (n === hi || (hadj && hadj[n.key])) ? Math.max(base, anyFilter && !cxMatch(n) ? 0.3 : 0.95) : base * 0.2;
+        if (gv < 1) a *= Math.max(0.08, 0.35 + 0.65 * gv);
+        return a;
       }
-
-      // edges (under nodes), alpha by mean depth
-      var buckets = {};
-      g.edges.forEach(function (e) {
-        if (e.source._px == null || e.target._px == null) return;
-        var near = hi && (e.source === hi || e.target === hi);
-        var a = !hi ? e.alpha : near ? Math.min(0.55, e.alpha * 5) : e.alpha * 0.2;
-        a *= Math.max(0.3, Math.min(1.1, cam.dist / ((e.source._d + e.target._d) / 2))) * (1 - M);
-        if (anyFilter && (!cxMatch(e.source) || !cxMatch(e.target))) a *= 0.12;
-        var b = Math.max(1, Math.round(a * 40));
-        (buckets[b] = buckets[b] || []).push(e);
-      });
-      Object.keys(buckets).forEach(function (b) {
-        ctx.strokeStyle = "rgba(205,210,235," + (b / 40).toFixed(3) + ")";
-        ctx.lineWidth = b / 40 > 0.3 ? 1.15 : 0.7;
-        ctx.beginPath();
-        buckets[b].forEach(function (e) {
-          ctx.moveTo(e.source._px, e.source._py);
-          ctx.lineTo(e.target._px, e.target._py);
-        });
-        ctx.stroke();
-      });
-
-      // nodes, painter-sorted far to near
-      var order = [];
-      g.nodes.forEach(function (n) { if (n._px != null) order.push(n); });
-      order.sort(function (a, b) { return b._d - a._d; });
-      order.forEach(function (n) {
-        var x = n._px, y = n._py;
-        if (x < -80 || x > w + 80 || y < -80 || y > h + 80) return;
-        // viewer gauges: per-type size gain, then the contrast exponent around a 5px
-        // pivot so big nodes grow while small ones shrink (or the reverse under 1)
-        var gain = cxGainOf(n.kind);
-        var rr = n.r * gain;
+      function sizeOf(n, base) {
+        var gain = cxGainOf(n.kind), rr = base * gain;
         if (CX_GAIN.contrast !== 1) rr = 5 * Math.pow(Math.max(0.1, rr) / 5, CX_GAIN.contrast);
-        var R = quant(Math.max((n.kind === "dust" ? 0.9 : 2.2) * Math.min(1, gain), 0.4, rr * n._s));
-        var a = nodeAlpha(n);
-        ctx.globalAlpha = a;
-        if (n.kind === "dust") {
-          var sp = sprite(n.color, 1.6, 3);
-          ctx.drawImage(sp.c, x - sp.s / 2, y - sp.s / 2, sp.s, sp.s);
-        } else {
-          if (R > 26) {
-            var grd = ctx.createRadialGradient(x, y, 0, x, y, R * 2);
-            grd.addColorStop(0, n.color); grd.addColorStop(0.28, n.color); grd.addColorStop(1, "rgba(0,0,0,0)");
-            ctx.globalAlpha = a * 0.15; ctx.fillStyle = grd;
-            ctx.beginPath(); ctx.arc(x, y, R * 2, 0, 7); ctx.fill();
-            ctx.globalAlpha = a;
-          } else {
-            var soft = n.kind === "sig" || n.kind === "chain" ? 3.4 : 2.8;
-            if (n._radial && M > 0.5) soft = 2.8;
-            var halo = sprite(n.color, R, soft);
-            ctx.drawImage(halo.c, x - halo.s, y - halo.s, halo.s * 2, halo.s * 2);
-          }
-          if (n.hollow) {
-            ctx.strokeStyle = n.color; ctx.lineWidth = 1.2;
-            ctx.beginPath(); ctx.arc(x, y, Math.max(2, R * 0.8), 0, 7); ctx.stroke();
-          } else if (!n.socket) {
-            var core = sprite(n.kind === "sig" || n.kind === "chain" ? "#c9cde0" : n.color, Math.max(1, quant(R * 0.56)), 2.6);
-            ctx.drawImage(core.c, x - core.s / 2, y - core.s / 2, core.s, core.s);
-          }
-          if (n.gold) { ctx.strokeStyle = CXP.gold; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, R + 3, 0, 7); ctx.stroke(); }
-          if (n.choke) { ctx.strokeStyle = CXP.bad; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, R + 6, 0, 7); ctx.stroke(); }
-          if (n.dashed) {
-            ctx.strokeStyle = n.color; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.2;
-            ctx.beginPath(); ctx.arc(x, y, R + 4, 0, 7); ctx.stroke(); ctx.setLineDash([]);
-          }
-          if (n.arcs && R > 8) {
-            var seg = (Math.PI * 2) / n.arcs.length;
-            n.arcs.forEach(function (v, aj) {
-              ctx.strokeStyle = v ? CXP.verd[v] : CXP.none; ctx.lineWidth = 2.2;
-              ctx.beginPath(); ctx.arc(x, y, R + 5, -Math.PI / 2 + aj * seg + 0.04, -Math.PI / 2 + (aj + 1) * seg - 0.04); ctx.stroke();
-            });
-          }
-          if (n.pinned) { ctx.strokeStyle = CXP.ink3; ctx.lineWidth = 1; ctx.strokeRect(x + R + 4, y - 2, 3, 3); }
-          if (n === focus) { ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, R + 8, 0, 7); ctx.stroke(); }
-        }
-        n._R = R;
+        return rr;
+      }
+      // project
+      g.nodes.forEach(function (n) {
+        if (n.gx == null) { n._px = null; return; }
+        var p = proj(n.x, n.y);
+        n._px = p.x; n._py = p.y;
+        n._hid = CX_FILTER.kinds[n.kind] === false;
       });
 
-      // labels last, near-to-far so close ones win visually; per-node semantic ramp
-      ctx.textAlign = "center";
-      var dustLabels = 0;
-      for (var oi = order.length - 1; oi >= 0; oi--) {
-        var n = order[oi];
-        if (n._px < -60 || n._px > w + 60 || n._py < -40 || n._py > h + 40) continue;
-        var matched = !anyFilter || cxMatch(n);
-        var rampN = Math.min(1, Math.max((n._s - 1) / 3.75, 0));
-        var ramp2 = Math.min(1, Math.max((n._s - 1.9) / 1.1, 0));
-        var lden = typeof CX_GAIN.labels === "number" ? CX_GAIN.labels : 1;
-        if (n.kind === "dust") {
-          var ramp3 = Math.min(1, Math.max((n._s - 2.6) / 1.2, 0));
-          if (n !== hi && lden < 0.85) continue;   // dust headlines are the first to go
-          if (ramp3 <= 0.03 || dustLabels > 60 || !matched || (M > 0.35 && n !== hi)) continue;
-          if (hi && n !== hi) continue;
-          dustLabels++;
-          ctx.globalAlpha = ramp3 * 0.55 * (n._fade == null ? 1 : n._fade);
-          ctx.font = "9px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-          ctx.fillText(cxTrim((n.ref || {}).t, 30), n._px, n._py + 10);
-          continue;
-        }
-        if (!n.label) continue;
-        if (n._radial && M > 0.35) continue;
-        // ambient kinds floored back into the radial keep their dot but not their label,
-        // unless hovered — the ranking's own labels stay the ones that read
-        if (!n._radial && M > 0.35 && n !== hi) continue;
-        var major = n.tier === "MAJOR", mid = n.tier === "MID";
-        var big = n.kind === "sig" || n.kind === "chain";
-        // the LABELS gauge is a priority cut, not a fade: at the left end only the
-        // most important names survive, at the right end everything current shows.
-        // Hovered nodes and filtered-to links are always named — narrowing the field
-        // exists to read what survived.
-        if (n !== hi && !(anyFilter && matched && (n.kind === "link" || n.kind === "scen"))) {
-          var pri = major ? 1 : big ? 0.85 : mid ? 0.7 : n.kind === "dive" ? 0.6 : n.kind === "co" ? 0.45 : 0.25;
-          if (pri < 1 - lden) continue;
-        }
-        var base = major ? 1 : mid ? 0.9 : big || n.kind === "dive" || n.kind === "socket" ? Math.max(0.55, rampN) : n.kind === "co" ? Math.max(0, rampN - 0.35) : Math.max(0, rampN - 0.1);
-        // focus spells the section out: a filtered-to link is named at any zoom, because
-        // the point of narrowing the field is to read what survived, not to hunt for it
-        if (anyFilter && matched && (n.kind === "link" || n.kind === "scen") && rampN > 0.12) base = 1;
-        var la = (n === hi) ? 1 : base * (hi ? ((n === hi || (hadj && hadj[n.key])) ? 1 : 0.2) : 1) * (matched ? 1 : 0.07) * Math.max(0.4, Math.min(1, fog(n)));
-        // a node with no seat on the circle takes its label with it as it fades out
-        la *= n._fade == null ? 1 : n._fade;
-        if (la <= 0.03) continue;
-        ctx.globalAlpha = la;
-        ctx.font = (major ? "700 14px" : big ? "600 12px" : "500 10.5px") + " 'Baloo 2', 'JetBrains Mono', sans-serif";
-        ctx.fillStyle = n === hi ? "#ffffff" : big ? CXP.ink : CXP.ink2;
-        ctx.fillText(n.label, n._px, n._py + n._R + (big ? 19 : 13));
-        if (n.sub && (big || n === hi || (anyFilter && matched && n.kind === "link"))) {
-          ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-          ctx.fillText(n.sub, n._px, n._py + n._R + (major ? 35 : 32));
-        }
-        if ((major || ramp2 > 0.25 || n === hi || (anyFilter && matched && n.kind === "link")) && n.kind !== "socket") {
-          var info = cxInfo(n);
-          if (info) {
-            ctx.globalAlpha = la * (major ? 0.85 : Math.max(0.4, ramp2));
-            ctx.font = "9.5px 'JetBrains Mono', monospace"; ctx.fillStyle = CXP.ink3;
-            ctx.fillText(info, n._px, n._py + n._R + (major ? 49 : big ? 45 : 26));
-          }
-        }
+      // 1. dust: one dot per headline
+      if (CX_FILTER.kinds.dust !== false) {
+        ctx.fillStyle = CXP.dust;
+        var dz = Math.min(1.6, Math.max(0.7, Math.sqrt(zoomF)));
+        g.nodes.forEach(function (n) {
+          if (n.kind !== "dust" || n._px == null) return;
+          if (n._px < -4 || n._px > w + 4 || n._py < -4 || n._py > h + 4) return;
+          var rr = sizeOf(n, n.r) * dz;
+          ctx.globalAlpha = alphaOf(n, n.a * (isTL ? 0.6 : 1));
+          ctx.beginPath(); ctx.arc(n._px, n._py, rr, 0, 7); ctx.fill();
+          n._R = rr;
+        });
       }
+      // 2. ambient candidates and known future events
+      g.nodes.forEach(function (n) {
+        if ((n.kind !== "cand" && n.kind !== "evt") || n._px == null || n._hid) return;
+        var rr = sizeOf(n, n.r);
+        ctx.globalAlpha = alphaOf(n, 0.65);
+        if (n.kind === "cand") {
+          ctx.strokeStyle = CXP.ambient; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(n._px, n._py, rr, 0, 7); ctx.stroke();
+          if (n.prime) { ctx.fillStyle = CXP.ambient; ctx.beginPath(); ctx.arc(n._px, n._py, 1.1, 0, 7); ctx.fill(); }
+        } else diamond(n._px, n._py, rr, CXP.ambient, true);
+        n._R = rr;
+        if (isTL && n.kind === "evt") label(n.label, n._px + 8, n._py, "8.5px 'JetBrains Mono', monospace", CXP.ink3, "left", alphaOf(n, 0.9));
+      });
+      // 3. systems: ring thread, spokes, markers, hub
+      var showCo = CX_FILTER.kinds.co !== false && (zoomF > 1.6 || isRad), showScen = CX_FILTER.kinds.scen !== false && (zoomF > 1.3 || isRad);
+      g.sigs.forEach(function (n) {
+        if (n._px == null || n._hid) return;
+        var focused = isRad && n === sel;
+        var a = alphaOf(n, 1);
+        var hr = sizeOf(n, n.hr) * ui * Math.min(1.8, Math.max(0.85, Math.sqrt(zoomF)));
+        if (focused) hr = 24 * ui;
+        n._R = hr;
+        // halo
+        var hs = haloSprite(CXP.accent, hr * 3.6);
+        ctx.globalAlpha = a * (focused ? 0.9 : 0.85);
+        ctx.drawImage(hs.c, n._px - hs.s, n._py - hs.s, hs.s * 2, hs.s * 2);
+        // chain thread (closed polyline through the links in position order) or a dashed empty orbit
+        var links = (n.links || []).filter(function (l) { return l._px != null; });
+        if (links.length && !focused) {
+          ctx.globalAlpha = a * 0.22; ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1;
+          ctx.beginPath();
+          links.forEach(function (l, k) { if (k === 0) ctx.moveTo(l._px, l._py); else ctx.lineTo(l._px, l._py); });
+          ctx.closePath(); ctx.stroke();
+        } else if (!links.length) {
+          ctx.globalAlpha = a * 0.28; ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1; ctx.setLineDash([2.5, 3.5]);
+          ctx.beginPath(); ctx.arc(n._px, n._py, (n.Rc || n.R) * cam.k, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+        }
+        if (focused) drawRadialFocus(n, a);
+        // links: B's crisp squares, coloured by heat; gold spoke + star for the money corner; white ring for a choke point
+        links.forEach(function (l) {
+          if (l._hid) return;
+          var la = alphaOf(l, 0.95), s = sizeOf(l, focused ? 4.2 : 2.4) * ui * (focused ? 1 : Math.min(1.5, Math.max(0.9, Math.sqrt(zoomF))));
+          ctx.globalAlpha = la;
+          if (l.money && !focused) { ctx.strokeStyle = CXP.gold; ctx.globalAlpha = la * 0.4; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(n._px, n._py); ctx.lineTo(l._px, l._py); ctx.stroke(); ctx.globalAlpha = la; }
+          if (l.choke) { ctx.strokeStyle = "#FFFFFF"; ctx.globalAlpha = la * 0.5; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.arc(l._px, l._py, s + 3.2, 0, 7); ctx.stroke(); ctx.globalAlpha = la; }
+          if (l.verdict) square(l._px, l._py, l.money ? s + 0.8 : s, l.color, true);
+          else square(l._px, l._py, s, CXP.ink3, false);
+          if (l.money) star(l._px, l._py, s + 4.5, CXP.gold);
+          if (l === hi || (sel === l)) { ctx.strokeStyle = CXP.ink; ctx.lineWidth = 1; ctx.strokeRect(l._px - s - 3.5, l._py - s - 3.5, s * 2 + 7, s * 2 + 7); }
+          l._R = s + 1;
+        });
+        // companies (at zoom or in the radial), scenarios
+        g.nodes.forEach(function (m) {
+          if (m.sig !== n || m._px == null || m._hid) return;
+          if (m.kind === "co") {
+            if (!showCo) { m._px = null; return; }
+            var ra = alphaOf(m, 0.7), rr = sizeOf(m, focused ? 1.6 : 1.3);
+            ctx.globalAlpha = ra; ctx.fillStyle = m.color;
+            ctx.beginPath(); ctx.arc(m._px, m._py, rr, 0, 7); ctx.fill();
+            m._R = rr + 1;
+          } else if (m.kind === "scen") {
+            if (!showScen) { m._px = null; return; }
+            ctx.globalAlpha = alphaOf(m, 0.75);
+            diamond(m._px, m._py, sizeOf(m, focused ? 4.5 : 3.6), focused ? "#E4E5F5" : m.color, false);
+            m._R = 5;
+          } else if (m.kind === "dive") {
+            var s2 = sizeOf(m, focused ? 3.2 : 2.6);
+            ctx.globalAlpha = alphaOf(m, 1);
+            ctx.fillStyle = CXP.bg0; ctx.fillRect(m._px - s2, m._py - s2, s2 * 2, s2 * 2);
+            ctx.strokeStyle = m.color; ctx.lineWidth = 1.1;
+            if (m.dashed) ctx.setLineDash([2, 1.5]);
+            ctx.strokeRect(m._px - s2 + 0.5, m._py - s2 + 0.5, s2 * 2 - 1, s2 * 2 - 1); ctx.setLineDash([]);
+            m._R = s2 + 1;
+          }
+        });
+        // hub: ring, then the core
+        ctx.globalAlpha = a * 0.38; ctx.strokeStyle = CXP.accent2; ctx.lineWidth = 1;
+        if (n.dashed) ctx.setLineDash([3, 2.5]);
+        ctx.beginPath(); ctx.arc(n._px, n._py, hr + 3, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+        var cg = ctx.createRadialGradient(n._px, n._py, 0, n._px, n._py, hr);
+        cg.addColorStop(0, "#FFFFFF"); cg.addColorStop(0.38, "#DADBFF"); cg.addColorStop(1, CXP.accent);
+        ctx.globalAlpha = a; ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(n._px, n._py, hr, 0, 7); ctx.fill();
+        if (n === sel && !focused) { ctx.strokeStyle = CXP.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(n._px, n._py, hr + 7, 0, 7); ctx.stroke(); }
+        if (n === hi) { ctx.strokeStyle = CXP.accent2; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(n._px, n._py, hr + 10, 0, 7); ctx.stroke(); }
+      });
+
+      // 4. labels: signal names in the serif, then link/dive/company names by zoom
+      drawLabels(w, h, zoomF, hi, sel, anyFilter, isTL, isRad, ui);
       ctx.globalAlpha = 1;
 
-      if (pinned && pinned._px != null) {
-        card.innerHTML = cxHoverCard(pinned);
-        card.style.display = "block";
-        var r0 = canvas.getBoundingClientRect();
-        var lx = r0.left + pinned._px + 22, ly = r0.top + pinned._py - 30;
-        if (lx + 310 > innerWidth - 8) lx = r0.left + pinned._px - 322;
-        if (ly < 8) ly = 8; if (ly + 260 > innerHeight) ly = innerHeight - 268;
-        card.style.left = lx + "px"; card.style.top = ly + "px";
-      }
-      cxStatusLine(ctx, w, h, g);
-      if (zoomEl) zoomEl.textContent = "ZOOM " + T.k.toFixed(2) + "× · YAW " + Math.round(cam.yaw * 180 / Math.PI) % 360 + "°";
+      if (pinned && pinned._px != null) placeCard(cxHoverCard(pinned), canvas.getBoundingClientRect().left + pinned._px, canvas.getBoundingClientRect().top + pinned._py);
+      statusLine(w, h);
+      if (zoomEl) zoomEl.textContent = "ZOOM " + zoomF.toFixed(2) + "× · TURN " + (Math.round(cam.rot * 180 / Math.PI) % 360) + "°";
       raf = requestAnimationFrame(draw);
     }
 
-    function setRead(n) {
-      if (!readEl) return;
-      readEl.textContent = n ? (n.kind.toUpperCase() + " · " + (n.tip || n.label || "")) : "";
+    /* the focused radial: verdict arcs on the ring, spokes with the three factor bars,
+       names outside the ring, scenarios on the outer dotted ring, the chart title top-left */
+    function drawRadialFocus(n, a) {
+      var o = proj(0, 0), K = cam.k, R = n.radialR || 200, m = n.radialN || 1, hr = 24;
+      var links = cxRankedLinks(n.chain);
+      ctx.globalAlpha = a * 0.25; ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(o.x, o.y, R * K, 0, 7); ctx.stroke();
+      ctx.globalAlpha = a * 0.5; ctx.strokeStyle = "#33355A"; ctx.setLineDash([1, 5]);
+      ctx.beginPath(); ctx.arc(o.x, o.y, (R + 62) * K, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+      // which stretch of the ring is which heat
+      var seg = 0;
+      ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].forEach(function (v) {
+        var k = links.filter(function (l) { return (l.heat || {}).verdict === v; }).length;
+        if (!k) return;
+        var a0 = (-90 + 360 * seg / m - 180 / m + 2) * Math.PI / 180 + cam.rot, a1 = (-90 + 360 * (seg + k) / m - 180 / m - 2) * Math.PI / 180 + cam.rot;
+        ctx.globalAlpha = a * 0.55; ctx.strokeStyle = CXP.verd[v]; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(o.x, o.y, (R + 34) * K, a0, a1); ctx.stroke();
+        seg += k;
+      });
+      // spokes and factor bars
+      links.forEach(function (l, i) {
+        var th = (-90 + 360 * i / m) * Math.PI / 180 + cam.rot, c = Math.cos(th), s = Math.sin(th), px = -s, py = c;
+        ctx.globalAlpha = a * 0.16; ctx.strokeStyle = CXP.accent; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(o.x + (hr + 6) * c, o.y + (hr + 6) * s); ctx.lineTo(o.x + R * K * c, o.y + R * K * s); ctx.stroke();
+        CX_FACTORS.forEach(function (f, q) {
+          var v = cxScore(l, f[0]), off = (q - 1) * 4.2, r0 = (hr + 14), span = Math.max(40, R * K - hr - 60);
+          var x0 = o.x + r0 * c + px * off, y0 = o.y + r0 * s + py * off;
+          ctx.lineCap = "round"; ctx.lineWidth = 2.2;
+          ctx.globalAlpha = a * 0.06; ctx.strokeStyle = "#FFFFFF";
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + span * c, y0 + span * s); ctx.stroke();
+          if (v == null) return;   // an unscored leg keeps its empty track: that is the statement
+          ctx.globalAlpha = a * 0.9; ctx.strokeStyle = f[2];
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + span * v / 100 * c, y0 + span * v / 100 * s); ctx.stroke();
+        });
+        ctx.lineCap = "butt";
+      });
+      ctx.globalAlpha = 1;
+    }
+    function drawLabels(w, h, zoomF, hi, sel, anyFilter, isTL, isRad, ui) {
+      var lden = typeof CX_GAIN.labels === "number" ? CX_GAIN.labels : 1;
+      var sz = Math.min(1.5, Math.max(0.85, Math.sqrt(zoomF))) * (ui || 1);
+      var boxes = [];
+      function place(n, size, txt) {
+        // outward from the wheel at rest; toward the screen's centre once flown in, so a
+        // framed system's name never runs under the panel or off the edge
+        var right = zoomF > 1.3 ? n._px < cam.cx : n._px >= cam.cx;
+        var off = (n.sysR || 24) * cam.k + 12;
+        var lx = right ? n._px + off : n._px - off;
+        var wpx = size * 0.46 * txt.length + 6, hpx = size + 16;
+        return { right: right, lx: lx, ly: n._py, w: wpx, h: hpx };
+      }
+      // signals: serif names with a leader; boxes nudged apart on each side
+      var sigs = g.sigs.filter(function (n) { return n._px != null && !n._hid && n._px > -200 && n._px < w + 200 && n._py > -60 && n._py < h + 60; });
+      sigs.forEach(function (n) {
+        var focused = isRad && n === sel;
+        var size = (n.tier === "MAJOR" ? 21 : n.tier === "WATCH" ? 15.5 : 12.5) * sz;
+        var pri = n.tier === "MAJOR" ? 1 : n.tier === "WATCH" ? 0.7 : 0.4;
+        var show = n === hi || n === sel || (isRad ? false : pri >= 1 - lden) || (anyFilter && cxMatch(n));
+        if (isRad && (n === sel)) show = false;
+        // a phone-sized wheel names only its MAJOR signals until you zoom or pick one
+        if ((ui || 1) < 0.8 && zoomF < 1.6 && n.tier !== "MAJOR" && n !== sel && n !== hi) show = false;
+        n._lab = show && !focused ? place(n, size, n.label) : null;
+        if (n._lab) n._lab.size = size;
+      });
+      for (var it = 0; it < 30; it++) {
+        var moved = false, ls = sigs.filter(function (n) { return n._lab; }).sort(function (p, q) { return p._lab.ly - q._lab.ly; });
+        for (var i = 0; i < ls.length; i++) for (var j = i + 1; j < ls.length; j++) {
+          var A = ls[i]._lab, B = ls[j]._lab;
+          var ax0 = A.right ? A.lx : A.lx - A.w, ax1 = ax0 + A.w, bx0 = B.right ? B.lx : B.lx - B.w, bx1 = bx0 + B.w;
+          if (ax1 < bx0 - 4 || bx1 < ax0 - 4) continue;
+          var need = (A.h + B.h) / 2 + 2, gap = B.ly - A.ly;
+          if (gap < need) { var push = (need - gap) / 2; A.ly -= push; B.ly += push; moved = true; }
+        }
+        if (!moved) break;
+      }
+      sigs.forEach(function (n) {
+        var L = n._lab;
+        if (!L) return;
+        var a = (anyFilter && !cxMatch(n)) ? 0.15 : (hi && hi !== n && (hi.sig || hi) !== n ? 0.45 : 1);
+        if (isRad) a *= 0.35;
+        var col = n.tier === "LONG TAIL" ? "#B9BCD3" : CXP.ink;
+        var ex = n._px + (n._R + 3) * (L.right ? 1 : -1), kx = L.lx - (L.right ? 6 : -6);
+        ctx.globalAlpha = a * 0.3; ctx.strokeStyle = CXP.ink2; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(ex, n._py);
+        if (Math.abs(L.ly - n._py) > 1) { ctx.lineTo((ex + kx) / 2, n._py); ctx.lineTo(kx, L.ly); } else ctx.lineTo(kx, n._py);
+        ctx.stroke();
+        label(n.label, L.lx, L.ly, "italic 400 " + L.size.toFixed(1) + "px Newsreader, Georgia, serif", col, L.right ? "left" : "right", a);
+        label(n.sub, L.lx, L.ly + L.size * 0.5 + 8, "8.6px 'JetBrains Mono', monospace", CXP.ink3, L.right ? "left" : "right", a);
+      });
+      // links: named when zoomed in, when filtered to, when hovered, and always in the focused radial
+      var linkNames = zoomF > 6 || (lden > 0.9 && zoomF > 3.4);
+      var hiSys2 = hi ? (hi.kind === "sig" ? hi : hi.sig || null) : null;
+      g.nodes.forEach(function (n) {
+        if (n._px == null || n._hid) return;
+        var focused = isRad && n.sig === sel;
+        if (n.kind === "link") {
+          var near = zoomF > 1.3 && (n.sig === sel || n.sig === hiSys2);
+          if (!(focused || linkNames || near || n === hi || (anyFilter && cxMatch(n) && CX_FILTER.q))) return;
+          if (focused) return drawRadialLinkLabel(n);
+          var right = n.ringA > -90 && n.ringA < 90 || (n.ringA >= 270);
+          var c = Math.cos(n.ringA * Math.PI / 180), s = Math.sin(n.ringA * Math.PI / 180);
+          label(n.label, n._px + c * 9, n._py + s * 9, "500 10.5px Inter, sans-serif", CXP.ink2, c >= 0 ? "left" : "right", n === hi ? 1 : 0.85);
+        } else if (n.kind === "dive") {
+          var show = focused || (zoomF > 0.9 && (ui || 1) >= 0.8) || zoomF > 1.6 || n === hi;
+          if (!show) return;
+          var c2 = Math.cos((n.radialA != null && focused ? n.radialA : n.ringA) * Math.PI / 180);
+          label(n.label, n._px + (c2 >= 0 ? 7 : -7), n._py + (focused ? 11 : 0), "8.6px 'JetBrains Mono', monospace", n.color, c2 >= 0 ? "left" : "right", 0.95);
+        } else if (n.kind === "co") {
+          if (!(zoomF > 3 || n === hi)) return;
+          label(n.label, n._px + 4, n._py - 5, "8.5px 'JetBrains Mono', monospace", CXP.ink3, "left", 0.8);
+        } else if (n.kind === "scen") {
+          if (!(focused || zoomF > 2.4 || n === hi)) return;
+          var c3 = focused && n.radialA != null ? Math.cos(n.radialA * Math.PI / 180 + cam.rot) : 1;
+          label(n.label, n._px + (c3 >= -0.05 ? 9 : -9), n._py, "8.6px 'JetBrains Mono', monospace", CXP.ink2, c3 >= -0.05 ? "left" : "right", 0.9);
+        } else if (n.kind === "cand") {
+          if (!(n === hi || (anyFilter && CX_FILTER.q && cxMatch(n)) || zoomF > 2.6)) return;
+          label(n.label, n._px + 7, n._py, "italic 400 11.5px Newsreader, Georgia, serif", "#B7BAD3", "left", 0.9);
+        } else if (n.kind === "evt" && !isTL) {
+          if (!(n === hi || zoomF > 2.6)) return;
+          label(n.label, n._px + 8, n._py, "8.5px 'JetBrains Mono', monospace", CXP.ink3, "left", 0.9);
+        }
+      });
+      // the radial's chart title sits at the top-left of the free area
+      if (isRad && sel) {
+        var fr = freeRect();
+        label(sel.label, fr.x0 + 24, fr.y0 + 30, "italic 400 " + Math.round(30 * (ui || 1)) + "px Newsreader, Georgia, serif", CXP.ink, "left", 1);
+        var c4 = sel.chain;
+        label((c4.links || []).length + " LINKS RANKED BY HEAT · UNMAPPED " + num(sel.un, "?") + " · " + (sel.band ? sel.band.toUpperCase() + " " + Math.round(sel.imp) : "UNAPPRAISED") + " · " + (c4.scenarios || []).length + " SCENARIOS ON THE OUTER RING",
+              fr.x0 + 24, fr.y0 + 50, "9px 'JetBrains Mono', monospace", CXP.ink3, "left", 1);
+        var lg = fr.y1 - 14;
+        CX_FACTORS.forEach(function (f, q) {
+          ctx.globalAlpha = 1; ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(fr.x0 + 24 + q * 118, lg); ctx.lineTo(fr.x0 + 46 + q * 118, lg); ctx.stroke(); ctx.lineCap = "butt";
+          label(f[1], fr.x0 + 52 + q * 118, lg, "8.5px 'JetBrains Mono', monospace", CXP.ink2, "left", 1);
+        });
+      }
+    }
+    function drawRadialLinkLabel(n) {
+      var th = (n.radialA == null ? n.ringA : n.radialA) * Math.PI / 180 + cam.rot, c = Math.cos(th), s = Math.sin(th);
+      var o = proj(0, 0), R = (n.sig.radialR || 200) * cam.k;
+      var tx = o.x + (R + 30) * c, ty = o.y + (R + 30) * s, right = c >= -0.05, ax = right ? "left" : "right";
+      var name = n.label, lines = [], rest = name;
+      while (rest.length > 22 && lines.length < 2) {
+        var cut = rest.lastIndexOf(" ", 23);
+        if (cut <= 0) break;
+        lines.push(rest.slice(0, cut)); rest = rest.slice(cut + 1);
+      }
+      lines.push(rest);
+      var y0 = ty - (lines.length - 1) * 7;
+      lines.forEach(function (ln, q) { label(ln, tx, y0 + q * 14, "500 12px Inter, sans-serif", CXP.ink, ax, 1); });
+      var l = n.ref, tags = [];
+      if (n.choke) tags.push("CHOKE POINT");
+      if (n.money) tags.push("MONEY CORNER");
+      var sub = (n.verdict ? n.verdict.replace("_", " ") : "UNSCORED") + " · i" + num(cxScore(l, "impact")) + " c" + num(cxScore(l, "crowdedness")) + " v" + num(cxScore(l, "capture")) + (tags.length ? " · " + tags.join(" · ") : "");
+      label(sub, tx, y0 + (lines.length - 1) * 14 + 13, "8.6px 'JetBrains Mono', monospace", n.color, ax, 1);
+    }
+    function statusLine(w, h) {
+      var txt;
+      var sel = CX_MODE.sig ? g.byKey["sig:" + CX_MODE.sig] : null;
+      if (hover) txt = hover.kind.toUpperCase() + " · " + (hover.tip || hover.label || "");
+      else if (CX_MODE.phase === "radial" && sel) txt = "FOCUSED · " + sel.label.toUpperCase() + " · " + ((sel.chain || {}).links || []).length + " LINKS RANKED BY HEAT · BARS: IMPACT · CROWDEDNESS · CAPTURE · ESC TO CLEAR";
+      else if (CX_MODE.phase === "timeline") txt = "TIMELINE · DISTANCE FROM CENTRE = TIME FROM TODAY · PAST LEFT, FUTURE RIGHT · THE FEED IS THE LAST FORTNIGHT";
+      else if (CX_FILTER.fam) {
+        var sec = null;
+        g.sectors.forEach(function (s) { if (s.fam === CX_FILTER.fam) sec = s; });
+        txt = "FILTERED · " + CX_FILTER.fam + (sec ? " · " + sec.sigs + " SIGNALS · " + sec.heads + " HEADLINES" : "") + " · ESC TO CLEAR";
+      } else txt = "ANGLE = FAMILY · DISTANCE FROM CENTRE = HOW UNMAPPED · SIZE = MONEY REACHABLE · RING = ITS CHAIN, COLOURED BY HEAT";
+      if (readEl) readEl.textContent = txt;
     }
     function placeCard(html, cx2, cy2) {
       card.innerHTML = html;
@@ -4120,289 +3618,265 @@
       if (ly < 8) ly = 8;
       card.style.left = lx + "px"; card.style.top = ly + "px";
     }
-    function showCard(n, cx2, cy2) { placeCard(cxHoverCard(n), cx2, cy2); }
-    /* Hit-test the global radial's spoke bars: inside the bar's radial band and within
-       a few pixels of the nearest spoke's ray. Bars are drawn geometry, not nodes, so
-       pick() cannot see them. */
-    function pickSpoke(px2, py2) {
-      var H = CX_RADHIT;
-      if (!H || CX_MODE.phase !== "radial" || CX_MODE.morph < 0.95) return null;
-      var dx = px2 - H.cx, dy = py2 - H.cy, r = Math.sqrt(dx * dx + dy * dy);
-      if (r < H.r0 - 7 || r > H.r1 + 7) return null;
-      var ang = Math.atan2(dy, dx), best = null, bd = 1e9;
-      H.spokes.forEach(function (sp) {
-        var d = Math.abs(Math.atan2(Math.sin(ang - sp.a), Math.cos(ang - sp.a)));
-        if (d < bd) { bd = d; best = sp; }
-      });
-      return best && bd * r <= 9 ? best : null;
-    }
-    function touched() { CX_CACHE.touched = true; userView = true; CX_CACHE.userView = true; }
 
+    /* ---- selection, phases, chrome ---- */
+    function refreshOpps() {
+      var opps = document.getElementById("cxOpps");
+      if (opps) { opps.innerHTML = cxOppRows(); bindFly(opps); }
+      var ph = document.querySelector(".cx-phasectl");
+      if (ph) { ph.outerHTML = cxPhaseCtl(); bindPhase(); }
+    }
+    function showInspector() {
+      var host = document.getElementById("cxInspHost");
+      if (!host) return;
+      host.innerHTML = CX_MODE.sig ? cxInspectorHTML(CX_MODE.sig) : "";
+      bindFly(host);
+      host.querySelectorAll("[data-cxopen]").forEach(function (b) {
+        b.addEventListener("click", function () { cxShowDrawer(cortexDrawer("sig", b.getAttribute("data-cxopen"))); });
+      });
+      var x = document.getElementById("cxInspClose");
+      if (x) x.addEventListener("click", function () { clearSel(); });
+    }
+    function selectSig(id, opts) {
+      opts = opts || {};
+      var n = g.byKey["sig:" + id];
+      if (!n) return;
+      var same = CX_MODE.sig === id;
+      CX_MODE.sig = id;
+      if (CX_MODE.phase === "radial") {
+        if (!n.chain) CX_MODE.phase = "network";
+        phaseSeated = null; seatPhase();
+        if (CX_MODE.phase === "radial") camHome(); else flyToSig(n);
+      } else if (!opts.noFly) flyToSig(n);
+      pinned = null; card.style.display = "none";
+      showInspector(); refreshOpps();
+      if (same && opts.toggle) { clearSel(); }
+    }
+    function clearSel() {
+      CX_MODE.sig = null;
+      if (CX_MODE.phase === "radial") CX_MODE.phase = "network";
+      phaseSeated = null; seatPhase();
+      showInspector(); refreshOpps(); camHome();
+    }
+    function setPhase(ph) {
+      if (ph === "radial") {
+        var sig = CX_MODE.sig ? g.byKey["sig:" + CX_MODE.sig] : null;
+        if (!sig || !sig.chain) {
+          // no chained selection: the radial opens on the top-ranked chained signal
+          var top = null;
+          g.sigs.forEach(function (n) { if (!top && n.chain) top = n; });
+          if (!top) return;
+          CX_MODE.sig = top.id;
+        }
+      }
+      CX_MODE.phase = ph;
+      phaseSeated = null; seatPhase();
+      pinned = null; card.style.display = "none";
+      showInspector(); refreshOpps(); camHome();
+    }
+    function bindFly(scope) {
+      scope.querySelectorAll("[data-cxfly]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var key = b.getAttribute("data-cxfly");
+          if (key.indexOf("sig:") === 0) selectSig(key.slice(4));
+        });
+      });
+    }
+    function bindPhase() {
+      document.querySelectorAll("[data-cxphase]").forEach(function (b) {
+        b.addEventListener("click", function () { setPhase(b.getAttribute("data-cxphase")); });
+      });
+    }
+    bindPhase();
+    var panel = document.getElementById("cxPanel");
+    if (panel) bindFly(panel);
+    showInspector();
+    var mBtn = document.getElementById("cxMachineBtn");
+    if (mBtn) mBtn.addEventListener("click", function () {
+      var more = document.getElementById("cxMachineMore");
+      if (!more) return;
+      var open = more.hasAttribute("hidden");
+      if (open) more.removeAttribute("hidden"); else more.setAttribute("hidden", "");
+      mBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      mBtn.querySelector(".dim").textContent = open ? "registers · less ▴" : "registers · more ▾";
+    });
+    // view popover: what shows and how big (bound once; sliders keep their positions)
+    var vBtn = document.getElementById("cxViewBtn"), vPop = document.getElementById("cxViewPop");
+    if (vBtn && vPop) {
+      vBtn.addEventListener("click", function () {
+        var open = vPop.hasAttribute("hidden");
+        if (open) vPop.removeAttribute("hidden"); else vPop.setAttribute("hidden", "");
+        vBtn.setAttribute("aria-expanded", open ? "true" : "false"); vBtn.classList.toggle("on", open);
+      });
+      vPop.querySelectorAll("[data-cxk]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var k = b.getAttribute("data-cxk");
+          CX_FILTER.kinds[k] = CX_FILTER.kinds[k] === false;
+          b.classList.toggle("off", CX_FILTER.kinds[k] === false);
+        });
+      });
+      vPop.querySelectorAll("[data-cxgain]").forEach(function (sl) {
+        sl.addEventListener("input", function () {
+          var k = sl.getAttribute("data-cxgain"), v = parseFloat(sl.value);
+          if (isNaN(v)) return;
+          CX_GAIN[k] = v;
+          var el = document.getElementById("cxgv-" + k);
+          if (el) el.textContent = "×" + v.toFixed(2);
+          cxSaveGain();
+        });
+      });
+      var gRst = document.getElementById("cxGainReset");
+      if (gRst) gRst.addEventListener("click", function () {
+        Object.keys(CX_GAIN_DEF).forEach(function (k) { CX_GAIN[k] = CX_GAIN_DEF[k]; });
+        CX_FILTER.kinds = {}; CX_FILTER.fam = null; CX_FILTER.q = "";
+        var si0 = document.getElementById("cxSearch"); if (si0) si0.value = "";
+        vPop.querySelectorAll("[data-cxk]").forEach(function (x) { x.classList.remove("off"); });
+        vPop.querySelectorAll("[data-cxgain]").forEach(function (sl) {
+          var k = sl.getAttribute("data-cxgain"); sl.value = CX_GAIN[k];
+          var el = document.getElementById("cxgv-" + k); if (el) el.textContent = "×" + CX_GAIN[k].toFixed(2);
+        });
+        cxSaveGain(); camHome();
+      });
+    }
+    var si = document.getElementById("cxSearch");
+    if (si) {
+      si.addEventListener("input", function () { CX_FILTER.q = si.value.trim().toLowerCase(); });
+      si.addEventListener("keydown", function (e) { if (e.key === "Escape") { si.value = ""; CX_FILTER.q = ""; si.blur(); } });
+    }
+    document.querySelectorAll("[data-crot]").forEach(function (b) {
+      b.addEventListener("click", function () { cam.rot += parseInt(b.getAttribute("data-crot"), 10) * Math.PI / 12; });
+    });
+
+    /* ---- pointer ---- */
+    function rimPick(px, py) {
+      for (var i = 0; i < rimHits.length; i++) {
+        var r = rimHits[i];
+        if (Math.abs(r.x - px) < r.r && Math.abs(r.y - py) < 12) return r;
+      }
+      return null;
+    }
     canvas.addEventListener("mousemove", function (e) {
       var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
       if (drag) {
         drag.moved += Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0);
-        var B = camBasis(), s = drag.n._s || T.k;
-        var wx = (B.rx * (e.movementX || 0) + B.ux * (e.movementY || 0)) / s;
-        var wy = (B.ry * (e.movementX || 0) + B.uy * (e.movementY || 0)) / s;
-        drag.n.fx = (drag.n.fx == null ? drag.n.x : drag.n.fx) + wx;
-        drag.n.fy = (drag.n.fy == null ? drag.n.y : drag.n.fy) + wy;
-        return;
-      }
-      if (orbit) {
-        cam.yaw = orbit.yaw0 + (e.clientX - orbit.sx) * 0.005;
-        cam.pitch = Math.max(-1.4, Math.min(1.4, orbit.pitch0 - (e.clientY - orbit.sy) * 0.005));
-        return;
-      }
-      if (panMove) {
-        var B2 = camBasis(), sc = T.k;
-        cam.tx = panMove.tx0 - (B2.rx * (e.clientX - panMove.sx) + B2.ux * (e.clientY - panMove.sy)) / sc;
-        cam.ty = panMove.ty0 - (B2.ry * (e.clientX - panMove.sx) + B2.uy * (e.clientY - panMove.sy)) / sc;
-        cam.tz = panMove.tz0 - (B2.rz * (e.clientX - panMove.sx) + B2.uz * (e.clientY - panMove.sy)) / sc;
+        var c = Math.cos(-cam.rot), s = Math.sin(-cam.rot);
+        var dx = -(e.movementX || 0) / cam.k, dy = -(e.movementY || 0) / cam.k;
+        cam.tx += dx * c - dy * s; cam.ty += dx * s + dy * c;
         return;
       }
       hover = pick(px, py);
-      var spoke = hover ? null : pickSpoke(px, py);
-      canvas.style.cursor = hover ? "pointer" : spoke ? "default" : "grab";
-      setRead(hover || focus);
-      if (hover) { pinned = null; showCard(hover, e.clientX, e.clientY); }
-      else if (spoke) { pinned = null; placeCard(cxSpokeCard(spoke.id), e.clientX, e.clientY); }
+      var rim = hover ? null : (CX_MODE.phase === "network" ? rimPick(px, py) : null);
+      canvas.style.cursor = hover || rim ? "pointer" : "grab";
+      if (hover) { pinned = null; placeCard(cxHoverCard(hover), e.clientX, e.clientY); }
       else if (!pinned) card.style.display = "none";
     });
     canvas.addEventListener("mousedown", function (e) {
-      touched(); pinned = null;
-      var r = canvas.getBoundingClientRect();
-      var n = pick(e.clientX - r.left, e.clientY - r.top);
-      if (n && n.kind !== "dust" && !n.socket && !e.shiftKey) {
-        drag = { n: n, t0: Date.now(), moved: 0, alt: e.altKey };
-        n.fx = n.x; n.fy = n.y;
-        sim.alphaTarget(0.3).alpha(Math.max(sim.alpha(), 0.12));
-      } else if (n) {
-        drag = { n: n, t0: Date.now(), moved: 0, tapOnly: true };
-      } else if (e.shiftKey) {
-        panMove = { sx: e.clientX, sy: e.clientY, tx0: cam.tx, ty0: cam.ty, tz0: cam.tz };
-        canvas.style.cursor = "move";
-      } else {
-        orbit = { sx: e.clientX, sy: e.clientY, yaw0: cam.yaw, pitch0: cam.pitch };
-        canvas.style.cursor = "grabbing";
-      }
+      pinned = null; fly = null;
+      drag = { t0: Date.now(), moved: 0, sx: e.clientX, sy: e.clientY };
+      canvas.style.cursor = "grabbing";
     });
-    function endDrag() {
-      if (drag) {
-        var quick = (Date.now() - drag.t0) < 500 && drag.moved < 6;
-        var n = drag.n;
-        if (!drag.tapOnly) {
-          sim.alphaTarget(0);
-          if (drag.alt) { n.pinned = true; } else { n.fx = null; n.fy = null; n.pinned = false; }
-        }
-        if (quick) {
-          card.style.display = "none";
-          // a chained signal unfolds into its own ranking; everything else opens its record
-          if (n.kind === "sig" && (n.ref || {}).chain_id && CX_MODE.phase !== "radial") enterRadial(n.id);
-          else cxShowDrawer(cxNodeDrawer(n));
-        }
-        drag = null;
+    function endDrag(e) {
+      if (!drag) return;
+      var quick = (Date.now() - drag.t0) < 500 && drag.moved < 6;
+      drag = null; canvas.style.cursor = "grab";
+      if (!quick || !e) return;
+      var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+      var n = pick(px, py);
+      card.style.display = "none";
+      if (n) {
+        if (n.kind === "sig") {
+          if (e.detail >= 2) { cxShowDrawer(cortexDrawer("sig", n.id)); return; }
+          selectSig(n.id, { toggle: true });
+        } else cxShowDrawer(cxNodeDrawer(n));
+        return;
       }
-      orbit = null; panMove = null;
-      canvas.style.cursor = "grab";
+      var rim = CX_MODE.phase === "network" ? rimPick(px, py) : null;
+      if (rim) {
+        CX_FILTER.fam = CX_FILTER.fam === rim.fam ? null : rim.fam;
+        if (CX_FILTER.fam) {
+          var pts = [];
+          g.nodes.forEach(function (m) { if ((m.kind === "sig" || m.kind === "cand") && cxMatch(m) && m._px != null) pts.push({ x: m.x, y: m.y }); });
+          if (pts.length) flyToFit(pts, 140); else camHome();
+        } else camHome();
+      }
     }
     canvas.addEventListener("mouseup", endDrag);
-    canvas.addEventListener("mouseleave", function () {
-      endDrag(); hover = null; if (!pinned) card.style.display = "none"; setRead(focus);
-    });
+    canvas.addEventListener("mouseleave", function () { drag = null; hover = null; if (!pinned) card.style.display = "none"; canvas.style.cursor = "grab"; });
     canvas.addEventListener("wheel", function (e) {
-      e.preventDefault(); touched(); pinned = null;
+      e.preventDefault(); pinned = null; fly = null;
+      var r = canvas.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
       var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1);
-      cam.dist = Math.max(CX_F / 4, Math.min(3600, cam.dist * Math.pow(1.0015, dy)));
+      var before = unproj(px, py);
+      var k0 = CX_CACHE.k0 || cam.k;
+      cam.k = Math.max(k0 * 0.5, Math.min(k0 * 14, cam.k * Math.pow(1.0015, -dy)));
+      var after = unproj(px, py);
+      cam.tx += before.x - after.x; cam.ty += before.y - after.y;   // zoom toward the cursor
     }, { passive: false });
+    // touch: one finger pans, a tap opens, two fingers pinch
+    var touch = null;
+    canvas.addEventListener("touchstart", function (e) {
+      if (e.touches.length === 1) { var t0 = e.touches[0]; touch = { x: t0.clientX, y: t0.clientY, t: Date.now(), moved: 0 }; }
+      else if (e.touches.length === 2) { var a = e.touches[0], b = e.touches[1]; touch = { pinch: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), k: cam.k }; }
+    }, { passive: true });
+    canvas.addEventListener("touchmove", function (e) {
+      if (!touch) return;
+      e.preventDefault();
+      if (e.touches.length === 2 && touch.pinch) {
+        var a = e.touches[0], b = e.touches[1], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        var k0 = CX_CACHE.k0 || cam.k;
+        cam.k = Math.max(k0 * 0.5, Math.min(k0 * 14, touch.k * d / touch.pinch));
+        return;
+      }
+      var t0 = e.touches[0], mx = t0.clientX - touch.x, my = t0.clientY - touch.y;
+      touch.moved += Math.abs(mx) + Math.abs(my);
+      var c = Math.cos(-cam.rot), s = Math.sin(-cam.rot), dx = -mx / cam.k, dy = -my / cam.k;
+      cam.tx += dx * c - dy * s; cam.ty += dx * s + dy * c;
+      touch.x = t0.clientX; touch.y = t0.clientY;
+    }, { passive: false });
+    canvas.addEventListener("touchend", function (e) {
+      if (!touch || touch.pinch || touch.moved > 8 || Date.now() - touch.t > 500) { touch = null; return; }
+      var r = canvas.getBoundingClientRect(), n = pick(touch.x - r.left, touch.y - r.top);
+      touch = null;
+      if (!n) return;
+      if (n.kind === "sig") selectSig(n.id, { toggle: true }); else cxShowDrawer(cxNodeDrawer(n));
+    });
     canvas.addEventListener("keydown", function (e) {
-      var order2 = g.nodes.filter(function (n) { return n.kind !== "dust"; }).sort(function (a, b) {
-        return (CX_ORDER[a.kind] - CX_ORDER[b.kind]) || (a.x - b.x);
-      });
+      var k0 = CX_CACHE.k0 || cam.k;
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-        e.preventDefault(); touched();
-        var idx = focus ? order2.indexOf(focus) : -1;
-        idx = (idx + (e.key === "ArrowRight" ? 1 : -1) + order2.length) % order2.length;
-        focus = order2[idx]; setRead(focus);
-      } else if (e.key === "Enter" || e.key === " ") {
-        if (focus) { e.preventDefault(); cxShowDrawer(cxNodeDrawer(focus)); }
-      } else if (e.key === "h" || e.key === "H") { e.preventDefault(); cxToggleUI(); }
-      else if (e.key === "q" || e.key === "Q") { e.preventDefault(); touched(); cam.yaw -= Math.PI / 30; }
-      else if (e.key === "e" || e.key === "E") { e.preventDefault(); touched(); cam.yaw += Math.PI / 30; }
-      else if (e.key === "+" || e.key === "=" ) { e.preventDefault(); touched(); cam.dist = Math.max(CX_F / 4, cam.dist * 0.8); }
-      else if (e.key === "-") { e.preventDefault(); touched(); cam.dist = Math.min(3600, cam.dist * 1.25); }
-      else if (e.key === "0" || e.key === "r" || e.key === "R") {
         e.preventDefault();
-        cam = cxCam(g, canvas.clientWidth, canvas.clientHeight); cam.tx = gc.x; cam.ty = gc.y;
-        userView = false; CX_CACHE.userView = false; pinned = null; sim.alpha(0.2);
-      } else if (e.key === "Escape") {
-        focus = null; pinned = null; card.style.display = "none"; setRead(null);
-        // one level at a time: the signal radial, then the family, then the bare field
-        if (CX_MODE.sig) { CX_MODE.sig = null; CX_MODE.phase = "network"; refreshChrome(); }
-        else if (CX_MODE.phase === "radial") { CX_MODE.phase = "network"; refreshChrome(); }
-        else if (CX_FILTER.fam) { CX_FILTER.fam = null; refreshChrome(); camHome(); }
+        var ranked = cxRanked().map(function (s) { return s.id; });
+        var idx = CX_MODE.sig ? ranked.indexOf(CX_MODE.sig) : -1;
+        idx = (idx + (e.key === "ArrowRight" ? 1 : -1) + ranked.length) % ranked.length;
+        selectSig(ranked[idx]);
+      } else if (e.key === "Enter" || e.key === " ") {
+        if (CX_MODE.sig) { e.preventDefault(); cxShowDrawer(cortexDrawer("sig", CX_MODE.sig)); }
+      } else if (e.key === "h" || e.key === "H") { e.preventDefault(); cxToggleUI(); }
+      else if (e.key === "q" || e.key === "Q") { e.preventDefault(); cam.rot -= Math.PI / 12; }
+      else if (e.key === "e" || e.key === "E") { e.preventDefault(); cam.rot += Math.PI / 12; }
+      else if (e.key === "+" || e.key === "=") { e.preventDefault(); cam.k = Math.min(k0 * 14, cam.k * 1.25); }
+      else if (e.key === "-") { e.preventDefault(); cam.k = Math.max(k0 * 0.5, cam.k * 0.8); }
+      else if (e.key === "0" || e.key === "r" || e.key === "R") { e.preventDefault(); cam.rot = 0; camHome(); }
+      else if (e.key === "Escape") {
+        pinned = null; card.style.display = "none";
+        // one level at a time: the radial, then the selection, then the family filter, then home
+        if (CX_MODE.phase === "radial") setPhase("network");
+        else if (CX_MODE.sig) clearSel();
+        else if (CX_FILTER.fam) { CX_FILTER.fam = null; camHome(); }
+        else if (CX_MODE.phase === "timeline") setPhase("network");
+        else camHome();
       }
     });
-
-    // opportunities register: fly the camera to a ranked node
-    document.querySelectorAll("[data-cxfly]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var n = g.byKey[b.getAttribute("data-cxfly")];
-        if (n) flyTo(n);
-      });
-    });
-    // filter rail wiring (state lives in CX_FILTER; rail re-renders per view)
-    function bindRail() {
-    document.querySelectorAll("[data-cxk]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var k = b.getAttribute("data-cxk");
-        CX_FILTER.kinds[k] = CX_FILTER.kinds[k] === false;
-        b.classList.toggle("off", CX_FILTER.kinds[k] === false);
-      });
-    });
-    document.querySelectorAll("[data-cxchain]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var c = b.getAttribute("data-cxchain");
-        CX_FILTER.chain = CX_FILTER.chain === c ? null : c;
-        document.querySelectorAll("[data-cxchain]").forEach(function (x) { x.classList.toggle("on", x.getAttribute("data-cxchain") === CX_FILTER.chain); });
-        // narrowing to a section is only useful if you can read it: fly in, or fly back out
-        if (CX_FILTER.chain) {
-          // frame the chain's own structure. Its screened names and dives are seated
-          // across the width of the field, and including them frames everything, which
-          // is the same as framing nothing.
-          var SECT = { sig: 1, chain: 1, link: 1, scen: 1 };
-          var sect = g.nodes.filter(function (n2) { return SECT[n2.kind] && cxMatch(n2); });
-          flyToFit(sect, g.byKey["chain:" + CX_FILTER.chain]);
-        } else camHome();
-      });
-    });
-    function enterRadial(sigId) {
-      CX_MODE.sig = CX_MODE.sig === sigId ? null : sigId;
-      CX_MODE.phase = CX_MODE.sig ? "radial" : "network";
-      focus = null; pinned = null; card.style.display = "none";
-      refreshChrome();
-    }
-    function refreshChrome() {
-      var top = document.querySelector(".cx-toprail");
-      if (top) top.outerHTML = cxTopRail();
-      var opp = document.querySelector(".cx-rail-l");
-      if (opp) { opp.innerHTML = cxOppRail() + cxFilterRail() + cxRailLeft(); bindRail(); }
-      var ph = document.querySelector(".cx-phase");
-      if (ph) ph.outerHTML = cxPhaseBar();
-      bindChrome();
-    }
-    function bindChrome() {
-      document.querySelectorAll(".cx-toprail [data-cxfam]").forEach(function (b) {
-        b.addEventListener("click", function () {
-          var f = b.getAttribute("data-cxfam");
-          CX_FILTER.fam = (!f || CX_FILTER.fam === f) ? null : f;
-          if (!CX_FILTER.fam) { CX_MODE.sig = null; CX_MODE.phase = "network"; }
-          refreshChrome();
-          // the click narrows AND focuses: fly to the family's members (signals, their
-          // chains, ambient candidates), or back out to the whole field on clear
-          if (CX_FILTER.fam) {
-            // the click makes a focal point, not just a filter: fly to the family's
-            // strongest member. Fitting every member is honest but useless here — a
-            // family's signals are laid out by time, so their fit is nearly the whole
-            // field and the camera barely moves. Its prioritized #1 IS its focal point;
-            // the sub-rail lists the rest. Memberless family: focus its halo arc.
-            var focal = null, bestUn = -2;
-            g.nodes.forEach(function (n2) {
-              if (n2.kind !== "sig" || !cxMatch(n2)) return;
-              var u2 = ((n2.ref || {}).unmappedness || {}).score;
-              if ((u2 == null ? -1 : u2) > bestUn) { bestUn = u2 == null ? -1 : u2; focal = n2; }
-            });
-            if (!focal) g.nodes.forEach(function (n2) {
-              if (!focal && n2.kind === "cand" && cxMatch(n2)) focal = n2;
-            });
-            if (focal) flyTo(focal, 1050);
-            else {
-              var arc = g.ring && g.ring.arcs && g.ring.arcs[CX_FILTER.fam];
-              var arcPts = [];
-              if (arc) for (var ai = 0; ai <= 6; ai++) {
-                var aa = arc.a0 + (arc.a1 - arc.a0) * (ai / 6);
-                var rr2 = g.ring.r0 + g.ring.band * 0.5;
-                arcPts.push({ x: g.ring.cx + rr2 * Math.cos(aa), y: g.ring.cy + rr2 * Math.sin(aa) * 0.92, z: 0 });
-              }
-              if (arcPts.length) flyToFit(arcPts, null);
-            }
-          } else camHome();
-        });
-      });
-      document.querySelectorAll("[data-cxradial]").forEach(function (b) {
-        b.addEventListener("click", function () { enterRadial(b.getAttribute("data-cxradial")); });
-      });
-      document.querySelectorAll("[data-cxphase]").forEach(function (b) {
-        b.addEventListener("click", function () {
-          if (b.hasAttribute("disabled")) return;
-          var ph = b.getAttribute("data-cxphase");
-          if (ph === "timeline") {
-            // timeline is the network phase in its flat time layout
-            touched();                              // stop the idle drift fighting the view
-            CX_MODE.phase = "network"; CX_TL_MODE = true; CX_TL_K0 = null;
-            viewTween = { yaw: 0, pitch: 0 };       // face-on: the flat rings are the read-out
-          } else {
-            if (CX_TL_MODE && ph === "network") viewTween = { yaw: -0.45, pitch: -0.22 };
-            CX_TL_MODE = false;
-            CX_MODE.phase = ph;
-          }
-          refreshChrome();
-        });
-      });
-      document.querySelectorAll(".cx-toprail [data-cxfly]").forEach(function (b) {
-        b.addEventListener("click", function () {
-          var n2 = g.byKey[b.getAttribute("data-cxfly")];
-          if (n2) { CX_MODE.phase = "network"; refreshChrome(); flyTo(n2); }
-        });
-      });
-    }
-    bindChrome();
-    // gauge rail: bound once — refreshChrome never rebuilds it, so the sliders keep
-    // their positions and these listeners never stack
-    function syncGaugeUI() {
-      document.querySelectorAll("[data-cxgain]").forEach(function (sl) {
-        var k = sl.getAttribute("data-cxgain");
-        sl.value = CX_GAIN[k];
-        var el = document.getElementById("cxgv-" + k);
-        if (el) el.textContent = "×" + CX_GAIN[k].toFixed(2);
-      });
-    }
-    document.querySelectorAll("[data-cxgain]").forEach(function (sl) {
-      sl.addEventListener("input", function () {
-        var k = sl.getAttribute("data-cxgain"), v = parseFloat(sl.value);
-        if (isNaN(v)) return;
-        CX_GAIN[k] = v;
-        var el = document.getElementById("cxgv-" + k);
-        if (el) el.textContent = "×" + v.toFixed(2);
-        cxSaveGain();
-      });
-    });
-    var gRst = document.getElementById("cxGainReset");
-    if (gRst) gRst.addEventListener("click", function () {
-      Object.keys(CX_GAIN_DEF).forEach(function (k) { CX_GAIN[k] = CX_GAIN_DEF[k]; });
-      syncGaugeUI(); cxSaveGain();
-    });
-    var cxReset = document.getElementById("cxFReset");
-    if (cxReset) cxReset.addEventListener("click", function () {
-      CX_FILTER = { kinds: {}, chain: null, fam: null, q: "" };
-      CX_MODE.sig = null; CX_MODE.phase = "network";
-      refreshChrome();
-      var si0 = document.getElementById("cxSearch"); if (si0) si0.value = "";
-      document.querySelectorAll("[data-cxk]").forEach(function (x) { x.classList.remove("off"); });
-      document.querySelectorAll("[data-cxchain],[data-cxfam]").forEach(function (x) { x.classList.remove("on"); });
-    });
-    var si = document.getElementById("cxSearch");
-    if (si) {
-      si.value = CX_FILTER.q;
-      si.addEventListener("input", function () { CX_FILTER.q = si.value.trim().toLowerCase(); });
-    }
-    }
-    bindRail();
-    document.querySelectorAll("[data-crot]").forEach(function (b) {
-      b.addEventListener("click", function () { touched(); cam.yaw += parseInt(b.getAttribute("data-crot"), 10) * Math.PI / 12; });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target || {};
+      if (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable) return;
+      if (!document.getElementById("cxFull")) return;
+      var s2 = document.getElementById("cxSearch");
+      if (s2) { e.preventDefault(); s2.focus(); }
     });
     raf = requestAnimationFrame(draw);
   }
+
   function cortexDrawer(kind, id) {
     if (kind === "sig") {
       var sg = byId(D.signals, id);

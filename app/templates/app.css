@@ -480,167 +480,6 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
   .campaign-theme-head { align-items: baseline; }
 }
 
-/* ---------------- cortex ---------------- */
-/* The map IS the page: the field fills the viewport and every piece of interface
-   floats over it, hideable in one keystroke. It commits to its own dark ground in
-   every theme, because it is a map, not a card. */
-body.cortex-page { overflow: hidden; }
-body.cortex-page .topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 6;
-  background: rgba(8, 8, 13, 0.72); backdrop-filter: blur(12px);
-  border-bottom: 1px solid #16161f; color: #dde0ef;
-}
-body.cortex-page .topbar .wordmark { color: #dde0ef; }
-body.cortex-page .topbar .nav a { color: #6e7288; }
-body.cortex-page .topbar .nav a:hover, body.cortex-page .topbar .nav a.on { color: #fff; background: #1b1b28; }
-body.cortex-page .topbar .tb-chip { background: rgba(20, 20, 29, 0.8); border-color: #232332; color: #9296ad; }
-body.cortex-page .topbar .tb-btn { color: #6e7288; }
-body.cortex-page .topbar .tb-btn:hover { color: #fff; background: #1b1b28; }
-body.cx-ui-hidden .topbar { display: none; }
-
-.cxfull { position: fixed; inset: 0; z-index: 1; background: #08080d; }
-.cxfull .cx-stage { position: absolute; inset: 0; }
-.cx-stage canvas { display: block; width: 100%; height: 100%; outline: none; cursor: grab; }
-
-/* left overlay: title, info button, ranked opportunities, filters, registers */
-/* --cx-top is measured from the real topbar at runtime: it wraps to ~109px on a phone,
-   and chrome pinned to a hardcoded 64px hides underneath it. */
-.cx-ovl-left {
-  position: absolute; z-index: 4; left: 12px; top: var(--cx-top, 64px); bottom: 52px; width: 208px;
-  display: flex; flex-direction: column; min-height: 0;
-  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
-  border: 1px solid #1b1b26; border-radius: 12px;
-}
-.cx-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none;
-  padding: 9px 10px 8px; border-bottom: 1px solid #16161f;
-}
-.cx-head .cx-title {
-  font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
-  letter-spacing: .18em; color: #dde0ef;
-}
-.cx-rail-l { flex: 1; min-height: 0; overflow: hidden auto; padding: 10px 11px 12px; }
-.cx-note {
-  flex: none; padding: 6px 11px 7px; border-top: 1px solid #16161f;
-  font-family: "JetBrains Mono", monospace; font-size: 8px; line-height: 1.5;
-  letter-spacing: .04em; text-transform: uppercase; color: #43465a;
-}
-.cx-rail-l, .cx-strip {
-  font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7;
-  letter-spacing: .04em; color: #585c72; text-transform: uppercase;
-}
-.cxfull .cx-strip {
-  position: absolute; z-index: 4; left: 12px; right: 12px; bottom: 12px; height: 30px;
-  display: flex; align-items: center; gap: 16px; padding: 0 13px; overflow: hidden;
-  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
-  border: 1px solid #1b1b26; border-radius: 9px;
-}
-.cx-strip .cx-read { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9296ad; }
-.cx-strip .cx-s1 { color: #dde0ef; }
-.cx-uibtn {
-  position: absolute; z-index: 7; top: var(--cx-top, 64px); right: 12px; cursor: pointer;
-  background: rgba(11, 11, 17, 0.74); backdrop-filter: blur(10px);
-  border: 1px solid #232332; border-radius: 999px; padding: 5px 11px;
-  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .1em;
-  color: #6e7288;
-}
-.cx-uibtn:hover { color: #dde0ef; border-color: #35354a; }
-.cx-uibtn:focus-visible { outline: 1px solid #8687f0; }
-.cxfull.ui-hidden .cx-ovl-left,
-.cxfull.ui-hidden .cx-strip,
-.cxfull.ui-hidden .cx-toprail,
-.cxfull.ui-hidden .cx-phase,
-.cxfull.ui-hidden .cx-gaugerail,
-.cxfull.ui-hidden .cxinfo { display: none; }
-.cxfull.ui-hidden .cx-uibtn { top: 12px; opacity: .35; }
-.cxfull.ui-hidden .cx-uibtn:hover { opacity: 1; }
-.cxfull .cxinfo {
-  position: absolute; z-index: 5; left: 232px; top: var(--cx-top, 64px); width: min(46ch, calc(100vw - 300px));
-  margin: 0; background: rgba(11, 11, 17, 0.92); backdrop-filter: blur(10px);
-  border: 1px solid #232332; border-radius: 10px; color: #9296ad; font-size: 12.5px;
-}
-.cx-brackets { position: absolute; inset: 8px; pointer-events: none; }
-.cx-brackets i { position: absolute; width: 18px; height: 18px; }
-.cx-brackets i:nth-child(1) { top: 0; left: 0; border-top: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
-.cx-brackets i:nth-child(2) { top: 0; right: 0; border-top: 1px solid #2c2c3d; border-right: 1px solid #2c2c3d; }
-.cx-brackets i:nth-child(3) { bottom: 0; left: 0; border-bottom: 1px solid #2c2c3d; border-left: 1px solid #2c2c3d; }
-.cx-brackets i:nth-child(4) { bottom: 0; right: 0; border-bottom: 1px solid #2c2c3d; border-right: 1px solid #2c2c3d; }
-.cx-grp { color: #3e4258; margin: 12px 0 4px; padding-bottom: 3px; border-bottom: 1px solid #16161f; }
-.cx-grp:first-child { margin-top: 0; }
-.cx-reg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.cx-reg .v { color: #dde0ef; font-variant-numeric: tabular-nums; }
-.cx-reg .v.dim { color: #585c72; }
-.cx-bar { height: 2px; margin: 1px 0 3px; background: #16161f; }
-.cx-bar i { display: block; height: 2px; }
-.cx-ev { padding: 5px 0; border-bottom: 1px solid #12121a; cursor: default; }
-.cx-ev .t { color: #9296ad; }
-.cx-ev .k { font-weight: 600; }
-.cx-ev .s { display: block; color: #4c5065; text-transform: none; letter-spacing: 0; font-size: 9.5px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-@media (max-width: 860px) {
-  .cx-ovl-left { width: 178px; bottom: 48px; }
-  .cxfull .cxinfo { left: 12px; right: 12px; top: auto; bottom: 52px; width: auto; }
-}
-@media (max-width: 620px) {
-  /* a phone has no room for a side rail beside the field: it becomes a bottom sheet,
-     and the field keeps everything above it */
-  .cx-ovl-left { left: 10px; right: 10px; width: auto; top: auto; bottom: 50px; max-height: 42vh; }
-  .cxfull .cx-strip { left: 10px; right: 10px; bottom: 10px; }
-}
-/* cortex v4: hover card, filters, rotation controls */
-.cxcard {
-  position: fixed; z-index: 60; display: none; pointer-events: none;
-  width: 300px; max-width: 42vw; background: #12121a; border: 1px solid #262635;
-  border-radius: 8px; padding: 11px 13px 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.55);
-  color: #dde0ef;
-}
-.cxcard .hd { display: flex; align-items: center; gap: 7px; margin-bottom: 4px;
-  font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #585c72; }
-.cxcard .pip { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-.cxcard .tt { font-family: "Baloo 2", "Inter", sans-serif; font-weight: 600; font-size: 14.5px;
-  line-height: 1.25; margin-bottom: 6px; }
-.cxcard .bd { font: 11.5px/1.45 Inter, sans-serif; color: #9296ad; margin-bottom: 7px; }
-.cxcard .bd.dim { color: #585c72; }
-.cxcard .r { display: flex; justify-content: space-between; gap: 10px;
-  font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7; color: #9296ad; }
-.cxcard .r .k { color: #585c72; text-transform: uppercase; letter-spacing: 0.05em; flex: none; }
-.cxcard .r .pip { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-  margin-right: 4px; vertical-align: -1px; }
-.cxcard .ft { margin-top: 6px; padding-top: 5px; border-top: 1px solid #1c1c28;
-  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #43465a; }
-.cxsearch {
-  width: 100%; box-sizing: border-box; margin: 2px 0 7px; padding: 5px 8px;
-  background: #0f0f16; border: 1px solid #232332; border-radius: 5px; color: #dde0ef;
-  font-family: "JetBrains Mono", monospace; font-size: 10.5px;
-}
-.cxsearch:focus { outline: none; border-color: #8687f0; }
-.cxsearch::placeholder { color: #43465a; }
-.cxchips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
-.cxfchip {
-  background: #14141d; border: 1px solid #232332; border-radius: 4px; cursor: pointer;
-  color: #9296ad; font-family: "JetBrains Mono", monospace; font-size: 9px;
-  letter-spacing: 0.05em; text-transform: uppercase; padding: 2.5px 6px;
-}
-.cxfchip:hover { color: #dde0ef; border-color: #35354a; }
-.cxfchip:focus-visible { outline: 1px solid #8687f0; }
-.cxfchip.off { opacity: 0.32; text-decoration: line-through; }
-.cxfchip.sel { border-bottom-width: 2px; }
-.cxfchip.sel.on { color: #fff; background: #1d1d31; border-color: #8687f0; }
-.cxfreset {
-  float: right; background: none; border: none; cursor: pointer; color: #585c72;
-  font-family: "JetBrains Mono", monospace; font-size: 9px; text-transform: uppercase;
-  letter-spacing: 0.05em; padding: 0;
-}
-.cxfreset:hover { color: #dde0ef; }
-.cx-rbtn {
-  background: #14141d; border: 1px solid #232332; border-radius: 4px; cursor: pointer;
-  color: #9296ad; font-size: 12px; line-height: 1; padding: 2px 7px 3px; flex: none;
-}
-.cx-rbtn:hover { color: #dde0ef; border-color: #35354a; }
-.cx-rbtn:focus-visible { outline: 1px solid #8687f0; }
-
 /* ---------------- chain screen action ---------------- */
 .chainaction {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
@@ -696,23 +535,6 @@ body.cx-ui-hidden .topbar { display: none; }
   font-variant-numeric: tabular-nums; font-size: 19px; line-height: 1.15;
   color: var(--ink); letter-spacing: -0.01em; }
 .scstat .muted { display: block; margin-top: 2px; }
-/* cortex v5: ranked opportunities register */
-.cxopp {
-  display: grid; grid-template-columns: 16px 1fr auto; grid-template-areas: "rk nm un" "rk mc mc";
-  width: 100%; text-align: left; gap: 0 6px; margin-bottom: 4px; padding: 4px 6px;
-  background: #10101a; border: 1px solid #1e1e2c; border-radius: 5px; cursor: pointer;
-  color: #dde0ef;
-}
-.cxopp:hover { border-color: #8687f0; background: #151527; }
-.cxopp:focus-visible { outline: 1px solid #8687f0; }
-.cxopp .rk { grid-area: rk; font-family: "JetBrains Mono", monospace; font-size: 11px; color: #585c72; align-self: start; }
-.cxopp .nm { grid-area: nm; font-family: "Baloo 2", sans-serif; font-weight: 600; font-size: 11.5px; line-height: 1.25; text-transform: none; letter-spacing: 0; }
-.cxopp .un { grid-area: un; font-family: "JetBrains Mono", monospace; font-size: 11px; color: #8687f0; font-variant-numeric: tabular-nums; }
-.cxopp .mc { grid-area: mc; font-family: "JetBrains Mono", monospace; font-size: 8.5px; color: #d4a017; text-transform: none; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cxopp .mc.dim { color: #585c72; }
-.cx-tierlbl { font-size: 8.5px; letter-spacing: 0.14em; color: #43465a; margin: 7px 0 3px; }
-.cx-tiernone { font-size: 9px; color: #43465a; text-transform: none; letter-spacing: 0.02em; margin-bottom: 5px; line-height: 1.5; }
-
 /* --- analyst surfaces (2026-08-29): the expectations gap table --- */
 .gaptable { width: 100%; border-collapse: collapse; font-size: 13px; }
 .gaptable th {
@@ -722,86 +544,6 @@ body.cx-ui-hidden .topbar { display: none; }
 .gaptable td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 .gaptable tr:last-child td { border-bottom: 0; }
 .gaptable td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-
-/* --- cortex v6 (2026-08-30): two-level focus — family rail, sub-rail, phase toggle ---
-   Chrome floats over the field rather than boxing it in, so the map keeps the full stage.
-   Like the panel itself these commit to the dark ground in every theme. */
-.cx-toprail {
-  position: absolute; top: var(--cx-top, 64px); left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  z-index: 3; pointer-events: none;
-  /* centred between two unequal gutters, so the bound is twice the larger one: the left
-     rail (208 + 12 margin + 12 gap) on one side, the hide-UI button on the other */
-  max-width: calc(100% - 470px);
-}
-.cx-famrow, .cx-subrail {
-  display: flex; gap: 5px; align-items: center; max-width: 100%;
-  overflow-x: auto; scrollbar-width: none; pointer-events: auto;
-  border-radius: 999px; border: 1px solid #1e1e2c;
-}
-.cx-famrow::-webkit-scrollbar, .cx-subrail::-webkit-scrollbar { display: none; }
-.cx-famrow { padding: 5px 7px; background: rgba(16, 16, 26, .88); }
-.cx-subrail { padding: 4px 7px; background: rgba(16, 16, 26, .75); }
-.cx-famchip, .cx-subchip {
-  display: inline-flex; align-items: center; gap: 5px; flex: none; white-space: nowrap;
-  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .04em;
-  padding: 3px 9px; border-radius: 999px; background: #14141d; border: 1px solid #232332;
-  color: #585c72; cursor: pointer;
-}
-.cx-famchip .dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
-.cx-famchip:hover, .cx-subchip:hover { color: #dde0ef; border-color: #34344a; }
-.cx-famchip.on { background: #1d1d31; color: #fff; font-weight: 600; }
-.cx-famchip:focus-visible, .cx-subchip:focus-visible, .cx-phbtn:focus-visible { outline: 1px solid #8687f0; }
-.cx-subchip { font-size: 8.5px; padding: 2.5px 8px; color: #dde0ef; }
-.cx-subchip.dim { color: #9296ad; }
-.cx-subchip.on { background: #1d1d31; border-color: #8687f0; color: #fff; font-weight: 600; }
-.cx-subrail .lbl {
-  font-family: "JetBrains Mono", monospace; font-size: 8px; font-weight: 500;
-  letter-spacing: .12em; padding: 0 4px; white-space: nowrap; flex: none;
-}
-.cx-subnone {
-  font-family: "JetBrains Mono", monospace; font-size: 8px; color: #585c72;
-  letter-spacing: .02em; padding: 0 6px; max-width: 460px; white-space: normal; line-height: 1.5;
-}
-.cx-phase {
-  position: absolute; bottom: 54px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 10px; align-items: center; z-index: 3;
-}
-.cx-phbtn {
-  display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
-  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
-  font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 600;
-  letter-spacing: .12em; color: #585c72; cursor: pointer; white-space: nowrap;
-}
-.cx-phbtn:hover:not([disabled]) { color: #dde0ef; border-color: #34344a; }
-.cx-phbtn.on { background: #1d1d31; border-color: #8687f0; color: #fff; }
-.cx-phbtn[disabled] { opacity: .45; cursor: default; }
-@media (max-width: 860px) {
-  .cx-subnone { max-width: 260px; }
-  .cx-phase { bottom: 52px; }
-}
-@media (max-width: 620px) {
-  /* the rail is a bottom sheet here, so the top rail keeps only the button's gutter,
-     and the phase toggle moves up out of the sheet's way */
-  .cx-toprail { left: 12px; transform: none; align-items: flex-start; max-width: calc(100% - 116px); }
-  .cx-phase { bottom: auto; top: calc(var(--cx-top, 64px) + 46px); }
-}
-.cxopp.on { border-color: #8687f0; background: #1d1d31; }
-
-/* cortex: eye info button replaces the standing explainer paragraph */
-.cxinfo-btn {
-  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; flex: none;
-  background: #14141d; color: #6e7288;
-  border: 1px solid #232332; border-radius: 999px;
-  padding: 4px 9px 4px 8px; font: inherit; font-size: 11px; line-height: 1;
-}
-.cxinfo-btn:hover { color: #dde0ef; border-color: #35354a; }
-.cxinfo-btn.on { color: #fff; border-color: #8687f0; background: #1d1d31; }
-.cxinfo-btn:focus-visible { outline: 1px solid #8687f0; }
-.cxinfo-btn svg { flex: none; }
-.cxinfo { margin: 0 0 12px; padding: 12px 14px; border-radius: 10px; line-height: 1.6; }
-.cxinfo p { margin: 0; }
-@media (max-width: 980px) { .cxinfo-btn span { display: none; } }
 
 /* ---------------- agents ----------------
    The contract viewer and its editor. `.contract` renders the markdown the eight
@@ -885,38 +627,289 @@ body.cx-ui-hidden .topbar { display: none; }
 .occtitle { font-size: 13px; color: var(--ink); line-height: 1.45; }
 .occbasis { font-size: 11.5px; margin-top: 3px; }
 
-/* cortex: right-side gauges — per-type size and visibility, viewer-local */
-.cx-gaugerail {
-  position: absolute; right: 14px; top: calc(var(--cx-top, 64px) + 46px); z-index: 3;
-  width: 178px; padding: 10px 12px 12px;
-  background: rgba(14, 14, 20, .86); border: 1px solid #262635; border-radius: 12px;
+/* ---------------- cortex ----------------
+   v7 (2026-09-06): the wheel. The map IS the page: the field fills the viewport and every
+   piece of interface floats over it, hideable in one keystroke. One instrument panel on the
+   left, one phase control, one search, one inspector that docks on selection, one status
+   foot. It commits to its own dark ground in every theme, because it is a map, not a card.
+   Names are set in Newsreader italic (the cartographic convention for named features);
+   data stays in JetBrains Mono; UI copy in Inter. */
+body.cortex-page { overflow: hidden; }
+body.cortex-page .topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 6;
+  background: rgba(8, 8, 13, 0.72); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #16161F; color: #DDE0EF;
+}
+body.cortex-page .topbar .wordmark { color: #DDE0EF; }
+body.cortex-page .topbar .nav a { color: #6E7288; }
+body.cortex-page .topbar .nav a:hover, body.cortex-page .topbar .nav a.on { color: #FFF; background: #1B1B2C; }
+body.cortex-page .topbar .tb-chip { background: rgba(20, 20, 29, 0.8); border-color: #232332; color: #9296AD; }
+body.cortex-page .topbar .tb-btn { color: #6E7288; }
+body.cortex-page .topbar .tb-btn:hover { color: #FFF; background: #1B1B2C; }
+body.cx-ui-hidden .topbar { display: none; }
+
+.cxfull { position: fixed; inset: 0; z-index: 1; background: #07070C; --cx-glass: rgba(12, 12, 20, 0.80); --cx-line: #23243A; }
+.cxfull .cx-stage { position: absolute; inset: 0; }
+.cx-stage canvas { display: block; width: 100%; height: 100%; outline: none; cursor: grab; }
+.cxfull.ui-hidden .cx-panel, .cxfull.ui-hidden .cx-top .cx-phasectl, .cxfull.ui-hidden .cx-search,
+.cxfull.ui-hidden #cxViewBtn, .cxfull.ui-hidden .cx-viewpop, .cxfull.ui-hidden .cx-foot,
+.cxfull.ui-hidden .cx-inspector, .cxfull.ui-hidden .cxinfo { display: none; }
+.cxfull.ui-hidden .cx-topright { top: 12px; }
+.cxfull.ui-hidden .cx-uibtn { opacity: .4; }
+.cxfull.ui-hidden .cx-uibtn:hover { opacity: 1; }
+.cxfull kbd { font: inherit; font-size: 8.5px; padding: 1px 5px; border: 1px solid #33355A; border-radius: 4px; color: #6C7089; }
+
+/* --cx-top is measured from the real topbar at runtime: it wraps to ~109px on a phone,
+   and chrome pinned to a hardcoded 44px hides underneath it. */
+.cx-panel {
+  position: absolute; z-index: 4; left: 16px; top: var(--cx-top, 56px); bottom: 16px; width: 288px;
+  display: flex; flex-direction: column; min-height: 0;
+  background: var(--cx-glass); backdrop-filter: blur(14px);
+  border: 1px solid var(--cx-line); border-radius: 14px; overflow: hidden;
+}
+.cx-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: none;
+  padding: 11px 12px 10px; border-bottom: 1px solid #1B1C2E;
+}
+.cx-head .cx-title { font-family: "JetBrains Mono", monospace; font-size: 10.5px; font-weight: 600; letter-spacing: .24em; color: #ECEDF6; }
+.cxinfo-btn {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; flex: none;
+  background: transparent; color: #8A8EAA; border: 1px solid #232332; border-radius: 999px;
+  padding: 4px 9px 4px 8px; font: inherit; font-size: 11px; line-height: 1;
+}
+.cxinfo-btn:hover { color: #DDE0EF; border-color: #35354A; }
+.cxinfo-btn.on { color: #FFF; border-color: #8687F0; background: #1D1D33; }
+.cxinfo-btn:focus-visible { outline: 1px solid #8687F0; }
+.cx-oppshead { flex: none; padding: 14px 12px 4px; }
+.cx-serif { font-family: Newsreader, "Iowan Old Style", Georgia, serif; font-style: italic; font-size: 22px; line-height: 1; color: #F2F3FA; }
+.cx-sub { margin-top: 6px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .06em; color: #6C7089; }
+.cx-opps { flex: 1 1 auto; min-height: 120px; overflow: hidden auto; padding: 4px 8px 8px; scrollbar-width: thin; }
+.cx-tierlbl { font-family: "JetBrains Mono", monospace; font-size: 8.5px; letter-spacing: .18em; color: #5E617C; margin: 12px 2px 5px; }
+.cx-tierlbl:first-child { margin-top: 4px; }
+.cxopp {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 0 8px; align-items: start;
+  width: 100%; text-align: left; cursor: pointer; color: #DCDEEC;
+  padding: 6px 10px; margin-bottom: 1px; border-radius: 9px; background: transparent; border: 1px solid transparent;
+}
+.cxopp.major { padding: 9px 10px 8px; margin-bottom: 5px; background: rgba(255, 255, 255, .035); border-color: #23243A; }
+.cxopp:hover { border-color: #35354A; background: rgba(255, 255, 255, .05); }
+.cxopp.on { border-color: #8687F0; background: #1D1D33; }
+.cxopp:focus-visible { outline: 1px solid #8687F0; }
+.cxopp .rk { font-family: "JetBrains Mono", monospace; font-size: 10px; color: #5E617C; padding-top: 2px; }
+.cxopp .body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cxopp .nm { font-family: Inter, sans-serif; font-size: 12px; font-weight: 500; line-height: 1.3; }
+.cxopp.major .nm { font-size: 13px; font-weight: 600; line-height: 1.25; color: #ECEDF6; }
+.cxopp .rest { font-family: Inter, sans-serif; font-size: 11px; line-height: 1.35; color: #8A8EAA; }
+.cxopp .mc { margin-top: 3px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .3px; color: #D9A94B; }
+.cxopp .mc.dim { color: #5E617C; }
+.cxopp .sc { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.cxopp .un { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: #A9ACC0; font-variant-numeric: tabular-nums; line-height: 1; }
+.cxopp.major .un { font-size: 15px; color: #C4C5FF; }
+.cxopp .band { font-family: "JetBrains Mono", monospace; font-size: 8px; letter-spacing: .08em; color: #5E617C; }
+.cx-machine { flex: none; max-height: 46%; overflow: hidden auto; border-top: 1px solid #1B1C2E; padding: 8px 12px 10px; scrollbar-width: thin; }
+.cx-mhead {
+  display: flex; justify-content: space-between; align-items: baseline; width: 100%; cursor: pointer;
+  background: none; border: none; padding: 0 0 6px; color: #5E617C;
+  font-family: "JetBrains Mono", monospace; font-size: 8.5px; letter-spacing: .18em;
+}
+.cx-mhead .dim { color: #43465A; letter-spacing: .04em; }
+.cx-mhead:hover, .cx-mhead:hover .dim { color: #A9ACC0; }
+.cx-reg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline;
+  font-family: "JetBrains Mono", monospace; font-size: 9.5px; line-height: 1.75; letter-spacing: .3px; }
+.cx-reg .k { color: #6C7089; text-transform: uppercase; }
+.cx-reg .v { color: #DCDEEC; font-variant-numeric: tabular-nums; }
+.cx-reg .v.dim { color: #5E617C; }
+.cx-cap { font-family: "JetBrains Mono", monospace; font-size: 7.5px; letter-spacing: .1em; color: #43465A; margin: -2px 0 4px; }
+.cx-bar { height: 3px; margin: 3px 0 5px; background: #16161F; border-radius: 2px; overflow: hidden; }
+.cx-bar i { display: block; height: 3px; border-radius: 2px; }
+.cx-mix { display: flex; height: 3px; border-radius: 2px; overflow: hidden; background: #16161F; margin: 3px 0 6px; }
+.cx-mix i { display: block; height: 100%; }
+.cx-grp { font-family: "JetBrains Mono", monospace; font-size: 8.5px; letter-spacing: .14em; color: #3E4258; margin: 12px 0 4px; padding-bottom: 3px; border-bottom: 1px solid #16161F; }
+.cx-note {
+  flex: none; padding: 6px 12px 7px; border-top: 1px solid #1B1C2E;
+  font-family: "JetBrains Mono", monospace; font-size: 8px; line-height: 1.5;
+  letter-spacing: .04em; text-transform: uppercase; color: #43465A;
+}
+
+/* top: phase control beside the panel, search and view at the right */
+.cx-top { position: absolute; z-index: 5; left: 320px; right: 16px; top: var(--cx-top, 56px); height: 0; }
+.cx-phasectl {
+  position: absolute; left: 0; top: 0; display: flex; gap: 2px; padding: 3px; border-radius: 999px;
+  background: var(--cx-glass); border: 1px solid var(--cx-line); backdrop-filter: blur(10px);
+}
+.cx-phbtn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 0 15px; height: 30px; border-radius: 999px; cursor: pointer;
+  background: transparent; border: 1px solid transparent; color: #8A8EAA;
+  font-family: "JetBrains Mono", monospace; font-size: 10.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+}
+.cx-phbtn:hover { color: #DDE0EF; }
+.cx-phbtn.on { background: #1D1D33; border-color: #8687F0; color: #FFF; font-weight: 600; }
+.cx-phbtn:focus-visible { outline: 1px solid #8687F0; }
+.cx-topright { position: absolute; right: 0; top: 0; display: flex; gap: 8px; align-items: center; z-index: 7; }
+.cx-search {
+  display: flex; align-items: center; gap: 8px; width: 250px; height: 36px; padding: 0 12px; box-sizing: border-box;
+  border-radius: 999px; background: var(--cx-glass); border: 1px solid var(--cx-line); backdrop-filter: blur(10px); color: #6C7089;
+}
+.cx-search:focus-within { border-color: #8687F0; }
+.cx-search .ic { display: inline-flex; color: #6C7089; }
+.cx-search input {
+  flex: 1; min-width: 0; background: none; border: none; outline: none; color: #DDE0EF;
+  font-family: "JetBrains Mono", monospace; font-size: 10.5px;
+}
+.cx-search input::placeholder { color: #6C7089; }
+.cx-iconbtn, .cx-uibtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; cursor: pointer;
+  background: var(--cx-glass); border: 1px solid var(--cx-line); border-radius: 999px; color: #8A8EAA; backdrop-filter: blur(10px);
+  font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .14em;
+}
+.cx-iconbtn { width: 36px; }
+.cx-uibtn { padding: 0 13px; }
+.cx-iconbtn:hover, .cx-uibtn:hover { color: #DDE0EF; border-color: #35354A; }
+.cx-iconbtn.on { color: #FFF; border-color: #8687F0; background: #1D1D33; }
+.cx-iconbtn:focus-visible, .cx-uibtn:focus-visible { outline: 1px solid #8687F0; }
+.cx-viewpop {
+  position: absolute; right: 0; top: 44px; width: 268px; padding: 10px 12px 12px; z-index: 7;
+  background: rgba(12, 12, 20, .94); border: 1px solid #262740; border-radius: 12px; backdrop-filter: blur(14px);
   font-family: "JetBrains Mono", monospace;
 }
-.cx-gaugerail .lbl { font-size: 8px; font-weight: 600; letter-spacing: .12em;
-  color: #585c72; margin-bottom: 8px; }
-.cx-gaugerail .row { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
-.cx-gaugerail label { font-size: 8px; letter-spacing: .08em; color: #9296ad;
-  flex: none; width: 58px; }
-.cx-gaugerail input[type="range"] { flex: 1; min-width: 0; height: 3px;
-  accent-color: #8687f0; cursor: pointer; }
-.cx-gaugerail .val { font-size: 8px; color: #585c72; flex: none; width: 34px;
-  text-align: right; }
-.cx-gaugerail .rst {
-  margin-top: 8px; width: 100%; padding: 5px 0;
-  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
-  font-family: "JetBrains Mono", monospace; font-size: 8.5px; font-weight: 600;
-  letter-spacing: .12em; color: #585c72; cursor: pointer;
+.cx-viewpop .lbl { font-size: 8px; font-weight: 600; letter-spacing: .14em; color: #5E617C; margin: 8px 0 6px; }
+.cx-viewpop .lbl:first-child { margin-top: 0; }
+.cxchips { display: flex; flex-wrap: wrap; gap: 4px; }
+.cxfchip {
+  background: #14141D; border: 1px solid #232332; border-radius: 4px; cursor: pointer;
+  color: #9296AD; font-family: "JetBrains Mono", monospace; font-size: 9px;
+  letter-spacing: .05em; text-transform: uppercase; padding: 2.5px 6px;
 }
-.cx-gaugerail .rst:hover { color: #dde0ef; border-color: #34344a; }
-@media (max-width: 860px) { .cx-gaugerail { display: none; } }
+.cxfchip:hover { color: #DDE0EF; border-color: #35354A; }
+.cxfchip:focus-visible { outline: 1px solid #8687F0; }
+.cxfchip.off { opacity: .32; text-decoration: line-through; }
+.cx-viewpop .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.cx-viewpop label { font-size: 8px; letter-spacing: .08em; color: #9296AD; flex: none; width: 66px; }
+.cx-viewpop input[type="range"] { flex: 1; min-width: 0; height: 3px; accent-color: #8687F0; cursor: pointer; }
+.cx-viewpop .val { font-size: 8px; color: #585C72; flex: none; width: 34px; text-align: right; }
+.cx-rst {
+  margin-top: 8px; width: 100%; padding: 6px 0; cursor: pointer;
+  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: 8.5px; font-weight: 600; letter-spacing: .12em; color: #585C72;
+}
+.cx-rst:hover { color: #DDE0EF; border-color: #34344A; }
 
-/* cortex gauges: view-mode buttons */
-.cx-gaugerail .btns { display: flex; gap: 6px; margin-top: 4px; }
-.cx-gaugerail .vw {
-  flex: 1; padding: 5px 0;
-  background: rgba(18, 18, 26, .8); border: 1px solid #262635; border-radius: 999px;
-  font-family: "JetBrains Mono", monospace; font-size: 8.5px; font-weight: 600;
-  letter-spacing: .1em; color: #585c72; cursor: pointer;
+/* the explainer, folded behind the eye button */
+.cxfull .cxinfo {
+  position: absolute; z-index: 5; left: 320px; top: calc(var(--cx-top, 56px) + 46px); width: min(50ch, calc(100vw - 660px));
+  margin: 0; padding: 12px 14px; background: rgba(11, 11, 17, 0.92); backdrop-filter: blur(10px);
+  border: 1px solid #232332; border-radius: 10px; color: #9296AD; font-size: 12.5px; line-height: 1.6;
 }
-.cx-gaugerail .vw:hover { color: #dde0ef; border-color: #34344a; }
-.cx-gaugerail .vw.on { background: #1d1d31; border-color: #8687f0; color: #fff; }
+.cxinfo p { margin: 0; }
+
+/* the inspector docks on the right when a signal is selected */
+.cx-inspector {
+  position: absolute; z-index: 5; right: 16px; top: calc(var(--cx-top, 56px) + 48px); width: 346px; max-height: calc(100vh - var(--cx-top, 56px) - 120px);
+  overflow: hidden auto; scrollbar-width: thin; box-sizing: border-box;
+  background: rgba(12, 12, 20, .90); border: 1px solid var(--cx-line); border-radius: 14px; backdrop-filter: blur(14px);
+}
+.cx-inspector .ihead { padding: 13px 16px 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cx-inspector .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .16em; color: #8A8EAA; }
+.cx-inspector .pip { width: 8px; height: 8px; border-radius: 50%; background: #8687F0; box-shadow: 0 0 10px #8687F0; display: inline-block; }
+.cx-inspector .id { font-size: 9px; color: #43465A; }
+.cx-inspector .ititle { padding: 10px 16px 0; font-family: Newsreader, "Iowan Old Style", Georgia, serif; font-style: italic; font-size: 23px; line-height: 1.12; color: #F2F3FA; text-wrap: balance; }
+.cx-inspector .ithesis { padding: 10px 16px 12px; font-family: Inter, sans-serif; font-size: 12px; line-height: 1.5; color: #A9ACC0;
+  display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; }
+.cx-inspector .ikv { padding: 0 16px 12px; }
+.cx-inspector .kv { display: grid; grid-template-columns: 86px 1fr; gap: 10px; padding: 7px 0; border-top: 1px solid #1B1C2E; font-size: 11.5px; line-height: 1.4; }
+.cx-inspector .kv .k { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .12em; color: #6C7089; padding-top: 2px; }
+.cx-inspector .kv .v { font-family: Inter, sans-serif; color: #DCDEEC; min-width: 0; overflow-wrap: anywhere; }
+.cx-inspector .mono { font-family: "JetBrains Mono", monospace; font-size: 10px; }
+.cx-inspector .dim { color: #8A8EAA; }
+.cx-inspector .big { font-family: "JetBrains Mono", monospace; font-size: 13px; color: #C4C5FF; }
+.cx-inspector .gold { color: #D9A94B; }
+.cx-inspector a.verd { text-decoration: none; }
+.cx-inspector a.verd:hover { text-decoration: underline; }
+.cx-inspector .cx-bar { margin-top: 6px; }
+.cx-inspector .cx-mix { margin: 6px 0 4px; }
+.cx-inspector .ibtns { display: flex; gap: 8px; padding: 0 16px 16px; }
+.cx-btn {
+  flex: 1; text-align: center; padding: 9px 0; border-radius: 9px; cursor: pointer; text-decoration: none;
+  background: transparent; border: 1px solid #33355A; color: #A9ACC0;
+  font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em;
+}
+.cx-btn:hover { color: #FFF; border-color: #8687F0; text-decoration: none; }
+.cx-btn.primary { background: #1D1D33; border-color: #8687F0; color: #FFF; }
+.cx-btn.x { flex: 0 0 38px; font-size: 13px; letter-spacing: 0; }
+.cx-btn:focus-visible { outline: 1px solid #8687F0; }
+
+/* the foot: the reading of the current phase, the legend, the counters */
+.cx-foot {
+  position: absolute; z-index: 4; left: 320px; right: 16px; bottom: 14px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .08em; color: #6C7089; pointer-events: none;
+}
+.cx-foot .l { width: 470px; line-height: 1.7; }
+.cx-foot .read { color: #A9ACC0; margin-bottom: 3px; }
+.cx-foot .legend { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.cx-foot .legend span { display: inline-flex; align-items: center; gap: 5px; }
+.cx-foot .legend i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.cx-foot .legend b { font-weight: 400; color: #8A8EAA; }
+.cx-foot .legend .sep { color: #43465A; }
+.cx-foot .r { width: 414px; text-align: right; color: #5E617C; line-height: 1.7; pointer-events: auto; }
+.cx-foot .r > div:first-child { color: #8A8EAA; }
+.cx-rbtn {
+  background: #14141D; border: 1px solid #232332; border-radius: 4px; cursor: pointer;
+  color: #9296AD; font-size: 11px; line-height: 1; padding: 1px 6px 2px; margin-left: 4px;
+}
+.cx-rbtn:hover { color: #DDE0EF; border-color: #35354A; }
+.cx-rbtn:focus-visible { outline: 1px solid #8687F0; }
+
+/* hover card */
+.cxcard {
+  position: fixed; z-index: 60; display: none; pointer-events: none;
+  width: 320px; max-width: 46vw; background: rgba(14, 14, 22, .96); border: 1px solid #262740;
+  border-radius: 12px; padding: 13px 15px 10px; box-shadow: 0 14px 44px rgba(0, 0, 0, .55); color: #DDE0EF;
+}
+.cxcard .hd { display: flex; align-items: center; gap: 7px; margin-bottom: 6px;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #8A8EAA; }
+.cxcard .pip { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cxcard .tt { font-family: Newsreader, "Iowan Old Style", Georgia, serif; font-style: italic; font-size: 18px; line-height: 1.15; margin-bottom: 6px; color: #F2F3FA; }
+.cxcard .bd { font: 11.5px/1.45 Inter, sans-serif; color: #A9ACC0; margin-bottom: 7px; }
+.cxcard .bd.dim { color: #6C7089; }
+.cxcard .vd { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .14em; margin: 8px 0 4px; }
+.cxcard .r { display: flex; justify-content: space-between; gap: 10px;
+  font-family: "JetBrains Mono", monospace; font-size: 10px; line-height: 1.7; color: #A9ACC0; }
+.cxcard .r .k { color: #6C7089; text-transform: uppercase; letter-spacing: .05em; flex: none; }
+.cxcard .bar { display: grid; grid-template-columns: 82px 1fr 28px; gap: 8px; align-items: center; margin: 5px 0;
+  font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .1em; color: #8A8EAA; }
+.cxcard .bar .t { height: 3px; background: #16161F; border-radius: 2px; overflow: hidden; }
+.cxcard .bar .t i { display: block; height: 100%; border-radius: 2px; }
+.cxcard .bar .n { text-align: right; color: #DCDEEC; }
+.cxcard .ft { margin-top: 8px; padding-top: 6px; border-top: 1px solid #1C1C28;
+  font-family: "JetBrains Mono", monospace; font-size: 8.5px; letter-spacing: .14em; text-transform: uppercase; color: #43465A; }
+
+@media (max-width: 1100px) {
+  .cx-foot .l { width: 360px; }
+  .cx-foot .r { width: 300px; }
+  .cxfull .cxinfo { width: min(46ch, calc(100vw - 360px)); }
+  .cx-search { width: 190px; }
+}
+@media (max-width: 860px) {
+  .cx-panel { width: 236px; }
+  .cx-top { left: 268px; }
+  .cx-foot { left: 268px; }
+  .cx-foot .l { display: none; }
+  .cx-inspector { width: 300px; }
+  .cx-search { display: none; }
+  .cxfull .cxinfo { left: 16px; right: 16px; width: auto; top: auto; bottom: 60px; }
+}
+@media (max-width: 640px) {
+  /* a phone has no room for a side rail beside the field: the panel becomes a bottom sheet,
+     the phase control runs full-width under the topbar, and the inspector sheets over the panel */
+  .cx-panel { left: 10px; right: 10px; width: auto; top: auto; bottom: 10px; max-height: 44vh; border-radius: 18px 18px 14px 14px; }
+  .cx-machine { display: none; }
+  .cx-top { left: 10px; right: 10px; }
+  .cx-phasectl { left: 0; right: 0; display: flex; }
+  .cx-phbtn { flex: 1; justify-content: center; padding: 0 6px; }
+  .cx-topright { top: 44px; right: 0; }
+  .cx-foot { display: none; }
+  .cx-inspector { left: 10px; right: 10px; width: auto; top: auto; bottom: 10px; max-height: 60vh; }
+  .cxfull .cxinfo { left: 10px; right: 10px; width: auto; top: auto; bottom: 10px; }
+  .cx-viewpop { right: 0; width: min(268px, calc(100vw - 20px)); }
+}
