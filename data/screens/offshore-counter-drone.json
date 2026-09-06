@@ -3,11 +3,11 @@
  "chain_id": "offshore-counter-drone",
  "scenario_id": null,
  "created_at": "2026-09-04",
- "as_of": "2026-09-04",
+ "as_of": "2026-09-06",
  "identity_schema": "campaign-v1",
  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
  "mapping_ref": "data/mappings/offshore-counter-drone.json",
- "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first (c2-and-sensor-fusion), then the two CHOKE_POINT links (counter-uas-funding-and-requirements, c2-and-sensor-fusion again), then the rest by chain position.\n\nThe mapping (data/mappings/offshore-counter-drone.json, 14 issuers, 21 placements) is status ACTIVE with no audit block at all (audit is null, never run), so it has no current PASS census audit and every row on this chain must rest on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's evidence is entirely VERIFIED.\n\nTHE FINDING THIS RUN PRODUCES: none of the mapping's 21 placements clear that bar. Every single placement on every one of the 13 links carries evidence tagged INFERRED and nothing else; zero placements anywhere in this mapping carry a VERIFIED evidence item. This is a uniform property of the whole census, not a per-link accident: rf-and-radar-front-end-components (RFHIC, INFERRED), maritime-detection-radar (HENSOLDT, LEONARDO, LEONARDO-DRS, all INFERRED), electro-optical-and-acoustic-sensing (HENSOLDT, TELEDYNE-TECHNOLOGIES, both INFERRED), rf-detection-and-jamming (RFHIC, DRONESHIELD, both INFERRED), subsea-and-underwater-sensing (KONGSBERG-GRUPPEN, TELEDYNE-TECHNOLOGIES, both INFERRED), c2-and-sensor-fusion [MONEY CORNER, CHOKE_POINT] (HENSOLDT, THALES, TELEDYNE-TECHNOLOGIES, KONGSBERG-GRUPPEN, all INFERRED), short-range-effectors (LEONARDO, INFERRED), reinsurance-and-lloyds-capacity (CHUBB, SWISS-RE, both INFERRED), offshore-war-and-property-underwriting (AXA, INFERRED), platform-integration-and-hardening (SAIPEM, INFERRED), offshore-energy-operator (OMV-PETROM, ROMGAZ, both INFERRED). counter-uas-funding-and-requirements and uncrewed-patrol-and-mcm-response carry zero placements by chain design (buyer-only alliance link and three sovereign navies respectively, per the chain's own map_limitation), not by mapping omission. Consequently this run seats zero rows on all 13 links. Every link is genuinely searched, and every link is genuinely empty, for the same single reason recorded once here rather than repeated 21 times.\n\nc2-and-sensor-fusion [MONEY CORNER, CHOKE_POINT, verdict UNDISCOVERED]: searched and empty. This is the link this whole screen was built to clear first. It carries 4 placements: HENSOLDT, THALES and TELEDYNE-TECHNOLOGIES each already hold a COMPLETE O2 profile on disk and would pass every downstream check_screen.py gate (profile status, data_tier match, listing resolution) the moment their placement evidence includes one VERIFIED item; KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused regardless of evidence. So the money corner is not thin on candidates or on profiling work already done. It is blocked entirely on one mechanical fact: the mapping's role_evidence for this link, and for every link, is INFERRED (drawn from vendor blog posts, trade press and a NATO-adjacent news article, per the chain's own evidence blocks), never a VERIFIED primary source the placement author fetched and tagged as such. Fixing this money corner is a mapping-quality action (re-run universe research with VERIFIED-tagged primary sources, or a fresh-context universe-audit that PASSes the whole census on its current INFERRED evidence, which method section 6A ties to the census's OPEN/EXHAUSTED link_coverage rather than to evidence tags directly), not a screen action; Sieve does not write to data/mappings/.\n\ncounter-uas-funding-and-requirements [CHOKE_POINT, verdict OVER_CROWDED]: searched and empty by chain design. Zero tickers on this link intentionally: the buyers are NATO, the NATO Support and Procurement Agency and the European Commission, none of which is purchasable. This is not a mapping defect.\n\nrf-and-radar-front-end-components [verdict QUIET]: searched and empty. 1 placement (RFHIC, INFERRED evidence, no profile on disk). Blocked on both evidence and profile.\n\nmaritime-detection-radar [verdict CROWDED]: searched and empty. 3 placements, all INFERRED. HENSOLDT holds a COMPLETE O2 profile and would clear every other gate; LEONARDO and LEONARDO-DRS have no profile on disk.\n\nelectro-optical-and-acoustic-sensing [verdict QUIET]: searched and empty. 2 placements, both INFERRED. HENSOLDT and TELEDYNE-TECHNOLOGIES both hold COMPLETE O2 profiles and are blocked on evidence alone.\n\nrf-detection-and-jamming [verdict CROWDED]: searched and empty. 2 placements, both INFERRED. RFHIC and DRONESHIELD have no profile on disk.\n\nsubsea-and-underwater-sensing [verdict EMERGING]: searched and empty. 2 placements, both INFERRED. TELEDYNE-TECHNOLOGIES holds a COMPLETE O2 profile and is blocked on evidence alone; KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused regardless.\n\nshort-range-effectors [verdict EMERGING]: searched and empty. 1 placement (LEONARDO, INFERRED, no profile).\n\nuncrewed-patrol-and-mcm-response [verdict EMERGING]: searched and empty by chain design. Zero tickers on this link intentionally: the response is three sovereign navies, per the chain's own map_limitation. Not a mapping defect.\n\nreinsurance-and-lloyds-capacity [verdict QUIET]: searched and empty. 2 placements, both INFERRED. CHUBB and SWISS-RE have no profile on disk.\n\noffshore-war-and-property-underwriting [verdict QUIET]: searched and empty. 1 placement (AXA, INFERRED, no profile).\n\nplatform-integration-and-hardening [verdict CROWDED]: searched and empty. 1 placement (SAIPEM, INFERRED, no profile).\n\noffshore-energy-operator [verdict CROWDED]: searched and empty. 2 placements, both INFERRED. OMV-PETROM and ROMGAZ have no profile on disk.\n\nDISTINCT ISSUER TALLY across the mapping's 14 issuers: 3 already carry a COMPLETE O2 profile and are blocked purely by the missing-VERIFIED-evidence gate (HENSOLDT, TELEDYNE-TECHNOLOGIES, THALES); 1 is BLOCKED at O3 and would be refused on tier grounds regardless of evidence (KONGSBERG-GRUPPEN); the remaining 10 carry no profile on disk at all (RFHIC, LEONARDO, LEONARDO-DRS, DRONESHIELD, CHUBB, SWISS-RE, AXA, SAIPEM, OMV-PETROM, ROMGAZ). No fundamentals, market, or EDGAR data was fetched for this run: the blocker here is a mapping-evidence property, not a missing market or filing figure, so no PENDING_DATA request rows were queued. Backlogged to Atlas: the offshore-counter-drone mapping needs either VERIFIED-tagged primary-source role evidence per placement (at minimum on c2-and-sensor-fusion, the money corner) or a fresh-context run universe-audit that resolves the census to COMPLETE, before this chain can produce a single strict screen row.\n\nRE-RUN 2026-09-04 (same day, after commit 175a0a0): Atlas landed 4 fresh-context run universe-audit --placement audits on c2-and-sensor-fusion, the money corner: PASS for HENSOLDT, THALES and KONGSBERG-GRUPPEN (each placement's role claim and listing identity confirmed live against a freshly fetched primary source, record_digest bound to the exact placement content), FAIL for TELEDYNE-TECHNOLOGIES (the placement's role text asserts a 2026 SeaSEC critical-underwater-infrastructure exercise deployment that its sole cited evidence item, the October 2024 Cerberus XL unveiling article, does not support; that SeaSEC fact exists only in the chain link's own evidence, not in this placement's evidence list, so the placement oversells its citation). TELEDYNE-TECHNOLOGIES is excluded from this screen on that finding, independent of the evidence-tag question below.\n\nThis re-run tested whether the 3 PASS audits let HENSOLDT, THALES and KONGSBERG-GRUPPEN seat as rows and found they still cannot, for two separable reasons. First, KONGSBERG-GRUPPEN's profile (data/companies/KONGSBERG-GRUPPEN.json) remains status BLOCKED, opportunity_tier O3 as of today (fundamentals HTTP 404 on CIK 1535759, not re-queued, its own basis reads 'a companyfacts 404 on this foreign local listing means the vendor leg served nothing'): O3 profiles are refused as screen inputs regardless of placement evidence, per method 6 and the sieve-profiler contract. Second, and binding on all three including HENSOLDT and THALES (both COMPLETE O2 and otherwise admissible): `run universe-audit --placement` is advisory. Per the mapping's own changelog language ('this audit is advisory only per the placement-audit contract, and the author corrects the role text in a later run universe') and per CLAUDE.md's own wording ('A current PASS entry admits that issuer to `run deepdive`'), a PASS placement_audits[] entry writes only the audit record; it does not mutate the mapping's placements[].evidence[].tag. Every one of the four c2-and-sensor-fusion placements, PASS and FAIL alike, still carries `evidence: [{\"tag\": \"INFERRED\"}]` unchanged in the mapping's placements array. check_screen.py's PLACEMENT-scope admission rule (method 6: 'a row over an ACTIVE, un-audited mapping declares audit_scope PLACEMENT and rests on all-VERIFIED placement evidence') reads exactly that array, not placement_audits[], and was confirmed empirically against a draft HENSOLDT row in an isolated test root this run: it refuses with 'audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit'. So the placement-audit clause in CLAUDE.md's `run universe-audit --placement` row, which names `run deepdive` as what a PASS entry admits, and method 6's screen PLACEMENT scope, which needs the raw evidence tag itself, are two different admission paths; a PASS placement audit is not a substitute for the evidence tag and does not by itself seat a screen row. This screen therefore seats 0 rows again this run, for a narrower and now precisely located reason than the first run's uniform INFERRED-evidence finding: c2-and-sensor-fusion specifically has 3 of 4 placements independently confirmed accurate by a fresh-context reviewer and still cannot seat, because nothing in the mapping-write or audit tooling promotes a PASSed placement's evidence tag from INFERRED to VERIFIED. Backlogged to Atlas: promote the evidence tag on the 3 PASSed c2-and-sensor-fusion placements (HENSOLDT, THALES, KONGSBERG-GRUPPEN) to VERIFIED in a later `run universe` amendment, citing the placement audit's own live-fetched source_excerpt as the VERIFIED evidence item; or, if Ron wants a PASS placement_audits[] entry to admit a screen row directly, that is a change to tools/check_screen.py's `_placement_admissible` (or to method 6's PLACEMENT-scope text), which Sieve escalates rather than applies.",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first (c2-and-sensor-fusion), then the two CHOKE_POINT links (counter-uas-funding-and-requirements, c2-and-sensor-fusion again), then the rest by chain position.\n\nThe mapping (data/mappings/offshore-counter-drone.json, 14 issuers, 21 placements) is status ACTIVE with no audit block at all (audit is null, never run), so it has no current PASS census audit and every row on this chain must rest on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's evidence is entirely VERIFIED.\n\nTHE FINDING THIS RUN PRODUCES: none of the mapping's 21 placements clear that bar. Every single placement on every one of the 13 links carries evidence tagged INFERRED and nothing else; zero placements anywhere in this mapping carry a VERIFIED evidence item. This is a uniform property of the whole census, not a per-link accident: rf-and-radar-front-end-components (RFHIC, INFERRED), maritime-detection-radar (HENSOLDT, LEONARDO, LEONARDO-DRS, all INFERRED), electro-optical-and-acoustic-sensing (HENSOLDT, TELEDYNE-TECHNOLOGIES, both INFERRED), rf-detection-and-jamming (RFHIC, DRONESHIELD, both INFERRED), subsea-and-underwater-sensing (KONGSBERG-GRUPPEN, TELEDYNE-TECHNOLOGIES, both INFERRED), c2-and-sensor-fusion [MONEY CORNER, CHOKE_POINT] (HENSOLDT, THALES, TELEDYNE-TECHNOLOGIES, KONGSBERG-GRUPPEN, all INFERRED), short-range-effectors (LEONARDO, INFERRED), reinsurance-and-lloyds-capacity (CHUBB, SWISS-RE, both INFERRED), offshore-war-and-property-underwriting (AXA, INFERRED), platform-integration-and-hardening (SAIPEM, INFERRED), offshore-energy-operator (OMV-PETROM, ROMGAZ, both INFERRED). counter-uas-funding-and-requirements and uncrewed-patrol-and-mcm-response carry zero placements by chain design (buyer-only alliance link and three sovereign navies respectively, per the chain's own map_limitation), not by mapping omission. Consequently this run seats zero rows on all 13 links. Every link is genuinely searched, and every link is genuinely empty, for the same single reason recorded once here rather than repeated 21 times.\n\nc2-and-sensor-fusion [MONEY CORNER, CHOKE_POINT, verdict UNDISCOVERED]: searched and empty. This is the link this whole screen was built to clear first. It carries 4 placements: HENSOLDT, THALES and TELEDYNE-TECHNOLOGIES each already hold a COMPLETE O2 profile on disk and would pass every downstream check_screen.py gate (profile status, data_tier match, listing resolution) the moment their placement evidence includes one VERIFIED item; KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused regardless of evidence. So the money corner is not thin on candidates or on profiling work already done. It is blocked entirely on one mechanical fact: the mapping's role_evidence for this link, and for every link, is INFERRED (drawn from vendor blog posts, trade press and a NATO-adjacent news article, per the chain's own evidence blocks), never a VERIFIED primary source the placement author fetched and tagged as such. Fixing this money corner is a mapping-quality action (re-run universe research with VERIFIED-tagged primary sources, or a fresh-context universe-audit that PASSes the whole census on its current INFERRED evidence, which method section 6A ties to the census's OPEN/EXHAUSTED link_coverage rather than to evidence tags directly), not a screen action; Sieve does not write to data/mappings/.\n\ncounter-uas-funding-and-requirements [CHOKE_POINT, verdict OVER_CROWDED]: searched and empty by chain design. Zero tickers on this link intentionally: the buyers are NATO, the NATO Support and Procurement Agency and the European Commission, none of which is purchasable. This is not a mapping defect.\n\nrf-and-radar-front-end-components [verdict QUIET]: searched and empty. 1 placement (RFHIC, INFERRED evidence, no profile on disk). Blocked on both evidence and profile.\n\nmaritime-detection-radar [verdict CROWDED]: searched and empty. 3 placements, all INFERRED. HENSOLDT holds a COMPLETE O2 profile and would clear every other gate; LEONARDO and LEONARDO-DRS have no profile on disk.\n\nelectro-optical-and-acoustic-sensing [verdict QUIET]: searched and empty. 2 placements, both INFERRED. HENSOLDT and TELEDYNE-TECHNOLOGIES both hold COMPLETE O2 profiles and are blocked on evidence alone.\n\nrf-detection-and-jamming [verdict CROWDED]: searched and empty. 2 placements, both INFERRED. RFHIC and DRONESHIELD have no profile on disk.\n\nsubsea-and-underwater-sensing [verdict EMERGING]: searched and empty. 2 placements, both INFERRED. TELEDYNE-TECHNOLOGIES holds a COMPLETE O2 profile and is blocked on evidence alone; KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused regardless.\n\nshort-range-effectors [verdict EMERGING]: searched and empty. 1 placement (LEONARDO, INFERRED, no profile).\n\nuncrewed-patrol-and-mcm-response [verdict EMERGING]: searched and empty by chain design. Zero tickers on this link intentionally: the response is three sovereign navies, per the chain's own map_limitation. Not a mapping defect.\n\nreinsurance-and-lloyds-capacity [verdict QUIET]: searched and empty. 2 placements, both INFERRED. CHUBB and SWISS-RE have no profile on disk.\n\noffshore-war-and-property-underwriting [verdict QUIET]: searched and empty. 1 placement (AXA, INFERRED, no profile).\n\nplatform-integration-and-hardening [verdict CROWDED]: searched and empty. 1 placement (SAIPEM, INFERRED, no profile).\n\noffshore-energy-operator [verdict CROWDED]: searched and empty. 2 placements, both INFERRED. OMV-PETROM and ROMGAZ have no profile on disk.\n\nDISTINCT ISSUER TALLY across the mapping's 14 issuers: 3 already carry a COMPLETE O2 profile and are blocked purely by the missing-VERIFIED-evidence gate (HENSOLDT, TELEDYNE-TECHNOLOGIES, THALES); 1 is BLOCKED at O3 and would be refused on tier grounds regardless of evidence (KONGSBERG-GRUPPEN); the remaining 10 carry no profile on disk at all (RFHIC, LEONARDO, LEONARDO-DRS, DRONESHIELD, CHUBB, SWISS-RE, AXA, SAIPEM, OMV-PETROM, ROMGAZ). No fundamentals, market, or EDGAR data was fetched for this run: the blocker here is a mapping-evidence property, not a missing market or filing figure, so no PENDING_DATA request rows were queued. Backlogged to Atlas: the offshore-counter-drone mapping needs either VERIFIED-tagged primary-source role evidence per placement (at minimum on c2-and-sensor-fusion, the money corner) or a fresh-context run universe-audit that resolves the census to COMPLETE, before this chain can produce a single strict screen row.\n\nRE-RUN 2026-09-04 (same day, after commit 175a0a0): Atlas landed 4 fresh-context run universe-audit --placement audits on c2-and-sensor-fusion, the money corner: PASS for HENSOLDT, THALES and KONGSBERG-GRUPPEN (each placement's role claim and listing identity confirmed live against a freshly fetched primary source, record_digest bound to the exact placement content), FAIL for TELEDYNE-TECHNOLOGIES (the placement's role text asserts a 2026 SeaSEC critical-underwater-infrastructure exercise deployment that its sole cited evidence item, the October 2024 Cerberus XL unveiling article, does not support; that SeaSEC fact exists only in the chain link's own evidence, not in this placement's evidence list, so the placement oversells its citation). TELEDYNE-TECHNOLOGIES is excluded from this screen on that finding, independent of the evidence-tag question below.\n\nThis re-run tested whether the 3 PASS audits let HENSOLDT, THALES and KONGSBERG-GRUPPEN seat as rows and found they still cannot, for two separable reasons. First, KONGSBERG-GRUPPEN's profile (data/companies/KONGSBERG-GRUPPEN.json) remains status BLOCKED, opportunity_tier O3 as of today (fundamentals HTTP 404 on CIK 1535759, not re-queued, its own basis reads 'a companyfacts 404 on this foreign local listing means the vendor leg served nothing'): O3 profiles are refused as screen inputs regardless of placement evidence, per method 6 and the sieve-profiler contract. Second, and binding on all three including HENSOLDT and THALES (both COMPLETE O2 and otherwise admissible): `run universe-audit --placement` is advisory. Per the mapping's own changelog language ('this audit is advisory only per the placement-audit contract, and the author corrects the role text in a later run universe') and per CLAUDE.md's own wording ('A current PASS entry admits that issuer to `run deepdive`'), a PASS placement_audits[] entry writes only the audit record; it does not mutate the mapping's placements[].evidence[].tag. Every one of the four c2-and-sensor-fusion placements, PASS and FAIL alike, still carries `evidence: [{\"tag\": \"INFERRED\"}]` unchanged in the mapping's placements array. check_screen.py's PLACEMENT-scope admission rule (method 6: 'a row over an ACTIVE, un-audited mapping declares audit_scope PLACEMENT and rests on all-VERIFIED placement evidence') reads exactly that array, not placement_audits[], and was confirmed empirically against a draft HENSOLDT row in an isolated test root this run: it refuses with 'audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit'. So the placement-audit clause in CLAUDE.md's `run universe-audit --placement` row, which names `run deepdive` as what a PASS entry admits, and method 6's screen PLACEMENT scope, which needs the raw evidence tag itself, are two different admission paths; a PASS placement audit is not a substitute for the evidence tag and does not by itself seat a screen row. This screen therefore seats 0 rows again this run, for a narrower and now precisely located reason than the first run's uniform INFERRED-evidence finding: c2-and-sensor-fusion specifically has 3 of 4 placements independently confirmed accurate by a fresh-context reviewer and still cannot seat, because nothing in the mapping-write or audit tooling promotes a PASSed placement's evidence tag from INFERRED to VERIFIED. Backlogged to Atlas: promote the evidence tag on the 3 PASSed c2-and-sensor-fusion placements (HENSOLDT, THALES, KONGSBERG-GRUPPEN) to VERIFIED in a later `run universe` amendment, citing the placement audit's own live-fetched source_excerpt as the VERIFIED evidence item; or, if Ron wants a PASS placement_audits[] entry to admit a screen row directly, that is a change to tools/check_screen.py's `_placement_admissible` (or to method 6's PLACEMENT-scope text), which Sieve escalates rather than applies.\n\nRE-RUN 2026-09-06 (this run): tools/check_screen.py commit 5e5f3b5 now honours a current PASS placement_audits[] entry as an independent admission basis alongside the all-VERIFIED-evidence tag rule. Separately, and decisively, the census commit c37fa7b (run universe offshore-counter-drone, live re-fetch) promoted 13 of the mapping's 21 placements from INFERRED to VERIFIED evidence directly, including all 3 PASSed c2-and-sensor-fusion placements (HENSOLDT, THALES, KONGSBERG-GRUPPEN); commit 133a641 then re-verified those 3 placement audits as still current against the new evidence content and kept them PASS. So the money-corner link now clears on two independent, separately sufficient bases per issuer: the raw evidence tag is VERIFIED, and the current PASS placement audit also resolves via check_map.placement_audit_for.\n\nThis run re-checked all 4 c2-and-sensor-fusion placements and, per-issuer:\nHENSOLDT: admissible (evidence VERIFIED + PASS placement audit); profile COMPLETE O2. SEATED under c2-and-sensor-fusion (money corner, CHOKE_POINT).\nTHALES: admissible (evidence VERIFIED + PASS placement audit); profile COMPLETE O2. SEATED under c2-and-sensor-fusion (money corner, CHOKE_POINT). Note: this profile's own placements[] array still only names its tibet-mega-dam exposure and has not yet been amended to add this chain's placement; issuer identity, status and tier all resolve correctly against this mapping regardless (check_screen.py does not require the profile's placements[] to enumerate every mapping the issuer appears in), and the gap is named here rather than silently carried. Not a mapping or screen defect; a profile amendment Sieve did not make in this run (data/companies/ is out of scope for this specific `run screen` invocation).\nKONGSBERG-GRUPPEN: placement is independently admissible (evidence VERIFIED + PASS placement audit, and also independently admissible on its subsea-and-underwater-sensing placement on the same evidence-VERIFIED basis), but its profile (data/companies/KONGSBERG-GRUPPEN.json) remains status BLOCKED, opportunity_tier O3 (unchanged since the 2026-09-04 re-run: fundamentals HTTP 404 on CIK 1535759, not re-queued this run). O3 profiles are refused as screen inputs regardless of placement evidence or audit status, per method section 6 and the sieve-profiler contract. REJECTED, named, no row written.\nTELEDYNE-TECHNOLOGIES: placement evidence is still INFERRED (unchanged; this issuer was not among the 13 placements c37fa7b promoted) and its placement_audits[] entry is FAIL (2026-09-04T18:52:55Z, role oversells its cited evidence, per the prior run's finding, unchanged this run). Neither admission basis clears. EXCLUDED, named, no row written, independent of its profile being COMPLETE O2.\n\nRe-checked the other 12 links against the current mapping content this run. electro-optical-and-acoustic-sensing: HENSOLDT's placement here is now also evidence-VERIFIED (promoted in c37fa7b) and would be independently admissible and seatable (profile COMPLETE O2), but per method section 6 (\"a name surfacing from two links is listed once, under the higher-priority link\") HENSOLDT is listed once, under c2-and-sensor-fusion (money corner, CHOKE_POINT), with this link noted in its thesis line rather than duplicated as a second row. TELEDYNE-TECHNOLOGIES's placement on this link remains INFERRED, not admissible.\nrf-and-radar-front-end-components: RFHIC's placement is now evidence-VERIFIED (promoted in c37fa7b) and admissible, but RFHIC carries no profile on disk at all (data/companies/RFHIC.json does not exist); blocked on the profile gate, not evidence. Searched and empty.\nrf-detection-and-jamming: RFHIC and DRONESHIELD are both now evidence-VERIFIED and admissible, and both carry no profile on disk. Searched and empty.\nsubsea-and-underwater-sensing: KONGSBERG-GRUPPEN's placement here is also now evidence-VERIFIED and admissible, but its profile is the same BLOCKED/O3 file named above; rejected on the same tier ground, not re-listed as a separate finding. TELEDYNE-TECHNOLOGIES's placement here remains INFERRED, not admissible.\nreinsurance-and-lloyds-capacity: CHUBB's placement is now evidence-VERIFIED and admissible, no profile on disk. SWISS-RE's placement remains INFERRED, not admissible. Searched and empty.\noffshore-war-and-property-underwriting: AXA's placement is now evidence-VERIFIED and admissible, no profile on disk. Searched and empty.\nplatform-integration-and-hardening: SAIPEM's placement is now evidence-VERIFIED and admissible, no profile on disk. Searched and empty.\noffshore-energy-operator: OMV-PETROM and ROMGAZ are both now evidence-VERIFIED and admissible, neither carries a profile on disk. Searched and empty.\nmaritime-detection-radar: all 3 placements (HENSOLDT, LEONARDO, LEONARDO-DRS) remain INFERRED, unchanged; not admissible. Searched and empty.\nshort-range-effectors: LEONARDO's placement remains INFERRED, unchanged; not admissible. Searched and empty.\ncounter-uas-funding-and-requirements and uncrewed-patrol-and-mcm-response: still zero placements by chain design (uninvestable buyers: NATO/NSPA/European Commission; three sovereign navies), unchanged from prior runs, not a mapping omission.\n\nNET RESULT: 2 rows seated this run (HENSOLDT, THALES), both on the money-corner, CHOKE_POINT link c2-and-sensor-fusion, up from 0 in the two prior runs on this chain. The census's evidence promotion (c37fa7b) actually widened the admissible-placement count to 13 of 21 across 8 links, but 7 of the 10 distinct admissible issuers still carry no profile on disk at all (RFHIC, LEONARDO omitted as its placements remain INFERRED, DRONESHIELD, CHUBB, AXA, SAIPEM, OMV-PETROM, ROMGAZ) and one more (KONGSBERG-GRUPPEN) is profiled but BLOCKED/O3, so the money corner is the only link that actually converts evidence readiness into a seated row this run. Backlogged to Sieve's own `run profile` command (not this run, which is screen-only per the lazy funnel): profile RFHIC, DRONESHIELD, CHUBB, AXA, SAIPEM, OMV-PETROM, ROMGAZ, all now evidence-admissible on at least one link; and re-queue KONGSBERG-GRUPPEN's fundamentals fetch to clear its 404 block. Backlogged to Sieve's own `run profile THALES`: amend the profile's placements[] array to add its offshore-counter-drone/c2-and-sensor-fusion placement, which is currently missing even though the mapping, evidence and audit all resolve correctly through check_screen.py without it.",
  "queries_run": [
   {
    "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/offshore-counter-drone.json, its status, and every evidence item's tag",
@@ -44,6 +44,30 @@
    "forms": null,
    "hits_examined": 1,
    "names_extracted": 0
+  },
+  {
+   "query": "re-check all 21 placements' evidence tags in data/mappings/offshore-counter-drone.json against the last run, after commits c37fa7b (13 INFERRED->VERIFIED) and 133a641 (3 stale placement audits re-verified, kept)",
+   "forms": null,
+   "hits_examined": 21,
+   "names_extracted": 13
+  },
+  {
+   "query": "check_screen._placement_admissible and check_map.placement_audit_for for the 4 c2-and-sensor-fusion placements (HENSOLDT, THALES, KONGSBERG-GRUPPEN, TELEDYNE-TECHNOLOGIES), run directly against the current mapping content before writing any row",
+   "forms": null,
+   "hits_examined": 4,
+   "names_extracted": 3
+  },
+  {
+   "query": "COMPLETE O1/O2 profile lookup for the 10 distinct issuers now holding at least one evidence-VERIFIED admissible placement (RFHIC, HENSOLDT, DRONESHIELD, KONGSBERG-GRUPPEN, THALES, CHUBB, AXA, SAIPEM, OMV-PETROM, ROMGAZ)",
+   "forms": null,
+   "hits_examined": 10,
+   "names_extracted": 2
+  },
+  {
+   "query": "data/edgar/docs/ lookup for HAG / HAG.DE and HO / HO.PA (foreign filers, no SEC CIK)",
+   "forms": null,
+   "hits_examined": 2,
+   "names_extracted": 0
   }
  ],
  "data_gaps": [
@@ -52,36 +76,334 @@
   "10 of the mapping's 14 issuers (RFHIC, LEONARDO, LEONARDO-DRS, DRONESHIELD, CHUBB, SWISS-RE, AXA, SAIPEM, OMV-PETROM, ROMGAZ) carry no profile on disk at all, a second independent blocker behind the evidence gate.",
   "KONGSBERG-GRUPPEN is BLOCKED at O3 and would be refused as a screen input regardless of evidence tags.",
   "Re-run 2026-09-04: 4 placement_audits landed on c2-and-sensor-fusion (commit 175a0a0): PASS HENSOLDT, THALES, KONGSBERG-GRUPPEN; FAIL TELEDYNE-TECHNOLOGIES (role oversells its cited evidence; excluded). None of the 3 PASS placements seat: KONGSBERG-GRUPPEN's profile is still BLOCKED/O3 (refused independent of evidence); HENSOLDT and THALES are COMPLETE O2 but their mapping placements[].evidence[].tag is still INFERRED (a PASS placement_audits entry is advisory and does not mutate it), so check_screen.py's PLACEMENT-scope all-VERIFIED-evidence rule still refuses them, confirmed empirically against an isolated test root this run.",
-  "Placement-scope admission (method 6, audit_scope PLACEMENT) and dive-scope admission (CLAUDE.md's run universe-audit --placement row, method 6A Stocky-admission item 7) are two different gates reading two different fields: the former reads mapping.placements[].evidence[].tag directly, the latter reads mapping.placement_audits[]. A PASS placement_audits entry does not satisfy the former. This is worth recording once here because a PASS audit reads, on casual inspection, like it should be sufficient."
+  "Placement-scope admission (method 6, audit_scope PLACEMENT) and dive-scope admission (CLAUDE.md's run universe-audit --placement row, method 6A Stocky-admission item 7) are two different gates reading two different fields: the former reads mapping.placements[].evidence[].tag directly, the latter reads mapping.placement_audits[]. A PASS placement_audits entry does not satisfy the former. This is worth recording once here because a PASS audit reads, on casual inspection, like it should be sufficient.",
+  "Re-run 2026-09-06: 13 of the mapping's 21 placements now carry VERIFIED evidence directly (commit c37fa7b), including all 3 PASSed c2-and-sensor-fusion placements (HENSOLDT, THALES, KONGSBERG-GRUPPEN), which check_screen.py's PLACEMENT-scope admission rule confirms admissible on the raw evidence tag alone, independent of the placement audit. This resolved the exact blocker the 2026-09-04 re-run identified (a PASS placement audit alone does not mutate placement evidence).",
+  "HENSOLDT and THALES seat as this screen's only 2 rows this run, both on the money-corner, CHOKE_POINT link c2-and-sensor-fusion. KONGSBERG-GRUPPEN's placement is independently admissible but its profile remains BLOCKED/O3 (fundamentals 404 on CIK 1535759, not re-queued this run); rejected on tier grounds. TELEDYNE-TECHNOLOGIES's placement evidence remains INFERRED and its placement audit is FAIL; excluded on both grounds.",
+  "7 more issuers now hold at least one evidence-VERIFIED admissible placement but carry no profile on disk at all: RFHIC (rf-and-radar-front-end-components, rf-detection-and-jamming), DRONESHIELD (rf-detection-and-jamming), CHUBB (reinsurance-and-lloyds-capacity), AXA (offshore-war-and-property-underwriting), SAIPEM (platform-integration-and-hardening), OMV-PETROM and ROMGAZ (offshore-energy-operator). None of these links produced a row this run; all are searched and empty on the profile gate specifically, not the evidence gate. Backlogged to a future `run profile` batch.",
+  "THALES's reusable profile (data/companies/THALES.json) does not yet carry an offshore-counter-drone placement in its own placements[] array (it was built against tibet-mega-dam only); the screen row seats correctly because check_screen.py verifies issuer identity, status, tier and the mapping placement directly rather than requiring the profile to enumerate every mapping it appears in, but the gap is real and named here. Backlogged to a future `run profile THALES` amendment.",
+  "No EDGAR document exists for either seated name: HENSOLDT (Xetra Frankfurt: HAG) and Thales S.A. (Euronext Paris: HO) are both foreign filers with no SEC CIK, so data/edgar/docs/ carries no filing text to verify an earnings nugget against; both rows carry earnings_nuggets: [] rather than an unverifiable quote, per method section 1's fail-closed rule.",
+  "maritime-detection-radar (HENSOLDT, LEONARDO, LEONARDO-DRS), short-range-effectors (LEONARDO), and the TELEDYNE-TECHNOLOGIES placements on electro-optical-and-acoustic-sensing, subsea-and-underwater-sensing and c2-and-sensor-fusion remain INFERRED-only evidence, unchanged since the last run; none of these placements clear the PLACEMENT admission bar this run either.",
+  "counter-uas-funding-and-requirements and uncrewed-patrol-and-mcm-response remain zero-placement links by chain design (uninvestable buyers, sovereign navies), not a mapping omission, unchanged since the first run."
  ],
  "buckets": {
   "pure_play": [],
-  "picks_and_shovels": [],
+  "picks_and_shovels": [
+   {
+    "issuer_id": "HENSOLDT",
+    "listing_id": "XETRA-HAG",
+    "ticker": "HAG",
+    "market_ticker": "HAG.DE",
+    "chain_id": "offshore-counter-drone",
+    "link_id": "c2-and-sensor-fusion",
+    "mapping_ref": "data/mappings/offshore-counter-drone.json",
+    "profile_ref": "data/companies/HENSOLDT.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with no whole-census audit (audit block null); the c2-and-sensor-fusion placement's own evidence item now carries tag VERIFIED directly (data/mappings/offshore-counter-drone.json, commit c37fa7b, live re-fetch of hensoldt.net/domains/sea/protection/protection-of-critical-infrastructure, verified_at 2026-09-04T19:10:49Z), which alone satisfies the all-VERIFIED-evidence PLACEMENT basis. The placement additionally carries a current PASS placement_audits[] entry (Atlas, fresh-context, audited_at 2026-09-04T19:20:44Z), confirmed current against check_map.placement_audit_for (record_digest matches placement_claim_digest over the placement's present role and VERIFIED evidence item) before this row was written, so both admission bases in check_screen._placement_admissible independently clear.",
+    "name": "HENSOLDT AG",
+    "exchange": "Xetra Frankfurt",
+    "tier": "T3",
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "German defense-electronics prime whose Elysion fixed-site sensor-fusion core is its own product for protecting critical maritime infrastructure, standardised to integrate additional sensors including sonar; this is the money-corner, CHOKE_POINT link where every upstream sensor feed on this chain terminates. HENSOLDT also holds an admissible placement on electro-optical-and-acoustic-sensing (link 4, QUIET) via the same Elysion system's sonar integration; not listed a second time here per method section 6 (one issuer on two links lists once, under the higher-priority link).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No offshore-counter-drone-specific or link-specific revenue percentage is disclosed or sourced for HENSOLDT; the profile's exposure_summary carries only company-wide fundamentals. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 2454000000.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from the yfinance-statements vendor statements for HENSOLDT (HAG-DE).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.1283977998046557,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Three-year compound annual revenue growth computed as (2454000000.0/1708000000.0)**(1/3)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": false
+     },
+     "operating_margin": {
+      "value": 0.0908720456397718,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Operating income 223000000.0 divided by revenue 2454000000.0, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 5.056179775280899,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Operating cash flow 450000000.0 divided by net income 89000000.0, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "fcf_margin": {
+      "value": 0.09942950285248574,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Free cash flow margin: operating cash flow 450000000.0 less capital expenditure 206000000.0, divided by revenue 2454000000.0, all for the period ended 2025-12-31, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "net_debt_to_ebitda": {
+      "value": 1.7351485148514851,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Net debt 701000000.0 (total debt 1634000000.0 as of 2025-12-31 less cash 933000000.0 as of 2025-12-31) divided by an EBITDA proxy 404000000.0 (operating income 223000000.0 plus depreciation 181000000.0, both for the period ended 2025-12-31), from the yfinance-statements series.",
+      "official_source": false
+     },
+     "piotroski": {
+      "value": 5,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Piotroski F-score 5 (state MIDDLING) computed over yfinance-statements statements in data/market/HAG-DE.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": false
+     },
+     "beneish_state": {
+      "value": -2.736,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Beneish M-score -2.736 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/HAG-DE.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": false
+     },
+     "market_cap": {
+      "value": 9205350000.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Market capitalization 9205350000.0 computed in data/market/HAG-DE.json quality.derived.market_cap from the yfinance-statements share count times the repo's own market-plane close.",
+      "official_source": false
+     },
+     "price_to_sales": {
+      "value": 3.751161369193154,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Market capitalization 9205350000.0 divided by fiscal year 2025-12-31 revenue 2454000000.0.",
+      "official_source": false
+     },
+     "implied_fcf_cagr": {
+      "value": 0.2611,
+      "tag": "SPECULATIVE",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 244000000.0, enterprise_value 9906350000.0, from data/market/HAG-DE.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.1109,
+      "tag": "SPECULATIVE",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
+      "basis": "Spread 0.1109 across explicit horizons {'5': 0.2611, '7': 0.1964, '10': 0.1502} from data/market/HAG-DE.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/HAG-DE.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/HAG-DE.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "THALES",
+    "listing_id": "EPA-HO",
+    "ticker": "HO",
+    "market_ticker": "HO.PA",
+    "chain_id": "offshore-counter-drone",
+    "link_id": "c2-and-sensor-fusion",
+    "mapping_ref": "data/mappings/offshore-counter-drone.json",
+    "profile_ref": "data/companies/THALES.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with no whole-census audit (audit block null); the c2-and-sensor-fusion placement's own evidence item now carries tag VERIFIED directly (data/mappings/offshore-counter-drone.json, commit c37fa7b, live re-fetch of unmannedairspace.info coverage of the CoastShield launch, verified_at 2026-09-04T19:10:49Z), which alone satisfies the all-VERIFIED-evidence PLACEMENT basis. The placement additionally carries a current PASS placement_audits[] entry (Atlas, fresh-context, audited_at 2026-09-04T19:20:44Z), confirmed current against check_map.placement_audit_for (record_digest matches placement_claim_digest over the placement's present role and VERIFIED evidence item) before this row was written, so both admission bases in check_screen._placement_admissible independently clear.",
+    "name": "Thales S.A.",
+    "exchange": "Euronext Paris",
+    "tier": "T3",
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "French defense-electronics prime whose CoastShield coastal surveillance system combines multiple sensors for constant monitoring and early detection and tracking, merging all sensor data at a maritime Control Centre; the same money-corner, CHOKE_POINT sensor-fusion link as HENSOLDT. Note: THALES's reusable profile (data/companies/THALES.json) was built against its tibet-mega-dam placement and has not yet been amended to add this offshore-counter-drone placement in its own placements[] array; profile status COMPLETE/O2, data_tier T3 and issuer identity all resolve correctly against this mapping, which is what check_screen.py's campaign-identity gate verifies, but the placement-list gap itself is named here and in data_gaps rather than silently carried.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No offshore-counter-drone-specific or link-specific revenue percentage is disclosed or sourced for Thales S.A.; the profile's exposure_summary carries only company-wide fundamentals (sourced against its tibet-mega-dam placement). not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 22136400000.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 22,136,400,000 EUR from the yfinance-statements statements in HO-PA.json.",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.08005863596963847,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Compound annual revenue growth computed as (22,136,400,000/17,568,800,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": false
+     },
+     "operating_margin": {
+      "value": 0.10022858278672232,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Operating income 2,218,700,000 EUR divided by revenue 22,136,400,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.983756345177665,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Operating cash flow 3,321,800,000 EUR divided by net income 1,674,500,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "fcf_margin": {
+      "value": 0.11587701703980774,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Free cash flow margin: operating cash flow 3,321,800,000 EUR less capex 756,700,000 EUR, divided by revenue 22,136,400,000 EUR, all for the period ended 2025-12-31, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "net_debt_to_ebitda": {
+      "value": 0.5090744101633394,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Net debt 1,683,000,000 EUR (total debt 6,129,500,000 less cash 4,446,500,000, as of 2025-12-31) divided by an EBITDA proxy 3,306,000,000 EUR (operating income 2,218,700,000 plus depreciation 1,087,300,000 for the period ended 2025-12-31), from the yfinance-statements series.",
+      "official_source": false
+     },
+     "piotroski": {
+      "value": 8,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Piotroski F-score 8 (state STRONG) computed over yfinance-statements statements in HO-PA.json quality.piotroski, 9 of 9 inputs found.",
+      "official_source": false
+     },
+     "beneish_state": {
+      "value": -2.769,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Beneish M-score -2.769 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in HO-PA.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": false
+     },
+     "market_cap": {
+      "value": 50691280254.1,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Market capitalization 50,691,280,254.10 EUR from quality.derived.market_cap in HO-PA.json, computed over yfinance-statements shares and price (statement and price currency both EUR, no mismatch).",
+      "official_source": false
+     },
+     "price_to_sales": {
+      "value": 2.2899514037558046,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Price-to-sales 2.2900: market capitalization 50,691,280,254.10 EUR divided by fiscal-year revenue 22,136,400,000 EUR for the period ended 2025-12-31.",
+      "official_source": false
+     },
+     "implied_fcf_cagr": {
+      "value": 0.0859,
+      "tag": "SPECULATIVE",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Free-cash-flow CAGR the current enterprise value 52374280254.1 implies over a 5-year explicit period on base FCF 2565100000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth, from HO-PA.json quality.reverse_dcf. Assumption-dependent expectation reading, not a reported figure."
+     },
+     "horizon_spread": {
+      "value": 0.0266,
+      "tag": "SPECULATIVE",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-01",
+      "url": "https://finance.yahoo.com/quote/HO.PA/financials",
+      "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods ({'5': 0.0859, '7': 0.0705, '10': 0.0593}) in HO-PA.json quality.reverse_dcf.implied_by_horizon; inherits the same assumed discount rate and terminal growth."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/HO-PA.json",
+     "as_of": "2026-09-01",
+     "tag": "NULL",
+     "basis": "data/market/HO-PA.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
   "second_order": [],
   "hedge": []
  },
  "taste_filtered": [],
  "health": {
   "tickers_examined": 21,
-  "rows_written": 0,
-  "fully_scored": 0,
+  "rows_written": 2,
+  "fully_scored": 2,
   "pending": 0,
   "errors": 0,
   "rows_superseded": 0,
   "rows_with_quality_gaps": 0,
   "links_worked": 13,
   "links_total": 13,
-  "target_links_covered": 0,
+  "target_links_covered": 1,
   "money_corner_links_total": 1,
-  "money_corner_links_covered": 0,
+  "money_corner_links_covered": 1,
   "choke_point_links_total": 2,
-  "choke_point_links_covered": 0,
+  "choke_point_links_covered": 1,
   "quotes_verified": 0,
-  "distinct_issuers": 0,
+  "distinct_issuers": 2,
   "profiles_available_repo_wide": 164,
-  "admissible_placements_all_verified_evidence": 0,
+  "admissible_placements_all_verified_evidence": 13,
   "placements_examined": 21,
-  "placements_inferred_only_evidence": 21,
+  "placements_inferred_only_evidence": 8,
   "distinct_issuers_in_mapping": 14,
   "issuers_complete_o2_blocked_solely_by_evidence_gate": 3,
   "issuers_blocked_o3": 1,
@@ -90,7 +412,11 @@
   "placement_audits_pass": 3,
   "placement_audits_fail": 1,
   "placements_pass_audit_still_inferred_evidence": 3,
-  "issuers_blocked_o3_after_recheck": 1
+  "issuers_blocked_o3_after_recheck": 1,
+  "issuers_complete_o2_seated_this_run": 2,
+  "issuers_admissible_evidence_no_profile": 7,
+  "issuers_excluded_failed_audit": 1,
+  "placements_pass_audit_also_evidence_verified": 3
  },
  "notes": [],
  "confidence_audit": {
@@ -109,6 +435,11 @@
    "ts": "2026-09-04T23:15:00Z",
    "by": "sieve-profiler",
    "change": "Re-run screen offshore-counter-drone (chain-level, scenario_id null), same day as the first run, after Atlas's 4 fresh-context run universe-audit --placement audits landed on c2-and-sensor-fusion in commit 175a0a0: PASS for HENSOLDT, THALES, KONGSBERG-GRUPPEN; FAIL for TELEDYNE-TECHNOLOGIES, excluded from this screen because its role text's SeaSEC-exercise clause is unsupported by its own cited evidence item (the audit's own finding). Checked whether the 3 PASS audits let those issuers seat as rows. They do not, for two independent reasons: KONGSBERG-GRUPPEN's profile is still status BLOCKED / opportunity_tier O3 (fundamentals 404, not re-queued), refused as a screen input regardless of evidence; HENSOLDT and THALES are COMPLETE O2 and clear every other gate, but the mapping's placements[].evidence[].tag for all three PASSed placements remains INFERRED, unchanged by the PASS audit (placement_audits is advisory and does not mutate placement evidence, confirmed against the mapping's own changelog language and against CLAUDE.md, whose --placement row names run deepdive, not run screen, as what a PASS entry admits). Confirmed empirically: built a draft HENSOLDT row with audit_scope PLACEMENT in an isolated test root and ran tools/check_screen.py against it; it failed with 'audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED'. Did not force the row into the live screen once that was confirmed, because the postlude's check_screen.py must pass and is never committed around. Wrote 0 rows again this run (0/13 links, money corner still unseated). Re-checked the other 12 links against this same commit: none of their placements or link_coverage changed (the commit touched only c2-and-sensor-fusion's placement_audits[] and changelog), so their prior searched-and-empty disposition in universe_note stands unchanged. Backlogged to Atlas: promote the 3 PASSed placements' evidence tags to VERIFIED in a later run universe amendment, citing each placement audit's own live-fetched source_excerpt; separately backlogged to Ron: whether a PASS placement_audits entry should also satisfy check_screen.py's PLACEMENT-scope admission directly is a gate question Sieve escalates rather than applies."
+  },
+  {
+   "ts": "2026-09-06T15:30:00Z",
+   "by": "sieve-profiler",
+   "change": "Re-run screen offshore-counter-drone (chain-level, scenario_id null), authorized by Ron 2026-09-04. Since the 2026-09-04 re-run: tools/check_screen.py commit 5e5f3b5 added a second, separately sufficient PLACEMENT admission basis (a current PASS placement_audits[] entry, checked via check_map.placement_audit_for), and the census (commits c37fa7b, 133a641) independently promoted 13 of the mapping's 21 placements from INFERRED to VERIFIED evidence directly, including all 3 PASSed c2-and-sensor-fusion placements. Re-checked every one of the 4 c2-and-sensor-fusion placements against both admission bases and against current profile status: HENSOLDT and THALES (both COMPLETE O2, both now evidence-VERIFIED and PASS-audited) seat as this screen's first 2 rows ever written, both under the money-corner, CHOKE_POINT link. KONGSBERG-GRUPPEN's placement is independently admissible but its profile is still BLOCKED/O3 (unchanged fundamentals 404); rejected and named. TELEDYNE-TECHNOLOGIES's placement evidence is still INFERRED and its audit is still FAIL; excluded and named. Re-checked the remaining 11 links: 7 more issuers (RFHIC, DRONESHIELD, CHUBB, AXA, SAIPEM, OMV-PETROM, ROMGAZ) now hold at least one evidence-VERIFIED admissible placement but carry no profile on disk, so those links stay searched-and-empty on the profile gate rather than the evidence gate; maritime-detection-radar, short-range-effectors and 3 further TELEDYNE-TECHNOLOGIES placements remain INFERRED-only, unchanged; the 2 buyer-only / sovereign-navy links remain zero-placement by chain design, unchanged. Wrote 2 rows in bucket picks_and_shovels, both link_id c2-and-sensor-fusion, both money_corner true, both data_tier T3, both status CANDIDATE, both earnings_nuggets empty (foreign filers, no EDGAR document, named in data_gaps). No PENDING_DATA requests queued this run: both seated names' fundamentals and quality are already on disk (data/market/HAG-DE.json, data/market/HO-PA.json) via the vendor-aggregate leg the profiles already used; the remaining blockers are profile coverage (7 issuers) and one tier gate (KONGSBERG-GRUPPEN), neither of which this screen run can queue a market/EDGAR request against. Named THALES's own missing offshore-counter-drone placement entry in its placements[] array as a data gap and backlog item without touching data/companies/, which is out of scope for this `run screen` invocation."
   }
  ]
 }
