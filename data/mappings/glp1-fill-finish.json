@@ -176,14 +176,14 @@
           "legal_issuer": "STERIS plc",
           "exchange": "NYSE",
           "ticker": "STE",
-          "source_name": "SEC EDGAR company search (browse-edgar) for ticker STE",
-          "source_date": "2026-09-04",
-          "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=STE&type=10-K&dateb=&owner=include&count=5",
+          "source_name": "SEC EDGAR company submissions API (data.sec.gov) for CIK 0001757898",
+          "source_date": "2026-09-06",
+          "url": "https://data.sec.gov/submissions/CIK0001757898.json",
           "tag": "VERIFIED",
           "source_type": "OFFICIAL_REGISTRY",
           "official_registry": true,
-          "accessed_at": "2026-09-04",
-          "source_excerpt": "STERIS plc CIK#: 0001757898. NYSE ticker STE. Formerly: STERIS Ltd (filings through 2019-03-28)."
+          "accessed_at": "2026-09-06",
+          "source_excerpt": "\"name\":\"STERIS plc\",\"tickers\":[\"STE\"],\"exchanges\":[\"NYSE\"]"
         }
       ]
     },
@@ -909,6 +909,12 @@
       "by": "atlas-fresh-context",
       "kind": "AMEND",
       "change": "run universe-audit glp1-fill-finish --placement STERIS: fresh-context audit of the single STERIS placement on aseptic-filling-and-isolator-equipment. Fetched both cited sources live. The placement's own role evidence (STERIS VHP 100i/1000i press release) verified verbatim and fully supports the claimed role. The listing's identity_evidence (NYSE-STE, sourced to a SEC browse-edgar company-search page) does not: the recorded source_excerpt's 'NYSE ticker STE' clause is not present anywhere on that live page, which states only the legal name, CIK, SIC, state, and former name. Result: audit.status FAIL on this placement, naming the identity_evidence citation defect; the underlying real-world fact (STERIS plc trades NYSE:STE) is not in doubt but this specific citation does not establish it. Wrote one placement_audits[] entry (record_digest 3be93c66e78fc593d4e7415a890430048686ed2e00c2749cd7537dccc9bd951c) per the check_map.py placement_claim_digest/placement_audit_for contract. Per CLAUDE.md's --placement clause and method.md section 6A this audit changes only placement_audits and this changelog: mapping status remains ACTIVE and the top-level census audit block (null) is untouched. The FAIL is not corrected here; a later run universe amends the listing's identity_evidence citation."
+    },
+    {
+      "ts": "2026-09-06T18:00:49Z",
+      "by": "atlas-cartographer",
+      "kind": "AMEND",
+      "change": "run universe glp1-fill-finish: narrow correction of the NYSE-STE listing's identity_evidence, ordered by Ron 2026-09-04 in direct response to the fresh-context placement audit FAIL of commit a745e32 (2026-09-06T17:50:54Z). That audit found the prior citation (SEC browse-edgar company-search page for CIK STE) never states the exchange 'NYSE' or the ticker 'STE' anywhere in its body; its recorded source_excerpt attributed a 'NYSE ticker STE' clause to a page that only lists legal name, CIK, SIC, state, and former name. Live-fetched (LOCAL session, WebFetch) the SEC EDGAR company submissions API at https://data.sec.gov/submissions/CIK0001757898.json, which states legal issuer, exchange, and ticker together in one machine-readable official-registry record, and confirmed the literal raw JSON text twice via independent fetch prompts (both returned the identical compact substring). Replaced the listing's sole identity_evidence entry with this new source: source_name 'SEC EDGAR company submissions API (data.sec.gov) for CIK 0001757898', source_date and accessed_at 2026-09-06, tag VERIFIED, source_type OFFICIAL_REGISTRY, official_registry true, source_excerpt the verbatim raw JSON fragment '\"name\":\"STERIS plc\",\"tickers\":[\"STE\"],\"exchanges\":[\"NYSE\"]', which states legal_issuer (STERIS plc), exchange (NYSE) and ticker (STE) together, satisfying the strict token-anchored match check_map.py:_listing_identity_failures applies (accessed_at is post-TOKEN_MATCH_CUTOFF, so the exchange and ticker tokens must appear as exact bounded tokens, which this excerpt does). Nothing else on this mapping was touched: the STERIS placement's role evidence, role claim, all other issuers, listings, placements, link_coverage, and prior changelog/placement_audits history are preserved exactly as they were. Mapping status left ACTIVE; the placement_audits[] FAIL entry from the prior audit is left in place as history, superseded in effect by this correction but not rewritten, per method.md section 6A's rule that a defect is corrected by a later run universe amendment, never by the audit itself."
     }
   ],
   "placement_audits": [
