@@ -1143,6 +1143,13 @@
    "kind": "AMEND",
    "change": "run universe-audit minor-nsr-permits --placement JACOBS-SOLUTIONS (fresh-context batch run, label audit-minor-nsr-permits-jacobs-solutions): audited the JACOBS-SOLUTIONS placement on link air-permitting-and-dispersion-modeling. Live-fetched the NYSE-J listing's identity source (data.sec.gov/submissions/CIK0000052988.json) and confirmed legal_issuer JACOBS SOLUTIONS INC., exchange NYSE, ticker J match the listing's identity_evidence exactly. Live-fetched the placement's evidence_index 1 source (jacobs.com/capabilities/environmental) and confirmed its source_excerpt reproduces verbatim on the current page, fully supporting the sampled claim and the placement's core role assertion. Wrote one placement_audits[] entry with status PASS, evidence_index 1, and record_digest bound to the placement's current role and that evidence item via check_map.placement_claim_digest. Did not touch evidence_index 0 (already INFERRED per the 2026-09-04 amendment, correctly, since it overreaches the same source with data-center/New-Source-Review specifics the page does not state), any other placement, listing, link_coverage row, search record, or the mapping's ACTIVE status. This session read only this mapping, its chain, docs/method.md section 6A, and tools/check_map.py's placement audit contract; it did not read the author transcript, map log, profiles, screens, or ledger rationale.",
    "prior": null
+  },
+  {
+   "ts": "2026-09-06T15:46:53Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit minor-nsr-permits --placement ONT (fresh context, batch worktree audit-minor-nsr-permits-ont, part of Ron's 2026-09-06 parallel screen batch): audited the single ACTIVE placement of ONT (Onterris, Inc., formerly Montrose Environmental Group) on link air-permitting-and-dispersion-modeling. Opened the placement's own cited source live (onterris.com press release) and it verbatim supports both halves of the claim: the MEG->ONT/NYSE rename effective 2026-05-04, and the 'global environmental solutions company' self-description. Opened the listing's official identity source live (data.sec.gov/submissions/CIK0001643615.json) and it verbatim matches the listing's identity_evidence exactly: legal_issuer Onterris, Inc., exchange NYSE, ticker ONT. Both were independently corroborated via web search against the underlying SEC 8-K filing and contemporaneous press coverage (Nasdaq, BusinessWire, Arkansas Business), and the role claim was corroborated beyond the placement's own generic self-description by confirming Montrose/Onterris performs air permitting and dispersion modeling directly (its Consulting and Engineering division, and its 2024 acquisition of Spirit Environmental, a named air-permitting and dispersion-modeling specialist). Identity, role and source date all check clean: PASS. Appended placement_audits[] entry only; mapping status, listings, other placements, link_coverage and searches are untouched.",
+   "prior": null
   }
  ],
  "placement_audits": [
@@ -1307,6 +1314,29 @@
    "identity_source_excerpt": "Live fetch 2026-09-06: name JACOBS SOLUTIONS INC., tickers [\"J\"], exchanges [\"NYSE\"], cik 0000052988, entityType operating, sicDescription \"Heavy Construction Other Than Bldg Const - Contractors\" -- matches the NYSE-J listing's identity_evidence (legal_issuer JACOBS SOLUTIONS INC., exchange NYSE, ticker J) exactly.",
    "role_note": "Sampled evidence_index 1 (the VERIFIED item) rather than evidence_index 0 (INFERRED): live re-fetch of jacobs.com/capabilities/environmental on 2026-09-06 reproduced the exact source_excerpt verbatim ('Air Quality and Acoustics Manage air and noise quality from permitting to monitoring, enabling clients to achieve better outcomes and protecting our health and wellbeing.'), which supports the sampled claim exactly as written and supports the placement's core role (an engineering/environmental consultancy managing air quality permitting from application through monitoring). The page does not itself confirm the placement role sentence's further specifics ('industrial and data center clients'); those are not part of the sampled claim and are carried on evidence_index 0, which the 2026-09-04 amendment already left tagged INFERRED for exactly this reason (live page did not verbatim support the data-center/New-Source-Review specifics). role_ok is scored against the sampled evidence item's own claim, which the live source fully supports.",
    "record_digest": "2530fd2e552348c661c4e9405255e2aa30465fd3bed251775c3c70d035577c50"
+  },
+  {
+   "chain_id": "minor-nsr-permits",
+   "link_id": "air-permitting-and-dispersion-modeling",
+   "issuer_id": "ONT",
+   "audited_at": "2026-09-06T15:46:53Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/audit-minor-nsr-permits-ont/run-universe-audit-minor-nsr-permits--placement-ONT-2026-09-06T154653Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree checked out fresh from origin/main for this command, as one of a parallel batch of independent audit worktrees Ron ordered on 2026-09-06 ('run as many of these screens as you can'), reading only the ONT placement on link air-permitting-and-dispersion-modeling and its NYSE-ONT listing within data/mappings/minor-nsr-permits.json, the minor-nsr-permits chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name; it never read the author's transcript, the map log, company profiles, screens, or ledger rationale, and never read any other placement on this mapping beyond what this placement's own record names. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other audit worktrees running in the same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "PASS",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "source_url": "https://www.onterris.com/montrose-environmental-group-is-now-onterris",
+   "source_date": "2026-04-21",
+   "source_excerpt": "In connection with its name change, the Company will change the common stock ticker symbol as listed on the New York Stock Exchange from 'MEG' to 'ONT'. Both the name and ticker symbol changes will become effective on the New York Stock Exchange at the start of trading on May 4, 2026. Onterris is a global environmental solutions company partnering with organizations to solve complex challenges where environmental pressures, regulatory expectations and operational risks intersect.",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0001643615.json",
+   "identity_source_date": "2026-09-06",
+   "identity_source_excerpt": "Live fetch 2026-09-06: {\"cik\":\"0001643615\",\"entityType\":\"operating\",\"sicDescription\":\"Services-Management Consulting Services\",\"name\":\"Onterris, Inc.\",\"tickers\":[\"ONT\"],\"exchanges\":[\"NYSE\"]} -- matches the NYSE-ONT listing's identity_evidence (legal_issuer Onterris, Inc., exchange NYSE, ticker ONT) exactly. Independently corroborated live via WebSearch against the underlying SEC Form 8-K (sec.gov/Archives/edgar/data/0001643615/000119312526166730/meg-ex99_1.htm) and press coverage (Nasdaq press release 2026-04-21, BusinessWire, Arkansas Business) confirming the same Montrose Environmental Group -> Onterris, MEG -> ONT rename and ticker change on NYSE effective 2026-05-04, and separately confirmed the role: Montrose/Onterris's Consulting and Engineering division (Assessment, Permitting and Response segment) performs air permitting, dispersion modeling and permit negotiation directly, including through its 2024 acquisition of Spirit Environmental, a named air-permitting and dispersion-modeling specialist, so the placement's role claim is not merely a generic 'environmental solutions' self-description but a specific, corroborated match to this link's air-permitting-and-dispersion-modeling function.",
+   "record_digest": "d7010f07187314b607989be263d729935ac141d6ea2936dd8dd670613b6babe5"
   }
  ]
 }
