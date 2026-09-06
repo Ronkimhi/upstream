@@ -1,6 +1,6 @@
 {
  "id": "CAMP-20260901-01",
- "as_of": "2026-09-04",
+ "as_of": "2026-09-06",
  "status": "SELECTED",
  "owner": "nell-scanner",
  "generated_by": "run campaign init",
@@ -2088,14 +2088,14 @@
    "id": "BLK-05",
    "severity": "WARNING",
    "theme_id": "hormuz-maritime",
-   "finding": "run selection 2026-09-04 (second run today) re-examined all 10 campaign-v1 rows in data/screens/hormuz-maritime.json (7 crude-tanker-tonnage, 3 naval-escort-and-mine-clearance) against their COMPLETE O2 profiles, after the fetcher's foreign-filer cash/debt fix (commit 54cbeaa) and the widened XBRL concept map (commit 2d3ce3e) filled fields the first run found NULL. ELBIT-SYSTEMS now clears the bar: all 12 canonical fields sourced with zero NULL (Piotroski 8 STRONG, Beneish -2.473 CLEAN, net_debt_to_ebitda -0.7322 net cash, reverse_dcf solved), and is promoted to O1 this run (selection_basis and screen_handoff on data/companies/ELBIT-SYSTEMS.json). The other nine still carry at least one genuine NULL canonical field: FRONTLINE (leverage, quality.piotroski, quality.beneish_state), DHT-HOLDINGS (cash_conversion.fcf_margin, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf both fields), INTERNATIONAL-SEAWAYS (quality.piotroski, quality.beneish_state; missing cost_of_revenue_fy), TEEKAY-TANKERS (leverage only: cash now populated at 830,569,000 but total_debt has only a single 2022-12-31 point, three years stale against it, so net_debt_to_ebitda stays NULL rather than mixing periods), TSAKOS-ENERGY-NAVIGATION and NORDIC-AMERICAN-TANKERS and SFL-CORP (reverse_dcf both fields, PENDING_DATA on fcf/enterprise_value), HUNTINGTON-INGALLS (quality.piotroski, quality.beneish_state), EXAIL-TECHNOLOGIES (quality.beneish_state only). This remains a data-completeness blocker for the nine, not a finding that no further qualifying stock exists, so no no_candidate_finding is written for them. TEEKAY-TANKERS and EXAIL-TECHNOLOGIES are nearest to clearing (one field each). The chain's true money-corner link, specialty-marine-broking (UNDISCOVERED), still has zero screen rows and zero mapped placements; no candidate on it exists to evaluate. DEPTH's 1-3 O1 per theme is satisfied at 1 for this theme; further promotions on this chain are optional, not required.",
+   "finding": "run selection 2026-09-04 (second run today) re-examined all 10 campaign-v1 rows in data/screens/hormuz-maritime.json (7 crude-tanker-tonnage, 3 naval-escort-and-mine-clearance) against their COMPLETE O2 profiles, after the fetcher's foreign-filer cash/debt fix (commit 54cbeaa) and the widened XBRL concept map (commit 2d3ce3e) filled fields the first run found NULL. ELBIT-SYSTEMS now clears the bar: all 12 canonical fields sourced with zero NULL (Piotroski 8 STRONG, Beneish -2.473 CLEAN, net_debt_to_ebitda -0.7322 net cash, reverse_dcf solved), and is promoted to O1 this run (selection_basis and screen_handoff on data/companies/ELBIT-SYSTEMS.json). The other nine still carry at least one genuine NULL canonical field: FRONTLINE (leverage, quality.piotroski, quality.beneish_state), DHT-HOLDINGS (cash_conversion.fcf_margin, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf both fields), INTERNATIONAL-SEAWAYS (quality.piotroski, quality.beneish_state; missing cost_of_revenue_fy), TEEKAY-TANKERS (leverage only: cash now populated at 830,569,000 but total_debt has only a single 2022-12-31 point, three years stale against it, so net_debt_to_ebitda stays NULL rather than mixing periods), TSAKOS-ENERGY-NAVIGATION and NORDIC-AMERICAN-TANKERS and SFL-CORP (reverse_dcf both fields, PENDING_DATA on fcf/enterprise_value), HUNTINGTON-INGALLS (quality.piotroski, quality.beneish_state), EXAIL-TECHNOLOGIES (quality.beneish_state only). This remains a data-completeness blocker for the nine, not a finding that no further qualifying stock exists, so no no_candidate_finding is written for them. TEEKAY-TANKERS and EXAIL-TECHNOLOGIES are nearest to clearing (one field each). The chain's true money-corner link, specialty-marine-broking (UNDISCOVERED), still has zero screen rows and zero mapped placements; no candidate on it exists to evaluate. DEPTH's 1-3 O1 per theme is satisfied at 1 for this theme; further promotions on this chain are optional, not required. Re-examined by run selection 2026-09-06 (third run): data/screens/hormuz-maritime.json has not been re-amended since the second run (last screen commit 7595f03, predating this run); TEEKAY-TANKERS and EXAIL-TECHNOLOGIES remain nearest to clearing at one NULL canonical field each (leverage.net_debt_to_ebitda and quality.beneish_state respectively). No change to this blocker's substance.",
    "owner": "sieve-profiler"
   },
   {
    "id": "BLK-06",
    "severity": "WARNING",
    "theme_id": "russia-diesel-ban",
-   "finding": "run selection 2026-09-04 (second run today) re-examined the one campaign-v1 row in data/screens/russian-diesel-ban.json: INTERNATIONAL-SEAWAYS on clean-product-shipping. The identity gap the first run found is now closed: data/companies/INTERNATIONAL-SEAWAYS.json's placements array now carries both (hormuz-maritime, crude-tanker-tonnage) and (russian-diesel-ban, clean-product-shipping), so a screen_handoff to this theme would resolve correctly. The remaining blocker is the same canonical-field defect BLK-05 records: quality.piotroski and quality.beneish_state are still NULL (data/market/INSW.json quality state PENDING_DATA, missing cost_of_revenue_fy; 8/9 and 11/12 inputs found respectively), which tools/check_profile.py refuses on an O1 profile. cash_conversion is fine (operating_cash_flow_to_net_income sourced). No other issuer has a screen row on this chain: russian-diesel-ban's census is thin (27 distinct mapped issuers, 9 completed profiles) and no other profiled name has been screened onto it yet. No no_candidate_finding is written for the same reason as BLK-05: this is an open data gap (missing cost_of_revenue_fy for this filer), not a researched absence of a qualifying stock.",
+   "finding": "run selection 2026-09-04 (second run today) re-examined the one campaign-v1 row in data/screens/russian-diesel-ban.json: INTERNATIONAL-SEAWAYS on clean-product-shipping. The identity gap the first run found is now closed: data/companies/INTERNATIONAL-SEAWAYS.json's placements array now carries both (hormuz-maritime, crude-tanker-tonnage) and (russian-diesel-ban, clean-product-shipping), so a screen_handoff to this theme would resolve correctly. The remaining blocker is the same canonical-field defect BLK-05 records: quality.piotroski and quality.beneish_state are still NULL (data/market/INSW.json quality state PENDING_DATA, missing cost_of_revenue_fy; 8/9 and 11/12 inputs found respectively), which tools/check_profile.py refuses on an O1 profile. cash_conversion is fine (operating_cash_flow_to_net_income sourced). No other issuer has a screen row on this chain: russian-diesel-ban's census is thin (27 distinct mapped issuers, 9 completed profiles) and no other profiled name has been screened onto it yet. No no_candidate_finding is written for the same reason as BLK-05: this is an open data gap (missing cost_of_revenue_fy for this filer), not a researched absence of a qualifying stock. Re-examined by run selection 2026-09-06 (third run): data/screens/russian-diesel-ban.json is unchanged since the second run (last screen commit 77b5dca). quality.piotroski and quality.beneish_state on data/companies/INTERNATIONAL-SEAWAYS.json remain NULL. No change to this blocker's substance.",
    "owner": "sieve-profiler"
   },
   {
@@ -2103,7 +2103,45 @@
    "severity": "INFO",
    "theme_id": "hormuz-maritime",
    "finding": "ELBIT-SYSTEMS was promoted to O1 by run selection 2026-09-04 on complete, sourced profile evidence, but hormuz-maritime's mapping (data/mappings/hormuz-maritime.json) carries a FAIL whole-census audit (status ACTIVE, audited_at 2026-09-04T03:53:11Z) and zero placement_audits entries for this issuer. CLAUDE.md's `run deepdive` row requires either a current PASS census audit or a current PASS placement_audits[] entry for the exact issuer/link/chain before Stocky may dive it; neither exists yet. Next needed stage: `run universe-audit hormuz-maritime --placement ELBIT-SYSTEMS` in fresh context.",
+   "owner": "atlas-cartographer",
+   "resolved": true,
+   "resolved_at": "2026-09-06T15:10:00Z",
+   "resolution": "ELBIT-SYSTEMS placement audit is now PASS: data/mappings/hormuz-maritime.json placement_audits carries issuer_id ELBIT-SYSTEMS, link_id naval-escort-and-mine-clearance, status PASS, audited_at 2026-09-04T18:08:32Z. The dive is FINAL: data/stocks/ESLT__hormuz-maritime.json, verdict WATCH, clock COMPOUNDER, grade A. The dependency this blocker tracked (a placement audit before Stocky could dive) is closed. Retired rather than deleted so the record of when the audit gap existed survives."
+  },
+  {
+   "id": "BLK-08",
+   "severity": "WARNING",
+   "theme_id": "prediction-market-plumbing",
+   "finding": "run selection 2026-09-06 (third run) examined all in-scope rows in data/screens/prediction-market-plumbing.json: DRAFTKINGS, BALLYS and CAESARS on sportsbook-platform-and-trading (UNDISCOVERED), the only in-scope link screened on this chain (prediction-market-venue and distribution-front-ends are CROWDED/OVER_CROWDED and out of DEPTH scope). All three are COMPLETE O2 profiles and none clears the O1 bar. All three carry NULL quality.piotroski and quality.beneish_state: data/market/DKNG.json quality state PENDING_DATA (missing long_term_debt_fy), data/market/BALY.json and data/market/CZR.json quality state PENDING_DATA (missing cost_of_revenue_fy). DRAFTKINGS also carries NULL leverage.net_debt_to_ebitda and NULL reverse_dcf on both fields; BALLYS and CAESARS's cash_conversion.operating_cash_flow_to_net_income also reads NULL, though fcf_margin independently fills the group's own requirement (check_profile.py still refuses any present NULL field on an O1 profile regardless). This is a data-completeness blocker, not a researched absence of a qualifying stock: no no_candidate_finding is written. DEPTH's 1-3 O1 per theme remains unmet at 0 for this theme.",
+   "owner": "sieve-profiler"
+  },
+  {
+   "id": "BLK-09",
+   "severity": "WARNING",
+   "theme_id": "minor-nsr-permits",
+   "finding": "run selection 2026-09-06 (third run) examined all 6 in-scope rows in data/screens/minor-nsr-permits.json: the money-corner link emissions-aftertreatment-and-catalyst (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL) and the UNDISCOVERED link air-permitting-and-dispersion-modeling (ONT, TETRA-TECH). All six are COMPLETE O2 profiles and none clears the O1 bar. Nearest to clearing: CUMMINS carries exactly one NULL canonical field, quality.beneish_state (data/market/CMI.json quality.beneish.state PENDING_DATA, missing receivables_fy); ONT carries exactly one NULL canonical field, quality.piotroski (data/market/ONT.json: 9 of 9 inputs found but 0 common fiscal periods across them, the change legs need at least 2). The other four each carry 2 or more NULL canonical fields spanning cash_conversion, leverage, and both quality fields. This is a data-completeness blocker naming CMI's missing receivables_fy and ONT's fiscal-period alignment gap as the two nearest; no no_candidate_finding is written. DEPTH's 1-3 O1 per theme remains unmet at 0 for this theme.",
+   "owner": "sieve-profiler"
+  },
+  {
+   "id": "BLK-10",
+   "severity": "WARNING",
+   "theme_id": "data-center-moratoria",
+   "finding": "run selection 2026-09-06 (third run) examined all 4 in-scope rows in data/screens/data-center-moratoria.json on the UNDISCOVERED link permitting-and-environmental-consultancy: TETRA-TECH, AECOM, JACOBS-SOLUTIONS, STANTEC. All four are COMPLETE O2 profiles and none clears the O1 bar: all four carry NULL quality.piotroski and quality.beneish_state, and AECOM, JACOBS-SOLUTIONS and STANTEC each carry additional NULL canonical fields (leverage and reverse_dcf on AECOM; revenue.latest_fy, growth.revenue_cagr_3y, margins.operating_margin and cash_conversion.fcf_margin on JACOBS-SOLUTIONS; margins, cash_conversion.fcf_margin, leverage, valuation.market_cap, valuation.price_to_book and reverse_dcf on STANTEC). This is a data-completeness blocker, not a researched absence; no no_candidate_finding is written. TETRA-TECH also carries a screen row on minor-nsr-permits (air-permitting-and-dispersion-modeling, see BLK-09); it is the same profile and needs the same quality fields closed before either theme could promote it, so it is not counted twice. DEPTH's 1-3 O1 per theme remains unmet at 0 for this theme.",
+   "owner": "sieve-profiler"
+  },
+  {
+   "id": "BLK-11",
+   "severity": "WARNING",
+   "theme_id": "glp1-fill-finish",
+   "finding": "data/screens/glp1-fill-finish.json seats 5 rows and none sits on a money-corner or UNDISCOVERED link: NOVO-NORDISK (glp1-demand-anchor, OVER_CROWDED), CORNING (pharma-glass-tubing, QUIET), STEVANATO-GROUP (primary-containment-converters, EMERGING), ATS-CORPORATION (device-assembly-automation, QUIET), DR-REDDYS-LABORATORIES (generic-and-biosimilar-glp1-entrants, EMERGING). DEPTH restricts this theme's census to money-corner and UNDISCOVERED links only. The chain's real money-corner link, autoinjector-and-pen-platforms (UNDISCOVERED, 4 distinct issuers already found), and two further UNDISCOVERED links, aseptic-filling-and-isolator-equipment (2 issuers) and sterile-fill-finish-capacity (3 issuers), remain status OPEN in data/mappings/glp1-fill-finish.json link_coverage: Atlas has not closed their census to ACTIVE placements, so run selection has no in-scope row to evaluate on this theme and no O1 candidate exists to examine. This is a coverage gap upstream of screening, not a data-completeness gap on an existing profile and not a researched economic absence: no no_candidate_finding is written. Next needed stage: `run universe glp1-fill-finish` to close the three OPEN money-corner/UNDISCOVERED links, then `run screen glp1-fill-finish` to seat rows on them.",
    "owner": "atlas-cartographer"
+  },
+  {
+   "id": "BLK-12",
+   "severity": "INFO",
+   "theme_id": "munitions-replenishment",
+   "finding": "munitions-replenishment has no screen at all: data/screens/munitions-replenishment.json does not exist on disk. The theme sits at stage PROFILED with a closed mapping and completed profiles but zero screen rows, so run selection has no screen_handoff candidate to evaluate and cannot promote any O1 on this theme this run. Next needed stage: `run screen munitions-replenishment`.",
+   "owner": "sieve-profiler"
   }
  ],
  "confidence_audit": {
@@ -3819,6 +3857,19 @@
   },
   {
    "ts": "2026-09-04T19:40:03Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 167
+  },
+  {
+   "ts": "2026-09-06T15:10:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01, third run: examined all campaign-v1 screen rows that landed since the second run (a9e9998) on prediction-market-plumbing (3 rows), minor-nsr-permits (6 rows), data-center-moratoria (4 rows) and re-verified the unchanged hormuz-maritime (10 rows) and russian-diesel-ban (1 row) screens; confirmed glp1-fill-finish has zero in-scope (money-corner/UNDISCOVERED) rows and munitions-replenishment has no screen at all. Promoted zero new O1: every examined COMPLETE O2 profile retains at least one NULL canonical field (overwhelmingly quality.piotroski and/or quality.beneish_state PENDING_DATA), which check_profile.py refuses on O1 regardless of which field. Wrote blockers BLK-08 through BLK-12 naming the exact blocking field(s) per theme, and retired BLK-07 (ELBIT-SYSTEMS placement audit PASS and dive FINAL on disk). O1 count unchanged at 6 (ANDRITZ, CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY, ELBIT-SYSTEMS, HUBBELL, MYR-GROUP, VERTIV-HOLDINGS)."
+  },
+  {
+   "ts": "2026-09-06T15:11:04Z",
    "by": "campaign_calibrate",
    "kind": "AMEND",
    "change": "recomputed campaign completion and advanced proven stages",
