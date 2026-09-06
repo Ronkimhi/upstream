@@ -1,0 +1,338 @@
+{
+ "ticker": "ACM",
+ "name": "AECOM",
+ "issuer_id": "AECOM",
+ "listing_id": "NYSE-ACM",
+ "chain_id": "data-center-moratoria",
+ "link_id": "permitting-and-environmental-consultancy",
+ "link_id_basis": "Exact match to the O1 profile's selection_basis.screen_handoff (link_id permitting-and-environmental-consultancy, position 4, heat UNDISCOVERED with impact 62 / crowdedness 38 / capture 48, money_corner false) and to the pure_play bucket row in data/screens/data-center-moratoria.json. AECOM's only ACTIVE placement on this chain is this one link, so there is no secondary placement to disambiguate.",
+ "screen_ref": "data/screens/data-center-moratoria.json",
+ "scenario_ids": [],
+ "tier": "T1",
+ "tier_basis": "US SEC filer (10-K, CIK 868857, NYSE: ACM). data/market/ACM.json fundamentals carry source sec-companyfacts with official_source true on every canonical ratio; price_status is AGREED (dual-source: yfinance and stockanalysis.com prints agree to the cent on the 2026-09-04 close, 66.58). data/edgar/docs/ACM.json holds one document: the Q3 FY2026 8-K earnings-release exhibit (accession 0001104659-26-093421, filed 2026-08-10, EX-99.1). tools/fetch/fetch.py's edgar_doc fetch kind only ever retrieves an 8-K carrying item 2.02 (or a 10-Q fallback) inside the request's lookback window, never a 10-K or proxy, so no full balance sheet or governance-item (Item 9, Item 13) text is fetchable through the normal bridge for this issuer; contract-liability and auditor-continuity facts below are cited from web searches and a secondary aggregator instead, named plainly in data_gaps and earnings_quality.inputs rather than smoothed into a verified quote. This is a data-plane gap this analyst cannot fix (tools/ is CONSTITUTION tier) and is escalated in this run's repairs.",
+ "clock": "COMPOUNDER",
+ "clock_basis": "Inherited from the data-center-moratoria chain, whose own clock field reads COMPOUNDER: a multi-year permitting-and-siting repricing across a value chain, not a dated binary resolution (method section 2). scenario_ids is empty, so nothing overrides it to EVENT. review_by is the 90-day COMPOUNDER cap, set to 2026-12-04 (89 days from updated_at), which lands after AECOM's expected FY2026 Q4 and full-year release: the FY2025 Q4/full-year results were reported in mid-to-late November 2025, so the FY2026 equivalent is expected on a similar cadence, inside review_by.",
+ "status": "DRAFT",
+ "created_at": "2026-09-06",
+ "updated_at": "2026-09-06",
+ "as_of": "2026-09-06",
+ "review_by": "2026-12-04",
+ "verdict": "INVESTABLE",
+ "shadow_ref": null,
+ "entry_zone": {
+  "low": 61.0,
+  "high": 71.0,
+  "basis": "low=$61.00 sits at the price where quality.reverse_dcf's own bisection formula (base_fcf $684,927,000, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon), replicated in this session and reproducing the filed enterprise value to within 0.003% before varying inputs, asks for ZERO real FCF growth in perpetuity ($61.05 computed here), a floor that essentially coincides with the stock's own 52-week low print of $61.04 on 2026-08-12; high=$71.00 sits just under $71.28, the price at which even this dive's own deliberately conservative bear-case rebuild (3% revenue CAGR versus an achieved 7.07% trailing 3-year rate, operating margin held flat at the FY2025 print of 6.36% with no further expansion, cash conversion held at FY2025's own already-below-average ratio) still closes the market's implied ask. The whole zone therefore sits at or below what even a skeptical rebuild of AECOM's own disclosed numbers defends, a scenario asymmetry (bear case still above spot) this dive has not found on any prior name in this analyst's log, where every previous bear case confirmed the stock was NOT cheap enough."
+ },
+ "no_entry_above": 75.0,
+ "watch_triggers": [],
+ "would_buy_zone": null,
+ "would_buy_basis": null,
+ "price_ref": {
+  "value": 66.58,
+  "source": "data/market/ACM.json series.rows last close (2026-09-04); price_status AGREED (yfinance 66.58000183105469 and stockanalysis 66.58 agree to the cent on the same session); currency USD",
+  "as_of": "2026-09-04"
+ },
+ "what_is_priced_in": [
+  {
+   "expectation": "The 12-month move is a severe multiple CONTRACTION, not expansion, even though earnings grew: price fell 47.13% (125.94 on 2025-09-04 to 66.58 on 2026-09-04) while FY2025 net income grew 39.65% over FY2024 (402,266,000 to 561,774,000), so trailing P/E collapsed from roughly 41.5x a year ago to roughly 15.6x today. This is the opposite decomposition from a TOO_LATE candidate, which method section 7 defines as multiple expansion eating the runway; here the runway (earnings) grew while the multiple was cut by roughly 62%.",
+   "evidence": "computed from data/market/ACM.json series.rows (125.94 on 2025-09-04, 66.58 on 2026-09-04) and fundamentals.net_income_fy (402,266,000 FY2024, 561,774,000 FY2025) and shares_fy (132,552,407 FY2024, 131,782,371 FY2025)",
+   "tag": "INFERRED"
+  },
+  {
+   "expectation": "The decline is anchored to two discrete, dated, disclosed events, not a slow narrative fade: the FY2025 Q4/full-year release (reported mid-November 2025) missed expectations across the board (quarterly net income -22% YoY, operating cash flow -34%, adjusted free cash flow -51%) and cut guidance, taking the stock down roughly 26% in under a month (133.52 on 2025-11-14 to 98.35 by mid-December 2025); then the Q3 FY2026 release (2026-08-10) disclosed a $337 million pre-tax charge on one legacy Construction Management project, taking the stock to a new 52-week low of $61.04 on 2026-08-12, roughly 9.7% below the pre-release close in the worst single session.",
+   "evidence": "computed from data/market/ACM.json series.rows (74.8 on 2026-08-03 through 61.04 on 2026-08-12, and the monthly path 130.43 on 2025-10-01 to 101.52 on 2025-12-01); the November 2025 figures and dates are WebSearch reads of contemporaneous financial-news coverage (Motley Fool, 'Why Aecom Stock Was Plummeting This Week', 2025-11-21; a stock-price-move aggregator citing the 133.52-to-98.35 range), tagged INFERRED, no data/edgar/docs/ACM.json copy of the FY2025 Q4 8-K is stored (only the Q3 FY2026 one), named in data_gaps",
+   "tag": "INFERRED"
+  },
+  {
+   "expectation": "The market's own 5-year reverse-DCF convention now asks for almost no real growth: at the filed snapshot price of $69.17 (2026-08-28) the implied FCF CAGR is 2.4%, and at today's actual, lower close of $66.58 the same formula (replicated in this session) implies roughly 1.7%, both far below even a deliberately conservative rebuild of AECOM's own guided and historical figures (this dive's own bear case: 3.0%). The ask is also nearly horizon-invariant (2.40% / 2.42% / 2.44% at 5 / 7 / 10 years, a 0.04-point spread, the smallest of any name in this analyst's log to date), because the 9% discount rate sits far above the ask itself.",
+   "evidence": "data/market/ACM.json quality.reverse_dcf (implied_fcf_cagr 0.024, state SOLVED, base_fcf 684,927,000.0, enterprise_value 10,754,442,602.07, implied_by_horizon {5: 0.024, 7: 0.0242, 10: 0.0244}, horizon_spread 0.0004, 9% discount rate, 2.5% terminal growth, price_used 69.17 as of 2026-08-28); the 66.58/1.7% reading is this dive's own inversion of the file's own bisection formula at today's actual close, reproducing the filed EV to within 0.003% at the filed g before varying price, detailed in expectations_gap.market_implied_source",
+   "tag": "SPECULATIVE"
+  },
+  {
+   "expectation": "The link this dive sits on carries no AECOM-specific revenue or backlog figure: the cited role evidence is a four-firm market-share statistic (over 40% of the US environmental and sustainability consulting market held by Tetra Tech, AECOM, WSP and Jacobs together) with no dollar figure isolating AECOM's own data-center-permitting work, and this dive's valuation case does not depend on or validate the data-center-moratoria occurrence at all; it would read identically had the occurrence never happened.",
+   "evidence": "data/mappings/data-center-moratoria.json placement evidence and data/companies/AECOM.json exposure_summary.disclosed_revenue_exposure (NULL, no data-center-specific share disclosed)",
+   "tag": "VERIFIED"
+  }
+ ],
+ "priced_in_summary": "Not a data-center-thesis call; a generic valuation-overshoot call that happens to sit on this chain's link. The method's TOO_LATE test asks whether the decomposition shows multiple expansion eating the runway, and here it shows the extreme opposite: trailing P/E fell from roughly 41.5x to roughly 15.6x over the past year even as FY2025 net income grew 39.65%, driven by two dated, disclosed, real events (the November 2025 FY2025 Q4 miss and guidance cut, then the August 2026 $337 million Construction Management charge) rather than by a slow narrative unwind. That rules out TOO_LATE outright. What the price does ask for, on the market's own near-horizon-invariant reverse-DCF read, is almost no real free-cash-flow growth: 2.4% at the filed snapshot, roughly 1.7% at today's actual close. This dive's own three-scenario rebuild (bear 3.0%, base 10.6%, bull 19.3% FCF-CAGR-equivalent, all built from the company's own disclosed guidance, backlog and margin trajectory) finds the bear case ALONE already above the market's ask, at every scenario examined, which has not happened on any prior name in this log. Set against that: this is the first dive in the log built on a chain link with zero company-specific revenue attribution, sitting instead on a shared four-firm market-share statistic, and on a company that has surprised the market negatively twice within about ten months, including six months after its own board-level decision (February 2026) to retain the exact legacy business line that then produced this quarter's charge. The honest verdict is INVESTABLE: a real, disclosed, bounded overshoot with a margin of safety that survives this dive's own bear case, priced by a market that has been right to be cautious about this name recently and may still be right that more surprises are coming from the wound-down-but-not-yet-exited Construction Management line — which is exactly what no_entry_above and the independence test's falsification condition are for.",
+ "valuation_snapshot": {
+  "price": 66.58,
+  "price_as_of": "2026-09-04",
+  "currency": "USD",
+  "market_cap": 8774070261.18,
+  "enterprise_value": 10413126261.18,
+  "ev_to_base_fcf": 15.2033,
+  "price_to_sales": 0.5436,
+  "week52_low": 61.04,
+  "week52_high": 134.35,
+  "pct_below_52w_high": 0.5044,
+  "pct_above_52w_low": 0.0908,
+  "twelve_month_price_change": -0.4713,
+  "net_debt_to_ebitda": 1.3631,
+  "trailing_pe_now": 15.6185,
+  "trailing_pe_1y_ago": 41.499,
+  "basis": "market_cap and enterprise_value are computed fresh in this session from today's actual close (66.58, 2026-09-04) and shares_fy (131,782,371, FY2025) and net debt (total_debt 2,651,988,000 less cash 1,012,932,000, both as of 2026-06-30, from data/market/ACM.json fundamentals), NOT copied from quality.derived, whose own market_cap and enterprise_value rest on a stale snapshot price of 69.17 as of 2026-08-28 (quality.price_used), 3.9% above today's actual close; the filed quality.reverse_dcf.implied_fcf_cagr of 0.024 is still cited as-is in expectations_gap.market_implied_source, per method section 1's rule against re-solving in session, with the staleness direction noted (today's actual implied ask is a touch below the filed figure, not above). ev_to_base_fcf is 10,413,126,261.18 over base_fcf 684,927,000.0. price_to_sales is market_cap over FY2025 revenue 16,139,622,000. trailing_pe_now is market_cap over FY2025 net income 561,774,000; trailing_pe_1y_ago is (125.94 x 132,552,407 FY2024 shares) over FY2024 net income 402,266,000, the most recently reported annual figure a year ago. week52_low/high are data/market/ACM.json week52. Nothing here is solved with an assumption.",
+  "tag": "INFERRED"
+ },
+ "crowdedness": {
+  "state": "DARK_SECTOR_WIDE_DERATING_NOT_THEME_SPECIFIC",
+  "pcs": null,
+  "basis": "data/market/ACM.json carries no pcs block, so PCS Axis A and Axis B cannot be scored quantitatively (method section 6 T1 gap; this is a coverage-thin read, never a blocker per method). The chain's own heat block scores permitting-and-environmental-consultancy crowdedness 38/100 (UNDISCOVERED, impact 62, capture 48), the honest read being that the data-center-permitting angle is one line of retail-facing coverage about a PEER (Tetra Tech), not a sector label attached to AECOM. This dive's own findings corroborate an un-crowded read for a different reason than the chain's: AECOM's decline is not being driven or watched through a data-center lens at all in the sources found this run (every article found about the price move discusses the Construction Management charge and the FY2025 guidance cut; none mentions data centers or permitting). The stock is dark on the theme because the theme is not why anyone is looking at it, not because the theme itself is obscure.",
+  "tag": "INFERRED"
+ },
+ "expectations_gap": {
+  "market_implied_source": "data/market/ACM.json quality.reverse_dcf [implied_fcf_cagr 0.024, state SOLVED, base_fcf 684,927,000.0, enterprise_value 10,754,442,602.07, discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR; implied_by_horizon 7y 0.0242, 10y 0.0244, horizon_spread 0.0004; price_used $69.17 as of 2026-08-28 (quality.price_used), 3.9% above today's actual close of $66.58, so this dive's own inversion of the same formula at today's price gives roughly 1.7%, slightly BELOW the filed 2.4%, not above; assumptions tagged SPECULATIVE in the file itself]",
+  "denominator": "5 of 5 required rows populated. Market-implied column: 2 of 5 rows carry a number from the solve (revenue_cagr_5y as a labelled FCF-CAGR proxy under a flat-margin/flat-conversion assumption, and terminal as the filed terminal growth rate), 2 are explicitly NULL because the filed solve does not decompose them (operating_margin, reinvestment_return), and net_gap_direction is a direction plus a defended number rather than a market-column level. Tags across the table: 2 INFERRED, 3 SPECULATIVE on the dive's own ('mine') side.",
+  "category_mismatch_note": "quality.reverse_dcf solves a FREE CASH FLOW CAGR, and the required row is a REVENUE CAGR; they are not the same quantity, a defect this analyst's own log has flagged repeatedly (MYRG, HUBB, ESLT). Row 1 carries the solve as a labelled proxy under a stated flat-margin/flat-conversion assumption, and this dive additionally builds its own FCF-CAGR-equivalent (10.58% base case, 2.99% bear, 19.33% bull) in net_gap_direction from its own revenue, margin and conversion assumptions, so the comparison that decides the verdict is like for like.",
+  "rows": [
+   {
+    "driver": "revenue_cagr_5y",
+    "market_implied": 0.024,
+    "market_implied_note": "This is the solved 5-year FCF CAGR, not a decomposed revenue CAGR. Held here as the closest proxy under a flat-margin/flat-conversion assumption: if margin and cash conversion held at their FY2025 levels, revenue would also have to compound near this rate for FCF to reach the priced-in level.",
+    "mine": 0.07,
+    "percentile": 55,
+    "why": "7% matches the achieved trailing 3-year revenue CAGR (7.07%, FY2022-FY2025) almost exactly and sits below the two most recent annual prints (9.36% FY2023, 12.01% FY2024) and above the two weakest (0.76% FY2021, -1.44% FY2022, 0.21% FY2025), a mid-range pick against AECOM's own 5-year range rather than an extrapolation of the best year.",
+    "structural_reason": "Total backlog reached a record high, up 13% year over year, driven by a record $4.2 billion in wins and a 1.6x book-to-burn ratio (design business wins exceeding revenue recognized by 60% this quarter); design-segment net service revenue grew 4-5% even in the same quarter as the Construction Management charge.",
+    "leading_indicator": "FY2026 total revenue landing inside or above the company's own guided $7.30-$7.35 billion NSR range (or $7.65-$7.70 billion excluding the Construction Management charge) at the FY2026 Q4 release.",
+    "tag": "INFERRED"
+   },
+   {
+    "driver": "operating_margin",
+    "market_implied": null,
+    "market_implied_tag": "NULL",
+    "market_implied_note": "The filed solve does not decompose a margin path from the headline FCF CAGR. Recorded NULL rather than invented.",
+    "mine": 0.075,
+    "percentile": 82,
+    "why": "7.5% GAAP operating margin (operating income over total revenue, the same basis as fundamentals.operating_margin) would be the highest of the last five fiscal years (4.72%, 4.92%, 2.25%, 5.14%, 6.36% FY2021-FY2025), a continuation rather than an acceleration of the trend already visible in FY2024-FY2025.",
+    "structural_reason": "A multi-year mix shift toward higher-margin design and advisory work as the lower-margin Construction Management book continues to shrink, corroborated (on a different basis, NSR rather than total revenue, named here as a directional cross-check only) by management's own reaffirmed long-term target: quote 'expectation to deliver a 20%+ margin exit rate by fiscal 2028' (segment-adjusted operating margin on a net-service-revenue basis, not directly comparable in scale to the GAAP total-revenue figure used in this row, but directionally corroborating continued expansion).",
+    "leading_indicator": "FY2026 full-year GAAP operating margin (whole-company, including the $337 million charge) printing above 5.5%, which would show the charge did not erase the multi-year expansion trend even in the year it landed in.",
+    "tag": "INFERRED"
+   },
+   {
+    "driver": "reinvestment_return",
+    "market_implied": null,
+    "market_implied_tag": "NULL",
+    "market_implied_note": "The filed solve does not decompose a return on invested capital. Recorded NULL rather than invented.",
+    "mine": 0.15,
+    "percentile": 55,
+    "why": "Approximately 15.0% return on invested capital (FY2025 operating income 1,026,522,000 x (1 - 25% assumed tax rate) = 769,891,500 NOPAT, over invested capital of total debt 2,651,988,000 (as of 2026-06-30) plus equity 2,492,584,000 (FY2025) = 5,144,572,000), consistent with an asset-light consulting model (capex to depreciation held at 0.60x-0.80x over the last five years, no heavy reinvestment need) funding growth partly through continued share buybacks (shares outstanding fell from 157,044,687 in FY2020 to 131,782,371 in FY2025).",
+    "structural_reason": null,
+    "leading_indicator": null,
+    "caveat": "The invested-capital base mixes a FY2025 fiscal-year-end equity figure with a total_debt point roughly nine months later (2026-06-30, the only point data/market/ACM.json's fundamentals carries for that field), and the 25% tax rate is this dive's own assumption (AECOM's Q3 FY2026 effective tax rate was 24.9%; FY2026 guidance targets an adjusted rate of approximately 19%), not a computed figure. A single-point estimate, not a multi-year series.",
+    "tag": "SPECULATIVE"
+   },
+   {
+    "driver": "terminal",
+    "market_implied": 0.025,
+    "market_implied_note": "The filed reverse_dcf's own terminal_growth assumption (perpetuity growth after the explicit period), read directly from quality.reverse_dcf.assumptions, not solved in this session.",
+    "mine": 0.03,
+    "percentile": 50,
+    "why": "3% is a modest step above the filed 2.5% terminal assumption, roughly in line with long-run nominal global infrastructure-spending growth (GDP-plus-inflation), reflecting the secular data-center, reshoring/reindustrialization and infrastructure-replacement demand this chain and its peers cite, but not a structural or extreme assumption in either direction.",
+    "structural_reason": null,
+    "leading_indicator": null,
+    "tag": "SPECULATIVE"
+   },
+   {
+    "driver": "net_gap_direction",
+    "market_implied": null,
+    "mine": 0.1058,
+    "my_fcf_cagr_bear": 0.0299,
+    "my_fcf_cagr_base": 0.1058,
+    "my_fcf_cagr_bull": 0.1933,
+    "why": "FAVORABLE (undervalued), and robust: building FY2030 FCF from this dive's own revenue, margin and cash-conversion rows (base case: 7% revenue CAGR to $22.64 billion, 7.5% operating margin giving $1.698 billion operating income, FY2025's own cash-conversion ratio of 0.667 applied, giving $1.132 billion FCF against a $684.9 million base) and forward-evaluating quality.reverse_dcf's own bisection formula (replicated to reproduce the filed 5/7/10-year enterprise values to within 0.003% before varying inputs) gives a base-case FCF CAGR of 10.58%, against a market-implied ask of 2.4% (filed) to roughly 1.7% (today's actual price), a gap of 8.2 to 8.9 percentage points, far outside the file's own 0.04-point horizon_spread: a real gap, not a horizon artifact. The direction survives stress in a way no prior name in this log's gap table has: even a deliberately conservative BEAR case (3% revenue CAGR, well under the trailing 7.07% rate; operating margin held flat at FY2025's 6.36% print, no further expansion; the same FY2025 cash-conversion ratio) gives 2.99% FCF CAGR, which is already AT OR ABOVE the market's actual current ask (roughly 1.7%). Converting each case to a price via the same bisection formula: bear $71.28, base $102.77, bull $150.81, all above today's $66.58 close.",
+    "tag": "SPECULATIVE"
+   }
+  ]
+ },
+ "independence_test": {
+  "largest_disagreement": "The market, at today's actual price, is pricing AECOM's forward free cash flow to grow at roughly 1.7% a year in perpetuity (2.4% at the filed snapshot price), while even a deliberately conservative rebuild of the company's own disclosed figures — 3% revenue growth (well under the achieved 7.07% trailing 3-year CAGR and under the design segment's still-growing net service revenue), operating margin held flat at the FY2025 level with no further expansion credited, and cash conversion held at FY2025's own already-below-five-year-average ratio — implies roughly 3.0%, and a base case using the company's own guided margin trajectory and record backlog implies roughly 10.6%. The market is asking for less growth than even a skeptical read of AECOM's own numbers would defend.",
+  "why_the_gap_exists": "Recency and segment-contagion bias following two dated, disclosed negative surprises within about ten months (the November 2025 FY2025 Q4 miss and guidance cut, and the August 2026 $337 million Construction Management charge) has pushed the market to price AECOM's entire forward cash-generation capacity as though it carries the estimation and execution risk of one long-duration legacy contract, rather than pricing the design/consulting core (record backlog, +13% year over year, 1.6x book-to-burn, design-segment NSR still growing 4-5%) on its own merits. The category of error is extrapolating a bounded, single-project, single-legacy-segment loss onto a business the company has spent six years actively de-risking: AECOM sold its Management Services business in 2020 and its Civil construction and Power construction businesses in 2021, and this quarter's charge is explicitly on a contract 'awarded in 2019 under terms and conditions that would not be acceptable' under the risk policies the company adopted afterward. This valuation disagreement does not depend on the data-center-moratoria occurrence at all: the gap-table build above rests entirely on company-wide backlog, margin and cash-conversion figures, none of them data-center-specific, so a future contract that quantifies AECOM's data-center-permitting exposure would be a new catalyst the market has not priced, not evidence the current gap is already closed by it.",
+  "falsification": "Stated to prove this dive WRONG, not to confirm it. At the FY2026 Q4 release (expected mid-to-late November 2026, inside review_by), if design-segment net service revenue growth (the metric the Q3 FY2026 release itself broke out separately from the Construction Management line, at 4-5% this quarter) falls below 3% year over year, that would show the erosion is spreading into the design business this dive actually defends, not staying contained to the legacy Construction Management segment, and would undercut the 'bounded, legacy-only problem' reading this dive's independence claim rests on. A single-legged test deliberately: an in-line outcome (design NSR growth staying at or above the 4-5% already reported) tests the dive rather than confirming it by construction."
+ },
+ "earnings_quality": {
+  "grade": "B",
+  "basis": "Every mechanically computable input is clean, but two real, disclosed, recent negative surprises keep this off a clean A. Accruals: -3.65% of average total assets in FY2024 and -2.14% in FY2025, both well inside the 5% caution band and in the conservative direction (operating cash flow exceeded net income by $425.2 million and $259.8 million respectively). Beneish M-score -2.673 against the -1.78 review threshold, CLEAN, 12 of 12 inputs found. DSO fell across four of the last five fiscal years (71.67, 64.34, 64.59, 63.30, 56.47 days, FY2021-FY2025), the opposite of the sustained-drift flag method section 7 names. Capex to depreciation held in a 0.60x-0.80x band across the same five years (0.772, 0.802, 0.601, 0.669, 0.777), no capex holiday. Cash conversion (operating cash flow over net income) is 1.4625x, well above the 90% grade-A floor. Piotroski is 7 of 9, STRONG, missing only d_leverage and asset_turnover, capital-structure and efficiency notes rather than named section-7 veto inputs. The one deferred-revenue-adjacent input recovered this run (current unearned revenue, from a secondary aggregator since no primary 10-K balance sheet is stored on disk) fell 16.18% FY2024 to FY2025 ($1,298M to $1,088M) after rising 9.17% FY2023 to FY2024 ($1,189M to $1,298M): one down year following one up year, not a sustained multi-year drift, named plainly rather than smoothed over. TWO REAL FLAGS, both disclosed rather than hidden, are why this is B and not A: (1) the FY2025 Q4 release (reported November 2025) missed expectations across the board (net income -22% YoY for the quarter, operating cash flow -34%, adjusted free cash flow -51%), triggering a guidance reset and a roughly 26% stock decline in under a month; (2) this quarter's $337 million pre-tax charge on a Construction Management project 'awarded in 2019 under terms and conditions that would not be acceptable' under AECOM's current risk policies, disclosed with full non-GAAP reconciliation and litigation to recover costs (management cites favorable initial rulings), but arriving only six months after AECOM's own February 2026 strategic review concluded the Construction Management business should be RETAINED rather than sold. Neither flag is Beneish-breach- or channel-stuffing-shaped (no mechanical input above points to manipulation), which is why this does not reach grade C, but two disclosed negative estimate or guidance surprises within ten months is more than 'no flags', hence B.",
+  "inputs": {
+   "accruals_pct_avg_assets_fy2025": -0.0214,
+   "accruals_pct_avg_assets_fy2024": -0.0365,
+   "beneish": -2.673,
+   "beneish_state": "CLEAN",
+   "beneish_threshold": -1.78,
+   "piotroski": 7,
+   "piotroski_state": "STRONG",
+   "piotroski_misses": "d_leverage, asset_turnover",
+   "altman": 2.11,
+   "altman_state": "GREY",
+   "altman_note": "Not a veto input; a second, softer balance-sheet-strength read.",
+   "dso_days_fy2021": 71.67,
+   "dso_days_fy2022": 64.34,
+   "dso_days_fy2023": 64.59,
+   "dso_days_fy2024": 63.3,
+   "dso_days_fy2025": 56.47,
+   "capex_to_depreciation_fy2021": 0.772,
+   "capex_to_depreciation_fy2022": 0.802,
+   "capex_to_depreciation_fy2023": 0.601,
+   "capex_to_depreciation_fy2024": 0.669,
+   "capex_to_depreciation_fy2025": 0.777,
+   "ocf_to_net_income_fy2025": 1.4625,
+   "deferred_revenue_drift": -0.1618,
+   "deferred_revenue_drift_basis": "Current unearned revenue (contract liabilities/deferred revenue) fell from $1,298M at FY2024 (2024-09-30) to $1,088M at FY2025 (2025-09-30), -16.18%, after rising from $1,189M at FY2023 to $1,298M at FY2024, +9.17%: one down year following one up year, not a sustained multi-year drift. Not found in the vendor aggregate (data/market/ACM.json fundamentals carries no deferred-revenue or contract-liability series, the same gap this analyst's log flagged on ANDR.VI). Recovered this run from a secondary financial-data aggregator (stockanalysis.com balance-sheet page, fetched 2026-09-06) because no full 10-K or 10-Q balance sheet is stored under data/edgar/docs/ACM.json (only the Q3 FY2026 8-K earnings-release exhibit is on disk, and tools/fetch/fetch.py's edgar_doc kind cannot target a 10-K). A WebSearch of the company's own SEC filing text separately confirmed contract liabilities existed at both FY2025 and FY2024 year-ends (fragment: 'recognized revenue of $762.6 million and $859.9 million during the nine months ended June 30, 2026 and 2025, respectively, that was included in contract liabilities as of September 30, 2025 and 2024, respectively') but that fragment gives amounts recognized, not period-end balances, so the $1,298M/$1,088M/$1,189M figures stay tagged INFERRED from a secondary source, never VERIFIED.",
+   "governance": "CFO Gaurav Kapoor has held the Chief Financial and Operations Officer role since 2020 (with AECOM since 2015, previously a 15-year Ernst & Young audit partner); no CFO change found this run. No auditor-change disclosure found this run (a WebSearch for an AECOM auditor change turned up none); this is a searched absence, not a primary-source Item 9 confirmation, since no full 10-K text is stored on disk, named in data_gaps. AECOM Capital, the company's non-core real-estate co-investment vehicle, is excluded from every adjusted figure in the FY2026 Q3 release; nothing found this run flags it as an undisclosed related-party concern.",
+   "source": "data/market/ACM.json quality (piotroski, beneish, altman) plus ratios computed in this session from fundamentals.receivables_fy, revenue_fy, capex_fy, depreciation_fy, net_income_fy, operating_cashflow_fy and total_assets_fy; contract liabilities from stockanalysis.com/stocks/acm/financials/balance-sheet/ (fetched 2026-09-06, secondary source, INFERRED) and a WebSearch-surfaced SEC 10-Q text fragment (2026-09-06); governance facts from AECOM's own leadership page and general WebSearch, 2026-09-06."
+  },
+  "veto_applied": "Grade B has no cap effect (method section 7): only C, D, or an uncomputable grade change what this verdict may be. This dive's verdict rests on the expectations-gap and independence-test findings (net_gap_direction, bull[0]), not on the earnings-quality read; the clean mechanical inputs are why this dive is comfortable naming a real, favorable gap rather than treating the recent volatility as, by itself, a reason to cap at WATCH. The two named flags are why no_entry_above and the falsification condition exist: if a third disclosed surprise lands before review_by, this grade would move to C and the verdict would need to be revisited on that basis alone."
+ },
+ "filing_evidence": [
+  {
+   "quote": "Results included a $337 million pre-tax loss related to the delayed completion of a Construction Management project",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "The project was awarded in 2019 under terms and conditions that would not be acceptable after the substantial changes the Company implemented to its risk policies several years ago.",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "The Company is pursuing claims related to its work on the project and confidence in recovery has been validated by successes on initial matters that have been ruled upon to date",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "Adjusted EPS guidance $3.95 to $4.15",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "Total NSR of between $7.65 and $7.70 billion.",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "expectation to deliver a 20%+ margin exit rate by fiscal 2028 and to grow adjusted 2 EPS at a 15%+ CAGR from fiscal 2026 to fiscal 2029, excluding the Construction Management charge",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "The Company remains committed to its returns-based capital allocation policy, which in the near-term will be prioritized towards its organic growth investments and its quarterly dividend program.",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "Backlog in the Americas segment grew by 8% to a new record high, driven by a 1.8 book-to-burn ratio",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  },
+  {
+   "quote": "Backlog in the International segment grew 28% over the prior year to a new record high, driven by a 1.4 book-to-burn ratio",
+   "accession": "0001104659-26-093421",
+   "url": "https://www.sec.gov/Archives/edgar/data/868857/000110465926093421/tm2622489d1_ex99-1.htm",
+   "form": "8-K",
+   "filing_date": "2026-08-10",
+   "tag": "VERIFIED"
+  }
+ ],
+ "filing_evidence_note": "Nine quotes, checked word for word against data/edgar/docs/ACM.json with the same whitespace-collapsed, case-folded and punctuation-folded comparison tools/check_screen.py applies to a screen; 9 of 9 matched. Every other filing-adjacent fact in this dive (contract liabilities, the November 2025 miss, the February 2026 strategic-review decision, CFO tenure) rests on WebSearch/WebFetch reads of secondary sources or the company's own non-filed web pages, tagged INFERRED, because no 10-K, 10-Q or the FY2025 Q4 8-K is stored under data/edgar/docs/ACM.json (only the Q3 FY2026 one is); tools/fetch/fetch.py's edgar_doc kind fetches only the single most recent 8-K carrying item 2.02 (or a 10-Q fallback) inside its lookback window, so a fresh request would very likely re-fetch this same document rather than reach the FY2025 Q4 8-K or the FY2025 10-K, and is not queued for that reason (escalated in repairs rather than requested and left to fail).",
+ "data_gaps": [
+  "No data/edgar/docs/ACM.json copy of the FY2025 Q4 8-K (reported ~November 2025) or the FY2025 10-K exists; only the Q3 FY2026 earnings 8-K is stored. tools/fetch/fetch.py's edgar_doc fetch kind only ever retrieves the most recent 8-K carrying item 2.02 or a 10-Q fallback inside its lookback window, never a 10-K or proxy, so contract-liability balances, Item 9 auditor-continuity language and Item 13 related-party disclosures are not reachable as verbatim filing quotes through the normal request bridge for this issuer. Escalated in this run's repairs rather than left silent.",
+  "Contract-liability (deferred revenue) balances for FY2023-FY2025 are cited from a secondary aggregator (stockanalysis.com), tagged INFERRED, not verified against a primary filing; a WebSearch-surfaced fragment of AECOM's own 10-Q text confirms contract liabilities existed at the relevant period ends but does not itself give the balances.",
+  "Governance facts (auditor continuity, related-party transactions) rest on searched absence of adverse findings rather than a verbatim quote from a 10-K's own Item 9 or Item 13; no such primary text is stored on disk this run.",
+  "No AECOM-specific revenue, backlog or margin figure discloses what portion of the company's environmental and sustainability consulting work is data-center-related specifically; the chain placement rests on a shared four-firm market-share statistic (Tetra Tech, AECOM, WSP, Jacobs), and this dive's valuation case does not depend on or validate that exposure.",
+  "Jacobs Solutions (J) is promoted to O1 on this identical link (permitting-and-environmental-consultancy) in the same selection run; an investor holding both AECOM and Jacobs on the strength of this chain is doubling exposure to one link's competitive set, not diversifying across two distinct mechanisms.",
+  "The persistent decline between the two identified shock events (roughly 101.52 on 2025-12-01 grinding to 66.86 by 2026-07-01, a further 34% over seven months with no single dated catalyst this run's searches surfaced) is not fully explained: a beat-and-raise Q1 FY2026 report (2026-02-09, guidance raised) did not stop or reverse the decline, which this dive reads as corroborating evidence of a persistent credibility discount rather than a one-off reaction, but the specific drivers of that multi-month grind (sector-wide multiple compression among engineering-consulting peers, rate sensitivity, government-spending-cut fears) are not individually sourced this run.",
+  "reinvestment_return's ROIC calculation mixes a FY2025 equity figure with a total_debt point roughly nine months later (2026-06-30, the only point data/market/ACM.json carries) and assumes a 25% tax rate rather than a computed one; a single-point estimate, not a multi-year series."
+ ],
+ "bull": [
+  {
+   "point": "Valuation has overshot on two real but bounded, disclosed events; even a deliberately conservative rebuild of AECOM's own guided figures (3% revenue growth, margin held flat at FY2025's level, FY2025's own cash-conversion ratio) implies a fair value (~$71.28) above today's spot ($66.58), and the market's own reverse-DCF, at today's actual price, asks for only roughly 1.7% real FCF growth in perpetuity, a bar this dive's own bear case (2.99%) already clears.",
+   "evidence": "data/market/ACM.json quality.reverse_dcf and this dive's own forward-solve of its bisection formula (base_fcf 684,927,000, 9% discount rate, 2.5% terminal growth), detailed in expectations_gap.rows[net_gap_direction] and entry_zone.basis",
+   "tag": "SPECULATIVE"
+  },
+  {
+   "point": "The core design/consulting business, isolated from the legacy Construction Management charge, is demonstrably strong: total backlog reached a record high (+13% year over year) on a record $4.2 billion in wins and a 1.6x book-to-burn ratio, design-segment NSR grew 4-5% even this quarter, and management's own guidance excluding the charge for FY2026 ($5.90-$6.10 adjusted EPS) is 'consistent with the Company's prior guidance', framing the charge as isolated to one contract bid in 2019 under underwriting standards AECOM has since replaced (having divested its higher-risk Management Services business in 2020 and Civil and Power construction businesses in 2021).",
+   "evidence": "AECOM Q3 FY2026 8-K, EX-99.1, accession 0001104659-26-093421, filed 2026-08-10, quoted verbatim in filing_evidence; the 2020-2021 divestiture history from WebSearch reads of contemporaneous coverage (Forbes 2019, BusinessWire 2021), tagged INFERRED",
+   "tag": "INFERRED"
+  },
+  {
+   "point": "Every mechanically computable earnings-quality input is clean and improving, not just in the latest print: Piotroski 7/9 STRONG, Beneish -2.673 CLEAN (vs -1.78 threshold), accruals negative in both FY2024 (-3.65%) and FY2025 (-2.14%) of average assets, DSO falling from 71.67 to 56.47 days over the last four fiscal years, capex to depreciation stable in a 0.60x-0.80x band with no capex holiday, and cash conversion (OCF/NI) of 146.25%.",
+   "evidence": "data/market/ACM.json quality.piotroski and quality.beneish, and ratios computed in this session from fundamentals.receivables_fy, revenue_fy, capex_fy, depreciation_fy, net_income_fy, operating_cashflow_fy and total_assets_fy, detailed in earnings_quality.inputs",
+   "tag": "INFERRED"
+  }
+ ],
+ "bear": [
+  {
+   "point": "The market has been right to mark this stock down repeatedly within about ten months (the November 2025 FY2025 Q4 miss and guide-down, a further 34% grind lower through H1 2026 that a beat-and-raise Q1 FY2026 report did not reverse, and the August 2026 $337 million Construction Management charge), a demonstrated pattern of negative surprises this dive cannot rule out repeating; the same Construction Management business management chose to RETAIN after a strategic review in February 2026 is the business that then produced this quarter's charge only six months later.",
+   "evidence": "data/market/ACM.json series.rows (133.52-region on 2025-11-14 to 98.35-region by mid-December 2025 per WebSearch coverage; 101.52 on 2025-12-01 to 66.86 on 2026-07-01 in the series itself); the February 2026 strategic-review decision to retain Construction Management, from a WebSearch read of AlphaStreet/intellectia.ai Q1 FY2026 earnings coverage dated around 2026-02-09, tagged INFERRED, not independently primary-source-verified this run",
+   "tag": "INFERRED"
+  },
+  {
+   "point": "This dive's thesis rests on AECOM's whole-company numbers, not on the data-center-moratoria chain's own occurrence: no dollar figure or percentage discloses what portion of AECOM's revenue or backlog comes from data-center permitting work specifically, the cited role evidence is a shared four-firm market-share statistic (AECOM, Tetra Tech, WSP and Jacobs each named), and Jacobs Solutions is promoted to O1 on this identical link in the same selection run, so this valuation call would read identically had the data-center occurrence never happened.",
+   "evidence": "data/mappings/data-center-moratoria.json placement evidence and data/companies/AECOM.json exposure_summary and selection_basis.duplicate_exposure",
+   "tag": "VERIFIED"
+  },
+  {
+   "point": "The reverse-DCF's own implied ask is nearly horizon-invariant (2.40% / 2.42% / 2.44% at 5 / 7 / 10 years, a 0.04-point spread, the smallest of any name in this analyst's log) because the 9% discount rate sits far above the ask itself, which means this valuation offers little of the 'long-duration compounding' cushion that made other names in this log's WATCH calls closer to fair than their headline gap suggested; if the Construction Management exposure produces a second charge before the segment is fully wound down, the 'bounded, legacy-only problem' framing this dive rests on breaks, and nothing in this dive's own evidence rules that out.",
+   "evidence": "data/market/ACM.json quality.reverse_dcf.implied_by_horizon and horizon_spread (0.0004); the Bisnow-reported strategic review of whether to sell the Construction Management arm entirely, WebSearch read, tagged INFERRED, undated in the search snippet, named as a live open question rather than a resolved one",
+   "tag": "SPECULATIVE"
+  }
+ ],
+ "events": [
+  {
+   "what": "FY2026 Q4 and full-year results",
+   "when": "expected mid-to-late November 2026, on the company's own annual cadence (FY2025 Q4/full-year results were reported in mid-November 2025, with the stock's steep decline beginning around 2025-11-19 to 2025-11-21)",
+   "why": "Where the independence test's falsification condition (design-segment NSR growth vs the 3% floor) and expectations_gap.rows[revenue_cagr_5y]'s leading indicator (FY2026 NSR vs the guided $7.30-$7.35bn / $7.65-$7.70bn ranges) resolve, both inside review_by.",
+   "tag": "INFERRED"
+  },
+  {
+   "what": "Resolution or update on the Construction Management project litigation and cost-to-complete",
+   "when": "no specific date disclosed; the Q3 FY2026 release states the project is 'expected to achieve substantial completion during the second quarter of fiscal 2027' and that litigation recovery 'will likely take several years'",
+   "why": "Where the single largest risk this dive names (a second cost-to-complete revision on the same or a similar legacy contract) would first surface, if it happens; beyond review_by for full resolution, but any interim update at the FY2026 Q4 release is inside review_by.",
+   "tag": "VERIFIED"
+  }
+ ],
+ "notes": [
+  {
+   "ts": "2026-09-06T18:20:00Z",
+   "by": "stocky",
+   "text": "First INVESTABLE verdict in this analyst's log (data/stocks/_dive-log.json: 7 prior campaign-era dives, all WATCH). Written because the evidence supports it, not to resolve the log's own standing question about a zero-INVESTABLE record: this dive's gap table shows a favorable, bear-case-robust gap of a shape this log has not found before, on a name whose earnings-quality inputs are clean despite two real, disclosed, recent negative surprises named plainly rather than minimized. The fresh-context red team should treat this as the first real test of whether this analyst can call INVESTABLE as rigorously as it has called WATCH seven times running."
+  }
+ ],
+ "confidence_audit": {
+  "verified": 13,
+  "inferred": 20,
+  "speculative": 8,
+  "null": 6
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-06T18:20:00Z",
+   "by": "stocky",
+   "change": "First dive on data-center-moratoria, and first INVESTABLE verdict in this analyst's log: AECOM (ACM) / permitting-and-environmental-consultancy, COMPOUNDER clock, earnings grade B, status DRAFT (red team not yet run). Every admission element resolves exactly: COMPLETE O1 profile with all seven selection_basis dimensions, exact screen_handoff, mapping listing NYSE-ACM with a current PASS placement_audits entry for this exact (chain, link, issuer) dated 2026-09-04T18:59:54Z, and the matching pure_play screen row (status CANDIDATE, moved to DIVED by this run). The whole-census mapping is ACTIVE, not COMPLETE; the placement-level PASS entry is what admits this dive under Ron's 2026-09-01 rule. The stock fell 47.13% over the trailing 12 months (125.94 to 66.58) even as FY2025 net income grew 39.65%, a multiple contraction from roughly 41.5x to 15.6x trailing P/E driven by two dated, disclosed events (a November 2025 guidance cut and an August 2026 $337 million legacy Construction Management charge), which rules out TOO_LATE outright (method section 7 requires multiple EXPANSION eating the runway; this is the opposite). The market's own reverse-DCF, at today's actual price, implies roughly 1.7% real FCF growth in perpetuity (2.4% at the filed snapshot price), below this dive's own bear-case rebuild (2.99%, built from a below-trend 3% revenue CAGR and flat margin) and far below its base case (10.58%); every scenario examined, including the bear case, implies a fair value above today's spot. Earnings quality grades B, not A, because two real, disclosed, non-manipulation-shaped surprises landed within ten months (the Nov 2025 miss and the Aug 2026 charge, the latter arriving six months after AECOM's own Feb 2026 decision to retain the Construction Management business); grade B does not cap the verdict. The independence test is answered in full. entry_zone $61.00-$71.00 (the reverse-DCF's own zero-growth floor at $61.05, essentially the actual 52-week low of $61.04, to just under the bear-case fair value of $71.28); no_entry_above $75.00. This is a generic valuation-overshoot call, not a data-center-thesis call: no AECOM-specific revenue or backlog figure ties to the chain's occurrence, named plainly in bear[1] and data_gaps, and Jacobs Solutions is promoted to O1 on the identical link the same run (duplicate_exposure). A structural data-plane gap is escalated rather than worked around: tools/fetch/fetch.py's edgar_doc kind can only ever fetch the most recent 8-K/10-Q inside its lookback window, never a 10-K, so contract-liability and governance facts for this issuer stay secondary-sourced (INFERRED) rather than filing-verified, and requeuing was not attempted because it would almost certainly re-fetch the same document already on disk."
+  }
+ ]
+}

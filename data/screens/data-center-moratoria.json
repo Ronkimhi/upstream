@@ -1,604 +1,609 @@
 {
-  "id": "data-center-moratoria",
-  "chain_id": "data-center-moratoria",
-  "scenario_id": null,
-  "created_at": "2026-09-04",
-  "as_of": "2026-09-06",
-  "identity_schema": "campaign-v1",
-  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-  "mapping_ref": "data/mappings/data-center-moratoria.json",
-  "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 11 links, worked in priority order: the UNDISCOVERED link first, then the two CHOKE_POINT-criticality links, then the rest by chain position. This chain has no money-corner link: heat.money_corner is false or null (heat not yet scored) on every one of the 11 links, heat_as_of 2026-09-04, so the run-day money-corner attribution check is vacuous this run.\n\nThe mapping (data/mappings/data-center-moratoria.json, 14 distinct issuers, 15 placements) carries no audit block at all: status ACTIVE, no census audit has ever run. Every row this run therefore had to clear Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED (tools/check_screen.py, _placement_admissible). None of this mapping's 15 placements clear that bar. Every single one carries exactly one evidence item tagged INFERRED, sourced to secondary media and trade-press coverage (Yahoo Finance, Environment Analyst Global, Insider Monkey, GlobeNewswire, Futurum Group, Utility Dive, Data Centre Magazine, a source titled Hallucination Yield, DatacenterDynamics, Industrial Info Resources, FTI Strategic Communications, Columbia Climate Law Blog), never a 10-K, 10-Q, 8-K, or an official exchange or registry record. This is unlike russian-diesel-ban's mapping (27 of 27 placements all-VERIFIED, screened 2026-09-04), where admission turned on profile status; here every link is blocked one level earlier, at the evidence tag itself. This run therefore seats zero rows on any of the 11 links, regardless of profile status, because no placement mechanically clears the gate.\n\npermitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5]: searched and empty, not for lack of candidates but for lack of VERIFIED evidence. All 5 placements (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, WILLDAN-GROUP, STANTEC) are ACTIVE and every one already has a COMPLETE O2 profile (T1) on disk, so this is the single link on the chain where five names are one Atlas audit away from seating. Evidence is INFERRED throughout: TETRA-TECH (Yahoo Finance, 2026-06-19) and WILLDAN-GROUP (Yahoo Finance / Insider Monkey, 2026-07-01) cite retail commentary; AECOM and JACOBS-SOLUTIONS both cite the same single Environment Analyst Global trade-press piece (2026-04-16); STANTEC cites Industrial Info Resources (2026-08-14). This is the highest-value single next step on this chain: a `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source on any of the 5, or a full census audit, converts a ready-to-seat name.\n\nstate-moratoria-and-siting-law [CHOKE_POINT criticality, zero-ticker by design]: searched and empty. The mapping's own link_coverage search (result_status NO_QUALIFYING_NAMES, tag VERIFIED, source: Governor Kathy Hochul, Executive Order No. 62, 2026-07-14) concludes the freeze is issued and administered by governors' offices, state environmental-conservation departments and utility commissions, government bodies, not public legal issuers, so no issuer can perform this role. Structurally uninvestable, matching the chain's own map_limitation, which names organized-opposition and state-moratoria-and-siting-law as carrying zero tickers by design.\n\nentitled-powered-land [CHOKE_POINT criticality, heat CROWDED]: searched and empty. Both placements (DIGITAL-REALTY, EQUINIX) are ACTIVE with COMPLETE O2 profiles (T1), blocked purely on evidence: DIGITAL-REALTY cites a GlobeNewswire press release about a Portugal market entry (2026-03-04, not directly about this link's role); EQUINIX cites a Futurum Group Q2 FY2026 earnings-commentary piece (2026-08-03). Same one-level-earlier block as permitting-and-environmental-consultancy: profiled and mechanically ready but for the evidence tag.\n\norganized-opposition [HIGH criticality, zero-ticker by design]: searched and empty. The mapping's own link_coverage search (result_status NO_QUALIFYING_NAMES, tag INFERRED, source: Futura-Sciences, 2026-08-28) concludes the 833 opposition groups it counts are residents, civic associations and county boards, not businesses; no public legal issuer performs this role, structurally, because it is not a commercial activity.\n\nutility-ratemaking-and-large-load-tariffs [HIGH criticality, heat CROWDED]: searched and empty. Sole placement AMERICAN-ELECTRIC-POWER (ACTIVE, INFERRED, Columbia Climate Law Blog, 2026-06-02) has no profile on disk; blocked at both the evidence bar and the profile bar.\n\nwater-permitting-and-hydrology [HIGH criticality, heat CROWDED]: searched and empty. Sole placement XYLEM (ACTIVE, INFERRED, Insider Monkey, 2026-06-17) has no profile on disk.\n\ncommunity-benefit-and-consent [MEDIUM criticality, heat QUIET]: searched and empty. Sole placement FTI-CONSULTING (ACTIVE, INFERRED, FTI Strategic Communications, 2025-09-24, the issuer's own material about itself) has a profile, but it is BLOCKED at O3; refused regardless of evidence status.\n\npower-equipment-shared [HIGH criticality, heat CROWDED]: zero placements, by design. Atlas's own chain note (SHARED STAGE DECLARATION, campaign blocker BLK-04) and the mapping's own search record declare this link IS ai-infrastructure/power-equipment, same 7 tickers (ETN, GEV, POWL, HUBB, ENR.DE, SU.PA, HPS-A.TO), deliberately duplicated so the overlap is visible rather than double-counted. No issuer is placed here; the mapping's own search record rejects Eaton, GE Vernova, Powell Industries and Hubbell by name for exactly this reason. Not a gap.\n\nus-secondary-market-shift [MEDIUM criticality, heat CROWDED]: searched and empty. Sole placement SOUTHERN-CO (ACTIVE, INFERRED, Utility Dive, 2026-05-01) has no profile on disk.\n\noffshore-and-periphery-capacity [MEDIUM criticality, heat EMERGING]: searched and empty. EQUINIX (ACTIVE, INFERRED, the same Futurum Group source as entitled-powered-land; a genuine secondary-link candidate on this issuer, not seated here either) has a COMPLETE O2 profile; GDS-HOLDINGS (ACTIVE, INFERRED, Data Centre Magazine, 2025-10-23) has none.\n\nhyperscale-buildout-demand [LOW criticality, heat OVER_CROWDED]: searched and empty. ALPHABET (ACTIVE, INFERRED, DatacenterDynamics, 2026-07-22) has a COMPLETE O2 profile; MICROSOFT (ACTIVE, INFERRED, a source titled Hallucination Yield: Microsoft Capex Tracker, 2026-07-29) has none. Per the chain's own ARCH-007 note this demand-anchor link is included for completeness only, never as the candidate, so its own OVER_CROWDED heat makes it lowest priority regardless.\n\nNet effect: 0 of 11 links produce rows (0 rows total). No money-corner link exists on this chain. Every link is documented searched-and-empty with a stated reason: 2 are structurally zero-ticker (government or civic bodies, not issuers), 1 is a deliberate duplicate of another theme's stage, 1 is profile-blocked at O3, 5 issuers across 5 links are unprofiled, and 8 distinct issuers across 4 links (permitting-and-environmental-consultancy's 5, entitled-powered-land's 2, hyperscale-buildout-demand's ALPHABET, plus EQUINIX's repeat placement on offshore-and-periphery-capacity) are COMPLETE O2 and mechanically ready but for the evidence tag alone. The single largest concrete next step is closing the evidence gap: a full-census `run universe-audit data-center-moratoria` cannot yet return PASS (7 of 11 links remain OPEN, none TARGET_MET or EXHAUSTED beyond permitting-and-environmental-consultancy), so a placement-scoped `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source, starting with any of the 5 permitting-and-environmental-consultancy names, is the faster path to this chain's first seated row. Flagged to tasks/backlog.md for Atlas.\n\nSecond run (2026-09-04T19:06Z), triggered by commit 0974972 (`run universe-audit data-center-moratoria --placement`). permitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5] now carries fresh-context placement_audits[] entries for all 5 placements: PASS for TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC; FAIL for WILLDAN-GROUP (role_mismatch: the audit found Willdan's own data-center service page describes grid/substation engineering, load forecasting and energy-efficiency work, not the environmental-assessment or permitting work this link is defined around, and no source ties Willdan's separate municipal CEQA/NEPA capability to data centers; excluded from this link). Tested the 4 PASS names directly against tools/check_screen.py by drafting a row for TETRA-TECH under audit_scope PLACEMENT: it fails. check_screen.py's `_placement_admissible` reads the placement's own `evidence[].tag` on the mapping, which is still INFERRED (unchanged by the placement_audits[] entries, a separate fresh-context audit record that does not rewrite the placement's evidence tags), and never reads `placement_audits[]` at all; CLAUDE.md's `--placement` clause admits a current PASS entry to `run deepdive`, not to `run screen`. Re-examined all 15 placements on this mapping: none has been rewritten to a VERIFIED evidence tag since the first run, so every link's disposition is unchanged from that run. This matches two sibling chains run today on the identical principle: minor-nsr-permits (CATERPILLAR/CUMMINS/FUEL-TECH/CECO-ENVIRONMENTAL, 4 PASS placement_audits, still 0 rows, 'placement-audit path tested and ruled out') and offshore-counter-drone (INFERRED-only evidence, independent of any audit). This run therefore still seats 0 of 11 links. The one change from the first run: TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC are now the single closest-to-admissible names on this chain, COMPLETE O2 profiles and PASS-audited at the placement level, blocked on exactly one remaining step that is out of Sieve's file ownership: an evidence-tag rewrite on the mapping placement itself (data/mappings/data-center-moratoria.json, owned by Atlas) from INFERRED to VERIFIED, or a full mapping census PASS audit. WILLDAN-GROUP is not a near-miss: its placement audit FAILED on role grounds, so an evidence-tag rewrite alone would not admit it either; it needs re-scoping or dropping from this link by Atlas. Noted for the record, not this run's blocker: JACOBS-SOLUTIONS's profile (data/companies/JACOBS-SOLUTIONS.json) carries NULL revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin, honestly stated because its fetched SEC XBRL 'Revenues' concept (CIK 52988) stops at FY2018-09-28, eight fiscal years stale against its other concepts; a future seating of this name inherits that fundamentals gap and must carry it on the row rather than paper over it.\n\nThird run (2026-09-04), triggered by two upstream changes since the second run: tools/check_screen.py commit 5e5f3b5 (`_placement_admissible` now admits a campaign-v1 row under audit_scope PLACEMENT when the placement carries a current PASS `placement_audits[]` entry, in addition to the pre-existing all-VERIFIED evidence-tag rule), and mapping commit d83d807 (`run universe data-center-moratoria` amended placement evidence and added WSP-GLOBAL, rejected WILLDAN-GROUP). Re-tested every one of the mapping's 15 placements directly against the live `_placement_admissible` and `_is_qualified_placement` functions rather than re-deriving the rule by hand.\n\npermitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5, now 4 after WILLDAN-GROUP's rejection]: 4 of 5 placements are now admissible and seated. TETRA-TECH, AECOM, JACOBS-SOLUTIONS, and STANTEC each carry a current PASS `placement_audits[]` entry whose `record_digest` still equals `placement_claim_digest` over the placement's present role and sampled evidence item (confirmed via `check_map.placement_audit_for`), so each clears `_placement_admissible` on the placement-audit path even though the placement's own `evidence[].tag` array is still mixed VERIFIED/INFERRED, not all-VERIFIED. All four already carry COMPLETE O2 profiles (T1). JACOBS-SOLUTIONS seats with an honest NULL on revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin: its fetched SEC XBRL Revenues concept (CIK 52988) stops at FY2018-09-28, eight fiscal years stale; its operating_cash_flow_to_net_income still resolves and is carried on the row. WILLDAN-GROUP is excluded outright: the mapping now records its placement status as REJECTED (not merely unaudited) and its `placement_audits[]` entry is FAIL on role grounds (its own service page describes grid/substation engineering and load forecasting, not environmental permitting), so `_is_qualified_placement` refuses it before `_placement_admissible` is even reached. WSP-GLOBAL, newly added to this link, is NOT admissible this run: its placement carries the same mixed VERIFIED/INFERRED evidence pattern as every other placement on this mapping (one VERIFIED official-site item, one INFERRED trade-press item) and has no `placement_audits[]` entry at all, so neither path in `_placement_admissible` clears it. WSP-GLOBAL also has no profile on disk (data/companies/WSP-GLOBAL.json does not exist): admissible-but-unprofiled does not apply to it, because it is not admissible in the first place.\n\nThe remaining 10 placements across the other 8 non-permitting links are NOT admissible this run, for the same reason WSP-GLOBAL is not: every one carries mixed VERIFIED/INFERRED evidence (a single official-source item added by commit d83d807 alongside the original INFERRED trade-press item, never a full all-VERIFIED array) and none has a `placement_audits[]` entry, so `_placement_admissible` refuses all of them regardless of profile status. This is checked directly against the live functions, not inferred from the evidence tags alone. Specifically: DIGITAL-REALTY and EQUINIX (entitled-powered-land, CHOKE_POINT criticality, both COMPLETE O2 T1 profiles) are blocked purely on this placement-admissibility gap, the closest near-misses after the permitting link. MICROSOFT and ALPHABET (hyperscale-buildout-demand) are likewise blocked on placement admissibility; ALPHABET already carries a COMPLETE O2 T1 profile (not unprofiled, contrary to the working assumption going into this run), while MICROSOFT has none (data/companies/MICROSOFT.json does not exist) and would need both a profile and placement admissibility to seat. FTI-CONSULTING (community-benefit-and-consent) is doubly blocked: placement not admissible, and its profile is BLOCKED at O3, refused regardless of placement status. AMERICAN-ELECTRIC-POWER, XYLEM, SOUTHERN-CO, and GDS-HOLDINGS remain both placement-inadmissible and unprofiled, unchanged from the second run.\n\nstate-moratoria-and-siting-law [CHOKE_POINT criticality, zero-ticker by design] and organized-opposition [HIGH criticality, zero-ticker by design]: unchanged from the first two runs, government/civic bodies not public issuers, searched and empty by the mapping's own EXHAUSTED-style link_coverage search records.\n\npower-equipment-shared [HIGH criticality, heat CROWDED]: unchanged, zero placements by design, declared duplicate of ai-infrastructure/power-equipment (SHARED STAGE DECLARATION, campaign blocker BLK-04).\n\nNet effect: 4 of 11 links now produce rows (4 rows total, all on permitting-and-environmental-consultancy, all bucket pure_play, all data_tier T1, all audit_scope PLACEMENT resting on a current PASS placement_audits[] entry). No money-corner link exists on this chain (vacuous for the run-day money-corner check). 0 earnings nuggets seated: no data/edgar/docs/ file exists yet for TTEK, ACM, J, or STN, so no verbatim quote could be verified this run; 4 edgar_doc requests queued (REQ-20260904-297 through -300) with each issuer's CIK so a future run can add sourced nuggets. This is the first run on this chain to seat any row.\n\nAddendum (2026-09-04, post-rebase): data/edgar/docs/TTEK.json landed on disk via an unrelated concurrent request (REQ-20260904-295, run screen minor-nsr-permits, same ticker) before this run's own REQ-20260904-297 could be fulfilled. Read it and found a verbatim, on-topic nugget in Tetra Tech's Q3 FY2026 earnings release (8-K EX-99.1, accession 0001104659-26-088213, filed 2026-07-29): new commercial orders for data center projects drove backlog up more than $200 million in the quarter. Added as TETRA-TECH's first earnings_nugget, verbatim-verified against the document on disk. AECOM, JACOBS-SOLUTIONS, and STANTEC still have no document on disk; their REQ-20260904-298/-299/-300 remain PENDING.\n\nFourth run (2026-09-06T17:45Z), triggered by two upstream landings from the same parallel batch: a fresh-context placement audit PASS for WSP-GLOBAL on permitting-and-environmental-consultancy (data/mappings/data-center-moratoria.json placement_audits[], audited_at 2026-09-06T15:47:33Z, record_digest matched against WSP's own Data Center Design Services page), and WSP-GLOBAL's profile completing to COMPLETE O2 T3 in the second `run profile --campaign` pass minutes earlier (filled from the newly fetched data/market/WSP-TO.json yfinance-statements block, all 12 canonical fields sourced, no NULLs). Re-tested directly against the live tools/check_screen._placement_admissible and tools/check_map.placement_audit_for functions rather than re-deriving the rule by hand: WSP-GLOBAL's placement carries status ACTIVE, non-empty evidence (one VERIFIED official-site item, one INFERRED trade-press item, still not all-VERIFIED), and a current PASS placement_audits[] entry whose evidence_index 0 and record_digest still equal placement_claim_digest over the placement's present role and its first evidence item; both placement_audit_for and _placement_admissible return true. Seated as the fifth row on permitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5, now 5 of 5 remaining ACTIVE placements seated since WILLDAN-GROUP's REJECTED exclusion], bucket pure_play, data_tier T3 (matching the profile), audit_scope PLACEMENT. This is the first T3 name on this link; TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC are T1. WSP-GLOBAL's mapping listing (TSX-WSP) carries no explicit market_ticker field (unlike this mapping's other foreign listings' peers on sibling chains, e.g. GERRESHEIMER's XETRA-GXI carrying market_ticker GXI.DE); the campaign-identity check's fallback (listing.market_ticker or listing.ticker) resolves to the bare ticker WSP, so this row's market_ticker is WSP, not the WSP.TO used to fetch and cite its market data (data/market/WSP-TO.json, confirmed directly against tools/check_screen.check_campaign_identity with both values tested). Flagged to tasks/backlog.md for Atlas: add an explicit market_ticker to the TSX-WSP listing for consistency with this mapping's other foreign listings. No earnings nugget: WSP-GLOBAL is a Canadian filer with no SEC CIK and no data/edgar/docs/ file exists for it; none queued, since T3 foreign filers are not EDGAR full-text candidates on this mapping (mirrors AFCONS/AIRBUS/other T3 names elsewhere in the repo, which also carry earnings_nuggets: []). No PENDING_DATA rows needed this run: all 12 of WSP-GLOBAL's canonical fundamentals fields resolved from the profile with no NULLs. The other 10 not-yet-admissible placements across 8 links (DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET, FTI-CONSULTING, AMERICAN-ELECTRIC-POWER, XYLEM, SOUTHERN-CO, GDS-HOLDINGS) are unchanged from the third run: still mixed-evidence with no placement_audits[] entry, re-confirmed against the live gate functions. state-moratoria-and-siting-law, organized-opposition, and power-equipment-shared remain unchanged, zero-ticker or duplicate-stage by design. Net effect: 5 of 11 links now produce rows (5 rows total, all on permitting-and-environmental-consultancy). No money-corner link exists on this chain (vacuous for the run-day money-corner check).",
-  "queries_run": [
-    {
-      "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/data-center-moratoria.json carrying ACTIVE status, joined to its official listing and evidence tags",
-      "forms": null,
-      "hits_examined": 15,
-      "names_extracted": 15
+ "id": "data-center-moratoria",
+ "chain_id": "data-center-moratoria",
+ "scenario_id": null,
+ "created_at": "2026-09-04",
+ "as_of": "2026-09-06",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+ "mapping_ref": "data/mappings/data-center-moratoria.json",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 11 links, worked in priority order: the UNDISCOVERED link first, then the two CHOKE_POINT-criticality links, then the rest by chain position. This chain has no money-corner link: heat.money_corner is false or null (heat not yet scored) on every one of the 11 links, heat_as_of 2026-09-04, so the run-day money-corner attribution check is vacuous this run.\n\nThe mapping (data/mappings/data-center-moratoria.json, 14 distinct issuers, 15 placements) carries no audit block at all: status ACTIVE, no census audit has ever run. Every row this run therefore had to clear Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED (tools/check_screen.py, _placement_admissible). None of this mapping's 15 placements clear that bar. Every single one carries exactly one evidence item tagged INFERRED, sourced to secondary media and trade-press coverage (Yahoo Finance, Environment Analyst Global, Insider Monkey, GlobeNewswire, Futurum Group, Utility Dive, Data Centre Magazine, a source titled Hallucination Yield, DatacenterDynamics, Industrial Info Resources, FTI Strategic Communications, Columbia Climate Law Blog), never a 10-K, 10-Q, 8-K, or an official exchange or registry record. This is unlike russian-diesel-ban's mapping (27 of 27 placements all-VERIFIED, screened 2026-09-04), where admission turned on profile status; here every link is blocked one level earlier, at the evidence tag itself. This run therefore seats zero rows on any of the 11 links, regardless of profile status, because no placement mechanically clears the gate.\n\npermitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5]: searched and empty, not for lack of candidates but for lack of VERIFIED evidence. All 5 placements (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, WILLDAN-GROUP, STANTEC) are ACTIVE and every one already has a COMPLETE O2 profile (T1) on disk, so this is the single link on the chain where five names are one Atlas audit away from seating. Evidence is INFERRED throughout: TETRA-TECH (Yahoo Finance, 2026-06-19) and WILLDAN-GROUP (Yahoo Finance / Insider Monkey, 2026-07-01) cite retail commentary; AECOM and JACOBS-SOLUTIONS both cite the same single Environment Analyst Global trade-press piece (2026-04-16); STANTEC cites Industrial Info Resources (2026-08-14). This is the highest-value single next step on this chain: a `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source on any of the 5, or a full census audit, converts a ready-to-seat name.\n\nstate-moratoria-and-siting-law [CHOKE_POINT criticality, zero-ticker by design]: searched and empty. The mapping's own link_coverage search (result_status NO_QUALIFYING_NAMES, tag VERIFIED, source: Governor Kathy Hochul, Executive Order No. 62, 2026-07-14) concludes the freeze is issued and administered by governors' offices, state environmental-conservation departments and utility commissions, government bodies, not public legal issuers, so no issuer can perform this role. Structurally uninvestable, matching the chain's own map_limitation, which names organized-opposition and state-moratoria-and-siting-law as carrying zero tickers by design.\n\nentitled-powered-land [CHOKE_POINT criticality, heat CROWDED]: searched and empty. Both placements (DIGITAL-REALTY, EQUINIX) are ACTIVE with COMPLETE O2 profiles (T1), blocked purely on evidence: DIGITAL-REALTY cites a GlobeNewswire press release about a Portugal market entry (2026-03-04, not directly about this link's role); EQUINIX cites a Futurum Group Q2 FY2026 earnings-commentary piece (2026-08-03). Same one-level-earlier block as permitting-and-environmental-consultancy: profiled and mechanically ready but for the evidence tag.\n\norganized-opposition [HIGH criticality, zero-ticker by design]: searched and empty. The mapping's own link_coverage search (result_status NO_QUALIFYING_NAMES, tag INFERRED, source: Futura-Sciences, 2026-08-28) concludes the 833 opposition groups it counts are residents, civic associations and county boards, not businesses; no public legal issuer performs this role, structurally, because it is not a commercial activity.\n\nutility-ratemaking-and-large-load-tariffs [HIGH criticality, heat CROWDED]: searched and empty. Sole placement AMERICAN-ELECTRIC-POWER (ACTIVE, INFERRED, Columbia Climate Law Blog, 2026-06-02) has no profile on disk; blocked at both the evidence bar and the profile bar.\n\nwater-permitting-and-hydrology [HIGH criticality, heat CROWDED]: searched and empty. Sole placement XYLEM (ACTIVE, INFERRED, Insider Monkey, 2026-06-17) has no profile on disk.\n\ncommunity-benefit-and-consent [MEDIUM criticality, heat QUIET]: searched and empty. Sole placement FTI-CONSULTING (ACTIVE, INFERRED, FTI Strategic Communications, 2025-09-24, the issuer's own material about itself) has a profile, but it is BLOCKED at O3; refused regardless of evidence status.\n\npower-equipment-shared [HIGH criticality, heat CROWDED]: zero placements, by design. Atlas's own chain note (SHARED STAGE DECLARATION, campaign blocker BLK-04) and the mapping's own search record declare this link IS ai-infrastructure/power-equipment, same 7 tickers (ETN, GEV, POWL, HUBB, ENR.DE, SU.PA, HPS-A.TO), deliberately duplicated so the overlap is visible rather than double-counted. No issuer is placed here; the mapping's own search record rejects Eaton, GE Vernova, Powell Industries and Hubbell by name for exactly this reason. Not a gap.\n\nus-secondary-market-shift [MEDIUM criticality, heat CROWDED]: searched and empty. Sole placement SOUTHERN-CO (ACTIVE, INFERRED, Utility Dive, 2026-05-01) has no profile on disk.\n\noffshore-and-periphery-capacity [MEDIUM criticality, heat EMERGING]: searched and empty. EQUINIX (ACTIVE, INFERRED, the same Futurum Group source as entitled-powered-land; a genuine secondary-link candidate on this issuer, not seated here either) has a COMPLETE O2 profile; GDS-HOLDINGS (ACTIVE, INFERRED, Data Centre Magazine, 2025-10-23) has none.\n\nhyperscale-buildout-demand [LOW criticality, heat OVER_CROWDED]: searched and empty. ALPHABET (ACTIVE, INFERRED, DatacenterDynamics, 2026-07-22) has a COMPLETE O2 profile; MICROSOFT (ACTIVE, INFERRED, a source titled Hallucination Yield: Microsoft Capex Tracker, 2026-07-29) has none. Per the chain's own ARCH-007 note this demand-anchor link is included for completeness only, never as the candidate, so its own OVER_CROWDED heat makes it lowest priority regardless.\n\nNet effect: 0 of 11 links produce rows (0 rows total). No money-corner link exists on this chain. Every link is documented searched-and-empty with a stated reason: 2 are structurally zero-ticker (government or civic bodies, not issuers), 1 is a deliberate duplicate of another theme's stage, 1 is profile-blocked at O3, 5 issuers across 5 links are unprofiled, and 8 distinct issuers across 4 links (permitting-and-environmental-consultancy's 5, entitled-powered-land's 2, hyperscale-buildout-demand's ALPHABET, plus EQUINIX's repeat placement on offshore-and-periphery-capacity) are COMPLETE O2 and mechanically ready but for the evidence tag alone. The single largest concrete next step is closing the evidence gap: a full-census `run universe-audit data-center-moratoria` cannot yet return PASS (7 of 11 links remain OPEN, none TARGET_MET or EXHAUSTED beyond permitting-and-environmental-consultancy), so a placement-scoped `run universe-audit data-center-moratoria --placement <issuer_id>` against a primary source, starting with any of the 5 permitting-and-environmental-consultancy names, is the faster path to this chain's first seated row. Flagged to tasks/backlog.md for Atlas.\n\nSecond run (2026-09-04T19:06Z), triggered by commit 0974972 (`run universe-audit data-center-moratoria --placement`). permitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5] now carries fresh-context placement_audits[] entries for all 5 placements: PASS for TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC; FAIL for WILLDAN-GROUP (role_mismatch: the audit found Willdan's own data-center service page describes grid/substation engineering, load forecasting and energy-efficiency work, not the environmental-assessment or permitting work this link is defined around, and no source ties Willdan's separate municipal CEQA/NEPA capability to data centers; excluded from this link). Tested the 4 PASS names directly against tools/check_screen.py by drafting a row for TETRA-TECH under audit_scope PLACEMENT: it fails. check_screen.py's `_placement_admissible` reads the placement's own `evidence[].tag` on the mapping, which is still INFERRED (unchanged by the placement_audits[] entries, a separate fresh-context audit record that does not rewrite the placement's evidence tags), and never reads `placement_audits[]` at all; CLAUDE.md's `--placement` clause admits a current PASS entry to `run deepdive`, not to `run screen`. Re-examined all 15 placements on this mapping: none has been rewritten to a VERIFIED evidence tag since the first run, so every link's disposition is unchanged from that run. This matches two sibling chains run today on the identical principle: minor-nsr-permits (CATERPILLAR/CUMMINS/FUEL-TECH/CECO-ENVIRONMENTAL, 4 PASS placement_audits, still 0 rows, 'placement-audit path tested and ruled out') and offshore-counter-drone (INFERRED-only evidence, independent of any audit). This run therefore still seats 0 of 11 links. The one change from the first run: TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC are now the single closest-to-admissible names on this chain, COMPLETE O2 profiles and PASS-audited at the placement level, blocked on exactly one remaining step that is out of Sieve's file ownership: an evidence-tag rewrite on the mapping placement itself (data/mappings/data-center-moratoria.json, owned by Atlas) from INFERRED to VERIFIED, or a full mapping census PASS audit. WILLDAN-GROUP is not a near-miss: its placement audit FAILED on role grounds, so an evidence-tag rewrite alone would not admit it either; it needs re-scoping or dropping from this link by Atlas. Noted for the record, not this run's blocker: JACOBS-SOLUTIONS's profile (data/companies/JACOBS-SOLUTIONS.json) carries NULL revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin, honestly stated because its fetched SEC XBRL 'Revenues' concept (CIK 52988) stops at FY2018-09-28, eight fiscal years stale against its other concepts; a future seating of this name inherits that fundamentals gap and must carry it on the row rather than paper over it.\n\nThird run (2026-09-04), triggered by two upstream changes since the second run: tools/check_screen.py commit 5e5f3b5 (`_placement_admissible` now admits a campaign-v1 row under audit_scope PLACEMENT when the placement carries a current PASS `placement_audits[]` entry, in addition to the pre-existing all-VERIFIED evidence-tag rule), and mapping commit d83d807 (`run universe data-center-moratoria` amended placement evidence and added WSP-GLOBAL, rejected WILLDAN-GROUP). Re-tested every one of the mapping's 15 placements directly against the live `_placement_admissible` and `_is_qualified_placement` functions rather than re-deriving the rule by hand.\n\npermitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5, now 4 after WILLDAN-GROUP's rejection]: 4 of 5 placements are now admissible and seated. TETRA-TECH, AECOM, JACOBS-SOLUTIONS, and STANTEC each carry a current PASS `placement_audits[]` entry whose `record_digest` still equals `placement_claim_digest` over the placement's present role and sampled evidence item (confirmed via `check_map.placement_audit_for`), so each clears `_placement_admissible` on the placement-audit path even though the placement's own `evidence[].tag` array is still mixed VERIFIED/INFERRED, not all-VERIFIED. All four already carry COMPLETE O2 profiles (T1). JACOBS-SOLUTIONS seats with an honest NULL on revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin: its fetched SEC XBRL Revenues concept (CIK 52988) stops at FY2018-09-28, eight fiscal years stale; its operating_cash_flow_to_net_income still resolves and is carried on the row. WILLDAN-GROUP is excluded outright: the mapping now records its placement status as REJECTED (not merely unaudited) and its `placement_audits[]` entry is FAIL on role grounds (its own service page describes grid/substation engineering and load forecasting, not environmental permitting), so `_is_qualified_placement` refuses it before `_placement_admissible` is even reached. WSP-GLOBAL, newly added to this link, is NOT admissible this run: its placement carries the same mixed VERIFIED/INFERRED evidence pattern as every other placement on this mapping (one VERIFIED official-site item, one INFERRED trade-press item) and has no `placement_audits[]` entry at all, so neither path in `_placement_admissible` clears it. WSP-GLOBAL also has no profile on disk (data/companies/WSP-GLOBAL.json does not exist): admissible-but-unprofiled does not apply to it, because it is not admissible in the first place.\n\nThe remaining 10 placements across the other 8 non-permitting links are NOT admissible this run, for the same reason WSP-GLOBAL is not: every one carries mixed VERIFIED/INFERRED evidence (a single official-source item added by commit d83d807 alongside the original INFERRED trade-press item, never a full all-VERIFIED array) and none has a `placement_audits[]` entry, so `_placement_admissible` refuses all of them regardless of profile status. This is checked directly against the live functions, not inferred from the evidence tags alone. Specifically: DIGITAL-REALTY and EQUINIX (entitled-powered-land, CHOKE_POINT criticality, both COMPLETE O2 T1 profiles) are blocked purely on this placement-admissibility gap, the closest near-misses after the permitting link. MICROSOFT and ALPHABET (hyperscale-buildout-demand) are likewise blocked on placement admissibility; ALPHABET already carries a COMPLETE O2 T1 profile (not unprofiled, contrary to the working assumption going into this run), while MICROSOFT has none (data/companies/MICROSOFT.json does not exist) and would need both a profile and placement admissibility to seat. FTI-CONSULTING (community-benefit-and-consent) is doubly blocked: placement not admissible, and its profile is BLOCKED at O3, refused regardless of placement status. AMERICAN-ELECTRIC-POWER, XYLEM, SOUTHERN-CO, and GDS-HOLDINGS remain both placement-inadmissible and unprofiled, unchanged from the second run.\n\nstate-moratoria-and-siting-law [CHOKE_POINT criticality, zero-ticker by design] and organized-opposition [HIGH criticality, zero-ticker by design]: unchanged from the first two runs, government/civic bodies not public issuers, searched and empty by the mapping's own EXHAUSTED-style link_coverage search records.\n\npower-equipment-shared [HIGH criticality, heat CROWDED]: unchanged, zero placements by design, declared duplicate of ai-infrastructure/power-equipment (SHARED STAGE DECLARATION, campaign blocker BLK-04).\n\nNet effect: 4 of 11 links now produce rows (4 rows total, all on permitting-and-environmental-consultancy, all bucket pure_play, all data_tier T1, all audit_scope PLACEMENT resting on a current PASS placement_audits[] entry). No money-corner link exists on this chain (vacuous for the run-day money-corner check). 0 earnings nuggets seated: no data/edgar/docs/ file exists yet for TTEK, ACM, J, or STN, so no verbatim quote could be verified this run; 4 edgar_doc requests queued (REQ-20260904-297 through -300) with each issuer's CIK so a future run can add sourced nuggets. This is the first run on this chain to seat any row.\n\nAddendum (2026-09-04, post-rebase): data/edgar/docs/TTEK.json landed on disk via an unrelated concurrent request (REQ-20260904-295, run screen minor-nsr-permits, same ticker) before this run's own REQ-20260904-297 could be fulfilled. Read it and found a verbatim, on-topic nugget in Tetra Tech's Q3 FY2026 earnings release (8-K EX-99.1, accession 0001104659-26-088213, filed 2026-07-29): new commercial orders for data center projects drove backlog up more than $200 million in the quarter. Added as TETRA-TECH's first earnings_nugget, verbatim-verified against the document on disk. AECOM, JACOBS-SOLUTIONS, and STANTEC still have no document on disk; their REQ-20260904-298/-299/-300 remain PENDING.\n\nFourth run (2026-09-06T17:45Z), triggered by two upstream landings from the same parallel batch: a fresh-context placement audit PASS for WSP-GLOBAL on permitting-and-environmental-consultancy (data/mappings/data-center-moratoria.json placement_audits[], audited_at 2026-09-06T15:47:33Z, record_digest matched against WSP's own Data Center Design Services page), and WSP-GLOBAL's profile completing to COMPLETE O2 T3 in the second `run profile --campaign` pass minutes earlier (filled from the newly fetched data/market/WSP-TO.json yfinance-statements block, all 12 canonical fields sourced, no NULLs). Re-tested directly against the live tools/check_screen._placement_admissible and tools/check_map.placement_audit_for functions rather than re-deriving the rule by hand: WSP-GLOBAL's placement carries status ACTIVE, non-empty evidence (one VERIFIED official-site item, one INFERRED trade-press item, still not all-VERIFIED), and a current PASS placement_audits[] entry whose evidence_index 0 and record_digest still equal placement_claim_digest over the placement's present role and its first evidence item; both placement_audit_for and _placement_admissible return true. Seated as the fifth row on permitting-and-environmental-consultancy [UNDISCOVERED, TARGET_MET at 5, now 5 of 5 remaining ACTIVE placements seated since WILLDAN-GROUP's REJECTED exclusion], bucket pure_play, data_tier T3 (matching the profile), audit_scope PLACEMENT. This is the first T3 name on this link; TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC are T1. WSP-GLOBAL's mapping listing (TSX-WSP) carries no explicit market_ticker field (unlike this mapping's other foreign listings' peers on sibling chains, e.g. GERRESHEIMER's XETRA-GXI carrying market_ticker GXI.DE); the campaign-identity check's fallback (listing.market_ticker or listing.ticker) resolves to the bare ticker WSP, so this row's market_ticker is WSP, not the WSP.TO used to fetch and cite its market data (data/market/WSP-TO.json, confirmed directly against tools/check_screen.check_campaign_identity with both values tested). Flagged to tasks/backlog.md for Atlas: add an explicit market_ticker to the TSX-WSP listing for consistency with this mapping's other foreign listings. No earnings nugget: WSP-GLOBAL is a Canadian filer with no SEC CIK and no data/edgar/docs/ file exists for it; none queued, since T3 foreign filers are not EDGAR full-text candidates on this mapping (mirrors AFCONS/AIRBUS/other T3 names elsewhere in the repo, which also carry earnings_nuggets: []). No PENDING_DATA rows needed this run: all 12 of WSP-GLOBAL's canonical fundamentals fields resolved from the profile with no NULLs. The other 10 not-yet-admissible placements across 8 links (DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET, FTI-CONSULTING, AMERICAN-ELECTRIC-POWER, XYLEM, SOUTHERN-CO, GDS-HOLDINGS) are unchanged from the third run: still mixed-evidence with no placement_audits[] entry, re-confirmed against the live gate functions. state-moratoria-and-siting-law, organized-opposition, and power-equipment-shared remain unchanged, zero-ticker or duplicate-stage by design. Net effect: 5 of 11 links now produce rows (5 rows total, all on permitting-and-environmental-consultancy). No money-corner link exists on this chain (vacuous for the run-day money-corner check).",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/data-center-moratoria.json carrying ACTIVE status, joined to its official listing and evidence tags",
+   "forms": null,
+   "hits_examined": 15,
+   "names_extracted": 15
+  },
+  {
+   "query": "evidence-tag audit across all 15 placements: how many carry an all-VERIFIED role-evidence bar per tools/check_screen.py._placement_admissible",
+   "forms": null,
+   "hits_examined": 15,
+   "names_extracted": 0
+  },
+  {
+   "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a data-center-moratoria placement",
+   "forms": null,
+   "hits_examined": 14,
+   "names_extracted": 8
+  },
+  {
+   "query": "mapping's own link_coverage search records for organized-opposition and state-moratoria-and-siting-law confirming zero-ticker-by-design status",
+   "forms": null,
+   "hits_examined": 2,
+   "names_extracted": 0
+  },
+  {
+   "query": "second-run re-test: draft TETRA-TECH row (permitting-and-environmental-consultancy, audit_scope PLACEMENT) against tools/check_screen.py, on the strength of the 4 new PASS placement_audits[] entries from commit 0974972",
+   "forms": null,
+   "hits_examined": 15,
+   "names_extracted": 0
+  },
+  {
+   "query": "third run: re-test admissibility of all 15 placements against the amended tools/check_screen.py._placement_admissible (commit 5e5f3b5, now also admits audit_scope PLACEMENT via a current PASS placement_audits[] entry, not evidence tags alone) over the amended census (commit d83d807, VERIFIED evidence added on TETRA-TECH, AECOM, JACOBS-SOLUTIONS, DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET, FTI-CONSULTING; WSP-GLOBAL added; WILLDAN-GROUP rejected)",
+   "forms": null,
+   "hits_examined": 15,
+   "names_extracted": 4
+  },
+  {
+   "query": "fourth run: re-test WSP-GLOBAL placement admissibility against the live tools/check_screen._placement_admissible and tools/check_map.placement_audit_for functions, on the strength of today's fresh-context placement audit PASS and the completed profile",
+   "forms": null,
+   "hits_examined": 1,
+   "names_extracted": 1
+  }
+ ],
+ "buckets": {
+  "pure_play": [
+   {
+    "issuer_id": "TETRA-TECH",
+    "listing_id": "NASDAQ-TTEK",
+    "ticker": "TTEK",
+    "market_ticker": "TTEK",
+    "chain_id": "data-center-moratoria",
+    "link_id": "permitting-and-environmental-consultancy",
+    "mapping_ref": "data/mappings/data-center-moratoria.json",
+    "profile_ref": "data/companies/TETRA-TECH.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Tetra Tech, Inc.",
+    "exchange": "NASDAQ",
+    "tier": "T1",
+    "cik": 831641,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "US-listed engineering and environmental consultancy (NASDAQ: TTEK) whose water-supply and environmental-impact-mitigation consulting is cited as increasingly critical to gaining community support for data center projects, the exact gating service this UNDISCOVERED link measures; fresh-context placement audit PASS (2026-09-04) against Tetra Tech's own Data Center Solutions page.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for TETRA-TECH; only company-wide fundamentals are available.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
     },
-    {
-      "query": "evidence-tag audit across all 15 placements: how many carry an all-VERIFIED role-evidence bar per tools/check_screen.py._placement_admissible",
-      "forms": null,
-      "hits_examined": 15,
-      "names_extracted": 0
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 5442590000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-09-28, from SEC XBRL companyfacts for TETRA-TECH (TTEK).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.1580976781171921,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+      "basis": "Three-year compound annual revenue growth computed as (5442590000/3504048000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-10-02 to period ended 2025-09-28.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.07504129467771778,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+      "basis": "Operating income 408419000 divided by revenue 5442590000, both for the period ended 2025-09-28, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.08066968116282873,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+      "basis": "Free cash flow margin: operating cash flow 457685000 less capital expenditure 18633000, divided by revenue 5442590000, all for the period ended 2025-09-28, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_cash_flow_to_net_income cannot be computed for TETRA-TECH: net_income_fy has no data points in data/market/TTEK.json fundamentals (coverage.missing includes net_income); fcf_margin is used instead below."
+     }
     },
-    {
-      "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a data-center-moratoria placement",
-      "forms": null,
-      "hits_examined": 14,
-      "names_extracted": 8
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/TTEK.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/TTEK.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
     },
-    {
-      "query": "mapping's own link_coverage search records for organized-opposition and state-moratoria-and-siting-law confirming zero-ticker-by-design status",
-      "forms": null,
-      "hits_examined": 2,
-      "names_extracted": 0
-    },
-    {
-      "query": "second-run re-test: draft TETRA-TECH row (permitting-and-environmental-consultancy, audit_scope PLACEMENT) against tools/check_screen.py, on the strength of the 4 new PASS placement_audits[] entries from commit 0974972",
-      "forms": null,
-      "hits_examined": 15,
-      "names_extracted": 0
-    },
-    {
-      "query": "third run: re-test admissibility of all 15 placements against the amended tools/check_screen.py._placement_admissible (commit 5e5f3b5, now also admits audit_scope PLACEMENT via a current PASS placement_audits[] entry, not evidence tags alone) over the amended census (commit d83d807, VERIFIED evidence added on TETRA-TECH, AECOM, JACOBS-SOLUTIONS, DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET, FTI-CONSULTING; WSP-GLOBAL added; WILLDAN-GROUP rejected)",
-      "forms": null,
-      "hits_examined": 15,
-      "names_extracted": 4
-    },
-    {
-      "query": "fourth run: re-test WSP-GLOBAL placement admissibility against the live tools/check_screen._placement_admissible and tools/check_map.placement_audit_for functions, on the strength of today's fresh-context placement audit PASS and the completed profile",
-      "forms": null,
-      "hits_examined": 1,
-      "names_extracted": 1
-    }
-  ],
-  "buckets": {
-    "pure_play": [
-      {
-        "issuer_id": "TETRA-TECH",
-        "listing_id": "NASDAQ-TTEK",
-        "ticker": "TTEK",
-        "market_ticker": "TTEK",
-        "chain_id": "data-center-moratoria",
-        "link_id": "permitting-and-environmental-consultancy",
-        "mapping_ref": "data/mappings/data-center-moratoria.json",
-        "profile_ref": "data/companies/TETRA-TECH.json",
-        "data_tier": "T1",
-        "audit_scope": "PLACEMENT",
-        "name": "Tetra Tech, Inc.",
-        "exchange": "NASDAQ",
-        "tier": "T1",
-        "cik": 831641,
-        "money_corner": false,
-        "link_heat_verdict": "UNDISCOVERED",
-        "thesis_1line": "US-listed engineering and environmental consultancy (NASDAQ: TTEK) whose water-supply and environmental-impact-mitigation consulting is cited as increasingly critical to gaining community support for data center projects, the exact gating service this UNDISCOVERED link measures; fresh-context placement audit PASS (2026-09-04) against Tetra Tech's own Data Center Solutions page.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for TETRA-TECH; only company-wide fundamentals are available.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 5442590000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
-            "basis": "Fiscal-year revenue for the period ended 2025-09-28, from SEC XBRL companyfacts for TETRA-TECH (TTEK).",
-            "official_source": true
-          },
-          "revenue_cagr_3y": {
-            "value": 0.1580976781171921,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
-            "basis": "Three-year compound annual revenue growth computed as (5442590000/3504048000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-10-02 to period ended 2025-09-28.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.07504129467771778,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
-            "basis": "Operating income 408419000 divided by revenue 5442590000, both for the period ended 2025-09-28, from the companyfacts series.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": 0.08066968116282873,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
-            "basis": "Free cash flow margin: operating cash flow 457685000 less capital expenditure 18633000, divided by revenue 5442590000, all for the period ended 2025-09-28, from the companyfacts series.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "operating_cash_flow_to_net_income cannot be computed for TETRA-TECH: net_income_fy has no data points in data/market/TTEK.json fundamentals (coverage.missing includes net_income); fcf_margin is used instead below."
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/TTEK.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "data/market/TTEK.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
-        },
-        "earnings_nuggets": [
-          {
-            "quote": "We received significant new orders during the quarter, including commercial orders for data center and sediment restoration projects, driving our backlog up by more than $200 million.",
-            "accession": "0001104659-26-088213",
-            "url": "https://www.sec.gov/Archives/edgar/data/831641/000110465926088213/tm2621536d1_ex99-1.htm",
-            "form": "8-K",
-            "filed": "2026-07-29",
-            "basis": "Q3 FY2026 earnings release (8-K EX-99.1, accession 0001104659-26-088213), fetched this run via REQ-20260904-297 (filled by an unrelated concurrent REQ-20260904-295 from run screen minor-nsr-permits, same ticker). Directly evidences the permitting-and-environmental-consultancy placement: new commercial orders for data center projects drove backlog up over $200 million in the quarter."
-          }
-        ],
-        "status": "CANDIDATE"
-      },
-      {
-        "issuer_id": "AECOM",
-        "listing_id": "NYSE-ACM",
-        "ticker": "ACM",
-        "market_ticker": "ACM",
-        "chain_id": "data-center-moratoria",
-        "link_id": "permitting-and-environmental-consultancy",
-        "mapping_ref": "data/mappings/data-center-moratoria.json",
-        "profile_ref": "data/companies/AECOM.json",
-        "data_tier": "T1",
-        "audit_scope": "PLACEMENT",
-        "name": "AECOM",
-        "exchange": "NYSE",
-        "tier": "T1",
-        "cik": 868857,
-        "money_corner": false,
-        "link_heat_verdict": "UNDISCOVERED",
-        "thesis_1line": "One of four firms (with Tetra Tech, WSP, and Jacobs) that together held over 40% of US environmental and sustainability consulting revenue in 2024, the market data-center permitting studies are bought from; PASS placement audit (2026-09-04) against AECOM's own Data Centers & Digital Infrastructure page.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "No data-center-specific share of AECOM's environmental and sustainability consulting revenue is disclosed or sourced; the cited industry figure covers the whole US E&S consulting market, not AECOM's data-center work specifically.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 16139622000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
-            "basis": "Revenues for the fiscal year ended 2025-09-30 as reported to SEC XBRL companyfacts for CIK 868857 (AECOM, NYSE: ACM)."
-          },
-          "revenue_cagr_3y": {
-            "value": 0.07072,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
-            "basis": "Three-year compound annual revenue growth computed as (16139622000 / 13148182000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-09-30 to fiscal year ended 2025-09-30.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.063603,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
-            "basis": "Operating income 1026522000 divided by revenue 16139622000, both for the fiscal year ended 2025-09-30, from companyfacts.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": 0.042438,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
-            "basis": "Free cash flow margin: operating cash flow 821602000 less capital expenditure 136675000, divided by revenue 16139622000, all for the fiscal year ended 2025-09-30, from companyfacts.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 1.462513,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
-            "basis": "Operating cash flow 821602000 divided by net income 561774000, both for the fiscal year ended 2025-09-30, from companyfacts.",
-            "official_source": true
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/ACM.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "data/market/ACM.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      },
-      {
-        "issuer_id": "JACOBS-SOLUTIONS",
-        "listing_id": "NYSE-J",
-        "ticker": "J",
-        "market_ticker": "J",
-        "chain_id": "data-center-moratoria",
-        "link_id": "permitting-and-environmental-consultancy",
-        "mapping_ref": "data/mappings/data-center-moratoria.json",
-        "profile_ref": "data/companies/JACOBS-SOLUTIONS.json",
-        "data_tier": "T1",
-        "audit_scope": "PLACEMENT",
-        "name": "Jacobs Solutions Inc.",
-        "exchange": "NYSE",
-        "tier": "T1",
-        "cik": 52988,
-        "money_corner": false,
-        "link_heat_verdict": "UNDISCOVERED",
-        "thesis_1line": "One of the same four dominant US E&S consulting firms as Tetra Tech and AECOM, cited in the same trade-press market-share figure; PASS placement audit (2026-09-04) against Jacobs' own Data centers and digital infrastructure page. Revenue, growth, and margins are honestly NULL this run: the fetched SEC XBRL Revenues concept for CIK 52988 stops at FY2018, eight fiscal years stale against its other concepts.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for JACOBS-SOLUTIONS; only company-wide fundamentals are available, and those are themselves NULL this run.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "revenue.latest_fy cannot be sourced for JACOBS-SOLUTIONS: the fetched companyfacts 'Revenues' XBRL concept in data/market/J.json fundamentals.revenue_fy stops at FY2018-09-28 (14984646000), eight fiscal years stale against the FY2025-09-26 period other concepts (operating income, net income, operating cash flow) report; a newer revenue tag (e.g. the post-ASC-606 contract-revenue concept) was not captured by this fetch, so revenue.latest_fy is not a current number rather than an estimate."
-          },
-          "revenue_cagr_3y": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "growth.revenue_cagr_3y cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (see the revenue field basis), so no numerator exists for a 3-year revenue CAGR."
-          },
-          "operating_margin": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "margins.operating_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for an operating margin even though operating_income_fy is current."
-          },
-          "fcf_margin": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "fcf_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for a free cash flow margin; operating_cash_flow_to_net_income is used instead above."
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 2.3733790471977216,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
-            "basis": "Operating cash flow 686704000 divided by net income 289336000, both for the period ended 2025-09-26, from the companyfacts series.",
-            "official_source": true
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/J.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "data/market/J.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
-        },
-        "earnings_nuggets": [],
-        "status": "DIVED"
-      },
-      {
-        "issuer_id": "STANTEC",
-        "listing_id": "NYSE-STN",
-        "ticker": "STN",
-        "market_ticker": "STN",
-        "chain_id": "data-center-moratoria",
-        "link_id": "permitting-and-environmental-consultancy",
-        "mapping_ref": "data/mappings/data-center-moratoria.json",
-        "profile_ref": "data/companies/STANTEC.json",
-        "data_tier": "T1",
-        "audit_scope": "PLACEMENT",
-        "name": "Stantec Inc.",
-        "exchange": "NYSE",
-        "tier": "T1",
-        "cik": 1131383,
-        "money_corner": false,
-        "link_heat_verdict": "UNDISCOVERED",
-        "thesis_1line": "Global design and environmental-assessment consultancy (NYSE: STN) tracked by Industrial Info Resources against over US$115bn of active and proposed US/Canada projects featuring Stantec's services, nearly half attributed to data center developments; PASS placement audit (2026-09-04), primary confirmation via Stantec's own press-release language quoted verbatim by Canadian Consulting Engineer (stantec.com itself is JS-rendered and returned no extractable text).",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "Stantec discloses no exact data-center-specific revenue percentage; the cited US$115bn figure is a tracked third-party project-backlog estimate, not an issuer disclosure.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 8144200000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001131383.json",
-            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1131383 (Stantec Inc, NYSE: STN). Corrected 2026-09-04 (fetcher commit 54cbeaa, latest-facts taxonomy wins): the prior claim that revenue_fy was frozen at 2019-12-31 is stale against this re-fetched file, which now carries a clean 2020-2025 series."
-          },
-          "revenue_cagr_3y": {
-            "value": 0.127816,
-            "tag": "INFERRED",
-            "official_source": true,
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001131383.json",
-            "basis": "Three-year compound annual revenue growth computed as (8144200000 / 5677200000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. Corrected 2026-09-04 (fetcher commit 54cbeaa): now computable against the re-fetched revenue series."
-          },
-          "operating_margin": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "operating_margin cannot be computed for STANTEC: corrected 2026-09-04, companyfacts data/market/STN.json fundamentals still carries no operating_income_fy series at all for CIK 1131383, unaffected by the fetcher fix that resolved revenue and cash/total_debt."
-          },
-          "fcf_margin": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "fcf_margin cannot be computed for STANTEC: revenue.latest_fy now resolves (corrected 2026-09-04), but capex_fy's most recent point is 2022-12-31, three years stale against the FY2025 revenue figure, so a current cash-flow-to-revenue margin has no reliable numerator leg."
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 1.799958,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001131383.json",
-            "basis": "Operating cash flow 862900000 divided by net income 479400000, both for the fiscal year ended 2025-12-31, from companyfacts. Both series extend cleanly to FY2025 even though revenue_fy does not (see metrics.revenue.latest_fy basis).",
-            "official_source": true
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/STN.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "data/market/STN.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      },
-      {
-        "issuer_id": "WSP-GLOBAL",
-        "listing_id": "TSX-WSP",
-        "ticker": "WSP",
-        "market_ticker": "WSP",
-        "chain_id": "data-center-moratoria",
-        "link_id": "permitting-and-environmental-consultancy",
-        "mapping_ref": "data/mappings/data-center-moratoria.json",
-        "profile_ref": "data/companies/WSP-GLOBAL.json",
-        "data_tier": "T3",
-        "audit_scope": "PLACEMENT",
-        "name": "WSP Global Inc.",
-        "exchange": "TSX",
-        "tier": "T3",
-        "cik": null,
-        "money_corner": false,
-        "link_heat_verdict": "UNDISCOVERED",
-        "thesis_1line": "Global engineering and environmental consultancy (TSX: WSP), the fifth firm on this link alongside Tetra Tech, AECOM, Jacobs and Stantec, named by the same trade-press census as one of the four (with Tetra Tech, AECOM and Jacobs) that together held over 40% of US environmental and sustainability consulting revenue in 2024; WSP's own Data Center Design Services and Mission Critical Consulting page confirms site-selection, environmental due-diligence, stakeholder-engagement and permitting work sold directly to data-center clients. Seated on a current PASS fresh-context placement audit (data/mappings/data-center-moratoria.json placement_audits[], 2026-09-06, record_digest-matched against WSP's own page), the placement-audit path rather than all-VERIFIED evidence: the mapping's own role evidence for this placement is mixed VERIFIED (the WSP page) and INFERRED (the same Environment Analyst Global trade-press piece already cited for AECOM and Jacobs), never all-VERIFIED, so _placement_admissible clears it only via the current placement_audits[] entry, the identical path that already seated TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC on this link.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "No chain- or link-specific revenue percentage is disclosed or sourced for WSP-GLOBAL; only the trade-press market-share figure (over 40% of US E&S consulting revenue held by WSP and three peers, 2024) and company-wide fundamentals are available.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 18285000000.0,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Fiscal-year revenue for the period ended 2025-12-31: 18,285,000,000 CAD from the yfinance-statements statements in data/market/WSP-TO.json, mirrored from the profile's revenue.latest_fy."
-          },
-          "revenue_cagr_3y": {
-            "value": 0.15284,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Compound annual revenue growth computed as (18,285,000,000/11,932,900,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
-          },
-          "operating_margin": {
-            "value": 0.09698660103910309,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Operating income 1,773,400,000 CAD divided by revenue 18,285,000,000 CAD, both for the period ended 2025-12-31, from the yfinance-statements series."
-          },
-          "fcf_margin": {
-            "value": 0.11447087776866284,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Free cash flow margin: operating cash flow 2,246,000,000 CAD less capex 152,900,000 CAD, divided by revenue 18,285,000,000 CAD, all for the period ended 2025-12-31, from the yfinance-statements series."
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 2.3291506792491963,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Operating cash flow 2,246,000,000 CAD divided by net income 964,300,000 CAD, both for the period ended 2025-12-31, from the yfinance-statements series."
-          },
-          "net_debt_to_ebitda": {
-            "value": 1.30821022614757,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Net debt 3,303,100,000 CAD (total debt 4,864,500,000 less cash 1,561,400,000, as of 2025-12-31) divided by an EBITDA proxy 2,524,900,000 CAD (operating income 1,773,400,000 plus depreciation 751,500,000 for the period ended 2025-12-31), from the yfinance-statements series."
-          },
-          "piotroski": {
-            "value": 7,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/WSP-TO.json quality.piotroski, 9 of 9 inputs found."
-          },
-          "beneish_state": {
-            "value": -2.828,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Beneish M-score -2.828 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/WSP-TO.json quality.beneish, 12 of 12 inputs found."
-          },
-          "market_cap": {
-            "value": 25189993415.920002,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Market capitalization 25,189,993,415.92 CAD computed in data/market/WSP-TO.json quality.derived.market_cap from vendor/official share count and price (method section 6A vendor-aggregate fundamentals)."
-          },
-          "price_to_sales": {
-            "value": 1.3776315786666669,
-            "tag": "INFERRED",
-            "official_source": false,
-            "source_name": "yfinance-statements",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Market capitalization 25,189,993,415.92 CAD divided by revenue 18,285,000,000 CAD for the period ended 2025-12-31."
-          },
-          "implied_fcf_cagr": {
-            "value": -0.0086,
-            "tag": "SPECULATIVE",
-            "source_name": "Upstream reverse-DCF over data/market/WSP-TO.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Reverse-DCF implied FCF CAGR -0.0086 at the 5-year default horizon (base FCF 2,093,100,000 CAD, enterprise value 28,493,093,415.92 CAD, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/WSP-TO.json quality.reverse_dcf.state is SOLVED. Discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
-          },
-          "horizon_spread": {
-            "value": 0.014,
-            "tag": "SPECULATIVE",
-            "source_name": "Upstream reverse-DCF over data/market/WSP-TO.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
-            "source_date": "2026-09-06",
-            "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
-            "basis": "Horizon spread 0.014 between the 5-year (-0.0086) and 10-year (0.0054) implied FCF CAGR solves in data/market/WSP-TO.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note."
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/WSP-TO.json",
-          "as_of": "2026-09-06",
-          "tag": "NULL",
-          "basis": "data/market/WSP-TO.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      }
+    "earnings_nuggets": [
+     {
+      "quote": "We received significant new orders during the quarter, including commercial orders for data center and sediment restoration projects, driving our backlog up by more than $200 million.",
+      "accession": "0001104659-26-088213",
+      "url": "https://www.sec.gov/Archives/edgar/data/831641/000110465926088213/tm2621536d1_ex99-1.htm",
+      "form": "8-K",
+      "filed": "2026-07-29",
+      "basis": "Q3 FY2026 earnings release (8-K EX-99.1, accession 0001104659-26-088213), fetched this run via REQ-20260904-297 (filled by an unrelated concurrent REQ-20260904-295 from run screen minor-nsr-permits, same ticker). Directly evidences the permitting-and-environmental-consultancy placement: new commercial orders for data center projects drove backlog up over $200 million in the quarter."
+     }
     ],
-    "picks_and_shovels": [],
-    "second_order": [],
-    "hedge": []
-  },
-  "data_gaps": [
-    "1 of 4 seated rows now carries an earnings nugget: TETRA-TECH's Q3 FY2026 8-K (accession 0001104659-26-088213) landed on disk via an unrelated concurrent request and was verbatim-verified. AECOM, JACOBS-SOLUTIONS, and STANTEC still have no data/edgar/docs/ file; REQ-20260904-298/-299/-300 remain PENDING.",
-    "JACOBS-SOLUTIONS (seated, COMPLETE O2, T1) carries NULL revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin on both the profile and this row: its fetched SEC XBRL Revenues concept (CIK 52988) stops at FY2018-09-28, eight fiscal years stale against its other concepts. operating_cash_flow_to_net_income still resolves.",
-    "WSP-GLOBAL (permitting-and-environmental-consultancy) is now SEATED as of the fourth run (2026-09-06): its placement carries a current PASS placement_audits[] entry (2026-09-06T15:47:33Z) and its profile completed to COMPLETE O2 T3 in the same parallel batch. Its mapping listing carries no explicit market_ticker field, so this row's market_ticker is the bare ticker WSP, not the WSP.TO vendor ticker used to fetch and cite its market data; flagged to tasks/backlog.md for Atlas.",
-    "DIGITAL-REALTY and EQUINIX (entitled-powered-land, CHOKE_POINT criticality) are the highest-value remaining fix: both already carry COMPLETE O2 T1 profiles and ACTIVE placements, blocked purely on the same placement-admissibility gap as WSP-GLOBAL (mixed evidence, no placement_audits[] entry).",
-    "MICROSOFT and ALPHABET (hyperscale-buildout-demand) are also placement-inadmissible; ALPHABET already carries a COMPLETE O2 T1 profile (this run corrects the prior working assumption that it might be unprofiled), MICROSOFT has none.",
-    "FTI-CONSULTING (community-benefit-and-consent) is doubly blocked: placement inadmissible and profile BLOCKED at O3.",
-    "AMERICAN-ELECTRIC-POWER (utility-ratemaking-and-large-load-tariffs), XYLEM (water-permitting-and-hydrology), SOUTHERN-CO (us-secondary-market-shift), and GDS-HOLDINGS (offshore-and-periphery-capacity) remain both placement-inadmissible and unprofiled.",
-    "WILLDAN-GROUP is excluded, not a near-miss: mapping placement status REJECTED and its placement_audits[] entry is FAIL on role grounds (grid/substation engineering work, not environmental permitting).",
-    "The mapping still carries no whole-census audit (status ACTIVE, audit block empty); a full PASS audit would admit every remaining ACTIVE placement in one step, but a placement-scoped audit per remaining issuer is the faster path given only 6 of 15 placements are qualified ACTIVE with a real shot (WSP-GLOBAL, DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET; FTI-CONSULTING is blocked on profile status too)."
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "AECOM",
+    "listing_id": "NYSE-ACM",
+    "ticker": "ACM",
+    "market_ticker": "ACM",
+    "chain_id": "data-center-moratoria",
+    "link_id": "permitting-and-environmental-consultancy",
+    "mapping_ref": "data/mappings/data-center-moratoria.json",
+    "profile_ref": "data/companies/AECOM.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "AECOM",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 868857,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "One of four firms (with Tetra Tech, WSP, and Jacobs) that together held over 40% of US environmental and sustainability consulting revenue in 2024, the market data-center permitting studies are bought from; PASS placement audit (2026-09-04) against AECOM's own Data Centers & Digital Infrastructure page.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No data-center-specific share of AECOM's environmental and sustainability consulting revenue is disclosed or sourced; the cited industry figure covers the whole US E&S consulting market, not AECOM's data-center work specifically.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 16139622000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Revenues for the fiscal year ended 2025-09-30 as reported to SEC XBRL companyfacts for CIK 868857 (AECOM, NYSE: ACM)."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.07072,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Three-year compound annual revenue growth computed as (16139622000 / 13148182000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-09-30 to fiscal year ended 2025-09-30.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.063603,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Operating income 1026522000 divided by revenue 16139622000, both for the fiscal year ended 2025-09-30, from companyfacts.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.042438,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Free cash flow margin: operating cash flow 821602000 less capital expenditure 136675000, divided by revenue 16139622000, all for the fiscal year ended 2025-09-30, from companyfacts.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.462513,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ACM.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000868857.json",
+      "basis": "Operating cash flow 821602000 divided by net income 561774000, both for the fiscal year ended 2025-09-30, from companyfacts.",
+      "official_source": true
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/ACM.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/ACM.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
+    },
+    "earnings_nuggets": [],
+    "status": "DIVED"
+   },
+   {
+    "issuer_id": "JACOBS-SOLUTIONS",
+    "listing_id": "NYSE-J",
+    "ticker": "J",
+    "market_ticker": "J",
+    "chain_id": "data-center-moratoria",
+    "link_id": "permitting-and-environmental-consultancy",
+    "mapping_ref": "data/mappings/data-center-moratoria.json",
+    "profile_ref": "data/companies/JACOBS-SOLUTIONS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Jacobs Solutions Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 52988,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "One of the same four dominant US E&S consulting firms as Tetra Tech and AECOM, cited in the same trade-press market-share figure; PASS placement audit (2026-09-04) against Jacobs' own Data centers and digital infrastructure page. Revenue, growth, and margins are honestly NULL this run: the fetched SEC XBRL Revenues concept for CIK 52988 stops at FY2018, eight fiscal years stale against its other concepts.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for JACOBS-SOLUTIONS; only company-wide fundamentals are available, and those are themselves NULL this run.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "revenue.latest_fy cannot be sourced for JACOBS-SOLUTIONS: the fetched companyfacts 'Revenues' XBRL concept in data/market/J.json fundamentals.revenue_fy stops at FY2018-09-28 (14984646000), eight fiscal years stale against the FY2025-09-26 period other concepts (operating income, net income, operating cash flow) report; a newer revenue tag (e.g. the post-ASC-606 contract-revenue concept) was not captured by this fetch, so revenue.latest_fy is not a current number rather than an estimate."
+     },
+     "revenue_cagr_3y": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "growth.revenue_cagr_3y cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (see the revenue field basis), so no numerator exists for a 3-year revenue CAGR."
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "margins.operating_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for an operating margin even though operating_income_fy is current."
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "fcf_margin cannot be computed for JACOBS-SOLUTIONS: revenue.latest_fy is NULL this run (stale 'Revenues' concept, see the revenue field basis), so no denominator exists for a free cash flow margin; operating_cash_flow_to_net_income is used instead above."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.3733790471977216,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/J.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000052988.json",
+      "basis": "Operating cash flow 686704000 divided by net income 289336000, both for the period ended 2025-09-26, from the companyfacts series.",
+      "official_source": true
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/J.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/J.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
+    },
+    "earnings_nuggets": [],
+    "status": "DIVED"
+   },
+   {
+    "issuer_id": "STANTEC",
+    "listing_id": "NYSE-STN",
+    "ticker": "STN",
+    "market_ticker": "STN",
+    "chain_id": "data-center-moratoria",
+    "link_id": "permitting-and-environmental-consultancy",
+    "mapping_ref": "data/mappings/data-center-moratoria.json",
+    "profile_ref": "data/companies/STANTEC.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Stantec Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1131383,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Global design and environmental-assessment consultancy (NYSE: STN) tracked by Industrial Info Resources against over US$115bn of active and proposed US/Canada projects featuring Stantec's services, nearly half attributed to data center developments; PASS placement audit (2026-09-04), primary confirmation via Stantec's own press-release language quoted verbatim by Canadian Consulting Engineer (stantec.com itself is JS-rendered and returned no extractable text).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Stantec discloses no exact data-center-specific revenue percentage; the cited US$115bn figure is a tracked third-party project-backlog estimate, not an issuer disclosure.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 8144200000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001131383.json",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1131383 (Stantec Inc, NYSE: STN). Corrected 2026-09-04 (fetcher commit 54cbeaa, latest-facts taxonomy wins): the prior claim that revenue_fy was frozen at 2019-12-31 is stale against this re-fetched file, which now carries a clean 2020-2025 series."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.127816,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001131383.json",
+      "basis": "Three-year compound annual revenue growth computed as (8144200000 / 5677200000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. Corrected 2026-09-04 (fetcher commit 54cbeaa): now computable against the re-fetched revenue series."
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_margin cannot be computed for STANTEC: corrected 2026-09-04, companyfacts data/market/STN.json fundamentals still carries no operating_income_fy series at all for CIK 1131383, unaffected by the fetcher fix that resolved revenue and cash/total_debt."
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "fcf_margin cannot be computed for STANTEC: revenue.latest_fy now resolves (corrected 2026-09-04), but capex_fy's most recent point is 2022-12-31, three years stale against the FY2025 revenue figure, so a current cash-flow-to-revenue margin has no reliable numerator leg."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.799958,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001131383.json",
+      "basis": "Operating cash flow 862900000 divided by net income 479400000, both for the fiscal year ended 2025-12-31, from companyfacts. Both series extend cleanly to FY2025 even though revenue_fy does not (see metrics.revenue.latest_fy basis).",
+      "official_source": true
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/STN.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/STN.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; here it is simply unfetched)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "WSP-GLOBAL",
+    "listing_id": "TSX-WSP",
+    "ticker": "WSP",
+    "market_ticker": "WSP",
+    "chain_id": "data-center-moratoria",
+    "link_id": "permitting-and-environmental-consultancy",
+    "mapping_ref": "data/mappings/data-center-moratoria.json",
+    "profile_ref": "data/companies/WSP-GLOBAL.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "WSP Global Inc.",
+    "exchange": "TSX",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Global engineering and environmental consultancy (TSX: WSP), the fifth firm on this link alongside Tetra Tech, AECOM, Jacobs and Stantec, named by the same trade-press census as one of the four (with Tetra Tech, AECOM and Jacobs) that together held over 40% of US environmental and sustainability consulting revenue in 2024; WSP's own Data Center Design Services and Mission Critical Consulting page confirms site-selection, environmental due-diligence, stakeholder-engagement and permitting work sold directly to data-center clients. Seated on a current PASS fresh-context placement audit (data/mappings/data-center-moratoria.json placement_audits[], 2026-09-06, record_digest-matched against WSP's own page), the placement-audit path rather than all-VERIFIED evidence: the mapping's own role evidence for this placement is mixed VERIFIED (the WSP page) and INFERRED (the same Environment Analyst Global trade-press piece already cited for AECOM and Jacobs), never all-VERIFIED, so _placement_admissible clears it only via the current placement_audits[] entry, the identical path that already seated TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC on this link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No chain- or link-specific revenue percentage is disclosed or sourced for WSP-GLOBAL; only the trade-press market-share figure (over 40% of US E&S consulting revenue held by WSP and three peers, 2024) and company-wide fundamentals are available.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 18285000000.0,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 18,285,000,000 CAD from the yfinance-statements statements in data/market/WSP-TO.json, mirrored from the profile's revenue.latest_fy."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.15284,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Compound annual revenue growth computed as (18,285,000,000/11,932,900,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31."
+     },
+     "operating_margin": {
+      "value": 0.09698660103910309,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Operating income 1,773,400,000 CAD divided by revenue 18,285,000,000 CAD, both for the period ended 2025-12-31, from the yfinance-statements series."
+     },
+     "fcf_margin": {
+      "value": 0.11447087776866284,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Free cash flow margin: operating cash flow 2,246,000,000 CAD less capex 152,900,000 CAD, divided by revenue 18,285,000,000 CAD, all for the period ended 2025-12-31, from the yfinance-statements series."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.3291506792491963,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Operating cash flow 2,246,000,000 CAD divided by net income 964,300,000 CAD, both for the period ended 2025-12-31, from the yfinance-statements series."
+     },
+     "net_debt_to_ebitda": {
+      "value": 1.30821022614757,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Net debt 3,303,100,000 CAD (total debt 4,864,500,000 less cash 1,561,400,000, as of 2025-12-31) divided by an EBITDA proxy 2,524,900,000 CAD (operating income 1,773,400,000 plus depreciation 751,500,000 for the period ended 2025-12-31), from the yfinance-statements series."
+     },
+     "piotroski": {
+      "value": 7,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Piotroski F-score 7 (state STRONG) computed over yfinance-statements statements in data/market/WSP-TO.json quality.piotroski, 9 of 9 inputs found."
+     },
+     "beneish_state": {
+      "value": -2.828,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Beneish M-score -2.828 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/WSP-TO.json quality.beneish, 12 of 12 inputs found."
+     },
+     "market_cap": {
+      "value": 25189993415.920002,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Market capitalization 25,189,993,415.92 CAD computed in data/market/WSP-TO.json quality.derived.market_cap from vendor/official share count and price (method section 6A vendor-aggregate fundamentals)."
+     },
+     "price_to_sales": {
+      "value": 1.3776315786666669,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Market capitalization 25,189,993,415.92 CAD divided by revenue 18,285,000,000 CAD for the period ended 2025-12-31."
+     },
+     "implied_fcf_cagr": {
+      "value": -0.0086,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/WSP-TO.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Reverse-DCF implied FCF CAGR -0.0086 at the 5-year default horizon (base FCF 2,093,100,000 CAD, enterprise value 28,493,093,415.92 CAD, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/WSP-TO.json quality.reverse_dcf.state is SOLVED. Discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
+     },
+     "horizon_spread": {
+      "value": 0.014,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/WSP-TO.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-06",
+      "url": "https://finance.yahoo.com/quote/WSP.TO/financials",
+      "basis": "Horizon spread 0.014 between the 5-year (-0.0086) and 10-year (0.0054) implied FCF CAGR solves in data/market/WSP-TO.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/WSP-TO.json",
+     "as_of": "2026-09-06",
+     "tag": "NULL",
+     "basis": "data/market/WSP-TO.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
   ],
-  "taste_filtered": [],
-  "health": {
-    "links_total": 11,
-    "links_worked": 11,
-    "money_corner_links_total": 0,
-    "money_corner_links_covered": 0,
-    "choke_point_links_total": 2,
-    "choke_point_links_covered": 0,
-    "undiscovered_links_total": 1,
-    "undiscovered_links_covered": 1,
-    "rows_written": 5,
-    "fully_scored": 5,
-    "pending": 0,
-    "errors": 0,
-    "distinct_issuers_seated": 5,
-    "distinct_placements_examined": 15,
-    "distinct_issuers_examined": 14,
-    "placements_with_verified_evidence": 0,
-    "placements_with_inferred_evidence": 0,
-    "profiled_complete_o2_blocked_by_evidence": 6,
-    "unprofiled_blocked_by_evidence": 5,
-    "blocked_o3_profile": 1,
-    "zero_ticker_by_design": 2,
-    "duplicate_stage_by_design": 1,
-    "profiles_available_repo_wide": 180,
-    "quotes_verified": 1,
-    "placement_audits_examined": 6,
-    "placement_audits_pass": 5,
-    "placement_audits_fail": 1,
-    "placement_audit_pass_not_yet_seatable": 4,
-    "placements_with_mixed_evidence": 15,
-    "placements_admissible_via_placement_audit": 5,
-    "placement_audit_pass_seated": 5,
-    "admissible_but_unprofiled": 0
+  "picks_and_shovels": [],
+  "second_order": [],
+  "hedge": []
+ },
+ "data_gaps": [
+  "1 of 4 seated rows now carries an earnings nugget: TETRA-TECH's Q3 FY2026 8-K (accession 0001104659-26-088213) landed on disk via an unrelated concurrent request and was verbatim-verified. AECOM, JACOBS-SOLUTIONS, and STANTEC still have no data/edgar/docs/ file; REQ-20260904-298/-299/-300 remain PENDING.",
+  "JACOBS-SOLUTIONS (seated, COMPLETE O2, T1) carries NULL revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin on both the profile and this row: its fetched SEC XBRL Revenues concept (CIK 52988) stops at FY2018-09-28, eight fiscal years stale against its other concepts. operating_cash_flow_to_net_income still resolves.",
+  "WSP-GLOBAL (permitting-and-environmental-consultancy) is now SEATED as of the fourth run (2026-09-06): its placement carries a current PASS placement_audits[] entry (2026-09-06T15:47:33Z) and its profile completed to COMPLETE O2 T3 in the same parallel batch. Its mapping listing carries no explicit market_ticker field, so this row's market_ticker is the bare ticker WSP, not the WSP.TO vendor ticker used to fetch and cite its market data; flagged to tasks/backlog.md for Atlas.",
+  "DIGITAL-REALTY and EQUINIX (entitled-powered-land, CHOKE_POINT criticality) are the highest-value remaining fix: both already carry COMPLETE O2 T1 profiles and ACTIVE placements, blocked purely on the same placement-admissibility gap as WSP-GLOBAL (mixed evidence, no placement_audits[] entry).",
+  "MICROSOFT and ALPHABET (hyperscale-buildout-demand) are also placement-inadmissible; ALPHABET already carries a COMPLETE O2 T1 profile (this run corrects the prior working assumption that it might be unprofiled), MICROSOFT has none.",
+  "FTI-CONSULTING (community-benefit-and-consent) is doubly blocked: placement inadmissible and profile BLOCKED at O3.",
+  "AMERICAN-ELECTRIC-POWER (utility-ratemaking-and-large-load-tariffs), XYLEM (water-permitting-and-hydrology), SOUTHERN-CO (us-secondary-market-shift), and GDS-HOLDINGS (offshore-and-periphery-capacity) remain both placement-inadmissible and unprofiled.",
+  "WILLDAN-GROUP is excluded, not a near-miss: mapping placement status REJECTED and its placement_audits[] entry is FAIL on role grounds (grid/substation engineering work, not environmental permitting).",
+  "The mapping still carries no whole-census audit (status ACTIVE, audit block empty); a full PASS audit would admit every remaining ACTIVE placement in one step, but a placement-scoped audit per remaining issuer is the faster path given only 6 of 15 placements are qualified ACTIVE with a real shot (WSP-GLOBAL, DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET; FTI-CONSULTING is blocked on profile status too)."
+ ],
+ "taste_filtered": [],
+ "health": {
+  "links_total": 11,
+  "links_worked": 11,
+  "money_corner_links_total": 0,
+  "money_corner_links_covered": 0,
+  "choke_point_links_total": 2,
+  "choke_point_links_covered": 0,
+  "undiscovered_links_total": 1,
+  "undiscovered_links_covered": 1,
+  "rows_written": 5,
+  "fully_scored": 5,
+  "pending": 0,
+  "errors": 0,
+  "distinct_issuers_seated": 5,
+  "distinct_placements_examined": 15,
+  "distinct_issuers_examined": 14,
+  "placements_with_verified_evidence": 0,
+  "placements_with_inferred_evidence": 0,
+  "profiled_complete_o2_blocked_by_evidence": 6,
+  "unprofiled_blocked_by_evidence": 5,
+  "blocked_o3_profile": 1,
+  "zero_ticker_by_design": 2,
+  "duplicate_stage_by_design": 1,
+  "profiles_available_repo_wide": 180,
+  "quotes_verified": 1,
+  "placement_audits_examined": 6,
+  "placement_audits_pass": 5,
+  "placement_audits_fail": 1,
+  "placement_audit_pass_not_yet_seatable": 4,
+  "placements_with_mixed_evidence": 15,
+  "placements_admissible_via_placement_audit": 5,
+  "placement_audit_pass_seated": 5,
+  "admissible_but_unprofiled": 0
+ },
+ "notes": [],
+ "confidence_audit": {
+  "verified": 3,
+  "inferred": 20,
+  "speculative": 2,
+  "null": 17
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-04T00:00:00Z",
+   "by": "sieve-profiler",
+   "change": "First run screen data-center-moratoria (chain-level, scenario_id null). Built the per-link universe across all 11 links under audit_scope PLACEMENT (mapping has no audit block at all, status ACTIVE). Worked UNDISCOVERED first (permitting-and-environmental-consultancy), then the two CHOKE_POINT-criticality links (state-moratoria-and-siting-law, entitled-powered-land), then the rest by chain position. Found that 0 of the mapping's 15 placements carry all-VERIFIED role evidence: every one is INFERRED, sourced to secondary media and trade-press coverage. This blocks every link regardless of profile status, so this run seats 0 rows. 8 distinct issuers across 4 links are COMPLETE O2 profiles mechanically ready but for the evidence tag (permitting-and-environmental-consultancy's 5, entitled-powered-land's 2, hyperscale-buildout-demand's ALPHABET, offshore-and-periphery-capacity's EQUINIX repeat). 5 issuers carry ACTIVE placements with no profile on disk. 1 issuer (FTI-CONSULTING) is profiled but BLOCKED at O3. 2 links are structurally zero-ticker by design (organized-opposition, state-moratoria-and-siting-law: government or civic bodies, not issuers). 1 link (power-equipment-shared) is a declared duplicate of ai-infrastructure/power-equipment and carries no placements by design. No money-corner link exists on this chain. Documented every link's disposition in universe_note and data_gaps; flagged the evidence gap to tasks/backlog.md for Atlas, with permitting-and-environmental-consultancy named as the single highest-value placement-scoped audit target."
   },
-  "notes": [],
-  "confidence_audit": {
-    "verified": 3,
-    "inferred": 20,
-    "speculative": 2,
-    "null": 17
+  {
+   "ts": "2026-09-04T19:06:51Z",
+   "by": "sieve-profiler",
+   "change": "Second run screen data-center-moratoria (chain-level, scenario_id null), triggered by commit 0974972 (`run universe-audit data-center-moratoria --placement`) which landed 5 placement_audits[] entries on permitting-and-environmental-consultancy: PASS for TETRA-TECH, AECOM, JACOBS-SOLUTIONS, STANTEC; FAIL for WILLDAN-GROUP (role_mismatch: its own service page describes grid/substation engineering and load forecasting, not environmental permitting; excluded, not carried as a near-miss). Tested the 4 PASS names directly against tools/check_screen.py with a draft TETRA-TECH row under audit_scope PLACEMENT: it fails, because check_screen.py's _placement_admissible reads the mapping placement's own evidence[].tag (still INFERRED across all 15 placements, unchanged since the first run) and never reads placement_audits[]; CLAUDE.md's --placement clause admits a PASS entry to run deepdive, not to run screen. Re-checked all 11 links and all 15 placements: nothing else changed since the first run (heat unchanged, no new profiles, no VERIFIED evidence tags anywhere on the mapping). Result: identical to the first run, 0 of 11 links produce rows. The one substantive change: TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC are now documented as the single closest-to-admissible names on the chain (COMPLETE O2, PASS placement-audited, blocked only on an evidence-tag rewrite that is Atlas's file, not Sieve's). Noted JACOBS-SOLUTIONS's honest NULL revenue/growth/margins (stale FY2018 SEC Revenues concept) for any future seating of that name. Updated universe_note and data_gaps; no new backlog entry needed, the existing evidence-tier flag to Atlas already covers this. No PENDING_DATA requests queued: this run wrote no rows, so nothing needed missing market or EDGAR data."
   },
-  "changelog": [
-    {
-      "ts": "2026-09-04T00:00:00Z",
-      "by": "sieve-profiler",
-      "change": "First run screen data-center-moratoria (chain-level, scenario_id null). Built the per-link universe across all 11 links under audit_scope PLACEMENT (mapping has no audit block at all, status ACTIVE). Worked UNDISCOVERED first (permitting-and-environmental-consultancy), then the two CHOKE_POINT-criticality links (state-moratoria-and-siting-law, entitled-powered-land), then the rest by chain position. Found that 0 of the mapping's 15 placements carry all-VERIFIED role evidence: every one is INFERRED, sourced to secondary media and trade-press coverage. This blocks every link regardless of profile status, so this run seats 0 rows. 8 distinct issuers across 4 links are COMPLETE O2 profiles mechanically ready but for the evidence tag (permitting-and-environmental-consultancy's 5, entitled-powered-land's 2, hyperscale-buildout-demand's ALPHABET, offshore-and-periphery-capacity's EQUINIX repeat). 5 issuers carry ACTIVE placements with no profile on disk. 1 issuer (FTI-CONSULTING) is profiled but BLOCKED at O3. 2 links are structurally zero-ticker by design (organized-opposition, state-moratoria-and-siting-law: government or civic bodies, not issuers). 1 link (power-equipment-shared) is a declared duplicate of ai-infrastructure/power-equipment and carries no placements by design. No money-corner link exists on this chain. Documented every link's disposition in universe_note and data_gaps; flagged the evidence gap to tasks/backlog.md for Atlas, with permitting-and-environmental-consultancy named as the single highest-value placement-scoped audit target."
-    },
-    {
-      "ts": "2026-09-04T19:06:51Z",
-      "by": "sieve-profiler",
-      "change": "Second run screen data-center-moratoria (chain-level, scenario_id null), triggered by commit 0974972 (`run universe-audit data-center-moratoria --placement`) which landed 5 placement_audits[] entries on permitting-and-environmental-consultancy: PASS for TETRA-TECH, AECOM, JACOBS-SOLUTIONS, STANTEC; FAIL for WILLDAN-GROUP (role_mismatch: its own service page describes grid/substation engineering and load forecasting, not environmental permitting; excluded, not carried as a near-miss). Tested the 4 PASS names directly against tools/check_screen.py with a draft TETRA-TECH row under audit_scope PLACEMENT: it fails, because check_screen.py's _placement_admissible reads the mapping placement's own evidence[].tag (still INFERRED across all 15 placements, unchanged since the first run) and never reads placement_audits[]; CLAUDE.md's --placement clause admits a PASS entry to run deepdive, not to run screen. Re-checked all 11 links and all 15 placements: nothing else changed since the first run (heat unchanged, no new profiles, no VERIFIED evidence tags anywhere on the mapping). Result: identical to the first run, 0 of 11 links produce rows. The one substantive change: TETRA-TECH, AECOM, JACOBS-SOLUTIONS and STANTEC are now documented as the single closest-to-admissible names on the chain (COMPLETE O2, PASS placement-audited, blocked only on an evidence-tag rewrite that is Atlas's file, not Sieve's). Noted JACOBS-SOLUTIONS's honest NULL revenue/growth/margins (stale FY2018 SEC Revenues concept) for any future seating of that name. Updated universe_note and data_gaps; no new backlog entry needed, the existing evidence-tier flag to Atlas already covers this. No PENDING_DATA requests queued: this run wrote no rows, so nothing needed missing market or EDGAR data."
-    },
-    {
-      "ts": "2026-09-04T20:30:00Z",
-      "by": "sieve-profiler",
-      "change": "Third run screen data-center-moratoria (chain-level, scenario_id null), triggered by tools/check_screen.py commit 5e5f3b5 (audit_scope PLACEMENT now also admits a current PASS placement_audits[] entry, not evidence tags alone) and mapping commit d83d807 (evidence amended, WSP-GLOBAL added, WILLDAN-GROUP rejected). Re-tested all 15 placements directly against the live _placement_admissible / _is_qualified_placement functions. Seated 4 rows, all on permitting-and-environmental-consultancy (UNDISCOVERED, TARGET_MET at 5, now 4 after WILLDAN-GROUP's rejection): TETRA-TECH, AECOM, JACOBS-SOLUTIONS, and STANTEC, each admissible on a current PASS placement_audits[] entry (record_digest still matches placement_claim_digest), each COMPLETE O2 T1 with a matching profile_ref. JACOBS-SOLUTIONS seats with honest NULL revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin (stale FY2018 SEC Revenues concept), carried onto the row rather than papered over. WILLDAN-GROUP excluded: placement status REJECTED and its own placement_audits[] entry is FAIL on role grounds. WSP-GLOBAL, newly added to this link, is NOT seated: mixed VERIFIED/INFERRED evidence and no placement_audits[] entry, admissible-but-unprofiled does not apply since it clears neither admissibility path; it also has no profile on disk. The other 10 placements across 8 links (DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET, FTI-CONSULTING, AMERICAN-ELECTRIC-POWER, XYLEM, SOUTHERN-CO, GDS-HOLDINGS) remain not admissible: all carry the same mixed-evidence pattern with no placement_audits[] entry, checked directly against the live gate function rather than assumed from evidence tags. ALPHABET already carries a COMPLETE O2 profile (correcting the working assumption it might be unprofiled); MICROSOFT and WSP-GLOBAL genuinely have none. FTI-CONSULTING is additionally BLOCKED at O3. 0 earnings nuggets seated (no data/edgar/docs/ file for TTEK, ACM, J, or STN yet); queued 4 edgar_doc requests (REQ-20260904-297 through -300) with CIKs for a future run. Updated universe_note, data_gaps, health, and confidence_audit to reflect the 4 seated rows and the precise state of the remaining 11 unseated placements."
-    },
-    {
-      "ts": "2026-09-06T17:45:20Z",
-      "by": "sieve-profiler",
-      "change": "Fourth run screen data-center-moratoria (chain-level, scenario_id null), part of Ron's 2026-09-06 parallel batch. Triggered by WSP-GLOBAL's fresh-context placement audit PASS (data/mappings/data-center-moratoria.json placement_audits[], 2026-09-06T15:47:33Z) landing alongside WSP-GLOBAL's profile completing to COMPLETE O2 T3 in the second `run profile --campaign CAMP-20260901-01` pass minutes earlier. Re-tested WSP-GLOBAL directly against the live tools/check_screen._placement_admissible and tools/check_map.placement_audit_for functions rather than re-deriving the rule by hand: qualified (status ACTIVE, non-empty evidence), admissible via the current PASS placement_audits[] entry (record_digest still matches placement_claim_digest over the placement's present content). Seated as the fifth row on permitting-and-environmental-consultancy, bucket pure_play, data_tier T3, audit_scope PLACEMENT, mirroring the 4 rows already seated (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, STANTEC), which are unchanged. All 12 canonical fundamentals fields carried from the profile with no NULLs (yfinance-statements vendor block, data/market/WSP-TO.json). Confirmed the mapping's TSX-WSP listing has no explicit market_ticker field, so per tools/check_screen.check_campaign_identity's fallback rule this row's market_ticker is the bare ticker WSP rather than the WSP.TO vendor ticker actually used to fetch its market data; tested both values directly against the live gate function (WSP passes, WSP.TO fails) and flagged the mapping gap to tasks/backlog.md for Atlas rather than guessing. No earnings nugget: T3 Canadian filer, no SEC CIK, no data/edgar/docs/ file, none queued. No PENDING_DATA rows needed. Updated universe_note, queries_run, data_gaps, health, and confidence_audit to reflect the fifth seated row; permitting-and-environmental-consultancy now has all 5 of its remaining ACTIVE (non-REJECTED) placements seated."
-    },
-    {
-      "ts": "2026-09-06T18:30:00Z",
-      "by": "stocky",
-      "kind": "AMEND",
-      "change": "run deepdive J data-center-moratoria: pure_play row for J (JACOBS-SOLUTIONS) moved CANDIDATE to DIVED.",
-      "prior": "CANDIDATE"
-    }
-  ]
+  {
+   "ts": "2026-09-04T20:30:00Z",
+   "by": "sieve-profiler",
+   "change": "Third run screen data-center-moratoria (chain-level, scenario_id null), triggered by tools/check_screen.py commit 5e5f3b5 (audit_scope PLACEMENT now also admits a current PASS placement_audits[] entry, not evidence tags alone) and mapping commit d83d807 (evidence amended, WSP-GLOBAL added, WILLDAN-GROUP rejected). Re-tested all 15 placements directly against the live _placement_admissible / _is_qualified_placement functions. Seated 4 rows, all on permitting-and-environmental-consultancy (UNDISCOVERED, TARGET_MET at 5, now 4 after WILLDAN-GROUP's rejection): TETRA-TECH, AECOM, JACOBS-SOLUTIONS, and STANTEC, each admissible on a current PASS placement_audits[] entry (record_digest still matches placement_claim_digest), each COMPLETE O2 T1 with a matching profile_ref. JACOBS-SOLUTIONS seats with honest NULL revenue.latest_fy, growth.revenue_cagr_3y and margins.operating_margin (stale FY2018 SEC Revenues concept), carried onto the row rather than papered over. WILLDAN-GROUP excluded: placement status REJECTED and its own placement_audits[] entry is FAIL on role grounds. WSP-GLOBAL, newly added to this link, is NOT seated: mixed VERIFIED/INFERRED evidence and no placement_audits[] entry, admissible-but-unprofiled does not apply since it clears neither admissibility path; it also has no profile on disk. The other 10 placements across 8 links (DIGITAL-REALTY, EQUINIX, MICROSOFT, ALPHABET, FTI-CONSULTING, AMERICAN-ELECTRIC-POWER, XYLEM, SOUTHERN-CO, GDS-HOLDINGS) remain not admissible: all carry the same mixed-evidence pattern with no placement_audits[] entry, checked directly against the live gate function rather than assumed from evidence tags. ALPHABET already carries a COMPLETE O2 profile (correcting the working assumption it might be unprofiled); MICROSOFT and WSP-GLOBAL genuinely have none. FTI-CONSULTING is additionally BLOCKED at O3. 0 earnings nuggets seated (no data/edgar/docs/ file for TTEK, ACM, J, or STN yet); queued 4 edgar_doc requests (REQ-20260904-297 through -300) with CIKs for a future run. Updated universe_note, data_gaps, health, and confidence_audit to reflect the 4 seated rows and the precise state of the remaining 11 unseated placements."
+  },
+  {
+   "ts": "2026-09-06T17:45:20Z",
+   "by": "sieve-profiler",
+   "change": "Fourth run screen data-center-moratoria (chain-level, scenario_id null), part of Ron's 2026-09-06 parallel batch. Triggered by WSP-GLOBAL's fresh-context placement audit PASS (data/mappings/data-center-moratoria.json placement_audits[], 2026-09-06T15:47:33Z) landing alongside WSP-GLOBAL's profile completing to COMPLETE O2 T3 in the second `run profile --campaign CAMP-20260901-01` pass minutes earlier. Re-tested WSP-GLOBAL directly against the live tools/check_screen._placement_admissible and tools/check_map.placement_audit_for functions rather than re-deriving the rule by hand: qualified (status ACTIVE, non-empty evidence), admissible via the current PASS placement_audits[] entry (record_digest still matches placement_claim_digest over the placement's present content). Seated as the fifth row on permitting-and-environmental-consultancy, bucket pure_play, data_tier T3, audit_scope PLACEMENT, mirroring the 4 rows already seated (TETRA-TECH, AECOM, JACOBS-SOLUTIONS, STANTEC), which are unchanged. All 12 canonical fundamentals fields carried from the profile with no NULLs (yfinance-statements vendor block, data/market/WSP-TO.json). Confirmed the mapping's TSX-WSP listing has no explicit market_ticker field, so per tools/check_screen.check_campaign_identity's fallback rule this row's market_ticker is the bare ticker WSP rather than the WSP.TO vendor ticker actually used to fetch its market data; tested both values directly against the live gate function (WSP passes, WSP.TO fails) and flagged the mapping gap to tasks/backlog.md for Atlas rather than guessing. No earnings nugget: T3 Canadian filer, no SEC CIK, no data/edgar/docs/ file, none queued. No PENDING_DATA rows needed. Updated universe_note, queries_run, data_gaps, health, and confidence_audit to reflect the fifth seated row; permitting-and-environmental-consultancy now has all 5 of its remaining ACTIVE (non-REJECTED) placements seated."
+  },
+  {
+   "ts": "2026-09-06T18:30:00Z",
+   "by": "stocky",
+   "kind": "AMEND",
+   "change": "run deepdive J data-center-moratoria: pure_play row for J (JACOBS-SOLUTIONS) moved CANDIDATE to DIVED.",
+   "prior": "CANDIDATE"
+  },
+  {
+   "ts": "2026-09-06T19:00:00Z",
+   "by": "stocky",
+   "change": "run deepdive ACM data-center-moratoria: AECOM row (pure_play bucket, permitting-and-environmental-consultancy) moved CANDIDATE -> DIVED. Verdict INVESTABLE, clock COMPOUNDER, earnings grade B (data/stocks/ACM__data-center-moratoria.json). No other rows changed."
+  }
+ ]
 }
