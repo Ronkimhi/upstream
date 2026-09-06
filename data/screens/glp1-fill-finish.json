@@ -1,691 +1,1232 @@
 {
-  "id": "glp1-fill-finish",
-  "chain_id": "glp1-fill-finish",
-  "scenario_id": null,
-  "created_at": "2026-09-04",
-  "as_of": "2026-09-04",
-  "identity_schema": "campaign-v1",
-  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-  "mapping_ref": "data/mappings/glp1-fill-finish.json",
-  "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null). Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first, then the three CHOKE_POINT links, then the rest by chain position. The mapping (data/mappings/glp1-fill-finish.json, 14 listings, 16 placements) carries no fresh-context whole-census audit (audit: null, status ACTIVE), so every row here rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope \"PLACEMENT\" declared on the row, admitted only when the consumed placement's own role evidence is entirely VERIFIED.\n\nThis is the third pass over this file today. Pass one seated 0 rows: of the 14 mapped issuers, only 4 (BECTON-DICKINSON, GERRESHEIMER, HALOZYME-THERAPEUTICS, WEST-PHARMACEUTICAL-SERVICES) had a COMPLETE profile, and all four sat on INFERRED-only evidence; the other 5 issuers with all-VERIFIED placement evidence (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK) had no profile on disk. Pass two, this run, opened on data/mappings/glp1-fill-finish.json (commit d3ee61d) gaining 4 fresh-context placement_audits[] entries on the money-corner link autoinjector-and-pen-platforms: BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. Still seated 0 rows on that link (detailed below). Between that write and this file's push, a same-day rebase pulled in 'run profile --campaign CAMP-20260901-01' batch 8, which profiled all 5 of the previously unprofiled, all-VERIFIED-evidence issuers (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK; all COMPLETE O2). This pass re-checked every link against the current state on disk and seated all 5: 5 of 13 links now produce a row.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: still searched and empty. BECTON-DICKINSON PASS (live re-fetch of investors.bd.com confirmed the Vystra pen / semaglutide self-injection role); WEST-PHARMACEUTICAL-SERVICES FAIL (the cited westpharma.com blog names neither SmartDose nor SelfDose anywhere on the page); GERRESHEIMER FAIL (the cited gerresheimer.com page confirms Gx Inbeneo is 'the autoinjector' for 'home treatment' but not the claimed high-viscosity/subcutaneous/self-administration attributes); HALOZYME-THERAPEUTICS FAIL (the cited nasdaq.com press release could not be reached live and the nearest verifiable SEC-filed exhibit does not carry the cited phrase or figures). WEST, GERRESHEIMER and HALOZYME are excluded from this link on two independent grounds now: INFERRED-only evidence tier (unchanged since pass one) and a failed fresh-context role check confirming the specific claim as cited does not hold, so re-admitting them needs new sourcing, not just a re-audit. BECTON-DICKINSON is a different case: this run built the exact campaign-v1 row (issuer_id BECTON-DICKINSON, listing_id NYSE-BDX, link_id autoinjector-and-pen-platforms, audit_scope PLACEMENT, profile_ref data/companies/BECTON-DICKINSON.json, a COMPLETE O2 T1 profile) and ran tools/check_screen.py against it directly to test admission. It failed: check_screen.py's `_placement_admissible` (the function gating a PLACEMENT-scoped row over this un-audited mapping) reads only the placement's own `evidence` array on data/mappings/glp1-fill-finish.json and requires every item there tagged VERIFIED; it does not read `placement_audits[]` at all. BD's placements[] entry for this link still carries one evidence item tagged INFERRED, because Atlas's `--placement` audit contract writes only `audit`, `status`, `changelog` and `placement_audits` on the mapping (tools/check_map.py's allowed-fields list for that command), never the placement's own evidence tag. The exact failure: \"audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit.\" Per CLAUDE.md postlude 1f (\"must pass; never commit around it\"), the row is not written here. This is a real gap, not a data gap: CLAUDE.md's `run deepdive` row already accepts a current PASS `placement_audits[]` entry as an admission path for Stocky's gate (check_analyst.py), but check_screen.py has not been extended to accept the same basis for a screen row. Closing this needs either check_screen.py extended to recognise a current PASS placement_audits entry (tools/, outside this run's write scope) or the placement's own evidence tag upgraded to VERIFIED by Atlas (data/mappings/, outside this run's write scope); flagged as a background task rather than fixed here. Net effect on this link: still 0 of 4 placements seatable, but for BD specifically the blocker is now purely mechanical, not evidentiary.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED]: searched and empty. Sole placement WEST-PHARMACEUTICAL-SERVICES, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a December 2025 company blog post), no placement_audits entry on this specific link (the 4 audits landed only cover autoinjector-and-pen-platforms) \u2014 same evidence-tier block as the money corner.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: searched and empty. Two placements, STERIS and DANAHER, both ACTIVE with INFERRED evidence (a 2021 product-launch release and a 2021 acquisition release respectively) and neither has a profile on disk (batch 8 did not reach either name): doubly blocked, on evidence tier and on profile availability.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: searched and empty. Three placements, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, all ACTIVE with INFERRED evidence and none profiled: doubly blocked, the same as the link above.\n\npharma-glass-tubing [QUIET]: SEATED. CORNING, ACTIVE, all-VERIFIED evidence (a dated Corning/Pfizer Valor Glass supply-agreement press release), COMPLETE O2 T1 profile landed in batch 8. Row written in picks_and_shovels.\n\nprimary-containment-converters [EMERGING]: SEATED. STEVANATO-GROUP, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q1 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; carries the chain's most concentrated disclosed GLP-1 revenue exposure (approx. 21% to 22%, quoted from the same VERIFIED filing).\n\ndevice-assembly-automation [QUIET]: SEATED. ATS-CORPORATION, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q4 fiscal 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; the same filing shows its own life sciences order backlog easing $1,199M to $1,077M year over year as GLP-1 autoinjector-assembly order flow normalizes.\n\ngeneric-and-biosimilar-glp1-entrants [EMERGING]: SEATED. DR-REDDYS-LABORATORIES, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit announcing the generic semaglutide launch in Canada), COMPLETE O2 T2 profile landed in batch 8. Row written in second_order (a patent-cliff entrant, not a supply-chain input); Piotroski 3/9 (WEAK) is the weakest quality read of any name profiled on this chain.\n\nglp1-demand-anchor [OVER_CROWDED]: SEATED. NOVO-NORDISK, ACTIVE, all-VERIFIED evidence (a Form 6-K annual-report/Q4 2025 financial-statement exhibit), COMPLETE O2 T2 profile landed in batch 8. Row written in pure_play; Ozempic plus Wegovy sales (DKK 206.2bn, both figures from the same VERIFIED filing) computed against the profile's own sourced FY2025 revenue (DKK 309.1bn) to about two-thirds of revenue. (LLY carries no mapped placement on this chain at all; only the NVO side of the demand anchor is mapped.)\n\nready-to-use-containment-formats [EMERGING]: searched and empty. Sole placement GERRESHEIMER, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a January 2026 Pharmapack press page), no placement_audits entry on this specific link \u2014 same evidence-tier block as the money corner.\n\npeptide-api-supply [HIGH criticality, EMERGING]: searched and empty. Zero mapped placements. None of the chain's own example_tickers for this link (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO) appears in data/mappings/glp1-fill-finish.json; TMO is mapped only to sterile-fill-finish-capacity, a different link. This link needs a `run universe glp1-fill-finish` amendment before it can be screened at all, and it is the chain's one link with a dated lead-time figure (18 to 36 months for new reactor capacity), which makes the gap worth closing.\n\nhalobutyl-elastomer-feedstock [MEDIUM criticality, QUIET]: searched and empty. Zero mapped placements, by chain design: the chain's own note calls XOM/0386.HK/RELIANCE.NS \"a trap: buying XOM is not buying GLP-1 capacity,\" and no listed pure play exists at this stage. Correctly un-mapped, not a gap.\n\nus-onshoring-tariff-response [HIGH criticality, CROWDED]: searched and empty. Zero mapped placements, by chain design: example_tickers is deliberately empty (there is no instrument for a tariff schedule); the chain's own note routes the investable expression through the US-sited capacity at positions 4, 9 and 11 (primary-containment-converters, sterile-fill-finish-capacity, autoinjector-and-pen-platforms), each already covered above.\n\nNet effect: 5 of 13 links produce rows this run (5 rows total: CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK). The money-corner link and all three CHOKE_POINT links remain empty and are attributed as searched with a stated reason, never silently absent. Two concrete next steps, neither of them this run's to take: (a) either check_screen.py extended to admit a row on a current PASS `placement_audits[]` entry (as check_analyst.py already does for deepdive), or Atlas upgrading BECTON-DICKINSON's autoinjector-and-pen-platforms evidence tag to VERIFIED to reflect its PASS fresh-context audit \u2014 either would open the money corner on this one name; WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS now need new sourcing, not a re-audit, since their fresh-context audits FAILED on the cited claim itself; (b) profiling STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL would open the two remaining empty CHOKE_POINT links, and `run universe glp1-fill-finish` would close peptide-api-supply, a HIGH-criticality, dated-lead-time link with zero mapped placements. Not fixed here: data/mappings/, data/companies/, and tools/ are outside this run's write scope.",
-  "queries_run": [
-    {
-      "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/glp1-fill-finish.json carrying an ACTIVE status, joined to its official listing and split by evidence tag",
-      "forms": null,
-      "hits_examined": 16,
-      "names_extracted": 16
+ "id": "glp1-fill-finish",
+ "chain_id": "glp1-fill-finish",
+ "scenario_id": null,
+ "created_at": "2026-09-04",
+ "as_of": "2026-09-06",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+ "mapping_ref": "data/mappings/glp1-fill-finish.json",
+ "universe_note": "FOURTH RUN, 2026-09-06. Re-run authorized by Ron (\"everything now\", 2026-09-04) after two upstream changes since the third pass above: (1) tools/check_screen.py commit 5e5f3b5 changed `_placement_admissible` to also accept a current PASS `placement_audits[]` entry (via `check_map.placement_audit_for`) as an alternative to all-VERIFIED evidence tags, closing exactly the mechanical gap the second-pass note below named; (2) Atlas corrected data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360, `run universe glp1-fill-finish`): the money-corner link autoinjector-and-pen-platforms now carries fresh citations for WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS (each evidence tag corrected from INFERRED to VERIFIED, replacing the sources that failed the fresh-context re-check), and all 4 placement_audits[] entries on this link (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS) now read PASS with a record_digest current against the corrected placements. The census also grew from 16 to 19 placements: YPSOMED-HOLDING (autoinjector-and-pen-platforms), SKAN-GROUP (aseptic-filling-and-isolator-equipment), and LONZA-GROUP (sterile-fill-finish-capacity), all ACTIVE with all-VERIFIED evidence.\n\nRe-checked every one of the mapping's 19 placements against the live tools/check_screen.py::_placement_admissible and tools/check_map.py::placement_audit_for directly (not by re-reading prior notes): all 19 are now admissible on the evidence plane, either all-VERIFIED tags (18 of 19) or a current PASS placement_audits[] entry (BECTON-DICKINSON's sole placement, evidence tag still INFERRED but admitted on the placement-audit path). Admissibility no longer has any evidence-tier blocker anywhere on this mapping; the only remaining blocker is profile availability.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: NOW SEATED, 4 of 5 placements. BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS are all admissible (evidence VERIFIED or PASS placement audit) and all four already carry a COMPLETE O2 profile on disk, landed before this run; all four are seated as picks_and_shovels rows this pass. WEST-PHARMACEUTICAL-SERVICES and GERRESHEIMER each hold a second, lower-priority placement on this mapping (elastomer-closure-components and ready-to-use-containment-formats respectively); per method section 6's dedup rule (\"a name surfacing from two links is listed once, under the higher-priority link, with the second noted in its thesis line\") each is seated once, here, with the secondary link named in its thesis_1line rather than written as a second row. This is the money-corner link and this run closes it: every admissible, profiled name it has is now on the file. The fifth placement, YPSOMED-HOLDING (all-VERIFIED evidence, arguably the chain's most nearly pure-play device name per the chain's own bottleneck note), has no profile on disk and is named in data_gaps.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED] and ready-to-use-containment-formats [EMERGING]: correctly empty by the dedup rule above, not by a block. Their sole placements (WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER) are seated at the higher-priority money-corner link instead; both are named in the money-corner row's thesis line and neither link genuinely lacks a seatable name, it lacks a *second* row for a name already counted once.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: still searched and empty, but the reason has narrowed to one gap. All 3 placements (STERIS, DANAHER, SKAN-GROUP) are now admissible on the evidence plane (all-VERIFIED); none of the three has a profile on disk. Admissible-but-unprofiled, named in data_gaps.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: same finding. All 4 placements (THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP) are now admissible on the evidence plane (all-VERIFIED); none has a profile on disk. Admissible-but-unprofiled, named in data_gaps.\n\nNet result this pass: 5 rows -> 9 rows, 5 of 13 links -> 6 of 13 links covered, and the single money-corner link goes from 0/4 seated to 4/4 of its profiled-admissible names seated (a 5th, unprofiled, name remains open). The two remaining CHOKE_POINT/UNDISCOVERED links (aseptic-filling-and-isolator-equipment, sterile-fill-finish-capacity) are now blocked purely on profile availability, 8 admissible-but-unprofiled issuers combined (YPSOMED-HOLDING, STERIS, DANAHER, SKAN-GROUP, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP), not on evidence or on a gate mechanism; the mechanical gate gap the third-pass note flagged is closed (5e5f3b5) and did exactly what was asked of it. No earnings nuggets are written for the 4 new rows: data/edgar/docs/ carries no document for BDX, WST, GXI or HALO, so per method section 1 (fail closed if no document) every earnings-nugget field is left an empty list rather than an unverifiable quote. All fundamentals, quality and valuation figures on the 4 new rows are copied unchanged from each issuer's own COMPLETE O2 profile metrics (already sourced and dated there this campaign), not re-derived or remembered.\n\nPRIOR PASSES BELOW, UNCHANGED:\n\nChain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null). Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first, then the three CHOKE_POINT links, then the rest by chain position. The mapping (data/mappings/glp1-fill-finish.json, 14 listings, 16 placements) carries no fresh-context whole-census audit (audit: null, status ACTIVE), so every row here rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope \"PLACEMENT\" declared on the row, admitted only when the consumed placement's own role evidence is entirely VERIFIED.\n\nThis is the third pass over this file today. Pass one seated 0 rows: of the 14 mapped issuers, only 4 (BECTON-DICKINSON, GERRESHEIMER, HALOZYME-THERAPEUTICS, WEST-PHARMACEUTICAL-SERVICES) had a COMPLETE profile, and all four sat on INFERRED-only evidence; the other 5 issuers with all-VERIFIED placement evidence (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK) had no profile on disk. Pass two, this run, opened on data/mappings/glp1-fill-finish.json (commit d3ee61d) gaining 4 fresh-context placement_audits[] entries on the money-corner link autoinjector-and-pen-platforms: BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. Still seated 0 rows on that link (detailed below). Between that write and this file's push, a same-day rebase pulled in 'run profile --campaign CAMP-20260901-01' batch 8, which profiled all 5 of the previously unprofiled, all-VERIFIED-evidence issuers (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK; all COMPLETE O2). This pass re-checked every link against the current state on disk and seated all 5: 5 of 13 links now produce a row.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: still searched and empty. BECTON-DICKINSON PASS (live re-fetch of investors.bd.com confirmed the Vystra pen / semaglutide self-injection role); WEST-PHARMACEUTICAL-SERVICES FAIL (the cited westpharma.com blog names neither SmartDose nor SelfDose anywhere on the page); GERRESHEIMER FAIL (the cited gerresheimer.com page confirms Gx Inbeneo is 'the autoinjector' for 'home treatment' but not the claimed high-viscosity/subcutaneous/self-administration attributes); HALOZYME-THERAPEUTICS FAIL (the cited nasdaq.com press release could not be reached live and the nearest verifiable SEC-filed exhibit does not carry the cited phrase or figures). WEST, GERRESHEIMER and HALOZYME are excluded from this link on two independent grounds now: INFERRED-only evidence tier (unchanged since pass one) and a failed fresh-context role check confirming the specific claim as cited does not hold, so re-admitting them needs new sourcing, not just a re-audit. BECTON-DICKINSON is a different case: this run built the exact campaign-v1 row (issuer_id BECTON-DICKINSON, listing_id NYSE-BDX, link_id autoinjector-and-pen-platforms, audit_scope PLACEMENT, profile_ref data/companies/BECTON-DICKINSON.json, a COMPLETE O2 T1 profile) and ran tools/check_screen.py against it directly to test admission. It failed: check_screen.py's `_placement_admissible` (the function gating a PLACEMENT-scoped row over this un-audited mapping) reads only the placement's own `evidence` array on data/mappings/glp1-fill-finish.json and requires every item there tagged VERIFIED; it does not read `placement_audits[]` at all. BD's placements[] entry for this link still carries one evidence item tagged INFERRED, because Atlas's `--placement` audit contract writes only `audit`, `status`, `changelog` and `placement_audits` on the mapping (tools/check_map.py's allowed-fields list for that command), never the placement's own evidence tag. The exact failure: \"audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit.\" Per CLAUDE.md postlude 1f (\"must pass; never commit around it\"), the row is not written here. This is a real gap, not a data gap: CLAUDE.md's `run deepdive` row already accepts a current PASS `placement_audits[]` entry as an admission path for Stocky's gate (check_analyst.py), but check_screen.py has not been extended to accept the same basis for a screen row. Closing this needs either check_screen.py extended to recognise a current PASS placement_audits entry (tools/, outside this run's write scope) or the placement's own evidence tag upgraded to VERIFIED by Atlas (data/mappings/, outside this run's write scope); flagged as a background task rather than fixed here. Net effect on this link: still 0 of 4 placements seatable, but for BD specifically the blocker is now purely mechanical, not evidentiary.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED]: searched and empty. Sole placement WEST-PHARMACEUTICAL-SERVICES, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a December 2025 company blog post), no placement_audits entry on this specific link (the 4 audits landed only cover autoinjector-and-pen-platforms) \u2014 same evidence-tier block as the money corner.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: searched and empty. Two placements, STERIS and DANAHER, both ACTIVE with INFERRED evidence (a 2021 product-launch release and a 2021 acquisition release respectively) and neither has a profile on disk (batch 8 did not reach either name): doubly blocked, on evidence tier and on profile availability.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: searched and empty. Three placements, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, all ACTIVE with INFERRED evidence and none profiled: doubly blocked, the same as the link above.\n\npharma-glass-tubing [QUIET]: SEATED. CORNING, ACTIVE, all-VERIFIED evidence (a dated Corning/Pfizer Valor Glass supply-agreement press release), COMPLETE O2 T1 profile landed in batch 8. Row written in picks_and_shovels.\n\nprimary-containment-converters [EMERGING]: SEATED. STEVANATO-GROUP, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q1 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; carries the chain's most concentrated disclosed GLP-1 revenue exposure (approx. 21% to 22%, quoted from the same VERIFIED filing).\n\ndevice-assembly-automation [QUIET]: SEATED. ATS-CORPORATION, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q4 fiscal 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; the same filing shows its own life sciences order backlog easing $1,199M to $1,077M year over year as GLP-1 autoinjector-assembly order flow normalizes.\n\ngeneric-and-biosimilar-glp1-entrants [EMERGING]: SEATED. DR-REDDYS-LABORATORIES, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit announcing the generic semaglutide launch in Canada), COMPLETE O2 T2 profile landed in batch 8. Row written in second_order (a patent-cliff entrant, not a supply-chain input); Piotroski 3/9 (WEAK) is the weakest quality read of any name profiled on this chain.\n\nglp1-demand-anchor [OVER_CROWDED]: SEATED. NOVO-NORDISK, ACTIVE, all-VERIFIED evidence (a Form 6-K annual-report/Q4 2025 financial-statement exhibit), COMPLETE O2 T2 profile landed in batch 8. Row written in pure_play; Ozempic plus Wegovy sales (DKK 206.2bn, both figures from the same VERIFIED filing) computed against the profile's own sourced FY2025 revenue (DKK 309.1bn) to about two-thirds of revenue. (LLY carries no mapped placement on this chain at all; only the NVO side of the demand anchor is mapped.)\n\nready-to-use-containment-formats [EMERGING]: searched and empty. Sole placement GERRESHEIMER, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a January 2026 Pharmapack press page), no placement_audits entry on this specific link \u2014 same evidence-tier block as the money corner.\n\npeptide-api-supply [HIGH criticality, EMERGING]: searched and empty. Zero mapped placements. None of the chain's own example_tickers for this link (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO) appears in data/mappings/glp1-fill-finish.json; TMO is mapped only to sterile-fill-finish-capacity, a different link. This link needs a `run universe glp1-fill-finish` amendment before it can be screened at all, and it is the chain's one link with a dated lead-time figure (18 to 36 months for new reactor capacity), which makes the gap worth closing.\n\nhalobutyl-elastomer-feedstock [MEDIUM criticality, QUIET]: searched and empty. Zero mapped placements, by chain design: the chain's own note calls XOM/0386.HK/RELIANCE.NS \"a trap: buying XOM is not buying GLP-1 capacity,\" and no listed pure play exists at this stage. Correctly un-mapped, not a gap.\n\nus-onshoring-tariff-response [HIGH criticality, CROWDED]: searched and empty. Zero mapped placements, by chain design: example_tickers is deliberately empty (there is no instrument for a tariff schedule); the chain's own note routes the investable expression through the US-sited capacity at positions 4, 9 and 11 (primary-containment-converters, sterile-fill-finish-capacity, autoinjector-and-pen-platforms), each already covered above.\n\nNet effect: 5 of 13 links produce rows this run (5 rows total: CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK). The money-corner link and all three CHOKE_POINT links remain empty and are attributed as searched with a stated reason, never silently absent. Two concrete next steps, neither of them this run's to take: (a) either check_screen.py extended to admit a row on a current PASS `placement_audits[]` entry (as check_analyst.py already does for deepdive), or Atlas upgrading BECTON-DICKINSON's autoinjector-and-pen-platforms evidence tag to VERIFIED to reflect its PASS fresh-context audit \u2014 either would open the money corner on this one name; WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS now need new sourcing, not a re-audit, since their fresh-context audits FAILED on the cited claim itself; (b) profiling STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL would open the two remaining empty CHOKE_POINT links, and `run universe glp1-fill-finish` would close peptide-api-supply, a HIGH-criticality, dated-lead-time link with zero mapped placements. Not fixed here: data/mappings/, data/companies/, and tools/ are outside this run's write scope.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/glp1-fill-finish.json carrying an ACTIVE status, joined to its official listing and split by evidence tag",
+   "forms": null,
+   "hits_examined": 16,
+   "names_extracted": 16
+  },
+  {
+   "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a glp1-fill-finish mapped listing (14 issuer_id values checked)",
+   "forms": null,
+   "hits_examined": 14,
+   "names_extracted": 4
+  },
+  {
+   "query": "chain example_tickers vs mapped placements, per link, for the 3 links with zero placements (peptide-api-supply, halobutyl-elastomer-feedstock, us-onshoring-tariff-response)",
+   "forms": null,
+   "hits_examined": 3,
+   "names_extracted": 0
+  },
+  {
+   "query": "Re-check every (chain_id, link_id, issuer_id) placement admissibility on data/mappings/glp1-fill-finish.json as it stands after commits 7bd3af6/b5cf360 (evidence correction on 3 placements) and cross-check against tools/check_screen.py::_placement_admissible / check_map.placement_audit_for directly, plus data/companies/ for all 17 mapped issuers",
+   "forms": null,
+   "hits_examined": 19,
+   "names_extracted": 4
+  }
+ ],
+ "buckets": {
+  "pure_play": [
+   {
+    "issuer_id": "NOVO-NORDISK",
+    "listing_id": "NYSE-NVO",
+    "ticker": "NVO",
+    "market_ticker": "NVO",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "glp1-demand-anchor",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/NOVO-NORDISK.json",
+    "data_tier": "T2",
+    "audit_scope": "PLACEMENT",
+    "name": "Novo Nordisk A/S",
+    "exchange": "NYSE",
+    "tier": "T2",
+    "cik": 353278,
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "The chain's demand anchor: Ozempic and Wegovy combined for DKK 206.2bn of Novo Nordisk's DKK 309.1bn FY2025 revenue (about two-thirds), and its own FY2025 capex of DKK 60.1bn explicitly targets API and fill-finish capacity, the same upstream capacity this chain maps (Form 6-K annual-report / Q4 2025 exhibit, VERIFIED). Link scored OVER_CROWDED: the most-priced name on the whole map, present for completeness of chain attribution, not as a fresh idea. LLY (Zepbound/Mounjaro), the chain's other GLP-1 originator, carries no mapped placement on this chain.",
+    "theme_revenue_exposure": {
+     "pct": 0.66716,
+     "basis": "Computed as (Ozempic DKK 127,089,000,000 + Wegovy DKK 79,106,000,000) / FY2025 total revenue DKK 309,064,000,000, both figures from the same Annual Report / Q4 2025 financial-statement exhibit as the profile's own sourced revenue.latest_fy.",
+     "quote": "Ozempic sales of DKK 127,089 million and Wegovy sales of DKK 79,106 million in 2025",
+     "accession": null,
+     "url": "https://www.sec.gov/Archives/edgar/data/353278/000035327826000006/caq42025.htm",
+     "tag": "INFERRED"
     },
-    {
-      "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a glp1-fill-finish mapped listing (14 issuer_id values checked)",
-      "forms": null,
-      "hits_examined": 14,
-      "names_extracted": 4
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 309064000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 353278 (Novo Nordisk A/S, ifrs-full taxonomy, DKK).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.204285,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "Three-year compound annual revenue growth computed as (309064000000 / 176954000000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-12-31 to FY2025-12-31, DKK.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.413047,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "Operating income 127658000000 divided by revenue 309064000000 for FY2025-12-31, both DKK, from companyfacts.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.190776,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "Free cash flow margin: operating cash flow 119102000000 less capex 60140000000, divided by revenue 309064000000, all DKK, FY2025-12-31, from companyfacts.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.162719,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "Operating cash flow 119102000000 divided by net income 102434000000, both FY2025-12-31, DKK, from companyfacts.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts.fundamentals.cash is null for CIK 353278 (not tagged for this IFRS 20-F filer); net debt cannot be computed without a cash figure even though long_term_debt_fy (130958000000 DKK at 2025-12-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+     },
+     "piotroski": {
+      "value": 5,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "data/market/NVO.json quality.piotroski score 5 of 9, state MIDDLING, computed over sec-companyfacts statements, 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.571,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "data/market/NVO.json quality.beneish score -2.571 against the -1.78 threshold, state CLEAN, computed over sec-companyfacts statements, 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 207401480000.0,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
+      "basis": "Market capitalization 207401480000.0 USD = companyfacts diluted share count 4444000000 (FY2025-12-31) multiplied by the ADR close 46.67 USD of 2026-09-04 (data/market/NVO.json quality.price_used, repo market plane).",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "market_cap is computed in USD (the NYSE ADR trading currency) while revenue and net income are reported in DKK (statement_currency); a price-to-sales or price-to-earnings ratio would mix currencies without a sourced FX conversion, so this stays NULL rather than computing a mixed-currency figure. (canonical field price_to_sales: price to sales not available.)"
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/NVO.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+     }
     },
-    {
-      "query": "chain example_tickers vs mapped placements, per link, for the 3 links with zero placements (peptide-api-supply, halobutyl-elastomer-feedstock, us-onshoring-tariff-response)",
-      "forms": null,
-      "hits_examined": 3,
-      "names_extracted": 0
-    }
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/NVO.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
   ],
-  "buckets": {
-    "pure_play": [
-      {
-        "issuer_id": "NOVO-NORDISK",
-        "listing_id": "NYSE-NVO",
-        "ticker": "NVO",
-        "market_ticker": "NVO",
-        "chain_id": "glp1-fill-finish",
-        "link_id": "glp1-demand-anchor",
-        "mapping_ref": "data/mappings/glp1-fill-finish.json",
-        "profile_ref": "data/companies/NOVO-NORDISK.json",
-        "data_tier": "T2",
-        "audit_scope": "PLACEMENT",
-        "name": "Novo Nordisk A/S",
-        "exchange": "NYSE",
-        "tier": "T2",
-        "cik": 353278,
-        "money_corner": false,
-        "link_heat_verdict": "OVER_CROWDED",
-        "thesis_1line": "The chain's demand anchor: Ozempic and Wegovy combined for DKK 206.2bn of Novo Nordisk's DKK 309.1bn FY2025 revenue (about two-thirds), and its own FY2025 capex of DKK 60.1bn explicitly targets API and fill-finish capacity, the same upstream capacity this chain maps (Form 6-K annual-report / Q4 2025 exhibit, VERIFIED). Link scored OVER_CROWDED: the most-priced name on the whole map, present for completeness of chain attribution, not as a fresh idea. LLY (Zepbound/Mounjaro), the chain's other GLP-1 originator, carries no mapped placement on this chain.",
-        "theme_revenue_exposure": {
-          "pct": 0.66716,
-          "basis": "Computed as (Ozempic DKK 127,089,000,000 + Wegovy DKK 79,106,000,000) / FY2025 total revenue DKK 309,064,000,000, both figures from the same Annual Report / Q4 2025 financial-statement exhibit as the profile's own sourced revenue.latest_fy.",
-          "quote": "Ozempic sales of DKK 127,089 million and Wegovy sales of DKK 79,106 million in 2025",
-          "accession": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/353278/000035327826000006/caq42025.htm",
-          "tag": "INFERRED"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 309064000000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 353278 (Novo Nordisk A/S, ifrs-full taxonomy, DKK).",
-            "official_source": false
-          },
-          "revenue_cagr_3y": {
-            "value": 0.204285,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "Three-year compound annual revenue growth computed as (309064000000 / 176954000000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-12-31 to FY2025-12-31, DKK.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.413047,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "Operating income 127658000000 divided by revenue 309064000000 for FY2025-12-31, both DKK, from companyfacts.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": 0.190776,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "Free cash flow margin: operating cash flow 119102000000 less capex 60140000000, divided by revenue 309064000000, all DKK, FY2025-12-31, from companyfacts.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 1.162719,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "Operating cash flow 119102000000 divided by net income 102434000000, both FY2025-12-31, DKK, from companyfacts.",
-            "official_source": true
-          },
-          "net_debt_to_ebitda": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "companyfacts.fundamentals.cash is null for CIK 353278 (not tagged for this IFRS 20-F filer); net debt cannot be computed without a cash figure even though long_term_debt_fy (130958000000 DKK at 2025-12-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
-          },
-          "piotroski": {
-            "value": 5,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json quality (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "data/market/NVO.json quality.piotroski score 5 of 9, state MIDDLING, computed over sec-companyfacts statements, 9 of 9 inputs found.",
-            "official_source": true
-          },
-          "beneish_state": {
-            "value": -2.571,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json quality (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "data/market/NVO.json quality.beneish score -2.571 against the -1.78 threshold, state CLEAN, computed over sec-companyfacts statements, 12 of 12 inputs found.",
-            "official_source": true
-          },
-          "market_cap": {
-            "value": 207401480000.0,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVO.json quality (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000353278.json",
-            "basis": "Market capitalization 207401480000.0 USD = companyfacts diluted share count 4444000000 (FY2025-12-31) multiplied by the ADR close 46.67 USD of 2026-09-04 (data/market/NVO.json quality.price_used, repo market plane).",
-            "official_source": true
-          },
-          "price_to_sales": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "market_cap is computed in USD (the NYSE ADR trading currency) while revenue and net income are reported in DKK (statement_currency); a price-to-sales or price-to-earnings ratio would mix currencies without a sourced FX conversion, so this stays NULL rather than computing a mixed-currency figure. (canonical field price_to_sales: price to sales not available.)"
-          },
-          "implied_fcf_cagr": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/NVO.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/NVO.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      }
-    ],
-    "picks_and_shovels": [
-      {
-        "issuer_id": "CORNING",
-        "listing_id": "NYSE-GLW",
-        "ticker": "GLW",
-        "market_ticker": "GLW",
-        "chain_id": "glp1-fill-finish",
-        "link_id": "pharma-glass-tubing",
-        "mapping_ref": "data/mappings/glp1-fill-finish.json",
-        "profile_ref": "data/companies/CORNING.json",
-        "data_tier": "T1",
-        "audit_scope": "PLACEMENT",
-        "name": "Corning Incorporated",
-        "exchange": "NYSE",
-        "tier": "T1",
-        "cik": 24741,
-        "money_corner": false,
-        "link_heat_verdict": "QUIET",
-        "thesis_1line": "Sole mapped placement on this chain's origin link: Corning's Valor Glass borosilicate packaging glass is supplied to Pfizer's sterile-injectables portfolio under a dated, VERIFIED multi-year supply agreement (Corning/Pfizer press release, 2020-05-28). Link scored QUIET; Corning's own GLP-1 exposure is unquantified, a rounding error inside a $15.6bn-revenue diversified materials-science company, so this is a diversified-parent read, not a concentrated one.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "Corning does not disclose a GLP-1- or fill-finish-specific revenue percentage; Valor Glass sits inside its diversified Life Sciences segment.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 15629000000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
-            "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 24741 (Corning Inc /NY).",
-            "official_source": false
-          },
-          "revenue_cagr_3y": {
-            "value": 0.032745,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
-            "basis": "Three-year compound annual revenue growth computed as (15629000000 / 14189000000) ** (1/3) - 1 from the companyfacts Revenues series, FY2022-12-31 to FY2025-12-31.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.145819,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
-            "basis": "OperatingIncomeLoss 2279000000 divided by Revenues 15629000000 for FY2025-12-31, both from companyfacts.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "fcf_margin needs capex_fy, which companyfacts.fundamentals carries as null for CIK 24741; capital expenditure is not separately tagged for this filer in the fetched block. (canonical field fcf_margin: fcf margin not available.)"
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 1.688596,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
-            "basis": "Operating cash flow 2695000000 divided by net income 1596000000, both FY2025-12-31, from companyfacts.",
-            "official_source": true
-          },
-          "net_debt_to_ebitda": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "total_debt in companyfacts.fundamentals for CIK 24741 stops at fiscal 2012-12-31 (a single stale data point), 13 years older than the FY2025 operating figures used elsewhere in this profile; no current-period debt figure exists to compute a decision-useful net-debt-to-EBITDA. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
-          },
-          "piotroski": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/GLW.json quality.piotroski state is PENDING_DATA: 0 common fiscal periods across the 9 change-leg inputs. (canonical field piotroski: piotroski not available.)"
-          },
-          "beneish_state": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/GLW.json quality.beneish state is PENDING_DATA: 0 common fiscal periods across the 12 inputs. (canonical field beneish_state: beneish not available.)"
-          },
-          "market_cap": {
-            "value": 274590000000.00003,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json quality (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
-            "basis": "Market capitalization = companyfacts diluted share count 1800000000 (FY2025-12-31) multiplied by the close 152.55 of 2026-09-04 (data/market/GLW.json quality.price_used, repo market plane).",
-            "official_source": true
-          },
-          "price_to_sales": {
-            "value": 17.569262,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
-            "basis": "Market capitalization 274590000000.00003 divided by FY2025-12-31 revenue 15629000000, both USD; no currency conversion required (statement_currency USD).",
-            "official_source": true
-          },
-          "implied_fcf_cagr": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/GLW.json quality.reverse_dcf state is PENDING_DATA: missing fcf (fcf_margin's capex_fy input is also null for this filer). (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/GLW.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "data/market/GLW.json pcs is null; no PCS attention read for this T1 listing this run."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      },
-      {
-        "issuer_id": "STEVANATO-GROUP",
-        "listing_id": "NYSE-STVN",
-        "ticker": "STVN",
-        "market_ticker": "STVN",
-        "chain_id": "glp1-fill-finish",
-        "link_id": "primary-containment-converters",
-        "mapping_ref": "data/mappings/glp1-fill-finish.json",
-        "profile_ref": "data/companies/STEVANATO-GROUP.json",
-        "data_tier": "T2",
-        "audit_scope": "PLACEMENT",
-        "name": "Stevanato Group S.p.A.",
-        "exchange": "NYSE",
-        "tier": "T2",
-        "cik": 1849853,
-        "money_corner": false,
-        "link_heat_verdict": "EMERGING",
-        "thesis_1line": "Sole mapped placement converting pharmaceutical glass tube into the prefillable syringes, cartridges and vials GLP-1 doses ship in; its own Q1 2026 results (Form 6-K exhibit, VERIFIED) disclose GLP-1 at approximately 21% to 22% of revenue, the most concentrated disclosed GLP-1 exposure of any name mapped on this chain. Link scored EMERGING.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "Disclosed as a range (approx. 21% to 22% of Q1 2026 revenue), not a single point figure; left null rather than inventing a midpoint the filing does not state.",
-          "quote": "GLP1s accounted for approx. 21% to 22% of Revenue",
-          "accession": null,
-          "url": "https://www.sec.gov/Archives/edgar/data/0001849853/000119312526212000/stvn-ex99_1.htm",
-          "tag": "VERIFIED"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 1186282000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
-            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1849853 (Stevanato Group S.p.A., ifrs-full taxonomy).",
-            "official_source": false
-          },
-          "revenue_cagr_3y": {
-            "value": 0.064416,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
-            "basis": "Three-year compound annual revenue growth computed as (1186282000 / 983680000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-12-31 to FY2025-12-31.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.167583,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
-            "basis": "Operating income 198801000 divided by revenue 1186282000 for FY2025-12-31, both EUR, from companyfacts.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": 0.018816,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
-            "basis": "Free cash flow margin: operating cash flow 286077000 less capex 263756000, divided by revenue 1186282000, all EUR, FY2025-12-31, from companyfacts.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 2.045877,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
-            "basis": "Operating cash flow 286077000 divided by net income 139831000, both FY2025-12-31, EUR, from companyfacts.",
-            "official_source": true
-          },
-          "net_debt_to_ebitda": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "companyfacts.fundamentals.cash is null for CIK 1849853 (not tagged for this IFRS 20-F filer); net debt cannot be computed without a cash figure even though long_term_debt_fy (455146000 EUR at 2025-12-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
-          },
-          "piotroski": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/STVN.json quality.piotroski state is PENDING_DATA: missing shares_fy. (canonical field piotroski: piotroski not available.)"
-          },
-          "beneish_state": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/STVN.json quality.beneish state is PENDING_DATA: missing sga_fy. (canonical field beneish_state: beneish not available.)"
-          },
-          "market_cap": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/STVN.json quality.derived.market_cap is null: shares_used could not be resolved (shares_fy is null for this filer), so price times share count cannot be computed. (canonical field market_cap: market cap not available.)"
-          },
-          "price_to_sales": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "No canonical ratio can be computed without market_cap, which is null for the same missing-shares reason. (canonical field price_to_sales: price to sales not available.)"
-          },
-          "implied_fcf_cagr": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/STVN.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value (which itself needs market_cap). (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/STVN.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      },
-      {
-        "issuer_id": "ATS-CORPORATION",
-        "listing_id": "NYSE-ATS",
-        "ticker": "ATS",
-        "market_ticker": "ATS",
-        "chain_id": "glp1-fill-finish",
-        "link_id": "device-assembly-automation",
-        "mapping_ref": "data/mappings/glp1-fill-finish.json",
-        "profile_ref": "data/companies/ATS-CORPORATION.json",
-        "data_tier": "T2",
-        "audit_scope": "PLACEMENT",
-        "name": "ATS Corporation",
-        "exchange": "NYSE",
-        "tier": "T2",
-        "cik": 1394832,
-        "money_corner": false,
-        "link_heat_verdict": "QUIET",
-        "thesis_1line": "Sole mapped placement on the pen/autoinjector assembly-automation link; its FY2026 Q4 results (Form 6-K exhibit, VERIFIED) show life sciences order backlog easing from $1,199M to $1,077M year over year as autoinjector (GLP-1) assembly order flow normalizes off a prior peak, and FY2025 operating income fell from CAD 315.4M to CAD 9.3M. Link scored QUIET; this name's own numbers argue the assembly-equipment boom already crested for this specific program category.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "ATS discloses life sciences order backlog and bookings, not a GLP-1-specific revenue percentage; autoinjector programs are one category within a mixed life sciences order book (radiopharmaceutical and other medical device automation are named alongside it).",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 2533288000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
-            "basis": "Revenue for the fiscal year ended 2025-03-31 as reported to SEC XBRL companyfacts for CIK 1394832 (ATS Corporation, ifrs-full taxonomy; the latest annual figure on file).",
-            "official_source": false
-          },
-          "revenue_cagr_3y": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "companyfacts.fundamentals.revenue_fy for CIK 1394832 carries only three fiscal years (2023-03-31, 2024-03-31, 2025-03-31), a 2-year span; a true 3-year CAGR needs a 2022-03-31 data point that is not present. (canonical field revenue_cagr_3y: revenue cagr not available.)"
-          },
-          "operating_margin": {
-            "value": 0.003654,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
-            "basis": "Operating income 9256000 divided by revenue 2533288000 for FY2025-03-31, both CAD, from companyfacts. FY2024 operating income was 315391000 against FY2025's 9256000, the order-book normalization named in the mapping placement evidence.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": -0.003229,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
-            "basis": "Free cash flow margin: operating cash flow 25771000 less capex 33952000, divided by revenue 2533288000, all CAD, FY2025-03-31, from companyfacts.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": -0.921117,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
-            "basis": "Operating cash flow 25771000 divided by net income -27978000, both FY2025-03-31, CAD, from companyfacts. Negative because net income is negative; operating cash flow itself stayed positive.",
-            "official_source": true
-          },
-          "net_debt_to_ebitda": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "companyfacts.fundamentals.cash and total_debt are both null for CIK 1394832 (not tagged for this IFRS filer); net debt cannot be computed even though long_term_debt_fy (1543678000 CAD at 2025-03-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
-          },
-          "piotroski": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/ATS.json quality.piotroski state is PENDING_DATA: missing shares_fy. (canonical field piotroski: piotroski not available.)"
-          },
-          "beneish_state": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/ATS.json quality.beneish state is PENDING_DATA: missing depreciation_fy. (canonical field beneish_state: beneish not available.)"
-          },
-          "market_cap": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/ATS.json quality.derived.market_cap is null: shares_used could not be resolved (shares_fy is null for this filer). (canonical field market_cap: market cap not available.)"
-          },
-          "price_to_sales": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "No canonical ratio can be computed without market_cap, which is null for the same missing-shares reason. (canonical field price_to_sales: price to sales not available.)"
-          },
-          "implied_fcf_cagr": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/ATS.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/ATS.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      }
-    ],
-    "second_order": [
-      {
-        "issuer_id": "DR-REDDYS-LABORATORIES",
-        "listing_id": "NYSE-RDY",
-        "ticker": "RDY",
-        "market_ticker": "RDY",
-        "chain_id": "glp1-fill-finish",
-        "link_id": "generic-and-biosimilar-glp1-entrants",
-        "mapping_ref": "data/mappings/glp1-fill-finish.json",
-        "profile_ref": "data/companies/DR-REDDYS-LABORATORIES.json",
-        "data_tier": "T2",
-        "audit_scope": "PLACEMENT",
-        "name": "Dr. Reddy's Laboratories Ltd.",
-        "exchange": "NYSE",
-        "tier": "T2",
-        "cik": 1135951,
-        "money_corner": false,
-        "link_heat_verdict": "EMERGING",
-        "thesis_1line": "Sole mapped placement on the generic-entrant link: launched the first generic semaglutide injection authorized in a G7 market (Canada, 2026-05-15, Form 6-K exhibit, VERIFIED), a second-order beneficiary of the originator's eventual patent cliff rather than a supplier into current GLP-1 fill-finish capacity. Link scored EMERGING; Piotroski 3/9 (WEAK) is the weakest quality read of any name profiled on this chain.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "The launch press release announces market authorization and dose strengths, not a revenue percentage; Dr. Reddy's does not break out generic-semaglutide revenue separately in the fetched fundamentals.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 325535000000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "Revenue for the fiscal year ended 2025-03-31 as reported to SEC XBRL companyfacts for CIK 1135951 (Dr. Reddy's Laboratories Ltd., ifrs-full taxonomy, INR).",
-            "official_source": false
-          },
-          "revenue_cagr_3y": {
-            "value": 0.14938,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "Three-year compound annual revenue growth computed as (325535000000 / 214391000000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-03-31 to FY2025-03-31, INR.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.220692,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "Operating income 71843000000 divided by revenue 325535000000 for FY2025-03-31, both INR, from companyfacts.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": 0.058132,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "Free cash flow margin: operating cash flow 46428000000 less capex 27504000000, divided by revenue 325535000000, all INR, FY2025-03-31, from companyfacts.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 0.81104,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "Operating cash flow 46428000000 divided by net income 57245000000, both FY2025-03-31, INR, from companyfacts.",
-            "official_source": true
-          },
-          "net_debt_to_ebitda": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "companyfacts.fundamentals.cash is null for CIK 1135951 (not tagged for this IFRS 20-F filer); net debt cannot be computed without a cash figure even though long_term_debt_fy (8721000000 INR at 2025-03-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
-          },
-          "piotroski": {
-            "value": 3,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json quality (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "data/market/RDY.json quality.piotroski score 3 of 9, state WEAK, computed over sec-companyfacts statements, 9 of 9 inputs found.",
-            "official_source": true
-          },
-          "beneish_state": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/RDY.json quality.beneish state is PENDING_DATA: only 1 common fiscal period (2018-03-31) across the 12 year-over-year inputs. (canonical field beneish_state: beneish not available.)"
-          },
-          "market_cap": {
-            "value": 10016687771.25,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json quality (source sec-companyfacts)",
-            "source_date": "2026-09-04",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
-            "basis": "Market capitalization 10016687771.25 USD = companyfacts diluted share count 832642375 (FY2025-03-31) multiplied by the ADR close 12.03 USD of 2026-09-04 (data/market/RDY.json quality.price_used, repo market plane).",
-            "official_source": true
-          },
-          "price_to_sales": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "market_cap is computed in USD (the NYSE ADR trading currency) while revenue and net income are reported in INR (statement_currency); a price-to-sales or price-to-earnings ratio would mix currencies without a sourced FX conversion, so this stays NULL rather than computing a mixed-currency figure. (canonical field price_to_sales: price to sales not available.)"
-          },
-          "implied_fcf_cagr": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "data/market/RDY.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/RDY.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      }
-    ],
-    "hedge": []
-  },
-  "data_gaps": [
-    "Money-corner link autoinjector-and-pen-platforms is genuinely empty this run (second run). data/mappings/glp1-fill-finish.json now carries 4 fresh-context placement_audits on this link (commit d3ee61d): BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. The 3 FAILs are excluded on two grounds now (INFERRED-only evidence tier plus a failed fresh-context role check) and need new sourcing before re-consideration. BECTON-DICKINSON is admissible-in-substance (COMPLETE O2 T1 profile, PASS placement audit) but this run built and tested its exact campaign-v1 row against tools/check_screen.py and it failed: the gate's `_placement_admissible` check reads only the placement's own `evidence` array tag (still INFERRED; Atlas's --placement audit writes only audit/status/changelog/placement_audits, never the evidence tag) and does not consult `placement_audits[]` at all, unlike check_analyst.py's deepdive gate which already does. Needs either check_screen.py extended (tools/, outside this run's scope) or the placement's evidence tag upgraded to VERIFIED (data/mappings/, outside this run's scope); flagged as a background task.",
-    "CHOKE_POINT links elastomer-closure-components and ready-to-use-containment-formats are blocked the same way (WEST-PHARMACEUTICAL-SERVICES and GERRESHEIMER, both profiled, both INFERRED-only evidence). CHOKE_POINT links aseptic-filling-and-isolator-equipment and sterile-fill-finish-capacity are doubly blocked: INFERRED-only evidence AND no profile on disk for any of their 5 combined placements (STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL).",
-    "Resolved this run: the 5 issuers carrying ACTIVE, all-VERIFIED mapping placements (CORNING/pharma-glass-tubing, STEVANATO-GROUP/primary-containment-converters, ATS-CORPORATION/device-assembly-automation, DR-REDDYS-LABORATORIES/generic-and-biosimilar-glp1-entrants, NOVO-NORDISK/glp1-demand-anchor) all gained COMPLETE O2 profiles via a same-day rebase pulling in 'run profile --campaign CAMP-20260901-01' batch 8; all 5 are now seated as screen rows.",
-    "peptide-api-supply (HIGH criticality, dated 18-36 month lead time) has zero mapped placements despite carrying example_tickers on the chain (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO); needs a `run universe glp1-fill-finish` amendment.",
-    "The two remaining empty CHOKE_POINT links (aseptic-filling-and-isolator-equipment: STERIS, DANAHER; sterile-fill-finish-capacity: THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL) are doubly blocked: INFERRED-only evidence AND no profile on disk for any of their 5 combined placements. None of these 5 were in batch 8."
+  "picks_and_shovels": [
+   {
+    "issuer_id": "CORNING",
+    "listing_id": "NYSE-GLW",
+    "ticker": "GLW",
+    "market_ticker": "GLW",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "pharma-glass-tubing",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/CORNING.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Corning Incorporated",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 24741,
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Sole mapped placement on this chain's origin link: Corning's Valor Glass borosilicate packaging glass is supplied to Pfizer's sterile-injectables portfolio under a dated, VERIFIED multi-year supply agreement (Corning/Pfizer press release, 2020-05-28). Link scored QUIET; Corning's own GLP-1 exposure is unquantified, a rounding error inside a $15.6bn-revenue diversified materials-science company, so this is a diversified-parent read, not a concentrated one.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Corning does not disclose a GLP-1- or fill-finish-specific revenue percentage; Valor Glass sits inside its diversified Life Sciences segment.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 15629000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
+      "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 24741 (Corning Inc /NY).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.032745,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
+      "basis": "Three-year compound annual revenue growth computed as (15629000000 / 14189000000) ** (1/3) - 1 from the companyfacts Revenues series, FY2022-12-31 to FY2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.145819,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
+      "basis": "OperatingIncomeLoss 2279000000 divided by Revenues 15629000000 for FY2025-12-31, both from companyfacts.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "fcf_margin needs capex_fy, which companyfacts.fundamentals carries as null for CIK 24741; capital expenditure is not separately tagged for this filer in the fetched block. (canonical field fcf_margin: fcf margin not available.)"
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.688596,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
+      "basis": "Operating cash flow 2695000000 divided by net income 1596000000, both FY2025-12-31, from companyfacts.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "total_debt in companyfacts.fundamentals for CIK 24741 stops at fiscal 2012-12-31 (a single stale data point), 13 years older than the FY2025 operating figures used elsewhere in this profile; no current-period debt figure exists to compute a decision-useful net-debt-to-EBITDA. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/GLW.json quality.piotroski state is PENDING_DATA: 0 common fiscal periods across the 9 change-leg inputs. (canonical field piotroski: piotroski not available.)"
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/GLW.json quality.beneish state is PENDING_DATA: 0 common fiscal periods across the 12 inputs. (canonical field beneish_state: beneish not available.)"
+     },
+     "market_cap": {
+      "value": 274590000000.00003,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
+      "basis": "Market capitalization = companyfacts diluted share count 1800000000 (FY2025-12-31) multiplied by the close 152.55 of 2026-09-04 (data/market/GLW.json quality.price_used, repo market plane).",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 17.569262,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLW.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000024741.json",
+      "basis": "Market capitalization 274590000000.00003 divided by FY2025-12-31 revenue 15629000000, both USD; no currency conversion required (statement_currency USD).",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/GLW.json quality.reverse_dcf state is PENDING_DATA: missing fcf (fcf_margin's capex_fy input is also null for this filer). (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/GLW.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/GLW.json pcs is null; no PCS attention read for this T1 listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "STEVANATO-GROUP",
+    "listing_id": "NYSE-STVN",
+    "ticker": "STVN",
+    "market_ticker": "STVN",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "primary-containment-converters",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/STEVANATO-GROUP.json",
+    "data_tier": "T2",
+    "audit_scope": "PLACEMENT",
+    "name": "Stevanato Group S.p.A.",
+    "exchange": "NYSE",
+    "tier": "T2",
+    "cik": 1849853,
+    "money_corner": false,
+    "link_heat_verdict": "EMERGING",
+    "thesis_1line": "Sole mapped placement converting pharmaceutical glass tube into the prefillable syringes, cartridges and vials GLP-1 doses ship in; its own Q1 2026 results (Form 6-K exhibit, VERIFIED) disclose GLP-1 at approximately 21% to 22% of revenue, the most concentrated disclosed GLP-1 exposure of any name mapped on this chain. Link scored EMERGING.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Disclosed as a range (approx. 21% to 22% of Q1 2026 revenue), not a single point figure; left null rather than inventing a midpoint the filing does not state.",
+     "quote": "GLP1s accounted for approx. 21% to 22% of Revenue",
+     "accession": null,
+     "url": "https://www.sec.gov/Archives/edgar/data/0001849853/000119312526212000/stvn-ex99_1.htm",
+     "tag": "VERIFIED"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 1186282000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1849853 (Stevanato Group S.p.A., ifrs-full taxonomy).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.064416,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
+      "basis": "Three-year compound annual revenue growth computed as (1186282000 / 983680000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-12-31 to FY2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.167583,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
+      "basis": "Operating income 198801000 divided by revenue 1186282000 for FY2025-12-31, both EUR, from companyfacts.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.018816,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
+      "basis": "Free cash flow margin: operating cash flow 286077000 less capex 263756000, divided by revenue 1186282000, all EUR, FY2025-12-31, from companyfacts.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.045877,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STVN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001849853.json",
+      "basis": "Operating cash flow 286077000 divided by net income 139831000, both FY2025-12-31, EUR, from companyfacts.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts.fundamentals.cash is null for CIK 1849853 (not tagged for this IFRS 20-F filer); net debt cannot be computed without a cash figure even though long_term_debt_fy (455146000 EUR at 2025-12-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/STVN.json quality.piotroski state is PENDING_DATA: missing shares_fy. (canonical field piotroski: piotroski not available.)"
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/STVN.json quality.beneish state is PENDING_DATA: missing sga_fy. (canonical field beneish_state: beneish not available.)"
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/STVN.json quality.derived.market_cap is null: shares_used could not be resolved (shares_fy is null for this filer), so price times share count cannot be computed. (canonical field market_cap: market cap not available.)"
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "No canonical ratio can be computed without market_cap, which is null for the same missing-shares reason. (canonical field price_to_sales: price to sales not available.)"
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/STVN.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value (which itself needs market_cap). (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/STVN.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "ATS-CORPORATION",
+    "listing_id": "NYSE-ATS",
+    "ticker": "ATS",
+    "market_ticker": "ATS",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "device-assembly-automation",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/ATS-CORPORATION.json",
+    "data_tier": "T2",
+    "audit_scope": "PLACEMENT",
+    "name": "ATS Corporation",
+    "exchange": "NYSE",
+    "tier": "T2",
+    "cik": 1394832,
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Sole mapped placement on the pen/autoinjector assembly-automation link; its FY2026 Q4 results (Form 6-K exhibit, VERIFIED) show life sciences order backlog easing from $1,199M to $1,077M year over year as autoinjector (GLP-1) assembly order flow normalizes off a prior peak, and FY2025 operating income fell from CAD 315.4M to CAD 9.3M. Link scored QUIET; this name's own numbers argue the assembly-equipment boom already crested for this specific program category.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "ATS discloses life sciences order backlog and bookings, not a GLP-1-specific revenue percentage; autoinjector programs are one category within a mixed life sciences order book (radiopharmaceutical and other medical device automation are named alongside it).",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 2533288000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
+      "basis": "Revenue for the fiscal year ended 2025-03-31 as reported to SEC XBRL companyfacts for CIK 1394832 (ATS Corporation, ifrs-full taxonomy; the latest annual figure on file).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts.fundamentals.revenue_fy for CIK 1394832 carries only three fiscal years (2023-03-31, 2024-03-31, 2025-03-31), a 2-year span; a true 3-year CAGR needs a 2022-03-31 data point that is not present. (canonical field revenue_cagr_3y: revenue cagr not available.)"
+     },
+     "operating_margin": {
+      "value": 0.003654,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
+      "basis": "Operating income 9256000 divided by revenue 2533288000 for FY2025-03-31, both CAD, from companyfacts. FY2024 operating income was 315391000 against FY2025's 9256000, the order-book normalization named in the mapping placement evidence.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": -0.003229,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
+      "basis": "Free cash flow margin: operating cash flow 25771000 less capex 33952000, divided by revenue 2533288000, all CAD, FY2025-03-31, from companyfacts.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": -0.921117,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ATS.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001394832.json",
+      "basis": "Operating cash flow 25771000 divided by net income -27978000, both FY2025-03-31, CAD, from companyfacts. Negative because net income is negative; operating cash flow itself stayed positive.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts.fundamentals.cash and total_debt are both null for CIK 1394832 (not tagged for this IFRS filer); net debt cannot be computed even though long_term_debt_fy (1543678000 CAD at 2025-03-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/ATS.json quality.piotroski state is PENDING_DATA: missing shares_fy. (canonical field piotroski: piotroski not available.)"
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/ATS.json quality.beneish state is PENDING_DATA: missing depreciation_fy. (canonical field beneish_state: beneish not available.)"
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/ATS.json quality.derived.market_cap is null: shares_used could not be resolved (shares_fy is null for this filer). (canonical field market_cap: market cap not available.)"
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "No canonical ratio can be computed without market_cap, which is null for the same missing-shares reason. (canonical field price_to_sales: price to sales not available.)"
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/ATS.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/ATS.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "BECTON-DICKINSON",
+    "listing_id": "NYSE-BDX",
+    "ticker": "BDX",
+    "market_ticker": "BDX",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "autoinjector-and-pen-platforms",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/BECTON-DICKINSON.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Becton, Dickinson and Company",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 10795,
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "BD's Vystra injection pen platform is licensed directly into GLP-1 self-injection, most recently for a semaglutide launch in Brazil, placing BD in the money-corner device layer patients actually hold (BD investor-relations role evidence, VERIFIED at the fresh-context placement-audit level: data/mappings/glp1-fill-finish.json placement_audits[] PASS entry, evidence_index 0, live re-fetch of investors.bd.com confirmed the Vystra pen / semaglutide self-injection role, 2026-09-04). This row's placement evidence tag itself remains INFERRED; admission rests on the current PASS placement audit under tools/check_screen.py's placement_audit_for path (commit 5e5f3b5), not on the tag rule. Link scored UNDISCOVERED at money_corner: crowdedness \u226440 with impact 78, capture 60+, per the chain's own heat block.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "BD does not disclose a GLP-1- or autoinjector-specific revenue percentage; Vystra sits inside its diversified Medical segment.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 21840000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BDX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-09-30, from SEC XBRL companyfacts for BECTON-DICKINSON (BDX).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.04992975699544888,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BDX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Three-year compound annual revenue growth computed as (21840000000/18870000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-09-30 to period ended 2025-09-30.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.11808608058608058,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BDX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Operating income 2579000000 divided by revenue 21840000000, both for the period ended 2025-09-30, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "fcf_margin specifically cannot be computed for BECTON-DICKINSON: operating_cashflow_fy in data/market/BDX.json fundamentals is stale since 2021-09-30 (net_income_fy and revenue_fy report through 2025-09-30), so neither operating_cash_flow_to_net_income nor fcf_margin can rest on a current same-period operating cash flow figure."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "cash_conversion cannot be computed for BECTON-DICKINSON: operating_cashflow_fy in data/market/BDX.json fundamentals is stale since 2021-09-30 (net_income_fy and revenue_fy report through 2025-09-30), so neither operating_cash_flow_to_net_income nor fcf_margin can rest on a current same-period operating cash flow figure."
+     },
+     "net_debt_to_ebitda": {
+      "value": 2.5397738543939696,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BDX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Net debt 12803000000 (total debt 13511000000 as of 2026-06-30 less cash 708000000 as of 2026-06-30) divided by an EBITDA proxy 5041000000 (operating income 2579000000 plus depreciation 2462000000, both for the period ended 2025-09-30), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 8,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BDX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Piotroski F-score 8 (state STRONG) computed over companyfacts statements in data/market/BDX.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.732,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BDX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Beneish M-score -2.732 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/BDX.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 68952794250.06,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BDX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Market capitalization 68952794250.06 computed in data/market/BDX.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 3.157179223903846,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BDX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+      "basis": "Market capitalization 68952794250.06 divided by fiscal year 2025-09-30 revenue 21840000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr not usable for BECTON-DICKINSON: data/market/BDX.json quality.derived.fcf (3887000000.0) is built from a stale operating_cashflow_fy figure (last reported 2021-09-30) combined with a current capex figure, so the base free cash flow is not a current, same-period statement."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/BDX.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/BDX.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "WEST-PHARMACEUTICAL-SERVICES",
+    "listing_id": "NYSE-WST",
+    "ticker": "WST",
+    "market_ticker": "WST",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "autoinjector-and-pen-platforms",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/WEST-PHARMACEUTICAL-SERVICES.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "West Pharmaceutical Services, Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 105770,
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "West's SmartDose and SelfDose wearable/patient-controlled injector platforms are a device-layer exposure separate from West's own elastomer-closure role on this chain (position 5, elastomer-closure-components), marketed by West directly against the GLP-1 self-injection opportunity; evidence corrected to VERIFIED and re-confirmed by a current PASS fresh-context placement audit (data/mappings/glp1-fill-finish.json placement_audits[], 2026-09-04) after an earlier FAIL on a since-superseded citation. Seated once, under this higher-priority money-corner link, per method section 6's dedup rule; West's elastomer-closure-components placement is the same issuer's second, lower-priority exposure on this map and is not double-counted.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "West does not disclose a GLP-1- or device-platform-specific revenue percentage separate from its elastomer-components business; SmartDose/SelfDose sit inside its diversified Proprietary Products segment.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 3074100000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WST.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for WEST-PHARMACEUTICAL-SERVICES (WST).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.021163814176677676,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WST.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Three-year compound annual revenue growth computed as (3074100000/2886900000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.19026707003675872,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WST.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Operating income 584900000 divided by revenue 3074100000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.15253244852151848,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WST.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Free cash flow margin: operating cash flow 754800000 less capital expenditure 285900000, divided by revenue 3074100000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.5288636823982176,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WST.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Operating cash flow 754800000 divided by net income 493700000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": -0.30794658204416236,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WST.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Net debt -232900000 (total debt 202900000 as of 2026-06-30 less cash 435800000 as of 2026-06-30) divided by an EBITDA proxy 756300000 (operating income 584900000 plus depreciation 171400000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 8,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/WST.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Piotroski F-score 8 (state STRONG) computed over companyfacts statements in data/market/WST.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.791,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/WST.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Beneish M-score -2.791 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/WST.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 24629760000.0,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/WST.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Market capitalization 24629760000.0 computed in data/market/WST.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 8.012023031131063,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/WST.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Market capitalization 24629760000.0 divided by fiscal year 2025-12-31 revenue 3074100000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.3296,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/WST.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000105770.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 468900000.0, enterprise_value 24396860000.0, from data/market/WST.json quality.reverse_dcf."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/WST.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/WST.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "GERRESHEIMER",
+    "listing_id": "XETRA-GXI",
+    "ticker": "GXI",
+    "market_ticker": "GXI.DE",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "autoinjector-and-pen-platforms",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/GERRESHEIMER.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "Gerresheimer AG",
+    "exchange": "Xetra Frankfurt",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Gerresheimer's Gx Inbeneo autoinjector is a proprietary, cartridge-based platform purpose-built for high-viscosity biologic self-administration, a device-layer exposure separate from Gerresheimer's ready-to-use-containment-formats role at position 6 on this chain; evidence corrected to VERIFIED and re-confirmed by a current PASS fresh-context placement audit (data/mappings/glp1-fill-finish.json placement_audits[], 2026-09-04) after an earlier FAIL on a since-superseded citation. Seated once, under this higher-priority money-corner link, per method section 6's dedup rule; the ready-to-use-containment-formats placement is Gerresheimer's second, lower-priority exposure on this map and is not double-counted.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Gerresheimer does not disclose a GLP-1- or autoinjector-specific revenue percentage separate from its containment-formats business.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 2320885000.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-11-30, from the yfinance-statements vendor statements for GERRESHEIMER (GXI-DE).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.08498918469287808,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Three-year compound annual revenue growth computed as (2320885000.0/1817094000.0)**(1/3)-1 from the yfinance-statements revenue series, period ended 2022-11-30 to period ended 2025-11-30.",
+      "official_source": false
+     },
+     "operating_margin": {
+      "value": -0.030500864971767235,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Operating income -70789000.0 divided by revenue 2320885000.0, both for the period ended 2025-11-30, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "fcf_margin": {
+      "value": -0.04256867531135752,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Free cash flow margin: operating cash flow 209526000.0 less capital expenditure 308323000.0, divided by revenue 2320885000.0, all for the period ended 2025-11-30, from the yfinance-statements series.",
+      "official_source": false
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_cash_flow_to_net_income is not computed for GERRESHEIMER: net income for the period ended 2025-11-30 was -320316000.0 (negative), so the ratio of operating cash flow to net income would not be a meaningful cash-conversion read; fcf_margin is used instead below."
+     },
+     "net_debt_to_ebitda": {
+      "value": 4.42299146946307,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Net debt 1996702000.0 (total debt 2172915000.0 as of 2025-11-30 less cash 176213000.0 as of 2025-11-30) divided by an EBITDA proxy 451437000.0 (operating income -70789000.0 plus depreciation 522226000.0, both for the period ended 2025-11-30), from the yfinance-statements series.",
+      "official_source": false
+     },
+     "piotroski": {
+      "value": 4,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Piotroski F-score 4 (state MIDDLING) computed over yfinance-statements statements in data/market/GXI-DE.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": false
+     },
+     "beneish_state": {
+      "value": -2.696,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Beneish M-score -2.696 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/GXI-DE.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": false
+     },
+     "market_cap": {
+      "value": 976791200.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Market capitalization 976791200.0 computed in data/market/GXI-DE.json quality.derived.market_cap from the yfinance-statements share count times the repo's own market-plane close.",
+      "official_source": false
+     },
+     "price_to_sales": {
+      "value": 0.42087014220868335,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://finance.yahoo.com/quote/GXI.DE/financials",
+      "basis": "Market capitalization 976791200.0 divided by fiscal year 2025-11-30 revenue 2320885000.0.",
+      "official_source": false
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr not usable for GERRESHEIMER: data/market/GXI-DE.json quality.reverse_dcf state is NOT_APPLICABLE (base-year free cash flow is not positive; a growth rate on a negative base is meaningless)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/GXI-DE.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/GXI-DE.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "HALOZYME-THERAPEUTICS",
+    "listing_id": "NASDAQ-HALO",
+    "ticker": "HALO",
+    "market_ticker": "HALO",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "autoinjector-and-pen-platforms",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/HALOZYME-THERAPEUTICS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Halozyme Therapeutics, Inc.",
+    "exchange": "Nasdaq",
+    "tier": "T1",
+    "cik": 1159036,
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Halozyme owns the Antares autoinjector platform (acquired with Antares Pharma), a high-volume, licensable autoinjector technology used across marketed injectable products and available for licensing into further high-volume injectables including GLP-1s; evidence corrected to VERIFIED and re-confirmed by a current PASS fresh-context placement audit (data/mappings/glp1-fill-finish.json placement_audits[], 2026-09-04) after an earlier FAIL when the cited press release could not be reached live. Halozyme's sole placement on this chain is this one link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Halozyme does not disclose a GLP-1- or autoinjector-specific revenue percentage; Antares device royalties and ENHANZE royalties are reported together.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 1396611000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HALO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for HALOZYME-THERAPEUTICS (HALO).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.28376362610175665,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HALO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Three-year compound annual revenue growth computed as (1396611000/660116000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.3358172032154981,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HALO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Operating income 469006000 divided by revenue 1396611000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.46153724981401406,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HALO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Free cash flow margin: operating cash flow 651558000 less capital expenditure 6970000, divided by revenue 1396611000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.056107974716699,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HALO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Operating cash flow 651558000 divided by net income 316889000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 3.693931035918359,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/HALO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Net debt 1774546000 (total debt 1937684000 as of 2026-06-30 less cash 163138000 as of 2026-06-30) divided by an EBITDA proxy 480395000 (operating income 469006000 plus depreciation 11389000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 5,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/HALO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Piotroski F-score 5 (state MIDDLING) computed over companyfacts statements in data/market/HALO.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.56,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/HALO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Beneish M-score -2.56 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/HALO.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 12941297250.0,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/HALO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Market capitalization 12941297250.0 computed in data/market/HALO.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 9.266214608076265,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/HALO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Market capitalization 12941297250.0 divided by fiscal year 2025-12-31 revenue 1396611000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.113,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/HALO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001159036.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 644588000.0, enterprise_value 14715843250.0, from data/market/HALO.json quality.reverse_dcf."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/HALO.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/HALO.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
   ],
-  "taste_filtered": [],
-  "health": {
-    "tickers_examined": 14,
-    "rows_written": 5,
-    "fully_scored": 0,
-    "pending": 0,
-    "errors": 0,
-    "rows_superseded": 0,
-    "rows_with_quality_gaps": 5,
-    "links_worked": 13,
-    "links_total": 13,
-    "target_links_covered": 5,
-    "money_corner_links_total": 1,
-    "money_corner_links_covered": 0,
-    "choke_point_links_total": 3,
-    "choke_point_links_covered": 0,
-    "quotes_verified": 0,
-    "distinct_issuers": 5,
-    "profiles_available_repo_wide": 168,
-    "admissible_placements_all_verified_evidence": 5,
-    "admissible_but_unprofiled_issuers": 0,
-    "admissible_profiled_but_blocked_by_evidence_tier": 3,
-    "links_with_zero_mapped_placements": 3,
-    "placement_audits_reviewed": 4,
-    "placement_audits_pass": 1,
-    "placement_audits_fail": 3,
-    "rows_blocked_by_gate_not_evidence": 1,
-    "admissible_profiled_and_seated": 5,
-    "admissible_profiled_but_blocked_by_gate_defect": 1
-  },
-  "notes": [],
-  "confidence_audit": {
-    "verified": 6,
-    "inferred": 26,
-    "speculative": 0,
-    "null": 28
-  },
-  "changelog": [
-    {
-      "ts": "2026-09-04T18:44:43Z",
-      "by": "sieve-profiler",
-      "change": "First run screen glp1-fill-finish (chain-level, scenario_id null). Built the per-link universe across all 13 links under audit_scope PLACEMENT (mapping has no fresh-context census audit at all: status ACTIVE, audit null). Of 16 placements across 14 mapped issuers, 5 carry all-VERIFIED evidence (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK) and 11 carry INFERRED-only evidence (WEST-PHARMACEUTICAL-SERVICES x2, GERRESHEIMER x2, STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, BECTON-DICKINSON, HALOZYME-THERAPEUTICS). Of the 14 mapped issuers, exactly 4 have a COMPLETE O2 profile (BECTON-DICKINSON, GERRESHEIMER, HALOZYME-THERAPEUTICS, WEST-PHARMACEUTICAL-SERVICES) and all four sit only on INFERRED-evidence placements; the 5 all-VERIFIED placements have no profile on disk. The two admissibility bars (evidence tier, profile availability) do not overlap on any of the 14 issuers this run, so 0 rows are seatable on any of the 13 links, including the single money-corner link (autoinjector-and-pen-platforms) and all 3 CHOKE_POINT links. Every link's disposition is documented in universe_note as searched-and-empty with a stated reason; 5 admissible-but-unprofiled issuers and the money-corner evidence-tier block are named in data_gaps. Deferred to backlog (flagged via spawn_task, not written to tasks/backlog.md: this run's write scope is data/screens/glp1-fill-finish.json only): profile the 5 VERIFIED-evidence issuers; fresh-context placement-audit the 4 money-corner/CHOKE_POINT profiled issuers; run universe on peptide-api-supply."
+  "second_order": [
+   {
+    "issuer_id": "DR-REDDYS-LABORATORIES",
+    "listing_id": "NYSE-RDY",
+    "ticker": "RDY",
+    "market_ticker": "RDY",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "generic-and-biosimilar-glp1-entrants",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/DR-REDDYS-LABORATORIES.json",
+    "data_tier": "T2",
+    "audit_scope": "PLACEMENT",
+    "name": "Dr. Reddy's Laboratories Ltd.",
+    "exchange": "NYSE",
+    "tier": "T2",
+    "cik": 1135951,
+    "money_corner": false,
+    "link_heat_verdict": "EMERGING",
+    "thesis_1line": "Sole mapped placement on the generic-entrant link: launched the first generic semaglutide injection authorized in a G7 market (Canada, 2026-05-15, Form 6-K exhibit, VERIFIED), a second-order beneficiary of the originator's eventual patent cliff rather than a supplier into current GLP-1 fill-finish capacity. Link scored EMERGING; Piotroski 3/9 (WEAK) is the weakest quality read of any name profiled on this chain.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "The launch press release announces market authorization and dose strengths, not a revenue percentage; Dr. Reddy's does not break out generic-semaglutide revenue separately in the fetched fundamentals.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
     },
-    {
-      "ts": "2026-09-04T23:10:00Z",
-      "by": "sieve-profiler",
-      "change": "Second run screen glp1-fill-finish (chain-level, scenario_id null), triggered by data/mappings/glp1-fill-finish.json (commit d3ee61d) gaining 4 fresh-context placement_audits[] entries on autoinjector-and-pen-platforms (the money corner): BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. Excluded WEST/GERRESHEIMER/HALOZYME from further consideration on this link: each now carries a failed fresh-context re-check of its cited role claim (cited source does not state the claimed device attributes or could not be reached), on top of the pre-existing INFERRED-only evidence-tier block. Built and tested BECTON-DICKINSON's exact campaign-v1 row (COMPLETE O2 T1 profile, audit_scope PLACEMENT naming the placement audit) against tools/check_screen.py directly: it FAILS, because check_screen.py's `_placement_admissible` reads only the placement's own `evidence` array tag on the mapping (still INFERRED; the --placement audit contract writes only audit/status/changelog/placement_audits, never the evidence tag) and does not consult `placement_audits[]`, unlike check_analyst.py's deepdive gate which already does since d3ee61d. Per CLAUDE.md postlude 1f ('must pass; never commit around it'), did not force the row through; re-confirmed against the unmodified checked-in check_screen.py (this run's worktree is a detached checkout of origin/main). Net result: still 0 rows across all 13 links this run, but the money-corner link's single remaining candidate (BD) is now blocked purely by a gate that has not yet been extended to a mechanism (placement_audits) it already trusts for deepdive, not by an evidence gap; the other 3 placements on this link are now correctly excluded on two independent grounds. Checked data/companies/ for the 5 issuers named as a possible landed batch 8 (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK): none exist on disk, so the 5 links they would open (pharma-glass-tubing, primary-containment-converters, device-assembly-automation, generic-and-biosimilar-glp1-entrants, glp1-demand-anchor) remain admissible-but-unprofiled, unchanged from the first run. Flagged the check_screen.py/placement_audits gap as a background task rather than fixed here (tools/ is outside this run's write scope)."
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 325535000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "Revenue for the fiscal year ended 2025-03-31 as reported to SEC XBRL companyfacts for CIK 1135951 (Dr. Reddy's Laboratories Ltd., ifrs-full taxonomy, INR).",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.14938,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "Three-year compound annual revenue growth computed as (325535000000 / 214391000000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-03-31 to FY2025-03-31, INR.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.220692,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "Operating income 71843000000 divided by revenue 325535000000 for FY2025-03-31, both INR, from companyfacts.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.058132,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "Free cash flow margin: operating cash flow 46428000000 less capex 27504000000, divided by revenue 325535000000, all INR, FY2025-03-31, from companyfacts.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 0.81104,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "Operating cash flow 46428000000 divided by net income 57245000000, both FY2025-03-31, INR, from companyfacts.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts.fundamentals.cash is null for CIK 1135951 (not tagged for this IFRS 20-F filer); net debt cannot be computed without a cash figure even though long_term_debt_fy (8721000000 INR at 2025-03-31) is available. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+     },
+     "piotroski": {
+      "value": 3,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "data/market/RDY.json quality.piotroski score 3 of 9, state WEAK, computed over sec-companyfacts statements, 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/RDY.json quality.beneish state is PENDING_DATA: only 1 common fiscal period (2018-03-31) across the 12 year-over-year inputs. (canonical field beneish_state: beneish not available.)"
+     },
+     "market_cap": {
+      "value": 10016687771.25,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/RDY.json quality (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001135951.json",
+      "basis": "Market capitalization 10016687771.25 USD = companyfacts diluted share count 832642375 (FY2025-03-31) multiplied by the ADR close 12.03 USD of 2026-09-04 (data/market/RDY.json quality.price_used, repo market plane).",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "market_cap is computed in USD (the NYSE ADR trading currency) while revenue and net income are reported in INR (statement_currency); a price-to-sales or price-to-earnings ratio would mix currencies without a sourced FX conversion, so this stays NULL rather than computing a mixed-currency figure. (canonical field price_to_sales: price to sales not available.)"
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/RDY.json quality.reverse_dcf state is PENDING_DATA: missing enterprise_value. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+     }
     },
-    {
-      "ts": "2026-09-04T19:20:00Z",
-      "by": "sieve-profiler",
-      "change": "Third pass, same day: after committing the second run's finding (0 rows, BECTON-DICKINSON blocked purely by the check_screen.py/placement_audits gap documented in the prior changelog entry), a rebase onto origin/main pulled in 'run profile --campaign CAMP-20260901-01' batch 8, which profiled all 5 of the previously unprofiled, all-VERIFIED-evidence issuers named in data_gaps: CORNING (pharma-glass-tubing), STEVANATO-GROUP (primary-containment-converters), ATS-CORPORATION (device-assembly-automation), DR-REDDYS-LABORATORIES (generic-and-biosimilar-glp1-entrants), NOVO-NORDISK (glp1-demand-anchor); all landed COMPLETE O2. Re-checked every link against the current state on disk before finalizing: all 5 are ACTIVE placements with all-VERIFIED evidence and a matching COMPLETE O2 profile, so all 5 are admissible under audit_scope PLACEMENT and are now seated (picks_and_shovels: CORNING, STEVANATO-GROUP, ATS-CORPORATION; second_order: DR-REDDYS-LABORATORIES, a patent-cliff generic entrant rather than a supply-chain input; pure_play: NOVO-NORDISK, the chain's demand anchor). Fundamentals in each row are copied verbatim from the issuer's own COMPLETE profile metrics (already sourced and dated there), not re-derived. Stevanato's theme_revenue_exposure carries the same VERIFIED quote already in the mapping placement evidence (GLP-1 approx. 21% to 22% of Q1 2026 revenue); Novo Nordisk's is computed as Ozempic plus Wegovy FY2025 sales divided by the profile's own sourced total FY2025 revenue, both from the same VERIFIED annual-report filing, tagged INFERRED as a derived figure. No earnings nuggets written: data/edgar/docs/ carries no document for GLW, STVN, ATS or RDY. Net result: 5 of 13 links now seated (up from 0), autoinjector-and-pen-platforms and both remaining CHOKE_POINT links stay empty for the reasons already on record. Ran tools/check_screen.py after seating: OK (79/79 campaign rows examined, 21 placement-scoped, 111/111 CIK agreement, 5 links attributed including the money-corner link named in universe_note)."
-    }
-  ]
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/RDY.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "method section 6: T2/T3 PCS is COVERAGE-THIN by construction, never a blocker and never estimated."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "hedge": []
+ },
+ "data_gaps": [
+  "Resolved this run (fourth pass): the money-corner link autoinjector-and-pen-platforms is now fully seated for every admissible, profiled name (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS), closed by tools/check_screen.py commit 5e5f3b5 (placement_audits[] admission path) plus Atlas's evidence correction on data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360).",
+  "8 admissible-but-unprofiled issuers remain, all with all-VERIFIED mapping evidence and no blocker except a missing profile: YPSOMED-HOLDING (autoinjector-and-pen-platforms, the money corner's 5th and most nearly pure-play name per the chain's own bottleneck note); STERIS, DANAHER, SKAN-GROUP (aseptic-filling-and-isolator-equipment, CHOKE_POINT, UNDISCOVERED); THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP (sterile-fill-finish-capacity, CHOKE_POINT, UNDISCOVERED). Profiling any of these 8 via `run profile <TICKER>` or `run profile --campaign CAMP-20260901-01` would seat a row on this run's remaining two open CHOKE_POINT/UNDISCOVERED links without any further evidence work; this is the highest-leverage next step for this chain.",
+  "peptide-api-supply (HIGH criticality, dated 18-36 month lead time) still has zero mapped placements despite carrying example_tickers on the chain (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO); needs a `run universe glp1-fill-finish` amendment. Note LONZA-GROUP (LONN.SW) is now mapped on sterile-fill-finish-capacity, a different link from peptide-api-supply, so this gap is unchanged by this run's census growth.",
+  "elastomer-closure-components and ready-to-use-containment-formats are correctly empty by the method section 6 dedup rule (their sole candidates, WEST-PHARMACEUTICAL-SERVICES and GERRESHEIMER, are seated once at the higher-priority money-corner link instead), not by a gap; recorded here so a future run does not mistake this for unsearched links."
+ ],
+ "taste_filtered": [],
+ "health": {
+  "tickers_examined": 17,
+  "rows_written": 9,
+  "fully_scored": 0,
+  "pending": 0,
+  "errors": 0,
+  "rows_superseded": 0,
+  "rows_with_quality_gaps": 9,
+  "links_worked": 13,
+  "links_total": 13,
+  "target_links_covered": 6,
+  "money_corner_links_total": 1,
+  "money_corner_links_covered": 1,
+  "choke_point_links_total": 3,
+  "choke_point_links_covered": 0,
+  "quotes_verified": 0,
+  "distinct_issuers": 9,
+  "profiles_available_repo_wide": 168,
+  "admissible_placements_all_verified_evidence": 18,
+  "admissible_placements_via_placement_audit": 1,
+  "admissible_but_unprofiled_issuers": 8,
+  "admissible_profiled_but_blocked_by_evidence_tier": 0,
+  "links_with_zero_mapped_placements": 3,
+  "placement_audits_reviewed": 4,
+  "placement_audits_pass": 4,
+  "placement_audits_fail": 0,
+  "rows_blocked_by_gate_not_evidence": 0,
+  "admissible_profiled_and_seated": 9,
+  "admissible_profiled_but_blocked_by_gate_defect": 0
+ },
+ "notes": [],
+ "confidence_audit": {
+  "verified": 9,
+  "inferred": 60,
+  "speculative": 2,
+  "null": 46
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-04T18:44:43Z",
+   "by": "sieve-profiler",
+   "change": "First run screen glp1-fill-finish (chain-level, scenario_id null). Built the per-link universe across all 13 links under audit_scope PLACEMENT (mapping has no fresh-context census audit at all: status ACTIVE, audit null). Of 16 placements across 14 mapped issuers, 5 carry all-VERIFIED evidence (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK) and 11 carry INFERRED-only evidence (WEST-PHARMACEUTICAL-SERVICES x2, GERRESHEIMER x2, STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, BECTON-DICKINSON, HALOZYME-THERAPEUTICS). Of the 14 mapped issuers, exactly 4 have a COMPLETE O2 profile (BECTON-DICKINSON, GERRESHEIMER, HALOZYME-THERAPEUTICS, WEST-PHARMACEUTICAL-SERVICES) and all four sit only on INFERRED-evidence placements; the 5 all-VERIFIED placements have no profile on disk. The two admissibility bars (evidence tier, profile availability) do not overlap on any of the 14 issuers this run, so 0 rows are seatable on any of the 13 links, including the single money-corner link (autoinjector-and-pen-platforms) and all 3 CHOKE_POINT links. Every link's disposition is documented in universe_note as searched-and-empty with a stated reason; 5 admissible-but-unprofiled issuers and the money-corner evidence-tier block are named in data_gaps. Deferred to backlog (flagged via spawn_task, not written to tasks/backlog.md: this run's write scope is data/screens/glp1-fill-finish.json only): profile the 5 VERIFIED-evidence issuers; fresh-context placement-audit the 4 money-corner/CHOKE_POINT profiled issuers; run universe on peptide-api-supply."
+  },
+  {
+   "ts": "2026-09-04T23:10:00Z",
+   "by": "sieve-profiler",
+   "change": "Second run screen glp1-fill-finish (chain-level, scenario_id null), triggered by data/mappings/glp1-fill-finish.json (commit d3ee61d) gaining 4 fresh-context placement_audits[] entries on autoinjector-and-pen-platforms (the money corner): BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. Excluded WEST/GERRESHEIMER/HALOZYME from further consideration on this link: each now carries a failed fresh-context re-check of its cited role claim (cited source does not state the claimed device attributes or could not be reached), on top of the pre-existing INFERRED-only evidence-tier block. Built and tested BECTON-DICKINSON's exact campaign-v1 row (COMPLETE O2 T1 profile, audit_scope PLACEMENT naming the placement audit) against tools/check_screen.py directly: it FAILS, because check_screen.py's `_placement_admissible` reads only the placement's own `evidence` array tag on the mapping (still INFERRED; the --placement audit contract writes only audit/status/changelog/placement_audits, never the evidence tag) and does not consult `placement_audits[]`, unlike check_analyst.py's deepdive gate which already does since d3ee61d. Per CLAUDE.md postlude 1f ('must pass; never commit around it'), did not force the row through; re-confirmed against the unmodified checked-in check_screen.py (this run's worktree is a detached checkout of origin/main). Net result: still 0 rows across all 13 links this run, but the money-corner link's single remaining candidate (BD) is now blocked purely by a gate that has not yet been extended to a mechanism (placement_audits) it already trusts for deepdive, not by an evidence gap; the other 3 placements on this link are now correctly excluded on two independent grounds. Checked data/companies/ for the 5 issuers named as a possible landed batch 8 (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK): none exist on disk, so the 5 links they would open (pharma-glass-tubing, primary-containment-converters, device-assembly-automation, generic-and-biosimilar-glp1-entrants, glp1-demand-anchor) remain admissible-but-unprofiled, unchanged from the first run. Flagged the check_screen.py/placement_audits gap as a background task rather than fixed here (tools/ is outside this run's write scope)."
+  },
+  {
+   "ts": "2026-09-04T19:20:00Z",
+   "by": "sieve-profiler",
+   "change": "Third pass, same day: after committing the second run's finding (0 rows, BECTON-DICKINSON blocked purely by the check_screen.py/placement_audits gap documented in the prior changelog entry), a rebase onto origin/main pulled in 'run profile --campaign CAMP-20260901-01' batch 8, which profiled all 5 of the previously unprofiled, all-VERIFIED-evidence issuers named in data_gaps: CORNING (pharma-glass-tubing), STEVANATO-GROUP (primary-containment-converters), ATS-CORPORATION (device-assembly-automation), DR-REDDYS-LABORATORIES (generic-and-biosimilar-glp1-entrants), NOVO-NORDISK (glp1-demand-anchor); all landed COMPLETE O2. Re-checked every link against the current state on disk before finalizing: all 5 are ACTIVE placements with all-VERIFIED evidence and a matching COMPLETE O2 profile, so all 5 are admissible under audit_scope PLACEMENT and are now seated (picks_and_shovels: CORNING, STEVANATO-GROUP, ATS-CORPORATION; second_order: DR-REDDYS-LABORATORIES, a patent-cliff generic entrant rather than a supply-chain input; pure_play: NOVO-NORDISK, the chain's demand anchor). Fundamentals in each row are copied verbatim from the issuer's own COMPLETE profile metrics (already sourced and dated there), not re-derived. Stevanato's theme_revenue_exposure carries the same VERIFIED quote already in the mapping placement evidence (GLP-1 approx. 21% to 22% of Q1 2026 revenue); Novo Nordisk's is computed as Ozempic plus Wegovy FY2025 sales divided by the profile's own sourced total FY2025 revenue, both from the same VERIFIED annual-report filing, tagged INFERRED as a derived figure. No earnings nuggets written: data/edgar/docs/ carries no document for GLW, STVN, ATS or RDY. Net result: 5 of 13 links now seated (up from 0), autoinjector-and-pen-platforms and both remaining CHOKE_POINT links stay empty for the reasons already on record. Ran tools/check_screen.py after seating: OK (79/79 campaign rows examined, 21 placement-scoped, 111/111 CIK agreement, 5 links attributed including the money-corner link named in universe_note)."
+  },
+  {
+   "ts": "2026-09-06T15:52:23Z",
+   "by": "sieve-profiler",
+   "change": "Fourth run screen glp1-fill-finish (chain-level, scenario_id null), authorized by Ron 2026-09-04 ('everything now'), triggered by two upstream changes since the third pass: tools/check_screen.py commit 5e5f3b5 extended `_placement_admissible` to also accept a current PASS `placement_audits[]` entry via `check_map.placement_audit_for`, and Atlas corrected data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360) to raise WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS from INFERRED to VERIFIED evidence on autoinjector-and-pen-platforms after their earlier FAILed fresh-context role check, and refreshed all 4 placement_audits[] entries on that link (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS) to PASS with digests current against the corrected placements. The census also grew from 16 to 19 placements (YPSOMED-HOLDING on autoinjector-and-pen-platforms; SKAN-GROUP on aseptic-filling-and-isolator-equipment; LONZA-GROUP on sterile-fill-finish-capacity, all all-VERIFIED). Re-verified every placement's admissibility directly against tools/check_screen.py::_placement_admissible and tools/check_map.py::placement_audit_for before writing any row (not by trusting prior notes): all 19 of 19 placements are now admissible on the evidence plane. Seated 4 new picks_and_shovels rows on the money-corner link autoinjector-and-pen-platforms (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS), all COMPLETE O2 profiles already on disk, fundamentals copied verbatim from each profile's own sourced metrics. WEST and GERRESHEIMER each also hold a second mapped placement (elastomer-closure-components, ready-to-use-containment-formats respectively); per method section 6 they are seated once under this higher-priority money-corner link with the secondary link named in thesis_1line, not written as a duplicate row. No earnings nuggets: data/edgar/docs/ carries no document for BDX, WST, GXI or HALO. Net result: 5 rows -> 9 rows, 5/13 -> 6/13 links covered, the money-corner link goes from 0/4 to 4/4 of its profiled-admissible names seated (YPSOMED-HOLDING is the 5th, admissible but unprofiled). The two remaining CHOKE_POINT/UNDISCOVERED links (aseptic-filling-and-isolator-equipment, sterile-fill-finish-capacity) are now blocked purely on profile availability (8 admissible-but-unprofiled issuers total across the chain: YPSOMED-HOLDING, STERIS, DANAHER, SKAN-GROUP, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP), not on evidence or on a gate mechanism. Ran tools/check_screen.py after seating: see postlude result."
+  }
+ ]
 }
