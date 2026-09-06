@@ -1,6 +1,6 @@
 {
  "ticker": "DKNG",
- "fetched_at": "2026-09-04T02:06:15.873247+00:00",
+ "fetched_at": "2026-09-06T15:22:02.757403+00:00",
  "tier": "T1",
  "cik": 1883685,
  "price_status": "AGREED",
@@ -2252,10 +2252,18 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 1883685,
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-06",
   "taxonomy": "us-gaap",
   "statement_currency": "USD",
   "revenue_fy": [
+   [
+    "2020-12-31",
+    614532000
+   ],
+   [
+    "2021-12-31",
+    1296025000
+   ],
    [
     "2022-12-31",
     2240461000
@@ -2339,7 +2347,12 @@
     983882000
    ]
   ],
-  "total_debt": null,
+  "total_debt": [
+   [
+    "2026-06-30",
+    1857537000
+   ]
+  ],
   "operating_income_fy": [
    [
     "2020-12-31",
@@ -2710,28 +2723,46 @@
     495903000
    ]
   ],
+  "long_term_debt_fy": [
+   [
+    "2025-12-31",
+    1860511000
+   ]
+  ],
+  "concept_hints": {
+   "gross_profit": [
+    "DeferredTaxAssetsGross (2025-12-31)",
+    "IntangibleAssetsGrossExcludingGoodwill (2025-12-31)",
+    "PropertyPlantAndEquipmentGross (2025-12-31)",
+    "ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodGross (2025-12-31)",
+    "FiniteLivedIntangibleAssetsGross (2024-12-31)"
+   ],
+   "inventory": []
+  },
   "coverage": {
-   "annual_fields_found": 17,
+   "annual_fields_found": 18,
    "annual_fields_attempted": 20,
    "missing": [
     "gross_profit",
-    "inventory",
-    "long_term_debt"
+    "inventory"
    ]
   }
  },
  "quality": {
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-06",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-09-04",
+  "fundamentals_as_of": "2026-09-06",
   "piotroski": {
    "score": null,
    "state": "PENDING_DATA",
    "missing": [
-    "long_term_debt_fy"
+    "only 1 common fiscal period(s) across the 9 inputs; the change legs need at least 2"
    ],
-   "inputs_found": 8,
+   "inputs_found": 9,
    "inputs_needed": 9,
+   "common_periods": [
+    "2025-12-31"
+   ],
    "proxies": {
     "shares": "share-count increase clipped at zero; companyfacts lacks reliable issuance proceeds"
    }
@@ -2740,10 +2771,13 @@
    "score": null,
    "state": "PENDING_DATA",
    "missing": [
-    "long_term_debt_fy"
+    "only 1 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio"
    ],
-   "inputs_found": 11,
-   "inputs_needed": 12
+   "inputs_found": 12,
+   "inputs_needed": 12,
+   "common_periods": [
+    "2025-12-31"
+   ]
   },
   "altman": {
    "score": 1.28,
@@ -2752,11 +2786,17 @@
    "inputs_needed": 8
   },
   "reverse_dcf": {
-   "implied_fcf_cagr": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "enterprise_value"
-   ],
+   "implied_fcf_cagr": 0.0891,
+   "state": "SOLVED",
+   "base_fcf": 647503000.0,
+   "enterprise_value": 13400164780.0,
+   "implied_by_horizon": {
+    "5": 0.0891,
+    "7": 0.0729,
+    "10": 0.061
+   },
+   "horizon_spread": 0.0281,
+   "horizon_note": "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon shows the same solve over other explicit-period lengths; where the spread is wide, a gap against the headline number is a statement about the horizon convention as much as about the price, and a dive must say which it means.",
    "assumptions": {
     "discount_rate": 0.09,
     "terminal_growth": 0.025,
@@ -2768,10 +2808,10 @@
   "derived": {
    "fcf": 647503000.0,
    "market_cap": 12526509780.0,
-   "enterprise_value": null
+   "enterprise_value": 13400164780.0
   },
   "health": {
-   "statement_fields_found": 17,
+   "statement_fields_found": 18,
    "statement_fields_needed": 20,
    "periods_available": [
     "2019-12-31",
