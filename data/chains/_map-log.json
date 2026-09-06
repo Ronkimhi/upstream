@@ -250,6 +250,11 @@
    "ts": "2026-09-04T03:55:32Z",
    "by": "atlas-cartographer",
    "text": "ESCALATION for Ron, not auto-applied (found while reviewing tibet-mega-dam, tools/check_campaign.py is outside my lane to edit): _actual_theme_stage's DEPTH branch computes `scope = links_in_scope(chain, targets)` and then does `if not isinstance(mapping, dict) or not scope: return stage` before checking coverage. When a theme's chain has zero money-corner links and zero UNDISCOVERED-verdict links, scope is the empty set, and the empty check short-circuits the theme at SCENARIOS forever, no matter how complete its mapping actually is. tibet-mega-dam is exactly this case: mapping status COMPLETE, PASS audit, every one of 11 links TARGET_MET or EXHAUSTED, yet check_campaign.py and campaign_calibrate.py both leave the theme reading SCENARIOS because scope is falsy. An empty in-scope set should read as vacuously satisfied (there is nothing DEPTH owes this theme's map beyond what full coverage already gives it), not as not-yet-attempted. This is very likely what generated the 'no COMPLETE issuer mapping for this chain' premise that started this run: the dashboard reads the stuck stage, not the mapping file. Suggested fix for whoever touches tools/check_campaign.py next: treat `not scope` as MAPPED (vacuous truth) when `mapping.get('status') == 'COMPLETE'` or coverage is otherwise closed, rather than returning early."
+  },
+  {
+   "ts": "2026-09-06T15:48:58Z",
+   "by": "atlas-cartographer",
+   "text": "run universe ai-infrastructure (2026-09-06): Ron asked whether Aeva Technologies, Inc. (AEVA) earns a placement on networking-optics after a viral 13-stock list. The link was already TARGET_MET at 10/10 and out of DEPTH campaign census scope; Ron directed the discretionary review. Found two dated SEC 8-K exhibits (2026-06-04, 2026-08-05) verifying Aeva launched an Optical Connectivity/Co-Packaged-Optics line and signed one hyperscaler joint-development agreement for a Near-Packaged Optics solution, deployment targeted 2H2027, production ramp 2028, no customer named, no dollar terms disclosed, and current revenue overwhelmingly unrelated automotive LiDAR. Added the issuer, listing and a PENDING (not ACTIVE) placement: real, evidenced, preserved, but not counted, because the disclosed role is a forward commitment rather than a current shipping or revenue role. Judgment principle for future runs, stated in full in the mapping's own notes[]: dated evidence of an announced or contracted future role earns PENDING; dated evidence of a currently shipping or billing role earns ACTIVE. This is not a new link archetype (it is about placement evidence strength, not link/chain structure), so it is recorded here and on the mapping rather than in _archetypes.md. Adding any row changed mapping_fingerprint's material content, so the map reopened COMPLETE -> ACTIVE for a fresh-context run universe-audit ai-infrastructure to re-sign, per method 6A; that audit runs immediately after in the same landing. Also found and left alone (out of this run's mission, reported separately): the mapping's confidence_audit.verified (77) does not match a direct recount of placement-evidence VERIFIED tags (78 before this edit) and this run did not attempt to explain or correct that pre-existing drift."
   }
  ],
  "confidence_audit": {
@@ -681,6 +686,12 @@
    "kind": "AMEND",
    "change": "recomputed calibration from data/ (amend)",
    "prior": "2026-09-06T15:30:52Z"
+  },
+  {
+   "ts": "2026-09-06T15:48:58Z",
+   "by": "atlas-cartographer",
+   "kind": "STAGE",
+   "change": "run universe ai-infrastructure: reviewed a discretionary, out-of-DEPTH-scope placement question (AEVA on the already TARGET_MET networking-optics link) on Ron's direct instruction. Added 1 issuer, 1 listing, 1 PENDING placement backed by two dated SEC 8-K exhibits; link_coverage unchanged (PENDING never counts); mapping status COMPLETE -> ACTIVE pending fresh-context re-audit."
   }
  ],
  "as_of": "2026-09-06",
