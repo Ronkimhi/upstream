@@ -1,9 +1,9 @@
 {
   "issuer_id": "ALBEMARLE",
   "issuer_name": "Albemarle Corporation",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-06",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-06T15:41:15Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -57,7 +57,7 @@
   },
   "business_summary": "Albemarle Corporation is a US (NYSE: ALB) specialty chemicals producer best known for lithium, but its Ketjen segment's Refining Solutions unit supplies the hydroprocessing catalysts refiners use to hit ultra-low-sulfur-diesel specification, which is the exact charge the russian-diesel-ban hydroprocessing-catalysts link measures.",
   "exposure_summary": {
-    "narrative": "Albemarle sits on the chain's money corner (hydroprocessing-catalysts, UNDISCOVERED), with a real, 10-Q-referenced role through its Ketjen/Refining Solutions unit. FY2025 companyfacts shows a net loss year (-510628000) driven by the lithium-price collapse, but positive operating cash flow (1282267000) and a near-breakeven EBITDA proxy on the catalyst-relevant balance sheet.",
+    "narrative": "Albemarle sits on the chain's money corner (hydroprocessing-catalysts, UNDISCOVERED), with a role through its Ketjen/Refining Solutions unit that the mapping's 10-Q-dated role_evidence (2025-04-30) describes as ownership. A Q2 2026 8-K on file (filed 2026-08-05, fetched 2026-09-04) discloses that Albemarle sold a 51% (controlling) stake in Ketjen's refining catalyst solutions business, announced 2026-03-02: the business is now equity-accounted, folded into Corporate, and its earnings contribution is described as expected to be immaterial post-transaction. See risks and data_gaps; this narrows the placement's money-corner exposure and the mapping's role evidence needs review against this fact. FY2025 companyfacts (predating the sale) shows a net loss year (-510628000) driven by the lithium-price collapse, but positive operating cash flow (1282267000) and a near-breakeven EBITDA proxy on the catalyst-relevant balance sheet.",
     "disclosed_revenue_exposure": {
       "pct": null,
       "tag": "NULL",
@@ -188,7 +188,8 @@
     }
   },
   "crowdedness_caveats": [
-    "Albemarle sits on a chain link scored UNDISCOVERED (see placements above), but the issuer's own stock narrative (lithium exposure) is heavily discovered; no pcs block exists locally to corroborate or refute crowdedness at the catalyst-segment level specifically."
+    "Albemarle sits on a chain link scored UNDISCOVERED (see placements above), but the issuer's own stock narrative (lithium exposure) is heavily discovered; no pcs block exists locally to corroborate or refute crowdedness at the catalyst-segment level specifically.",
+    "The UNDISCOVERED verdict and money_corner flag on this placement were set against a role description (owning Ketjen) that a later 8-K shows is now a minority equity stake; whether the link is still money-corner for Albemarle specifically, post-divestiture, is unresolved here and belongs to a chain/mapping review, not a data crowdedness read."
   ],
   "catalysts": [
     {
@@ -201,6 +202,13 @@
   ],
   "risks": [
     {
+      "claim": "Albemarle sold a 51% (controlling) stake in Ketjen's refining catalyst solutions business, announced 2026-03-02. Verbatim from the 8-K: “Following the sale of a controlling stake in Ketjen’s refining catalyst solutions business, announced on March 2, 2026, the refining catalyst business earnings are now classified as equity income and included in Corporate, as are the results of the retained Performance Catalyst Solutions (PCS) business. The adjusted EBITDA and equity income contributions from these are expected to be immaterial post transaction.” This placement's role_evidence in the mapping is a 10-Q dated 2025-04-30, before this sale, and describes Albemarle as owning the Ketjen catalyst business; that description now needs review against the divestiture.",
+      "source_name": "Albemarle Corporation Form 8-K, Q2 2026 earnings release exhibit 99.1 (accession 0000915913-26-000101)",
+      "source_date": "2026-08-05",
+      "url": "https://www.sec.gov/Archives/edgar/data/915913/000091591326000101/a2q26earningsreleaseex991.htm",
+      "tag": "VERIFIED"
+    },
+    {
       "claim": "FY2025 operating margin is negative (-7.1%) and revenue has fallen for three straight years (CAGR -11.1%) on the lithium-price collapse; the hydroprocessing-catalyst business is a small piece of a company whose consolidated financials read stressed.",
       "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ALB.json fundamentals (source sec-companyfacts)",
       "source_date": "2026-09-02",
@@ -209,8 +217,10 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-02 from data/market/ALB.json (sec-companyfacts): 12 of 12 canonical fields carry a sourced number; no canonical field is NULL.",
-    "No hydroprocessing-catalyst-segment revenue percentage is sourced for Albemarle this run; Ketjen is one of several reporting segments and companyfacts does not break out the Refining Solutions sub-unit alone."
+    "Filled 2026-09-02 from data/market/ALB.json (sec-companyfacts): 12 of 12 canonical fields carry a sourced number; no canonical field is NULL. Re-checked 2026-09-06 against the same file (fetched_at 2026-08-30T23:09:11Z, unchanged on disk): every canonical value, source and basis still matches; nothing to amend in metrics.",
+    "No hydroprocessing-catalyst-segment revenue percentage is sourced for Albemarle this run; Ketjen is one of several reporting segments and companyfacts does not break out the Refining Solutions sub-unit alone.",
+    "FY2025 companyfacts (the source behind every canonical metric field) predates the 2026-03-02 sale of a 51% stake in Ketjen's refining catalyst solutions business (see risks); a future fundamentals refetch covering FY2026 should show the equity-method treatment and Corporate-segment reclassification, and canonical metrics will need re-derivation once that period is on disk.",
+    "data/edgar/docs/ALB.json (Form 8-K, filed 2026-08-05, fetched 2026-09-04) is the only EDGAR document on disk for this issuer; no 10-K, 10-Q or Ketjen-transaction 8-K covering the sale itself is on disk, so the exact retained stake and sale proceeds are not sourced here."
   ],
   "disposition": {
     "state": "RETAIN",
@@ -241,6 +251,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01: examined and retained at O2 (NO_SCREEN_ROW_NO_HANDOFF). NULL canonical fields: none. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
+    },
+    {
+      "ts": "2026-09-06T15:41:15Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile ALB (batch re-check): re-read every canonical metric group against data/market/ALB.json and data/edgar/docs/ALB.json on disk. data/market/ALB.json is unchanged since its 2026-08-30T23:09:11Z fetch (no re-fetch under a corrected concept map has landed for this ticker as of this run); all 12 of 12 canonical fields already carried a sourced, non-NULL value and none changed. New since the last profile write: data/edgar/docs/ALB.json (Form 8-K, filed 2026-08-05, fetched 2026-09-04) discloses Albemarle sold a 51% controlling stake in Ketjen's refining catalyst solutions business, announced 2026-03-02, now equity-accounted with immaterial expected contribution. Added as a VERIFIED risk with verbatim source_excerpt, extended data_gaps and crowdedness_caveats, and updated exposure_summary.narrative to note the mapping's role_evidence (a 2025-04-30 10-Q) predates this sale. No canonical metric value, placement, listing, or opportunity_tier changed; status remains COMPLETE, tier remains O2. Flagged to a background task (not tasks/backlog.md, to avoid a shared-file land conflict during this parallel batch) for Atlas to review the mapping's placement role_evidence against the divestiture."
     }
   ],
   "selection_review": {
