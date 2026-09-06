@@ -1,0 +1,313 @@
+{
+  "ticker": "CMI",
+  "name": "Cummins Inc.",
+  "issuer_id": "CUMMINS",
+  "listing_id": "NYSE-CMI",
+  "chain_id": "minor-nsr-permits",
+  "link_id": "emissions-aftertreatment-and-catalyst",
+  "link_id_basis": "Exact match to the O1 profile's selection_basis.screen_handoff (link_id emissions-aftertreatment-and-catalyst, position 4, heat UNDISCOVERED with impact 66 / crowdedness 28 / capture 65, money_corner true) and to the picks_and_shovels bucket row in data/screens/minor-nsr-permits.json. Cummins' only ACTIVE placement on this chain is this one link, so there is no secondary placement to disambiguate. The chain's own capture_inputs.shared_bom note (data/chains/minor-nsr-permits.json) states that CAT and CMI 'appear here and at position 5' (onsite-reciprocating-gensets) and that 'a position in CAT or CMI is ONE bet across both links, never two' — read and carried through this dive's capture and independence analysis rather than ignored.",
+  "screen_ref": "data/screens/minor-nsr-permits.json",
+  "scenario_ids": [],
+  "tier": "T1",
+  "tier_basis": "US-listed SEC filer (method section 6): NYSE:CMI carries a real SEC CIK (26172); data/market/CMI.json fundamentals carry source sec-companyfacts with official_source true on every canonical ratio. price_status is SINGLE_SOURCE, not AGREED: the stockanalysis second leg answered (legs.stockanalysis.answered true) but its stored print (545.50, dated 2026-09-03) is one session behind the yfinance print this dive reasons from (558.53, dated 2026-09-04), so compare_prints correctly refuses to call it an agreement (method section 1: two prints from different sessions are not a second reading of today's close). See price_source_note. data/edgar/docs/CMI.json exists (Q2 2026 8-K EX-99 earnings release, accession 0000026172-26-000026, fetched via REQ-20260904-292), so the segment-revenue quotes below are verbatim-verified against a stored filing rather than a secondary aggregator.",
+  "clock": "COMPOUNDER",
+  "clock_basis": "Inherited from the minor-nsr-permits chain, whose own clock field reads COMPOUNDER (method section 2): a multi-year permitting-and-buildout mechanism, not a dated binary resolution. scenario_ids is empty, so nothing overrides it to EVENT. review_by is the 90-day COMPOUNDER cap from as_of (2026-09-06 to 2026-12-05), which lands after Cummins' own Q3 2026 results, expected 2026-11-02 before market open on the company's disclosed quarterly cadence (Q2 2026 reported 2026-08-04).",
+  "status": "DRAFT",
+  "created_at": "2026-09-06",
+  "updated_at": "2026-09-06",
+  "as_of": "2026-09-06",
+  "review_by": "2026-12-05",
+  "verdict": "WATCH",
+  "shadow_ref": null,
+  "entry_zone": null,
+  "no_entry_above": null,
+  "watch_triggers": [
+    {
+      "metric": "Emission Solutions product-line revenue, year-over-year growth at the next Components Segment Sales by Business disclosure (Q3 2026 10-Q or Q4/FY2026 8-K)",
+      "level": "5.60%",
+      "direction": "below",
+      "note": "5.60% is this dive's own computed H1 2026 year-over-year growth rate for the Emission Solutions line ($1,903M vs $1,802M, Cummins Q2 2026 8-K EX-99, data/edgar/docs/CMI.json, Components Segment Sales by Business table), already the slowest-growing measure in this file (behind total-company H1 growth of 6.17% and Power Systems' Q2 total-segment growth of 19.38%). A further deceleration below this dive's own trailing rate would say the specific link this placement sits on is decoupling further from any data-center tailwind rather than starting to catch up to it. Resolves at the Q3 2026 release, 2026-11-02, inside review_by."
+    },
+    {
+      "metric": "Q3 2026 consolidated net sales, year-over-year growth",
+      "level": "10%",
+      "direction": "below",
+      "note": "10% is the low end of CEO Jennifer Rumsey's own twice-raised FY2026 guidance range (8-11% raised to 10-13%, per WebSearch of sell-side coverage, 2026-09-06). Falling under the low end of the company's own guided range at the first quarterly checkpoint after the raise would say the acceleration this dive is skeptical of pricing at 33.79% is not even clearing management's own bar, let alone the market's. Resolves 2026-11-02, inside review_by."
+    },
+    {
+      "metric": "Closing price",
+      "level": "522.03",
+      "direction": "below",
+      "note": "522.03 is the actual 2026-01-02 close in data/market/CMI.json series.rows, the level from which 2026's data-center-driven run began (to the 727.59 high of 2026-06-25) before round-tripping most of the way back down to the 558.53 reference. A close back below this real, on-disk level would say the entire 2026 re-rating has unwound rather than partially cooled while fundamentals kept accelerating."
+    }
+  ],
+  "price_ref": {
+    "value": 558.53,
+    "source": "data/market/CMI.json series.rows last close (2026-09-04); price_status SINGLE_SOURCE (see price_source_note); currency USD",
+    "as_of": "2026-09-04"
+  },
+  "price_source_note": "data/market/CMI.json price_status is SINGLE_SOURCE as of this dive: the yfinance leg answered (558.53, 2026-09-04) and the stockanalysis second leg also answered, but its stored print (545.50) is dated 2026-09-03, one session behind, so tools/acis/dual_source.py's compare_prints correctly declines to call two different sessions' closes an agreement (method section 1). Every level in this file (price_ref, valuation_snapshot, would_buy_zone) is a function of the single yfinance print until a same-session second leg lands.",
+  "what_is_priced_in": [
+    {
+      "expectation": "The trailing-twelve-month move (+42.43%, 392.13 on 2025-09-03 to 558.53 on 2026-09-04) is not a clean multiple-expansion-versus-earnings-growth story the way method section 7's TOO_LATE test wants: on a net-income basis the trailing P/E roughly doubled (21.45x to 42.03x) because FY2025 net income fell 27.28% (4,068M to 2,957M) even as operating income ROSE 7.33% (3,750M to 4,025M) over the same two years. The net-income decline does not reconcile simply with rising operating income at a stable tax rate and is named as a data gap rather than explained away; this dive uses the cleaner operating-income multiple instead, which still shows real expansion (EV/operating income roughly 24.2x a year ago to 31.76x now, +31.1%, computed from data/market/CMI.json quality.derived and fundamentals.operating_income_fy).",
+      "evidence": "computed from data/market/CMI.json series.rows (392.13 on 2025-09-03, 558.53 on 2026-09-04) and fundamentals.net_income_fy / operating_income_fy (FY2024 4,068,000,000 / 3,750,000,000; FY2025 2,957,000,000 / 4,025,000,000) and quality.derived (shares_used 222,500,000, net_debt 3,558,000,000 implied from enterprise_value less market_cap)",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "On the market's own default 5-year reverse-DCF convention, the price asks for a 33.79% FCF CAGR, more than double the company's own just-raised FY2026 revenue growth guidance (10-13%) and more than five times its trailing three-year revenue CAGR (6.25%), even before separating revenue growth from margin and cash-conversion assumptions. The ask falls to 18.73% at the market's own gentler 10-year convention, a 15.06-percentage-point horizon spread, the widest this analyst's own reverse-DCF distortion channel has recorded after ESLT's 16.21pp.",
+      "evidence": "data/market/CMI.json quality.reverse_dcf (implied_fcf_cagr 0.3379, state SOLVED, base_fcf 2,386,000,000.0, enterprise_value 127,830,925,000.0, 9% discount rate, 2.5% terminal growth, 5-year explicit period, bisection method; implied_by_horizon 7y 0.2495, 10y 0.1873, horizon_spread 0.1506)",
+      "tag": "SPECULATIVE"
+    },
+    {
+      "expectation": "Sell-side positioning does not read Cummins as an obscure, un-modeled name: 18 analysts carry an average 12-month price target of $757.02 (+35.5% above the $558.53 reference) with a consensus 'Buy' rating, and FY2026 consensus revenue of $37.62B implies +11.7% year-over-year growth, essentially matching the company's own newly raised guide. This directly contradicts the chain's own link-level crowdedness score (28/100, UNDISCOVERED), which was computed on 2026-08-30 from a heat rationale that says outright 'CMI has no file under data/market/ at all' and scored the link's crowdedness using only Johnson Matthey's and Caterpillar's prices. The link may be genuinely undiscovered; the stock riding it is not.",
+      "evidence": "WebFetch, stockanalysis.com/stocks/cmi/forecast/, 2026-09-06 (average price target $757.02, consensus 'Buy', FY2026 revenue estimate $37.62B from 18 analysts); data/chains/minor-nsr-permits.json links[emissions-aftertreatment-and-catalyst].heat.crowdedness (score 28, as_of 2026-08-30, rationale quoting 'CMI has no file under data/market/ at all')",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "The specific product line this placement sits on is not what is being priced. Emission Solutions revenue grew 5.60% year over year in H1 2026 ($1,802M to $1,903M), slower than total-company H1 growth (6.17%, $16,817M to $17,855M) and far behind Power Systems, the segment actually carrying the data-center narrative (+19.38% total-segment sales in Q2 2026 alone, $1,889M to $2,255M). The re-rating this dive is being asked to price is happening to a different, adjacent product line, not to the aftertreatment content the minor-NSR-permits chain places Cummins on.",
+      "evidence": "Cummins Q2 2026 8-K EX-99, data/edgar/docs/CMI.json, accession 0000026172-26-000026, source_excerpt in filing_evidence[0] (Components Segment Sales by Business table: Emission solutions $915M+$988M=$1,903M H1 2026 vs $902M+$900M=$1,802M H1 2025; consolidated NET SALES $17,855M H1 2026 vs $16,817M H1 2025; Power Systems Segment Total sales $2,255M Q2 2026 vs $1,889M Q2 2025)",
+      "tag": "VERIFIED"
+    }
+  ],
+  "priced_in_summary": "Not TOO_LATE, for the same reason it is not INVESTABLE: what has re-rated over the past year is the Power Systems / data-center-genset story (Total segment sales +19.38% in Q2 2026 alone), not the specific minor-NSR-permits-driven aftertreatment content this placement's thesis is actually about. Emission Solutions, the line this dive is chartered to evaluate, grew only 5.60% year over year in H1 2026, slower than the company as a whole. A TOO_LATE call requires the decomposition to show THIS occurrence's runway already spent; instead the multiple expansion visible in the stock (EV/operating income roughly 24.2x to 31.76x over the past year) is riding a different, larger, already richly-covered narrative that this dive's placement only partially and mechanically touches (the chain's own capture_inputs.shared_bom note already flags that CAT and CMI's aftertreatment content is 'the same revenue being described twice by stage' as their genset sales at position 5, meaning it cannot be bought separately from the broader story). What the price does ask, on the market's own 5-year reverse-DCF convention, is a 33.79% FCF CAGR against a company-wide like-for-like build this dive can defend at roughly 6.4%-9.3%, a gap that survives the cash-conversion stress this analyst's log has flagged as the most volatile input on prior names, though it narrows into the file's own 15.06pp horizon-spread noise band at the market's gentler 10-year convention. Combined with a heavily-covered, analyst-favored large-cap stock riding a link the chain's own heat block scored UNDISCOVERED before Cummins even had a market file on disk, and a real, resolved but material governance scar in exactly this discipline (the largest Clean Air Act civil penalty in history, for admitted emissions-defeat devices), the honest verdict is WATCH: a real, well-financed growth story, priced for a bigger and different acceleration than the specific link this dive is scored on can defend.",
+  "bull": [
+    {
+      "point": "Emission Solutions is a real, disclosed, growing revenue line, not an inferred exposure: $3,457M in FY2025, 10.27% of consolidated revenue, providing the integrated DPF plus SCR plus DEF content that a minor-source permit's presumptive best-available-control-technology standard forces into the bill of materials of any Tier 4 genset once the engine is chosen, with no workaround inside that engine (the chain's own heat.impact rationale, data/chains/minor-nsr-permits.json). Cummins is disclosed-capacity-constrained on its largest gensets: a $150 million expansion of its Fridley, Minnesota facility, announced February 2026, aims to boost QSK95 output 30% to address 18-month lead times, direct evidence the underlying demand this content rides along with is real and currently supply-constrained rather than speculative.",
+      "evidence": "Cummins Q2 2026 8-K EX-99, data/edgar/docs/CMI.json, Components Segment Sales by Business table (Emission solutions $3,457M FY2025 YTD, quoted verbatim in filing_evidence[0]); data/market/CMI.json fundamentals.revenue_fy (33,670,000,000 FY2025) for the 10.27% share; WebSearch, 2026-09-06, market research on the data center generator market noting 'Cummins announced a USD 150 million expansion of its Fridley, Minnesota, facility in February 2026 to boost QSK95 output by 30%, addressing 18-month lead times for high-horsepower units'",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "Company-wide fundamentals are genuinely accelerating on a raised, not just maintained, guide, and every mechanically computable earnings-quality input this run is clean: FY2026 revenue growth guidance was raised twice this year (8-11% to 10-13%), Q2 2026 delivered record consolidated revenue, Power Systems (the segment actually carrying the data-center demand) grew 19.38% with a 24.5% segment EBITDA margin, and Beneish (-2.481, CLEAN against a -1.78 threshold), accruals (-2.03% of average total assets, well inside the 5% caution band), and cash conversion (operating cash flow 122.46% of net income) all read clean in the current fiscal year.",
+      "evidence": "Cummins Q2 2026 8-K EX-99, data/edgar/docs/CMI.json (quoted in filing_evidence[1]: 'Full-year revenues are expected to range from up 10% to up 13%, an improvement from prior guidance of up 8% to 11%'; Power Systems Segment EBITDA 24.5% of sales); data/market/CMI.json quality.beneish and this dive's own accrual computation from fundamentals.net_income_fy, operating_cashflow_fy and total_assets_fy",
+      "tag": "INFERRED"
+    },
+    {
+      "point": "The chain's own S5 scenario ('the constraint moves from the agency to the factory') is already visible in Cummins' own disclosed capacity actions rather than a hypothetical this dive had to invent: the Fridley expansion exists specifically because lead times, not permitting, are now the binding constraint on high-horsepower unit supply, and a state authority tightening rather than loosening its permit template (the chain's own S2 scenario, modeled on Virginia's DEQ) would favor a full-content aftertreatment supplier over cheaper partial retrofits, a structural tailwind for the specific content this placement covers even though it is not yet moving the segment-line growth rate.",
+      "evidence": "data/chains/minor-nsr-permits.json scenarios (S2 'Discretion is used to tighten and Virginia's template spreads', S5 'The constraint moves from the agency to the factory'); WebSearch, 2026-09-06, on the Fridley MN capacity expansion cited in bull[0]",
+      "tag": "INFERRED"
+    }
+  ],
+  "bear": [
+    {
+      "point": "The specific product line this placement is chartered to evaluate is not what is driving the re-rating. Emission Solutions revenue grew only 5.60% year over year in H1 2026 (Cummins' own Components Segment Sales by Business table), slower than total-company growth (6.17%) over the same period and far behind Power Systems' 19.38% Q2 2026 segment growth, the segment actually carrying the data-center narrative. The chain's own capture_inputs.shared_bom note already states that Cummins' aftertreatment content and its genset sales at position 5 (onsite-reciprocating-gensets) describe 'the same revenue... twice by stage' and that 'a position in CAT or CMI is ONE bet across both links, never two' -- this dive's placement cannot be bought separately from the larger, already-priced genset story.",
+      "evidence": "Cummins Q2 2026 8-K EX-99, data/edgar/docs/CMI.json, Components Segment Sales by Business and consolidated NET SALES tables (quoted verbatim in filing_evidence[0] and [2]); data/chains/minor-nsr-permits.json links[emissions-aftertreatment-and-catalyst].capture_inputs.shared_bom",
+      "tag": "VERIFIED"
+    },
+    {
+      "point": "On the market's own default 5-year reverse-DCF convention, the price asks for a 33.79% FCF CAGR against this dive's own defended 6.43%-9.32% like-for-like build (7.5% revenue CAGR, 13.0% steady-state margin, cash conversion held at either the FY2025 ratio or the FY2022-2025 average), a 24.5-27.4 percentage point gap, well outside the file's own 15.06-point horizon spread and the widest 5-year gap this analyst's log has recorded. The gap narrows to inside the noise band (10.3-11.8 points against the same 15.06-point spread) at the market's own gentler 10-year convention, but even that reading's own base case forward-solves to $220.88-$248.18 a share, still 55.6%-60.4% below the $558.53 reference: the growth-rate gap's SIZE is convention-sensitive, the PRICE gap survives either way.",
+      "evidence": "data/market/CMI.json quality.reverse_dcf (implied_by_horizon 5y 0.3379, 10y 0.1873, horizon_spread 0.1506); this dive's own forward-solve of the filed bisection formula (base_fcf 2,386,000,000, 9% discount rate, 2.5% terminal growth), reproducing the filed 5/7/10-year enterprise values to within 0.01% before varying inputs, detailed in expectations_gap.rows[net_gap_direction]",
+      "tag": "SPECULATIVE"
+    },
+    {
+      "point": "Cummins' own emissions-compliance history carries the largest civil penalty in Clean Air Act history: a $1.675 billion federal penalty plus a $372 million California settlement (roughly $2 billion total, agreed December 2023, finalized 2024) for admittedly installing illegal defeat-device software on approximately 960,000 model-year 2013-2023 RAM 2500/3500 truck engines, a decade-long pattern rather than an isolated incident, in the exact discipline (emissions-control credibility) this placement's 'Emission Solutions' marketing depends on. Fully resolved, cash-settled and already reflected in FY2023-2024 financials (FY2023 operating income fell to $1,761M from $2,929M in FY2022 on the litigation accrual, and FY2024 operating cash flow fell to $1,487M as the cash penalty was paid), but a real integrity scar this dive weighs against the earnings-quality grade rather than treating as fully in the past.",
+      "evidence": "WebSearch, 2026-09-06: U.S. Department of Justice, 'United States and California Announce Diesel Engine Manufacturer Cummins Inc. Agrees to Pay a Record $1.675 Billion Civil Penalty in Vehicle Test Cheating Settlement' (justice.gov/archives/opa, accessed via search); California Air Resources Board, '$372 million settlement with engine manufacturer Cummins, Inc.' (ww2.arb.ca.gov/news); data/market/CMI.json fundamentals.operating_income_fy and operating_cashflow_fy (FY2022-FY2024) for the accrual/cash-timing cross-check computed by this dive",
+      "tag": "INFERRED"
+    }
+  ],
+  "events": [
+    {
+      "what": "Q3 2026 results",
+      "when": "expected 2026-11-02, before market open, on the company's own quarterly cadence (Q2 2026 reported 2026-08-04)",
+      "why": "Where watch_triggers[0] (Emission Solutions YoY growth vs this dive's own 5.60% H1 read) and watch_triggers[1] (consolidated revenue growth vs the 10% guidance floor) resolve, both inside review_by.",
+      "tag": "INFERRED"
+    },
+    {
+      "what": "FY2026 full-year results and FY2027 guidance",
+      "when": "expected February 2027, following the company's historical cadence for full-year results",
+      "why": "Where the twice-raised FY2026 guidance either holds for the full year or breaks, where the Fridley capacity expansion either shows up as delivered QSK95 volume or slips, and where the independence test's falsification condition (Power Systems' share of consolidated external sales materially above its 12.87% Q2 2026 level, sustained into FY2027 guidance) is directly testable. Beyond review_by.",
+      "tag": "INFERRED"
+    }
+  ],
+  "valuation_snapshot": {
+    "price": 558.53,
+    "price_as_of": "2026-09-04",
+    "currency": "USD",
+    "market_cap": 124272925000.0,
+    "enterprise_value": 127830925000.0,
+    "ev_to_base_fcf": 53.58,
+    "price_to_sales": 3.6909095634095634,
+    "week52_low": 394.78,
+    "week52_high": 727.59,
+    "week52_high_date": "2026-06-25",
+    "pct_below_52w_high": 0.2324,
+    "pct_above_52w_low": 0.4148,
+    "twelve_month_price_change": 0.4243,
+    "net_debt_to_ebitda": 0.6936,
+    "trailing_pe_now": 42.03,
+    "trailing_pe_1y_ago": 21.45,
+    "ev_to_operating_income_now": 31.76,
+    "ev_to_operating_income_1y_ago": 24.22,
+    "basis": "Every field here is read from data/market/CMI.json (series.rows, week52, quality.derived, quality.reverse_dcf, fundamentals) or from the O1 profile's canonical metrics, which themselves cite that file, except trailing_pe_now/1y_ago and ev_to_operating_income_now/1y_ago, which this dive computes as price (or EV) over net_income_fy or operating_income_fy for the FY2025 and FY2024 prints against the 2026-09-04 and 2025-09-03 closes respectively, holding shares (222,500,000) and net debt (3,558,000,000) constant for the 1y-ago EV as an approximation named here rather than hidden. Nothing is solved with an assumption beyond that stated approximation. EV/base FCF is 127,830,925,000 over 2,386,000,000. The 12-month change is 558.53 over 392.13 minus 1. The trailing-P/E-doubling read is flagged in what_is_priced_in[0] as not reconciling simply with the operating-income trend, which is why this snapshot also carries the EV/operating-income pair as the cleaner multiple.",
+    "tag": "INFERRED"
+  },
+  "crowdedness": {
+    "state": "STOCK_HEAVILY_COVERED_LINK_SCORED_BEFORE_ISSUER_HAD_A_MARKET_FILE",
+    "pcs": null,
+    "basis": "data/market/CMI.json carries no pcs block, so PCS Axis A/B cannot be scored quantitatively for this issuer (method section 6 T1 gap, named in data_gaps). The chain's own heat block scores the emissions-aftertreatment-and-catalyst link's crowdedness at 28/100 (UNDISCOVERED band), dated 2026-08-30, but its own rationale states outright that 'CMI has no file under data/market/ at all' at the time it was scored, and computes the link's crowdedness using only Johnson Matthey's post-acquisition share price (near its 52-week low) and Caterpillar's (+84% over a year) as its diversified-OEM data points. This dive's own findings, now that CMI has a market file, say the STOCK is not undiscovered even if the link is: 18 sell-side analysts carry a consensus 'Buy' with an average price target 35.5% above the current close, and the stock traded within 23.2% of its 52-week high as recently as three months ago. The un-crowded read stands for the specific product line (Emission Solutions has no pure-play investable vehicle, per the chain's own crowdedness rationale) but not for the vehicle a buyer would actually use to reach it (CMI stock, richly covered and richly priced).",
+    "tag": "INFERRED"
+  },
+  "expectations_gap": {
+    "market_implied_source": "data/market/CMI.json quality.reverse_dcf [implied_fcf_cagr 0.3379, state SOLVED, base_fcf 2,386,000,000.0, enterprise_value 127,830,925,000.0, 9% discount rate, 2.5% terminal growth, 5-year explicit period, bisection method; implied_by_horizon 7y 0.2495, 10y 0.1873, horizon_spread 0.1506; as_of 2026-09-06; assumptions tagged SPECULATIVE in the file itself]",
+    "denominator": "5 of 5 required rows populated. Market-implied column: 2 of 5 rows carry a number from the solve (revenue_cagr_5y as a labelled FCF-CAGR proxy, terminal), 2 are explicitly NULL because the filed solve does not decompose them (operating_margin, reinvestment_return), and net_gap_direction is a direction rather than a level. Tags across the table: 3 INFERRED, 2 SPECULATIVE, 2 NULL on the market-implied side.",
+    "category_mismatch_note": "quality.reverse_dcf solves a FREE CASH FLOW CAGR, and the required row is a REVENUE CAGR; they are not the same quantity, a defect this analyst's own log has flagged on MYRG and HUBB and corrected on ANDR.VI and ESLT. Row 1 carries the solve as a labelled proxy under a stated flat-margin/flat-conversion assumption, and this dive additionally builds its own FCF-CAGR-equivalent (6.43%-9.32% at the 5-year convention, varying the cash-conversion assumption between the FY2025 ratio and the FY2022-2025 average rather than only declaring one) in net_gap_direction from its own revenue, margin and conversion assumptions, so the comparison that decides the verdict is like for like.",
+    "rows": [
+      {
+        "driver": "revenue_cagr_5y",
+        "market_implied": 0.3379,
+        "market_implied_note": "This is the solved 5-year FCF CAGR, not a decomposed revenue CAGR. Held here as the closest proxy under a flat-margin/flat-conversion assumption (if margin and cash conversion held at their FY2025 levels, revenue would also have to compound near this rate), and named as such.",
+        "mine": 0.075,
+        "percentile": 45,
+        "why": "7.5% sits above the achieved trailing three-year revenue CAGR (6.25%) but below the low end of the company's own twice-raised FY2026 guide (10-13%), because that guide describes one cyclical-high year driven by a data-center pull-forward and a recovering truck cycle, not a sustained five-year rate for a $33.7B diversified engine and power-systems maker whose four largest segments (Engine, Components, Distribution, Accelera) remain flat-to-cyclical. Below the 50th percentile of Cummins' own FY2018-2025 annual growth range deliberately, because the years that cleared 10%+ (2021, 2022, 2023) were each followed by a flat or down year (2024 +0.1%, 2025 -1.3%).",
+        "structural_reason": "Power Systems (data-center standby/prime power) is real, disclosed and capacity-constrained (bull[0]), but at 12.87% of Q2 2026 external sales it is a minority of consolidated revenue, so even strong double-digit growth in that one segment blends down to a high-single-digit company-wide rate once the other four segments are held near their own historical trend.",
+        "leading_indicator": "Q3 2026 consolidated net sales growth at or above 10% (watch_triggers[1]) and Power Systems' external-sales share of the total rising meaningfully above its 12.87% Q2 2026 level, both reportable 2026-11-02.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "operating_margin",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a margin path from the headline FCF CAGR. Recorded NULL rather than invented.",
+        "mine": 0.13,
+        "percentile": 60,
+        "why": "13.0% is a genuine step up from the FY2025 print (11.95%), defended on a real mix shift already visible in the disclosed segment data: Power Systems posted a 24.5% EBITDA margin in Q2 2026 (up from 22.8% in Q2 2025) while Engine and Components margins actually compressed year over year (12.5% vs 13.8%, 13.2% vs 14.7%), attributed by the company itself to 'higher incentive compensation, tied to expected record full year results' rather than a structural cost problem. 13.0% assumes the Power-Systems-led mix shift outweighs that transient headwind once it laps, not that every segment expands together.",
+        "structural_reason": "A widening EBITDA-margin gap between Power Systems (24.5%) and the rest of the portfolio (12.5%-13.6%), combined with Power Systems' rising revenue share, mechanically lifts the consolidated blend even if no individual segment's own margin improves further.",
+        "leading_indicator": "Segment EBITDA margins at the Q3 2026 release: Power Systems holding at or above its Q2 2026 level (24.5%) while Engine/Components margins stop compressing once the incentive-compensation comparison laps, reportable 2026-11-02.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "reinvestment_return",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a reinvestment return, and no company-disclosed ROIC or ROCE figure appears in any source read this run. Recorded NULL rather than invented.",
+        "mine": 0.3,
+        "percentile": 70,
+        "why": "A crude proxy, not a disclosed figure: incremental operating income from FY2022 to FY2025 ($4,025M less $2,929M = $1,096M) over cumulative FY2023-2025 capital expenditure ($1,213M + $1,208M + $1,235M = $3,656M) gives approximately 30.0%. This is a rough incremental-margin-on-capex measure that ignores depreciation timing, working capital and lags, disclosed as a proxy rather than a rigorous ROIIC, and held at the high end of what this dive would defend rather than extrapolated further because the underlying capex step-up (from roughly $700-900M annually pre-2022 to $1.2B+ since) is itself named as the structural reason, not assumed to compound.",
+        "structural_reason": "The $150 million Fridley, Minnesota expansion (bull[0]) is a disclosed, dollar-figured example of capital going directly toward the capacity-constrained, higher-margin product (QSK95 large-bore engines) behind this dive's own margin and growth rows, rather than a diversified or defensive capex program.",
+        "leading_indicator": "FY2026 capital expenditure and operating income figures at the FY2026 release, against this dive's own $3,656M three-year cumulative capex and $1,096M three-year incremental operating income base.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "terminal",
+        "market_implied": 0.025,
+        "mine": 0.025,
+        "percentile": 50,
+        "why": "No disagreement, and saying so is worth a row. 2.5% perpetual growth is a reasonable long-run nominal assumption for a diversified global industrial (method section 7's own base-rate ceiling, roughly long-run nominal GDP), and this dive would not move it. The assumption this dive would question is not the terminal rate but the discount rate: 9% is not obviously wrong for a US industrial with sub-1x net-debt-to-EBITDA leverage (0.6936x), but the file publishes no sensitivity to it beyond the horizon table, the same data-plane gap this analyst's log first named on ANDR.VI. Method section 7 forbids re-solving in session for the filed column itself, so this gap is named rather than filled.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "net_gap_direction",
+        "mine": "MARKET_IMPLIES_MORE_THAN_ACHIEVED_AT_5Y_NARROWING_TO_INSIDE_NOISE_BAND_AT_10Y",
+        "note": "Built like for like rather than compared revenue against FCF, and the cash-conversion assumption is declared AND varied rather than only declared, per this analyst's own log's standing lesson from ANDR.VI and 688425.SS ('a declared convention is an untested one'). Revenue $33,670,000,000 compounding at 7.5% for five years gives $48,336,000,000 in FY2030; at a 13.0% steady-state operating margin that is operating income of $6,283,700,000 against $4,025,000,000 in FY2025. Converting to free cash flow two ways: holding FY2025's own cash-conversion ratio (free cash flow over operating income, $2,386,000,000 / $4,025,000,000 = 0.5928) gives FY2030 FCF of $3,724,900,000, a 9.32% FCF CAGR; reverting instead to the FY2022-2025 average ratio (four-year average FCF $1,616,000,000 over four-year average operating income $3,116,250,000 = 0.5186) gives FY2030 FCF of $3,258,400,000, a 6.43% FCF CAGR. Against the filed 5-year market-implied 33.79%, the gap is 24.47-27.36 percentage points depending on which conversion ratio is held, both far outside the file's own 15.06-point horizon_spread: a real gap either way. Against the filed 10-year market-implied 18.73% (holding the same 7.5%/13.0% assumptions out to ten years: FY2035 revenue $69,395,000,000, operating income $9,021,400,000, FCF $5,349,300,000 at the FY2025 ratio or $4,678,900,000 at the average ratio, giving FCF CAGRs of 8.41% and 6.96%), the gap narrows to 10.32-11.77 points, INSIDE the 15.06-point horizon_spread: not a demonstrated gap by the file's own rule at that convention. The sign does not flip between horizons (both say the market wants more than this dive defends), only the SIZE of the finding does, and this dive claims the 5-year reading as the operative one because that is the convention the filed solve defaults to and the one the would_buy_zone below is drawn against, consistent with this analyst's prior VRT/HUBB/MYRG/ESLT dives choosing the tougher convention. [Price-space cross-check, not just growth-rate] Forward-solving quality.reverse_dcf's own bisection formula (reproducing the filed 5/7/10-year enterprise values of $127,824,307,512 / $127,798,284,205 / $127,823,220,086 against the filed $127,830,925,000, within 0.01% before varying inputs) at this dive's own 7.5%/13.0% base case gives a fair price of $184.06-$209.68 at the 5-year convention (depending on the conversion assumption) and $220.88-$248.18 at the 10-year convention. Even the gentler duration, where the GROWTH-RATE gap looks statistically insignificant, still prices this dive's own base case 55.6%-60.4% below the $558.53 reference: choosing the 5-year convention as operative softens or sharpens the SIZE of the finding, never manufactures it, because real daylight between price and this dive's own defended fundamentals survives under either horizon."
+      }
+    ]
+  },
+  "independence_test": {
+    "largest_disagreement": "The market's 5-year reverse-DCF convention prices Cummins' entire ~$33.7B consolidated revenue base as if it compounds free cash flow near a pure-play data-center-power name's rate (33.79%), when the segment actually carrying that demand (Power Systems, 12.87% of Q2 2026 external sales) is a minority of the business, and the specific product line this dive's placement sits on (Emission Solutions, 10.27% of FY2025 revenue) is growing slower than the company average (5.60% H1 2026 year-over-year versus 6.17% company-wide).",
+    "why_the_gap_exists": "The category of market error is segment-growth extrapolation onto the whole-company multiple, the same mechanism the base rates in docs/analyst-sources.md warn about (>20% growers median-revert to single digits; the market's implied 33.79% here sits far above even that already-generous anchor). Cummins is not an obscure, un-modeled name: 18 analysts carry a consensus 'Buy' with an average price target 35.5% above spot, and the stock traded within 23.2% of its 52-week high three months ago. Investors are extrapolating one segment's real, disclosed acceleration (Power Systems, +19.38% total-segment sales in Q2 2026) across a much larger, slower, more cyclical base (Engine, Components, Distribution, Accelera, together roughly 87% of external sales), while the specific link this dive is chartered to evaluate is mechanically bundled into that same genset sale rather than separately monetizable: the chain's own capture_inputs.shared_bom note already states that Cummins' aftertreatment content and its genset sales at position 5 describe 'the same revenue... twice by stage', so there is no incremental, un-priced upsell here beyond what Power Systems' own growth already reflects.",
+    "falsification": "Stated to prove this dive WRONG, not to confirm it. At the Q3 2026 release (2026-11-02), if Power Systems' external-sales share of consolidated revenue rises meaningfully above its 12.87% Q2 2026 level AND consolidated growth holds at or above the raised guide's high end (13%) rather than merely its low end, that would say a genuine, durable company-wide acceleration is underway rather than one segment's story being capitalized onto the whole multiple, which would narrow or close the gap this dive is skeptical of. An in-line outcome (Power Systems share roughly flat, consolidated growth landing inside but not above the guided range) tests the dive rather than confirming it."
+  },
+  "earnings_quality": {
+    "grade": "B",
+    "basis": "Every mechanically computable veto input this run is clean in the current fiscal year, but not without a named, defensible one-time item and a governance-adjacent integrity flag that keep this at B rather than A. Accruals: -2.03% of average total assets in FY2025 (net income $2,957M less operating cash flow $3,621M, over average total assets of $32,766M), well inside the 5% caution band and in the conservative direction. Beneish M-score -2.481 against the -1.78 review threshold, CLEAN, 12 of 12 inputs found. Altman Z 6.19, SAFE. Cash conversion (operating cash flow over net income) is 1.2246x, well above the 90% grade-A floor. DSO shows no sustained drift, only cyclical oscillation: 63.38 (FY2020), 54.17 (FY2021), 67.63 (FY2022), 59.82 (FY2023), 55.45 (FY2024), 63.07 (FY2025) days, a range rather than a trend. Capex to depreciation held between 1.04x and 1.19x across FY2019-2025 (excluding the FY2020 COVID trough of 0.785x), no capex holiday. ONE MILD FLAG WITH A DEFENSIBLE EXPLANATION: FY2024 shows net income ($4,068M) exceeding operating cash flow ($1,487M) by $2,581M, 8.12% of average total assets, above the 5% caution band in isolation. This is not a hidden earnings-quality problem: FY2023 operating income fell to $1,761M from $2,929M in FY2022 (a drop consistent with a roughly $2 billion non-cash litigation accrual booked that year), and FY2024's low operating cash flow reflects the actual CASH PAYMENT of that same, already-recognized liability the following year -- a disclosed, dated, one-time legal settlement (the Clean Air Act civil penalty, bear[2]), not a recurring pattern, and FY2025's own accrual and cash-conversion figures are clean. SECOND FLAG, GOVERNANCE-ADJACENT RATHER THAN MECHANICAL: the underlying conduct behind that settlement (admittedly installing illegal emissions-defeat-device software on RAM 2500/3500 truck engines across model years 2013-2023, a decade span) is directly on-topic for a dive whose placement rests on Cummins' 'Emission Solutions' compliance technology, and this dive weighs it explicitly rather than let a clean current-year Beneish/accrual read stand in for a clean compliance history. No CFO change found (Mark A. Smith, VP and CFO since 2019) and no auditor change found (PricewaterhouseCoopers LLP, reappointed for FY2026 per the company's own proxy-season disclosure); related-party dealings were not specifically searched beyond the general auditor/CFO queries, named in data_gaps rather than presented as a clean result. Piotroski 6/9, MIDDLING, missing d_roa, d_leverage and asset_turnover -- ordinary softness for a capital-intensive cyclical industrial mid-investment-cycle, not named as a separate flag.",
+    "inputs": {
+      "accruals_pct_avg_assets_fy2025": -0.020265,
+      "accruals_pct_avg_assets_fy2024": 0.081235,
+      "accruals_fy2024_basis": "Positive (NI > OCF) and above the 5% band in isolation, explained by the Clean Air Act settlement's accrual-then-cash-payment timing (FY2023 accrual, FY2024 cash outflow); see basis and bear[2].",
+      "beneish": -2.481,
+      "beneish_state": "CLEAN",
+      "beneish_threshold": -1.78,
+      "piotroski": 6,
+      "piotroski_state": "MIDDLING",
+      "piotroski_misses": "d_roa, d_leverage, asset_turnover",
+      "altman": 6.19,
+      "altman_state": "SAFE",
+      "dso_days_fy2020": 63.38,
+      "dso_days_fy2021": 54.17,
+      "dso_days_fy2022": 67.63,
+      "dso_days_fy2023": 59.82,
+      "dso_days_fy2024": 55.45,
+      "dso_days_fy2025": 63.07,
+      "capex_to_depreciation_fy2021": 1.109,
+      "capex_to_depreciation_fy2022": 1.168,
+      "capex_to_depreciation_fy2023": 1.185,
+      "capex_to_depreciation_fy2024": 1.134,
+      "capex_to_depreciation_fy2025": 1.118,
+      "ocf_to_net_income_fy2025": 1.2246,
+      "deferred_revenue_drift": null,
+      "deferred_revenue_drift_basis": "data/market/CMI.json fundamentals carries no deferred-revenue or contract-liability series (the same vendor-aggregate gap this analyst's log flagged on ANDR.VI and ESLT), and no dedicated search for it was run this pass beyond the general Q2 2026 earnings release, which does not disclose it. Named as a data gap rather than assumed clean or drifting.",
+      "source": "data/market/CMI.json quality (piotroski, beneish, altman) plus ratios computed in this session from fundamentals.receivables_fy, revenue_fy, capex_fy, depreciation_fy, net_income_fy, operating_cashflow_fy and total_assets_fy",
+      "governance": {
+        "auditor_change": "No change found. PricewaterhouseCoopers LLP was reappointed by the Audit Committee as Cummins' independent registered public accounting firm for fiscal 2026, per the company's own proxy-season disclosure (WebSearch, 2026-09-06).",
+        "cfo_change": "No change found. Mark A. Smith has served as Vice President and Chief Financial Officer since 2019; no more recent change surfaced.",
+        "related_party": "Not specifically searched this run beyond the general auditor/CFO queries. Absence of a targeted search is not evidence of absence, named in data_gaps.",
+        "integrity_flag": "Cummins agreed in December 2023 (finalized 2024) to pay a $1.675 billion federal civil penalty plus a $372 million California settlement, the largest civil penalty in Clean Air Act history, for admittedly installing illegal emissions-defeat-device software on approximately 960,000 model-year 2013-2023 RAM 2500/3500 truck engines (630,000 units 2013-2019 plus 330,000 units 2019-2023), spanning a decade of model years rather than a single isolated incident. Fully resolved and cash-settled, with no new or ongoing investigation surfaced this run, but named here as a governance-adjacent fact beyond the three standard categories (auditor change, CFO turnover, related-party dealings) method section 7 lists as examples, because it bears directly on how much trust to place in the compliance technology (DPF plus SCR plus DEF 'Emission Solutions') this dive's entire placement rests on.",
+        "source": "WebSearch, 2026-09-06: U.S. Department of Justice Office of Public Affairs press release on the $1.675 billion settlement; California Air Resources Board press release on the $372 million settlement; general searches on Cummins CFO tenure and FY2026 auditor appointment",
+        "as_of": "2026-09-06",
+        "tag": "INFERRED",
+        "note": "Secondary sources (DOJ and CARB press releases, general web search), not a verbatim quote from the FY2025 10-K's own Item 3 (Legal Proceedings) or a proxy statement's related-party section. data/edgar/docs/CMI.json holds only the Q2 2026 8-K earnings-release exhibit, which does not discuss litigation or governance matters; a 10-K or DEF 14A fetch would be needed to verify these facts against a stored primary filing, named in data_gaps."
+      }
+    },
+    "veto_applied": "Grade B has no effect on the verdict cap (method section 7): B carries no cap, unlike C (caps at WATCH) or D (forbids INVESTABLE). The verdict is WATCH on the strength of the expectations-gap and crowdedness/capture findings alone (bear[0] and bear[1]), not because of any earnings-quality caution; the mild flags and the named integrity history are why this dive does not read the clean current-year mechanical inputs as a stronger, unqualified endorsement of trust in Cummins' emissions-compliance claims specifically."
+  },
+  "filing_evidence": [
+    {
+      "claim": "Emission Solutions revenue by half-year and full-year, and total consolidated net sales for the same periods.",
+      "source_name": "Cummins Inc. Reports Strong Second Quarter 2026 Results (8-K EX-99)",
+      "source_date": "2026-08-04",
+      "url": "https://www.sec.gov/Archives/edgar/data/26172/000002617226000026/cmi2026q28-kex99.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Components Segment Sales by Business Sales for our Components segment by business were as follows: 2026 In millions Q1 Q2 Q3 Q4 YTD Drivetrain and braking systems $ 919 $ 1,122 $ — $ — $ 2,041 Emission solutions 915 988 — — 1,903 Components and software 608 657 — — 1,265 Automated transmissions 88 124 — — 212 Total sales $ 2,530 $ 2,891 $ — $ — $ 5,421 2025 In millions Q1 Q2 Q3 Q4 YTD Drivetrain and braking systems $ 1,056 $ 1,095 $ 917 $ 918 $ 3,986 Emission solutions 902 900 788 867 3,457 Components and software 595 587 537 564 2,283 Automated transmissions 117 123 87 96 423 Total sales $ 2,670 $ 2,705 $ 2,329 $ 2,445 $ 10,149",
+      "note": "Verbatim, verified against data/edgar/docs/CMI.json (whitespace-normalized, case-folded). Gives Emission Solutions at $3,457M FY2025 and $1,903M/$1,802M H1 2026/H1 2025, the basis for bull[0], bear[0], and expectations_gap.rows[revenue_cagr_5y]."
+    },
+    {
+      "claim": "Consolidated net sales for the six months ended June 30, 2026 and 2025.",
+      "source_name": "Cummins Inc. Reports Strong Second Quarter 2026 Results (8-K EX-99)",
+      "source_date": "2026-08-04",
+      "url": "https://www.sec.gov/Archives/edgar/data/26172/000002617226000026/cmi2026q28-kex99.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Six months ended June 30, June 30, In millions, except per share amounts 2026 2025 2026 2025 NET SALES $ 9,457 $ 8,643 $ 17,855 $ 16,817",
+      "note": "Verbatim, verified against data/edgar/docs/CMI.json. Gives the $17,855M/$16,817M H1 2026/H1 2025 total-company base for the 6.17% growth rate compared against Emission Solutions' 5.60% in bear[0] and the independence test."
+    },
+    {
+      "claim": "Segment sales and EBITDA by segment, Q2 2026 versus Q2 2025, including Power Systems.",
+      "source_name": "Cummins Inc. Reports Strong Second Quarter 2026 Results (8-K EX-99)",
+      "source_date": "2026-08-04",
+      "url": "https://www.sec.gov/Archives/edgar/data/26172/000002617226000026/cmi2026q28-kex99.htm",
+      "tag": "VERIFIED",
+      "source_excerpt": "Three months ended June 30, 2026 External sales $ 2,349 $ 2,431 $ 3,320 $ 1,217 $ 140 $ 9,457 $ — $ 9,457 Intersegment sales 735 460 6 1,038 5 2,244 (2,244) — Total sales 3,084 2,891 3,326 2,255 145 11,701 (2,244) 9,457 ... EBITDA (2) 386 381 451 552 (69) 1,701 (48) 1,653 ... EBITDA as a percentage of segment sales 12.5 % 13.2 % 13.6 % 24.5 % NM 14.5 % 17.5 % Three months ended June 30, 2025 External sales $ 2,162 $ 2,295 $ 3,034 $ 1,054 $ 98 $ 8,643 $ — $ 8,643 ... Total sales 2,899 2,705 3,041 1,889 105 10,639 (1,996) 8,643",
+      "note": "Verbatim, verified against data/edgar/docs/CMI.json. Column order is Engine, Components, Distribution, Power Systems, Accelera. Gives Power Systems external sales ($1,217M Q2 2026 vs $1,054M Q2 2025, 12.87% of consolidated external sales) and total segment sales ($2,255M vs $1,889M, +19.38%) used throughout this dive, plus the Engine/Components margin-compression figures in expectations_gap.rows[operating_margin]."
+    }
+  ],
+  "filing_evidence_note": "data/edgar/docs/CMI.json holds one document, the Q2 2026 8-K EX-99 earnings release (accession 0000026172-26-000026, fetched via REQ-20260904-292). Every quote above is verbatim-verified against it (method section 1, whitespace-normalized, case-folded). This document does not cover litigation, governance, or proxy matters, so the Clean Air Act settlement and the auditor/CFO continuity facts in earnings_quality.inputs.governance rest on WebSearch reads of DOJ, CARB and general sources, dated and cited, tagged INFERRED, not verbatim-verified filing quotes; a 10-K or DEF 14A fetch would let a re-run promote those specifically, named in data_gaps.",
+  "data_gaps": [
+    "No deferred-revenue or contract-liability series exists in data/market/CMI.json fundamentals, the same vendor-aggregate gap this analyst's log flagged on ANDR.VI and ESLT; earnings_quality.deferred_revenue_drift is NULL rather than assumed, and no dedicated search for the figure was run this pass.",
+    "data/market/CMI.json carries no pcs block, so PCS Axis A/B are unscoreable for this issuer; crowdedness in this file reads on the chain's own (dated, pre-CMI-market-file) heat block plus this dive's own sell-side and price-history findings, not on quantitative attention data.",
+    "The FY2024 net income ($4,068M) versus operating income ($3,750M) relationship does not reconcile simply with a stable effective tax rate; this dive names the divergence in what_is_priced_in[0] and uses the cleaner EV/operating-income multiple rather than asserting an unverified cause (a below-the-line tax or investment-gain item was suspected but not confirmed against a primary filing this run).",
+    "The Clean Air Act settlement and auditor/CFO continuity facts in earnings_quality.inputs.governance rest on WebSearch reads of DOJ, CARB and general sources rather than a verbatim quote from Cummins' own 10-K Item 3 (Legal Proceedings) or a DEF 14A; data/edgar/docs/CMI.json holds only the Q2 2026 8-K earnings-release exhibit, which does not cover these topics. A 10-K or DEF 14A edgar_doc fetch would let a re-run verify them directly.",
+    "No minor-nsr-permits-specific or Emission-Solutions-specific revenue percentage beyond the disclosed segment-line figure ($3,457M FY2025, 10.27% of consolidated revenue) is available; the chain's own thesis (data/chains/minor-nsr-permits.json explainer) states plainly that no source attributes a dollar of demand to the permit itself rather than to the underlying grid-interconnection queue, a limitation this dive inherits rather than resolves.",
+    "This dive's own like-for-like FCF-CAGR build is sensitive to the cash-conversion assumption: holding FY2025's ratio (0.5928) gives 9.32% at 5 years, while reverting to the FY2022-2025 average (0.5186) gives 6.43%, both disclosed and used to bracket the would_buy_zone below rather than picking one and hiding the other.",
+    "Related-party transactions were not specifically searched this run beyond general auditor/CFO queries; absence of a targeted search is not evidence of absence."
+  ],
+  "confidence_audit": {
+    "verified": 6,
+    "inferred": 29,
+    "speculative": 6,
+    "null": 4
+  },
+  "notes": [],
+  "changelog": [
+    {
+      "ts": "2026-09-06T18:30:00Z",
+      "by": "stocky",
+      "change": "First dive on minor-nsr-permits: CMI (Cummins Inc.) / emissions-aftertreatment-and-catalyst, WATCH on the COMPOUNDER clock, earnings grade B, status DRAFT (red team not yet run). Every admission element resolves exactly: COMPLETE O1 profile with all seven selection_basis dimensions, exact screen_handoff, mapping listing NYSE-CMI with a current PASS placement_audits entry for this exact (chain, link, issuer) dated 2026-09-04T18:52:15Z, and the matching CANDIDATE screen row (moved to DIVED this run). The whole-census mapping audit is FAIL (ACTIVE status); the placement-level PASS entry is what admits this dive under Ron's 2026-09-01 rule. Cummins is a $33.7B diversified engine and power-systems maker; this dive's central, original finding is that the specific product line its placement sits on (Emission Solutions, 10.27% of FY2025 revenue, quoted verbatim from the Q2 2026 8-K's Components Segment Sales by Business table) is growing slower than the company as a whole (5.60% H1 2026 YoY vs 6.17% company-wide) and far slower than Power Systems (+19.38% Q2 2026), the segment actually carrying the data-center narrative that has re-rated the stock -- and the chain's own capture_inputs.shared_bom note already states that Cummins' aftertreatment content and its genset sales are 'the same revenue... twice by stage', so this placement cannot be bought separately from that larger, already-priced story. On the market's own 5-year reverse-DCF convention the price asks a 33.79% FCF CAGR against this dive's own defended 6.43%-9.32% like-for-like build (varying the cash-conversion assumption rather than only declaring it, per this analyst's own log's ANDR.VI/688425.SS lesson), a 24.5-27.4pp gap well outside the file's 15.06pp horizon_spread, narrowing to inside that band (10.3-11.8pp) at the 10-year convention, though a price-space cross-check shows the base case still prices 55.6%-60.4% below spot even at that gentler duration. Crowdedness finding original to this dive: the chain's own link-level crowdedness score (28, UNDISCOVERED, dated 2026-08-30) was computed when 'CMI has no file under data/market/ at all' per its own rationale; now that Cummins has a market file, this dive finds the STOCK heavily covered (18 analysts, consensus Buy, average target +35.5% above spot) even though the specific product LINE remains genuinely undiscovered (no pure-play instrument exists, per the chain's own crowdedness rationale). Earnings quality graded B, not A: FY2025's mechanical inputs are clean (Beneish CLEAN -2.481, accruals -2.03% of average assets, cash conversion 122%, no DSO drift, no capex cut), but FY2024 shows an 8.12%-of-assets accrual explained by the cash-timing of Cummins' Clean Air Act settlement (a $1.675B federal penalty plus $372M California settlement, the largest in Clean Air Act history, for admittedly installing illegal emissions-defeat devices on ~960,000 RAM 2500/3500 engines across model years 2013-2023), named as a governance-adjacent integrity flag beyond method section 7's three example categories because it bears directly on trust in the 'Emission Solutions' technology this placement's thesis rests on. Independence test answered: largest disagreement (whole-company multiple pricing off one minority segment's growth), category of error (segment-growth extrapolation, the same mechanism the base rates warn about), and falsification (Power Systems' share of external sales and consolidated growth at the Q3 2026 release, 2026-11-02). Not TOO_LATE: the multiple expansion visible in the stock (EV/operating income ~24.2x to ~31.76x) is riding the Power Systems/data-center story, not the specific minor-NSR-permits-driven aftertreatment content this dive is scored on, so the decomposition cannot honestly attribute the re-rating to this occurrence being priced in and used up. would_buy_zone drawn at $184.06-$232.69 (5-year convention, conservative-to-stretch like-for-like builds holding the FY2025 cash-conversion ratio, cross-checked against the FY2022-2025 average conversion which lands at $184.06 for the base case, near the zone's own low edge), both well below the $558.53 reference and the widest zone-to-spot gap in this analyst's corpus after ESLT's. Duplicate exposure named: Caterpillar holds the identical placement on this same link (data/companies/CUMMINS.json selection_basis.duplicate_exposure), and the chain's own shared_bom note ties both issuers' aftertreatment content to the same underlying genset revenue described at position 5.",
+      "prior": null
+    }
+  ],
+  "would_buy_zone": {
+    "low": 184.06,
+    "high": 232.69,
+    "basis": "The band at which this dive's own net_gap_direction like-for-like build closes the gap against the filed 5-year reverse-DCF convention (33.79% headline, the tougher of the two the file solves versus 18.73% at 10 years, and the convention this dive claims as operative). High = $232.69 is the price at which that convention's implied ask falls to a stretch build (9% revenue CAGR, 13.5% steady-state margin, FY2025 cash-conversion ratio 0.5928 held, FCF CAGR 11.68%), above this dive's own 7.5%/13.0% base case. Low = $184.06 is the price at which the same convention's ask falls to this dive's own base case (7.5% revenue CAGR, 13.0% margin) evaluated at the more conservative FY2022-2025 average cash-conversion ratio (0.5186, FCF CAGR 6.43%), deliberately chosen over a still-more-conservative 6%/12% build (which forward-solves to $181.11 at the FY2025 conversion ratio or $158.91 at the average ratio, the latter falling below the 0.3x-last-close sanity floor and excluded for that reason). This dive's own base case at the FY2025 conversion ratio ($209.68) falls inside the zone, as it should. Both bounds solved by forward-evaluating quality.reverse_dcf's own bisection formula (base_fcf $2,386,000,000, 9% discount rate, 2.5% terminal growth, 5-year horizon; this dive's replication reproduces the filed 5/7/10-year enterprise values to within 0.01% before varying the target) at a chosen g instead of solving for g, then converting enterprise value to price via the file's own net-cash bridge (net debt $3,558,000,000 implied from enterprise_value less market_cap; 222,500,000 FY2025 shares: price = (EV - net_debt) / shares). The zone sits 58.35%-67.05% below the $558.53 reference, the deepest zone-to-spot gap this analyst has drawn after ESLT's 48.06%-59.65%, consistent with CMI carrying the second-highest 5-year market-implied FCF CAGR (33.79%) in this corpus after ESLT's 35.96%. A price-space cross-check at the excluded 10-year convention (this dive's own base case there: $220.88-$248.18) still sits 55.6%-60.4% below spot, which is why this zone's unusual depth is read as real daylight between price and this dive's own defensible fundamentals rather than a convention artifact, the same check this analyst's ESLT and VRT dives ran before drawing their own zones.",
+    "as_of": "2026-09-06"
+  },
+  "would_buy_basis": null
+}
