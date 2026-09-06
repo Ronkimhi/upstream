@@ -82,12 +82,42 @@ def _align(fields: dict, names):
     mismatched periods: wrong, and wrong in a way that looks fine. Fewer periods is the
     honest failure, so we intersect and let the change legs run short.
     """
-    frames = [fields[n] for n in names]
-    common = set(frames[0].columns)
-    for fr in frames[1:]:
-        common &= set(fr.columns)
+    # Periods are matched by fiscal period, not by the exact end date. A 52/53-week filer
+    # closes FY2025 on 2025-12-27 in one concept and reports 2025-12-31 in another, and
+    # an instant fact dated a few days after the duration fact's end is the same period;
+    # exact-string intersection read those as disjoint and returned "0 common fiscal
+    # periods across 9 inputs" with every input present (ONT, FTEK, CECO, HII on
+    # 2026-09-04). The key is the year-month of the end date shifted ten days forward,
+    # so any end within the same fortnight around a month boundary collapses to one
+    # period while annual periods, twelve months apart, never collide.
+    from datetime import date, timedelta
+
+    def period_key(col):
+        try:
+            d = date.fromisoformat(str(col)[:10]) + timedelta(days=10)
+        except ValueError:
+            return str(col)
+        return f"{d.year:04d}-{d.month:02d}"
+
+    keyed = {}
+    for n in names:
+        fr = fields[n]
+        by_key = {}
+        for col in fr.columns:
+            k = period_key(col)
+            if k not in by_key or str(col) > str(by_key[k]):
+                by_key[k] = col  # two ends under one key: keep the later date
+        keyed[n] = by_key
+    common = set(keyed[names[0]])
+    for n in names[1:]:
+        common &= set(keyed[n])
     cols = sorted(common)
-    return {n: fields[n][cols] for n in names}, cols
+    out = {}
+    for n in names:
+        fr = fields[n][[keyed[n][k] for k in cols]]
+        fr.columns = cols
+        out[n] = fr
+    return out, cols
 
 
 def piotroski(f: dict) -> dict:
