@@ -1123,6 +1123,12 @@
    "kind": "AMEND",
    "change": "Placement-audit follow-up amendment (Ron, 2026-09-04, 'everything now'): the 2026-09-04 fresh-context placement audits (commit f187057) PASSED CATERPILLAR, CUMMINS, FUEL-TECH and CECO-ENVIRONMENTAL on emissions-aftertreatment-and-catalyst with live-fetched verbatim excerpts, but every role-evidence item on those four placements still carried tag INFERRED, which check_screen.py refuses on an un-audited mapping (a screen row needs all-VERIFIED evidence). Re-fetched, live, every role-evidence URL on these seven placements (the four above plus TETRA-TECH, AECOM, JACOBS-SOLUTIONS on air-permitting-and-dispersion-modeling) this run, from a LOCAL session with curl/WebFetch access, and checked each excerpt verbatim against the fetched page text. TETRA-TECH's existing evidence item, on a link with no placement_audits entries, already cited the issuer's own official page and, once re-fetched, verbatim supported the full claim: retagged INFERRED->VERIFIED in place with a fuller, still-verbatim excerpt, so this placement is now all-VERIFIED. For the four audited emissions-aftertreatment-and-catalyst placements (CATERPILLAR, CUMMINS, FUEL-TECH, CECO-ENVIRONMENTAL), the sampled evidence[0] item was left untouched in every case, even where re-fetching CECO-ENVIRONMENTAL's own cited page confirmed its claim verbatim, because rewriting a placement_audits[]-sampled item changes placement_claim_digest and would silently invalidate that entry's PASS status without a re-audit (check_map.py caught exactly this on a first attempt at this amendment, which is reverted); a fresh-context run universe-audit --placement is the correct path to re-sample and revalidate those four items, not an author-run edit. Instead, for CATERPILLAR and CUMMINS the existing item cites a third-party compliance guide (powergenenterprises.com, secondary), so a new VERIFIED item was appended from each issuer's own official Tier-4/aftertreatment page confirming the narrower claim it actually supports verbatim. For FUEL-TECH the existing item cites a Motley Fool earnings-call transcript mirror (secondary), so a new VERIFIED item was appended from Fuel Tech's own case-study page confirming the 20-SCR/data-center-turbine claim verbatim. For CECO-ENVIRONMENTAL the existing item already cites CECO's own page, and a new VERIFIED item was appended from the same URL with the full verbatim sentence in place of the original's thin excerpt. AECOM and JACOBS-SOLUTIONS's existing items (air-permitting link, no placement_audits entries) already cite the issuer's own official page, but on live re-fetch the page did not verbatim support the data-center/tall-stack/New-Source-Review specifics in the original claim, so those items stay INFERRED as written; appended a new VERIFIED item on each stating the narrower claim the same official page does support. Net effect: TETRA-TECH is now the only one of the seven placements with all evidence VERIFIED (screen-admissible under audit_scope PLACEMENT without a further audit); the other six each gained one new VERIFIED item but retain one INFERRED item (secondary source, or an audited item left untouched, or a claim that overreaches its own primary source), so none of the six is yet all-VERIFIED. No issuer, listing, placement, or prior evidence row was deleted or altered beyond the one TETRA-TECH retag and the six appended items named above; every added item is a live fetch dated 2026-09-04. Every listing's identity_evidence for these seven issuers was already VERIFIED (SEC EDGAR submissions, from the 2026-09-04 author run) and untouched here. Mapping left ACTIVE; this session performs no audit, writes no placement_audits entry, and marks no link or the mapping COMPLETE.",
    "prior": null
+  },
+  {
+   "ts": "2026-09-06T15:45:53Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit minor-nsr-permits --placement AECOM (fresh context, Ron's 2026-09-06 batch): opened both the NYSE-ACM listing's SEC EDGAR identity record and the AECOM placement's cited role-evidence URL live. SEC EDGAR company-submissions for CIK0000868857 currently returns legal issuer AECOM, exchange NYSE, ticker ACM, matching the listing's identity_evidence exactly. AECOM's own Air Quality Consulting and Engineering page currently lists Air Permitting and Atmospheric Dispersion, Accidental Release and CFD Modeling among its representative services, matching this placement's role claim and its cited (VERIFIED) evidence[1] excerpt verbatim. Result: PASS. Wrote one placement_audits[] entry; mapping status, listings, other placements, link_coverage, searches and the whole-census audit block are untouched."
   }
  ],
  "placement_audits": [
@@ -1217,6 +1223,29 @@
    "identity_source_date": "2026-09-04",
    "identity_source_excerpt": "Live fetch 2026-09-04: {\"cik\":\"0000003197\",\"entityType\":\"operating\",\"sicDescription\":\"Industrial & Commercial Fans & Blowers & Air Purifing Equip\",\"name\":\"CECO ENVIRONMENTAL CORP\",\"tickers\":[\"CECO\"],\"exchanges\":[\"Nasdaq\"]} -- matches the NASDAQ-CECO listing's identity_evidence (legal_issuer CECO ENVIRONMENTAL CORP, exchange NASDAQ, ticker CECO) exactly.",
    "record_digest": "a0cbfe66f1805e59f0db35cc36eb6c8c5c4223d59b962c9843b9f02212ee0711"
+  },
+  {
+   "chain_id": "minor-nsr-permits",
+   "link_id": "air-permitting-and-dispersion-modeling",
+   "issuer_id": "AECOM",
+   "audited_at": "2026-09-06T15:45:53Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/batch-2026-09-06/audit-minor-nsr-permits-aecom/run-universe-audit-minor-nsr-permits--placement-AECOM-2026-09-06T154553Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree checked out fresh from origin/main for this command (part of Ron's 2026-09-06 parallel batch of screen and audit runs, worktree audit-minor-nsr-permits-aecom), reading only the AECOM placement on link air-permitting-and-dispersion-modeling and its NYSE-ACM listing within data/mappings/minor-nsr-permits.json, the minor-nsr-permits chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name; it never read the author's transcript, the map log, company profiles, screens, or ledger rationale, and never read any other placement on this mapping beyond what this placement and its listing record name. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "PASS",
+   "evidence_index": 1,
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "source_url": "https://aecom.com/services/environmental-services/air-quality-consulting-engineering/",
+   "source_date": "2026-09-04",
+   "source_excerpt": "Live fetch 2026-09-06 of https://aecom.com/services/environmental-services/air-quality-consulting-engineering/ confirms the representative services list still reads, verbatim: \"Air Permitting Air Pollution Control Engineering Ambient Monitoring and Source Testing Atmospheric Dispersion, Accidental Release and CFD Modeling Carbon Management Construction Assessment Emission Inventories and Mobile Source Studies Expert Witness Testimony Health Risk Assessments Occupational Health and Safety and Indoor Air Quality Management Odor and Noise Modeling, Monitoring and Control\" -- matching the placement's cited source_excerpt exactly and supporting the claimed role (air permitting and atmospheric dispersion modeling).",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0000868857.json",
+   "identity_source_date": "2026-09-06",
+   "identity_source_excerpt": "Live fetch 2026-09-06: {\"cik\":\"0000868857\",\"entityType\":\"operating\",\"sicDescription\":\"Services-Engineering Services\",\"name\":\"AECOM\",\"tickers\":[\"ACM\"],\"exchanges\":[\"NYSE\"]} -- matches the NYSE-ACM listing's identity_evidence (legal_issuer AECOM, exchange NYSE, ticker ACM) exactly.",
+   "record_digest": "3e9b63b6f457ef6afb1eb7b392b08528bf96dac6d6e42727390f1490f5a16bee"
   }
  ]
 }
