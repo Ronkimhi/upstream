@@ -5087,6 +5087,12 @@
       "by": "atlas-fresh-context",
       "kind": "NOTE",
       "change": "run universe-audit hormuz-maritime --placement CBL-INTERNATIONAL: fresh-context placement audit FAIL. Opened both cited sources live in a browser tab (WebFetch's own summarizer returned no match against the large SEC registry JSON and an empty result against the Barchart page, so the raw page text was read directly instead): the SEC company_tickers_exchange.json registry row for CIK 1914805 (CBL International Ltd, BANL, Nasdaq) matches the NASDAQ-BANL listing's identity_evidence exactly, and the placement's own cited Barchart article verbatim-supports the role claim (\"CBL International is a trusted bunkering services facilitator, serving nine of the world's top twelve container liner companies\"), matching the placement's source_excerpt exactly. The defect is the cited date: the placement's evidence declares source_date 2025-12-18, but the article's own byline reads \"ACN Newswire - Tue Dec 30, 2025 Press Release\" with no Dec 18 date anywhere on the page, a twelve-day mismatch. identity_ok true, role_ok true, source_date_ok false. Mapping status and the whole-census audit block are untouched; the author corrects the evidence date in a later run universe."
+    },
+    {
+      "ts": "2026-09-06T15:48:10Z",
+      "by": "atlas-fresh-context",
+      "kind": "NOTE",
+      "change": "run universe-audit hormuz-maritime --placement SINOPEC-CORP (link bunker-and-voyage-services): fresh-context placement audit FAIL. Identity confirmed live (SEC EDGAR ticker-search for SNPMF and data.sec.gov submissions API both resolve CIK 1123658 to China Petroleum & Chemical Corp, matching the OTC-SNPMF listing); role_ok is false: the placement's role text claims Sinopec is also 'the record-setting supplier at Zhoushan', a claim the placement's sole cited evidence (the ENGINE MPA top-10 article, refetched live) does not support -- it confirms only that Sinopec Fuel Oil (Singapore) sits on the MPA's 2025 top-10 list. This reproduces, unchanged, the defect the whole-census audit of 2026-09-04 already found on this same placement (record_digest identical to that audit's sampled_checks entry). Mapping status stays ACTIVE; this entry changes only placement_audits and changelog. The author should amend the placement's role text to drop or separately source the Zhoushan clause in a later run universe."
     }
   ],
   "audit": {
@@ -6077,6 +6083,30 @@
         "source_date_mismatch: the placement's evidence cites source_date \"2025-12-18\" for the Barchart article, but the article opened live carries its own byline \"ACN Newswire - Tue Dec 30, 2025 Press Release\" and no Dec 18 date appears anywhere on the page (Dec 30, 2025 is independently confirmed a Tuesday). The role claim itself is verbatim-supported: the article states \"CBL International is a trusted bunkering services facilitator, serving nine of the world's top twelve container liner companies,\" matching the placement's source_excerpt exactly, and CBL International's identity (Nasdaq:BANL) is corroborated on the same page and against the live SEC registry. Only the cited date is wrong, by twelve days, which fails the dated-evidence requirement on an otherwise sound placement."
       ],
       "record_digest": "6f1ff6231102efef830857d09c7e8c317c09901aa8e7b567cd8e0fe8f1c0745a"
+    },
+    {
+      "chain_id": "hormuz-maritime",
+      "link_id": "bunker-and-voyage-services",
+      "issuer_id": "SINOPEC-CORP",
+      "audited_at": "2026-09-06T15:48:10Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context/run-universe-audit-hormuz-maritime--placement-SINOPEC-CORP-20260906T154810Z (batch-lander worktree audit-hormuz-maritime-sinopec-corp)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the SINOPEC-CORP placement on link bunker-and-voyage-services and its OTC-SNPMF listing within data/mappings/hormuz-maritime.json, the hormuz-maritime chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, and the tools/check_map.py placement_claim_digest/placement_audit_for contract. Identity was checked live against SEC EDGAR's company-search-by-ticker resolver for SNPMF and against data.sec.gov/submissions/CIK0001123658.json, cross-checked with independent third-party market pages (CNBC, stockanalysis.com, TradingView, Webull) for the OTC/Pink venue, after a direct attempt to re-fetch the raw company_tickers_exchange.json bulk file returned an internally inconsistent, evidently truncated result on one pass (it attributed CIK 1123658 to Qualcomm, which is wrong) and was therefore not relied on as evidence; the smaller, targeted official endpoints were used instead. Role was checked live by refetching the placement's own cited ENGINE article today. This session never read the author's transcript, the map log, company profiles, screens, or ledger rationale, and never read the prior whole-census audit's rationale beyond confirming its record_digest for this same placement still matches current content. Repo state cannot cryptographically prove this session shares no state with the authoring session or with any prior audit; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "identity_ok": true,
+      "role_ok": false,
+      "source_date_ok": true,
+      "source_url": "https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631",
+      "source_date": "2026-01-14",
+      "source_excerpt": "MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.",
+      "identity_source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&ticker=SNPMF&type=&dateb=&owner=include&count=40&output=atom",
+      "identity_source_date": "2026-09-06",
+      "identity_source_excerpt": "SEC EDGAR company-search-by-ticker (live fetch 2026-09-06): ticker SNPMF resolves to CIK 0001123658, company name CHINA PETROLEUM & CHEMICAL CORP. Cross-checked live against https://data.sec.gov/submissions/CIK0001123658.json, which independently returns name \"CHINA PETROLEUM & CHEMICAL CORP\", cik 1123658, sic 2911 (Petroleum Refining), matching the mapping's OTC-SNPMF listing exactly.",
+      "role_conflict": "Role text reads: 'Physical bunker supplier through Sinopec Fuel Oil, on the Singapore MPA top-ten list and the record-setting supplier at Zhoushan.' The placement's sole cited evidence item (the ENGINE MPA top-10 article, refetched live today) confirms only the first half: Sinopec Fuel Oil (Singapore) is on the MPA's 2025 top-10 list. It never mentions Zhoushan, a Zhoushan bunkering record, or any record-setting claim; that half of the role sentence is unsupported by the evidence item cited for it. This is the same defect the prior whole-census audit (2026-09-04) found on this exact placement, reproduced independently here: the placement has not been amended since, and the record_digest below matches that prior audit's sampled_checks entry exactly.",
+      "record_digest": "5415d48a85114b08f4ed8aa06714854009be9a8f6eb363ba677c953221cd2276"
     }
   ]
 }
