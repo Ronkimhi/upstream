@@ -1312,6 +1312,24 @@ def _web_canonical(url):
     return urlunsplit((scheme, host, path, urlencode(query), ""))
 
 
+def _is_sec_host(url) -> bool:
+    """Any sec.gov host, www.sec.gov/Archives included. SEC's access policy asks every
+    automated client for the declared EDGAR agent string and rate limit; the browser-like
+    agent from a datacenter address answers 403 (found 2026-09-06: two AEVA exhibit pages
+    cited on ai-infrastructure were stored as 403, which failed validate for every session
+    until they could be re-fetched)."""
+    m = re.match(r"https?://([^/]+)", url or "") if isinstance(url, str) else None
+    host = (m.group(1) if m else "").lower()
+    return host == "sec.gov" or host.endswith(".sec.gov")
+
+
+def _web_headers(url) -> dict:
+    accept = "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5"
+    if _is_sec_host(url):
+        return {**SEC_HEADERS, "Accept": accept}
+    return {"User-Agent": WEB_USER_AGENT, "Accept": accept}
+
+
 def do_web_doc(url):
     """Fetch one web page into data/web/<sha16>.json as plain text, the web analogue of
     do_edgar_doc. A non-200 answer is STORED, not raised: a 403 or 404 is a fact about the
@@ -1322,9 +1340,9 @@ def do_web_doc(url):
         raise RuntimeError(f"web_doc needs an http(s) url, got {url!r}")
     canon = _web_canonical(url)
     doc_id = hashlib.sha256(canon.encode("utf-8")).hexdigest()[:16]
-    r = requests.get(url, headers={"User-Agent": WEB_USER_AGENT,
-                                   "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5"},
-                     timeout=45, allow_redirects=True)
+    if _is_sec_host(url):
+        edgar_wait()
+    r = requests.get(url, headers=_web_headers(url), timeout=45, allow_redirects=True)
     ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
     text = ""
     if r.status_code == 200:
