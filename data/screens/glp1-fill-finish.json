@@ -7,7 +7,7 @@
  "identity_schema": "campaign-v1",
  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
  "mapping_ref": "data/mappings/glp1-fill-finish.json",
- "universe_note": "FOURTH RUN, 2026-09-06. Re-run authorized by Ron (\"everything now\", 2026-09-04) after two upstream changes since the third pass above: (1) tools/check_screen.py commit 5e5f3b5 changed `_placement_admissible` to also accept a current PASS `placement_audits[]` entry (via `check_map.placement_audit_for`) as an alternative to all-VERIFIED evidence tags, closing exactly the mechanical gap the second-pass note below named; (2) Atlas corrected data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360, `run universe glp1-fill-finish`): the money-corner link autoinjector-and-pen-platforms now carries fresh citations for WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS (each evidence tag corrected from INFERRED to VERIFIED, replacing the sources that failed the fresh-context re-check), and all 4 placement_audits[] entries on this link (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS) now read PASS with a record_digest current against the corrected placements. The census also grew from 16 to 19 placements: YPSOMED-HOLDING (autoinjector-and-pen-platforms), SKAN-GROUP (aseptic-filling-and-isolator-equipment), and LONZA-GROUP (sterile-fill-finish-capacity), all ACTIVE with all-VERIFIED evidence.\n\nRe-checked every one of the mapping's 19 placements against the live tools/check_screen.py::_placement_admissible and tools/check_map.py::placement_audit_for directly (not by re-reading prior notes): all 19 are now admissible on the evidence plane, either all-VERIFIED tags (18 of 19) or a current PASS placement_audits[] entry (BECTON-DICKINSON's sole placement, evidence tag still INFERRED but admitted on the placement-audit path). Admissibility no longer has any evidence-tier blocker anywhere on this mapping; the only remaining blocker is profile availability.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: NOW SEATED, 4 of 5 placements. BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS are all admissible (evidence VERIFIED or PASS placement audit) and all four already carry a COMPLETE O2 profile on disk, landed before this run; all four are seated as picks_and_shovels rows this pass. WEST-PHARMACEUTICAL-SERVICES and GERRESHEIMER each hold a second, lower-priority placement on this mapping (elastomer-closure-components and ready-to-use-containment-formats respectively); per method section 6's dedup rule (\"a name surfacing from two links is listed once, under the higher-priority link, with the second noted in its thesis line\") each is seated once, here, with the secondary link named in its thesis_1line rather than written as a second row. This is the money-corner link and this run closes it: every admissible, profiled name it has is now on the file. The fifth placement, YPSOMED-HOLDING (all-VERIFIED evidence, arguably the chain's most nearly pure-play device name per the chain's own bottleneck note), has no profile on disk and is named in data_gaps.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED] and ready-to-use-containment-formats [EMERGING]: correctly empty by the dedup rule above, not by a block. Their sole placements (WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER) are seated at the higher-priority money-corner link instead; both are named in the money-corner row's thesis line and neither link genuinely lacks a seatable name, it lacks a *second* row for a name already counted once.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: still searched and empty, but the reason has narrowed to one gap. All 3 placements (STERIS, DANAHER, SKAN-GROUP) are now admissible on the evidence plane (all-VERIFIED); none of the three has a profile on disk. Admissible-but-unprofiled, named in data_gaps.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: same finding. All 4 placements (THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP) are now admissible on the evidence plane (all-VERIFIED); none has a profile on disk. Admissible-but-unprofiled, named in data_gaps.\n\nNet result this pass: 5 rows -> 9 rows, 5 of 13 links -> 6 of 13 links covered, and the single money-corner link goes from 0/4 seated to 4/4 of its profiled-admissible names seated (a 5th, unprofiled, name remains open). The two remaining CHOKE_POINT/UNDISCOVERED links (aseptic-filling-and-isolator-equipment, sterile-fill-finish-capacity) are now blocked purely on profile availability, 8 admissible-but-unprofiled issuers combined (YPSOMED-HOLDING, STERIS, DANAHER, SKAN-GROUP, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP), not on evidence or on a gate mechanism; the mechanical gate gap the third-pass note flagged is closed (5e5f3b5) and did exactly what was asked of it. No earnings nuggets are written for the 4 new rows: data/edgar/docs/ carries no document for BDX, WST, GXI or HALO, so per method section 1 (fail closed if no document) every earnings-nugget field is left an empty list rather than an unverifiable quote. All fundamentals, quality and valuation figures on the 4 new rows are copied unchanged from each issuer's own COMPLETE O2 profile metrics (already sourced and dated there this campaign), not re-derived or remembered.\n\nPRIOR PASSES BELOW, UNCHANGED:\n\nChain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null). Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first, then the three CHOKE_POINT links, then the rest by chain position. The mapping (data/mappings/glp1-fill-finish.json, 14 listings, 16 placements) carries no fresh-context whole-census audit (audit: null, status ACTIVE), so every row here rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope \"PLACEMENT\" declared on the row, admitted only when the consumed placement's own role evidence is entirely VERIFIED.\n\nThis is the third pass over this file today. Pass one seated 0 rows: of the 14 mapped issuers, only 4 (BECTON-DICKINSON, GERRESHEIMER, HALOZYME-THERAPEUTICS, WEST-PHARMACEUTICAL-SERVICES) had a COMPLETE profile, and all four sat on INFERRED-only evidence; the other 5 issuers with all-VERIFIED placement evidence (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK) had no profile on disk. Pass two, this run, opened on data/mappings/glp1-fill-finish.json (commit d3ee61d) gaining 4 fresh-context placement_audits[] entries on the money-corner link autoinjector-and-pen-platforms: BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. Still seated 0 rows on that link (detailed below). Between that write and this file's push, a same-day rebase pulled in 'run profile --campaign CAMP-20260901-01' batch 8, which profiled all 5 of the previously unprofiled, all-VERIFIED-evidence issuers (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK; all COMPLETE O2). This pass re-checked every link against the current state on disk and seated all 5: 5 of 13 links now produce a row.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: still searched and empty. BECTON-DICKINSON PASS (live re-fetch of investors.bd.com confirmed the Vystra pen / semaglutide self-injection role); WEST-PHARMACEUTICAL-SERVICES FAIL (the cited westpharma.com blog names neither SmartDose nor SelfDose anywhere on the page); GERRESHEIMER FAIL (the cited gerresheimer.com page confirms Gx Inbeneo is 'the autoinjector' for 'home treatment' but not the claimed high-viscosity/subcutaneous/self-administration attributes); HALOZYME-THERAPEUTICS FAIL (the cited nasdaq.com press release could not be reached live and the nearest verifiable SEC-filed exhibit does not carry the cited phrase or figures). WEST, GERRESHEIMER and HALOZYME are excluded from this link on two independent grounds now: INFERRED-only evidence tier (unchanged since pass one) and a failed fresh-context role check confirming the specific claim as cited does not hold, so re-admitting them needs new sourcing, not just a re-audit. BECTON-DICKINSON is a different case: this run built the exact campaign-v1 row (issuer_id BECTON-DICKINSON, listing_id NYSE-BDX, link_id autoinjector-and-pen-platforms, audit_scope PLACEMENT, profile_ref data/companies/BECTON-DICKINSON.json, a COMPLETE O2 T1 profile) and ran tools/check_screen.py against it directly to test admission. It failed: check_screen.py's `_placement_admissible` (the function gating a PLACEMENT-scoped row over this un-audited mapping) reads only the placement's own `evidence` array on data/mappings/glp1-fill-finish.json and requires every item there tagged VERIFIED; it does not read `placement_audits[]` at all. BD's placements[] entry for this link still carries one evidence item tagged INFERRED, because Atlas's `--placement` audit contract writes only `audit`, `status`, `changelog` and `placement_audits` on the mapping (tools/check_map.py's allowed-fields list for that command), never the placement's own evidence tag. The exact failure: \"audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit.\" Per CLAUDE.md postlude 1f (\"must pass; never commit around it\"), the row is not written here. This is a real gap, not a data gap: CLAUDE.md's `run deepdive` row already accepts a current PASS `placement_audits[]` entry as an admission path for Stocky's gate (check_analyst.py), but check_screen.py has not been extended to accept the same basis for a screen row. Closing this needs either check_screen.py extended to recognise a current PASS placement_audits entry (tools/, outside this run's write scope) or the placement's own evidence tag upgraded to VERIFIED by Atlas (data/mappings/, outside this run's write scope); flagged as a background task rather than fixed here. Net effect on this link: still 0 of 4 placements seatable, but for BD specifically the blocker is now purely mechanical, not evidentiary.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED]: searched and empty. Sole placement WEST-PHARMACEUTICAL-SERVICES, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a December 2025 company blog post), no placement_audits entry on this specific link (the 4 audits landed only cover autoinjector-and-pen-platforms) \u2014 same evidence-tier block as the money corner.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: searched and empty. Two placements, STERIS and DANAHER, both ACTIVE with INFERRED evidence (a 2021 product-launch release and a 2021 acquisition release respectively) and neither has a profile on disk (batch 8 did not reach either name): doubly blocked, on evidence tier and on profile availability.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: searched and empty. Three placements, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, all ACTIVE with INFERRED evidence and none profiled: doubly blocked, the same as the link above.\n\npharma-glass-tubing [QUIET]: SEATED. CORNING, ACTIVE, all-VERIFIED evidence (a dated Corning/Pfizer Valor Glass supply-agreement press release), COMPLETE O2 T1 profile landed in batch 8. Row written in picks_and_shovels.\n\nprimary-containment-converters [EMERGING]: SEATED. STEVANATO-GROUP, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q1 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; carries the chain's most concentrated disclosed GLP-1 revenue exposure (approx. 21% to 22%, quoted from the same VERIFIED filing).\n\ndevice-assembly-automation [QUIET]: SEATED. ATS-CORPORATION, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q4 fiscal 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; the same filing shows its own life sciences order backlog easing $1,199M to $1,077M year over year as GLP-1 autoinjector-assembly order flow normalizes.\n\ngeneric-and-biosimilar-glp1-entrants [EMERGING]: SEATED. DR-REDDYS-LABORATORIES, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit announcing the generic semaglutide launch in Canada), COMPLETE O2 T2 profile landed in batch 8. Row written in second_order (a patent-cliff entrant, not a supply-chain input); Piotroski 3/9 (WEAK) is the weakest quality read of any name profiled on this chain.\n\nglp1-demand-anchor [OVER_CROWDED]: SEATED. NOVO-NORDISK, ACTIVE, all-VERIFIED evidence (a Form 6-K annual-report/Q4 2025 financial-statement exhibit), COMPLETE O2 T2 profile landed in batch 8. Row written in pure_play; Ozempic plus Wegovy sales (DKK 206.2bn, both figures from the same VERIFIED filing) computed against the profile's own sourced FY2025 revenue (DKK 309.1bn) to about two-thirds of revenue. (LLY carries no mapped placement on this chain at all; only the NVO side of the demand anchor is mapped.)\n\nready-to-use-containment-formats [EMERGING]: searched and empty. Sole placement GERRESHEIMER, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a January 2026 Pharmapack press page), no placement_audits entry on this specific link \u2014 same evidence-tier block as the money corner.\n\npeptide-api-supply [HIGH criticality, EMERGING]: searched and empty. Zero mapped placements. None of the chain's own example_tickers for this link (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO) appears in data/mappings/glp1-fill-finish.json; TMO is mapped only to sterile-fill-finish-capacity, a different link. This link needs a `run universe glp1-fill-finish` amendment before it can be screened at all, and it is the chain's one link with a dated lead-time figure (18 to 36 months for new reactor capacity), which makes the gap worth closing.\n\nhalobutyl-elastomer-feedstock [MEDIUM criticality, QUIET]: searched and empty. Zero mapped placements, by chain design: the chain's own note calls XOM/0386.HK/RELIANCE.NS \"a trap: buying XOM is not buying GLP-1 capacity,\" and no listed pure play exists at this stage. Correctly un-mapped, not a gap.\n\nus-onshoring-tariff-response [HIGH criticality, CROWDED]: searched and empty. Zero mapped placements, by chain design: example_tickers is deliberately empty (there is no instrument for a tariff schedule); the chain's own note routes the investable expression through the US-sited capacity at positions 4, 9 and 11 (primary-containment-converters, sterile-fill-finish-capacity, autoinjector-and-pen-platforms), each already covered above.\n\nNet effect: 5 of 13 links produce rows this run (5 rows total: CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK). The money-corner link and all three CHOKE_POINT links remain empty and are attributed as searched with a stated reason, never silently absent. Two concrete next steps, neither of them this run's to take: (a) either check_screen.py extended to admit a row on a current PASS `placement_audits[]` entry (as check_analyst.py already does for deepdive), or Atlas upgrading BECTON-DICKINSON's autoinjector-and-pen-platforms evidence tag to VERIFIED to reflect its PASS fresh-context audit \u2014 either would open the money corner on this one name; WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS now need new sourcing, not a re-audit, since their fresh-context audits FAILED on the cited claim itself; (b) profiling STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL would open the two remaining empty CHOKE_POINT links, and `run universe glp1-fill-finish` would close peptide-api-supply, a HIGH-criticality, dated-lead-time link with zero mapped placements. Not fixed here: data/mappings/, data/companies/, and tools/ are outside this run's write scope.",
+ "universe_note": "FIFTH RUN, 2026-09-06, same UTC day as the fourth pass above. Between committing the fourth pass and the final push, a rebase onto origin/main pulled in a same-day peer commit (c2fe10a, `run profile --campaign CAMP-20260901-01` amend batch) that profiled STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL all COMPLETE O2 (KAMBI, WSP-GLOBAL, YPSOMED-HOLDING, SKAN-GROUP and LONZA-GROUP were BLOCKED with PENDING requests in that same batch and remain unprofiled here). All 5 newly-profiled issuers already carried all-VERIFIED mapping evidence on this chain (confirmed in the fourth-run pass above); re-checked their admissibility directly against the live tools/check_screen.py::_placement_admissible before writing any row: all 5 are admissible, and the mapping had not changed since the fourth pass. Seated all 5 as picks_and_shovels rows: STERIS and DANAHER on aseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]; THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL on sterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]. This closes both of the task's named priority links to every admissible, profiled name they have; the only remaining gaps on them are SKAN-GROUP (aseptic-filling-and-isolator-equipment) and LONZA-GROUP (sterile-fill-finish-capacity), both admissible on evidence but BLOCKED-unprofiled per the same peer batch. Net result this pass: 9 rows -> 14 rows, 6/13 -> 8/13 links covered. No earnings nuggets: data/edgar/docs/ carries no document for STE, DHR, TMO, SFZN or BAX. All fundamentals, quality and valuation figures on these 5 rows are copied unchanged from each issuer's own COMPLETE O2 profile metrics, not re-derived.\n\nFOURTH RUN BELOW, UNCHANGED:\n\nFOURTH RUN, 2026-09-06. Re-run authorized by Ron (\"everything now\", 2026-09-04) after two upstream changes since the third pass above: (1) tools/check_screen.py commit 5e5f3b5 changed `_placement_admissible` to also accept a current PASS `placement_audits[]` entry (via `check_map.placement_audit_for`) as an alternative to all-VERIFIED evidence tags, closing exactly the mechanical gap the second-pass note below named; (2) Atlas corrected data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360, `run universe glp1-fill-finish`): the money-corner link autoinjector-and-pen-platforms now carries fresh citations for WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS (each evidence tag corrected from INFERRED to VERIFIED, replacing the sources that failed the fresh-context re-check), and all 4 placement_audits[] entries on this link (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS) now read PASS with a record_digest current against the corrected placements. The census also grew from 16 to 19 placements: YPSOMED-HOLDING (autoinjector-and-pen-platforms), SKAN-GROUP (aseptic-filling-and-isolator-equipment), and LONZA-GROUP (sterile-fill-finish-capacity), all ACTIVE with all-VERIFIED evidence.\n\nRe-checked every one of the mapping's 19 placements against the live tools/check_screen.py::_placement_admissible and tools/check_map.py::placement_audit_for directly (not by re-reading prior notes): all 19 are now admissible on the evidence plane, either all-VERIFIED tags (18 of 19) or a current PASS placement_audits[] entry (BECTON-DICKINSON's sole placement, evidence tag still INFERRED but admitted on the placement-audit path). Admissibility no longer has any evidence-tier blocker anywhere on this mapping; the only remaining blocker is profile availability.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: NOW SEATED, 4 of 5 placements. BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS are all admissible (evidence VERIFIED or PASS placement audit) and all four already carry a COMPLETE O2 profile on disk, landed before this run; all four are seated as picks_and_shovels rows this pass. WEST-PHARMACEUTICAL-SERVICES and GERRESHEIMER each hold a second, lower-priority placement on this mapping (elastomer-closure-components and ready-to-use-containment-formats respectively); per method section 6's dedup rule (\"a name surfacing from two links is listed once, under the higher-priority link, with the second noted in its thesis line\") each is seated once, here, with the secondary link named in its thesis_1line rather than written as a second row. This is the money-corner link and this run closes it: every admissible, profiled name it has is now on the file. The fifth placement, YPSOMED-HOLDING (all-VERIFIED evidence, arguably the chain's most nearly pure-play device name per the chain's own bottleneck note), has no profile on disk and is named in data_gaps.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED] and ready-to-use-containment-formats [EMERGING]: correctly empty by the dedup rule above, not by a block. Their sole placements (WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER) are seated at the higher-priority money-corner link instead; both are named in the money-corner row's thesis line and neither link genuinely lacks a seatable name, it lacks a *second* row for a name already counted once.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: still searched and empty, but the reason has narrowed to one gap. All 3 placements (STERIS, DANAHER, SKAN-GROUP) are now admissible on the evidence plane (all-VERIFIED); none of the three has a profile on disk. Admissible-but-unprofiled, named in data_gaps.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: same finding. All 4 placements (THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP) are now admissible on the evidence plane (all-VERIFIED); none has a profile on disk. Admissible-but-unprofiled, named in data_gaps.\n\nNet result this pass: 5 rows -> 9 rows, 5 of 13 links -> 6 of 13 links covered, and the single money-corner link goes from 0/4 seated to 4/4 of its profiled-admissible names seated (a 5th, unprofiled, name remains open). The two remaining CHOKE_POINT/UNDISCOVERED links (aseptic-filling-and-isolator-equipment, sterile-fill-finish-capacity) are now blocked purely on profile availability, 8 admissible-but-unprofiled issuers combined (YPSOMED-HOLDING, STERIS, DANAHER, SKAN-GROUP, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP), not on evidence or on a gate mechanism; the mechanical gate gap the third-pass note flagged is closed (5e5f3b5) and did exactly what was asked of it. No earnings nuggets are written for the 4 new rows: data/edgar/docs/ carries no document for BDX, WST, GXI or HALO, so per method section 1 (fail closed if no document) every earnings-nugget field is left an empty list rather than an unverifiable quote. All fundamentals, quality and valuation figures on the 4 new rows are copied unchanged from each issuer's own COMPLETE O2 profile metrics (already sourced and dated there this campaign), not re-derived or remembered.\n\nPRIOR PASSES BELOW, UNCHANGED:\n\nChain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null). Universe built per LINK across all 13 links, worked in priority order: the one money-corner link first, then the three CHOKE_POINT links, then the rest by chain position. The mapping (data/mappings/glp1-fill-finish.json, 14 listings, 16 placements) carries no fresh-context whole-census audit (audit: null, status ACTIVE), so every row here rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope \"PLACEMENT\" declared on the row, admitted only when the consumed placement's own role evidence is entirely VERIFIED.\n\nThis is the third pass over this file today. Pass one seated 0 rows: of the 14 mapped issuers, only 4 (BECTON-DICKINSON, GERRESHEIMER, HALOZYME-THERAPEUTICS, WEST-PHARMACEUTICAL-SERVICES) had a COMPLETE profile, and all four sat on INFERRED-only evidence; the other 5 issuers with all-VERIFIED placement evidence (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK) had no profile on disk. Pass two, this run, opened on data/mappings/glp1-fill-finish.json (commit d3ee61d) gaining 4 fresh-context placement_audits[] entries on the money-corner link autoinjector-and-pen-platforms: BECTON-DICKINSON PASS, WEST-PHARMACEUTICAL-SERVICES FAIL, GERRESHEIMER FAIL, HALOZYME-THERAPEUTICS FAIL. Still seated 0 rows on that link (detailed below). Between that write and this file's push, a same-day rebase pulled in 'run profile --campaign CAMP-20260901-01' batch 8, which profiled all 5 of the previously unprofiled, all-VERIFIED-evidence issuers (CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK; all COMPLETE O2). This pass re-checked every link against the current state on disk and seated all 5: 5 of 13 links now produce a row.\n\nautoinjector-and-pen-platforms [MONEY CORNER, UNDISCOVERED]: still searched and empty. BECTON-DICKINSON PASS (live re-fetch of investors.bd.com confirmed the Vystra pen / semaglutide self-injection role); WEST-PHARMACEUTICAL-SERVICES FAIL (the cited westpharma.com blog names neither SmartDose nor SelfDose anywhere on the page); GERRESHEIMER FAIL (the cited gerresheimer.com page confirms Gx Inbeneo is 'the autoinjector' for 'home treatment' but not the claimed high-viscosity/subcutaneous/self-administration attributes); HALOZYME-THERAPEUTICS FAIL (the cited nasdaq.com press release could not be reached live and the nearest verifiable SEC-filed exhibit does not carry the cited phrase or figures). WEST, GERRESHEIMER and HALOZYME are excluded from this link on two independent grounds now: INFERRED-only evidence tier (unchanged since pass one) and a failed fresh-context role check confirming the specific claim as cited does not hold, so re-admitting them needs new sourcing, not just a re-audit. BECTON-DICKINSON is a different case: this run built the exact campaign-v1 row (issuer_id BECTON-DICKINSON, listing_id NYSE-BDX, link_id autoinjector-and-pen-platforms, audit_scope PLACEMENT, profile_ref data/companies/BECTON-DICKINSON.json, a COMPLETE O2 T1 profile) and ran tools/check_screen.py against it directly to test admission. It failed: check_screen.py's `_placement_admissible` (the function gating a PLACEMENT-scoped row over this un-audited mapping) reads only the placement's own `evidence` array on data/mappings/glp1-fill-finish.json and requires every item there tagged VERIFIED; it does not read `placement_audits[]` at all. BD's placements[] entry for this link still carries one evidence item tagged INFERRED, because Atlas's `--placement` audit contract writes only `audit`, `status`, `changelog` and `placement_audits` on the mapping (tools/check_map.py's allowed-fields list for that command), never the placement's own evidence tag. The exact failure: \"audit_scope PLACEMENT on an un-audited mapping requires every evidence item on the placement to be VERIFIED; INFERRED issuer-role evidence needs the census audit.\" Per CLAUDE.md postlude 1f (\"must pass; never commit around it\"), the row is not written here. This is a real gap, not a data gap: CLAUDE.md's `run deepdive` row already accepts a current PASS `placement_audits[]` entry as an admission path for Stocky's gate (check_analyst.py), but check_screen.py has not been extended to accept the same basis for a screen row. Closing this needs either check_screen.py extended to recognise a current PASS placement_audits entry (tools/, outside this run's write scope) or the placement's own evidence tag upgraded to VERIFIED by Atlas (data/mappings/, outside this run's write scope); flagged as a background task rather than fixed here. Net effect on this link: still 0 of 4 placements seatable, but for BD specifically the blocker is now purely mechanical, not evidentiary.\n\nelastomer-closure-components [CHOKE_POINT, CROWDED]: searched and empty. Sole placement WEST-PHARMACEUTICAL-SERVICES, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a December 2025 company blog post), no placement_audits entry on this specific link (the 4 audits landed only cover autoinjector-and-pen-platforms) \u2014 same evidence-tier block as the money corner.\n\naseptic-filling-and-isolator-equipment [CHOKE_POINT, UNDISCOVERED]: searched and empty. Two placements, STERIS and DANAHER, both ACTIVE with INFERRED evidence (a 2021 product-launch release and a 2021 acquisition release respectively) and neither has a profile on disk (batch 8 did not reach either name): doubly blocked, on evidence tier and on profile availability.\n\nsterile-fill-finish-capacity [CHOKE_POINT, UNDISCOVERED]: searched and empty. Three placements, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, all ACTIVE with INFERRED evidence and none profiled: doubly blocked, the same as the link above.\n\npharma-glass-tubing [QUIET]: SEATED. CORNING, ACTIVE, all-VERIFIED evidence (a dated Corning/Pfizer Valor Glass supply-agreement press release), COMPLETE O2 T1 profile landed in batch 8. Row written in picks_and_shovels.\n\nprimary-containment-converters [EMERGING]: SEATED. STEVANATO-GROUP, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q1 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; carries the chain's most concentrated disclosed GLP-1 revenue exposure (approx. 21% to 22%, quoted from the same VERIFIED filing).\n\ndevice-assembly-automation [QUIET]: SEATED. ATS-CORPORATION, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit, Q4 fiscal 2026 results release), COMPLETE O2 T2 profile landed in batch 8. Row written in picks_and_shovels; the same filing shows its own life sciences order backlog easing $1,199M to $1,077M year over year as GLP-1 autoinjector-assembly order flow normalizes.\n\ngeneric-and-biosimilar-glp1-entrants [EMERGING]: SEATED. DR-REDDYS-LABORATORIES, ACTIVE, all-VERIFIED evidence (a Form 6-K exhibit announcing the generic semaglutide launch in Canada), COMPLETE O2 T2 profile landed in batch 8. Row written in second_order (a patent-cliff entrant, not a supply-chain input); Piotroski 3/9 (WEAK) is the weakest quality read of any name profiled on this chain.\n\nglp1-demand-anchor [OVER_CROWDED]: SEATED. NOVO-NORDISK, ACTIVE, all-VERIFIED evidence (a Form 6-K annual-report/Q4 2025 financial-statement exhibit), COMPLETE O2 T2 profile landed in batch 8. Row written in pure_play; Ozempic plus Wegovy sales (DKK 206.2bn, both figures from the same VERIFIED filing) computed against the profile's own sourced FY2025 revenue (DKK 309.1bn) to about two-thirds of revenue. (LLY carries no mapped placement on this chain at all; only the NVO side of the demand anchor is mapped.)\n\nready-to-use-containment-formats [EMERGING]: searched and empty. Sole placement GERRESHEIMER, ACTIVE, COMPLETE O2 profile, INFERRED evidence (a January 2026 Pharmapack press page), no placement_audits entry on this specific link \u2014 same evidence-tier block as the money corner.\n\npeptide-api-supply [HIGH criticality, EMERGING]: searched and empty. Zero mapped placements. None of the chain's own example_tickers for this link (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO) appears in data/mappings/glp1-fill-finish.json; TMO is mapped only to sterile-fill-finish-capacity, a different link. This link needs a `run universe glp1-fill-finish` amendment before it can be screened at all, and it is the chain's one link with a dated lead-time figure (18 to 36 months for new reactor capacity), which makes the gap worth closing.\n\nhalobutyl-elastomer-feedstock [MEDIUM criticality, QUIET]: searched and empty. Zero mapped placements, by chain design: the chain's own note calls XOM/0386.HK/RELIANCE.NS \"a trap: buying XOM is not buying GLP-1 capacity,\" and no listed pure play exists at this stage. Correctly un-mapped, not a gap.\n\nus-onshoring-tariff-response [HIGH criticality, CROWDED]: searched and empty. Zero mapped placements, by chain design: example_tickers is deliberately empty (there is no instrument for a tariff schedule); the chain's own note routes the investable expression through the US-sited capacity at positions 4, 9 and 11 (primary-containment-converters, sterile-fill-finish-capacity, autoinjector-and-pen-platforms), each already covered above.\n\nNet effect: 5 of 13 links produce rows this run (5 rows total: CORNING, STEVANATO-GROUP, ATS-CORPORATION, DR-REDDYS-LABORATORIES, NOVO-NORDISK). The money-corner link and all three CHOKE_POINT links remain empty and are attributed as searched with a stated reason, never silently absent. Two concrete next steps, neither of them this run's to take: (a) either check_screen.py extended to admit a row on a current PASS `placement_audits[]` entry (as check_analyst.py already does for deepdive), or Atlas upgrading BECTON-DICKINSON's autoinjector-and-pen-platforms evidence tag to VERIFIED to reflect its PASS fresh-context audit \u2014 either would open the money corner on this one name; WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS now need new sourcing, not a re-audit, since their fresh-context audits FAILED on the cited claim itself; (b) profiling STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL would open the two remaining empty CHOKE_POINT links, and `run universe glp1-fill-finish` would close peptide-api-supply, a HIGH-criticality, dated-lead-time link with zero mapped placements. Not fixed here: data/mappings/, data/companies/, and tools/ are outside this run's write scope.",
  "queries_run": [
   {
    "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/glp1-fill-finish.json carrying an ACTIVE status, joined to its official listing and split by evidence tag",
@@ -32,6 +32,12 @@
    "forms": null,
    "hits_examined": 19,
    "names_extracted": 4
+  },
+  {
+   "query": "Re-check data/companies/ for STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL after a same-day rebase pulled in 'run profile --campaign CAMP-20260901-01' amend batch (commit c2fe10a) profiling them COMPLETE; re-verify their admissibility against the live gate functions",
+   "forms": null,
+   "hits_examined": 5,
+   "names_extracted": 5
   }
  ],
  "buckets": {
@@ -1035,6 +1041,656 @@
     },
     "earnings_nuggets": [],
     "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "STERIS",
+    "listing_id": "NYSE-STE",
+    "ticker": "STE",
+    "market_ticker": "STE",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "aseptic-filling-and-isolator-equipment",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/STERIS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "STERIS plc",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 1757898,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "STERIS's VHP 100i and 1000i bio-decontamination units run programmed decontamination cycles for rooms, isolators, filling lines and RABs in GMP pharmaceutical environments, the barrier technology this CHOKE_POINT link tracks (STERIS Life Sciences press release, 2021-09-09, VERIFIED verbatim). Link scored UNDISCOVERED: the two largest filling-line OEMs (Syntegon, OPTIMA) are private, so this diversified medical-device maker is a partial, indirect read on the equipment layer.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "STERIS does not disclose a GLP-1- or aseptic-filling-specific revenue percentage; VHP decontamination sits inside its diversified Life Sciences segment.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 5935900000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Fiscal-year revenue for the period ended 2026-03-31, from SEC XBRL companyfacts for STERIS (STE)."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.09377842934242775,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Three-year compound annual revenue growth computed as (5935900000/4536266000)**(1/3)-1 from the companyfacts revenue series, period ended 2023-03-31 to period ended 2026-03-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.18561633450698292,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Operating income 1101800000 divided by revenue 5935900000, both for the period ended 2026-03-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.1638167758890817,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Free cash flow margin: operating cash flow 1341400000 less capital expenditure 369000000, divided by revenue 5935900000, all for the period ended 2026-03-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.7146874600536879,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Operating cash flow 1341400000 divided by net income 782300000, both for the period ended 2026-03-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 0.735314487187559,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Net debt 1167900000 (total debt 1650200000 as of 2026-06-30 less cash 482300000 as of 2026-06-30) divided by an EBITDA proxy 1588300000 (operating income 1101800000 plus depreciation 486500000 (period ended 2026-03-31), period ended 2026-03-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 9,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/STE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Piotroski F-score 9 (state STRONG) computed over companyfacts statements in data/market/STE.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.677,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/STE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Beneish M-score -2.677 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/STE.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 21947787000.0,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/STE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Market capitalization 21947787000.0 computed in data/market/STE.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 3.6974657591940563,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/STE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Market capitalization 21947787000.0 divided by fiscal year 2026-03-31 revenue 5935900000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.1229,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/STE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001757898.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 972400000.0, enterprise_value 23115687000.0, from data/market/STE.json quality.reverse_dcf."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/STE.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/STE.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "DANAHER",
+    "listing_id": "NYSE-DHR",
+    "ticker": "DHR",
+    "market_ticker": "DHR",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "aseptic-filling-and-isolator-equipment",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/DANAHER.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Danaher Corporation",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 313616,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Danaher's Cytiva operating company owns Vanrx Pharmasystems, whose robotic, gloveless-isolator aseptic filling workcells fill vials, syringes and cartridges, placing Danaher directly in this CHOKE_POINT link's filling-equipment layer (Cytiva/Danaher press release, 2021-02-01, VERIFIED verbatim). Link scored UNDISCOVERED: Danaher's own GLP-1 exposure is unquantified, a fraction of a $20bn+-revenue diversified life-sciences conglomerate, so this is a diversified-parent read, not a concentrated one.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Danaher does not disclose a GLP-1- or aseptic-filling-specific revenue percentage; Vanrx sits inside its diversified Life Sciences segment (Cytiva).",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 24568000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DHR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for DANAHER (DHR)."
+     },
+     "revenue_cagr_3y": {
+      "value": -0.026665255865112814,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DHR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Three-year compound annual revenue growth computed as (24568000000/26643000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.19089873005535657,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DHR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Operating income 4690000000 divided by revenue 24568000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.2140996418104852,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DHR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Free cash flow margin: operating cash flow 6416000000 less capital expenditure 1156000000, divided by revenue 24568000000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.7753182069728832,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DHR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Operating cash flow 6416000000 divided by net income 3614000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts cash last reported 2020-10-02 and total_debt last reported 2026-06-26 do not sit close enough in time to the fiscal-year operating figures (2025-12-31) to support a real net-debt-to-EBITDA figure; net_debt_to_ebitda stays NULL pending a same-period cash/debt/depreciation set."
+     },
+     "piotroski": {
+      "value": 6,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/DHR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Piotroski F-score 6 (state MIDDLING) computed over companyfacts statements in data/market/DHR.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.599,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/DHR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Beneish M-score -2.599 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/DHR.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 146611060000.0,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/DHR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Market capitalization 146611060000.0 computed in data/market/DHR.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 5.967561869098014,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/DHR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Market capitalization 146611060000.0 divided by fiscal year 2025-12-31 revenue 24568000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.1946,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/DHR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000313616.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 5260000000.0, enterprise_value 166070360000.0, from data/market/DHR.json quality.reverse_dcf."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/DHR.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/DHR.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "THERMO-FISHER-SCIENTIFIC",
+    "listing_id": "NYSE-TMO",
+    "ticker": "TMO",
+    "market_ticker": "TMO",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "sterile-fill-finish-capacity",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/THERMO-FISHER-SCIENTIFIC.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Thermo Fisher Scientific Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 97745,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Thermo Fisher's Patheon contract-manufacturing business invested $154 million to expand sterile liquid, lyophilized and prefilled-syringe fill-finish capacity at its Greenville, NC campus, the convergence stage where peptide, container and filling line meet (BioProcess International, 2021-09-16, VERIFIED verbatim). Link scored UNDISCOVERED: the biggest dedicated fillers (Catalent under Novo Holdings, Vetter, Fareva, Recipharm, PCI Pharma Services) are private or captive, making this diversified conglomerate one of the few listed reads on the chain's least investable constrained link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Thermo Fisher does not disclose a GLP-1- or fill-finish-specific revenue percentage; Patheon sits inside its diversified Laboratory Products and Biopharma Services segment.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 44556000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for THERMO-FISHER-SCIENTIFIC (TMO)."
+     },
+     "revenue_cagr_3y": {
+      "value": -0.0026714219508328085,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Three-year compound annual revenue growth computed as (44556000000/44915000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.17384863991381633,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Operating income 7746000000 divided by revenue 44556000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.14123799263847742,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Free cash flow margin: operating cash flow 7818000000 less capital expenditure 1525000000, divided by revenue 44556000000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.1661694510739857,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Operating cash flow 7818000000 divided by net income 6704000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "companyfacts cash last reported 2026-06-27 and total_debt last reported 2021-07-03 do not sit close enough in time to the fiscal-year operating figures (2025-12-31) to support a real net-debt-to-EBITDA figure; net_debt_to_ebitda stays NULL pending a same-period cash/debt/depreciation set."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/TMO.json quality.piotroski is PENDING_DATA: ['only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2']; piotroski score not computable this run."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/TMO.json quality.beneish is PENDING_DATA: ['only 0 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio']; beneish score not computable this run."
+     },
+     "market_cap": {
+      "value": 273319521607.98,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/TMO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Market capitalization 273319521607.98 computed in data/market/TMO.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 6.1342921628507945,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/TMO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Market capitalization 273319521607.98 divided by fiscal year 2025-12-31 revenue 44556000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.2938,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/TMO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000097745.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 6293000000.0, enterprise_value 288028521607.98, from data/market/TMO.json quality.reverse_dcf."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/TMO.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/TMO.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "SIEGFRIED-HOLDING",
+    "listing_id": "SIX-SFZN",
+    "ticker": "SFZN",
+    "market_ticker": "SFZN.SW",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "sterile-fill-finish-capacity",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/SIEGFRIED-HOLDING.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "Siegfried Holding AG",
+    "exchange": "SIX Swiss Exchange",
+    "tier": "T3",
+    "cik": null,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Siegfried is a dedicated sterile fill-finish CDMO adding pre-filled syringe and cartridge lines at its Hameln site, with the first new line expected to start generating revenue in 2026 (Siegfried Holding AG press release, 2025-08-21, VERIFIED verbatim); one of the few listed pure contract-fillers on a link this map's own bottleneck note says is least investable because the biggest dedicated fillers are private or captive. Link scored UNDISCOVERED.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Siegfried does not disclose a GLP-1-specific revenue percentage; the Hameln pre-filled syringe and cartridge lines sit inside its diversified CDMO business.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 1327834000.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Vendor-normalised fiscal-year revenue (CHF) for the period ended 2025-12-31, from data/market/SFZN-SW.json fundamentals (source yfinance-statements). (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.025973864806013047,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Three-year compound annual revenue growth computed as (1327834000.0/1229518000.0)**(1/3)-1 from the vendor revenue series, period ended 2022-12-31 to period ended 2025-12-31. (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "operating_margin": {
+      "value": 0.16287050941608666,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Operating income 216265000.0 divided by revenue 1327834000.0, both for the period ended 2025-12-31, from the vendor series. (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "fcf_margin": {
+      "value": -0.0024927814772027226,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Free cash flow margin: operating cash flow 228159000.0 less capital expenditure 231469000.0, divided by revenue 1327834000.0, all for the period ended 2025-12-31, from the vendor series. (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.352782834002336,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Operating cash flow 228159000.0 divided by net income 168659000.0, both for the period ended 2025-12-31, from the vendor series. (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/SFZN-SW.json fundamentals.total_debt is missing or empty; net_debt_to_ebitda not computable this run."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/SFZN-SW.json quality.piotroski is PENDING_DATA: missing ['long_term_debt_fy']; piotroski score not computable this run."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/SFZN-SW.json quality.beneish is PENDING_DATA: missing ['long_term_debt_fy']; beneish score not computable this run."
+     },
+     "market_cap": {
+      "value": 3088495020.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Market capitalization 3088495020.0 (CHF) computed in data/market/SFZN-SW.json quality.derived.market_cap from the vendor share count times the repo's own market-plane close. (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "price_to_sales": {
+      "value": 2.3259647064316775,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-04",
+      "url": "https://www.siegfried.ch/investors/share-and-bond-information/",
+      "basis": "Market capitalization 3088495020.0 divided by fiscal year 2025-12-31 revenue 1327834000.0 (both CHF). (vendor normalisation of a local-GAAP/IFRS report this repo has not read; INFERRED per method section 6A's vendor-aggregate allowance, Ron's decision 2026-09-01)",
+      "official_source": false
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "data/market/SFZN-SW.json quality.reverse_dcf is not SOLVED (reverse_dcf state PENDING_DATA, missing ['enterprise_value']); implied_fcf_cagr not computable this run."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/SFZN-SW.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/SFZN-SW.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "BAXTER-INTERNATIONAL",
+    "listing_id": "NYSE-BAX",
+    "ticker": "BAX",
+    "market_ticker": "BAX",
+    "chain_id": "glp1-fill-finish",
+    "link_id": "sterile-fill-finish-capacity",
+    "mapping_ref": "data/mappings/glp1-fill-finish.json",
+    "profile_ref": "data/companies/BAXTER-INTERNATIONAL.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Baxter International Inc.",
+    "exchange": "NYSE",
+    "tier": "T1",
+    "cik": 10456,
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Baxter's BioPharma Solutions unit is investing approximately $100 million to expand its sterile fill/finish manufacturing facility in Halle/Westfalen, Germany, adding an aseptic syringe filling line and expanding lyophilized and liquid vial capacity (Contract Pharma, 2021-11-11, VERIFIED verbatim), another name in the contract-fill-finish layer that GLP-1 label expansions queue for. Link scored UNDISCOVERED; Baxter's own GLP-1 exposure is unquantified inside a diversified medical-products company.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Baxter does not disclose a GLP-1- or fill-finish-specific revenue percentage; BioPharma Solutions sits inside its diversified segment structure.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 11244000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BAX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for BAXTER-INTERNATIONAL (BAX)."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.0378887286798415,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BAX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Three-year compound annual revenue growth computed as (11244000000/10057000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": -0.027392387050871575,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BAX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Operating income -308000000 divided by revenue 11244000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.029526858769121308,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BAX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Free cash flow margin: operating cash flow 845000000 less capital expenditure 513000000, divided by revenue 11244000000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": -0.8829676071055381,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BAX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Operating cash flow 845000000 divided by net income -957000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 10.829123328380387,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BAX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Net debt 7288000000 (total debt 9438000000 as of 2025-12-31 less cash 2150000000 as of 2026-06-30) divided by an EBITDA proxy 673000000 (operating income -308000000 plus depreciation 981000000 (period ended 2025-12-31), period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 6,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BAX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Piotroski F-score 6 (state MIDDLING) computed over companyfacts statements in data/market/BAX.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.621,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BAX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Beneish M-score -2.621 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/BAX.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 17784538442.88,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BAX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Market capitalization 17784538442.88 computed in data/market/BAX.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 1.5816914303521878,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/BAX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Market capitalization 17784538442.88 divided by fiscal year 2025-12-31 revenue 11244000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.4385,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/BAX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010456.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 332000000.0, enterprise_value 25072538442.88, from data/market/BAX.json quality.reverse_dcf."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/BAX.json",
+     "as_of": "2026-09-04",
+     "tag": "NULL",
+     "basis": "data/market/BAX.json pcs is null; no PCS attention read for this listing this run."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
    }
   ],
   "second_order": [
@@ -1164,48 +1820,48 @@
   "hedge": []
  },
  "data_gaps": [
-  "Resolved this run (fourth pass): the money-corner link autoinjector-and-pen-platforms is now fully seated for every admissible, profiled name (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS), closed by tools/check_screen.py commit 5e5f3b5 (placement_audits[] admission path) plus Atlas's evidence correction on data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360).",
-  "8 admissible-but-unprofiled issuers remain, all with all-VERIFIED mapping evidence and no blocker except a missing profile: YPSOMED-HOLDING (autoinjector-and-pen-platforms, the money corner's 5th and most nearly pure-play name per the chain's own bottleneck note); STERIS, DANAHER, SKAN-GROUP (aseptic-filling-and-isolator-equipment, CHOKE_POINT, UNDISCOVERED); THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP (sterile-fill-finish-capacity, CHOKE_POINT, UNDISCOVERED). Profiling any of these 8 via `run profile <TICKER>` or `run profile --campaign CAMP-20260901-01` would seat a row on this run's remaining two open CHOKE_POINT/UNDISCOVERED links without any further evidence work; this is the highest-leverage next step for this chain.",
-  "peptide-api-supply (HIGH criticality, dated 18-36 month lead time) still has zero mapped placements despite carrying example_tickers on the chain (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO); needs a `run universe glp1-fill-finish` amendment. Note LONZA-GROUP (LONN.SW) is now mapped on sterile-fill-finish-capacity, a different link from peptide-api-supply, so this gap is unchanged by this run's census growth.",
+  "Resolved this run (fifth pass): a same-day peer profile batch (commit c2fe10a) landed COMPLETE O2 profiles for STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL, all already admissible on evidence; all 5 are now seated. Both CHOKE_POINT/UNDISCOVERED links named in this task (aseptic-filling-and-isolator-equipment, sterile-fill-finish-capacity) are now seated for every admissible, profiled name they have; the money-corner link (autoinjector-and-pen-platforms) was already fully seated as of the fourth pass.",
+  "3 admissible-but-unprofiled issuers remain, all BLOCKED with PENDING requests per the same peer batch (commit c2fe10a), not by any gap this screen introduced: YPSOMED-HOLDING (autoinjector-and-pen-platforms, the money corner's 5th name and the chain's own bottleneck note calls it the most nearly pure-play device platform); SKAN-GROUP (aseptic-filling-and-isolator-equipment); LONZA-GROUP (sterile-fill-finish-capacity). Profiling these 3 once their pending fetches land would seat a row on each without any further evidence work.",
+  "peptide-api-supply (HIGH criticality, dated 18-36 month lead time) still has zero mapped placements despite carrying example_tickers on the chain (BANB.SW, PPGN.SW, LONN.SW, 207940.KS, 2359.HK, TMO); needs a `run universe glp1-fill-finish` amendment. LONZA-GROUP (LONN.SW) and THERMO-FISHER-SCIENTIFIC (TMO) are mapped elsewhere on this chain (sterile-fill-finish-capacity), a different link, so this gap is unchanged.",
   "elastomer-closure-components and ready-to-use-containment-formats are correctly empty by the method section 6 dedup rule (their sole candidates, WEST-PHARMACEUTICAL-SERVICES and GERRESHEIMER, are seated once at the higher-priority money-corner link instead), not by a gap; recorded here so a future run does not mistake this for unsearched links."
  ],
  "taste_filtered": [],
  "health": {
   "tickers_examined": 17,
-  "rows_written": 9,
+  "rows_written": 14,
   "fully_scored": 0,
   "pending": 0,
   "errors": 0,
   "rows_superseded": 0,
-  "rows_with_quality_gaps": 9,
+  "rows_with_quality_gaps": 14,
   "links_worked": 13,
   "links_total": 13,
-  "target_links_covered": 6,
+  "target_links_covered": 8,
   "money_corner_links_total": 1,
   "money_corner_links_covered": 1,
   "choke_point_links_total": 3,
-  "choke_point_links_covered": 0,
+  "choke_point_links_covered": 2,
   "quotes_verified": 0,
-  "distinct_issuers": 9,
-  "profiles_available_repo_wide": 168,
+  "distinct_issuers": 14,
+  "profiles_available_repo_wide": 173,
   "admissible_placements_all_verified_evidence": 18,
   "admissible_placements_via_placement_audit": 1,
-  "admissible_but_unprofiled_issuers": 8,
+  "admissible_but_unprofiled_issuers": 3,
   "admissible_profiled_but_blocked_by_evidence_tier": 0,
   "links_with_zero_mapped_placements": 3,
   "placement_audits_reviewed": 4,
   "placement_audits_pass": 4,
   "placement_audits_fail": 0,
   "rows_blocked_by_gate_not_evidence": 0,
-  "admissible_profiled_and_seated": 9,
+  "admissible_profiled_and_seated": 14,
   "admissible_profiled_but_blocked_by_gate_defect": 0
  },
  "notes": [],
  "confidence_audit": {
-  "verified": 9,
-  "inferred": 60,
-  "speculative": 2,
-  "null": 46
+  "verified": 13,
+  "inferred": 99,
+  "speculative": 6,
+  "null": 64
  },
  "changelog": [
   {
@@ -1227,6 +1883,11 @@
    "ts": "2026-09-06T15:52:23Z",
    "by": "sieve-profiler",
    "change": "Fourth run screen glp1-fill-finish (chain-level, scenario_id null), authorized by Ron 2026-09-04 ('everything now'), triggered by two upstream changes since the third pass: tools/check_screen.py commit 5e5f3b5 extended `_placement_admissible` to also accept a current PASS `placement_audits[]` entry via `check_map.placement_audit_for`, and Atlas corrected data/mappings/glp1-fill-finish.json (commits 7bd3af6, b5cf360) to raise WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER and HALOZYME-THERAPEUTICS from INFERRED to VERIFIED evidence on autoinjector-and-pen-platforms after their earlier FAILed fresh-context role check, and refreshed all 4 placement_audits[] entries on that link (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS) to PASS with digests current against the corrected placements. The census also grew from 16 to 19 placements (YPSOMED-HOLDING on autoinjector-and-pen-platforms; SKAN-GROUP on aseptic-filling-and-isolator-equipment; LONZA-GROUP on sterile-fill-finish-capacity, all all-VERIFIED). Re-verified every placement's admissibility directly against tools/check_screen.py::_placement_admissible and tools/check_map.py::placement_audit_for before writing any row (not by trusting prior notes): all 19 of 19 placements are now admissible on the evidence plane. Seated 4 new picks_and_shovels rows on the money-corner link autoinjector-and-pen-platforms (BECTON-DICKINSON, WEST-PHARMACEUTICAL-SERVICES, GERRESHEIMER, HALOZYME-THERAPEUTICS), all COMPLETE O2 profiles already on disk, fundamentals copied verbatim from each profile's own sourced metrics. WEST and GERRESHEIMER each also hold a second mapped placement (elastomer-closure-components, ready-to-use-containment-formats respectively); per method section 6 they are seated once under this higher-priority money-corner link with the secondary link named in thesis_1line, not written as a duplicate row. No earnings nuggets: data/edgar/docs/ carries no document for BDX, WST, GXI or HALO. Net result: 5 rows -> 9 rows, 5/13 -> 6/13 links covered, the money-corner link goes from 0/4 to 4/4 of its profiled-admissible names seated (YPSOMED-HOLDING is the 5th, admissible but unprofiled). The two remaining CHOKE_POINT/UNDISCOVERED links (aseptic-filling-and-isolator-equipment, sterile-fill-finish-capacity) are now blocked purely on profile availability (8 admissible-but-unprofiled issuers total across the chain: YPSOMED-HOLDING, STERIS, DANAHER, SKAN-GROUP, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING, BAXTER-INTERNATIONAL, LONZA-GROUP), not on evidence or on a gate mechanism. Ran tools/check_screen.py after seating: see postlude result."
+  },
+  {
+   "ts": "2026-09-06T15:59:51Z",
+   "by": "sieve-profiler",
+   "change": "Fifth run screen glp1-fill-finish (chain-level, scenario_id null), same UTC day as the fourth pass. A rebase onto origin/main to resolve a non-fast-forward push pulled in a same-day peer commit (c2fe10a, `run profile --campaign CAMP-20260901-01` amend batch) that landed COMPLETE O2 profiles for STERIS, DANAHER, THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL, all 5 already carrying all-VERIFIED mapping evidence on this chain (confirmed admissible in the fourth pass and re-verified against the live gate before writing any row this pass; the mapping itself had not changed). Seated all 5 as picks_and_shovels rows, closing both of the task's named CHOKE_POINT/UNDISCOVERED priority links to every admissible, profiled name they have: STERIS and DANAHER on aseptic-filling-and-isolator-equipment; THERMO-FISHER-SCIENTIFIC, SIEGFRIED-HOLDING and BAXTER-INTERNATIONAL on sterile-fill-finish-capacity. No earnings nuggets: none of STE, DHR, TMO, SFZN or BAX has a document on disk at data/edgar/docs/<T>.json. All fundamentals, quality and valuation figures copied unchanged from each issuer's own COMPLETE O2 profile metrics. Net result: 9 rows -> 14 rows, 6/13 -> 8/13 links covered, all 3 of the task's named priority links (money corner plus the two named CHOKE_POINT/UNDISCOVERED links) now seated for every admissible, profiled name. 3 admissible-but-unprofiled issuers remain (YPSOMED-HOLDING, SKAN-GROUP, LONZA-GROUP), all BLOCKED with PENDING requests per the same peer batch, not by any gap this run introduced. Ran tools/check_screen.py after seating: see postlude result."
   }
  ]
 }
