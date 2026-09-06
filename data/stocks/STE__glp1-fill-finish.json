@@ -1,0 +1,283 @@
+{
+  "ticker": "STE",
+  "name": "STERIS plc",
+  "issuer_id": "STERIS",
+  "listing_id": "NYSE-STE",
+  "chain_id": "glp1-fill-finish",
+  "link_id": "aseptic-filling-and-isolator-equipment",
+  "link_id_basis": "Exact match to the O1 profile's selection_basis.screen_handoff (link_id aseptic-filling-and-isolator-equipment, position 7, heat UNDISCOVERED with impact 72 / crowdedness 25 / capture 55, money_corner false, bottleneck CHOKE_POINT) and to the picks_and_shovels bucket row in data/screens/glp1-fill-finish.json. STERIS's only ACTIVE placement on this chain is this one link, so there is no secondary placement to disambiguate.",
+  "screen_ref": "data/screens/glp1-fill-finish.json",
+  "scenario_ids": [],
+  "tier": "T1",
+  "tier_basis": "US-listed SEC filer: NYSE:STE, CIK 1757898. data/market/STE.json fundamentals carry source sec-companyfacts with official_source true on every canonical ratio, and quality is state SCORED (20/20 statement fields found, 8 fiscal years). data/edgar/docs/STE.json exists (8-K filed 2026-08-05, accession 0001628280-26-053412), so filing quotes in this dive that come from that document are verified verbatim against it; facts sourced from other STERIS SEC exhibits and press releases this run were fetched live via WebFetch/WebSearch (a LOCAL session; WebFetch answered) but are not checked against a locally stored document, and are tagged INFERRED with a dated URL, per data_gaps.",
+  "clock": "COMPOUNDER",
+  "clock_basis": "Inherited from the glp1-fill-finish chain, whose own clock field reads COMPOUNDER: a multi-year GLP-1 manufacturing build-out repricing, not a dated binary resolution (method section 2). scenario_ids is empty, so nothing overrides it to EVENT. review_by is set to 2026-11-13, 68 days from updated_at and inside the 90-day COMPOUNDER cap, landing about a week after STERIS's own Q2 fiscal-2027 results are expected (STERIS's Q2 fiscal-2026 results, the same calendar quarter one year earlier, were reported 2025-11-05 on a conference call held 2025-11-06, so Q2 FY2027, covering the quarter ended 2026-09-30, should land on a similar early-November cadence).",
+  "status": "DRAFT",
+  "created_at": "2026-09-06T18:33:41Z",
+  "updated_at": "2026-09-06T18:33:41Z",
+  "as_of": "2026-09-06",
+  "review_by": "2026-11-13",
+  "verdict": "WATCH",
+  "shadow_ref": null,
+  "entry_zone": null,
+  "no_entry_above": null,
+  "watch_triggers": [
+    {
+      "metric": "Life Sciences segment capital equipment revenue growth, year over year, next disclosed quarter",
+      "level": "10%",
+      "direction": "below",
+      "note": "10% sits below both of the two most recent prints this dive cites (19% growth in Q4 FY2026, 17% growth in Q1 FY2027, both STERIS's own reported figures) and above the Life Sciences segment's own FY2026 full-year organic growth rate (8.6%), so it is a real deceleration level, not an invented one. Falling under it at the next disclosed quarter (STERIS's Q2 FY2027 results, expected around early November 2026) would say the recent mid-to-high-teens capital-equipment run was order-timing lumpiness rather than a structural re-acceleration tied to biopharma/GLP-1 aseptic-fill capacity buildout, which is this dive's own independence-test falsification condition. Resolves inside review_by."
+    },
+    {
+      "metric": "Consolidated constant-currency organic revenue growth, company-wide",
+      "level": "6%",
+      "direction": "below",
+      "note": "6% is the low end of STERIS's own guided fiscal-2027 range: 'as reported revenue growth of 7-8% and constant currency organic revenue growth of 6-7%' (STERIS Announces Financial Results for Fiscal 2027 First Quarter, globenewswire.com, 2026-08-05). A print below the company's own guided floor at the Q2 FY2027 release would say the modest growth path this dive's gap table defends (a 10% revenue-CAGR case, itself below the market's implied 12.29% ask) is at risk company-wide, not only in the segment this chain tracks. Resolves inside review_by."
+    },
+    {
+      "metric": "Closing price",
+      "level": "199.40",
+      "direction": "below",
+      "note": "199.40 is the actual 52-week low in data/market/STE.json week52, not an invented level. A close back below this real, on-disk floor, after the stock already sits 16.5% off its 52-week high with no news catalyst named in this dive, would say confidence in the name is eroding independent of the GLP-1 thesis, worth reassessing rather than reading as the top of the would_buy_zone being confirmed cheap for the right reason."
+    }
+  ],
+  "price_ref": {
+    "value": 224.415,
+    "source": "data/market/STE.json series.rows last close (2026-09-04); price_status SINGLE_SOURCE (see price_source_note); currency USD",
+    "as_of": "2026-09-04"
+  },
+  "price_source_note": "data/market/STE.json price_status is SINGLE_SOURCE: the yfinance leg answered (224.4149932861328 on 2026-09-04) and the stockanalysis leg answered on a different date (226.83 on 2026-09-03), so dual_source.compare_prints correctly refuses to call two different sessions' prints an agreement (method section 1) and the file reads SINGLE_SOURCE rather than AGREED. Every level in this dive rests on the unconfirmed 224.415 print.",
+  "what_is_priced_in": [
+    {
+      "expectation": "The 12-month move is small and NEGATIVE (-7.80%, 243.39 on 2025-09-04 to 224.415 on 2026-09-04) while FY2026 net income grew 27.29% (614,600,000 to 782,300,000), so trailing P/E fell from roughly 38.73x to roughly 28.05x over the same window (price divided by net_income_fy/shares_fy at 97,800,000 shares for both readings). This is the mirror image of a TOO_LATE shape: earnings ran far ahead of the stock, not the other way round, so the method's multiple-expansion test for TOO_LATE plainly fails here.",
+      "evidence": "computed from data/market/STE.json series.rows (243.39 on 2025-09-04, 224.415 on 2026-09-04) and fundamentals.net_income_fy (614,600,000 FY2025, 782,300,000 FY2026) and quality.shares_used (97,800,000)",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "The market's own 5-year reverse-DCF convention asks for a 12.29% FCF CAGR, only 2.29 to 4.79 points above what this dive can defend (7.52%-10.00%, depending on whether FY2026's elevated 18.56% operating margin holds flat or partly normalizes toward the FY2023-2025 range), which sits inside or just outside the model's own 4.36-point horizon_spread depending on that single assumption. This is a thin, on-the-fence gap, not a wide mispricing claim in either direction.",
+      "evidence": "data/market/STE.json quality.reverse_dcf (implied_fcf_cagr 0.1229, state SOLVED, base_fcf 972,400,000.0, enterprise_value 23,115,687,000.0, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection; implied_by_horizon 7y 0.0977, 10y 0.0793, horizon_spread 0.0436); the 7.52%-10.00% range is this dive's own like-for-like forward build (see expectations_gap.rows[net_gap_direction])",
+      "tag": "SPECULATIVE"
+    },
+    {
+      "expectation": "What this dive can attribute to the chain link specifically is thin. STERIS discloses a Life Sciences segment (VHP decontamination/isolator systems sit inside it, alongside pharmaceutical detergents, cleanroom disinfectants, sterility-assurance products and water/steam generation) at $588.8 million of $5,935.9 million FY2026 group revenue, 9.92%, but no finer breakout isolates the decontamination/isolator product line itself, let alone its GLP-1-specific share. The placement is a role inference, not a sized exposure.",
+      "evidence": "STERIS plc, 8-K Exhibit 99.1, Announces Financial Results for Fiscal 2026 Fourth Quarter and Full Year, filed/issued 2026-05-11, https://www.sec.gov/Archives/edgar/data/0001757898/000162828026033580/ste03312026ex991.htm (fetched live this run via WebFetch; Life Sciences $588.8 million, total $5,935.9 million, both for the twelve months ended 2026-03-31)",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "The product family within Life Sciences that plausibly houses this equipment (capital equipment, as distinct from consumables and service) is growing meaningfully faster than the segment average or the consolidated company: +19% in Q4 FY2026 and +17% in Q1 FY2027, against 8.6% FY2026 Life Sciences organic growth and 9.38% consolidated 3-year revenue CAGR. This is the leading indicator behind the largest_disagreement in independence_test, and it is not broken out by end-market (GLP-1/biopharma versus other regulated-manufacturing capital spend), which is why this dive treats it as a lead worth watching rather than a sized thesis.",
+      "evidence": "STERIS Announces Financial Results for Fiscal 2026 Fourth Quarter and Full Year, globenewswire.com, 2026-05-11 ('This performance reflected 19% growth in capital equipment, 8% growth in service revenue and 5% improvement in consumable revenue.'); STERIS Announces Financial Results for Fiscal 2027 First Quarter, globenewswire.com, 2026-08-05 ('This performance reflected 17% growth in capital equipment revenue, 8% improvement in consumable revenue, and 2% growth in service revenue.'), both fetched live this run via WebFetch",
+      "tag": "INFERRED"
+    }
+  ],
+  "priced_in_summary": "Not TOO_LATE: the stock is down 7.80% over the trailing twelve months while FY2026 net income grew 27.29%, so trailing P/E compressed (roughly 38.73x to 28.05x) rather than expanded; there is no multiple-expansion runway to have been eaten. Not INVESTABLE: the exposure this dive can defend is thin and undisclosed at the product-line level (a 9.92%-of-revenue segment houses the decontamination/isolator equipment alongside several unrelated product lines, with no finer breakout), the chain's own capture score (55) already flags that this CHOKE_POINT's genuine scarcity has not translated into real pricing power on the listed half of the link (SKAN's own guided EBITDA margin is 13-15%), and the market-implied 5-year FCF CAGR (12.29%) sits only 2.29-4.79 points above what this dive can defend, a gap that sits inside or just outside the model's own 4.36-point horizon_spread depending on a single margin assumption. That is a real, answerable disagreement (independence_test) but not a wide one, over an exposure this dive cannot size. WATCH: a genuine, undiscovered chain mechanism with the strongest quality profile of any O1 name promoted on this chain this run, priced close enough to fair that this dive will not call it cheap.",
+  "bull": [
+    "STERIS's VHP 100i and 1000i bio-decontamination and isolator systems are the disclosed barrier-technology layer behind aseptic filling lines and RABs (STERIS Life Sciences press release, 2021-09-09, verbatim-confirmed live 2026-09-06 in the mapping's fresh-context placement audit), sitting on a genuine CHOKE_POINT: the two largest filling-line OEMs, Syntegon and OPTIMA, are private and IMA was taken private, leaving STERIS one of very few listed proxies for this equipment layer (data/chains/glp1-fill-finish.json heat rationale, as_of 2026-08-30).",
+    "The capital-equipment product family inside the Life Sciences segment that plausibly houses this business grew 19% year over year in Q4 FY2026 and 17% in Q1 FY2027, both comfortably ahead of the segment's own 8.6% FY2026 organic growth rate and the company's 9.38% consolidated 3-year revenue CAGR (STERIS press releases, 2026-05-11 and 2026-08-05, both fetched live this run).",
+    "The strongest earnings-quality and balance-sheet profile of any O1 name promoted on this chain this run: Piotroski 9 of 9 (STRONG), Beneish -2.677 (CLEAN, well inside the -1.78 review threshold), Altman 5.14 (SAFE), net debt to EBITDA 0.74x, operating cash flow 1.71x net income, and accruals running consistently NEGATIVE 5.0%-5.8% of average assets across all four fiscal years examined (data/market/STE.json quality and fundamentals, as_of 2026-09-04) — a balance sheet sturdy enough to fund the capital-equipment buildout regardless of how the GLP-1-specific thesis resolves."
+  ],
+  "bear": [
+    "No disclosed revenue percentage isolates VHP decontamination/isolator systems from the rest of the diversified Life Sciences segment (9.92% of STERIS's $5,935.9 million FY2026 group revenue at $588.8 million), which itself sells pharmaceutical detergents, cleanroom disinfectants, sterility-assurance consumables and water/steam generation alongside decontamination equipment (STERIS 8-K Exhibit 99.1, 2026-05-11; STERIS FY2026 10-K business description) — the placement is a role inference, not a sized exposure, and this dive cannot say what fraction of even the capital-equipment growth cited in bull[1] is GLP-1/biopharma-related versus other regulated-manufacturing capital spend.",
+    "Peer economics on the listed half of this exact link show the CHOKE_POINT is not a pricing-power business: SKAN, the purest listed proxy for the isolator/barrier half, guides full-year 2026 EBITDA margin of only 13-15% despite an order backlog up 27.8% with projects running into 2028 (BV Holding AG/SKAN press release, 2026-08-18) — real scarcity has not converted into real pricing power on this link, and STERIS's own 18.56% consolidated operating margin blends far more of the business than this one product line.",
+    "The market-implied 5-year FCF CAGR (12.29%, data/market/STE.json quality.reverse_dcf) sits only 2.29-4.79 points above what this dive's own like-for-like build can defend (7.52%-10.00%, depending on whether FY2026's elevated 18.56% operating margin holds or partly normalizes), a gap that sits inside or barely outside the model's own 4.36-point horizon_spread — a thin, on-the-fence disagreement, not a demonstrated mispricing (data/market/STE.json quality.reverse_dcf.implied_by_horizon)."
+  ],
+  "events": [
+    {
+      "what": "Q2 fiscal-2027 results (quarter ended 2026-09-30)",
+      "when": "expected around early November 2026, on the company's own quarterly cadence (Q2 FY2026 results, the same calendar quarter one year earlier, were reported 2025-11-05, conference call 2025-11-06)",
+      "why": "Where watch_triggers[0] (Life Sciences capital-equipment growth vs the 10% deceleration level) and watch_triggers[1] (consolidated constant-currency organic growth vs the 6% guided floor) resolve, both inside review_by.",
+      "tag": "INFERRED"
+    },
+    {
+      "what": "Fiscal-2027 full-year results and fiscal-2028 guidance",
+      "when": "expected around mid-May 2027 (FY2026 results were reported 2026-05-11)",
+      "why": "Where the company's own FY2027 guidance (7-8% as-reported revenue growth, 6-7% constant-currency organic) either holds or breaks for the full year, and where the operating-margin question this dive's gap table leaves open (holding at 18.56% versus normalizing toward the FY2023-2025 range) is directly testable. Beyond review_by.",
+      "tag": "INFERRED"
+    }
+  ],
+  "valuation_snapshot": {
+    "price": 224.415,
+    "price_as_of": "2026-09-04",
+    "currency": "USD",
+    "market_cap": 21947787000.0,
+    "enterprise_value": 23115687000.0,
+    "ev_to_base_fcf": 23.77,
+    "price_to_sales": 3.6974657591940563,
+    "week52_low": 199.4,
+    "week52_high": 268.65,
+    "pct_below_52w_high": 0.1647,
+    "pct_above_52w_low": 0.1254,
+    "twelve_month_price_change": -0.078,
+    "net_debt_to_ebitda": 0.735314487187559,
+    "trailing_pe_now": 28.05,
+    "trailing_pe_1y_ago": 38.73,
+    "basis": "Every field here is read from data/market/STE.json (series.rows, week52, quality.derived, quality.reverse_dcf) or the O1 profile's canonical metrics, which themselves cite that file, except trailing_pe_now and trailing_pe_1y_ago, which this dive computes as price / (net_income_fy / shares_used) for the FY2026 and FY2025 net-income prints against the 2026-09-04 and 2025-09-04 closes respectively, holding the FY2026 shares_used count (97,800,000) flat for both readings rather than assuming a different count; nothing else is solved with an assumption. EV/base FCF is 23,115,687,000.0 over 972,400,000.0. The 12-month change is 224.415 over 243.39 minus 1.",
+    "tag": "INFERRED"
+  },
+  "crowdedness": {
+    "state": "COVERAGE_THIN_LOW_ATTENTION",
+    "pcs": null,
+    "basis": "data/market/STE.json carries no pcs block (data/screens/glp1-fill-finish.json records crowdedness.state COVERAGE-THIN for this exact row), so PCS Axis A and Axis B cannot be scored quantitatively for STERIS itself (method section 6 T1/T3 gap). The chain's own heat block scores this link's crowdedness 25/100, the thinnest of the three O1 links promoted on this chain this run, precisely because the layer's two purest expressions (Syntegon, OPTIMA) are private and IMA went private: a search for equity research on the isolator pure play (SKAN) returned market-sizing reports and the company's own disclosures, no analyst note, and no weight-loss thematic wrap holds any of it (data/chains/glp1-fill-finish.json heat rationale, as_of 2026-08-30). This dive's own findings corroborate that read: no sell-side commentary on STERIS's decontamination/isolator business specifically was located this run, and every quoted figure above ties to the company's own disclosures, not to third-party positioning data.",
+    "tag": "INFERRED"
+  },
+  "expectations_gap": {
+    "market_implied_source": "data/market/STE.json quality.reverse_dcf [implied_fcf_cagr 0.1229, state SOLVED, base_fcf 972,400,000.0, enterprise_value 23,115,687,000.0, 9% discount rate, 2.5% terminal growth, 5-year explicit period, bisection method; implied_by_horizon 7y 0.0977, 10y 0.0793, horizon_spread 0.0436; as_of 2026-09-04; assumptions tagged SPECULATIVE in the file itself]",
+    "denominator": "5 of 5 required rows populated. Market-implied column: 2 of 5 rows carry a number from the solve (revenue_cagr_5y as a labelled FCF-CAGR proxy, terminal), 2 are explicitly NULL because the filed solve does not decompose them (operating_margin, reinvestment_return), and net_gap_direction is a direction rather than a level. Tags across the table: 3 INFERRED, 2 SPECULATIVE, 2 NULL on the market-implied side.",
+    "category_mismatch_note": "quality.reverse_dcf solves a FREE CASH FLOW CAGR, and the required row is a REVENUE CAGR; they are not the same quantity, a defect this analyst's own log has flagged on MYRG and HUBB. Row 1 carries the solve as a labelled proxy under a stated flat-margin/flat-conversion assumption, and this dive additionally builds its own FCF-CAGR-equivalent (7.52%-10.00%, depending on the margin assumption) in net_gap_direction from its own revenue, margin and conversion assumptions, so the comparison that decides the verdict is like for like.",
+    "rows": [
+      {
+        "driver": "revenue_cagr_5y",
+        "market_implied": 0.1229,
+        "market_implied_note": "This is the solved 5-year FCF CAGR, not a decomposed revenue CAGR. Held here as the closest proxy under a flat-margin/flat-conversion assumption (if margin and cash conversion hold at their FY2026 levels, revenue would also have to compound near this rate), and named as such.",
+        "mine": 0.1,
+        "percentile": 55,
+        "why": "10% sits just above the achieved trailing three-year revenue CAGR (9.38%) and below the market's own 12.29% ask, giving partial but not full credit to the capital-equipment acceleration inside Life Sciences (+19% Q4 FY2026, +17% Q1 FY2027) without assuming it is entirely GLP-1-driven or durable at that pace: base rates say 10-20% growers fall to 5-8% within five years, and STERIS's achieved rate sits just below that cohort already, so a modest continuation rather than an acceleration to the market's own ask is the more defensible read.",
+        "structural_reason": "Life Sciences capital-equipment growth (the sub-line most likely to include this chain's decontamination/isolator systems) has run at 17-19% for two consecutive quarters, well above the segment's own 8.6% FY2026 organic average, which is real momentum even though it is not broken out by end-market.",
+        "leading_indicator": "Life Sciences capital-equipment growth at or above 10% year over year and consolidated organic growth at or above the 6% guided floor at the Q2 FY2027 release (watch_triggers[0] and [1]).",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "operating_margin",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a margin path from the headline FCF CAGR. Recorded NULL rather than invented.",
+        "mine": 0.175,
+        "percentile": 70,
+        "why": "17.5% sits between FY2026's actual print (18.56%, itself a sharp 269bp jump from FY2025's 15.87%) and the FY2023-2025 range (15.87%-17.44%), assuming partial rather than full normalization: the FY2026 jump is real (operating income grew 27.15% on 8.72% revenue growth) but coincides with a newly announced chemistries-consolidation restructuring (Item 2.05, 8-K filed 2026-08-05, data/edgar/docs/STE.json) whose costs run through fiscal 2030, so this dive does not assume the full FY2026 margin print persists without any further noise.",
+        "leading_indicator": "FY2027 operating margin (reportable at the FY2027 release, beyond review_by) landing at or above 17.5% rather than reverting toward the FY2023-2025 range.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "reinvestment_return",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a reinvestment return, and no company-disclosed ROIC or ROCE figure appears in any source read this run. Recorded NULL rather than invented.",
+        "mine": 0.09,
+        "percentile": 45,
+        "why": "A crude FY2026 return on invested capital, computed here and not disclosed, is 8.70%: net income 782,300,000 over invested capital of 8,996,400,000 (long-term debt 1,812,800,000 plus equity 7,183,600,000). Net income is used as the NOPAT proxy deliberately, so no tax rate is assumed anywhere in this file. The trend is improving (4.01% FY2024, 7.21% FY2025, 8.70% FY2026) but still mid-single-digit-to-high-single-digit, below what the method's base rate would call top-quartile; 9% assumes the improving trend continues one more modest step rather than either stalling or accelerating further.",
+        "leading_indicator": "FY2027 equity and long-term debt figures at the FY2027 release, against this year's 8,996,400,000 invested-capital base.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "terminal",
+        "market_implied": 0.025,
+        "mine": 0.025,
+        "percentile": 50,
+        "why": "No disagreement, and saying so is worth a row. 2.5% perpetual growth is a reasonable long-run nominal assumption for a diversified global medical-device and life-sciences equipment maker, close to the method's own long-run-nominal-GDP ceiling, and this dive would not move it. The assumption this dive would question is the 9% discount rate, but the filed reverse_dcf publishes no sensitivity to it and method section 7 forbids re-solving in session for the filed column itself, so this is named rather than stressed.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "net_gap_direction",
+        "mine": "MARKET_IMPLIES_A_MODEST_PREMIUM_INSIDE_OR_JUST_OUTSIDE_HORIZON_NOISE_DEPENDING_ON_MARGIN",
+        "note": "Built like for like rather than compared revenue against FCF. Revenue 5,935,900,000 compounding at 10% for five years gives 9,559,826,309 in FY2031. At a 17.5% steady-state operating margin (this dive's own row-2 case) that is operating income of 1,672,969,604; holding FY2026's own cash-conversion ratio (free cash flow over operating income, 972,400,000 / 1,101,800,000 = 0.8826) gives FY2031 free cash flow of 1,476,489,057, an 8.71% FCF CAGR from the 972,400,000 base. Against the filed 12.29% market-implied ask, the gap is 3.58 percentage points, narrower than the file's own 4.36-point horizon_spread: NOT a real gap by the file's own rule. Stressed at the other end of the operating_margin row's range: holding FY2026's actual elevated margin (18.56%) flat instead of normalizing gives, by construction, a 10.00% FCF CAGR (margin held flat means FCF grows exactly with revenue), a 2.29-point gap, also inside the horizon_spread. Stressed toward the low end of the FY2023-2025 historical margin range (16.56%) gives a 7.52% FCF CAGR, a 4.77-point gap, marginally OUTSIDE the horizon_spread by 0.41 points. The finding does not flip sign across any of these three readings (all say the market wants somewhat more than this dive defends), only whether the SIZE clears the file's own noise bar, and it clears it only at the most bearish of the three margin assumptions examined. This dive reports the range honestly rather than picking the reading that would manufacture a wider gap: the base case (8.71%, 17.5% margin) is inside the noise band, which is why the verdict below is WATCH rather than a confident INVESTABLE call, and why the operating-margin path (whether FY2026's jump holds, partly gives back, or fully reverts) is this dive's single most consequential unresolved input, more so than the revenue growth rate itself."
+      }
+    ]
+  },
+  "earnings_quality": {
+    "grade": "B",
+    "basis": "Every mechanically computable veto input is clean, and clean across all four fiscal years examined, not just the latest print. Accruals: NEGATIVE 5.84% (FY2023), 5.44% (FY2024), 5.03% (FY2025) and 5.35% (FY2026) of average total assets, all in the conservative direction (cash flow from operations exceeds net income every year) and stable in magnitude, not a red flag despite sitting just over the method's 5% caution band, because the direction is favorable rather than aggressive. Beneish M-score -2.677 against the -1.78 review threshold, CLEAN, 12 of 12 inputs found. DSO ran 69.6 (FY2023), 71.6 (FY2024), 69.8 (FY2025) and 67.2 (FY2026) days: stable, mildly improving, no sustained drift. Capex to depreciation ran 0.655x, 0.637x, 0.777x and 0.758x across the same four years: no capex holiday and no aggressive under-depreciation pattern. Cash conversion (operating cash flow over net income) is 1.71x for FY2026, well above the 90% grade-A floor, though it has normalized down from 7.07x (FY2023) and 2.57x (FY2024) as net income recovered off a low FY2023 base; the direction is normalization, not deterioration. Altman Z-score 5.14, SAFE, 8 of 8 inputs found. Piotroski 9 of 9, STRONG. Governance: no auditor change found (Ernst & Young LLP has served continuously since 2015 for the current STERIS plc entity and since 1989 for its predecessor, ratified through fiscal 2027 at the 2026-07-31 AGM). One mild, defensible flag keeps this at B rather than A: CFO Michael J. Tokich resigned effective 2025-08-18 after seventeen years in the role, succeeded by Karen L. Burton, previously Vice President and Chief Accounting Officer since 2017 (an internal promotion, not an external or abrupt replacement); Tokich's transition agreement was subsequently amended (2026-03-31) to extend him as a part-time senior financial advisor through 2027-03-31, consistent with an orderly, planned succession rather than a departure under a cloud. WHAT THIS GRADE DOES NOT REST ON: a verbatim quote from STERIS's own DEF 14A or 10-K on the CFO transition or auditor ratification; those facts rest on WebSearch summaries of SEC filings and press coverage, not on a primary document this dive fetched and read directly, and this is named plainly in data_gaps rather than smoothed over. No deferred-revenue line item is present in the fetched SEC XBRL companyfacts fundamentals for STERIS, so deferred-revenue drift, one of method section 7's four named inputs, is NULL rather than estimated.",
+    "inputs": {
+      "accruals_pct_avg_assets_fy2023": -0.05843,
+      "accruals_pct_avg_assets_fy2024": -0.05438,
+      "accruals_pct_avg_assets_fy2025": -0.05031,
+      "accruals_pct_avg_assets_fy2026": -0.05354,
+      "beneish": -2.677,
+      "beneish_state": "CLEAN",
+      "beneish_threshold": -1.78,
+      "piotroski": 9,
+      "piotroski_state": "STRONG",
+      "altman": 5.14,
+      "altman_state": "SAFE",
+      "dso_days_fy2023": 69.6,
+      "dso_days_fy2024": 71.6,
+      "dso_days_fy2025": 69.8,
+      "dso_days_fy2026": 67.2,
+      "deferred_revenue_drift": null,
+      "deferred_revenue_drift_tag": "NULL",
+      "deferred_revenue_drift_basis": "No deferred revenue line item is present in the SEC XBRL companyfacts fundamentals fetched for STERIS this run (data/market/STE.json fundamentals field list).",
+      "capex_to_depreciation_fy2023": 0.655,
+      "capex_to_depreciation_fy2024": 0.637,
+      "capex_to_depreciation_fy2025": 0.777,
+      "capex_to_depreciation_fy2026": 0.758,
+      "cash_conversion_ocf_over_ni_fy2026": 1.715,
+      "governance_cfo_turnover": "CFO transition, 2025-08-18: Michael J. Tokich (17-year CFO) succeeded by Karen L. Burton (internal promotion from Chief Accounting Officer since 2017), transition agreement amended 2026-03-31 for a part-time advisory role through 2027-03-31.",
+      "governance_auditor_change": "None found; Ernst & Young LLP ratified through fiscal 2027 at the 2026-07-31 AGM, continuous service since 2015 (current entity) / 1989 (predecessor)."
+    }
+  },
+  "independence_test": {
+    "largest_disagreement": "The market prices STERIS off one consolidated growth number (9.38% trailing 3-year revenue CAGR, 18.56% operating margin); it is not distinguishing the Life Sciences segment's much faster capital-equipment growth (+19% Q4 FY2026, +17% Q1 FY2027) that plausibly houses the decontamination/isolator systems this chain link tracks, and it cannot, because STERIS discloses nothing finer than the segment level (9.92% of group revenue) for this business.",
+    "why_the_gap_exists": "The category of error is conglomerate/segment blindness: a $21.9 billion diversified medical-device and life-sciences equipment maker reports one blended set of growth and margin figures, so a faster-growing product line inside a $588.8 million segment (9.92% of revenue) cannot move the multiple the market assigns to the whole company, even if that product line is genuinely accelerating. This is the opposite failure mode from the crowded, thematically-obvious names this analyst's log has flagged before (VRT, HUBB): here the mechanism is real but structurally too small and too undisclosed to show up in anyone's model, which is also why the chain's own heat map scores this link's crowdedness at only 25/100, the thinnest of the three O1 links promoted on this chain this run.",
+    "falsification": "Stated to prove this dive WRONG, not to confirm it. If Life Sciences capital-equipment growth decelerates back toward the segment's own 8.6% FY2026 organic average (or below the 10% level named in watch_triggers[0]) at the Q2 FY2027 release, expected around early November 2026 and inside review_by, that would show the recent 17-19% prints were order-timing lumpiness on a handful of large capital projects rather than a structural, GLP-1-linked re-acceleration, and this dive's largest_disagreement would not survive contact with the data."
+  },
+  "filing_evidence": [
+    {
+      "claim": "STERIS announced a targeted consolidation plan for its formulated chemistries manufacturing and distribution, expecting total pre-tax restructuring charges of approximately $55 million to $70 million, with completion anticipated during fiscal 2030.",
+      "source_name": "STERIS plc, Form 8-K (Items 2.02, 2.05, 9.01)",
+      "source_date": "2026-08-05",
+      "url": "https://www.sec.gov/Archives/edgar/data/1757898/000162828026053412/ste-20260805.htm",
+      "accession": "0001628280-26-053412",
+      "tag": "VERIFIED",
+      "quote": "The Company currently expects to incur total pre-tax restructuring charges of approximately $55 million to $70 million, consisting of approximately $40 million to $50 million of cash expenditures and approximately $15 million to $20 million of non-cash charges.",
+      "note": "Verified verbatim against data/edgar/docs/STE.json this run. This is the STERIS chemistries business (formulated chemistries manufacturing consolidation to a new North Carolina center), not the Life Sciences decontamination/isolator equipment this dive's placement tracks; included as dated context on near-term restructuring costs and the company's own capital-allocation discipline, not as evidence for or against the chain thesis itself."
+    },
+    {
+      "claim": "Life Sciences segment revenue was $588.8 million in fiscal 2026 against total company revenue of $5,935.9 million for the twelve months ended March 31, 2026.",
+      "source_name": "STERIS plc, 8-K Exhibit 99.1, Announces Financial Results for Fiscal 2026 Fourth Quarter and Full Year",
+      "source_date": "2026-05-11",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001757898/000162828026033580/ste03312026ex991.htm",
+      "tag": "INFERRED",
+      "source_excerpt": "Life Sciences segment revenues: FY2026 $588.8 million, FY2025 $542.3 million, 8.6% organic growth; total company revenues: FY2026 $5,935.9 million, FY2025 $5,459.5 million (twelve months ended March 31 segment data table)",
+      "note": "Fetched live this run via WebFetch of the SEC-hosted exhibit (a primary official source) but not checked against a locally stored data/edgar/docs/STE.json document, so tagged INFERRED rather than VERIFIED per this analyst's own convention, named in data_gaps."
+    },
+    {
+      "claim": "STERIS's VHP 100i and 1000i biodecontamination units are used for programmed decontamination cycles of rooms, isolators, filling lines and RABs in GMP pharmaceutical environments.",
+      "source_name": "STERIS Life Sciences, press release: STERIS Launches Two New Systems for Integrated VHP Facility Decontamination",
+      "source_date": "2021-09-09",
+      "url": "https://www.sterislifesciences.com/News/2021/September/STERIS-Launches-Two-New-Systems-for-Integrated-VHP-Facility-Decontamination",
+      "tag": "VERIFIED",
+      "source_excerpt": "can run a decontamination cycle at programmed intervals or at the push of a button. This allows for easy and frequent decontamination of rooms, isolators, filling lines, RABs, pass through chambers and more.",
+      "note": "Inherits the mapping's current PASS fresh-context placement audit (data/mappings/glp1-fill-finish.json placement_audits[], audited_at 2026-09-06T18:17:11Z), which independently re-fetched this exact URL live and confirmed the excerpt, which is why this is tagged VERIFIED rather than INFERRED."
+    }
+  ],
+  "filing_evidence_note": "data/edgar/docs/STE.json exists (the 2026-08-05 8-K on the chemistries restructuring), so the one quote drawn from it is machine-verified verbatim by tools/check_analyst.py. Every other filing-adjacent fact in this dive is a dated WebFetch/WebSearch read of a STERIS SEC exhibit or press release this run, tagged INFERRED with a URL and a source_excerpt, not checked against a locally stored document. The role-evidence claim (STERIS's VHP systems) is the one exception, VERIFIED because it inherits an independent fresh-context re-fetch already recorded in the mapping's placement_audits[].",
+  "data_gaps": [
+    "No revenue percentage or dollar figure discloses what portion of STERIS's Life Sciences segment (9.92% of group revenue) is decontamination/isolator equipment specifically, let alone what portion of that is GLP-1- or biopharma-related versus other regulated-manufacturing capital spend; the placement rests on a product-category role (STERIS's own VHP product literature) rather than a sized revenue share, named plainly in bear[0], what_is_priced_in and the independence test.",
+    "Governance facts beyond the auditor and CFO-transition dates (related-party transactions specifically) were not targeted by a dedicated search this run and rest on WebSearch summaries of SEC filings (DEF 14A, 8-K) rather than a verbatim quote this dive fetched and read directly from those filings; a re-run should quote the DEF 14A's own related-party-transactions item directly.",
+    "No deferred revenue line item is present in the fetched SEC XBRL companyfacts fundamentals for STERIS (data/market/STE.json fundamentals field list), so deferred-revenue drift, one of method section 7's four named earnings-quality inputs, is NULL rather than estimated.",
+    "data/market/STE.json carries no pcs block, so PCS Axis A and Axis B are unscoreable for STERIS specifically; crowdedness reads on the chain's own heat block (25/100) and this dive's own search for sell-side coverage, not on quantitative positioning data.",
+    "A Life Sciences segment backlog figure (reported in some secondary coverage as roughly flat year over year near $110 million at 2026-06-30) surfaced only in a WebSearch summary and could not be verbatim-confirmed by direct WebFetch of the underlying press release text this run; it is deliberately NOT cited above rather than used unconfirmed, per method section 1.",
+    "data/market/STE.json price_status is SINGLE_SOURCE (see price_source_note): the yfinance and stockanalysis legs answered on different dates, so no same-session second-source agreement exists for the price every level in this dive rests on."
+  ],
+  "would_buy_zone": {
+    "low": 197.84,
+    "high": 212.29,
+    "basis": "The band at which forward-evaluating the filed quality.reverse_dcf bisection formula (base_fcf 972,400,000, 9% discount rate, 2.5% terminal growth, 5-year horizon; this dive's replication reproduces the filed 5/7/10-year readings of 0.1229/0.0977/0.0793 to 4 decimal places before choosing a target g instead of solving for one) at a chosen FCF CAGR closes the revenue_cagr_5y row of this file's own gap table, rather than leaving the market's 12.29% ask standing unanswered. Low = $197.84 is the price at which the implied ask falls to 9.38%, STERIS's own achieved trailing 3-year revenue CAGR held flat (no credit at all for the Life Sciences capital-equipment acceleration in bull[1]). High = $212.29 is the price at which the ask falls to 11.00%, a partial-credit case above the achieved rate but still below both this dive's own 'mine' row (10%) and the market's current 12.29% ask. Both solved by converting enterprise value to price via the file's own net-debt bridge (net debt 1,167,900,000, 97,800,000 shares_used: price = (EV - net_debt) / shares; this bridge reproduces the filed 224.415 exactly at the filed 12.29% ask, confirming the replication is faithful to the filed formula rather than a different model). The zone sits 5.4%-11.8% below the $224.415 reference, shallower than every prior would-buy zone this analyst has drawn (VRT 40.4-44.9%, HUBB 17.6-33.6%, MYRG 53.6-61.5%, ESLT 48.1-59.7% below spot), which this dive treats as an honest consequence of the gap being genuinely thin (net_gap_direction: 2.29-4.79 points, inside or barely outside the 4.36-point horizon_spread) rather than as a shallow zone drawn to manufacture a false close call: a name with a wide, defensible mispricing would earn a deep zone, and this dive has not found one here.",
+    "as_of": "2026-09-06"
+  },
+  "would_buy_basis": null,
+  "notes": [
+    {
+      "ts": "2026-09-06T18:33:41Z",
+      "by": "stocky",
+      "text": "Dive-log discipline (data/stocks/_dive-log.json, read first this run): the calibration channel on entry zones/would-buy zones has found every zone drawn so far sits on the optimistic side of the file's own bear case (VRT, HUBB, MYRG). This dive's zone is deliberately the shallowest drawn to date because the underlying gap is genuinely the thinnest found so far, not because this dive is being generous; the red team should stress this claim specifically."
+    },
+    {
+      "ts": "2026-09-06T18:33:41Z",
+      "by": "stocky",
+      "text": "The dive-log's implied-growth channel has flagged, on MYRG and 688425.SS, that the reverse-DCF base year can distort the reading when one fiscal year is unusually high or low relative to a multi-year average. FY2026 base_fcf (972,400,000) is itself close to a local high (FY2026 operating income grew 27.15% on 8.72% revenue growth, partly coincident with a newly announced restructuring), so the operating_margin gap-table row and the would_buy_zone above should be re-examined against a multi-year average base if this dive is re-run."
+    }
+  ],
+  "changelog": [
+    {
+      "ts": "2026-09-06T18:33:41Z",
+      "by": "stocky",
+      "kind": "BUILD",
+      "change": "run deepdive STE glp1-fill-finish. Admission verified: O1 profile data/companies/STERIS.json COMPLETE with all seven selection_basis dimensions and screen_handoff to data/screens/glp1-fill-finish.json on link aseptic-filling-and-isolator-equipment; mapping data/mappings/glp1-fill-finish.json carries a current PASS placement_audits[] entry for STERIS on that link (audited_at 2026-09-06T18:17:11Z, superseding the same-day 17:50:54Z FAIL on the listing's identity_evidence, corrected same day). Clock COMPOUNDER (inherited from the chain), review_by 2026-11-13. Earnings quality grade B (one mild, defensible flag: the 2025-08-18 CFO transition, an internal promotion). Verdict WATCH: exposure to this chain link is thin and undisclosed below the segment level (9.92% of revenue), capture is real but not translating into pricing power on the listed half of the link (SKAN's own guided EBITDA margin 13-15%), and the market-implied 5-year FCF CAGR (12.29%) sits only 2.29-4.79 points above what this dive can defend, inside or barely outside the model's own 4.36-point horizon_spread. would_buy_zone drawn at $197.84-$212.29 (5.4%-11.8% below spot), the shallowest this analyst has drawn, an honest read of a thin gap rather than a generous one. Status DRAFT pending red team."
+    }
+  ],
+  "confidence_audit": {
+    "verified": 5,
+    "inferred": 16,
+    "speculative": 4,
+    "null": 9
+  }
+}
