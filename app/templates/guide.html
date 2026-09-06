@@ -84,6 +84,13 @@
 .gd-faq dt { font-weight: 600; margin-top: 12px; }
 .gd-faq dd { margin: 3px 0 0; color: var(--ink-2); font-size: 13.5px; max-width: var(--gd-measure); }
 .gd-faq dt:first-child { margin-top: 0; }
+.gd-paste { border-color: var(--accent-line); display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.gd-paste .ph { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gd-paste pre, .gd-paste pre code { white-space: pre-wrap; word-break: break-word; }
+.gd-paste pre { margin-top: 0; }
+.gd-copy { cursor: pointer; border: 1px solid var(--border-strong); background: none; color: var(--ink-3);
+  font-size: 11px; padding: 3px 10px; border-radius: 6px; align-self: flex-start; }
+.gd-copy:hover { color: var(--ink); background: var(--surface-2); }
 </style>
 <div class="gd">
   <div class="pagehead">
@@ -92,24 +99,33 @@
     <p class="sub">Upstream is a research machine Ron built to find listed companies that retail investors have not caught up to yet. It starts from something that already happened in the world, walks the value chain behind it link by link, looks for the links nobody is crowding, and stops only at a verdict it has tried to kill. Everything it knows is a dated file with its sources. Everything it does is a typed command. This page is how you read it, ask it questions, and work in it with your own Claude or ChatGPT.</p>
   </div>
 
+  <div class="card gd-paste">
+    <div class="ph"><h3>Give this to your Claude</h3><span class="chip accent">the whole setup</span></div>
+    <p class="lead">Paste it into claude.ai, into Claude Code, or into ChatGPT. It carries the address and the one line that makes any assistant work the way Ron's do. The repository is open, so nothing has to be accepted first.</p>
+    <pre><code>Here is Upstream, a research machine my friend Ron built: https://github.com/Ronkimhi/upstream
+Read CLAUDE.md and docs/method.md there first and follow them as your protocol. app/guide.html explains what is inside and what I can ask or run. Start by telling me which names carry a FINAL verdict and why.</code></pre>
+    <button class="gd-copy" data-copy="Here is Upstream, a research machine my friend Ron built: https://github.com/Ronkimhi/upstream
+Read CLAUDE.md and docs/method.md there first and follow them as your protocol. app/guide.html explains what is inside and what I can ask or run. Start by telling me which names carry a FINAL verdict and why.">copy</button>
+  </div>
+
   <div class="gd-doors">
     <div class="card gd-door">
       <div class="k">READ</div>
       <h3>Open the dashboard</h3>
-      <p>Everything the machine has found, on one page: the board of what changed, every signal, every chain with its heat and scenarios, the company screens, the stock pages with their verdicts, the trade book. Every figure on it was fetched and dated, or is shown as missing. Nothing is typed from memory.</p>
-      <div class="need"><b>You need:</b> the link Ron sent you. Nothing to install, nothing to sign up for.</div>
+      <p>Everything the machine has found, on one page at <a href="https://ronkimhi.github.io/upstream/">ronkimhi.github.io/upstream</a>: the board of what changed, every signal, every chain with its heat and scenarios, the company screens, the stock pages with their verdicts, the trade book. Every figure on it was fetched and dated, or is shown as missing. Nothing is typed from memory.</p>
+      <div class="need"><b>You need:</b> the address. Nothing to install, nothing to sign up for, nothing to accept.</div>
     </div>
     <div class="card gd-door">
       <div class="k">ASK</div>
       <h3>Connect your own AI to it</h3>
       <p>Point your Claude or your ChatGPT at the repository and ask in plain words: what is the verdict on a name and what would make it wrong, which links have money and nobody in them, what moved this week. The answer comes from the files, with the file names, so you can check it.</p>
-      <div class="need"><b>You need:</b> a free GitHub account with Ron's invitation accepted, and a paid Claude plan (Pro or above) or a paid ChatGPT plan (Plus or above).</div>
+      <div class="need"><b>You need:</b> nothing from Ron: the repository is open to read. A paid Claude plan (Pro or above) or ChatGPT plan (Plus or above) for the assistant itself, and a free GitHub account only if you want it to write back.</div>
     </div>
     <div class="card gd-door">
       <div class="k">WORK</div>
       <h3>Run the machine yourself</h3>
       <p>The same connection, in Claude Code or Codex. Type a command and one of eight named agents runs one stage on one object: maps a chain, scores its heat, profiles a company, dives a stock, attacks the dive. Gates check the result before it lands, and it lands as a commit everyone sees.</p>
-      <div class="need"><b>You need:</b> the same as Ask. Your sessions run on your own subscription; the repository holds no keys.</div>
+      <div class="need"><b>You need:</b> the same as Ask, plus your own fork of the repository (one click on GitHub) or write access from Ron. Your sessions run on your own subscription; the repository holds no keys.</div>
     </div>
   </div>
 
@@ -138,12 +154,12 @@
         <div class="ph"><h3>Claude Code on the web</h3><span class="chip accent">start here</span></div>
         <div class="best">Best for asking questions, running a stage, and reviewing what it did, from any computer.</div>
         <ol>
-          <li>Accept Ron's invitation. It arrives from GitHub by email; a free GitHub account is enough.</li>
+          <li>Have a free GitHub account. The repository is open, so there is nothing to accept; if you want your changes to land, press <b>Fork</b> once on <a href="https://github.com/Ronkimhi/upstream" target="_blank" rel="noopener">github.com/Ronkimhi/upstream</a> so you have a copy of your own to push to.</li>
           <li>Go to <a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a> and sign in with your Claude account.</li>
-          <li>Choose <b>Sign in with GitHub</b> and approve it. Claude can then reach every repository your GitHub account can see, this private one included.</li>
-          <li>Pick <code>Ronkimhi/upstream</code>, keep the default environment, and start a session.</li>
+          <li>Choose <b>Sign in with GitHub</b> and approve it. Claude can then reach every repository your GitHub account can see, this one and your fork included.</li>
+          <li>Pick <code>Ronkimhi/upstream</code> to read and ask, or your fork to work, keep the default environment, and start a session.</li>
           <li>Type a question or a command. The session reads <code>CLAUDE.md</code> first and works under the same rules and the same eight agents Ron's sessions do.</li>
-          <li>When it changes files it pushes a branch. Choose <b>Create PR</b>, then merge on GitHub once the checks are green.</li>
+          <li>When it changes files it pushes a branch. Choose <b>Create PR</b>. From your fork the pull request lands with Ron to merge; inside the repository, if Ron gave you write access, you merge it yourself once the checks are green.</li>
         </ol>
         <div class="gd-note">A web session cannot open web pages itself; it queues them for the fetcher and cites them on the next run. Stages that need fresh web evidence in the same turn (<code>run radar</code>, chain mapping, universe audits) go faster from a local session below.</div>
       </div>
@@ -164,7 +180,7 @@
           <li>Clone the repository once. macOS has Git already; Windows needs Git installed first.
             <pre><code>git clone https://github.com/Ronkimhi/upstream.git</code></pre></li>
           <li>Choose <b>Select folder</b> and pick the clone. Or choose <b>Cloud</b> to skip the clone and work as in the browser.</li>
-          <li>Type commands. The postlude runs the gates, rebuilds the page, writes the ledger line and pushes through the push queue.</li>
+          <li>Type commands. The postlude runs the gates, rebuilds the page, writes the ledger line and pushes through the push queue. The push lands only if you cloned your own fork or have write access; everything before it works on any clone.</li>
         </ol>
       </div>
       <div class="card gd-path">
@@ -190,7 +206,7 @@ claude</code></pre>
         <div class="ph"><h3>GitHub inside ChatGPT</h3><span class="chip neutral">read only</span></div>
         <div class="best">Best for questions. ChatGPT reads the files live and cites them; it does not change anything.</div>
         <ol>
-          <li>Accept Ron's invitation from GitHub (free GitHub account).</li>
+          <li>Have a free GitHub account; the repository is open, nothing to accept.</li>
           <li>In ChatGPT open <b>Settings</b>, then <b>Apps</b> (called Connectors on some plans), choose <b>GitHub</b> and connect it. GitHub asks you to install the ChatGPT app and to choose repositories: pick <code>Ronkimhi/upstream</code>.</li>
           <li>In a chat, turn GitHub on from the tools menu and ask. Start with <i>Read CLAUDE.md and docs/method.md, then answer:</i> so it knows the vocabulary.</li>
         </ol>
@@ -200,13 +216,13 @@ claude</code></pre>
         <div class="best">Best for running stages from the browser.</div>
         <ol>
           <li>Go to <a href="https://chatgpt.com/codex" target="_blank" rel="noopener">chatgpt.com/codex</a> and sign in.</li>
-          <li>Connect GitHub when prompted and choose the repositories Codex may access: <code>Ronkimhi/upstream</code>.</li>
+          <li>Press <b>Fork</b> once on <a href="https://github.com/Ronkimhi/upstream" target="_blank" rel="noopener">github.com/Ronkimhi/upstream</a> (Codex works on repositories in your own account), then connect GitHub when prompted and give Codex access to your fork.</li>
           <li>Create an environment for it: container image <b>universal</b>, setup script <code>pip install requests</code>, and turn <b>agent internet access</b> on if you want web research inside the session.</li>
           <li>Start a task with one opening line, then your command:
             <pre><code>Read CLAUDE.md and docs/method.md first and follow them as your protocol.
 run impact --queue</code></pre>
             Codex also reads <code>AGENTS.md</code> at the root when it is there; the opening line works either way.</li>
-          <li>Review the diff, choose <b>open a pull request</b>, and merge on GitHub once the checks are green.</li>
+          <li>Review the diff and choose <b>open a pull request</b>; it lands with Ron to merge.</li>
         </ol>
       </div>
     </div>
@@ -230,7 +246,7 @@ codex</code></pre></li>
         <ul>
           <li>The protocol is the file, not the vendor. <code>CLAUDE.md</code> names the commands, the agents and the gates; <code>docs/method.md</code> is the scoring constitution. An assistant that reads them behaves like Ron's.</li>
           <li>Market data never comes from the assistant. It queues a request, GitHub Actions fetches it in a few minutes, and the stage re-runs on what landed.</li>
-          <li>Your work is signed. Every run ends with one line in <code>data/ledger.md</code> naming the command, what it wrote, the result, and <code>by:</code> your GitHub login.</li>
+          <li>Your work is signed. Every run ends with one line in <code>data/ledger.md</code> naming the command, what it wrote, the result, and <code>by:</code> your GitHub login (or your name, if you have none).</li>
         </ul>
       </div>
     </div>
@@ -286,7 +302,7 @@ codex</code></pre></li>
   <div class="seclabel">How your work lands</div>
   <div class="card">
     <ul>
-      <li><b>Browser sessions</b> (Claude Code on the web, Codex cloud) push a branch and open a pull request. Merge it yourself when the checks are green; the checks are the same gates a local session runs before it commits.</li>
+      <li><b>Browser sessions</b> (Claude Code on the web, Codex cloud) push a branch and open a pull request. From a fork it lands with Ron to merge; inside the repository you merge it yourself when the checks are green. The checks are the same gates a local session runs before it commits.</li>
       <li><b>Local sessions</b> run the gates, rebuild the page, append the ledger line and push to main through the push queue, which serialises everyone on one machine and resolves the known conflicts by coded rule.</li>
       <li><b>Missing data is normal.</b> A stage scores what exists and marks the rest PENDING_DATA. Your session ends with <i>data pending, re-run in about five minutes</i>; the fetcher lands the files and the re-run finishes the job.</li>
       <li><b>Big models cost real money.</b> Each command has a required tier in <code>tools/model_tiers.py</code>. Sessions run on that tier and escalate to a larger model only when you ask for it by name in that turn.</li>
@@ -295,12 +311,12 @@ codex</code></pre></li>
 
   <div class="seclabel">Owner's corner</div>
   <div class="card gd-owner">
-    <div class="ph"><h3>For Ron: letting someone in</h3><span class="chip neutral">three steps</span></div>
+    <div class="ph"><h3>For Ron: how open it is</h3><span class="chip neutral">decided 2026-09-06</span></div>
     <ol>
-      <li><b>Invite them to the repository.</b> GitHub, <code>Ronkimhi/upstream</code>, Settings, Collaborators, Add people, with <b>Write</b> access so their sessions can push. One command does the same:
+      <li><b>Open, for now.</b> The repository is public: anyone with the address reads it, any assistant given the address works on a clone, and write-back from people without push access arrives as pull requests from their forks, which you merge. To let someone push directly instead, one command:
         <pre><code>gh api -X PUT repos/Ronkimhi/upstream/collaborators/THEIR-GITHUB-LOGIN -f permission=push</code></pre></li>
-      <li><b>Send them the dashboard.</b> Share the published page and this guide. Anyone with the link can read; the Run buttons are yours, because a click only runs when one of your sessions picks it up.</li>
-      <li><b>Optional: a plain web address that only your list can open.</b> Cloudflare Pages serves the repository's <code>app/</code> folder at a stable address and redeploys on every push, and Cloudflare Access puts an email one-time-code login in front of it, free for up to fifty people. In Cloudflare: Workers &amp; Pages, Create, Pages, Connect to Git, pick the repository, leave the build command empty and set the output directory to <code>app</code>. Then Zero Trust, Access, Applications, Add, Self-hosted, enter the <code>pages.dev</code> address, and add an Allow policy listing their email addresses with One-time PIN as the login method.</li>
+      <li><b>One address to send.</b> <a href="https://ronkimhi.github.io/upstream/guide.html">ronkimhi.github.io/upstream/guide.html</a> is this page and <a href="https://ronkimhi.github.io/upstream/">ronkimhi.github.io/upstream</a> is the dashboard, both redeployed by <code>.github/workflows/pages.yml</code> on every push to main. The Run buttons there work in copy mode; the clickable ones live on your claude.ai page. If the address does not answer, GitHub Pages is not switched on: Settings, Pages, Source: GitHub Actions, then re-run the workflow.</li>
+      <li><b>Closing it later.</b> Make the repository private again (<code>gh repo edit Ronkimhi/upstream --visibility private --accept-visibility-change-consequences</code>); the public address stops with it. A gated address for a named list then comes from Cloudflare Pages plus Cloudflare Access (free to fifty people): Workers &amp; Pages, Create, Pages, Connect to Git, output directory <code>app</code>; then Zero Trust, Access, Applications, Self-hosted, the <code>pages.dev</code> address, an Allow policy of their emails with One-time PIN as the login.</li>
     </ol>
   </div>
 
@@ -314,7 +330,7 @@ codex</code></pre></li>
       <dt>Who pays for what?</dt>
       <dd>Your AI runs on your own subscription and its sessions bill you. Data fetching runs on GitHub Actions inside the repository's free minutes. The repository holds no API keys.</dd>
       <dt>Who sees my work?</dt>
-      <dd>Everyone with access to the repository, on the next dashboard build. The ledger names you on every line, which is the point: a call with a name on it can be graded later.</dd>
+      <dd>Anyone who opens the repository, while Ron keeps it public, on the next dashboard build. The ledger names you on every line, which is the point: a call with a name on it can be graded later.</dd>
     </dl>
   </div>
 </div>

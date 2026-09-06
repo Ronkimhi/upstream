@@ -1,0 +1,51 @@
+# Public address for the dashboard and the guide (Ron, 2026-09-06: "keep it super open").
+# Serves standards-mode copies of app/index.html and app/guide.html at
+# https://ronkimhi.github.io/upstream/ on every push to main that changes them. The two
+# files in the repo stay artifact-ready (no doctype, so the claude.ai wrapper can add its
+# own); the copies here get one, so browsers render them in standards mode. GitHub Pages
+# is free only while the repository is public: once it is private again this deploy step
+# fails and nothing else is affected. No AI, no secrets beyond the ambient GITHUB_TOKEN.
+name: pages
+on:
+  push:
+    branches: [main]
+    paths: ["app/index.html", "app/guide.html", ".github/workflows/pages.yml"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: stage the two pages in standards mode
+        run: |
+          mkdir -p site
+          for f in index.html guide.html; do
+            printf '<!doctype html>\n' > "site/$f"
+            cat "app/$f" >> "site/$f"
+          done
+          touch site/.nojekyll
+          ls -la site
+      # enablement switches Pages on the first time this runs, so the repository owner
+      # does not have to visit Settings > Pages by hand.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

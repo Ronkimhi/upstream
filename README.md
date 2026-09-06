@@ -10,7 +10,14 @@ Two contracts:
 
 ## Using it
 
-New here? Open [app/guide.html](app/guide.html) (also the **Guide** tab of the dashboard): what is inside, how to read it, and how to connect your own Claude or ChatGPT to this repository, in the browser or on your computer. The short version: accept the GitHub invitation, open Claude Code (claude.ai/code) or Codex (chatgpt.com/codex) on `Ronkimhi/upstream`, and type commands:
+New here? Read the guide at [ronkimhi.github.io/upstream/guide.html](https://ronkimhi.github.io/upstream/guide.html) (also [app/guide.html](app/guide.html) and the **Guide** tab of the dashboard). The repository is open: give your assistant this and it has everything it needs.
+
+```
+Here is Upstream, a research machine my friend Ron built: https://github.com/Ronkimhi/upstream
+Read CLAUDE.md and docs/method.md there first and follow them as your protocol. app/guide.html explains what is inside and what I can ask or run. Start by telling me which names carry a FINAL verdict and why.
+```
+
+Then open Claude Code (claude.ai/code) or Codex (chatgpt.com/codex) on `Ronkimhi/upstream` (or your fork, to write back) and type commands:
 
 ```
 run radar                        # scan for new signals (also runs on a weekday routine)
@@ -30,7 +37,7 @@ The full command contract lives in [CLAUDE.md](CLAUDE.md); the scoring constitut
 
 ## The UI
 
-`app/index.html` — one self-contained page, rebuilt by every run (`python3 app/build.py`), also published as a private claude.ai artifact shared between us. Radar board with a what-changed brief → chain flow with the money-corner map → scenarios → screens → stock pages with entry/no-entry zones → shadow book and trade book.
+`app/index.html` — one self-contained page, rebuilt by every run (`python3 app/build.py`), served at [ronkimhi.github.io/upstream](https://ronkimhi.github.io/upstream/) by `.github/workflows/pages.yml` on every push while the repository is public, and published as a claude.ai artifact whose Run buttons queue commands. Radar board with a what-changed brief → chain flow with the money-corner map → scenarios → screens → stock pages with entry/no-entry zones → shadow book and trade book.
 
 If a button in the UI says "run …", it is a command to paste into a Claude session — analyses take minutes of real work, not clicks.
 
