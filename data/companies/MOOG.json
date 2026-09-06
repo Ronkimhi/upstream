@@ -3,13 +3,13 @@
  "issuer_name": "Moog Inc",
  "as_of": "2026-09-06",
  "created_at": "2026-09-06T17:56:55Z",
- "updated_at": "2026-09-06T17:56:55Z",
+ "updated_at": "2026-09-06T18:57:24Z",
  "generated_by": "sieve-profiler",
- "status": "BLOCKED",
+ "status": "COMPLETE",
  "data_tier": "T1",
- "data_tier_basis": "US/SEC domestic filer: Moog Inc. is the registrant on Form 10-K FY2023 (SEC EDGAR CIK 67887), whose cover page states Class A common stock trades as MOG.A on the New York Stock Exchange (data/mappings/humanoid-actuators.json identity_evidence). Data tier reflects filer class, not current fetch status: no prices, fundamentals or quality have ever been fetched for the MOG-A market ticker; PENDING requests queued this run.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "Newly placed on humanoid-actuators/roller-screws this run: the placement's evidence was independently audited PASS in a fresh context on 2026-09-06 (data/mappings/humanoid-actuators.json placement_audits[], transcript_ref batch:audit-humanoid-actuators-moog). No run selection has been run over this issuer yet. A BLOCKED profile stays O3 per method section 6A until fundamentals and quality data land and the profile is amended to COMPLETE.",
+ "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:MOG.A carries SEC CIK 67887 (identity evidence in data/mappings/humanoid-actuators.json). data/market/MOG-A.json fetched 2026-09-06T18:20:59.280927+00:00 carries a SINGLE_SOURCE price (yfinance 371.68 close, 2026-09-04; stockanalysis answered http 404, stooq answered a non-CSV robots page), sec-companyfacts fundamentals through FY2025 (fiscal year ended 2025-09-27), a computed quality block (Piotroski 9/9 inputs, Beneish PENDING_DATA at 11/12 inputs missing receivables_fy, reverse DCF SOLVED), a pcs block, and 126 rows of Form 4 insider transactions. T1 confirmed on fetched data, not provisional.",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE profile per method section 6A: the humanoid-actuators/roller-screws placement carries a fresh-context PASS placement audit (data/mappings/humanoid-actuators.json placement_audits[], transcript_ref batch:audit-humanoid-actuators-moog). run profile does not select or promote; O2 retains Moog for monitoring until an explicit run selection <CAMP-ID> considers it for O1.",
  "listing_refs": [
   "NYSE-MOG.A"
  ],
@@ -56,123 +56,175 @@
   "chain": "data/chains/humanoid-actuators.json",
   "market": "data/market/MOG-A.json"
  },
- "business_summary": "Moog Inc. (NYSE: MOG.A, Class A common stock, SEC CIK 67887) is the registrant confirmed by its Form 10-K FY2023 cover page. Its land-systems business supplies brushless-DC electromechanical linear actuators that use a roller screw, ball screw or acme screw for linear output (Moog's own defense literature, moog-em-linear-actuators-for-land-systems.pdf), the placement role recorded for chain_id humanoid-actuators, link_id roller-screws in data/mappings/humanoid-actuators.json, independently audited PASS on 2026-09-06. No revenue, margin, leverage or valuation figures are sourced yet: data/market/MOG-A.json has never been fetched (see data_gaps).",
+ "business_summary": "Moog Inc. (NYSE: MOG.A, Class A common stock; SEC CIK 67887) is a worldwide designer, manufacturer and systems integrator of high-performance precision motion and fluid controls, reporting in four segments (Space and Defense, Military Aircraft, Commercial Aircraft, Industrial). It sits on the humanoid-actuators chain's roller-screws link (Planetary roller screws & linear guides; heat verdict EMERGING; not money-corner) through its land-systems electromechanical linear actuator line, independently placement-audited PASS on 2026-09-06 (data/mappings/humanoid-actuators.json placement_audits[]). SEC companyfacts gives revenue, operating income, cash flow and capex cleanly through FY2025 (fiscal year ended 2025-09-27); FY2025 revenue was $3.860624 billion. The Q3-2026 Form 8-K (Exhibit 99.1, document release date 2026-07-31) reports record quarterly net sales of $1,117 million, up 15% year over year, and a twelve-month backlog up 23% to $3.3 billion. All 12 canonical fields now carry a sourced number except quality.beneish_state, which the fetched quality block reports PENDING_DATA (missing receivables_fy).",
  "exposure_summary": {
-  "narrative": "Moog sits on the humanoid-actuators/roller-screws link, heat verdict EMERGING (impact 78, crowdedness 48, capture 58; money_corner false as of 2026-08-30, data/chains/humanoid-actuators.json), via a defense land-systems electromechanical actuator line that shares the roller-screw-actuation architecture used in humanoid leg and heavy-load joints. No fundamentals, quality or pricing data exist on disk for this listing yet, so exposure cannot be sized financially this run.",
+  "narrative": "Moog has 1 placement on humanoid-actuators (roller-screws, EMERGING heat, impact 78 / crowdedness 48 / capture 58, not money-corner as of 2026-08-30, data/chains/humanoid-actuators.json). No roller-screw- or humanoid-actuator-specific revenue is broken out in SEC filings or the Q3-2026 earnings release: the land-systems electromechanical linear actuator line sits inside Moog's broader segment reporting without a separate humanoid/robotics revenue line.",
   "disclosed_revenue_exposure": {
    "pct": null,
    "tag": "NULL",
-   "basis": "No humanoid-robotics or roller-screw revenue percentage is sourced for Moog this run; the role_evidence cites Moog's own defense land-systems actuator literature, not a segment revenue disclosure."
+   "basis": "No humanoid-actuator- or roller-screw-specific share of Moog's revenue is disclosed or sourced this run; the land-systems actuator business is not broken out as a separate reporting segment in SEC companyfacts or the Q3-2026 Form 8-K."
   }
  },
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field latest_fy: latest fy not available.)"
+    "value": 3860624000,
+    "tag": "VERIFIED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Revenues for the fiscal year ended 2025-09-27 as reported to SEC XBRL companyfacts for CIK 67887 (Moog Inc., NYSE: MOG.A)."
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field revenue_cagr_3y: revenue cagr not available.)"
+    "value": 0.083417,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Three-year compound annual revenue growth computed as (3860624000 / 3035783000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-10-01 to fiscal year ended 2025-09-27."
    }
   },
   "margins": {
    "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field operating_margin: operating margin not available.)"
+    "value": 0.116459,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Operating income 449606000 divided by revenue 3860624000, both for the fiscal year ended 2025-09-27, from companyfacts."
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field operating_cash_flow_to_net_income: operating cash flow to net income not available.)"
+    "value": 1.16193,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Operating cash flow 273086000 divided by net income 235028000, both for the fiscal year ended 2025-09-27, from companyfacts."
    },
    "fcf_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field fcf_margin: fcf margin not available.)"
+    "value": 0.033247,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Free cash flow margin: operating cash flow 273086000 less capital expenditure 144731000 = 128355000 (matches data/market/MOG-A.json quality.derived.fcf), divided by revenue 3860624000, all for the fiscal year ended 2025-09-27, from companyfacts."
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field net_debt_to_ebitda: net debt to ebitda not available.)"
+    "value": 1.517357,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Net debt to EBITDA: total debt 906426000 less cash 66821000 = net debt 839605000, both as of 2026-06-27, divided by an EBITDA proxy 553334000 (operating income 449606000 plus depreciation 103728000, both for the fiscal year ended 2025-09-27), from companyfacts."
    }
   },
   "quality": {
    "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field piotroski: piotroski not available.)"
+    "value": 5,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Piotroski F-score 5 (state MIDDLING), computed over companyfacts statements in data/market/MOG-A.json quality.piotroski, 9 of 9 inputs found."
    },
    "beneish_state": {
     "value": null,
     "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field beneish_state: beneish not available.)"
+    "basis": "Beneish M-score not computed for MOG-A: data/market/MOG-A.json quality.beneish reports state PENDING_DATA with 11 of 12 inputs found, missing receivables_fy (fundamentals.stale_dropped and coverage.missing both name receivables). NULL is permitted at O2; O1 promotion would need this input resolved."
    }
   },
   "valuation": {
    "market_cap": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field market_cap: market cap not available.)"
+    "value": 11924461139.68,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Market capitalization 11924461139.68 computed in data/market/MOG-A.json quality.derived.market_cap from SEC companyfacts share count 32082601 (as of 2025-09-27) times the repo's own market-plane close of 371.68 (yfinance, 2026-09-04, SINGLE_SOURCE). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document."
    },
    "price_to_sales": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field price_to_sales: price to sales not available.)"
+    "value": 3.088739,
+    "tag": "INFERRED",
+    "official_source": true,
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MOG-A.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Market capitalization 11924461139.68 divided by fiscal year 2025-09-27 revenue 3860624000."
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field implied_fcf_cagr: implied fcf cagr not available.)"
+    "value": 0.5238,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/MOG-A.json quality.reverse_dcf",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Free-cash-flow CAGR the current enterprise value 12764066139.68 implies over a 5-year explicit period on base FCF 128355000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
    },
    "horizon_spread": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "data/market/MOG-A.json fundamentals: null, quality: null; not yet fetched. (canonical field horizon_spread: horizon spread not available.)"
+    "value": 0.252,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/MOG-A.json quality.reverse_dcf",
+    "source_date": "2026-09-06",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000067887.json",
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.5238, '7': 0.3741, '10': 0.2718}). Measures how much of the expectation reading is a horizon convention rather than a price statement; inherits the same assumed discount rate and terminal growth."
    }
   }
  },
  "crowdedness_caveats": [
-  "Link roller-screws sits at heat verdict EMERGING (impact 78, crowdedness 48, capture 58), money_corner false as of 2026-08-30 (data/chains/humanoid-actuators.json); this profile carries no pcs block to corroborate issuer-level positioning for MOG-A since no market file has been fetched yet."
+  "Moog's roller-screws placement (EMERGING heat, not money-corner) is a small, non-broken-out slice of a $3.86B aerospace/defense precision-motion company; no roller-screw- or humanoid-actuator-specific revenue line exists. The pcs block for MOG-A shows axis_a DARK (100.0, NO-HISTORY flag: trends 30, wsb 25, stocktwits 13, media null) and axis_b SATURATED (analyst_count 5, held_pct_institutions 1.04947, short_pct_float 0.0335), which corroborates only whole-issuer positioning, not link-level crowding."
  ],
- "catalysts": [],
+ "catalysts": [
+  {
+   "claim": "Moog's Q3-2026 earnings release reports twelve-month backlog up 23% to $3.3 billion, alongside record quarterly net sales of $1,117 million (up 15% year over year) and operating margin expansion to 15.8%.",
+   "source_name": "Moog Inc.: Achieves Record Third Quarter 2026 Results (Exhibit 99.1, Form 8-K)",
+   "source_date": "2026-07-31",
+   "url": "https://www.sec.gov/Archives/edgar/data/67887/000162828026051250/ex991-73126.htm",
+   "tag": "VERIFIED",
+   "source_excerpt": "Twelve-month backlog increased 23% to $3.3 billion, reflecting continued demand across our markets."
+  }
+ ],
  "risks": [
   {
-   "claim": "No fundamentals, quality or price data exists yet for CIK 67887 / MOG-A in data/market/MOG-A.json; prices, fundamentals, quality, pcs, insider and edgar_doc PENDING requests are queued this run.",
-   "source_name": "data/market/MOG-A.json (file does not exist)",
-   "source_date": "2026-09-06",
-   "url": "https://data.sec.gov/submissions/CIK0000067887.json",
-   "tag": "INFERRED"
+   "claim": "Q3-2026 operating margin expansion was partly a one-time effect: $30 million of claims related to previously incurred IEEPA tariffs and the absence of the prior year's program termination and asset impairment charges, plus discrete income-tax benefits, rather than pure business performance.",
+   "source_name": "Moog Inc.: Achieves Record Third Quarter 2026 Results (Exhibit 99.1, Form 8-K)",
+   "source_date": "2026-07-31",
+   "url": "https://www.sec.gov/Archives/edgar/data/67887/000162828026051250/ex991-73126.htm",
+   "tag": "VERIFIED",
+   "source_excerpt": "Operating margin benefitted from $30 million of claims related to previously incurred International Emergency Economic Powers Act (“IEEPA”) tariffs and the absence of the prior year's program termination and asset impairment charges."
   }
  ],
  "data_gaps": [
-  "All 12 canonical metric fields are NULL: no data/market/MOG-A.json file exists on disk this run (checked under the fetcher's dashed-ticker convention, '.' mapped to '-'). Prices, fundamentals, quality, pcs, insider and an edgar_doc filing-text fetch are all queued as PENDING requests (REQ-20260906-124 through REQ-20260906-129); re-run once fulfilled.",
-  "No humanoid-robotics or land-systems segment revenue percentage is sourced for Moog; disclosed_revenue_exposure stays NULL.",
+  "quality.beneish_state is NULL: the fetched quality block reports state PENDING_DATA, 11 of 12 inputs found, missing receivables_fy for CIK 67887. NULL is permitted at O2; O1 promotion would need this input resolved.",
+  "No humanoid-actuator- or roller-screw-specific revenue share is disclosed for Moog; the land-systems electromechanical actuator line is not broken out as a separate reporting segment in SEC companyfacts or the Q3-2026 Form 8-K.",
+  "MOG-A price is SINGLE_SOURCE (yfinance only, close 371.68 on 2026-09-04): stockanalysis answered http 404 and stooq answered a non-CSV robots page (data/market/MOG-A.json legs); no second-leg agreement corroborates the price used for market_cap and price_to_sales.",
   "Only a single mapping placement_audits[] entry (roller-screws) has been PASS-audited; no whole-mapping census audit exists for humanoid-actuators (mapping status ACTIVE, no top-level audit block)."
  ],
  "disposition": {
-  "state": "BLOCKED",
+  "state": "RETAIN",
   "as_of": "2026-09-06",
-  "basis": "Shaped BLOCKED profile built for Moog's newly audited humanoid-actuators/roller-screws placement (placement_audits[] PASS, 2026-09-06, evidence_index 0, record_digest 83c5fadd384c0c10fe970312072d40632832774dabe236b9461386e866ad9675): data/market/MOG-A.json does not exist on disk, so no prices, fundamentals or quality have ever been fetched for this listing. Prices, fundamentals, quality, pcs, insider and edgar_doc PENDING requests queued this run. BLOCKED and O3 per method section 6A until the data lands."
+  "basis": "Amended this run from the 2026-09-06T18:20:59Z fetch of data/market/MOG-A.json (sec-companyfacts, T1) and data/edgar/docs/MOG-A.json (Form 8-K, Exhibit 99.1, document release date 2026-07-31). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 11 of 12 canonical fields now carry a sourced number, with quality.beneish_state NULL on a missing companyfacts input (receivables_fy). COMPLETE and O2 per method section 6A."
  },
  "confidence_audit": {
-  "VERIFIED": 0,
-  "INFERRED": 0,
-  "SPECULATIVE": 0,
-  "NULL": 12,
+  "VERIFIED": 1,
+  "INFERRED": 8,
+  "SPECULATIVE": 2,
+  "NULL": 1,
   "canonical_fields_written": 12,
-  "basis": "Counts cover the 12 canonical metric fields only. VERIFIED is a figure read directly off an official filing or SEC companyfacts as reported. INFERRED with official_source true is computed from an official source; INFERRED with official_source false is a T2/T3 vendor normalisation. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. All 12 fields are NULL this run, named individually in data_gaps."
+  "basis": "Counts cover the canonical metric fields only. VERIFIED is revenue.latest_fy, read directly off SEC companyfacts as reported. INFERRED (official_source true) covers growth, margins, both cash_conversion fields, leverage, quality.piotroski, and both valuation fields, all computed from SEC companyfacts. SPECULATIVE covers the two reverse_dcf fields, which rest on an assumed discount rate and terminal growth rather than a reported figure. NULL covers quality.beneish_state, PENDING_DATA in the fetched quality block on a missing receivables_fy input."
  },
  "notes": [
   "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -184,6 +236,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "created shaped BLOCKED profile for MOOG (NYSE:MOG.A) from the humanoid-actuators/roller-screws placement, freshly PASS-audited 2026-09-06 (placement_audits[], batch:audit-humanoid-actuators-moog). status BLOCKED, data tier T1, opportunity tier O3, all 12 canonical metric fields NULL pending fetch of data/market/MOG-A.json. run profile NYSE:MOG.A."
+  },
+  {
+   "ts": "2026-09-06T18:57:24Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "Amended all 12 canonical metric fields from the fetched data/market/MOG-A.json sec-companyfacts fundamentals and computed quality block, which landed after the prior BUILD wrote this profile BLOCKED with every field NULL: revenue, growth, margins, both cash_conversion fields, leverage, quality.piotroski, both valuation fields, and both reverse_dcf fields now carry sourced numbers; quality.beneish_state stays NULL (fetched quality block reports PENDING_DATA, missing receivables_fy, 11/12 inputs). Added one catalyst and one risk from the Q3-2026 Form 8-K (Exhibit 99.1, document release date 2026-07-31) with verbatim source_excerpt, one crowdedness caveat citing the pcs block, and a data_gap noting the SINGLE_SOURCE price. Status BLOCKED to COMPLETE, opportunity_tier O3 to O2 (run profile does not select; O1 needs an explicit run selection). run profile MOG.A, parallel batch 2026-09-06."
   }
  ]
 }
