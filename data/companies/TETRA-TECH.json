@@ -1,9 +1,9 @@
 {
   "issuer_id": "TETRA-TECH",
   "issuer_name": "TETRA TECH INC",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-06",
   "created_at": "2026-09-04T23:10:00Z",
-  "updated_at": "2026-09-04T22:00:00Z",
+  "updated_at": "2026-09-06T15:50:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -99,9 +99,13 @@
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "operating_cash_flow_to_net_income cannot be computed for TETRA-TECH: net_income_fy has no data points in data/market/TTEK.json fundamentals (coverage.missing includes net_income); fcf_margin is used instead below."
+        "value": 1.845883629294734,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TTEK.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Corrected 2026-09-06 (fetcher commit 364b351, fiscal-period alignment fix): operating cash flow 457685000 divided by net income 247949000, both for the period ended 2025-09-28, from the re-fetched companyfacts series; net_income_fy previously had no data points for TETRA-TECH.",
+        "official_source": true
       },
       "fcf_margin": {
         "value": 0.08066968116282873,
@@ -126,14 +130,18 @@
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "piotroski cannot be scored for TETRA-TECH: data/market/TTEK.json quality.piotroski.state is PENDING_DATA (net_income_fy)."
+        "value": 6,
+        "tag": "INFERRED",
+        "source_name": "Upstream market store data/market/TTEK.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-06",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000831641.json",
+        "basis": "Corrected 2026-09-06 (fetcher commit 364b351, fiscal-period alignment fix): Piotroski F-score 6, state MIDDLING, computed over companyfacts statements in data/market/TTEK.json quality.piotroski, 9 of 9 inputs found. The prior PENDING_DATA state (net_income_fy) is stale against the re-fetched file.",
+        "official_source": true
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish_state cannot be scored for TETRA-TECH: data/market/TTEK.json quality.beneish.state is PENDING_DATA (net_income_fy)."
+        "basis": "beneish_state cannot be scored for TETRA-TECH: data/market/TTEK.json quality.beneish.state is PENDING_DATA, missing sga_fy. The prior net_income_fy gap is resolved (fetcher commit 364b351), but fetch.py commit 39ce4ac dropped the sga concept as dead since 2011-10-02, recorded at data/market/TTEK.json fundamentals.stale_dropped.sga; Beneish needs 12 of 12 inputs including SG&A and cannot score with it absent."
       }
     },
     "valuation": {
@@ -198,7 +206,8 @@
   ],
   "data_gaps": [
     "Filled 2026-09-04 from data/market/TTEK.json (SEC XBRL companyfacts): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
-    "No chain- or link-specific revenue percentage is disclosed or sourced for TETRA-TECH; only company-wide figures are available."
+    "No chain- or link-specific revenue percentage is disclosed or sourced for TETRA-TECH; only company-wide figures are available.",
+    "Corrected 2026-09-06: the re-fetched data/market/TTEK.json (fetcher commit 364b351, quality.py fiscal-period alignment fix) resolved net_income_fy coverage, filling cash_conversion.operating_cash_flow_to_net_income and quality.piotroski (6, MIDDLING), both previously NULL/PENDING_DATA. quality.beneish_state remains PENDING_DATA: fetch.py commit 39ce4ac dropped the sga_fy XBRL concept as dead since 2011-10-02 (data/market/TTEK.json fundamentals.stale_dropped.sga), and Beneish needs SG&A for 12 of 12 inputs."
   ],
   "disposition": {
     "state": "RETAIN",
@@ -207,11 +216,11 @@
   },
   "confidence_audit": {
     "VERIFIED": 1,
-    "INFERRED": 6,
+    "INFERRED": 8,
     "SPECULATIVE": 2,
-    "NULL": 3,
+    "NULL": 1,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/TTEK.json (SEC XBRL companyfacts)."
+    "basis": "Counts cover the canonical metric fields only, recomputed 2026-09-06 from the re-fetched data/market/TTEK.json (SEC XBRL companyfacts, fetcher commit 364b351)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -230,6 +239,13 @@
       "kind": "AMEND",
       "change": "Created COMPLETE profile for TETRA-TECH from data/mappings/data-center-moratoria.json (ACTIVE) and 1 further mapping(s) it appears in. Fundamentals and quality sourced from data/market/TTEK.json (SEC XBRL companyfacts). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 7.",
       "prior": "2026-09-04T23:10:00Z"
+    },
+    {
+      "ts": "2026-09-06T15:50:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile TTEK: re-read data/market/TTEK.json after today's fetcher/quality re-fetch (commits 364b351, 39ce4ac). net_income_fy coverage now resolved, filling cash_conversion.operating_cash_flow_to_net_income (1.85) and quality.piotroski (6, MIDDLING), both previously NULL/PENDING_DATA. quality.beneish_state stays NULL/PENDING_DATA: fetch.py dropped the dead sga_fy concept (stale since 2011-10-02, named at fundamentals.stale_dropped.sga), so 12 of 12 Beneish inputs cannot be found. Revenue, growth, margins, leverage, valuation and reverse_dcf unchanged. Status remains COMPLETE, opportunity_tier unchanged at O2. Peer sessions already corrected CAT, CMI, FTEK, CECO, ONT, ACM and J against the same fetcher fixes (commits 4e4b88c, cf7b35c, d1eeb2a, a2dc5b7, 87cdb5a, bc2bc74, 8b5e975 on origin/main); this run closes the remaining gap on TTEK only.",
+      "prior": "2026-09-04T22:00:00Z"
     }
   ]
 }
