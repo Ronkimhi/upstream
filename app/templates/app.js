@@ -2242,8 +2242,9 @@
     }
     return null;
   }
-  /* The short map name: the part of the title before its colon, the way a chart
-     abbreviates a long feature name. The full title lives in the panel and the inspector. */
+  /* The short map name: the card's own `short_title` when it carries one, else the part
+     of the title before its colon, the way a chart abbreviates a long feature name. The
+     full title lives in the panel and the inspector. */
   function cxShort(title) {
     var t = String(title || "");
     var i = t.indexOf(":");
@@ -2354,7 +2355,7 @@
         band: ap ? ap.impact_band : null, tier: cxTier(un), color: CXP.accent,
         hr: hubR(imp), R: nLinks ? 18 + 1.9 * nLinks : 24, sysR: (nLinks ? 18 + 1.9 * nLinks : 24) + 6,
         dashed: occ.kind === "SCHEDULED", r: hubR(imp), rWorld: unR(un),
-        label: cxShort(sg.title),
+        label: sg.short_title || cxShort(sg.title),
         sub: "UNMAPPED " + num(un, "?") + " · " + (ap ? (ap.impact_band || "").toUpperCase() + " " + (imp == null ? "?" : Math.round(imp)) : "UNAPPRAISED") +
              " · " + (c ? (occ.anchor_date || "undated") : "UNCHAINED"),
         tip: sg.title + " — " + (occ.kind || "undated") + (occ.anchor_date ? " · " + occ.anchor_date : ""),

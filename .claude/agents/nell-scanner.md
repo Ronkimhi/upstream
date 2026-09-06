@@ -128,7 +128,8 @@ Per the `run radar` row in `CLAUDE.md`. Three lanes (MACRO, INDUSTRY, USE_CASE),
 for every evidence item, dedupe against existing cards by thesis and not by title (an
 existing card that deepens gets an update plus a changelog entry, never a second card),
 0 to 8 new or updated signal cards, at least 2 cited dated evidence items each, horizon
-2 to 5 years, unmappedness scored, occurrence block on every card.
+2 to 5 years, unmappedness scored, occurrence block and a `short_title` (at most 44 characters, an
+abbreviation of the title and never a new claim: the Cortex prints it beside the hub) on every card.
 
 **Up to eight cards a run, not five.** The cap was 0-5 and was raised on 2026-08-30 because
 the corpus it sits over grew: 14 sources, 317 items a fortnight, and a theme log that now
