@@ -5063,6 +5063,12 @@
       "by": "atlas-fresh-context",
       "kind": "NOTE",
       "change": "run universe-audit hormuz-maritime --placement BP: fresh-context placement audit PASS. Opened both cited sources live: the SEC company_tickers_exchange.json registry row for CIK 313807 (BP PLC, BP, NYSE) confirms the NYSE-BP listing identity_evidence exactly, and the live ENGINE article (Bunker House Petroleum enters MPA's top 10 bunker suppliers list for 2025, 2026-01-14) confirms the placement role claim on link bunker-and-voyage-services, naming BP Singapore among the Singapore MPA top-10 bunker suppliers for 2025, matching the placement's cited source_excerpt verbatim. No defects found. Mapping status and the whole-census audit block are untouched; this PASS admits BP to run deepdive on this placement without the whole census being COMPLETE."
+    },
+    {
+      "ts": "2026-09-06T15:43:05Z",
+      "by": "atlas-fresh-context",
+      "kind": "NOTE",
+      "change": "run universe-audit hormuz-maritime --placement WORLD-KINECT: fresh-context placement audit FAIL. Opened the placement's cited World Kinect IR press release live and independently verified issuer identity against the official SEC EDGAR submissions record for CIK 0000789460 (WORLD KINECT CORP, WKC, NYSE), which matches the NYSE-WKC listing exactly (identity_ok true). Two defects found on the placement's own evidence[0]: source_date is 2026-02-23 but the release's own dateline is Feb 19, 2026 (source_date_ok false), and the stored source_excerpt is the release's generic opening sentence, which does not itself support the role claim about a marine segment supplying bunker fuel, even though the same live page does (elsewhere) support it in a passage this audit quotes (role_ok false). Mapping status and the whole-census audit block are untouched; run universe corrects both defects on this placement before it can PASS."
     }
   ],
   "audit": {
@@ -5954,6 +5960,33 @@
       "identity_source_date": "2026-09-06",
       "identity_source_excerpt": "Registry row (live fetch 2026-09-06): [313807, \"BP PLC\", \"BP\", \"NYSE\"] -- cik 313807, name BP PLC, ticker BP, exchange NYSE -- matches the NYSE-BP listing identity_evidence (legal_issuer BP plc, exchange NYSE, ticker BP) exactly.",
       "record_digest": "8db53c857176c9ffe2e882a4c96068c6d7f3bdd7193f1708cdf571a702cf4282"
+    },
+    {
+      "chain_id": "hormuz-maritime",
+      "link_id": "bunker-and-voyage-services",
+      "issuer_id": "WORLD-KINECT",
+      "audited_at": "2026-09-06T15:43:05Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context/run-universe-audit-hormuz-maritime--placement-WORLD-KINECT/batch-2026-09-06/audit-hormuz-maritime-world-kinect",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the WORLD-KINECT placement on link bunker-and-voyage-services and its NYSE-WKC listing within data/mappings/hormuz-maritime.json, the hormuz-maritime chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (World Kinect's own IR press release page and, for an independent identity cross-check, the official SEC EDGAR company-search page and data.sec.gov/submissions/CIK0000789460.json); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the prior whole-census and ELBIT-SYSTEMS placement audits; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "identity_ok": true,
+      "role_ok": false,
+      "source_date_ok": false,
+      "source_url": "https://ir.world-kinect.com/news-releases/news-release-details/world-kinect-corporation-reports-fourth-quarter-and-full-year-1/",
+      "source_date": "2026-02-19",
+      "source_excerpt": "Full year 2025 gross profit of $123 million, a decrease of 21% principally driven by lower bunker fuel prices and continued low market price volatility, as well as a lower profit contribution from certain physical locations and an unfavorable transaction tax settlement recognized in the second quarter of 2025.",
+      "identity_source_url": "https://data.sec.gov/submissions/CIK0000789460.json",
+      "identity_source_date": "2026-09-06",
+      "identity_source_excerpt": "Live fetch 2026-09-06 of SEC EDGAR submissions record for CIK 0000789460: name \"WORLD KINECT CORP\", tickers [\"WKC\"], exchanges [\"NYSE\"], former name \"WORLD FUEL SERVICES CORP\" (through 2023-06-07) -- matches the NYSE-WKC listing's identity_evidence (legal_issuer World Kinect Corporation, exchange NYSE, ticker WKC) exactly.",
+      "amendments_required": [
+        "placement evidence[0].source_date is 2026-02-23 but the cited release's own dateline reads MIAMI--(BUSINESS WIRE)--Feb. 19, 2026 (confirmed live on the same URL and independently via the businesswire.com article id 20260219647791 carrying the identical headline); off by 4 days.",
+        "placement evidence[0].source_excerpt ('World Kinect Corporation (NYSE: WKC) today reported financial results for the fourth quarter and full year 2025.') is the release's generic opening sentence and does not itself say anything about a marine segment or bunker fuel; it does not support the placement's role claim ('marine segment converts physical bunker volumes for merchant shipping') even though the same live page does contain a supporting sentence elsewhere ('...lower bunker fuel prices...' under full-year Marine segment results), which is quoted above as this audit's own source_excerpt. This is the same role-claim-exceeding-cited-source pattern the 2026-09-04 whole-census audit found on 11 other placements; run universe should replace the stored excerpt with the marine/bunker sentence and correct the source_date to 2026-02-19."
+      ],
+      "record_digest": "941f2337336bc4752e62081659acda83b31e25b4861eebb78ea894376df0d86f"
     }
   ]
 }
