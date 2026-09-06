@@ -416,29 +416,31 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile GEV: re-read data/market/GEV.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). leverage.net_debt_to_ebitda filled: -5.155267 (net cash position; total_debt 2794000000 and cash 13120000000, both 2026-06-30, against EBITDA 2003000000 from FY2025; the balance-sheet/income-statement date mismatch is named in the basis). reverse_dcf.implied_fcf_cagr 0.394 and reverse_dcf.horizon_spread 0.1805 filled (both SPECULATIVE; base FCF 3710000000, enterprise value 241366680000). quality.piotroski and quality.beneish_state stay NULL: long_term_debt_fy (and for beneish also ppe_net_fy) remain absent from companyfacts even after the fix; bases corrected to name this precisely. 10 of 13 written canonical fields now sourced (up from 8). This examined-and-barred selection_review from 2026-09-02 is a preserved historical snapshot: 3 NULL canonical fields remain (quality.piotroski, quality.beneish_state; reverse_dcf now closed), so revisit under the next run selection is still live. Status stays COMPLETE/O2; opportunity_tier not re-examined by run selection this run."
+    },
+    {
+      "ts": "2026-09-06T19:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on ai-infrastructure. Held O2. NULL canonical fields: quality.piotroski+beneish_state."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-02",
-    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01",
+    "as_of": "2026-09-06",
     "reviewed_by": "sieve-profiler",
-    "outcome": "RETAINED_O2",
-    "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
-    "rank": 20,
-    "ranked_against": 21,
+    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "outcome": "HELD_O2",
     "null_canonical_fields": [
-      "metrics.leverage.net_debt_to_ebitda",
-      "metrics.quality.beneish_state",
-      "metrics.quality.piotroski",
-      "metrics.reverse_dcf.horizon_spread",
-      "metrics.reverse_dcf.implied_fcf_cagr"
+      "quality.piotroski+beneish_state"
     ],
-    "reason": "Ranked 20 and barred outright despite being the one T1 SEC filer on the money corner and therefore the easiest official cross-check on the theme: leverage.net_debt_to_ebitda, both quality fields and both reverse_dcf fields are NULL, five canonical fields short. Closing them would make it a genuine rank-1 contender against ANDRITZ. It also holds ACTIVE ai-infrastructure placements on power-equipment and grid-interconnect and is barred there for the same reason.",
-    "promoted_this_run": [
-      "ANDRITZ (global-hydro-spillover)",
-      "CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY (tunneling-tbm)"
-    ],
-    "revisit": "Re-examined by the next run selection CAMP-20260901-01 over this theme. A NULL-barred name needs its missing canonical fields filled by run profile first; a name ranked below needs the promoted name on its link to fail its dive or the DEPTH budget to widen."
+    "examined_links": [
+      {
+        "theme_id": "ai-infrastructure",
+        "chain_id": "ai-infrastructure",
+        "link_id": "power-equipment",
+        "state": "CAP_REACHED",
+        "reason": "Theme opportunity_tier O1 count is at DEPTH's 3-per-theme maximum this run; held O2 regardless of this profile's own completeness.",
+        "detail": null
+      }
+    ]
   }
 }

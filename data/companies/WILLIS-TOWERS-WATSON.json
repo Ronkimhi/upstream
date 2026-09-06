@@ -235,6 +235,32 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-139/140) has landed: data/market/WTW.json now holds sec-companyfacts data (16/20 statement fields, official source; cost_of_revenue_fy and sga_fy missing, capex_fy and depreciation_fy stale). Filled 8 of 12 canonical metric fields (1 VERIFIED, 5 INFERRED official-source, 2 SPECULATIVE reverse-DCF); 4 stay NULL on the missing/stale statement lines named above. Status COMPLETE, opportunity_tier O2. run profile WTW (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-06T19:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on hormuz-maritime. Held O2. NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski+beneish_state."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-06",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski+beneish_state"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "hormuz-maritime",
+        "chain_id": "hormuz-maritime",
+        "link_id": "specialty-marine-broking",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
+        "detail": null
+      }
+    ]
+  }
 }

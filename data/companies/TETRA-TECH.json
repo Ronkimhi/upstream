@@ -246,6 +246,39 @@
       "kind": "AMEND",
       "change": "run profile TTEK: re-read data/market/TTEK.json after today's fetcher/quality re-fetch (commits 364b351, 39ce4ac). net_income_fy coverage now resolved, filling cash_conversion.operating_cash_flow_to_net_income (1.85) and quality.piotroski (6, MIDDLING), both previously NULL/PENDING_DATA. quality.beneish_state stays NULL/PENDING_DATA: fetch.py dropped the dead sga_fy concept (stale since 2011-10-02, named at fundamentals.stale_dropped.sga), so 12 of 12 Beneish inputs cannot be found. Revenue, growth, margins, leverage, valuation and reverse_dcf unchanged. Status remains COMPLETE, opportunity_tier unchanged at O2. Peer sessions already corrected CAT, CMI, FTEK, CECO, ONT, ACM and J against the same fetcher fixes (commits 4e4b88c, cf7b35c, d1eeb2a, a2dc5b7, 87cdb5a, bc2bc74, 8b5e975 on origin/main); this run closes the remaining gap on TTEK only.",
       "prior": "2026-09-04T22:00:00Z"
+    },
+    {
+      "ts": "2026-09-06T19:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on data-center-moratoria, minor-nsr-permits. Held O2. NULL canonical fields: quality.beneish_state. Theme reached its 3-O1 DEPTH cap this run (AECOM, JACOBS-SOLUTIONS, WSP-GLOBAL); TETRA-TECH also carries exactly one NULL canonical field (quality group) so would not have cleared the zero-NULL bar in any case. Theme is at its 3-O1 DEPTH cap; TETRA-TECH also carries one NULL canonical field (quality group). Same profile also examined on data-center-moratoria this run; see that entry."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-06",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "quality.beneish_state"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "data-center-moratoria",
+        "chain_id": "data-center-moratoria",
+        "link_id": "permitting-and-environmental-consultancy",
+        "state": "CAP_REACHED",
+        "reason": "Theme opportunity_tier O1 count is at DEPTH's 3-per-theme maximum this run; held O2 regardless of this profile's own completeness.",
+        "detail": "Theme reached its 3-O1 DEPTH cap this run (AECOM, JACOBS-SOLUTIONS, WSP-GLOBAL); TETRA-TECH also carries exactly one NULL canonical field (quality group) so would not have cleared the zero-NULL bar in any case."
+      },
+      {
+        "theme_id": "minor-nsr-permits",
+        "chain_id": "minor-nsr-permits",
+        "link_id": "air-permitting-and-dispersion-modeling",
+        "state": "CAP_REACHED",
+        "reason": "Theme opportunity_tier O1 count is at DEPTH's 3-per-theme maximum this run; held O2 regardless of this profile's own completeness.",
+        "detail": "Theme is at its 3-O1 DEPTH cap; TETRA-TECH also carries one NULL canonical field (quality group). Same profile also examined on data-center-moratoria this run; see that entry."
+      }
+    ]
+  }
 }

@@ -248,6 +248,29 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Corrected the stale-market-claim defect: the prior BLOCKED profile checked the dotted path data/market/BPCL.NS.json instead of the fetcher's dashed filename data/market/BPCL-NS.json, which was already on disk with a full 20/20-field yfinance-statements vendor block and a SCORED quality block. Filled all 12 canonical metric fields from that file (10 INFERRED vendor-backed, 2 SPECULATIVE reverse-DCF). Status COMPLETE, opportunity_tier O2. run profile BPCL.NS (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-06T19:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on russia-diesel-ban. Held O2. Zero NULL canonical fields. WebSearch cross-check this run of BPCL's own FY26 results (Whalesbook/Business Standard coverage of the official filing) found consolidated revenue from operations of INR 5,22,820.41 crore (INR 5.228tn), versus the vendor block's revenue.latest_fy of INR 4.503tn: 13.9% lower, a material misalignment matching the pattern found on HINDUSTAN-PETROLEUM. Net profit in the vendor block (INR 258,434.5m) matches the official INR 25,843.45 crore net profit exactly, so the discrepancy is isolated to the revenue line (likely a different consolidation or excise-duty netting basis). Not promoted this run: revenue.latest_fy fails the O1 official-source cross-check."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-06",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [],
+    "examined_links": [
+      {
+        "theme_id": "russia-diesel-ban",
+        "chain_id": "russian-diesel-ban",
+        "link_id": "refinery-capacity-response",
+        "state": "DATA_INTEGRITY",
+        "reason": "Zero NULL canonical fields, but the O1 official-source cross-check on a vendor-block canonical field failed or was not clearable this run; see basis.",
+        "detail": "WebSearch cross-check this run of BPCL's own FY26 results (Whalesbook/Business Standard coverage of the official filing) found consolidated revenue from operations of INR 5,22,820.41 crore (INR 5.228tn), versus the vendor block's revenue.latest_fy of INR 4.503tn: 13.9% lower, a material misalignment matching the pattern found on HINDUSTAN-PETROLEUM. Net profit in the vendor block (INR 258,434.5m) matches the official INR 25,843.45 crore net profit exactly, so the discrepancy is isolated to the revenue line (likely a different consolidation or excise-duty netting basis). Not promoted this run: revenue.latest_fy fails the O1 official-source cross-check."
+      }
+    ]
+  }
 }

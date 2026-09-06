@@ -220,6 +220,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-152/153/154) has landed: data/market/PCCYF.json now holds a full 20/20-field yfinance-statements vendor block (the CIK carried no XBRL companyfacts) and a SCORED quality block. Filled 8 of 12 canonical metric fields; valuation and reverse_dcf (4 fields) NULL on a real CNY/USD currency mismatch (method section 6A). Status COMPLETE, opportunity_tier O2. run profile PCCYF (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-06T19:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on hormuz-maritime. Held O2. NULL canonical fields: valuation.market_cap, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
     }
   ],
   "sources": {
@@ -231,5 +237,26 @@
     },
     "chain": "data/chains/hormuz-maritime.json",
     "market": "data/market/PCCYF.json"
+  },
+  "selection_review": {
+    "as_of": "2026-09-06",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "valuation.market_cap",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "hormuz-maritime",
+        "chain_id": "hormuz-maritime",
+        "link_id": "bunker-and-voyage-services",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
+        "detail": null
+      }
+    ]
   }
 }

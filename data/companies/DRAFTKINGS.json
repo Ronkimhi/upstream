@@ -271,6 +271,34 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-141/142) has landed: data/market/DKNG.json now holds sec-companyfacts data (17/20 statement fields, official source; long_term_debt_fy missing). Filled 7 of 12 canonical metric fields (1 VERIFIED, 6 INFERRED official-source); 5 stay NULL on the missing long_term_debt_fy input, which blocks leverage, both quality scores and the reverse-DCF solve. Status COMPLETE, opportunity_tier O2. run profile DKNG (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-06T19:10:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on prediction-market-plumbing. Held O2. NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski+beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-06",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski+beneish_state",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "prediction-market-plumbing",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "sportsbook-platform-and-trading",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
+        "detail": null
+      }
+    ]
+  }
 }
