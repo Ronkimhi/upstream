@@ -1,6 +1,6 @@
 {
  "ticker": "SNPMF",
- "fetched_at": "2026-09-06T15:24:25.779339+00:00",
+ "fetched_at": "2026-09-06T15:29:04.321553+00:00",
  "tier": "T1",
  "cik": 1123658,
  "price_status": "SINGLE_SOURCE",
@@ -2252,7 +2252,7 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 1123658,
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-06",
   "taxonomy": "ifrs-full",
   "statement_currency": "CNY",
   "revenue_fy": [
@@ -2608,16 +2608,6 @@
     1012402000000
    ]
   ],
-  "retained_earnings_fy": [
-   [
-    "2017-12-31",
-    326125000000
-   ],
-   [
-    "2018-01-01",
-    326137000000
-   ]
-  ],
   "equity_fy": [
    [
     "2016-12-31",
@@ -2742,16 +2732,6 @@
     630700000000
    ]
   ],
-  "shares_fy": [
-   [
-    "2000-02-25",
-    68800000000
-   ],
-   [
-    "2015-02-11",
-    121071209646
-   ]
-  ],
   "long_term_debt_fy": [
    [
     "2015-12-31",
@@ -2786,6 +2766,10 @@
     85706000000
    ]
   ],
+  "stale_dropped": {
+   "retained_earnings": "2018-01-01",
+   "shares": "2015-02-11"
+  },
   "concept_hints": {
    "gross_profit": [],
    "cost_of_revenue": [
@@ -2819,29 +2803,43 @@
     "PaymentsOfFinanceLeaseLiabilitiesClassifiedAsFinancingActivities (2018-12-31)",
     "MinimumLeasePaymentsPayableUnderNoncancellableOperatingLease (2018-12-31)",
     "GainLossRecognisedAsResultOfRemeasuringToFairValueEquityInterestInAcquireeHeldByAcquirerBeforeBusinessCombination (2017-12-31)"
+   ],
+   "retained_earnings": [
+    "IncreaseDecreaseThroughAppropriationOfRetainedEarnings (2018-12-31)",
+    "RetainedEarnings (2018-01-01)"
+   ],
+   "shares": [
+    "AdjustedWeightedAverageShares (2022-12-31)",
+    "PaymentsToAcquireOrRedeemEntitysShares (2022-12-31)",
+    "PurchaseOfTreasuryShares (2022-12-31)",
+    "WeightedAverageShares (2022-12-31)",
+    "NumberOfSharesIssued (2015-02-11)"
    ]
   },
   "coverage": {
-   "annual_fields_found": 17,
+   "annual_fields_found": 15,
    "annual_fields_attempted": 20,
    "missing": [
     "gross_profit",
     "cost_of_revenue",
-    "capex"
+    "capex",
+    "retained_earnings",
+    "shares"
    ]
   }
  },
  "quality": {
   "as_of": "2026-09-06",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-09-04",
+  "fundamentals_as_of": "2026-09-06",
   "piotroski": {
    "score": null,
    "state": "PENDING_DATA",
    "missing": [
+    "shares_fy",
     "cost_of_revenue_fy"
    ],
-   "inputs_found": 8,
+   "inputs_found": 7,
    "inputs_needed": 9,
    "proxies": {
     "shares": "share-count increase clipped at zero; companyfacts lacks reliable issuance proceeds"
@@ -2857,16 +2855,21 @@
    "inputs_needed": 12
   },
   "altman": {
-   "score": 1.93,
-   "state": "GREY",
-   "inputs_found": 8,
+   "score": null,
+   "state": "PENDING_DATA",
+   "missing": [
+    "retained_earnings_fy",
+    "market_cap"
+   ],
+   "inputs_found": 6,
    "inputs_needed": 8
   },
   "reverse_dcf": {
    "implied_fcf_cagr": null,
    "state": "PENDING_DATA",
    "missing": [
-    "fcf"
+    "fcf",
+    "enterprise_value"
    ],
    "assumptions": {
     "discount_rate": 0.09,
@@ -2878,15 +2881,13 @@
   },
   "derived": {
    "fcf": null,
-   "market_cap": 72642725787.59999,
-   "enterprise_value": 64910725787.599976
+   "market_cap": null,
+   "enterprise_value": null
   },
   "health": {
-   "statement_fields_found": 17,
+   "statement_fields_found": 15,
    "statement_fields_needed": 20,
    "periods_available": [
-    "2000-02-25",
-    "2015-02-11",
     "2015-12-31",
     "2016-12-31",
     "2017-12-31",
@@ -2908,10 +2909,10 @@
    "as_of": "2026-09-02"
   },
   "shares_used": {
-   "value": 121071209646,
-   "as_of": "2015-02-11",
-   "source": "fundamentals.shares_fy"
+   "value": null,
+   "as_of": null,
+   "source": null
   },
-  "state": "SCORED"
+  "state": "NOTHING_SCORED"
  }
 }
