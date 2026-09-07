@@ -3154,6 +3154,68 @@
       if (REDUCED) g.nodes.forEach(function (n) { n.x = n.gx; n.y = n.gy; });
     }
 
+    var CXBOX = [];
+    function boxFree(x0, y0, x1, y1) {
+      for (var i = 0; i < CXBOX.length; i++) {
+        var b = CXBOX[i];
+        if (x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1]) return false;
+      }
+      return true;
+    }
+    function claim(x0, y0, x1, y1) { CXBOX.push([x0, y0, x1, y1]); }
+    /* Widths were estimated as 0.46 characters wide, which is wrong for Newsreader and
+       Inter alike: they are proportional, so an estimate is out by a fifth on a
+       caps-heavy name and the boxes it produces do not describe the pixels. Mono is
+       exactly its advance, measured once per size rather than assumed, because a font
+       that failed to load falls back to a different monospace. */
+    function tw(font, txt) {
+      txt = String(txt == null ? "" : txt);
+      if (!txt) return 0;
+      if (font.indexOf("JetBrains") >= 0) {
+        var a = CX_TWA[font];
+        if (a == null) { ctx.font = font; a = ctx.measureText("MMMMMMMMMM").width / 10; CX_TWA[font] = a; }
+        return txt.length * a;
+      }
+      var k = font + " " + txt, v = CX_TW[k];
+      if (v != null) return v;
+      if (CX_TWN > 3000) { CX_TW = {}; CX_TWN = 0; }
+      ctx.font = font;
+      v = ctx.measureText(txt).width;
+      CX_TW[k] = v; CX_TWN++;
+      return v;
+    }
+    function fontPx(font) { var m = /([0-9.]+)px/.exec(font); return m ? parseFloat(m[1]) : 11; }
+    /* Draw one label at the first candidate offset that is clear, or not at all. cands
+       are {x, y, align} in preference order; force means the label answers something the
+       reader just did (a hover, the view's own title) and is drawn regardless. */
+    function put(txt, font, color, cands, alpha, force) {
+      if (txt == null || txt === "") return false;
+      var wpx = tw(font, txt), hpx = fontPx(font) + 3, i, c, x0, y0;
+      for (i = 0; i < cands.length; i++) {
+        c = cands[i];
+        x0 = c.align === "right" ? c.x - wpx : c.x;
+        y0 = c.y - hpx / 2;
+        if (force || boxFree(x0 - 2, y0 - 1, x0 + wpx + 2, y0 + hpx + 1)) {
+          claim(x0 - 2, y0 - 1, x0 + wpx + 2, y0 + hpx + 1);
+          label(txt, c.x, c.y, font, color, c.align, alpha);
+          return true;
+        }
+      }
+      return false;
+    }
+    // one candidate on the side the caller wanted, then the other side, then above and
+    // below it: the nudge before the drop
+    function sides(x, y, off, right) {
+      var a = right ? "left" : "right", b = right ? "right" : "left";
+      return [{ x: right ? x + off : x - off, y: y, align: a },
+              { x: right ? x - off : x + off, y: y, align: b },
+              { x: right ? x + off : x - off, y: y - 13, align: a },
+              { x: right ? x + off : x - off, y: y + 13, align: a }];
+    }
+    /* Measured text widths, kept across frames because every label string on this canvas
+       comes from the payload and none of them changes between frames. Wholesale wipe past
+       a few thousand entries, the same shape the sprite cache uses. */
+    var CX_TW = {}, CX_TWN = 0, CX_TWA = {};
     /* text helpers: an outlined label reads over dust; an arc label follows the rim */
     function label(txt, x, y, font, color, align, alpha) {
       ctx.font = font; ctx.textAlign = align || "left"; ctx.textBaseline = "middle";
@@ -3481,15 +3543,46 @@
     function drawLabels(w, h, zoomF, hi, sel, anyFilter, isTL, isRad, ui) {
       var lden = typeof CX_GAIN.labels === "number" ? CX_GAIN.labels : 1;
       var sz = Math.min(1.5, Math.max(0.85, Math.sqrt(zoomF))) * (ui || 1);
-      var boxes = [];
+      CXBOX.length = 0;
+      /* Claimed label boxes for this frame. Signal names were already nudged apart from
+         each other, but nothing else on the canvas was: links, scenarios, companies,
+         dives, candidates and events each drew at a fixed offset from their own dot with
+         no idea what was already there, which is why headlines cut straight through the
+         serif titles. Everything goes through claim() now, in importance order, and a
+         label that cannot find a clear spot is not drawn. */
+      // the panel, the inspector and the topbar float above this canvas, so the area
+      // outside freeRect belongs to them and no label may be placed into it
+      var FR = freeRect();
+      claim(-9e5, -9e5, 9e5, FR.y0);
+      claim(-9e5, FR.y1, 9e5, 9e5);
+      claim(-9e5, -9e5, FR.x0, 9e5);
+      claim(FR.x1, -9e5, 9e5, 9e5);
+      // the radial's chart title sits at the top-left of the free area
+      if (isRad && sel) {
+        var fr = FR;
+        var tf = "italic 400 " + Math.round(30 * (ui || 1)) + "px Newsreader, Georgia, serif";
+        var sf2 = "9px 'JetBrains Mono', monospace";
+        var sub2 = (sel.chain.links || []).length + " LINKS RANKED BY HEAT · UNMAPPED " + num(sel.un, "?") + " · " + (sel.band ? sel.band.toUpperCase() + " " + Math.round(sel.imp) : "UNAPPRAISED") + " · " + (sel.chain.scenarios || []).length + " SCENARIOS ON THE OUTER RING";
+        label(sel.label, fr.x0 + 24, fr.y0 + 30, tf, CXP.ink, "left", 1);
+        label(sub2, fr.x0 + 24, fr.y0 + 50, sf2, CXP.ink3, "left", 1);
+        claim(fr.x0 + 20, fr.y0 + 12, fr.x0 + 28 + Math.max(tw(tf, sel.label), tw(sf2, sub2)), fr.y0 + 60);
+        var lg = fr.y1 - 14, lgf = "8.5px 'JetBrains Mono', monospace";
+        CX_FACTORS.forEach(function (f, q) {
+          ctx.globalAlpha = 1; ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(fr.x0 + 24 + q * 118, lg); ctx.lineTo(fr.x0 + 46 + q * 118, lg); ctx.stroke(); ctx.lineCap = "butt";
+          label(f[1], fr.x0 + 52 + q * 118, lg, lgf, CXP.ink2, "left", 1);
+          claim(fr.x0 + 20 + q * 118, lg - 8, fr.x0 + 56 + q * 118 + tw(lgf, f[1]), lg + 8);
+        });
+      }
       function place(n, size, txt) {
         // outward from the wheel at rest; toward the screen's centre once flown in, so a
         // framed system's name never runs under the panel or off the edge
         var right = zoomF > 1.3 ? n._px < cam.cx : n._px >= cam.cx;
         var off = (n.sysR || 24) * cam.k + 12;
         var lx = right ? n._px + off : n._px - off;
-        var wpx = size * 0.46 * txt.length + 6, hpx = size + 16;
-        return { right: right, lx: lx, ly: n._py, w: wpx, h: hpx };
+        var f = "italic 400 " + size.toFixed(1) + "px Newsreader, Georgia, serif";
+        var wpx = Math.max(tw(f, txt), tw("8.6px 'JetBrains Mono', monospace", n.sub || "")) + 6;
+        return { right: right, lx: lx, ly: n._py, w: wpx, h: size + 16 };
       }
       // signals: serif names with a leader; boxes nudged apart on each side
       var sigs = g.sigs.filter(function (n) { return n._px != null && !n._hid && n._px > -200 && n._px < w + 200 && n._py > -60 && n._py < h + 60; });
@@ -3515,6 +3608,19 @@
         }
         if (!moved) break;
       }
+      /* Slide each name inside the free area before anything is tested against the rails.
+         A title that ended up five pixels under the topbar used to be dropped outright,
+         which spends a whole signal name to avoid a five-pixel overlap; moving it down is
+         the same answer at none of the cost. Horizontally it changes side rather than
+         sliding, because the leader line has to reach its own dot. */
+      sigs.forEach(function (n) {
+        var L = n._lab;
+        if (!L) return;
+        var top = L.size * 0.7 + 2, bot = L.size * 0.5 + 17;
+        L.ly = Math.max(FR.y0 + top, Math.min(FR.y1 - bot, L.ly));
+        if (L.right && L.lx + L.w > FR.x1) { L.right = false; L.lx = n._px - ((n.sysR || 24) * cam.k + 12); }
+        else if (!L.right && L.lx - L.w < FR.x0) { L.right = true; L.lx = n._px + ((n.sysR || 24) * cam.k + 12); }
+      });
       sigs.forEach(function (n) {
         var L = n._lab;
         if (!L) return;
@@ -3522,60 +3628,76 @@
         if (isRad) a *= 0.35;
         var col = n.tier === "LONG TAIL" ? "#B9BCD3" : CXP.ink;
         var ex = n._px + (n._R + 3) * (L.right ? 1 : -1), kx = L.lx - (L.right ? 6 : -6);
+        // the name and its read-out are one block, so nothing else can land between them
+        var sy = L.ly + L.size * 0.5 + 8;
+        var by0 = L.ly - L.size * 0.7, forced = n === hi || n === sel;
+        var bx0 = L.right ? L.lx : L.lx - L.w;
+        if (!forced && !boxFree(bx0 - 2, by0, bx0 + L.w + 2, sy + 7)) {
+          // a signal name outranks everything else on the canvas, so before it is dropped
+          // it tries the mirrored side of its own dot: the nudge, then the drop
+          var alt = !L.right, ax0 = alt ? n._px + (n._px - L.lx) : n._px - (L.lx - n._px) - L.w;
+          ax0 = alt ? n._px + ((n._px - L.lx)) : (n._px - (L.lx - n._px)) - L.w;
+          if (!boxFree(ax0 - 2, by0, ax0 + L.w + 2, sy + 7)) return;
+          L.right = alt; L.lx = alt ? ax0 : ax0 + L.w; bx0 = ax0;
+        }
+        claim(bx0 - 2, by0, bx0 + L.w + 2, sy + 7);
         ctx.globalAlpha = a * 0.3; ctx.strokeStyle = CXP.ink2; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(ex, n._py);
         if (Math.abs(L.ly - n._py) > 1) { ctx.lineTo((ex + kx) / 2, n._py); ctx.lineTo(kx, L.ly); } else ctx.lineTo(kx, n._py);
         ctx.stroke();
         label(n.label, L.lx, L.ly, "italic 400 " + L.size.toFixed(1) + "px Newsreader, Georgia, serif", col, L.right ? "left" : "right", a);
-        label(n.sub, L.lx, L.ly + L.size * 0.5 + 8, "8.6px 'JetBrains Mono', monospace", CXP.ink3, L.right ? "left" : "right", a);
+        label(n.sub, L.lx, sy, "8.6px 'JetBrains Mono', monospace", CXP.ink3, L.right ? "left" : "right", a);
       });
       // links: named when zoomed in, when filtered to, when hovered, and always in the focused radial
       var linkNames = zoomF > 6 || (lden > 0.9 && zoomF > 3.4);
       var hiSys2 = hi ? (hi.kind === "sig" ? hi : hi.sig || null) : null;
+      /* Emitted in importance order rather than in whatever order the node array happens
+         to hold. A candidate headline drawn before a link name used to take the space the
+         link needed purely by arriving first, which is what put the italic headlines
+         through the titles in the first place. */
+      var KIND_ORDER = ["link", "dive", "scen", "co", "cand", "evt"];
+      var byKind = { link: [], dive: [], scen: [], co: [], cand: [], evt: [] };
       g.nodes.forEach(function (n) {
         if (n._px == null || n._hid) return;
+        if (byKind[n.kind]) byKind[n.kind].push(n);
+      });
+      KIND_ORDER.forEach(function (kind) {
+        byKind[kind].forEach(function (n) {
         var focused = isRad && n.sig === sel;
+        var forced = n === hi;
         if (n.kind === "link") {
           var near = zoomF > 1.3 && (n.sig === sel || n.sig === hiSys2);
           if (!(focused || linkNames || near || n === hi || (anyFilter && cxMatch(n) && CX_FILTER.q))) return;
           if (focused) return drawRadialLinkLabel(n);
-          var right = n.ringA > -90 && n.ringA < 90 || (n.ringA >= 270);
           var c = Math.cos(n.ringA * Math.PI / 180), s = Math.sin(n.ringA * Math.PI / 180);
-          label(n.label, n._px + c * 9, n._py + s * 9, "500 10.5px Inter, sans-serif", CXP.ink2, c >= 0 ? "left" : "right", n === hi ? 1 : 0.85);
+          put(n.label, "500 10.5px Inter, sans-serif", CXP.ink2,
+              sides(n._px, n._py + s * 9, 9, c >= 0), n === hi ? 1 : 0.85, forced);
         } else if (n.kind === "dive") {
           var show = focused || (zoomF > 0.9 && (ui || 1) >= 0.8) || zoomF > 1.6 || n === hi;
           if (!show) return;
           var c2 = Math.cos((n.radialA != null && focused ? n.radialA : n.ringA) * Math.PI / 180);
-          label(n.label, n._px + (c2 >= 0 ? 7 : -7), n._py + (focused ? 11 : 0), "8.6px 'JetBrains Mono', monospace", n.color, c2 >= 0 ? "left" : "right", 0.95);
+          put(n.label, "8.6px 'JetBrains Mono', monospace", n.color,
+              sides(n._px, n._py + (focused ? 11 : 0), 7, c2 >= 0), 0.95, forced);
         } else if (n.kind === "co") {
           if (!(zoomF > 3 || n === hi)) return;
-          label(n.label, n._px + 4, n._py - 5, "8.5px 'JetBrains Mono', monospace", CXP.ink3, "left", 0.8);
+          put(n.label, "8.5px 'JetBrains Mono', monospace", CXP.ink3,
+              sides(n._px, n._py - 5, 4, true), 0.8, forced);
         } else if (n.kind === "scen") {
           if (!(focused || zoomF > 2.4 || n === hi)) return;
           var c3 = focused && n.radialA != null ? Math.cos(n.radialA * Math.PI / 180 + cam.rot) : 1;
-          label(n.label, n._px + (c3 >= -0.05 ? 9 : -9), n._py, "8.6px 'JetBrains Mono', monospace", CXP.ink2, c3 >= -0.05 ? "left" : "right", 0.9);
+          put(n.label, "8.6px 'JetBrains Mono', monospace", CXP.ink2,
+              sides(n._px, n._py, 9, c3 >= -0.05), 0.9, forced);
         } else if (n.kind === "cand") {
           if (!(n === hi || (anyFilter && CX_FILTER.q && cxMatch(n)) || zoomF > 2.6)) return;
-          label(n.label, n._px + 7, n._py, "italic 400 11.5px Newsreader, Georgia, serif", "#B7BAD3", "left", 0.9);
+          put(n.label, "italic 400 11.5px Newsreader, Georgia, serif", "#B7BAD3",
+              sides(n._px, n._py, 7, true), 0.9, forced);
         } else if (n.kind === "evt" && !isTL) {
           if (!(n === hi || zoomF > 2.6)) return;
-          label(n.label, n._px + 8, n._py, "8.5px 'JetBrains Mono', monospace", CXP.ink3, "left", 0.9);
+          put(n.label, "8.5px 'JetBrains Mono', monospace", CXP.ink3,
+              sides(n._px, n._py, 8, true), 0.9, forced);
         }
-      });
-      // the radial's chart title sits at the top-left of the free area
-      if (isRad && sel) {
-        var fr = freeRect();
-        label(sel.label, fr.x0 + 24, fr.y0 + 30, "italic 400 " + Math.round(30 * (ui || 1)) + "px Newsreader, Georgia, serif", CXP.ink, "left", 1);
-        var c4 = sel.chain;
-        label((c4.links || []).length + " LINKS RANKED BY HEAT · UNMAPPED " + num(sel.un, "?") + " · " + (sel.band ? sel.band.toUpperCase() + " " + Math.round(sel.imp) : "UNAPPRAISED") + " · " + (c4.scenarios || []).length + " SCENARIOS ON THE OUTER RING",
-              fr.x0 + 24, fr.y0 + 50, "9px 'JetBrains Mono', monospace", CXP.ink3, "left", 1);
-        var lg = fr.y1 - 14;
-        CX_FACTORS.forEach(function (f, q) {
-          ctx.globalAlpha = 1; ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
-          ctx.beginPath(); ctx.moveTo(fr.x0 + 24 + q * 118, lg); ctx.lineTo(fr.x0 + 46 + q * 118, lg); ctx.stroke(); ctx.lineCap = "butt";
-          label(f[1], fr.x0 + 52 + q * 118, lg, "8.5px 'JetBrains Mono', monospace", CXP.ink2, "left", 1);
         });
-      }
+      });
     }
     function drawRadialLinkLabel(n) {
       var th = (n.radialA == null ? n.ringA : n.radialA) * Math.PI / 180 + cam.rot, c = Math.cos(th), s = Math.sin(th);
@@ -3590,6 +3712,10 @@
       lines.push(rest);
       var y0 = ty - (lines.length - 1) * 7;
       lines.forEach(function (ln, q) { label(ln, tx, y0 + q * 14, "500 12px Inter, sans-serif", CXP.ink, ax, 1); });
+      // the focused ring's own read-out: it always draws, and it claims so nothing else lands on it
+      var lw = 0;
+      lines.forEach(function (ln) { lw = Math.max(lw, ctx.measureText(ln).width); });
+      claim(right ? tx : tx - lw - 6, y0 - 9, right ? tx + lw + 6 : tx, y0 + (lines.length - 1) * 14 + 22);
       var l = n.ref, tags = [];
       if (n.choke) tags.push("CHOKE POINT");
       if (n.money) tags.push("MONEY CORNER");
