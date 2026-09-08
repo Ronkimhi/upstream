@@ -120,6 +120,43 @@ def _align(fields: dict, names):
     return out, cols
 
 
+def _stale_inputs(fields: dict, names, tolerance_days: int = 400):
+    """Name the inputs whose own series ends long before the freshest one.
+
+    An empty intersection is almost never "this filer reports nothing". It is one concept
+    that went dead while its siblings kept running: ADBE's long_term_debt_fy stops at
+    2009-11-27 while its other eight inputs run to 2025-11-28, so the periods every input
+    shares is the empty set. The message the callers used to print, "0 common fiscal
+    period(s) across the 9 inputs", named nothing and was true of both this and a genuinely
+    empty filer, which is why 44 tickers sat PENDING_DATA with inputs_found == inputs_needed
+    and nobody could tell why. Naming the outlier points at the FACT_MAP entry that needs
+    widening, which is the actual repair.
+    """
+    from datetime import date
+
+    ends = {}
+    for n in names:
+        fr = fields.get(n)
+        if fr is None or len(fr.columns) == 0:
+            continue
+        ends[n] = max(str(c)[:10] for c in fr.columns)
+    if not ends:
+        return []
+    newest = max(ends.values())
+    out = []
+    for n, end in sorted(ends.items()):
+        try:
+            lag = (date.fromisoformat(newest) - date.fromisoformat(end)).days
+        except ValueError:
+            continue
+        if lag > tolerance_days:
+            out.append(f"{n} ends {end}, {lag} days behind the freshest input "
+                       f"({newest}); its concept likely went dead and FACT_MAP needs a "
+                       "fresher candidate")
+    return out
+
+
+
 def piotroski(f: dict) -> dict:
     """F-score 0-9. Needs 4 consecutive annual periods to make the change legs honest."""
     from financetoolkit.models import piotroski_model as pm
@@ -130,13 +167,14 @@ def piotroski(f: dict) -> dict:
     if missing:
         return {"score": None, "state": "PENDING_DATA", "missing": missing,
                 "inputs_found": len(needed) - len(missing), "inputs_needed": len(needed)}
-    f, cols = _align(f, needed)
+    aligned, cols = _align(f, needed)
     if len(cols) < 2:
         return {"score": None, "state": "PENDING_DATA",
                 "missing": [f"only {len(cols)} common fiscal period(s) across the 9 inputs; "
-                            "the change legs need at least 2"],
+                            "the change legs need at least 2"] + _stale_inputs(f, needed),
                 "inputs_found": len(needed), "inputs_needed": len(needed),
                 "common_periods": cols}
+    f = aligned
     avg_ta = _avg_assets(f["total_assets_fy"])
     try:
         criteria = {
@@ -184,13 +222,15 @@ def beneish(f: dict) -> dict:
     if missing:
         return {"score": None, "state": "PENDING_DATA", "missing": missing,
                 "inputs_found": len(needed) - len(missing), "inputs_needed": len(needed)}
-    f, cols = _align(f, needed)
+    aligned, cols = _align(f, needed)
     if len(cols) < 2:
         return {"score": None, "state": "PENDING_DATA",
                 "missing": [f"only {len(cols)} common fiscal period(s) across the 12 inputs; "
-                            "every Beneish index is a year-over-year ratio"],
+                            "every Beneish index is a year-over-year ratio"]
+                           + _stale_inputs(f, needed),
                 "inputs_found": len(needed), "inputs_needed": len(needed),
                 "common_periods": cols}
+    f = aligned
     try:
         m = _last(bm.get_beneish_m_score(
             bm.get_days_sales_in_receivables_index(f["receivables_fy"], f["revenue_fy"]),
@@ -229,11 +269,13 @@ def altman(f: dict, market_cap: float | None) -> dict:
     if missing:
         return {"score": None, "state": "PENDING_DATA", "missing": missing,
                 "inputs_found": len(needed) + 1 - len(missing), "inputs_needed": len(needed) + 1}
-    f, cols = _align(f, needed)
+    aligned, cols = _align(f, needed)
     if not cols:
         return {"score": None, "state": "PENDING_DATA",
-                "missing": ["no common fiscal period across the 7 statement inputs"],
+                "missing": ["no common fiscal period across the 7 statement inputs"]
+                           + _stale_inputs(f, needed),
                 "inputs_found": len(needed) + 1, "inputs_needed": len(needed) + 1}
+    f = aligned
     try:
         wc = f["current_assets_fy"] - f["current_liabilities_fy"]
         z = _last(am.get_altman_z_score(
