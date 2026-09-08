@@ -2254,6 +2254,41 @@
     return (cut > 20 ? t.slice(0, cut) : t.slice(0, 40)) + "…";
   }
   function cxTier(un) { return un == null ? "LONG TAIL" : un >= 80 ? "MAJOR" : un >= 60 ? "WATCH" : "LONG TAIL"; }
+  /* Field captions (Ron's pick, 2026-09-08: "E + D"). The read-out under a signal's name
+     is a sentence in roman serif, not a mono log line: "88 unmapped · money reachable 65 ·
+     since Jul 2025". Every figure is the record's own or the word for its absence; nothing
+     here rounds a missing number into a plausible one. The second line names the money
+     corner with the tickers named at it, and draws nothing when the chain has none. */
+  var CX_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function cxMonthYear(d) {
+    var m = /^(\d{4})-(\d{2})/.exec(String(d || ""));
+    return m ? CX_MON[parseInt(m[2], 10) - 1] + " " + m[1] : String(d || "");
+  }
+  function cxCaption(un, ap, c, occ) {
+    var parts = [num(un, "?") + " unmapped"];
+    if (ap) parts.push(ap.impact_score == null ? "money unranked" : "money reachable " + Math.round(ap.impact_score));
+    else parts.push("not yet appraised");
+    if (!c) parts.push("no chain yet");
+    else parts.push(occ && occ.anchor_date ? "since " + cxMonthYear(occ.anchor_date) : "undated");
+    return parts.join(" · ");
+  }
+  function cxCornerCaption(c) {
+    if (!c) return null;
+    var money = (c.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
+    if (!money.length) return null;
+    var l = money[0];
+    return { name: cxTrim(l.name, 36) + (money.length > 1 ? " +" + (money.length - 1) : ""), tickers: (l.example_tickers || []).slice(0, 3).join("  ") };
+  }
+  function cxOdds(pct) {
+    if (pct == null) return "unscored";
+    if (pct <= 0) return "0%";
+    if (pct >= 50) return pct + "%";
+    return "one in " + Math.round(100 / pct);
+  }
+  function cxVerdictWord(v, status) {
+    var w = v === "INVESTABLE" ? "investable" : v === "WATCH" ? "watch" : v === "TOO_LATE" ? "too late" : String(v || "").toLowerCase().replace(/_/g, " ");
+    return status === "DRAFT" ? w + ", draft" : w;
+  }
   function cxLiveSignals() {
     return (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
   }
@@ -2356,8 +2391,8 @@
         hr: hubR(imp), R: nLinks ? 18 + 1.9 * nLinks : 24, sysR: (nLinks ? 18 + 1.9 * nLinks : 24) + 6,
         dashed: occ.kind === "SCHEDULED", r: hubR(imp), rWorld: unR(un),
         label: sg.short_title || cxShort(sg.title),
-        sub: "UNMAPPED " + num(un, "?") + " · " + (ap ? (ap.impact_band || "").toUpperCase() + " " + (imp == null ? "?" : Math.round(imp)) : "UNAPPRAISED") +
-             " · " + (c ? (occ.anchor_date || "undated") : "UNCHAINED"),
+        cap: cxCaption(un, ap, c, occ),
+        corner: cxCornerCaption(c),
         tip: sg.title + " — " + (occ.kind || "undated") + (occ.anchor_date ? " · " + occ.anchor_date : ""),
         days: cxDays(occ.anchor_date || sg.created_at)
       });
@@ -2446,6 +2481,7 @@
         add({ kind: "scen", id: c.id + "/" + s.id, ref: s, chainId: c.id, sig: n, ringA: th, r: 3.6,
               color: s.status === "SCREENED" ? CXP.verd.UNDISCOVERED : (s.status === "INVALIDATED" || s.status === "PLAYED_OUT") ? CXP.ink3 : "#C9CBE3",
               label: s.id + " · " + (s.probability_pct == null ? "unscored" : s.probability_pct + "%"),
+              word: s.id + ", " + cxOdds(s.probability_pct),
               tip: s.id + " · " + s.title + " — " + (s.probability_pct == null ? "unscored" : s.probability_pct + "%") });
       });
     });
@@ -2457,6 +2493,7 @@
       add({ kind: "dive", id: st.ticker + "__" + st.chain_id, ref: st, sig: sg, link: ln, ringA: ln ? ln.ringA : -90,
             color: CXP.dive[st.verdict] || CXP.none, r: 3, dashed: st.status === "DRAFT",
             label: st.ticker + " · " + (st.verdict || "").replace("_", " "),
+            word: cxVerdictWord(st.verdict, st.status),
             tip: st.ticker + " — " + st.verdict + " (" + st.clock + ", " + st.status + ")" });
     });
     // ambient candidates: hollow circles in their family's band; PRIME ones carry a core
@@ -2811,47 +2848,53 @@
       '<div class="cx-note">Analytical outputs from public data · not investment advice</div>' +
       "</div>";
   }
+  /* The dock (Ron's pick, 2026-09-08: "E + D"). The selected signal's numbers live here,
+     not on the field: the name, three figures, every link ranked by heat with the tickers
+     named at it, then its scenarios and verdicts in one line. A figure the record lacks
+     prints as its absence ("not appraised", "no listed issuer"), never as a stand-in. */
   function cxInspectorHTML(sigId) {
     var s = byId(D.signals, sigId);
     if (!s) return "";
     var occ = s.occurrence || {}, un = (s.unmappedness || {}).score, ap = impactFor(s.id);
     var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
-    var links = c ? (c.links || []) : [];
-    var scored = links.filter(function (l) { return (l.heat || {}).verdict; }).length;
-    var money = links.filter(function (l) { return l.heat && l.heat.money_corner; }).map(function (l) { return l.name; });
-    var chokes = links.filter(function (l) { return (l.bottleneck || {}).criticality === "CHOKE_POINT"; }).map(function (l) { return l.name; });
+    var links = c ? (c.links || []).slice() : [];
     var dives = (D.stocks || []).filter(function (st) { return c && st.chain_id === c.id; });
-    var fam = cxSigFamily(s.id);
-    function kv(k, v) { return '<div class="kv"><span class="k">' + k + '</span><span class="v">' + v + "</span></div>"; }
-    var mix = c ? '<div class="cx-mix">' + ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].map(function (k) {
-      var n = links.filter(function (l) { return (l.heat || {}).verdict === k; }).length;
-      return '<i style="width:' + (links.length ? (100 * n / links.length).toFixed(1) : 0) + "%;background:" + CXP.verd[k] + '"></i>';
-    }).join("") + "</div>" : "";
     var scens = c ? (c.scenarios || []) : [];
-    return '<div class="cx-inspector" id="cxInspector" role="complementary" aria-label="selected signal">' +
-      '<div class="ihead"><span class="eyebrow"><i class="pip"></i>SIGNAL · ' + esc(occ.kind || "undated") + " · " + esc(s.lane || "") + (fam ? " · " + esc(fam) : "") + "</span>" +
-      '<span class="id mono">' + esc(s.id) + "</span></div>" +
-      '<div class="ititle">' + esc(s.title) + "</div>" +
-      '<div class="ithesis">' + esc(s.thesis || "") + "</div>" +
-      '<div class="ikv">' +
-      kv("OCCURRENCE", esc(occ.label || "undated") + (occ.anchor_date ? '<br><span class="mono dim">' + esc(occ.anchor_date) + (occ.window ? " · " + esc(occ.window) : "") + "</span>" : "")) +
-      kv("UNMAPPED", '<span class="big">' + num(un, "?") + '</span> <span class="dim">/ 100</span>' +
-        (un != null ? '<div class="cx-bar"><i style="width:' + un + "%;background:" + CXP.accent + '"></i></div>' : "")) +
-      kv("IMPACT", ap ? '<span class="big">' + (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) + '</span> <span class="dim">· ' + esc(ap.impact_band || "") + " · money reachable by listed issuers</span>" : '<span class="dim">not appraised · run impact</span>') +
-      (c ? kv("CHAIN", esc(c.title) + mix + '<span class="mono dim">' + links.length + " links · " + scored + " scored · " + scens.length + " scenarios · heat " + esc(c.heat_as_of || "unscored") + "</span>")
-         : kv("CHAIN", '<span class="dim">unchained</span> <span class="mono dim">· run chain maps it</span>')) +
-      (c ? kv("MONEY CORNER", (money.length ? '<span class="gold">★ ' + esc(money.join(", ")) + "</span>" : '<span class="dim">none yet</span>') +
-        (chokes.length ? ' <span class="mono dim">· CHOKE POINT: ' + esc(chokes.join(", ")) + "</span>" : "")) : "") +
-      (c ? kv("VERDICTS", dives.length ? dives.map(function (st) {
+    var fam = cxSigFamily(s.id);
+    var order = { UNDISCOVERED: 0, EMERGING: 1, CROWDED: 2, OVER_CROWDED: 3, QUIET: 4 };
+    links.sort(function (p, q) {
+      var a = (p.heat || {}).verdict, b = (q.heat || {}).verdict;
+      return (a in order ? order[a] : 5) - (b in order ? order[b] : 5) || (p.position || 0) - (q.position || 0);
+    });
+    function fig(k, v, cls) { return '<div class="fig"><span class="k">' + k + '</span><span class="n ' + (cls || "") + '">' + v + "</span></div>"; }
+    var rows = links.map(function (l) {
+      var ht = l.heat || {}, v = ht.verdict, tk = (l.example_tickers || []).slice(0, 6);
+      var mark = ht.money_corner ? '<span class="mk gold">★</span>' : '<span class="mk sq" style="background:' + (v ? CXP.verd[v] : CXP.none) + '"></span>';
+      var choke = (l.bottleneck || {}).criticality === "CHOKE_POINT" ? '<span class="choke" title="choke point"></span>' : "";
+      return '<div class="lrow' + (v === "UNDISCOVERED" || v === "EMERGING" ? " hot" : "") + '">' + mark + '<span class="ln">' + esc(l.name) + choke + "</span>" +
+        '<span class="lt mono">' + (tk.length ? esc(tk.join("  ")) : '<span class="none">no listed issuer</span>') + "</span></div>";
+    }).join("");
+    var foot = [];
+    scens.forEach(function (sc) { foot.push('<span class="mono">' + esc(sc.id) + " " + (sc.probability_pct == null ? "unscored" : sc.probability_pct + "%") + "</span>"); });
+    dives.forEach(function (st) {
+      foot.push('<a class="mono verd" href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '" style="color:' + (CXP.dive[st.verdict] || CXP.ink2) + '">' + esc(st.ticker) + " " + esc((st.verdict || "").replace("_", " ")) + (st.status === "DRAFT" ? " draft" : "") +
         // a TOO LATE verdict's shadow row is part of the verdict: the page shows the pairing
-        return '<a class="mono verd" href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '" style="color:' + (CXP.dive[st.verdict] || CXP.ink2) + '">▢ ' + esc(st.ticker) + " " + esc((st.verdict || "").replace("_", " ")) +
-          (st.shadow_ref ? ' <span class="dim">· shadow ' + esc(st.shadow_ref) + "</span>" : "") + "</a>";
-      }).join(" · ") : '<span class="dim">none</span>') : "") +
-      (scens.length ? kv("SCENARIOS", scens.map(function (sc) {
-        return '<span class="mono">' + esc(sc.id) + " · " + (sc.probability_pct == null ? "unscored" : sc.probability_pct + "%") + "</span> " + esc(cxTrim(sc.title, 60));
-      }).join("<br>")) : "") +
-      kv("EVIDENCE", (s.evidence || []).length + " cited · horizon " + ((s.horizon_years || []).join("-") || "?") + "y · review by " + esc(s.review_by || "—")) +
+        (st.shadow_ref ? ' <span class="dim">· shadow ' + esc(st.shadow_ref) + "</span>" : "") + "</a>");
+    });
+    return '<div class="cx-inspector" id="cxInspector" role="complementary" aria-label="selected signal">' +
+      '<div class="ihead"><span class="eyebrow"><i class="pip"></i>SIGNAL · ' + esc(occ.kind || "undated") + (fam ? " · " + esc(fam) : "") + "</span>" +
+      '<span class="id mono">' + esc(s.id) + "</span></div>" +
+      '<div class="ititle">' + esc(s.short_title || cxShort(s.title)) + "</div>" +
+      '<div class="isub mono">' + esc(cxTier(un)) + " · " + (occ.anchor_date ? "anchored " + esc(occ.anchor_date) : "undated") + (occ.label ? " · " + esc(cxTrim(occ.label, 40)) : "") + "</div>" +
+      '<div class="ifigs">' +
+      fig("UNMAPPED", num(un, "?"), "accent") +
+      (ap ? fig(esc((ap.impact_band || "IMPACT").toUpperCase()), ap.impact_score == null ? "?" : Math.round(ap.impact_score), "gold") : fig("MONEY", '<span class="none">not appraised</span>')) +
+      (c ? fig("LINKS", links.length) : fig("CHAIN", '<span class="none">none yet</span>')) +
       "</div>" +
+      (c ? '<div class="ilinks"><div class="k">LINKS BY HEAT · ' + esc(c.heat_as_of ? "heat " + c.heat_as_of : "unscored") + "</div>" + rows + "</div>"
+         : '<div class="ilinks"><div class="k">CHAIN</div><div class="none">unchained · run chain maps it</div></div>') +
+      (foot.length ? '<div class="ifoot">' + foot.join('<span class="sep">·</span>') + "</div>" : "") +
+      '<div class="ifoot dim">' + (s.evidence || []).length + " cited · horizon " + esc((s.horizon_years || []).join("-") || "?") + "y · review by " + esc(s.review_by || "—") + "</div>" +
       '<div class="ibtns"><button class="cx-btn primary" data-cxopen="' + esc(s.id) + '">OPEN CARD</button>' +
       (c ? '<a class="cx-btn" href="#/chain/' + esc(c.id) + '">OPEN CHAIN</a>' : '<button class="cx-btn" data-cxopen="' + esc(s.id) + '">RUN CHAIN</button>') +
       '<button class="cx-btn" data-cxfly="sig:' + esc(s.id) + '">FLY TO</button><button class="cx-btn x" id="cxInspClose" title="clear selection (Esc)">×</button></div>' +
@@ -3059,7 +3102,14 @@
     if (cntEl) cntEl.textContent = nObj + " OBJECTS · " + nDust + " HEADLINES";
     canvas.setAttribute("aria-label", "Cortex wheel: " + nObj + " research objects by family, unmappedness and reachable money, with " + nDust + " feed headlines at the rim");
     // the serif for names arrives from Google Fonts; the loop simply starts using it
-    try { if (document.fonts && document.fonts.load) { document.fonts.load("italic 400 21px Newsreader"); document.fonts.load("italic 400 15px Newsreader"); } } catch (e) {}
+    try {
+      if (document.fonts && document.fonts.load) {
+        document.fonts.load("italic 400 21px Newsreader"); document.fonts.load("italic 400 15px Newsreader");
+        document.fonts.load("400 11px Newsreader"); document.fonts.load("600 8.5px 'JetBrains Mono'");
+        // widths measured before the faces arrived describe the fallback face, not these
+        if (document.fonts.ready) document.fonts.ready.then(function () { CX_TW = {}; CX_TWN = 0; CX_TWA = {}; });
+      }
+    } catch (e) {}
 
     var noise = (function () {
       var c = document.createElement("canvas"); c.width = c.height = 128;
@@ -3190,18 +3240,26 @@
        reader just did (a hover, the view's own title) and is drawn regardless. */
     function put(txt, font, color, cands, alpha, force) {
       if (txt == null || txt === "") return false;
-      var wpx = tw(font, txt), hpx = fontPx(font) + 3, i, c, x0, y0;
+      var c = seat(tw(font, txt), fontPx(font) + 3, cands, force);
+      if (!c) return false;
+      label(txt, c.x, c.y, font, color, c.align, alpha);
+      return true;
+    }
+    // the seat search alone: the first clear candidate for a box this size, claimed, or
+    // null. A label made of several runs (a ticker and its verdict word) seats once and
+    // draws its parts itself.
+    function seat(wpx, hpx, cands, force) {
+      var i, c, x0, y0;
       for (i = 0; i < cands.length; i++) {
         c = cands[i];
         x0 = c.align === "right" ? c.x - wpx : c.x;
         y0 = c.y - hpx / 2;
         if (force || boxFree(x0 - 2, y0 - 1, x0 + wpx + 2, y0 + hpx + 1)) {
           claim(x0 - 2, y0 - 1, x0 + wpx + 2, y0 + hpx + 1);
-          label(txt, c.x, c.y, font, color, c.align, alpha);
-          return true;
+          return { x: c.x, y: c.y, align: c.align, x0: x0, w: wpx };
         }
       }
-      return false;
+      return null;
     }
     // one candidate on the side the caller wanted, then the other side, then above and
     // below it: the nudge before the drop
@@ -3574,15 +3632,23 @@
           claim(fr.x0 + 20 + q * 118, lg - 8, fr.x0 + 56 + q * 118 + tw(lgf, f[1]), lg + 8);
         });
       }
-      function place(n, size, txt) {
+      var capF = "400 " + (11 * sz).toFixed(1) + "px Newsreader, Georgia, serif";
+      var tkF = (8.2 * sz).toFixed(1) + "px 'JetBrains Mono', monospace";
+      var capH = 11 * sz + 5, cornerH = 11 * sz + 6;
+      function cornerW(n) {
+        if (!n.corner) return 0;
+        return 14 * sz + tw(capF, n.corner.name) + (n.corner.tickers ? 10 + tw(tkF, n.corner.tickers) : 0);
+      }
+      function place(n, size, txt, full) {
         // outward from the wheel at rest; toward the screen's centre once flown in, so a
         // framed system's name never runs under the panel or off the edge
         var right = zoomF > 1.3 ? n._px < cam.cx : n._px >= cam.cx;
         var off = (n.sysR || 24) * cam.k + 12;
         var lx = right ? n._px + off : n._px - off;
         var f = "italic 400 " + size.toFixed(1) + "px Newsreader, Georgia, serif";
-        var wpx = Math.max(tw(f, txt), tw("8.6px 'JetBrains Mono', monospace", n.sub || "")) + 6;
-        return { right: right, lx: lx, ly: n._py, w: wpx, h: size + 16 };
+        var wpx = (full ? Math.max(tw(f, txt), tw(capF, n.cap || ""), cornerW(n)) : tw(f, txt)) + 6;
+        // the block: the name, then when `full` its caption sentence and the money-corner line
+        return { right: right, lx: lx, ly: n._py, w: wpx, full: full, h: size + 6 + (full ? capH + (n.corner ? cornerH : 0) : 4) };
       }
       // signals: serif names with a leader; boxes nudged apart on each side
       var sigs = g.sigs.filter(function (n) { return n._px != null && !n._hid && n._px > -200 && n._px < w + 200 && n._py > -60 && n._py < h + 60; });
@@ -3594,7 +3660,10 @@
         if (isRad && (n === sel)) show = false;
         // a phone-sized wheel names only its MAJOR signals until you zoom or pick one
         if ((ui || 1) < 0.8 && zoomF < 1.6 && n.tier !== "MAJOR" && n !== sel && n !== hi) show = false;
-        n._lab = show && !focused ? place(n, size, n.label) : null;
+        // the caption is worn at rest by the MAJOR signals only; every signal earns it on
+        // approach, hover or selection, so the wheel at rest stays a field of names
+        var full = n.tier === "MAJOR" || zoomF > 1.6 || n === hi || n === sel || (anyFilter && cxMatch(n));
+        n._lab = show && !focused ? place(n, size, n.label, full) : null;
         if (n._lab) n._lab.size = size;
       });
       for (var it = 0; it < 30; it++) {
@@ -3616,10 +3685,19 @@
       sigs.forEach(function (n) {
         var L = n._lab;
         if (!L) return;
-        var top = L.size * 0.7 + 2, bot = L.size * 0.5 + 17;
+        var top = L.size * 0.7 + 2, bot = L.h - L.size * 0.7 + 2;
         L.ly = Math.max(FR.y0 + top, Math.min(FR.y1 - bot, L.ly));
-        if (L.right && L.lx + L.w > FR.x1) { L.right = false; L.lx = n._px - ((n.sysR || 24) * cam.k + 12); }
-        else if (!L.right && L.lx - L.w < FR.x0) { L.right = true; L.lx = n._px + ((n.sysR || 24) * cam.k + 12); }
+        /* Neither side may fit once a framed system fills the free area, and the old rule
+           flipped a name off the panel straight under the inspector. The side with more
+           room wins; a block still wider than that room slides inward, no further than its
+           own hub's edge, so the selected signal's caption sits inside its ring rather than
+           being cut by the dock. */
+        var off2 = (n.sysR || 24) * cam.k + 12;
+        var roomR = FR.x1 - (n._px + off2), roomL = (n._px - off2) - FR.x0;
+        if (L.right && roomR < L.w && roomL > roomR) { L.right = false; L.lx = n._px - off2; }
+        else if (!L.right && roomL < L.w && roomR > roomL) { L.right = true; L.lx = n._px + off2; }
+        if (L.right && L.lx + L.w > FR.x1) L.lx = Math.max(n._px + n._R + 10, FR.x1 - L.w);
+        else if (!L.right && L.lx - L.w < FR.x0) L.lx = Math.min(n._px - n._R - 10, FR.x0 + L.w);
       });
       sigs.forEach(function (n) {
         var L = n._lab;
@@ -3628,25 +3706,36 @@
         if (isRad) a *= 0.35;
         var col = n.tier === "LONG TAIL" ? "#B9BCD3" : CXP.ink;
         var ex = n._px + (n._R + 3) * (L.right ? 1 : -1), kx = L.lx - (L.right ? 6 : -6);
-        // the name and its read-out are one block, so nothing else can land between them
-        var sy = L.ly + L.size * 0.5 + 8;
-        var by0 = L.ly - L.size * 0.7, forced = n === hi || n === sel;
+        // the name, its caption and the money-corner line are one block, so nothing else
+        // can land between them
+        var sy = L.ly + L.size * 0.5 + capH - 2, cy2 = sy + cornerH;
+        var by0 = L.ly - L.size * 0.7, by1 = L.full ? (n.corner ? cy2 : sy) + 5 : L.ly + L.size * 0.5 + 4, forced = n === hi || n === sel;
         var bx0 = L.right ? L.lx : L.lx - L.w;
-        if (!forced && !boxFree(bx0 - 2, by0, bx0 + L.w + 2, sy + 7)) {
+        if (!forced && !boxFree(bx0 - 2, by0, bx0 + L.w + 2, by1)) {
           // a signal name outranks everything else on the canvas, so before it is dropped
           // it tries the mirrored side of its own dot: the nudge, then the drop
           var alt = !L.right, ax0 = alt ? n._px + (n._px - L.lx) : n._px - (L.lx - n._px) - L.w;
           ax0 = alt ? n._px + ((n._px - L.lx)) : (n._px - (L.lx - n._px)) - L.w;
-          if (!boxFree(ax0 - 2, by0, ax0 + L.w + 2, sy + 7)) return;
+          if (!boxFree(ax0 - 2, by0, ax0 + L.w + 2, by1)) return;
           L.right = alt; L.lx = alt ? ax0 : ax0 + L.w; bx0 = ax0;
         }
-        claim(bx0 - 2, by0, bx0 + L.w + 2, sy + 7);
+        claim(bx0 - 2, by0, bx0 + L.w + 2, by1);
         ctx.globalAlpha = a * 0.3; ctx.strokeStyle = CXP.ink2; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(ex, n._py);
         if (Math.abs(L.ly - n._py) > 1) { ctx.lineTo((ex + kx) / 2, n._py); ctx.lineTo(kx, L.ly); } else ctx.lineTo(kx, n._py);
         ctx.stroke();
-        label(n.label, L.lx, L.ly, "italic 400 " + L.size.toFixed(1) + "px Newsreader, Georgia, serif", col, L.right ? "left" : "right", a);
-        label(n.sub, L.lx, sy, "8.6px 'JetBrains Mono', monospace", CXP.ink3, L.right ? "left" : "right", a);
+        var al = L.right ? "left" : "right";
+        label(n.label, L.lx, L.ly, "italic 400 " + L.size.toFixed(1) + "px Newsreader, Georgia, serif", col, al, a);
+        if (!L.full) return;
+        label(n.cap, L.lx, sy, capF, CXP.ink2, al, a);
+        if (n.corner) {
+          // ★ money-corner link name, then the tickers named at it, reading away from the dot
+          var starR = 4.2 * sz, nameW = tw(capF, n.corner.name);
+          var x0 = L.right ? L.lx : L.lx - cornerW(n);
+          ctx.globalAlpha = a; star(x0 + starR + 1, cy2 - starR * 0.9, starR, CXP.gold);
+          label(n.corner.name, x0 + 14 * sz, cy2, capF, CXP.ink2, "left", a);
+          if (n.corner.tickers) label(n.corner.tickers, x0 + 14 * sz + nameW + 10, cy2, tkF, CXP.ink3, "left", a);
+        }
       });
       // links: named when zoomed in, when filtered to, when hovered, and always in the focused radial
       var linkNames = zoomF > 6 || (lden > 0.9 && zoomF > 3.4);
@@ -3676,8 +3765,15 @@
           var show = focused || (zoomF > 0.9 && (ui || 1) >= 0.8) || zoomF > 1.6 || n === hi;
           if (!show) return;
           var c2 = Math.cos((n.radialA != null && focused ? n.radialA : n.ringA) * Math.PI / 180);
-          put(n.label, "8.6px 'JetBrains Mono', monospace", n.color,
-              sides(n._px, n._py + (focused ? 11 : 0), 7, c2 >= 0), 0.95, forced);
+          var dtF = "600 8.5px 'JetBrains Mono', monospace", dwF = "italic 400 10.5px Newsreader, Georgia, serif";
+          var tkW = tw(dtF, n.ref.ticker), wdW = tw(dwF, n.word || ""), gap = 6;
+          var st2 = seat(tkW + gap + wdW, 14, sides(n._px, n._py + (focused ? 11 : 0), 7, c2 >= 0), forced);
+          if (st2) {
+            label(n.ref.ticker, st2.x0, st2.y, dtF, CXP.ink, "left", 0.95);
+            label(n.word, st2.x0 + tkW + gap, st2.y, dwF, n.color, "left", 0.95);
+            ctx.globalAlpha = 0.95; ctx.strokeStyle = n.color; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(st2.x0, st2.y + 6); ctx.lineTo(st2.x0 + tkW, st2.y + 6); ctx.stroke();
+          }
         } else if (n.kind === "co") {
           if (!(zoomF > 3 || n === hi)) return;
           put(n.label, "8.5px 'JetBrains Mono', monospace", CXP.ink3,
@@ -3685,7 +3781,7 @@
         } else if (n.kind === "scen") {
           if (!(focused || zoomF > 2.4 || n === hi)) return;
           var c3 = focused && n.radialA != null ? Math.cos(n.radialA * Math.PI / 180 + cam.rot) : 1;
-          put(n.label, "8.6px 'JetBrains Mono', monospace", CXP.ink2,
+          put(n.word || n.label, "italic 400 10.5px Newsreader, Georgia, serif", CXP.ink2,
               sides(n._px, n._py, 9, c3 >= -0.05), 0.9, forced);
         } else if (n.kind === "cand") {
           if (!(n === hi || (anyFilter && CX_FILTER.q && cxMatch(n)) || zoomF > 2.6)) return;
