@@ -148,16 +148,65 @@ def would_buy_failures(d: dict, last_close=None) -> list[str]:
                    "that price, in one line")
     spot = (d.get("price_ref") or {}).get("value") if isinstance(d.get("price_ref"), dict) \
         else None
-    if isinstance(hi, (int, float)) and isinstance(spot, (int, float)) and hi >= spot:
-        out.append(f"would_buy_zone.high {hi} is at or above the price the dive reasoned "
-                   f"from ({spot}): a zone at spot contradicts WATCH, the verdict would be "
-                   "INVESTABLE")
+    # Until 2026-09-08 a zone whose high sat at or above spot was REFUSED here, on the
+    # reasoning that it "contradicts WATCH". Combined with base-case anchoring it meant a
+    # WATCH could never contain today's price on the day it was written, and all nine
+    # drawn zones landed 10.4% to 163.6% below spot with none ever reached. Under the
+    # bear-case-survived convention (method section 7, re-anchored 2026-09-08) a zone that
+    # contains spot is information, not a contradiction: it says the bear case clears at
+    # today's price. The dive must SAY so, and then the upward check asks what still caps
+    # the verdict.
+    if isinstance(hi, (int, float)) and isinstance(lo, (int, float)) \
+            and isinstance(spot, (int, float)):
+        contains = lo <= spot <= hi
+        declared = d.get("zone_contains_spot")
+        if declared is None:
+            out.append(f"would_buy_zone does not declare zone_contains_spot; spot {spot} "
+                       f"{'IS' if contains else 'is not'} inside [{lo}, {hi}] and the book "
+                       "reads that field to rank how close a name is to actionable")
+        elif bool(declared) != contains:
+            out.append(f"zone_contains_spot is {declared!r} but spot {spot} "
+                       f"{'IS' if contains else 'is not'} inside [{lo}, {hi}]")
     if isinstance(last_close, (int, float)) and last_close:
         for key, v in (("low", lo), ("high", hi)):
             if isinstance(v, (int, float)) and not (0.3 * last_close <= v <= 2.0 * last_close):
                 out.append(f"would_buy_zone.{key} {v} is outside 0.3x-2x the last close "
                            f"({last_close}) — check the number, not the thesis")
     return out
+
+
+def upward_check_failures(d: dict) -> list[str]:
+    """Method section 7's upward check (Ron, 2026-09-08). The missing symmetric rule.
+
+    Every other mechanism in this gate caps a verdict downward: grade D forbids
+    INVESTABLE, grade C and grade NULL cap at WATCH, an unanswered independence test caps
+    at WATCH. Nothing had ever failed a file for defaulting to WATCH, so the safe write was
+    always the smaller claim and 14 dives produced 1 INVESTABLE, 13 WATCH, 0 TOO_LATE.
+
+    This does not promote anything. It requires a WATCH that has cleared every downward cap
+    AND whose price sits inside its own bear-case zone to NAME what is still binding, in
+    one line, the same discipline `would_buy_basis` already requires of a null zone. A cap
+    the analyst cannot name means the file's own evidence supports INVESTABLE.
+    """
+    if d.get("verdict") != "WATCH":
+        return []
+    eq = d.get("earnings_quality")
+    grade = eq.get("grade") if isinstance(eq, dict) else None
+    if grade not in ("A", "B"):
+        return []
+    it = d.get("independence_test")
+    if not (isinstance(it, dict) and all(
+            str(it.get(k) or "").strip() for k in
+            ("largest_disagreement", "why_the_gap_exists", "falsification"))):
+        return []
+    if not d.get("zone_contains_spot"):
+        return []
+    if str(d.get("watch_basis") or "").strip():
+        return []
+    return ["verdict is WATCH on grade {} with the independence test answered and the "
+            "price inside its own bear-case would-buy zone, but no watch_basis names what "
+            "still caps it: method section 7's upward check asks for that line, or the "
+            "verdict is INVESTABLE".format(grade)]
 
 
 def would_buy_reached(zone: dict, rows: list) -> bool:
@@ -805,6 +854,26 @@ def main() -> int:
         if not isinstance(it, dict):
             fail(f"{n}: independence_test{{largest_disagreement, why_the_gap_exists, "
                  "falsification} missing")
+
+        # 6b. the upward check (method section 7, Ron 2026-09-08)
+        for finding in upward_check_failures(d):
+            fail(f"{n}: {finding}")
+
+        # 6c. the clock is chosen, not defaulted. A dive on a chain that carries scenarios
+        # is event-shaped; grading it COMPOUNDER without saying why is how every dive in
+        # this corpus came back "good business, wait for a dip". Warning, not a failure:
+        # the analyst may have a reason, and this asks for it rather than overriding it.
+        if d.get("clock") == "COMPOUNDER" and not str(d.get("clock_basis") or "").strip():
+            chain_path = data / "chains" / f"{d.get('chain_id')}.json"
+            try:
+                chain = json.loads(chain_path.read_text())
+            except Exception:  # noqa: BLE001
+                chain = {}
+            if chain.get("scenarios"):
+                lines.append(f"WARNING {n}: clock COMPOUNDER on {d.get('chain_id')}, a "
+                             "chain carrying scenarios, with no clock_basis. Method "
+                             "section 7: a dive anchored to a dated occurrence with a live "
+                             "scenario clock is EVENT. Name the reason or change the clock.")
 
         # 7. FINAL implies a red team
         if d.get("status") == "FINAL":

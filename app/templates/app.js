@@ -1476,6 +1476,12 @@
       // the page says so rather than drawing nothing.
       if (st.would_buy_zone != null) {
         zone += '<div class="zone"><span class="zl">Would buy</span><span class="zv">' + fmtMoney(st.would_buy_zone.low) + "–" + fmtMoney(st.would_buy_zone.high) + "</span></div>";
+        // A bear-case zone that already contains today's price is the single most
+        // actionable thing on this page, and until 2026-09-08 the gate forbade it from
+        // ever happening. Say it in words rather than making the reader compare numbers.
+        if (st.zone_contains_spot === true) {
+          zone += '<div class="zone"><span class="zl">In zone now</span><span class="zv" style="font-size:14px">bear case clears at today\u2019s price</span></div>';
+        }
       } else if (str_or_empty(st.would_buy_basis)) {
         zone += '<div class="zone"><span class="zl">No price fixes it</span><span class="zv" style="font-size:14px">' + esc(st.would_buy_basis) + "</span></div>";
       } else {
@@ -1608,7 +1614,11 @@
       "<dt>Market cap</dt><dd class='num'>" + esc(num((st.valuation_snapshot.market_cap || {}).value)) + "</dd>" +
       (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + "]</span></dd>"; }).join("") +
       (st.entry_zone ? "<dt>Entry basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") +
-      (st.would_buy_zone != null ? "<dt>Would-buy basis</dt><dd class='small'>" + esc(st.would_buy_zone.basis) + (str_or_empty(st.would_buy_zone.as_of) ? " <span class='muted'>[drawn " + esc(st.would_buy_zone.as_of) + "]</span>" : "") + "</dd>" : "") + "</div></div>";
+      (st.would_buy_zone != null ? "<dt>Would-buy basis</dt><dd class='small'>" + esc(st.would_buy_zone.basis) + (str_or_empty(st.would_buy_zone.as_of) ? " <span class='muted'>[drawn " + esc(st.would_buy_zone.as_of) + "]</span>" : "") + "</dd>" : "") +
+      // method §7's upward check: a WATCH that cleared every downward cap has to name what
+      // still binds. That line IS the verdict's reason, so it renders beside the zone.
+      (str_or_empty(st.watch_basis) ? "<dt>What still caps this</dt><dd class='small'>" + esc(st.watch_basis) + "</dd>" : "") +
+      (str_or_empty(st.clock_basis) ? "<dt>Clock basis</dt><dd class='small'>" + esc(st.clock_basis) + "</dd>" : "") + "</div></div>";
     var priced = "<div class='card'><h3>What is already priced in</h3>" +
       (st.what_is_priced_in || []).map(function (p) { return "<div class='evli'>" + chip(p.tag) + " " + esc(p.expectation) + "</div>"; }).join("") +
       "<div class='small' style='margin-top:10px'>" + esc(st.priced_in_summary || "") + "</div></div>";
