@@ -1487,7 +1487,18 @@ def eval_indicators(trips):
                 chk = ind.get("check")
                 if not (chk and ind.get("armed")):
                     continue
-                key = (c["id"], sc["id"], ind["indicator"])
+                # The label key drifted. `check_scenarios.py` accepts `signal` or `name`,
+                # `validate.py` requires neither, and 141 of the 173 armed indicators on
+                # disk carry `signal`. This read wanted `indicator` and nothing else, so
+                # every scheduled fetch since 2026-09-08 died here with KeyError AFTER the
+                # network work was done, taking the commit step with it and discarding the
+                # whole batch (runs 90 and 91). Read what the gate accepts; keep writing
+                # `indicator` on the trip record, which is this file's own schema.
+                label = ind.get("indicator") or ind.get("signal") or ind.get("name")
+                if not label:
+                    print(f"  indicator in {c['id']}/{sc['id']}: no label key, skipped loudly")
+                    continue
+                key = (c["id"], sc["id"], label)
                 if key in seen or ind.get("tripped_at"):
                     continue
                 px, asof = last_close(chk["ticker"])
@@ -1498,7 +1509,7 @@ def eval_indicators(trips):
                 hit = (op == ">=" and px >= chk["level"]) or (op == "<=" and px <= chk["level"]) or \
                       (op == ">" and px > chk["level"]) or (op == "<" and px < chk["level"])
                 if hit:
-                    trip = {"chain": c["id"], "scenario": sc["id"], "indicator": ind["indicator"],
+                    trip = {"chain": c["id"], "scenario": sc["id"], "indicator": label,
                             "ticker": chk["ticker"], "op": op, "level": chk["level"],
                             "seen": px, "as_of": asof, "tripped_at": TODAY}
                     inds["trips"].append(trip)
