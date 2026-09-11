@@ -82,10 +82,20 @@ STOCKY_IDENTITY_FIELDS = (
 # Eligibility is the exact repo-relative path plus the committed byte content, never mutable
 # lifecycle metadata. This intentionally rejects copies, renames, ticker/chain changes, and
 # new files backdated through created_at, updated_at, or as_of.
-STOCKY_LEGACY_BASELINE = {
-    "data/stocks/VRT__ai-infrastructure.json":
-        "98b1f6f3fba93fa7bbbde38ae5db761409471bfa758df3b37d51ae80d4e4d9cf",
-}
+# EMPTY since 2026-09-11, because the migration it existed for is finished. The single
+# entry was `data/stocks/VRT__ai-infrastructure.json` at sha256 98b1f6f3..., and the WARN it
+# produced told a reader to amend that dive onto the campaign schema. Someone did: the file
+# now hashes to 95ce8746... and passes `stock_admission_failures` on its own merits, with
+# `check_analyst.py` over the real tree reporting "14 campaign-era dive(s) checked; 0
+# legacy warning(s)". So the entry stopped matching any file on disk and became dead
+# configuration that no longer exempted anything, while three tests still asserted it did.
+#
+# Deliberately emptied rather than re-pointed at the new hash. Re-pointing would grandfather
+# the amended content, which is the opposite of what the mechanism is for: the exemption
+# pins PRE-gate bytes, and losing it on amendment is the designed behaviour, not a bug.
+# `is_committed_legacy_stock` is kept intact so a future migration can add an entry, and
+# `TestLegacyBaselineMechanism` now tests that function directly rather than through a dive.
+STOCKY_LEGACY_BASELINE: dict[str, str] = {}
 
 # A WATCH must carry a would-buy zone from this date (Ron, 2026-09-03). Dives whose latest
 # changelog entry predates it warn instead of failing, so the tree validates between the
