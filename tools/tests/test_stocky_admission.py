@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Adversarial tests for Stocky's campaign-era O1 admission boundary."""
 import copy
+import hashlib
 import json
 import subprocess
 import sys
@@ -600,38 +601,113 @@ class TestAdmissionMigrationBoundary(StockyAdmissionTree):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("campaign-era dive requires non-empty issuer_id", result.stdout)
 
-    def test_exact_committed_vrt_path_and_content_warns_but_remains_readable(self):
-        result = self.run_gate(
-            self.committed_vrt_content(),
-            date="2026-08-30",
-            path=self.root / "data" / "stocks" / "VRT__ai-infrastructure.json",
-        )
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("exact pre-2026-08-30 committed legacy baseline match", result.stdout)
-        self.assertIn("not grandfathered silently", result.stdout)
+    def test_a_dive_matching_no_baseline_entry_gets_full_admission(self):
+        """The post-migration truth: with an empty baseline, nothing is exempt.
 
-    def test_copied_or_renamed_vrt_does_not_inherit_legacy_exemption(self):
+        This replaces three tests that replayed the REAL committed VRT dive inside this
+        temp tree. They asserted the legacy exemption applied, which stopped being true
+        the moment that dive was amended onto the campaign schema and its hash moved off
+        the baseline. They then failed for a reason that had nothing to do with the
+        boundary they were guarding: the temp tree holds no ai-infrastructure mapping,
+        screen or profile, so admission died on missing artifacts long before reaching the
+        assertion. The mechanism itself is now tested directly, below, with no fixture.
+        """
+        stock = json.loads(self.committed_vrt_content())
         result = self.run_gate(
-            self.committed_vrt_content(),
-            path=self.root / "data" / "stocks" / "VRT__copied.json",
-        )
+            stock, path=self.root / "data" / "stocks" / "VRT__ai-infrastructure.json")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-        self.assertIn("campaign-era dive requires non-empty issuer_id", result.stdout)
         self.assertNotIn("committed legacy baseline match", result.stdout)
+        self.assertIn("admission: 1 campaign-era dive(s) checked", result.stdout)
 
-    def test_changed_ticker_or_chain_on_vrt_path_does_not_inherit_exemption(self):
-        for field, value in (("ticker", "AAA"), ("chain_id", "other-theme")):
+
+class TestLegacyBaselineMechanism(unittest.TestCase):
+    """`is_committed_legacy_stock` on its own, so no live artifact can break these.
+
+    Exemption is exact repo-relative path PLUS exact committed bytes. Every way of getting
+    near it without being it must return False: a copy, a rename, a mutated field, a
+    backdated timestamp.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        (self.root / "data" / "stocks").mkdir(parents=True)
+        self.body = json.dumps({
+            "ticker": "AAA", "chain_id": "theme-a", "link_id": "L1", "status": "FINAL",
+            "created_at": "2026-08-29", "updated_at": "2026-08-29", "as_of": "2026-08-29",
+        }, indent=1)
+        self.path = self.root / "data" / "stocks" / "AAA__theme-a.json"
+        self.path.write_text(self.body)
+        self.saved = dict(check_analyst.STOCKY_LEGACY_BASELINE)
+        check_analyst.STOCKY_LEGACY_BASELINE.clear()
+        check_analyst.STOCKY_LEGACY_BASELINE["data/stocks/AAA__theme-a.json"] = (
+            hashlib.sha256(self.body.encode()).hexdigest())
+
+    def tearDown(self):
+        check_analyst.STOCKY_LEGACY_BASELINE.clear()
+        check_analyst.STOCKY_LEGACY_BASELINE.update(self.saved)
+        self.tmp.cleanup()
+
+    def test_exact_path_and_content_is_exempt(self):
+        self.assertTrue(check_analyst.is_committed_legacy_stock(self.root, self.path))
+
+    def test_copy_to_another_name_is_not_exempt(self):
+        copied = self.root / "data" / "stocks" / "AAA__copied.json"
+        copied.write_text(self.body)
+        self.assertFalse(check_analyst.is_committed_legacy_stock(self.root, copied))
+
+    def test_any_content_change_on_the_exempt_path_drops_the_exemption(self):
+        for field, value in (("ticker", "BBB"), ("chain_id", "other-theme"),
+                             ("created_at", "2020-01-01"), ("status", "DRAFT")):
             with self.subTest(field=field):
-                stock = json.loads(self.committed_vrt_content())
-                stock[field] = value
-                result = self.run_gate(
-                    stock,
-                    path=self.root / "data" / "stocks" / "VRT__ai-infrastructure.json",
-                )
-                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-                self.assertIn("campaign-era dive requires non-empty issuer_id", result.stdout)
-                self.assertNotIn("committed legacy baseline match", result.stdout)
+                mutated = json.loads(self.body)
+                mutated[field] = value
+                self.path.write_text(json.dumps(mutated, indent=1))
+                self.assertFalse(
+                    check_analyst.is_committed_legacy_stock(self.root, self.path))
+        self.path.write_text(self.body)
+        self.assertTrue(check_analyst.is_committed_legacy_stock(self.root, self.path))
 
+    def test_missing_file_is_not_exempt(self):
+        self.path.unlink()
+        self.assertFalse(check_analyst.is_committed_legacy_stock(self.root, self.path))
+
+
+class TestLegacyBaselineIsNotStale(unittest.TestCase):
+    """The guard that would have caught this bug on the day it appeared.
+
+    A baseline entry naming a file that does not exist, or whose bytes have moved on, is
+    dead configuration: it exempts nothing while every reader believes it still does. That
+    is precisely what happened to the VRT entry, and it stayed invisible until three
+    unrelated-looking tests went red. Fail loudly instead.
+    """
+
+    def test_every_baseline_entry_still_matches_its_file(self):
+        stale = []
+        for relative_path, expected in check_analyst.STOCKY_LEGACY_BASELINE.items():
+            path = ROOT / relative_path
+            if not path.exists():
+                stale.append(f"{relative_path}: no such file; the entry exempts nothing")
+                continue
+            actual = hashlib.sha256(path.read_bytes()).hexdigest()
+            if actual != expected:
+                stale.append(
+                    f"{relative_path}: content moved to {actual[:12]}..., baseline still "
+                    f"pins {expected[:12]}.... Either the migration finished and the entry "
+                    f"should be removed, or the file changed and that needs a decision. "
+                    f"Never re-point the hash: that grandfathers the new content.")
+        self.assertEqual(stale, [], "\n".join(stale))
+
+    def test_the_vrt_migration_is_complete(self):
+        """The dive the baseline used to cover now passes admission on its own merits."""
+        dive = json.loads(
+            (ROOT / "data" / "stocks" / "VRT__ai-infrastructure.json").read_text())
+        self.assertEqual(check_analyst.stock_admission_failures(ROOT, dive), [])
+        self.assertNotIn("data/stocks/VRT__ai-infrastructure.json",
+                         check_analyst.STOCKY_LEGACY_BASELINE)
+
+
+class TestAdmissionMigrationBoundaryTail(StockyAdmissionTree):
     def test_campaign_era_draft_and_final_fail_even_when_not_touched_today(self):
         for status in ("DRAFT", "FINAL"):
             with self.subTest(status=status):
