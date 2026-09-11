@@ -56,7 +56,7 @@ from check_campaign import (  # noqa: E402
     canonical_mapped_placements,
     validated_public_listings,
 )
-from check_map import mapping_fingerprint, read_json  # noqa: E402
+from check_map import mapping_fingerprint, placement_audit_for, read_json  # noqa: E402
 from market_paths import safe_name  # noqa: E402
 from queue_allowlist import is_allowed, reject_reason  # noqa: E402
 
@@ -427,25 +427,67 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
             listing = inventory["listings"].get(
                 (chain_id, handoff.get("listing_id"))) or {}
             ticker = _identity(listing.get("ticker"))
-            quality = _market_quality(root, ticker) if ticker else "NO_MARKET_FILE"
-            if ticker and quality != "PRESENT":
-                command, why = _checked(f"request data {ticker}")
-                reason = f"{ticker} is queued for a dive; its market file is not ready"
-                missing = ("no data/market file at all"
-                           if quality == "NO_MARKET_FILE"
-                           else "market file carries no quality block")
+            issuer_id = _identity(ready[0].get("issuer_id"))
+            link_id = _identity(handoff.get("link_id"))
+            # Stocky's own gate refuses a dive whose placement carries neither a COMPLETE
+            # census PASS audit nor a current placement_audits[] PASS entry. Recommending
+            # `run deepdive` here anyway is a dead end the gate immediately refuses: on
+            # 2026-09-11 five consecutive routine fires re-derived that identical refusal
+            # because the board never checked admission before proposing the dive. Check
+            # the same coarse status/audit/fingerprint summary already trusted above for
+            # SCREEN_MAPPING_STALE, plus a placement-level override, and point at the
+            # real remediation instead of a command the gate cannot admit.
+            placement_audit = (
+                placement_audit_for(mapping, chain_id, link_id, issuer_id)
+                if mapping and chain_id and link_id and issuer_id else None)
+            census_pass = (mapping_state["status"] == "COMPLETE"
+                           and mapping_state["audit"] == "PASS"
+                           and mapping_state["fingerprint_current"] is True)
+            if not placement_audit and not census_pass:
+                unauditable = _unauditable_links(mapping) if mapping_state["present"] else []
+                if mapping_state["status"] == "ACTIVE" and unauditable:
+                    command, why = _checked(f"run universe {chain_id}")
+                    reason = (f"{issuer_id}'s dive needs a passing audit, but link_coverage "
+                              f"row(s) {unauditable} are not audit-ready yet")
+                elif mapping_state["status"] == "ACTIVE" and mapping_state["audit"] == "FAIL":
+                    command, why = _checked(f"run universe {chain_id}")
+                    reason = (f"{issuer_id}'s dive needs a passing census or placement audit; "
+                              "the census audit FAILed and `run universe` must correct it first")
+                elif mapping_state["status"] == "ACTIVE":
+                    command, why = _checked(f"run universe-audit {chain_id}")
+                    reason = (f"{issuer_id}'s dive needs a passing census or placement audit; "
+                              "no current placement_audits[] entry covers it yet")
+                else:
+                    command, why = None, "no mapping remediation command applies"
+                    reason = f"{issuer_id}'s dive is blocked on a fresh-context audit"
+                if why:
+                    blockers.append(_blocker("BAD_CHAIN_ID", why))
                 blockers.append(_blocker(
-                    "DIVE_DATA_MISSING",
-                    f"{ticker}: {missing}; tools/check_analyst.py requires the "
-                    f"series AND the quality block"))
+                    "DIVE_AUDIT_MISSING",
+                    f"{issuer_id} at {chain_id}/{link_id}: neither the mapping's census "
+                    "carries a current PASS audit nor does a current placement_audits[] "
+                    "PASS entry cover this placement; tools/check_analyst.py refuses "
+                    "the dive on the same grounds"))
             else:
-                command, why = _checked(
-                    f"run deepdive {ticker} {chain_id}" if ticker else None)
-                reason = "an O1 name on this theme has no dive"
-                if why or not ticker:
+                quality = _market_quality(root, ticker) if ticker else "NO_MARKET_FILE"
+                if ticker and quality != "PRESENT":
+                    command, why = _checked(f"request data {ticker}")
+                    reason = f"{ticker} is queued for a dive; its market file is not ready"
+                    missing = ("no data/market file at all"
+                               if quality == "NO_MARKET_FILE"
+                               else "market file carries no quality block")
                     blockers.append(_blocker(
-                        "UNRUNNABLE_TICKER",
-                        why or "the O1 handoff resolves no listing ticker"))
+                        "DIVE_DATA_MISSING",
+                        f"{ticker}: {missing}; tools/check_analyst.py requires the "
+                        f"series AND the quality block"))
+                else:
+                    command, why = _checked(
+                        f"run deepdive {ticker} {chain_id}" if ticker else None)
+                    reason = "an O1 name on this theme has no dive"
+                    if why or not ticker:
+                        blockers.append(_blocker(
+                            "UNRUNNABLE_TICKER",
+                            why or "the O1 handoff resolves no listing ticker"))
         elif campaign_id:
             command, why = _checked(f"run selection {campaign_id}")
             reason = "screen exists; no profile here is O1 yet"
