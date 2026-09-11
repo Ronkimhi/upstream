@@ -1,0 +1,559 @@
+{
+ "id": "munitions-replenishment",
+ "chain_id": "munitions-replenishment",
+ "scenario_id": null,
+ "created_at": "2026-09-11",
+ "as_of": "2026-09-11",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+ "mapping_ref": "data/mappings/munitions-replenishment.json",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 13 links, worked in priority order: no link on this chain scores money_corner true (heat.impact>=60 AND heat.crowdedness<=40 AND heat.capture>=60 is never simultaneously met; the closest, energetic-materials, scores impact 85 / crowdedness 55 / capture 65, held out of money_corner status by crowdedness alone), so priority runs CHOKE_POINT links first: energetic-materials (pos 2), metal-parts-and-forgings (pos 5), seekers-and-terminal-guidance (pos 6), solid-rocket-motors (pos 7), dod-munitions-procurement (pos 13), then the rest by impact score.\n\nTHE KNOWN WRINKLE THIS RUN HANDLES: data/mappings/munitions-replenishment.json is status ACTIVE with audit.status FAIL (audited_at 2026-08-31T20:58:00Z, fingerprint 0ed92badb722f3e528a2a6e0c0466784f4cea354c10f256cae41d0a643201104, 8 amendments_required). The FAIL is not cosmetic: 9 of 13 link_coverage rows are OPEN (neither TARGET_MET nor EXHAUSTED) - energetic-materials, perchlorate-oxidizer, nozzle-ablatives, metal-parts-and-forgings, seekers-and-terminal-guidance, solid-rocket-motors, load-assemble-pack, missile-final-assembly, artillery-and-bulk-munitions - leaving only nitration-feedstocks, nondestructive-inspection and dod-munitions-procurement EXHAUSTED and allied-rearmament-demand TARGET_MET (and the audit itself challenges 7 of that link's 12 counted issuers). check_map.py therefore refuses this mapping COMPLETE and the whole-census PASS-audit admission path (method 6A / check_screen._current_audit) is unavailable. There are also zero placement_audits[] entries anywhere in this mapping (Atlas has not run run universe-audit --placement on any single issuer here), so the current-PASS placement-audit admission path (CLAUDE.md, Ron 2026-09-01/09-04) is unavailable for every placement on this chain, not just some. Every row in this screen therefore rests on the one remaining basis: audit_scope 'PLACEMENT' declared on the row, admitted only when the specific placement consumed has evidence that is ALL VERIFIED (check_screen._placement_admissible). This mapping's 44 placements split 33 all-VERIFIED and 11 all-INFERRED (RHEINMETALL/nitration-feedstocks, CHEMRING-GROUP/energetic-materials, NORTHROP-GRUMMAN/perchlorate-oxidizer, MS-INTERNATIONAL/metal-parts-and-forgings, BAE-SYSTEMS/allied-rearmament-demand, BABCOCK-INTERNATIONAL-GROUP/allied-rearmament-demand, ROLLS-ROYCE-HOLDINGS/allied-rearmament-demand, COHORT/allied-rearmament-demand, CHEMRING-GROUP/allied-rearmament-demand, MS-INTERNATIONAL/allied-rearmament-demand, BAE-SYSTEMS/artillery-and-bulk-munitions), so the evidence-tag gate alone rejects those 11 regardless of profile status. Separately, of the mapping's 22 distinct issuers, only 5 carry a COMPLETE O1/O2 profile on disk (GENERAL-DYNAMICS O2/T1, TELEDYNE-TECHNOLOGIES O2/T1, ELBIT-SYSTEMS O1/T1, HENSOLDT O2/T3, AIRBUS O2/T3), 1 is BLOCKED/O3 (BAE-SYSTEMS, refused as a screen input regardless of evidence or link), and 16 carry no profile on disk at all (LOCKHEED-MARTIN, L3HARRIS-TECHNOLOGIES, BOEING, NORTHROP-GRUMMAN, ATI-INC, CARPENTER-TECHNOLOGY, HOWMET-AEROSPACE, CHEMRING-GROUP, BABCOCK-INTERNATIONAL-GROUP, ROLLS-ROYCE-HOLDINGS, MS-INTERNATIONAL, COHORT, RHEINMETALL, SGL-CARBON, LEONARDO, AVIO); profiling any of these is `run profile <TICKER>`, out of scope for this screen invocation. Combining both gates (evidence-tag ALL-VERIFIED AND profile COMPLETE O1/O2), only GENERAL-DYNAMICS, ELBIT-SYSTEMS and TELEDYNE-TECHNOLOGIES clear on any link; each is listed once, under its highest-priority CHOKE_POINT link, per method section 6 ('a name surfacing from two links is listed once, under the higher-priority link, with the second noted in its thesis line') rather than as a separate duplicate row per link.\n\nPer-link disposition, all 13 links:\n1. nitration-feedstocks [HIGH, verdict QUIET, coverage EXHAUSTED]: searched and empty. 1 placement (RHEINMETALL), evidence INFERRED only; fails the ALL-VERIFIED bar. The chain's own map_limitation independently states no listed producer discloses defence energetics as a business at this link, so a thin census here is expected, not just an evidence-tag accident.\n2. energetic-materials [CHOKE_POINT, verdict EMERGING, coverage OPEN]: SEATED. GENERAL-DYNAMICS and ELBIT-SYSTEMS, both evidence-VERIFIED and profile COMPLETE. RHEINMETALL, NORTHROP-GRUMMAN and L3HARRIS-TECHNOLOGIES are also evidence-VERIFIED but carry no profile on disk; CHEMRING-GROUP is evidence-INFERRED (and has no profile either); BAE-SYSTEMS is evidence-VERIFIED but its profile is BLOCKED/O3, refused regardless.\n3. perchlorate-oxidizer [HIGH, verdict EMERGING, coverage OPEN]: searched and empty. 1 placement (NORTHROP-GRUMMAN), evidence INFERRED only, and no profile on disk either; fails both gates. Census gap worth naming: NEU (NewMarket/AMPAC), the chain's own example ticker and the entity every cited source on this link actually names, has no placement in this mapping at all.\n4. nozzle-ablatives [HIGH, verdict QUIET, coverage OPEN]: searched and empty. 1 placement (SGL-CARBON), evidence VERIFIED, clears the placement-scope bar, but SGL-CARBON carries no profile on disk. Blocked on the profile gate alone, not evidence; backlog item for a future run profile SGL-CARBON.\n5. metal-parts-and-forgings [CHOKE_POINT, verdict EMERGING, coverage OPEN]: attributed via GENERAL-DYNAMICS's row (seated once under energetic-materials per method section 6; see that row's thesis). ATI-INC, CARPENTER-TECHNOLOGY and HOWMET-AEROSPACE are also evidence-VERIFIED but carry no profile on disk; MS-INTERNATIONAL is evidence-INFERRED (and has no profile either).\n6. seekers-and-terminal-guidance [CHOKE_POINT, verdict EMERGING, coverage OPEN]: SEATED. TELEDYNE-TECHNOLOGIES, evidence-VERIFIED and profile COMPLETE. ELBIT-SYSTEMS also clears both gates here and is attributed via its row seated once under energetic-materials (see that row's thesis) rather than duplicated. BOEING and LOCKHEED-MARTIN are evidence-VERIFIED but carry no profile on disk.\n7. solid-rocket-motors [CHOKE_POINT, verdict CROWDED, coverage OPEN]: attributed via GENERAL-DYNAMICS's row (see that row's thesis). NORTHROP-GRUMMAN, L3HARRIS-TECHNOLOGIES and AVIO are also evidence-VERIFIED but carry no profile on disk.\n8. nondestructive-inspection [HIGH, verdict QUIET, coverage EXHAUSTED]: searched and empty. Zero placements in the mapping; the chain itself carries no example tickers at this link.\n9. load-assemble-pack [HIGH, verdict UNDISCOVERED (impact>=60 and crowdedness<=40; the one genuinely notable non-CHOKE_POINT link on this chain), coverage OPEN]: attributed via GENERAL-DYNAMICS's row (see that row's thesis; GD's own profile placements[] array already names this exact chain/link pair).\n10. missile-final-assembly [MEDIUM, verdict OVER_CROWDED, coverage OPEN]: attributed via ELBIT-SYSTEMS's row (see that row's thesis). LOCKHEED-MARTIN and NORTHROP-GRUMMAN are also evidence-VERIFIED but carry no profile on disk.\n11. artillery-and-bulk-munitions [MEDIUM, verdict CROWDED, coverage OPEN]: attributed via both GENERAL-DYNAMICS's and ELBIT-SYSTEMS's rows (see their theses). RHEINMETALL and NORTHROP-GRUMMAN are also evidence-VERIFIED but carry no profile on disk; BAE-SYSTEMS is evidence-INFERRED here and separately BLOCKED/O3.\n12. allied-rearmament-demand [MEDIUM, verdict OVER_CROWDED, coverage TARGET_MET]: attributed via ELBIT-SYSTEMS's row (see that row's thesis). This link needs its own note: TARGET_MET originally counted 12 issuers, but the mapping's own FAIL audit (amendments_required item 2) finds that only 5 of them - BAE Systems, Rheinmetall, Avio, Elbit Systems and Chemring - carry role evidence that actually supports THIS link's claim (nitrocellulose, propellant or solid-rocket-motor exposure to allied rearmament demand), and that the other 7 carry role evidence establishing a general defence business rather than the competing claim this link defines. This screen honours that dated, specific, fresh-context finding rather than seating on the evidence tag alone: AIRBUS and HENSOLDT are both COMPLETE O2 profiles with placement evidence tagged VERIFIED and would otherwise seat immediately, and are deliberately EXCLUDED here on the audit's finding. RHEINMETALL and AVIO survive the audit's finding and are evidence-VERIFIED but carry no profile on disk. BAE-SYSTEMS survives the audit's finding but its own placement evidence here is INFERRED and its profile is separately BLOCKED/O3, doubly refused. CHEMRING-GROUP survives the audit's finding but its placement evidence here is INFERRED and it carries no profile. BABCOCK-INTERNATIONAL-GROUP, ROLLS-ROYCE-HOLDINGS, COHORT and MS-INTERNATIONAL are among the 7 the audit's finding excludes and are not considered further regardless of profile or evidence status.\n13. dod-munitions-procurement [CHOKE_POINT, verdict CROWDED, coverage EXHAUSTED]: searched and empty. Zero placements in the mapping; the chain's own map_limitation states this stage is a government plant or private-firm buyer relationship (the US Department of War as procurement authority), not a listed operator, so an empty census here is the chain's own design, not a mapping omission.\n\nDISTINCT ISSUER TALLY across the mapping's 22 issuers: 3 seat a row this run (GENERAL-DYNAMICS, ELBIT-SYSTEMS, TELEDYNE-TECHNOLOGIES, all COMPLETE profiles, all evidence-VERIFIED on the link seated). 2 more (AIRBUS, HENSOLDT) are COMPLETE O2 profiles with VERIFIED-tagged placement evidence but are excluded on the allied-rearmament-demand audit finding above and hold no other placement on this chain, so they seat nowhere this run. 1 (BAE-SYSTEMS) is BLOCKED/O3, refused regardless of evidence, on 3 separate links. 11 issuers hold at least one all-VERIFIED placement but carry no profile on disk at all (RHEINMETALL, NORTHROP-GRUMMAN, L3HARRIS-TECHNOLOGIES, ATI-INC, CARPENTER-TECHNOLOGY, HOWMET-AEROSPACE, BOEING, LOCKHEED-MARTIN, AVIO, SGL-CARBON - plus RHEINMETALL and AVIO again on allied-rearmament-demand). 5 issuers hold only INFERRED-tagged evidence everywhere they appear on this chain (CHEMRING-GROUP, MS-INTERNATIONAL, BABCOCK-INTERNATIONAL-GROUP, ROLLS-ROYCE-HOLDINGS, COHORT), 4 of which (all but CHEMRING-GROUP) are additionally excluded on the allied-rearmament-demand audit finding.\n\nNo PENDING_DATA rows and no new request rows this run: all 3 seated names' fundamentals, quality and reverse-DCF were already on disk (data/market/GD.json fetched 2026-08-31, data/market/ESLT.json fetched 2026-09-06, data/market/TDY.json fetched 2026-09-02), sourced VERIFIED/INFERRED against SEC EDGAR XBRL companyfacts directly (all three are T1 US filers; no vendor-aggregate leg needed). PCS (crowdedness quantitative core) is null in all three market files; no attention read was fetched this run, so each row's crowdedness block carries pcs_axis_a null with a stated basis rather than an estimate, per method section 3's NULL-renormalization rule. No EDGAR full-text search was run against data/edgar/fts/ or data/edgar/docs/ this run and no earnings_nuggets are included on any row: the census-level blockers above (evidence-tag gate, profile-availability gate, and the allied-rearmament-demand audit finding) already fully explain this run's link coverage without needing a filing quote, and fabricating or forcing an unverifiable nugget is worse than an empty list.\n\nBacklogged to Atlas (data/mappings/ is Atlas-owned; Sieve does not write to it): close the 9 OPEN link_coverage rows and resolve the 7 remaining amendments_required items so this mapping can reach a current PASS census audit; separately or additionally, run universe-audit --placement on individual placements to open the placement_audits[] admission path, starting with the CHOKE_POINT links this run could only partially seat (metal-parts-and-forgings, solid-rocket-motors) and with nozzle-ablatives (SGL-CARBON, evidence-VERIFIED, profile-blocked only). Backlogged to Sieve's own run profile (not this run, screen-only per the lazy funnel): RHEINMETALL, NORTHROP-GRUMMAN, L3HARRIS-TECHNOLOGIES, BOEING, LOCKHEED-MARTIN, ATI-INC, CARPENTER-TECHNOLOGY, HOWMET-AEROSPACE, AVIO and SGL-CARBON all hold at least one all-VERIFIED placement on this chain and no profile at all; profiling any of them would let this screen seat further rows on the CHOKE_POINT links (metal-parts-and-forgings, solid-rocket-motors) and on nozzle-ablatives without any mapping change.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/munitions-replenishment.json, its status, and every evidence item's tag",
+   "forms": null,
+   "hits_examined": 44,
+   "names_extracted": 22
+  },
+  {
+   "query": "mapping audit block presence and status for munitions-replenishment (current PASS census audit check) and placement_audits[] presence for any placement on this chain",
+   "forms": null,
+   "hits_examined": 1,
+   "names_extracted": 0
+  },
+  {
+   "query": "COMPLETE O1/O2 profile lookup under data/companies/ for all 22 issuers named in the mapping, via data/companies/_profile-log.json calibration.per_profile",
+   "forms": null,
+   "hits_examined": 22,
+   "names_extracted": 5
+  },
+  {
+   "query": "chain heat block for all 13 links of data/chains/munitions-replenishment.json: impact/crowdedness/capture scores, verdict, money_corner, bottleneck criticality",
+   "forms": null,
+   "hits_examined": 13,
+   "names_extracted": 0
+  },
+  {
+   "query": "re-examine allied-rearmament-demand TARGET_MET closure against the mapping's own audit.amendments_required item 2 (which 5 of 12 counted issuers survive the auditor's role-evidence finding)",
+   "forms": null,
+   "hits_examined": 12,
+   "names_extracted": 5
+  },
+  {
+   "query": "data/market/GD.json, data/market/ESLT.json, data/market/TDY.json: fundamentals, quality, pcs, fetched_at, cik for the 3 admissible names",
+   "forms": null,
+   "hits_examined": 3,
+   "names_extracted": 3
+  },
+  {
+   "query": "data/companies/GENERAL-DYNAMICS.json, data/companies/ELBIT-SYSTEMS.json, data/companies/TELEDYNE-TECHNOLOGIES.json: metrics groups, listing_refs, placements[] for this chain",
+   "forms": null,
+   "hits_examined": 3,
+   "names_extracted": 3
+  }
+ ],
+ "data_gaps": [
+  "data/mappings/munitions-replenishment.json audit.status is FAIL (audited_at 2026-08-31T20:58:00Z, 8 amendments_required), chiefly that 9 of 13 link_coverage rows are OPEN, so the whole-census PASS-audit admission path (method 6A) is unavailable on this chain; every row here rests on the narrower PLACEMENT scope instead.",
+  "Zero placement_audits[] entries exist anywhere in this mapping: the current-PASS placement-audit admission path (CLAUDE.md, Ron 2026-09-01/09-04) is also unavailable for every placement on this chain, not merely unused for some. Every seated row rests solely on the all-VERIFIED-evidence-tag basis.",
+  "11 of the mapping's 44 placements carry INFERRED-only evidence and fail the PLACEMENT-scope bar outright, independent of profile status: RHEINMETALL/nitration-feedstocks, CHEMRING-GROUP/energetic-materials, NORTHROP-GRUMMAN/perchlorate-oxidizer, MS-INTERNATIONAL/metal-parts-and-forgings, BAE-SYSTEMS/allied-rearmament-demand, BABCOCK-INTERNATIONAL-GROUP/allied-rearmament-demand, ROLLS-ROYCE-HOLDINGS/allied-rearmament-demand, COHORT/allied-rearmament-demand, CHEMRING-GROUP/allied-rearmament-demand, MS-INTERNATIONAL/allied-rearmament-demand, BAE-SYSTEMS/artillery-and-bulk-munitions.",
+  "16 of the mapping's 22 issuers carry no profile on disk at all; 10 of them (RHEINMETALL, NORTHROP-GRUMMAN, L3HARRIS-TECHNOLOGIES, ATI-INC, CARPENTER-TECHNOLOGY, HOWMET-AEROSPACE, BOEING, LOCKHEED-MARTIN, AVIO, SGL-CARBON) already hold at least one all-VERIFIED placement on a CHOKE_POINT or otherwise notable link and would seat immediately once profiled. Profiling is `run profile <TICKER>`, out of scope for this screen invocation.",
+  "BAE-SYSTEMS is status BLOCKED, opportunity_tier O3, and is refused as a screen input on all 3 links it appears on (energetic-materials VERIFIED, allied-rearmament-demand INFERRED, artillery-and-bulk-munitions INFERRED), regardless of evidence tag.",
+  "allied-rearmament-demand's TARGET_MET closure is itself under a specific, dated challenge: the mapping's own FAIL audit (amendments_required item 2) finds that only 5 of the 12 counted issuers (BAE Systems, Rheinmetall, Avio, Elbit Systems, Chemring) carry role evidence supporting this link's actual claim; AIRBUS and HENSOLDT, both otherwise-admissible COMPLETE O2 profiles with VERIFIED-tagged placement evidence, are deliberately excluded from this screen on that finding rather than seated on the tag alone. This is a judgment call this screen makes explicit rather than mechanical gate compliance alone; Ron may want this treated identically to the mechanical evidence-tag rule (escalate if so).",
+  "perchlorate-oxidizer carries no placement for NEU (NewMarket/AMPAC), the issuer every cited source on this link actually names and the chain's own example ticker; the only placement on this link (NORTHROP-GRUMMAN) is INFERRED-only and unprofiled. Census gap worth naming to Atlas alongside the OPEN-row amendments.",
+  "No PCS attention read exists for GENERAL-DYNAMICS, ELBIT-SYSTEMS or TELEDYNE-TECHNOLOGIES (pcs is null in all three data/market/<T>.json files); each seated row's crowdedness block carries pcs_axis_a null with basis rather than an estimate.",
+  "No earnings_nuggets on any seated row this run; no EDGAR full-text search was run against data/edgar/fts/ or data/edgar/docs/ for this invocation, and the census-level and profile-availability blockers already fully explain this run's coverage."
+ ],
+ "buckets": {
+  "pure_play": [],
+  "picks_and_shovels": [
+   {
+    "issuer_id": "GENERAL-DYNAMICS",
+    "listing_id": "NYSE-GD",
+    "ticker": "GD",
+    "market_ticker": "GD",
+    "chain_id": "munitions-replenishment",
+    "link_id": "energetic-materials",
+    "mapping_ref": "data/mappings/munitions-replenishment.json",
+    "profile_ref": "data/companies/GENERAL-DYNAMICS.json",
+    "data_tier": "T1",
+    "cik": 40533,
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with audit.status FAIL (audited_at 2026-08-31T20:58:00Z, 8 amendments_required at the census level, chiefly 9 OPEN link_coverage rows including this one); no placement_audits[] entries exist anywhere in this mapping (0 total), so the current-PASS placement-audit admission basis is unavailable for every issuer on this chain. This row rests solely on the all-VERIFIED-evidence basis: the energetic-materials placement for GENERAL-DYNAMICS carries exactly one evidence item, tagged VERIFIED, quoting General Dynamics Corporation Form 10-K for the fiscal year ended 2025-12-31 (Ordnance and Tactical Systems business description) directly, which alone satisfies check_screen._placement_admissible's all-VERIFIED bar.",
+    "name": "General Dynamics Corporation",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "EMERGING",
+    "thesis_1line": "Ordnance and Tactical Systems is the global leader in extruded propellant manufacturing and the world's largest producer of Ball Powder propellant, delivering direct- and indirect-fire propellants for US and allied munitions, at the CHOKE_POINT link (impact 85) where the whole chain's replenishment clock is set before any shell is filled. GD also holds ACTIVE, VERIFIED-evidence placements on three further links on this same chain, listed once here per method section 6 rather than as separate rows: metal-parts-and-forgings (CHOKE_POINT; produces projectile bodies, rocket motor cases and other mission-critical metal components), solid-rocket-motors (CHOKE_POINT; manufactures solid rocket motors and rocket motor cases as a major subsystem supplier), load-assemble-pack (HIGH bottleneck, verdict UNDISCOVERED, impact >=60 and crowdedness <=40; operates and is expanding artillery-projectile and propelling-charge load-assemble-pack lines), and artillery-and-bulk-munitions (MEDIUM bottleneck; global leadership position in large-caliber tank ammunition and medium-caliber ammunition).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No munitions-replenishment-specific or link-specific revenue percentage is disclosed or sourced for General Dynamics; Ordnance and Tactical Systems is one of four reporting segments and the 10-K does not break out propellant/energetics revenue within it. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 52550000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 40533.",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.100694,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Three-year compound annual revenue growth computed as (52550000000 / 39407000000) ** (1/3) - 1 from the companyfacts Revenues series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.101922,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Operating income 5356000000 divided by revenue 52550000000 for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.216152,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Operating cash flow 5120000000 divided by net income 4210000000, both for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.075338,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Free cash flow margin: operating cash flow 5120000000 less capex 1161000000, divided by revenue 52550000000, all for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 0.414809,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Net debt 2605000000 (total debt 6259000000 as of 2026-04-05 less cash 3654000000 as of 2026-04-05) divided by an EBITDA proxy 6280000000 (operating income 5356000000 plus depreciation 924000000 for the period ended 2025-12-31).",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 2,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Piotroski F-score 2 (state WEAK) computed over sec-companyfacts statements in data/market/GD.json quality.piotroski, 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.44,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Beneish M-score -2.44 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/GD.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 102564243383.88,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Market capitalization 102564243383.88 computed in data/market/GD.json quality.derived.market_cap from companyfacts shares outstanding and the repo's own tracked price.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 1.951746,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Market capitalization 102564243383.88 divided by revenue 52550000000 for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.1506,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/GD.json quality.reverse_dcf",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Free-cash-flow CAGR the current enterprise value 105169243383.88 implies over a 5-year explicit period on base FCF 3959000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+     },
+     "horizon_spread": {
+      "value": 0.0566,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/GD.json quality.reverse_dcf",
+      "source_date": "2026-09-02",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000040533.json",
+      "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1506, '7': 0.1178, '10': 0.094}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "NO_READ",
+     "source": "data/market/GD.json",
+     "as_of": "2026-08-31",
+     "tag": "NULL",
+     "basis": "data/market/GD.json pcs is null; no PCS attention read fetched for this T1 listing this run (method section 3: PCS is advisory, no positive-control gate armed; a null read scores its full quiet points under NULL renormalization rather than blocking)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "ELBIT-SYSTEMS",
+    "listing_id": "NASDAQ-ESLT",
+    "ticker": "ESLT",
+    "market_ticker": "ESLT",
+    "chain_id": "munitions-replenishment",
+    "link_id": "energetic-materials",
+    "mapping_ref": "data/mappings/munitions-replenishment.json",
+    "profile_ref": "data/companies/ELBIT-SYSTEMS.json",
+    "data_tier": "T1",
+    "cik": 1027664,
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with audit.status FAIL (audited_at 2026-08-31T20:58:00Z); no placement_audits[] entries exist anywhere in this mapping. This row rests solely on the all-VERIFIED-evidence basis: the energetic-materials placement for ELBIT-SYSTEMS carries exactly one evidence item, tagged VERIFIED, quoting Elbit Systems Ltd. Annual Report on Form 20-F for the fiscal year ended 2025-12-31 directly.",
+    "name": "Elbit Systems Ltd.",
+    "exchange": "The NASDAQ Global Select Market",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "EMERGING",
+    "thesis_1line": "Elbit Systems Land develops and manufactures explosives alongside precision munitions and artillery ammunition, a second qualified name on the CHOKE_POINT energetic-materials link (impact 85) opposite the single-site US RDX bottleneck. Elbit also holds ACTIVE, VERIFIED-evidence placements on four further links on this same chain, listed once here per method section 6: seekers-and-terminal-guidance (CHOKE_POINT; supplies multi-modal seekers and precision targeting solutions), missile-final-assembly (MEDIUM bottleneck, verdict OVER_CROWDED; develops precision-guided rockets and missiles and air-to-ground precision strike systems), artillery-and-bulk-munitions (MEDIUM bottleneck; manufactures artillery ammunition, tank munitions and small arms ammunition), and allied-rearmament-demand (MEDIUM bottleneck, TARGET_MET coverage; allied defence supplier of land, artillery and precision munitions systems to a wide export customer base). Note: on allied-rearmament-demand the mapping's own FAIL audit names Elbit as one of only 5 issuers (with BAE Systems, Rheinmetall, Avio, Chemring) whose cited role evidence actually supports this link's claim (nitrocellulose, propellant, or solid-rocket-motor exposure), out of 12 issuers the TARGET_MET closure originally counted; the other 7 (including AIRBUS and HENSOLDT, both otherwise COMPLETE O2 profiles with VERIFIED-tagged placement evidence) are deliberately excluded from this screen on that specific, dated finding rather than seated on tag-VERIFIED alone, because the audit's own excerpt shows their evidence supports a general defence business, not this link's specific claim.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No munitions-replenishment-specific or link-specific revenue percentage is disclosed or sourced for Elbit Systems; the 20-F reports by geography and by major program group, not by explosives/energetics sub-line. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 7938627000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1027664 (Elbit Systems Ltd., ESLT). Newly available 2026-09-04: revenue_fy had no 2025 point as of the prior fetch even though operating_income_fy, operating_cashflow_fy and net_income_fy already carried a 2025 figure; the widened concept map (commit 2d3ce3e) resolved it, so this profile now anchors on FY2025 instead of FY2024."
+     },
+     "revenue_cagr_3y": {
+      "value": 0.12933791284329832,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Three-year compound annual revenue growth computed as (7938627000 / 5511549000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31. Recomputed 2026-09-04 to the now-available FY2025 base (was FY2024/FY2021).",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.08457684181408195,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Operating income 671424000 divided by revenue 7938627000, both for the fiscal year ended 2025-12-31, from companyfacts. Recomputed 2026-09-04 on the now-available FY2025 revenue (was paired with FY2024 revenue 6827871000).",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.4567119375527522,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Operating cash flow 778378000 divided by net income 534339000, both for the fiscal year ended 2025-12-31, from companyfacts. Value unchanged from the prior run (it was already sourced on FY2025, the only period with both series present); now consistent with revenue.latest_fy, which also anchors on FY2025 as of this run.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.06963546719098908,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Free cash flow margin: operating cash flow 778378000 less capital expenditure 225568000, divided by revenue 7938627000, all for the fiscal year ended 2025-12-31, from companyfacts. Recomputed 2026-09-04 on the now-available FY2025 series (was FY2024: opcf 534610000, capex 215051000, revenue 6827871000).",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": -0.7322,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Net debt -617141000 (total debt 18000000 less cash 635141000, both as of 2025-12-31, a net cash position) divided by an EBITDA proxy 842858000 (operating income 671424000 plus depreciation 171434000, both for the fiscal year ended 2025-12-31), from companyfacts. The negative value reflects Elbit holding more cash than debt. Newly fillable 2026-09-04: commit 54cbeaa (foreign filer cash/debt fix) populated fundamentals.cash and fundamentals.total_debt for this filer, which previously read null.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 8,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Piotroski F-score 8 (state STRONG), computed over companyfacts statements in data/market/ESLT.json quality.piotroski, 9 of 9 inputs found. Updated 2026-09-04: score moved from 7 to 8 (state unchanged, STRONG) under the widened XBRL concept map re-fetch (commit 2d3ce3e), which changed which fiscal-year points several change-based criteria compare.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.473,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Beneish M-score -2.473 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/ESLT.json quality.beneish, 12 of 12 inputs found. Updated 2026-09-04: score moved from -2.437 to -2.473 (state unchanged, CLEAN) under the widened XBRL concept map re-fetch (commit 2d3ce3e).",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 32566306069.440002,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Market capitalization 32566306069.440002 computed in data/market/ESLT.json quality.derived.market_cap from share count 46442352 (as of 2025-12-31) times the close 701.22 of 2026-09-03.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 4.102259253324284,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ESLT.json fundamentals (source sec-companyfacts)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "source_date": "2026-09-04",
+      "basis": "Market capitalization 32566306069.440002 divided by fiscal year 2025-12-31 revenue 7938627000. Recomputed 2026-09-04 on the now-available FY2025 revenue (was divided by FY2024 revenue 6827871000); market_cap itself is unchanged (already computed off the current FY2025 share count).",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.3596,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/ESLT.json quality.reverse_dcf",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "basis": "Free-cash-flow CAGR the current enterprise value 31949165069.44 implies over a 5-year explicit period on base FCF 552810000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure. Newly fillable 2026-09-04: PENDING_DATA under the prior fetch (fcf/enterprise_value unresolved without cash/total_debt)."
+     },
+     "horizon_spread": {
+      "value": 0.1621,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/ESLT.json quality.reverse_dcf",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001027664.json",
+      "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.3596, '7': 0.2644, '10': 0.1975})."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "NO_READ",
+     "source": "data/market/ESLT.json",
+     "as_of": "2026-09-06",
+     "tag": "NULL",
+     "basis": "data/market/ESLT.json pcs is null; no PCS attention read fetched for this T1 listing this run (method section 3: PCS is advisory, no positive-control gate armed; a null read scores its full quiet points under NULL renormalization rather than blocking)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "TELEDYNE-TECHNOLOGIES",
+    "listing_id": "NYSE-TDY",
+    "ticker": "TDY",
+    "market_ticker": "TDY",
+    "chain_id": "munitions-replenishment",
+    "link_id": "seekers-and-terminal-guidance",
+    "mapping_ref": "data/mappings/munitions-replenishment.json",
+    "profile_ref": "data/companies/TELEDYNE-TECHNOLOGIES.json",
+    "data_tier": "T1",
+    "cik": 1094285,
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with audit.status FAIL (audited_at 2026-08-31T20:58:00Z); no placement_audits[] entries exist anywhere in this mapping. This row rests solely on the all-VERIFIED-evidence basis: the seekers-and-terminal-guidance placement for TELEDYNE-TECHNOLOGIES carries exactly one evidence item, tagged VERIFIED, quoting Teledyne Technologies Incorporated's 2025 Annual Report (Digital Imaging defense description) directly.",
+    "name": "Teledyne Technologies Incorporated",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "EMERGING",
+    "thesis_1line": "Develops and manufactures multi-spectrum electro-optic and infrared imaging systems with target-detection and identification capability for defence applications, on the CHOKE_POINT seekers-and-terminal-guidance link (BA.L/BA collision link on this chain: Boeing's US PAC-3 seeker and BAE Systems plc's UK THAAD seeker are two different issuers on the same link). Teledyne carries no other ACTIVE, VERIFIED-evidence placement on this chain.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No munitions-replenishment-specific or link-specific revenue percentage is disclosed or sourced for Teledyne; Digital Imaging is one of four reporting segments and defense EO/IR is not broken out as its own line. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 6115400000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-28, from SEC XBRL companyfacts for TELEDYNE-TECHNOLOGIES (TDY).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.03859891847624208,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Three-year compound annual revenue growth computed as (6115400000/5458600000)**(1/3)-1 from the companyfacts revenue series, period ended 2023-01-01 to period ended 2025-12-28.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.18801713706380613,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Operating income 1149800000 divided by revenue 6115400000, both for the period ended 2025-12-28, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.3313589628967366,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Operating cash flow 1191300000 divided by net income 894800000, both for the period ended 2025-12-28, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.1756221996925794,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Free cash flow margin: operating cash flow 1191300000 less capital expenditure 117300000, divided by revenue 6115400000, all for the period ended 2025-12-28, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 1.135051477020389,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TDY.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Net debt 1686800000 (total debt 2026900000 as of 2026-06-28 less cash 340100000 as of 2026-06-28) divided by an EBITDA proxy 1486100000 (operating income 1149800000 plus depreciation 336300000, both for the period ended 2025-12-28), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 7,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/TDY.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Piotroski F-score 7 (state STRONG) computed over companyfacts statements in data/market/TDY.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.441,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/TDY.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Beneish M-score -2.441 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/TDY.json quality.beneish; 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 28196757224.78,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/TDY.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Market capitalization 28196757224.78 computed in data/market/TDY.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 4.610778890142917,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/TDY.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Market capitalization 28196757224.78 divided by fiscal year 2025-12-28 revenue 6115400000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.1623,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/TDY.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: {\"discount_rate\": 0.09, \"terminal_growth\": 0.025, \"horizon_years\": 5, \"method\": \"bisection on FCF CAGR\", \"tag\": \"SPECULATIVE\"}. base_fcf 1074000000.0, enterprise_value 29883557224.78, from data/market/TDY.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.0622,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/TDY.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-04",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001094285.json",
+      "basis": "Spread 0.0622 across explicit horizons {'5': 0.1623, '7': 0.1263, '10': 0.1001} from data/market/TDY.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "NO_READ",
+     "source": "data/market/TDY.json",
+     "as_of": "2026-09-02",
+     "tag": "NULL",
+     "basis": "data/market/TDY.json pcs is null; no PCS attention read fetched for this T1 listing this run (method section 3: PCS is advisory, no positive-control gate armed; a null read scores its full quiet points under NULL renormalization rather than blocking)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "second_order": [],
+  "hedge": []
+ },
+ "taste_filtered": [],
+ "health": {
+  "tickers_examined": 22,
+  "rows_written": 3,
+  "fully_scored": 3,
+  "pending": 0,
+  "errors": 0,
+  "rows_superseded": 0,
+  "rows_with_quality_gaps": 0,
+  "links_worked": 13,
+  "links_total": 13,
+  "target_links_covered": 0,
+  "money_corner_links_total": 0,
+  "money_corner_links_covered": 0,
+  "choke_point_links_total": 5,
+  "choke_point_links_covered": 4,
+  "quotes_verified": 0,
+  "distinct_issuers": 3,
+  "profiles_available_repo_wide": 183,
+  "admissible_placements_all_verified_evidence": 33,
+  "placements_examined": 44,
+  "placements_inferred_only_evidence": 11,
+  "distinct_issuers_in_mapping": 22,
+  "issuers_complete_profile": 5,
+  "issuers_blocked_o3": 1,
+  "issuers_with_no_profile": 16,
+  "placement_audits_examined": 0,
+  "placement_audits_pass": 0,
+  "placement_audits_fail": 0,
+  "issuers_complete_seated_this_run": 3,
+  "issuers_complete_excluded_on_audit_finding": 2,
+  "issuers_admissible_evidence_no_profile": 10,
+  "mapping_audit_status": "FAIL",
+  "mapping_status": "ACTIVE"
+ },
+ "notes": [],
+ "confidence_audit": {
+  "verified": 3,
+  "inferred": 27,
+  "speculative": 6,
+  "null": 6
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-11T03:05:00Z",
+   "by": "sieve-profiler",
+   "change": "First run screen munitions-replenishment (chain-level, scenario_id null), fired by the upstream-campaign routine. Mapping is ACTIVE with a FAIL census audit (8 amendments_required, 9 of 13 link_coverage rows OPEN) and zero placement_audits[] entries anywhere, so the whole-census PASS-audit path and the current-PASS placement-audit path are both unavailable; every row rests on audit_scope PLACEMENT with all-VERIFIED placement evidence. Built the per-link universe across all 13 links. No link on this chain scores heat.money_corner true, so priority ran the 5 CHOKE_POINT links first (energetic-materials, metal-parts-and-forgings, seekers-and-terminal-guidance, solid-rocket-motors, dod-munitions-procurement), then the rest by impact. Combining the evidence-tag gate (33/44 placements all-VERIFIED) with profile availability (5/22 issuers COMPLETE, 1 BLOCKED/O3, 16 unprofiled) leaves exactly 3 admissible issuers: GENERAL-DYNAMICS, ELBIT-SYSTEMS and TELEDYNE-TECHNOLOGIES. Each is seated once, under its highest-priority CHOKE_POINT link (method section 6: a name on two links lists once, under the higher link, noted in thesis), covering energetic-materials (GD, ELBIT) and seekers-and-terminal-guidance (TDY) with real rows; metal-parts-and-forgings, solid-rocket-motors, load-assemble-pack, missile-final-assembly and artillery-and-bulk-munitions are attributed via those same two issuers' cross-link exposure noted in their thesis lines rather than duplicated as separate rows. On allied-rearmament-demand (TARGET_MET coverage), applied the mapping's own FAIL-audit finding that only 5 of its 12 counted issuers actually carry role evidence for this link's specific claim: ELBIT-SYSTEMS survives and is attributed via its energetic-materials row; AIRBUS and HENSOLDT, both otherwise-admissible COMPLETE O2 profiles with VERIFIED-tagged evidence, are deliberately excluded on that dated finding rather than seated on the tag alone, and this judgment call is named explicitly in universe_note and data_gaps rather than applied silently. nitration-feedstocks, nozzle-ablatives, perchlorate-oxidizer, nondestructive-inspection and dod-munitions-procurement produced no row: nozzle-ablatives (SGL-CARBON, evidence-VERIFIED) is blocked purely on the profile gate; the other four are blocked on the evidence-tag gate, missing placements entirely, or genuinely uninvestable by the chain's own design (government/private-only buyers). No PENDING_DATA rows and no new request rows: all 3 seated names' fundamentals and quality were already on disk from prior fetches (GD 2026-08-31, ESLT 2026-09-06, TDY 2026-09-02), all VERIFIED/INFERRED against SEC companyfacts directly (T1 filers). Backlogged to Atlas: close the 9 OPEN link_coverage rows and the remaining amendments_required items, or land placement_audits[] entries, to widen this chain's admission path beyond the 3 names the evidence-tag gate alone currently allows. Backlogged to Sieve's own run profile: RHEINMETALL, NORTHROP-GRUMMAN, L3HARRIS-TECHNOLOGIES, BOEING, LOCKHEED-MARTIN, ATI-INC, CARPENTER-TECHNOLOGY, HOWMET-AEROSPACE, AVIO and SGL-CARBON each hold at least one all-VERIFIED placement here and no profile on disk."
+  }
+ ]
+}
