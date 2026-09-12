@@ -327,15 +327,23 @@ def _actual_theme_stage(theme: dict, inventory, targets: dict) -> str:
         # qualified placement at a time (check_screen.py placement scope), so MAPPED is
         # "every in-scope link has an ACTIVE placement or an EXHAUSTED search", not a
         # whole-census COMPLETE.
+        # An empty scope (no money-corner or UNDISCOVERED link on this chain) owes no
+        # census at all, so it is vacuously satisfied: falling through here used to read
+        # "not scope" as "mapping not started" and left a chain with zero in-scope links
+        # stuck at SCENARIOS forever, even with a COMPLETE PASS-audited mapping already on
+        # disk (tibet-mega-dam: 77 ACTIVE placements across 11 links, 0 links in DEPTH
+        # scope). A theme that owes nothing here still needs its profile/screen/selection
+        # progression checked below, not a false MAPPED block.
         scope = links_in_scope(chain, targets)
-        if not isinstance(mapping, dict) or not scope:
-            return stage
-        placed = {p.get("link_id") for p in mapping.get("placements") or []
-                  if isinstance(p, dict) and p.get("status") == "ACTIVE"}
-        exhausted = {row.get("link_id") for row in mapping.get("link_coverage") or []
-                     if isinstance(row, dict) and row.get("status") == "EXHAUSTED"}
-        if not scope <= (placed | exhausted):
-            return stage
+        if scope:
+            if not isinstance(mapping, dict):
+                return stage
+            placed = {p.get("link_id") for p in mapping.get("placements") or []
+                      if isinstance(p, dict) and p.get("status") == "ACTIVE"}
+            exhausted = {row.get("link_id") for row in mapping.get("link_coverage") or []
+                         if isinstance(row, dict) and row.get("status") == "EXHAUSTED"}
+            if not scope <= (placed | exhausted):
+                return stage
     elif not isinstance(mapping, dict) or mapping.get("status") != "COMPLETE":
         return stage
     stage = "MAPPED"
