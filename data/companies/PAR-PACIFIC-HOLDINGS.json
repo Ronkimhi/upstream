@@ -3,7 +3,7 @@
   "issuer_name": "Par Pacific Holdings, Inc.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T22:30:00Z",
-  "updated_at": "2026-09-04T22:30:00Z",
+  "updated_at": "2026-09-12T00:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -223,6 +223,34 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for PAR-PACIFIC-HOLDINGS from data/mappings/russian-diesel-ban.json (ACTIVE, current audit status FAIL) and data/market/PARR.json (sec-companyfacts, T1). 10 of 12 canonical fields filled; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+    },
+    {
+      "ts": "2026-09-12T00:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12): examined against the O1 bar on russian-diesel-ban/conversion-capacity (link_heat OVER_CROWDED, screen_ref data/screens/russian-diesel-ban.json). Held O2. NULL canonical fields: ['quality.piotroski', 'quality.beneish_state']. quality.piotroski and quality.beneish_state both NULL (PENDING_DATA, 0 common fiscal periods per this profile's own data_gaps, the same tagging discontinuity pattern seen on TEEKAY-TANKERS). Barred outright on data completeness. Own risk note flags 2024 Refining Segment Adjusted EBITDA falling from $621M to $139M: margin compression, not structural advantage, on an OVER_CROWDED CHOKE_POINT link already carrying two other pure_play refiners (MARATHON-PETROLEUM, HF-SINCLAIR)."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-12",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "quality.piotroski",
+      "quality.beneish_state"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "russia-diesel-ban",
+        "chain_id": "russian-diesel-ban",
+        "link_id": "conversion-capacity",
+        "link_heat_verdict": "OVER_CROWDED",
+        "screen_ref": "data/screens/russian-diesel-ban.json",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field on any profile promoted, so this profile cannot clear the O1 bar until every field is filled.",
+        "detail": "quality.piotroski and quality.beneish_state both NULL (PENDING_DATA, 0 common fiscal periods per this profile's own data_gaps, the same tagging discontinuity pattern seen on TEEKAY-TANKERS). Barred outright on data completeness. Own risk note flags 2024 Refining Segment Adjusted EBITDA falling from $621M to $139M: margin compression, not structural advantage, on an OVER_CROWDED CHOKE_POINT link already carrying two other pure_play refiners (MARATHON-PETROLEUM, HF-SINCLAIR)."
+      }
+    ]
+  }
 }

@@ -3,7 +3,7 @@
  "issuer_name": "International Seaways, Inc.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T21:30:00Z",
- "updated_at": "2026-09-04T23:45:00Z",
+ "updated_at": "2026-09-12T00:00:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -262,6 +262,35 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile INSW: re-read data/market/INSW.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). Re-verified all 12 canonical fields against the current market file: cash (159397000) and total_debt (606418000, both 2026-06-30), operating_income (345385000) and depreciation (163586000, FY2025) are unchanged, so leverage.net_debt_to_ebitda (0.87828) is unchanged; reverse_dcf (implied_fcf_cagr 0.1154, horizon_spread 0.0401) unchanged; quality.piotroski/beneish_state remain PENDING_DATA (missing cost_of_revenue_fy). No numeric field changed this run. Status COMPLETE, opportunity_tier O2 unchanged (not O1-eligible: quality group still NULL). Never invented a number; opportunity tier not touched (selection's job)."
+  },
+  {
+   "ts": "2026-09-12T00:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12): examined against the O1 bar on russian-diesel-ban/clean-product-shipping (link_heat CROWDED, screen_ref data/screens/russian-diesel-ban.json). Held O2. NULL canonical fields: ['cash_conversion.fcf_margin', 'quality.piotroski', 'quality.beneish_state']. Zero-to-clean crosscheck is moot: quality group is incomplete (piotroski and beneish_state both NULL, PENDING_DATA on a missing cost_of_revenue_fy concept structurally absent from this filer's companyfacts, already confirmed non-fetchable across 4 sibling shipping filers per this profile's own data_gaps). fcf_margin is also NULL (stale capex_fy). Even setting data completeness aside, clean-product-shipping is CROWDED (impact 85, crowdedness 72) with 3 pure_play names now seated on it (INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS, FRONTLINE): duplicate exposure is real and unresolved, not a formality."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-12",
+  "reviewed_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12)",
+  "outcome": "HELD_O2",
+  "null_canonical_fields": [
+   "cash_conversion.fcf_margin",
+   "quality.piotroski",
+   "quality.beneish_state"
+  ],
+  "examined_links": [
+   {
+    "theme_id": "russia-diesel-ban",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "clean-product-shipping",
+    "link_heat_verdict": "CROWDED",
+    "screen_ref": "data/screens/russian-diesel-ban.json",
+    "state": "DATA_COMPLETENESS",
+    "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field on any profile promoted, so this profile cannot clear the O1 bar until every field is filled.",
+    "detail": "Zero-to-clean crosscheck is moot: quality group is incomplete (piotroski and beneish_state both NULL, PENDING_DATA on a missing cost_of_revenue_fy concept structurally absent from this filer's companyfacts, already confirmed non-fetchable across 4 sibling shipping filers per this profile's own data_gaps). fcf_margin is also NULL (stale capex_fy). Even setting data completeness aside, clean-product-shipping is CROWDED (impact 85, crowdedness 72) with 3 pure_play names now seated on it (INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS, FRONTLINE): duplicate exposure is real and unresolved, not a formality."
+   }
+  ]
+ }
 }
