@@ -116,11 +116,11 @@
    "element": "test",
    "evidence": {
     "metric": [
-     "hooks",
-     "runs",
-     "impact-gate.py"
+     "audit",
+     "hook_tests",
+     "untested"
     ],
-    "count": 0,
+    "count": 1,
     "denominator": 7,
     "refs": []
    },
@@ -130,18 +130,18 @@
    "regression_case": "tools/tests/test_impact_hook.py::test_missing_ledger_or_calibration_blocks (new, mirroring test_ember_hook.py) fails today with a collection error: the file does not exist, so nothing has ever asserted impact-gate.py's decision.",
    "prediction": {
     "metric": [
-     "hooks",
-     "crashes",
-     "impact-gate.py",
-     "count"
+     "audit",
+     "hook_tests",
+     "untested"
     ],
     "op": "<=",
     "value": 0,
     "window_days": 7
    },
-   "status": "OPEN",
+   "status": "FIXED",
    "fail_before": "Before fix, check_harness's drift audit reported hook tests 6 of 7, naming impact-gate.py as the one registered hook with no test asserting a block; the mutation check then confirmed the new test's teeth, forcing the hook to approve immediately made the no-ledger-line case and the stale-or-missing-calibration case fail (approve returned where block was required), while the both-present case and every other test stayed green.",
-   "fixed_on": "2026-09-13"
+   "fixed_on": "2026-09-13",
+   "fix_commit": "0b455da"
   }
  ],
  "deletion_candidate": {
@@ -173,6 +173,10 @@
   {
    "ts": "2026-09-13T04:40:48Z",
    "change": "run harness fix 2026-W37-F3: added TestImpactGateScript (3 subprocess tests) to tools/tests/test_hook_scripts.py, covering the last of 7 registered Stop hooks with no block test. impact-gate.py carried no defect; mutation check (forced approve) failed the two block cases as expected, then was reverted with a clean diff. check_harness now reports hook tests 7 of 7, and the full suite (547 tests) stays green. Finding stays OPEN: status, fix_commit go to FIXED only after the parent session commits."
+  },
+  {
+   "ts": "2026-09-13T04:50:32Z",
+   "change": "2026-W37-F3 set FIXED: TestImpactGateScript landed as 0b455da, mutation-checked, hook tests 6 of 7 to 7 of 7. Evidence and prediction re-bound to the audit metrics added in 44b203c: the original evidence cited a hooks.runs count of 0 while that metric read 161, and its crash-count prediction was already true before any fix, so it could not fail. Now 1 of 7 registered hooks untested on the report day, predicted <= 0 within 7 days."
   }
  ]
 }
