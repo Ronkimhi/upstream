@@ -60,7 +60,7 @@ class TestBuildTop(unittest.TestCase):
             (root / "data" / "chains").mkdir(parents=True)
             top = build.build_top(root / "data", chains=[], stocks=[])
         for key in ("top", "ranked_total", "links_total", "unrankable_total", "instruments_total",
-                    "instruments_unrated_total", "generated_by"):
+                    "instruments_unrated_total", "unrankable_by_reason", "generated_by"):
             self.assertIn(key, top)
         self.assertEqual([], top["top"])
         self.assertNotIn("as_of", top)

@@ -149,7 +149,7 @@ def instrument_score(value):
 class TestInstrumentHeatAndShadowRows(unittest.TestCase):
     """The price-instrument expression and the graded no (method sections 3 and 8, 2026-09-13)."""
 
-    def run_gate(self, mutate=None, market=("FRO",), shadow_rows=None, requests=None):
+    def run_gate(self, mutate=None, market=("FRO",), shadow_rows=None, requests=None, ledger=True):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             for name in ("chains", "mappings", "market", "shadow"):
@@ -169,7 +169,7 @@ class TestInstrumentHeatAndShadowRows(unittest.TestCase):
             (root / "data" / "chains" / "_ember-log.json").write_text(json.dumps(
                 {"calibration": {"generated_at": f"{TODAY}T00:00:00Z"}}))
             (root / "data" / "ledger.md").write_text(
-                f"{TODAY} 00:00Z | RUN | run heat test-chain | by: ember | health: 2/2\n")
+                f"{TODAY} 00:00Z | RUN | run heat test-chain | by: ember | health: 2/2\n" if ledger else "")
             return subprocess.run([sys.executable, str(ROOT / "tools" / "check_heat.py"),
                                    "--root", str(root), "--date", TODAY],
                                   capture_output=True, text=True)
@@ -263,6 +263,40 @@ class TestInstrumentHeatAndShadowRows(unittest.TestCase):
         result = self.run_gate(mutate, shadow_rows=[self.shadow_row()])
         self.assertEqual(1, result.returncode, result.stdout)
         self.assertIn("heat.instrument on a link with no price_instruments", result.stdout)
+
+    def test_an_instrument_scored_today_binds_the_postlude_when_heat_as_of_is_older(self):
+        old = "2026-08-01"
+
+        def mutate(value):
+            value = self.with_instrument(value)
+            value["heat_as_of"] = old
+            return value
+        old_row = {**self.shadow_row(), "id": f"SHD-HEAT-test-chain-output-FRO-{old}", "verdict_date": old}
+        refused = self.run_gate(mutate, shadow_rows=[old_row], ledger=False)
+        self.assertEqual(1, refused.returncode, refused.stdout)
+        self.assertIn("no same-day RUN/AMEND ledger line for run heat", refused.stdout)
+        passed = self.run_gate(mutate, shadow_rows=[old_row])
+        self.assertEqual(0, passed.returncode, passed.stdout)
+        self.assertIn("instruments: 1 examined, 1 scored", passed.stdout)
+
+    def test_an_older_instrument_block_does_not_touch_the_chain_today(self):
+        def mutate(value):
+            value = self.with_instrument(value)
+            value["heat_as_of"] = "2026-08-01"
+            value["links"][0]["heat"]["instrument"]["as_of"] = "2026-08-01"
+            return value
+        result = self.run_gate(mutate, ledger=False)
+        self.assertEqual(0, result.returncode, result.stdout)
+        self.assertIn("NOT RUN TODAY", result.stdout)
+
+    def test_a_heat_run_today_must_rescore_the_instrument(self):
+        def mutate(value):
+            value = self.with_instrument(value)
+            value["links"][0]["heat"]["instrument"]["as_of"] = "2026-08-01"
+            return value
+        result = self.run_gate(mutate, shadow_rows=[self.shadow_row()])
+        self.assertEqual(1, result.returncode, result.stdout)
+        self.assertIn("a heat run today must re-score the instrument", result.stdout)
 
 
 if __name__ == "__main__":

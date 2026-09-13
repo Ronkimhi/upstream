@@ -350,6 +350,10 @@ def build_top(data_dir=DATA, chains=None, stocks=None) -> dict:
     import opportunities  # noqa: E402  (tools/ is on sys.path above)
     top = opportunities.rank(opportunities.load_inputs(Path(data_dir).parent, chains=chains, stocks=stocks))
     top["instruments_unrated_total"] = len(top.get("instruments_unrated") or [])
+    reasons = {}
+    for item in top.get("unrankable") or []:
+        reasons[item.get("reason")] = reasons.get(item.get("reason"), 0) + 1
+    top["unrankable_by_reason"] = dict(sorted(reasons.items(), key=lambda kv: (-kv[1], str(kv[0]))))
     return top
 
 

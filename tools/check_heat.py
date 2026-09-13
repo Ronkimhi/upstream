@@ -102,7 +102,17 @@ def main():
             item = load(p)
             if isinstance(item, dict):
                 chains.append(item)
-    touched = [c for c in chains if same_day(c.get("heat_as_of"), today)]
+    def instrument_scored_today(chain):
+        for link in chain.get("links") or []:
+            heat = link.get("heat") if isinstance(link, dict) else None
+            inst = heat.get("instrument") if isinstance(heat, dict) else None
+            if isinstance(inst, dict) and same_day(inst.get("as_of"), today):
+                return True
+        return False
+    # A price-instrument block scored after the chain's heat run (method section 3, 2026-09-13)
+    # carries its own as_of and leaves heat_as_of on the day the issuers were scored. It is
+    # still a heat write, so it binds the same same-day ledger, calibration and health rules.
+    touched = [c for c in chains if same_day(c.get("heat_as_of"), today) or instrument_scored_today(c)]
     if not touched:
         print(f"check_heat: NOT RUN TODAY ({today}). 0 heat runs, {len(chains)} chain(s) examined.")
         return 0
@@ -205,8 +215,12 @@ def main():
                     iwant = band_for(values["impact"], ivalues["crowdedness"])
                     if inst.get("verdict") != iwant:
                         bad.append(f"{lid}.instrument: verdict disagrees with scores (computed {iwant})")
-                if strict and not same_day(inst.get("as_of"), today):
-                    bad.append(f"{lid}.instrument: as_of is not the run date")
+                if not re.match(r"^\d{4}-\d{2}-\d{2}", str(inst.get("as_of") or "")):
+                    bad.append(f"{lid}.instrument: as_of is not a date")
+                elif same_day(chain.get("heat_as_of"), today) and not same_day(inst.get("as_of"), today):
+                    bad.append(f"{lid}.instrument: a heat run today must re-score the instrument (as_of is not the run date)")
+                elif str(inst.get("as_of"))[:10] > today:
+                    bad.append(f"{lid}.instrument: as_of is later than the run date")
                 for ticker in inst.get("ticker_refs") or []:
                     if not market_file(root, ticker):
                         bad.append(f"{lid}.instrument: ticker market reference {ticker!r} lacks data/market source")

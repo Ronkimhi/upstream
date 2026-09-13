@@ -280,5 +280,42 @@ class TestShadowHeat(unittest.TestCase):
         self.assertNotIn("BA.", r.stdout)
 
 
+class TestRowProvenance(unittest.TestCase):
+    """A row added after the call it grades says so (2026-09-13). The shadow book grades the
+    machine's no from the call's own price, so a row written two weeks later was written with
+    that fortnight's move in view, and a reader of its grade has to be able to see that."""
+
+    def run_tool(self, date):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        for folder in ("chains", "market", "shadow", "mappings"):
+            (root / "data" / folder).mkdir(parents=True)
+        chain = {"id": "beta", "heat_as_of": "2026-08-30", "links": [{
+            "id": "l1", "name": "Link one", "example_tickers": ["AAA"],
+            "heat": {"verdict": "OVER_CROWDED", "crowdedness": {"score": 84}}}]}
+        (root / "data" / "chains" / "beta.json").write_text(json.dumps(chain))
+        (root / "data" / "mappings" / "beta.json").write_text("{}")
+        (root / "data" / "market" / "AAA.json").write_text(json.dumps(
+            {"series": {"rows": [["2026-08-28", 10.0], ["2026-09-11", 17.0]], "source": "test"}}))
+        (root / "data" / "shadow" / "book.json").write_text(json.dumps({"rows": []}, indent=1) + "\n")
+        (root / "data" / "requests.json").write_text(json.dumps({"version": 1, "requests": []}, indent=1) + "\n")
+        result = subprocess.run([sys.executable, str(ROOT / "tools" / "shadow_heat.py"), "beta",
+                                 "--root", str(root), "--date", date], capture_output=True, text=True)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        return json.loads((root / "data" / "shadow" / "book.json").read_text())["rows"][0]
+
+    def test_a_row_written_after_the_call_says_so(self):
+        row = self.run_tool("2026-09-13")
+        self.assertEqual("2026-09-13", row["written_at"])
+        self.assertIn("row written 2026-09-13, after the call", row["note"])
+        self.assertEqual(10.0, row["spot"]["value"])
+
+    def test_a_row_written_on_the_call_day_carries_no_hindsight_note(self):
+        row = self.run_tool("2026-08-30")
+        self.assertEqual("2026-08-30", row["written_at"])
+        self.assertNotIn("after the call", row["note"])
+
+
 if __name__ == "__main__":
     unittest.main()

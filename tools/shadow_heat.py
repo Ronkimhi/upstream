@@ -175,7 +175,7 @@ def resolve_tickers(root: Path, tickers, heat_as_of: str, deferred: dict, chain_
 
 
 def build_rows(root: Path, chain_slug: str, link: dict, heat_as_of: str, mapping: dict,
-              existing_ids: set, deferred: dict):
+              existing_ids: set, deferred: dict, written_at: str | None = None):
     """New shadow rows for one OVER_CROWDED link, plus whether it named zero candidates
     at all (the no_tickers case, distinct from every candidate being deferred)."""
     link_id = link.get("id")
@@ -217,8 +217,12 @@ def build_rows(root: Path, chain_slug: str, link: dict, heat_as_of: str, mapping
                     "as_of": row_date,
                 },
                 "review_at": review_at,
+                "written_at": written_at or heat_as_of,
                 "note": f"{link_name}: OVER_CROWDED (crowdedness {crowdedness}) at "
-                        f"{heat_as_of}; RIGHT means standing aside was correct",
+                        f"{heat_as_of}; RIGHT means standing aside was correct"
+                        + (f"; row written {written_at}, after the call, so the move between "
+                           f"the call and that day was already visible when it was added"
+                           if written_at and written_at > heat_as_of else ""),
             })
     return rows, False
 
@@ -384,7 +388,7 @@ def main(argv=None) -> int:
             chains_seen.add(chain_slug)
             try:
                 rows, no_tix = build_rows(root, chain_slug, link, heat_as_of, mapping,
-                                          existing_ids, deferred)
+                                          existing_ids, deferred, written_at=today)
             except ValueError:
                 # A malformed heat_as_of on an otherwise valid chain: report and move on
                 # rather than let one bad date abort a whole --all sweep.

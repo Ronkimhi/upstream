@@ -1945,9 +1945,15 @@
     var t = b.top;
     if (!t) return '<div class="emptystate">The Top 3 block was not built into this page (app/build.py build_top).</div>';
     var cards = (t.top || []).map(boardTopCard).join("");
+    var reasonWords = { "heat block missing": "not heat-scored yet", "NULL heat": "heat left NULL",
+      "UNINVESTABLE: no listed name, no instrument": "nothing listed to own", "no expression scored": "no expression scored" };
+    var byReason = t.unrankable_by_reason;
+    var why = byReason ? Object.keys(byReason).map(function (k) {
+      return esc(num(byReason[k], "?")) + " " + esc(reasonWords[k] != null ? reasonWords[k] : k);
+    }).join(", ") : "";
     var denom = "Ranked " + esc(num(t.ranked_total, "?")) + " of " + esc(num(t.links_total, "?")) +
-      " scored links by size (impact × capture × un-crowdedness). Not ranked: " + esc(num(t.unrankable_total, "?")) +
-      ". Funds not rated yet: " + esc(num(t.instruments_unrated_total, "?")) + ".";
+      " links by size (impact × capture × un-crowdedness). Not ranked: " + esc(num(t.unrankable_total, "?")) +
+      (why ? " (" + why + ")" : "") + ". Funds not rated yet: " + esc(num(t.instruments_unrated_total, "?")) + ".";
     return seclabel("The three biggest opportunities right now") +
       (cards ? '<div class="topgrid">' + cards + "</div>" : '<div class="emptystate">No scored link on disk.</div>') +
       "<div class='top-denom muted'>" + denom + "</div>";

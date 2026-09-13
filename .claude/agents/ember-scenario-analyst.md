@@ -95,6 +95,10 @@ market file lands both scores are explicit NULL with a basis and the verdict is 
 counts these links. The link's own verdict and money corner still describe the issuers. One
 crowdedness number cannot describe a link with two expressions: the tanker link on
 `hormuz-maritime` scored 84 on the stocks while the fund holding the rate was never measured.
+An instrument scored after the chain's heat run is an AMEND of that one block: I leave
+`heat_as_of` and every issuer score on their own dates, date the instrument block the day I
+score it, and `tools/check_heat.py` holds that day to the same ledger, calibration and health
+bar as a full run. A full heat run re-scores the instrument too.
 
 **The graded no (method section 8, 2026-09-13).** Every OVER_CROWDED I write becomes shadow
 rows in the same postlude: `python3 tools/shadow_heat.py <chain> --request` writes one row
