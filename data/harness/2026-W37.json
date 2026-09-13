@@ -66,9 +66,10 @@
     "value": 0,
     "window_days": 7
    },
-   "status": "OPEN",
+   "status": "FIXED",
    "fail_before": "tools.tests.test_hook_scripts.TestChainGateScript.test_chain_write_script_invocation_does_not_crash: exit 1, NameError: name '_in_repo' is not defined (chain-gate.py main(), unfixed tree)",
-   "fixed_on": "2026-09-13"
+   "fixed_on": "2026-09-13",
+   "fix_commit": "c571d6a"
   },
   {
    "id": "2026-W37-F2",
@@ -151,6 +152,10 @@
   {
    "ts": "2026-09-13T03:55:00Z",
    "change": "run harness fix 2026-W37-F1: added tools/tests/test_hook_scripts.py (TestChainGateScript), a subprocess-based regression test that runs chain-gate.py the way Claude Code actually invokes it. It failed on the unfixed tree exactly as diagnosed (fail_before recorded on the finding), then moved the _in_repo() helper above the `if __name__ == \"__main__\":` guard in chain-gate.py, a pure reorder with no logic change. Test now passes and the full suite (543 tests) stays green. Finding stays OPEN: status, fix_commit go to FIXED only after the parent session commits."
+  },
+  {
+   "ts": "2026-09-13T03:58:35Z",
+   "change": "2026-W37-F1 set FIXED: the fix landed on main as c571d6a with CI green, and its test was confirmed to fail on the unfixed hook and pass on the fixed one. The prediction (chain-gate crashes <= 0 within 7 days) is scored by the next run harness, and holds for local sessions only once the main checkout carries the fix."
   }
  ]
 }
