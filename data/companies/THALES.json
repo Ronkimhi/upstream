@@ -1,9 +1,9 @@
 {
   "issuer_id": "THALES",
   "issuer_name": "Thales S.A.",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-13",
   "created_at": "2026-09-01T09:19:47Z",
-  "updated_at": "2026-09-13T03:20:00Z",
+  "updated_at": "2026-09-13T06:14:00Z",
   "generated_by": "sieve-profiler",
   "listing_refs": [
     "EPA:HO",
@@ -108,18 +108,21 @@
   ],
   "data_gaps": [
     "Filled 2026-09-04 from data/market/HO-PA.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): canonical fields carry a sourced number except where noted below, each remaining NULL field carries a field-specific basis on the metric itself.",
-    "No tibet-mega-dam-specific (or link-specific) revenue percentage is disclosed or sourced for Thales S.A., only company-wide figures."
+    "No tibet-mega-dam-specific (or link-specific) revenue percentage is disclosed or sourced for Thales S.A., only company-wide figures.",
+    "2026-09-13: revenue.latest_fy and cash_conversion.fcf_margin now rest on Thales's own official FY2025 results press release (VERIFIED, official_source true) rather than the yfinance-statements vendor aggregate; the remaining canonical fields (growth, margins, leverage, quality, valuation, reverse_dcf, and cash_conversion.operating_cash_flow_to_net_income) are unchanged vendor-aggregate INFERRED, since the fetched press release does not disclose raw operating cash flow separately from the non-GAAP FOCF figure, so that second cash_conversion field could not be officially cross-checked this run."
   ],
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": 22136400000.0,
-        "tag": "INFERRED",
-        "source_name": "yfinance-statements",
-        "source_date": "2026-09-01",
-        "url": "https://finance.yahoo.com/quote/HO.PA/financials",
-        "basis": "Fiscal-year revenue for the period ended 2025-12-31: 22,136,400,000 EUR from the yfinance-statements statements in HO-PA.json.",
-        "official_source": false
+        "value": 22136000000.0,
+        "tag": "VERIFIED",
+        "source_name": "Thales 2025 full-year results press release",
+        "source_date": "2026-03-02",
+        "url": "https://www.thalesgroup.com/en/news-centre/press-releases/thales-reports-its-2025-full-year-results",
+        "basis": "Official FY2025 Sales, EUR 22,136 million, from Thales's own 2025 full-year results press release (board met 2026-03-02 to review the 2025 financial statements), fetched via data/requests.json REQ-20260913-01 and stored at data/web/d71376ef4286a215.json. Cross-checks the vendor-aggregate figure this field previously carried: 22,136,400,000 EUR from yfinance-statements, rounding to the same figure to the nearest million.",
+        "official_source": true,
+        "source_excerpt": "Key figures In € millions except earnings per share (in €) 2025 2024 Total change Organic change Order intake 25,264 25,289 (0)% +1% Order book at end of period 53,323 50,602 +5% +7% Sales 22,136 20,577 +8% +9%",
+        "excerpt_form": "composite-tabular"
       }
     },
     "growth": {
@@ -155,13 +158,18 @@
         "official_source": false
       },
       "fcf_margin": {
-        "value": 0.11587701703980774,
-        "tag": "INFERRED",
-        "source_name": "yfinance-statements",
-        "source_date": "2026-09-01",
-        "url": "https://finance.yahoo.com/quote/HO.PA/financials",
-        "basis": "Free cash flow margin: operating cash flow 3,321,800,000 EUR less capex 756,700,000 EUR, divided by revenue 22,136,400,000 EUR, all for the period ended 2025-12-31, from the yfinance-statements series.",
-        "official_source": false
+        "value": 0.11641669678352005,
+        "tag": "VERIFIED",
+        "source_name": "Thales 2025 full-year results press release",
+        "source_date": "2026-03-02",
+        "url": "https://www.thalesgroup.com/en/news-centre/press-releases/thales-reports-its-2025-full-year-results",
+        "basis": "Official free cash flow margin: Thales's own reported non-GAAP Free operating cash flow, EUR 2,577 million, divided by official FY2025 Sales EUR 22,136 million, both from the 2025 full-year results press release (board met 2026-03-02), fetched via REQ-20260913-01 and stored at data/web/d71376ef4286a215.json. Replaces the prior vendor-computed proxy (operating cash flow 3,321.8m less capex 756.7m = 2,565.1m implied, from yfinance-statements) with the company's own official FOCF metric, a different but officially disclosed and closely agreeing (2,577m vs 2,565.1m implied) free-cash-flow measure; the press release's own footnote 2 marks it a non-GAAP indicator defined in its appendices, which this fetch did not capture verbatim, so the number itself is VERIFIED but its full internal reconciliation is not reproduced here.",
+        "official_source": true,
+        "source_excerpt": [
+          "Key figures In € millions except earnings per share (in €) 2025 2024 Total change Organic change Order intake 25,264 25,289 (0)% +1% Order book at end of period 53,323 50,602 +5% +7% Sales 22,136 20,577 +8% +9%",
+          "Record Free operating cash flow 2 : €2,577 million, up 27%"
+        ],
+        "excerpt_form": "composite-tabular"
       }
     },
     "leverage": {
@@ -237,15 +245,15 @@
   "disposition": {
     "state": "RETAIN",
     "as_of": "2026-09-04",
-    "basis": "Filled this run from data/market/HO-PA.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01."
+    "basis": "Filled this run from data/market/HO-PA.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01. Amended 2026-09-13: official-source cross-check on revenue.latest_fy and cash_conversion.fcf_margin now complete (method 6A); RETAIN still holds because run selection, not run profile, is the command that examines promotion."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 10,
+    "VERIFIED": 2,
+    "INFERRED": 8,
     "SPECULATIVE": 2,
     "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A Vendor-aggregate fundamentals); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
+    "basis": "Counts cover the canonical metric fields only. INFERRED with official_source false rests on the vendor-aggregate block (yfinance-statements), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A Vendor-aggregate fundamentals); never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated. Amended 2026-09-13: revenue.latest_fy and cash_conversion.fcf_margin moved from vendor-aggregate INFERRED to official-source VERIFIED after fetching Thales's own FY2025 results press release (REQ-20260913-01), the O1 official-source cross-check method section 6A requires."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -281,6 +289,12 @@
       "by": "routine",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (sixth run, 2026-09-13): the 2026-09-06 PROFILE_GAP is closed (this profile now carries the offshore-counter-drone/c2-and-sensor-fusion placement), so the screen_handoff blocker is gone and the six selection dimensions were examined for the first time on this placement: direct exposure (CoastShield, VERIFIED role evidence, current PASS placement audit), link heat (money_corner true, verdict UNDISCOVERED, CHOKE_POINT bottleneck, impact score 78), fundamental quality (Piotroski 8/9 STRONG, Beneish -2.769 CLEAN, zero NULL canonical fields), evidence confidence (10 INFERRED vendor-sourced, 2 SPECULATIVE reverse-DCF, 0 NULL), and duplicate exposure (also seated on tibet-mega-dam/riparian-risk-monitoring, a QUIET non-money-corner link, judged immaterial overlap) all clear the bar. The one outstanding gate is method 6A's O1 official-source cross-check on revenue.latest_fy and the cash-conversion field: WebSearch found Thales's own 2026-03-03 FY2025 results release (sales exceeding EUR 22bn, record free operating cash flow EUR 2,577m, up 27%) closely tracking the vendor figures on file (revenue EUR 22,136.4m; FCF EUR 2,565.1m implied from OCF minus capex), but this cloud venue cannot WebFetch the page to pull a verbatim official figure, so promoting on a search-snippet paraphrase would violate the verbatim evidence rule. Queued REQ-20260913-01 (web_doc, the official press release URL) so a future run selection pass can cite the stored text. Held O2 pending that fetch; not a repeat of the 2026-09-06 finding, a new and different blocker."
+    },
+    {
+      "ts": "2026-09-13T06:14:00Z",
+      "by": "routine",
+      "kind": "AMEND",
+      "change": "run profile THALES: official-source cross-check for O1 promotion (method section 6A). REQ-20260913-01 (queued by the 2026-09-13T03:20:00Z run selection fire) came back FULFILLED at 2026-09-13T03:20:56Z (Thales's own FY2025 full-year results press release, fetched and stored at data/web/d71376ef4286a215.json, http 200, 37530 chars). Verified two figures verbatim in the stored text: Sales EUR 22,136 million (matching the vendor's 22,136.4m to the nearest million) and Free operating cash flow EUR 2,577 million (Thales's own official non-GAAP metric). Moved metrics.revenue.latest_fy and metrics.cash_conversion.fcf_margin from vendor-aggregate INFERRED/official_source:false to official-source VERIFIED/official_source:true, citing the press release with verbatim source_excerpt. Left cash_conversion.operating_cash_flow_to_net_income as vendor INFERRED: the press release does not disclose raw operating cash flow separately from its FOCF non-GAAP figure, so that field cannot be officially cross-checked from this document; method section 6A only requires 'the cash-conversion field' (singular), and fcf_margin now clears it. opportunity_tier stays O2: this is a profile amendment, not run selection, which a future fire runs next to actually examine promotion now that the cross-check gate is cleared."
     }
   ],
   "selection_review": {
