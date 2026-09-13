@@ -1,0 +1,150 @@
+{
+ "id": "HAR-2026-W37",
+ "as_of": "2026-09-13",
+ "generated_by": "hitch-harness",
+ "window": {
+  "days": 7,
+  "from": "2026-09-06T03:15:53.771790+00:00",
+  "to": "2026-09-13T03:15:53.771790+00:00"
+ },
+ "scope": {
+  "sessions": 11,
+  "main_files": 13,
+  "subagent_files": 149,
+  "lines": 46466,
+  "parsed": 32446,
+  "unparsed": 0,
+  "assistant_messages": 8711,
+  "first_ts": "2026-09-06T14:59:23.870000+00:00",
+  "last_ts": "2026-09-13T03:15:51.835000+00:00"
+ },
+ "audits": [
+  "traces: 11 session(s), 13 main and 149 subagent transcript(s), 46466 lines (32446 parsed, 0 unparseable), 2026-09-06T14:59:23.870000+00:00 to 2026-09-13T03:15:51.835000+00:00",
+  "hooks: 161 stop evaluation(s), 277 crash(es), blocks by gate (heuristic attribution): {'campaign-gate.py': 7, 'universe-gate.py': 62}",
+  "tools: 9270 call(s), 213 error(s) by class {'exit_code': 101, 'permission': 30, 'other': 78, 'hook': 4}; api errors 0",
+  "models: 3 repo agent type(s) observed against a required tier; output tokens by model {'claude-fable-5-1': 1035417, 'claude-haiku-4-5-20251001': 15, 'claude-opus-5': 551233, 'claude-sonnet-5': 518501, 'other': 0}",
+  "budget: CLAUDE.md 66278 of 66278 B, .claude/agents 117291 of 117291 B, .claude/skills 6375 of 6375 B",
+  "drift: 73 of 73 cited repo path(s) exist",
+  "hook tests: 6 of 7 registered hook(s) named by a test that asserts a block (heuristic)",
+  "ci: push paths ['.claude/**', 'CLAUDE.md', 'app/**', 'data/**', 'tools/**']; 3 of 3 meta-gate(s) run",
+  "parity: no Codex mirror in this tree (examined 0)",
+  "self-edit: 60 recent commit(s) examined for fixes touching 4 grader path(s)",
+  "predictions: 0 scored (0 held), 0 pending, across 0 report(s)"
+ ],
+ "findings": [
+  {
+   "id": "2026-W37-F1",
+   "rank": 1,
+   "element": "hook",
+   "evidence": {
+    "metric": [
+     "hooks",
+     "crashes",
+     "chain-gate.py",
+     "count"
+    ],
+    "count": 211,
+    "denominator": 11,
+    "refs": [
+     "2294417c-7e6c-4c46-83fb-2a411eb4ce2d:079840d4-ab1c-4c9c-bbdd-e77d8fa48c37",
+     "2294417c-7e6c-4c46-83fb-2a411eb4ce2d:ecebac6e-4ae3-41c1-b050-cda03472b638",
+     "2294417c-7e6c-4c46-83fb-2a411eb4ce2d:7b37b43b-ed88-401e-b7fe-c42a39913cb4"
+    ]
+   },
+   "first_failure": "Commit 799793a (2026-08-30, by Ron: \"two Stop hooks demanded a record of work that never happened\") added a module-level _in_repo() helper to chain-gate.py to fix a real unanchored-path bug, but appended the new def after the file's existing `if __name__ == \"__main__\": raise SystemExit(main())`. main() calls _in_repo() whenever the transcript shows a chains write, so every such Stop run since that commit raises NameError.",
+   "diagnosis": "Verified by parsing all 7 hook files with ast: only chain-gate.py and radar-gate.py define a function after their __main__ guard; the other five define every helper first. A minimal repro (main() calling a name defined later in the same file) reproduces the identical NameError at exit code 1. The 5 tests this same commit added (test_pressure.py) import the hook via importlib.exec_module, so __name__ is never \"__main__\" there and main() never runs, which is why the suite never saw this.",
+   "smallest_change": "Move `def _in_repo(...)` (the last ~35 lines of the file) to above `if __name__ == \"__main__\":` in chain-gate.py and radar-gate.py. Pure reorder, no logic change. Verify with a real subprocess invocation (python3 <hook> < payload), the way Claude Code actually runs it, not only importlib import: import-based tests pass either way because they never set __name__ to \"__main__\".",
+   "regression_case": "A subprocess-based case, mirroring test_campaign_hooks.py's [sys.executable, HOOKS/f'{name}-gate.py'] pattern (used today for campaign, universe and profile but not chain or radar), piping a synthetic transcript with a chains write into chain-gate.py fails today with NameError: name '_in_repo' is not defined, exit code 1.",
+   "prediction": {
+    "metric": [
+     "hooks",
+     "crashes",
+     "chain-gate.py",
+     "count"
+    ],
+    "op": "<=",
+    "value": 0,
+    "window_days": 7
+   },
+   "status": "OPEN"
+  },
+  {
+   "id": "2026-W37-F2",
+   "rank": 2,
+   "element": "hook",
+   "evidence": {
+    "metric": [
+     "hooks",
+     "crashes",
+     "radar-gate.py",
+     "count"
+    ],
+    "count": 66,
+    "denominator": 11,
+    "refs": [
+     "81ed6aa4-9431-4a24-8f20-80dcdd4c4622:2b2d23a8-181a-4770-8001-f8d366162ef4",
+     "81ed6aa4-9431-4a24-8f20-80dcdd4c4622:b0d670f8-44ee-424c-af34-420b612a3912",
+     "81ed6aa4-9431-4a24-8f20-80dcdd4c4622:3bc78c3c-12fa-4402-8ac0-f9cb49c10e80"
+    ]
+   },
+   "first_failure": "Same commit as 2026-W37-F1, 799793a (2026-08-30): its own message says \"chain-gate had the identical defect,\" and the patch appended a byte-identical _in_repo() helper to radar-gate.py after its `if __name__ == \"__main__\":` guard too. main() calls _in_repo() whenever the transcript shows a signals write, raising the same NameError.",
+   "diagnosis": "Confirmed by the same ast order-check as F1: radar-gate.py defines _in_repo after the guard, the only other file of the 7 hooks that does. git blame puts both defs at the same commit and timestamp as chain-gate.py's. Lower count than chain-gate.py (66 vs 211) because fewer sessions in this window did radar-shaped work: no nell-scanner sessions appear in the 7-day trace at all, consistent with the radar routine being PAUSED since 2026-09-01.",
+   "smallest_change": "Identical fix to 2026-W37-F1, applied to the other file: move `def _in_repo(...)` above `if __name__ == \"__main__\":` in radar-gate.py. Land both files in the same commit since it is one root cause, and verify both with a real subprocess invocation, not just importlib import.",
+   "regression_case": "The same subprocess-based pattern as F1, applied to radar-gate.py with a synthetic transcript carrying a signals write, fails today with NameError: name '_in_repo' is not defined, exit code 1.",
+   "prediction": {
+    "metric": [
+     "hooks",
+     "crashes",
+     "radar-gate.py",
+     "count"
+    ],
+    "op": "<=",
+    "value": 0,
+    "window_days": 7
+   },
+   "status": "OPEN"
+  },
+  {
+   "id": "2026-W37-F3",
+   "rank": 3,
+   "element": "test",
+   "evidence": {
+    "metric": [
+     "hooks",
+     "runs",
+     "impact-gate.py"
+    ],
+    "count": 0,
+    "denominator": 7,
+    "refs": []
+   },
+   "first_failure": "No first failure observed: impact-gate.py has 0 crashes and 0 blocks in this window. The gap is that nothing has ever watched it decide anything. check_harness's drift audit is the first check to name this: 6 of the 7 registered Stop hooks are named by a test that asserts a 'block' decision, and impact-gate.py is the one exception.",
+   "diagnosis": "Verified by grep: no file under tools/tests/ contains 'impact-gate' or 'impact_gate' in any form. Every sibling hook has at least one direct test: chain and radar via test_pressure.py, campaign/universe/profile via test_campaign_hooks.py, ember via test_ember_hook.py. impact-gate.py's own code looks structurally sound on inspection (UTC-correct, every helper defined before its __main__ guard, unlike chain-gate.py and radar-gate.py), so this is a coverage gap, not a proven active defect.",
+   "smallest_change": "Add one test file mirroring test_ember_hook.py: import impact-gate.py, feed it a synthetic transcript containing an impact-appraisal write, and assert the JSON decision is 'block' when today's ledger or rank-log calibration is missing and 'approve' when both are present. No hook code change expected unless the new test finds a real defect.",
+   "regression_case": "tools/tests/test_impact_hook.py::test_missing_ledger_or_calibration_blocks (new, mirroring test_ember_hook.py) fails today with a collection error: the file does not exist, so nothing has ever asserted impact-gate.py's decision.",
+   "prediction": {
+    "metric": [
+     "hooks",
+     "crashes",
+     "impact-gate.py",
+     "count"
+    ],
+    "op": "<=",
+    "value": 0,
+    "window_days": 7
+   },
+   "status": "OPEN"
+  }
+ ],
+ "deletion_candidate": {
+  "path": ".claude/hooks/chain-gate.py and .claude/hooks/radar-gate.py: the private _in_repo() copy in each",
+  "reason": "Both files carry a byte-identical private _in_repo(), pasted in by the same 2026-08-30 commit that broke both of them the same way at the same time. Once F1 and F2 are fixed, move the one function into write_targets.py (already imported by both, for from_tool_use) and delete both private copies, so a future change to path-anchoring logic cannot be made in one copy and forgotten in the other."
+ },
+ "prior_predictions": [],
+ "changelog": [
+  {
+   "ts": "2026-09-13T03:27:59Z",
+   "change": "Initial harness report: first run of `run harness`. Three findings from the 7-day trace window: chain-gate.py and radar-gate.py have been crashing on a NameError since 2026-08-30 (commit 799793a) instead of enforcing their postlude checks, and impact-gate.py has no regression test."
+  }
+ ]
+}
