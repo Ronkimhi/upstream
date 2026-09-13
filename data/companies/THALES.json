@@ -75,7 +75,7 @@
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): T3. Corrected 2026-09-04: this batch re-examined data/market/HO-PA.json (fetched_at 2026-09-01) and found a full fundamentals block (yfinance-statements vendor aggregate) and a scored quality block. Ron's 2026-09-01 decision admits the T2/T3 vendor aggregate directly into canonical metrics (method section 6A); this issuer's prior BLOCKED basis predates that decision. Filled the canonical metric fields from it this run.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A. Held O2 by run selection CAMP-20260901-01 (seventh run, 2026-09-13): see selection_review for the near-complete six-of-seven-dimension record and the one remaining O1 gate (tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS examines every present cash_conversion field, and metrics.cash_conversion.operating_cash_flow_to_net_income is still vendor-aggregate INFERRED). REQ-20260913-02 queued for the official document that could clear it. Revisit once that request is FULFILLED.",
   "business_summary": "Thales Group is a French multinational aerospace, defense and technology group; its Thales Alenia Space joint venture builds satellite and digital-twin systems used for flood forecasting and impact assessment.",
   "exposure_summary": {
     "narrative": "Thales S.A. sits on Riparian risk & monitoring (tibet-mega-dam, scored QUIET) and on Command, control and sensor fusion for a fixed installation (offshore-counter-drone, the chain's money-corner CHOKE_POINT link, scored UNDISCOVERED) via its CoastShield coastal-surveillance product. Newly filled fundamentals (2026-09-01, yfinance-statements) show 8.01% three-year revenue CAGR and a 10.02% operating margin for the period ended 2025-12-31; no chain-specific revenue percentage is disclosed or sourced for either exposure, only company-wide figures.",
@@ -244,8 +244,8 @@
   },
   "disposition": {
     "state": "RETAIN",
-    "as_of": "2026-09-04",
-    "basis": "Filled this run from data/market/HO-PA.json: yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision. RETAIN rather than ADVANCE because run selection is a separate command not run this batch. COMPLETE and O2 per method section 6A. run profile --campaign CAMP-20260901-01. Amended 2026-09-13: official-source cross-check on revenue.latest_fy and cash_conversion.fcf_margin now complete (method 6A); RETAIN still holds because run selection, not run profile, is the command that examines promotion."
+    "as_of": "2026-09-13",
+    "basis": "Held O2 by run selection CAMP-20260901-01 (seventh run, 2026-09-13). Six of seven selection dimensions clear on the offshore-counter-drone/c2-and-sensor-fusion placement (direct exposure, capture, heat, quality, expectations_gap, duplicate_exposure), and the placement already carries a current PASS placement_audits[] entry (atlas-fresh-context, audited_at 2026-09-04T19:20:44Z), so it is dive-ready the moment O1 clears. The remaining gate is tools/check_profile.py's O1 official-source cross-check, which examines every present cash_conversion field: metrics.cash_conversion.operating_cash_flow_to_net_income is still vendor-aggregate INFERRED. REQ-20260913-02 queued for Thales's official Consolidated Financial Statements at 31 December 2025. Next stage: run selection CAMP-20260901-01 once REQ-20260913-02 is FULFILLED."
   },
   "confidence_audit": {
     "VERIFIED": 2,
@@ -295,12 +295,18 @@
       "by": "routine",
       "kind": "AMEND",
       "change": "run profile THALES: official-source cross-check for O1 promotion (method section 6A). REQ-20260913-01 (queued by the 2026-09-13T03:20:00Z run selection fire) came back FULFILLED at 2026-09-13T03:20:56Z (Thales's own FY2025 full-year results press release, fetched and stored at data/web/d71376ef4286a215.json, http 200, 37530 chars). Verified two figures verbatim in the stored text: Sales EUR 22,136 million (matching the vendor's 22,136.4m to the nearest million) and Free operating cash flow EUR 2,577 million (Thales's own official non-GAAP metric). Moved metrics.revenue.latest_fy and metrics.cash_conversion.fcf_margin from vendor-aggregate INFERRED/official_source:false to official-source VERIFIED/official_source:true, citing the press release with verbatim source_excerpt. Left cash_conversion.operating_cash_flow_to_net_income as vendor INFERRED: the press release does not disclose raw operating cash flow separately from its FOCF non-GAAP figure, so that field cannot be officially cross-checked from this document; method section 6A only requires 'the cash-conversion field' (singular), and fcf_margin now clears it. opportunity_tier stays O2: this is a profile amendment, not run selection, which a future fire runs next to actually examine promotion now that the cross-check gate is cleared."
+    },
+    {
+      "ts": "2026-09-13T06:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01 (seventh run, 2026-09-13). Held opportunity_tier at O2 on the offshore-counter-drone/c2-and-sensor-fusion placement. Six of seven selection dimensions clear (direct exposure, capture, heat, quality, expectations_gap, duplicate_exposure) and the screen_handoff resolves exactly to this profile's ACTIVE placement and the matching campaign-v1 screen row (bucket picks_and_shovels, status CANDIDATE), but tools/check_profile.py's O1 official-source cross-check gate (O1_OFFICIAL_CROSSCHECK_FIELDS) examines every present cash_conversion field, not just one as this profile's 2026-09-13T06:14:00Z entry assumed: metrics.cash_conversion.operating_cash_flow_to_net_income is still vendor-aggregate INFERRED (official_source false) even though fcf_margin cleared its cross-check that run. A first attempt to write this promotion failed exactly this way at validate.py, caught before commit and corrected here rather than forced through. Independently re-examined duplicate exposure against the tibet-mega-dam/riparian-risk-monitoring placement rather than carrying forward the prior session's judgment, and found it immaterial: the two placements share no driver, customer, or capital-allocation story (Himalayan flood-monitoring satellite work versus NATO offshore counter-drone procurement). Recorded honestly: this placement's expectations gap reads narrow, not wide (5-year implied FCF CAGR 8.59 percent against an achieved 3-year revenue CAGR of 8.01 percent, a 0.58-point gap well inside the 2.66-point horizon_spread). Queued REQ-20260913-02 (web_doc) for Thales's official Consolidated Financial Statements at 31 December 2025, which should carry the cash-flow-from-operating-activities line the FY2025 results press release does not disclose separately from its FOCF figure. Next stage: run selection CAMP-20260901-01 once REQ-20260913-02 is FULFILLED. No verdict written; Sieve's output is the opportunity tier and selection review only."
     }
   ],
   "selection_review": {
     "as_of": "2026-09-13",
-    "reviewed_by": "routine",
-    "command": "run selection CAMP-20260901-01 (sixth run, 2026-09-13)",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (seventh run, 2026-09-13)",
     "outcome": "HELD_O2",
     "null_canonical_fields": [],
     "examined_links": [
@@ -308,9 +314,9 @@
         "theme_id": "offshore-counter-drone",
         "chain_id": "offshore-counter-drone",
         "link_id": "c2-and-sensor-fusion",
-        "state": "OFFICIAL_CROSSCHECK_PENDING",
-        "reason": "Every selection_basis dimension clears (direct exposure, link heat, fundamental quality, evidence confidence, duplicate exposure), but method 6A requires an official-source cross-check on revenue.latest_fy and the cash-conversion field before O1 promotion, and this cloud venue cannot WebFetch the official source to pull a verbatim figure.",
-        "detail": "WebSearch located Thales's own 2026-03-03 FY2025 results release (sales exceeding EUR 22bn; record free operating cash flow EUR 2,577m, up 27%), closely tracking the vendor figures already on file (revenue EUR 22,136.4m; FCF EUR 2,565.1m implied from OCF minus capex), but a search-result paraphrase is not a verbatim fetched excerpt. Queued REQ-20260913-01 (web_doc) for the official press release so a later run selection pass can cite stored text and complete the cross-check. Next stage: `run selection CAMP-20260901-01` once REQ-20260913-01 is FULFILLED (data/web/<id>.json on disk)."
+        "state": "OFFICIAL_CROSSCHECK_INCOMPLETE",
+        "reason": "Six of the seven selection dimensions clear outright and the screen_handoff resolves exactly: direct exposure (CoastShield, VERIFIED trade-press role evidence, current PASS placement audit atlas-fresh-context 2026-09-04T19:20:44Z), capture (link capture score 70, Thales already sells the fusion layer itself as one commercial system per the chain's own evidence), heat (money-corner, CHOKE_POINT, UNDISCOVERED, impact 78 / crowdedness 38 / capture 70, the most favorable heat combination this campaign has produced for a name examined so far), quality (Piotroski 8/9 STRONG, Beneish -2.769 CLEAN, zero NULL canonical fields, modest 0.51 net debt to EBITDA), expectations_gap (a narrow, not wide, gap: 5-year implied FCF CAGR 8.59 percent against an achieved 3-year revenue CAGR of 8.01 percent, only 0.58 points, well inside the 2.66-point horizon_spread), and duplicate_exposure (independently re-examined this run, not carried forward: the tibet-mega-dam/riparian-risk-monitoring placement is QUIET, non-money-corner, and shares no driver, customer, or capital-allocation story with offshore counter-drone; the two listing_ids EPA:HO and EPA-HO both resolve to the same HO.PA security, a bookkeeping artifact of two independent mapping censuses, not a second exposure). The seventh dimension, evidence_confidence, is where this run actually stops: tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate examines every present cash_conversion field, not just one. revenue.latest_fy and cash_conversion.fcf_margin cleared their official-source cross-check on the 2026-09-13T06:14:00Z run profile THALES amendment (REQ-20260913-01, Thales's own FY2025 results press release), but this profile also carries metrics.cash_conversion.operating_cash_flow_to_net_income, still vendor-aggregate INFERRED with official_source false, and the gate refuses O1 on that field alone. A first attempt to write this promotion failed exactly this way (validate.py: 'metrics.cash_conversion.operating_cash_flow_to_net_income: O1 requires an official-source cross-check'), caught before commit; that attempt is not preserved as a changelog entry, only this corrected finding.",
+        "detail": "opportunity_tier stays O2, not promoted. The FY2025 results press release (data/web/d71376ef4286a215.json) discloses only Free operating cash flow (EUR 2,577 million) and a loose 'record net cash flow of close to EUR 2.6 billion' phrase, never a distinct cash-flow-from-operating-activities line before capex, so it cannot cross-check operating_cash_flow_to_net_income. WebSearch located Thales's official Consolidated Financial Statements at 31 December 2025 (board-approved alongside the 2026-03-02 results), the primary document that carries the full consolidated cash flow statement with that line item; queued REQ-20260913-02 (web_doc) for it. Next stage: `run selection CAMP-20260901-01` once REQ-20260913-02 is FULFILLED, to either complete the cross-check and promote, or record a further honest finding if the document still does not carry the figure verbatim."
       }
     ]
   },
@@ -329,6 +335,40 @@
           "state": "PROFILE_GAP",
           "reason": "The profile itself does not yet describe the placement a current mapping and audit already support; a screen_handoff cannot rest on an undeclared exposure.",
           "detail": "No change since the fourth run's finding: the mapping carries an ACTIVE placement with a current PASS placement_audits[] entry for this exact chain/link, but the profile's own placements array still does not include it (only tibet-mega-dam/riparian-risk-monitoring is recorded). Cannot write a screen_handoff resting on an undeclared placement. Next stage `run profile THALES`."
+        }
+      ]
+    },
+    {
+      "as_of": "2026-09-13",
+      "reviewed_by": "routine",
+      "command": "run selection CAMP-20260901-01 (sixth run, 2026-09-13)",
+      "outcome": "HELD_O2",
+      "null_canonical_fields": [],
+      "examined_links": [
+        {
+          "theme_id": "offshore-counter-drone",
+          "chain_id": "offshore-counter-drone",
+          "link_id": "c2-and-sensor-fusion",
+          "state": "OFFICIAL_CROSSCHECK_PENDING",
+          "reason": "Every selection_basis dimension clears (direct exposure, link heat, fundamental quality, evidence confidence, duplicate exposure), but method 6A requires an official-source cross-check on revenue.latest_fy and the cash-conversion field before O1 promotion, and this cloud venue cannot WebFetch the official source to pull a verbatim figure.",
+          "detail": "WebSearch located Thales's own 2026-03-03 FY2025 results release (sales exceeding EUR 22bn; record free operating cash flow EUR 2,577m, up 27%), closely tracking the vendor figures already on file (revenue EUR 22,136.4m; FCF EUR 2,565.1m implied from OCF minus capex), but a search-result paraphrase is not a verbatim fetched excerpt. Queued REQ-20260913-01 (web_doc) for the official press release so a later run selection pass can cite stored text and complete the cross-check. Next stage: `run selection CAMP-20260901-01` once REQ-20260913-01 is FULFILLED (data/web/<id>.json on disk)."
+        }
+      ]
+    },
+    {
+      "as_of": "2026-09-13",
+      "reviewed_by": "sieve-profiler",
+      "command": "run selection CAMP-20260901-01 (seventh run, 2026-09-13)",
+      "outcome": "HELD_O2",
+      "null_canonical_fields": [],
+      "examined_links": [
+        {
+          "theme_id": "offshore-counter-drone",
+          "chain_id": "offshore-counter-drone",
+          "link_id": "c2-and-sensor-fusion",
+          "state": "OFFICIAL_CROSSCHECK_INCOMPLETE",
+          "reason": "Six of the seven selection dimensions clear outright (direct exposure, capture, heat, quality, expectations_gap, duplicate_exposure, all examined fresh this run) and the screen_handoff resolves exactly, but tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate examines every present cash_conversion field, not just one: revenue.latest_fy and cash_conversion.fcf_margin cleared their cross-check on the 2026-09-13T06:14:00Z run profile THALES amendment, but metrics.cash_conversion.operating_cash_flow_to_net_income is also present on this profile and remains vendor-aggregate INFERRED, which the gate refuses on its own. This corrects the sixth run's assumption (and this profile's own prior changelog language) that method 6A's cross-check applies to only one cash-conversion field.",
+          "detail": "opportunity_tier stays O2. The FY2025 results press release on file does not disclose a distinct cash-flow-from-operating-activities figure. Queued REQ-20260913-02 (web_doc) for Thales's official Consolidated Financial Statements at 31 December 2025, the primary document that should carry the full consolidated cash flow statement. Next stage: `run selection CAMP-20260901-01` once REQ-20260913-02 is FULFILLED."
         }
       ]
     }
