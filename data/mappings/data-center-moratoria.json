@@ -2,7 +2,7 @@
  "id": "MAP-data-center-moratoria",
  "chain_id": "data-center-moratoria",
  "created_at": "2026-09-04",
- "updated_at": "2026-09-04T19:12:01Z",
+ "updated_at": "2026-09-13T15:17:35Z",
  "as_of": "2026-09-04",
  "status": "ACTIVE",
  "target_issuers_per_link": 5,
@@ -354,6 +354,7 @@
    "issuer_id": "WSP-GLOBAL",
    "ticker": "WSP",
    "exchange": "TSX",
+   "market_ticker": "WSP.TO",
    "identity_evidence": [
     {
      "legal_issuer": "WSP Global Inc",
@@ -1013,6 +1014,13 @@
    "by": "atlas-fresh-context",
    "kind": "AMEND",
    "change": "run universe-audit data-center-moratoria --placement WSP-GLOBAL (fresh context, batch run audit-data-center-moratoria-wsp-global): sampled the placement's evidence[0] item (WSP's own Data Center Design Services and Mission Critical Consulting page, wsp.com/en-us/sectors/data-centers) live and confirmed it currently states, verbatim, 'Our site selection and due diligence experts assess utility power, fiber connectivity, geotechnical risks, and water strategies. We support clients through every step of planning and permitting: engaging with stakeholders and local authorities to streamline approvals, prioritize optionality and resilience, and minimize risk.' -- matching the role claimed for the permitting-and-environmental-consultancy link. Verified listing identity against WSP Global Inc.'s own 2025 Annual Information Form (dated February 25, 2026, fetched live from wsp.com), which states 'In this Annual Information Form ... references to \"WSP\", the \"Corporation\" ... refer to WSP Global Inc.' and 'During the year ended December 31, 2025, the Shares were listed for trading on the TSX under the symbol \"WSP\".' -- exact match to the listing's legal_issuer, exchange, and ticker. identity_ok, role_ok, and source_date_ok all true; status PASS. Mapping status and the placement itself are left untouched.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:17:35Z",
+   "by": "atlas",
+   "kind": "AMEND",
+   "change": "refresh data/mappings/data-center-moratoria.json: run deepdive WSP.TO data-center-moratoria was refused by tools/check_analyst.py even though the identity chain otherwise resolved exactly (issuer_id, listing_id, chain_id, link_id, screen_ref, O1 profile, all 7 selection_basis dimensions, mapping placement and screen row), because the TSX-WSP listing carried canonical ticker 'WSP' with no market_ticker field while the only market data ever fetched for this issuer lives at data/market/WSP-TO.json (its own internal ticker field reads 'WSP.TO'); tools/market_paths.market_path() needs the exact vendor-suffixed form to find that file, and check_analyst.py resolves a dive's price series from the dive's own ticker value directly. Added market_ticker: 'WSP.TO' to the TSX-WSP listing: the field this repo's own convention (data/mappings/ai-infrastructure.json, humanoid-actuators.json, glp1-fill-finish.json, h5n1-panzootic.json, prediction-market-plumbing.json, hormuz-maritime.json, munitions-replenishment.json, russian-diesel-ban.json and offshore-counter-drone.json all carry, e.g. NSE-LT ticker 'LT' plus market_ticker 'LT.NS') uses to hold the fetcher-facing vendor ticker beside the officially evidenced canonical one. The value matches data/companies/WSP-GLOBAL.json listings[0].market_ticker exactly, which already carried 'WSP.TO' for this same listing_id (mapping_ref: this file) without the mapping, the actual source of truth, ever recording it. Canonical ticker 'WSP' is left untouched, because the listing's own identity_evidence (WSP Global Inc.'s 2025 Annual Information Form) states verbatim that 'the Shares were listed for trading on the TSX under the symbol \"WSP\"', with no '.TO' anywhere in that filing: rewriting ticker itself to the vendor-suffixed form (the convention data/mappings/tibet-mega-dam.json's TSX:LUN, TSX:FM and TSX:MDA listings use instead, folding the suffix into ticker with no separate market_ticker field) would contradict this listing's own cited primary source rather than extend it, and no identity_evidence exists anywhere establishing a TSX symbol 'WSP.TO' because no official source uses that notation; market_ticker is added uncited, consistent with the ai-infrastructure.json precedent, since it names a mechanical vendor-plane label rather than a separate identity claim. This touches only listings[]; placements[] is unchanged, so the current PASS placement_audits[] entry for WSP-GLOBAL (2026-09-06T15:47:33Z) stays current: check_map.py's placement_claim_digest binds only chain_id/link_id/issuer_id/role/evidence from placements[], never listings[] or market_ticker, confirmed by check_map.py passing clean after this edit with no digest mismatch reported. This edit alone does not admit the dive: tools/check_analyst.py's stock_admission_failures() and would-buy price lookup still resolve market data from the dive's own ticker field via market_paths.market_path() directly and do not yet consult a mapping listing's or screen row's market_ticker, and the WSP-GLOBAL row in data/screens/data-center-moratoria.json still carries market_ticker: 'WSP' (Sieve's file, not amended here). Flagged by the refused dive as background task task_2b80cfea; the remaining gap sits in tools/check_analyst.py and data/screens/, outside data/mappings/ ownership.",
    "prior": null
   }
  ],
