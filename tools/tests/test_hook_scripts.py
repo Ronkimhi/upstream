@@ -95,7 +95,7 @@ class TestChainGateScript(unittest.TestCase):
         # A complete postlude (ledger line + calibration, both dated today) so a correctly
         # working hook reaches "approve" rather than "block" -- proving the fix actually
         # restores the gate's logic, not merely that the process exits without a traceback.
-        today = datetime.date.today().isoformat()
+        today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
         ledger = self.root / "data" / "ledger.md"
         ledger.parent.mkdir(parents=True, exist_ok=True)
         ledger.write_text(f"{today} 00:00Z | RUN | run chain ai-infrastructure | by: test\n")
@@ -171,9 +171,9 @@ class TestRadarGateScript(unittest.TestCase):
         # A complete postlude (ledger line + calibration, both dated today) so a correctly
         # working hook reaches "approve" rather than "block" -- proving the fix actually
         # restores the gate's logic, not merely that the process exits without a traceback.
-        # radar-gate.py dates both checks with local datetime.date.today() (a separate
-        # backlog row covers moving that to UTC), so the test uses the same basis.
-        today = datetime.date.today().isoformat()
+        # Both gates date their checks in UTC (tools/tests/test_hook_dates.py holds that), so
+        # the fixture is dated in UTC too.
+        today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
         ledger = self.root / "data" / "ledger.md"
         ledger.parent.mkdir(parents=True, exist_ok=True)
         ledger.write_text(f"{today} 00:00Z | RADAR | run radar | by: test\n")
