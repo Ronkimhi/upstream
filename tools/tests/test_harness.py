@@ -302,6 +302,95 @@ class TestReportSchema(unittest.TestCase):
                       (ROOT / "tools" / "validate.py").read_text())
 
 
+class TestReportBinding(unittest.TestCase):
+    """A report's evidence and predictions are bound to data the audit can re-derive.
+
+    2026-W37-F3 cited a hooks.runs count of 0 for the impact Stop hook while that metric read
+    161, and predicted a crash count that was already 0 before any fix, so it could not fail.
+    The hook's file name stays out of this text, because the hook-test heuristic would count it.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.fx = Fixture(self.td.name)
+        self.tdir = Path(self.td.name) / "t"
+
+    def write_report(self, root, **finding):
+        report = valid_report()
+        report["as_of"] = NOW.date().isoformat()
+        report["window"] = {"from": (NOW - datetime.timedelta(days=7)).date().isoformat(),
+                            "to": NOW.date().isoformat(), "days": 7}
+        report["findings"][0].update(finding)
+        folder = root / "data" / "harness"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "2026-W37.json").write_text(json.dumps(report))
+
+    def audited(self, root):
+        r = check_harness.Report()
+        check_harness.audit_drift(root, r)
+        return r, check_harness.audit_predictions(root, r, self.tdir, NOW, set())
+
+    def fixed_static(self):
+        audit = ["audit", "hook_tests", "untested"]
+        return dict(element="test", status="FIXED", fix_commit="abc1234", fail_before="x",
+                    fixed_on=(NOW - datetime.timedelta(days=10)).date().isoformat(),
+                    evidence={"metric": audit, "count": 1, "denominator": 1, "refs": []},
+                    prediction={"metric": audit, "op": "<=", "value": 0, "window_days": 7})
+
+    def test_static_prediction_that_did_not_hold_is_found(self):
+        self.fx.hook_test = "import unittest\n"
+        root = self.fx.write()
+        write_transcripts(self.tdir, [assistant()])
+        self.write_report(root, **self.fixed_static())
+        r, verdicts = self.audited(root)
+        self.assertEqual(verdicts[0]["verdict"], "DID_NOT_HOLD", r.lines)
+        self.assertTrue(any("DID_NOT_HOLD" in f for f in r.findings), r.findings)
+
+    def test_static_prediction_holds_once_the_gap_closes(self):
+        root = self.fx.write()
+        write_transcripts(self.tdir, [assistant()])
+        self.write_report(root, **self.fixed_static())
+        r, verdicts = self.audited(root)
+        self.assertEqual(verdicts[0]["verdict"], "HELD", r.lines)
+
+    def test_trace_evidence_that_overclaims_is_found(self):
+        root = self.fx.write()
+        write_transcripts(self.tdir, [assistant(), crash()])
+        self.write_report(root, evidence={"metric": ["hooks", "crashes", "ann-gate.py", "count"],
+                                          "count": 5, "denominator": 1, "refs": [REF]})
+        r, _ = self.audited(root)
+        self.assertTrue(any("records 5 but the traces" in f for f in r.findings), r.findings)
+
+    def test_trace_evidence_within_its_data_passes(self):
+        root = self.fx.write()
+        write_transcripts(self.tdir, [assistant(), crash()])
+        self.write_report(root)
+        r, _ = self.audited(root)
+        self.assertFalse(any("records" in f for f in r.findings), r.findings)
+        self.assertTrue(any("1 open finding count(s) re-derived, 0 did not" in ln for ln in r.lines),
+                        r.lines)
+
+    def test_static_evidence_that_does_not_rederive_is_found(self):
+        root = self.fx.write()
+        write_transcripts(self.tdir, [assistant()])
+        self.write_report(root, element="test",
+                          evidence={"metric": ["audit", "hook_tests", "untested"], "count": 3,
+                                    "denominator": 1, "refs": []})
+        r, _ = self.audited(root)
+        self.assertTrue(any("records 3 but the audit reads 0" in f for f in r.findings), r.findings)
+
+    def test_schema_accepts_audit_roots_and_refuses_unknown_evidence_roots(self):
+        ok = valid_report()
+        ok["findings"][0]["evidence"]["metric"] = ["audit", "hook_tests", "untested"]
+        ok["findings"][0]["prediction"]["metric"] = ["audit", "hook_tests", "untested"]
+        self.assertEqual(check_harness.validate_report(ok, "2026-W37"), [])
+        bad = valid_report()
+        bad["findings"][0]["evidence"]["metric"] = ["hookz", "x"]
+        self.assertTrue(any("evidence metric must start" in e
+                            for e in check_harness.validate_report(bad, "2026-W37")))
+
+
 class TestHarnessCommands(unittest.TestCase):
     def test_both_shapes_are_allowed_and_tiered(self):
         for command in ("run harness", "run harness fix 2026-W37-F1", "run harness fix 2027-W01-F3"):

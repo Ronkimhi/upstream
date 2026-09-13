@@ -16,8 +16,9 @@ Five audits, each printing what it EXAMINED next to what it FOUND (Rule 21):
   3. budget    -- bytes of always-loaded instruction text against the BUDGET ratchet
   4. drift     -- cited repo paths that do not exist, registered hooks no test watches
                   block, CI that skips harness files, Codex mirror parity
-  5. self-edit -- `run harness fix` commits that touched Hitch's own graders, and fix
-                  predictions that did not hold
+  5. self-edit -- `run harness fix` commits that touched Hitch's own graders, fix
+                  predictions that did not hold, and open findings whose evidence count
+                  does not re-derive from the traces or audit counts it names
 
 ADVISORY BY DEFAULT, the posture and reason of check_machine.py. No transcripts is SCOPE
 EMPTY for the trace audits and never prints OK: CI and cloud sessions have no local session
@@ -63,7 +64,10 @@ _UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 REF_RE = re.compile(rf"^{_UUID}:{_UUID}$")
 ELEMENTS = {"hook", "gate", "instruction", "tool", "model", "ci", "parity", "test"}
 STATUSES = {"OPEN", "FIXED", "DECLINED"}
-METRIC_ROOTS = {"hooks", "tools", "api_errors", "models", "scope"}
+METRIC_ROOTS = {"hooks", "tools", "api_errors", "models", "scope", "audit"}
+# An OPEN finding's evidence is re-derived while its report is this young; older transcripts
+# may already be gone (Claude Code deletes them after 30 days by default).
+EVIDENCE_WINDOW_DAYS = 7
 OPS = {"<=": operator.le, "<": operator.lt, ">=": operator.ge, ">": operator.gt,
        "==": operator.eq}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -72,6 +76,9 @@ DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 class Report:
     def __init__(self):
         self.lines, self.findings, self.empty = [], [], False
+        # Static audit counts, addressable as ["audit", <section>, <key>] by a report's evidence
+        # and predictions, so a coverage or drift finding is scored like a crash count.
+        self.metrics = {}
 
     def say(self, msg):
         self.lines.append(msg)
@@ -199,6 +206,7 @@ def audit_budget(root: Path, r: Report, budget=None) -> dict:
             r.find(f"{k} is {sizes[k]} bytes, {sizes[k] - limit} over its {limit}-byte budget: "
                    f"text every session loads grew without a matching deletion. Delete before "
                    f"adding, or move the line by a dated decision")
+    r.metrics["budget"] = {"over": sum(1 for k in budget if sizes[k] > budget[k])}
     r.say("budget: " + ", ".join(f"{k} {sizes[k]} of {budget[k]} B" for k in budget))
     return sizes
 
@@ -228,6 +236,7 @@ def audit_drift(root: Path, r: Report):
     for p in missing:
         r.find(f"{p} is cited by {sorted(cited[p])} but does not exist: an instruction that "
                f"points at a file that is gone")
+    r.metrics["drift"] = {"cited": len(cited), "missing": len(missing)}
     r.say(f"drift: {len(cited) - len(missing)} of {len(cited)} cited repo path(s) exist")
 
     hooks = sorted(registered_hooks(root))
@@ -244,28 +253,33 @@ def audit_drift(root: Path, r: Report):
     for h in untested:
         r.find(f"hook {h} is registered but no file under tools/tests/ names it beside a block "
                f"assertion (heuristic): nothing has watched this gate refuse")
+    r.metrics["hook_tests"] = {"registered": len(hooks), "untested": len(untested)}
     r.say(f"hook tests: {len(hooks) - len(untested)} of {len(hooks)} registered hook(s) named "
           f"by a test that asserts a block (heuristic)")
 
     ci = read(root / ".github" / "workflows" / "ci.yml")
     if not ci:
+        r.metrics["ci"] = {"missing_paths": len(CI_PATHS), "missing_meta_gates": len(META_GATES)}
         r.find(".github/workflows/ci.yml is missing or unreadable: no gate runs where a session "
                "cannot switch it off")
     else:
         m = re.search(r"paths:\s*\[([^\]]*)\]", ci)
         paths = {s.strip().strip("'\"") for s in m.group(1).split(",")} if m else set()
-        for need in CI_PATHS:
-            if m and need not in paths:
-                r.find(f"ci.yml push paths {sorted(paths)} omit {need}: a change there triggers "
-                       f"no gate")
-        for gate in META_GATES:
-            if f"tools/{gate}" not in ci:
-                r.find(f"ci.yml never runs tools/{gate}")
+        missing_paths = [need for need in CI_PATHS if m and need not in paths]
+        for need in missing_paths:
+            r.find(f"ci.yml push paths {sorted(paths)} omit {need}: a change there triggers "
+                   f"no gate")
+        missing_gates = [gate for gate in META_GATES if f"tools/{gate}" not in ci]
+        for gate in missing_gates:
+            r.find(f"ci.yml never runs tools/{gate}")
+        r.metrics["ci"] = {"missing_paths": len(missing_paths),
+                           "missing_meta_gates": len(missing_gates)}
         r.say(f"ci: push paths {sorted(paths) if m else 'unfiltered'}; "
-              f"{sum(f'tools/{g}' in ci for g in META_GATES)} of {len(META_GATES)} meta-gate(s) run")
+              f"{len(META_GATES) - len(missing_gates)} of {len(META_GATES)} meta-gate(s) run")
 
     agents_md, codex = root / "AGENTS.md", root / ".codex"
     if not agents_md.exists() and not codex.exists():
+        r.metrics["parity"] = {"divergences": 0}
         r.say("parity: no Codex mirror in this tree (examined 0)")
         return
     problems = []
@@ -283,6 +297,7 @@ def audit_drift(root: Path, r: Report):
         problems.append(f".codex/agents mirrors {n_codex} of {n_claude} agent contract(s)")
     for p in problems:
         r.find(f"parity: {p}")
+    r.metrics["parity"] = {"divergences": len(problems)}
     r.say(f"parity: Codex mirror present, {len(problems)} divergence(s)")
 
 
@@ -328,28 +343,102 @@ def metric_value(traces: dict, path: list):
     return node if isinstance(node, (int, float)) and not isinstance(node, bool) else None
 
 
+def _day(value):
+    """The UTC midnight a YYYY-MM-DD (or longer ISO) string starts with, or None."""
+    try:
+        return datetime.datetime.fromisoformat(str(value)[:10]).replace(tzinfo=UTC)
+    except (ValueError, TypeError):
+        return None
+
+
+def _rederive_evidence(path, f, report, as_of, r, now, traces_since) -> bool | None:
+    """Whether an OPEN finding's evidence count re-derives from the data it names.
+
+    An ["audit", ...] count must equal this run's audit on the day the report was written. A
+    trace count may not exceed what the traces hold since its window's first day: more lines
+    are counted than the run saw, never fewer, so only an overclaim fails. None when this
+    venue cannot check it.
+    """
+    ev = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
+    metric, count = ev.get("metric") or [], ev.get("count")
+    if not (isinstance(count, int) and metric and isinstance(metric[0], str)):
+        return None
+    if metric[0] == "audit":
+        if as_of.date() != now.date() or len(metric) < 2 or metric[1] not in r.metrics:
+            return None
+        value = metric_value({"audit": r.metrics}, metric)
+        if value != count:
+            r.find(f"{path.name} {f.get('id')}: evidence {metric} records {count} but the audit "
+                   f"reads {value} today: a finding's count must re-derive from the data it names")
+            return False
+        return True
+    window = report.get("window") if isinstance(report.get("window"), dict) else {}
+    since = _day(window.get("from"))
+    traces = traces_since(since) if since else None
+    if not traces or not traces["scope"]["assistant_messages"]:
+        return None
+    value = metric_value(traces, metric)
+    if value is None or count > value:
+        r.find(f"{path.name} {f.get('id')}: evidence {metric} records {count} but the traces "
+               f"since {since.date()} hold {value}: a finding may not claim more than its data "
+               f"shows")
+        return False
+    return True
+
+
 def audit_predictions(root: Path, r: Report, tdir, now, known) -> list:
+    """Score FIXED findings' predictions and re-derive OPEN findings' evidence counts.
+
+    A metric under ["audit", ...] reads this run's static audit counts (r.metrics, so
+    audit_budget and audit_drift run first); every other root reads the traces.
+    """
     folder = root / "data" / "harness"
     reports = sorted(folder.glob("20*-W*.json")) if folder.is_dir() else []
-    verdicts, scored, held, pending = [], 0, 0, 0
+    mined = {}
+
+    def traces_since(day):
+        if day not in mined:
+            mined[day] = mine(tdir, since=day, known_agents=known, now=now)
+        return mined[day]
+
+    verdicts, scored, held, pending, rederived, overclaimed = [], 0, 0, 0, 0, 0
     for path in reports:
-        for f in (load_json(path, {}) or {}).get("findings") or []:
-            if not isinstance(f, dict) or f.get("status") != "FIXED":
+        report = load_json(path, {}) or {}
+        as_of = _day(report.get("as_of"))
+        for f in report.get("findings") or []:
+            if not isinstance(f, dict):
+                continue
+            if (f.get("status") == "OPEN" and as_of
+                    and (now - as_of).days <= EVIDENCE_WINDOW_DAYS):
+                ok = _rederive_evidence(path, f, report, as_of, r, now, traces_since)
+                rederived += ok is not None
+                overclaimed += ok is False
+            if f.get("status") != "FIXED":
                 continue
             pred = f.get("prediction") or {}
+            metric = pred.get("metric") or []
+            fixed = _day(f.get("fixed_on"))
             try:
-                fixed = datetime.datetime.fromisoformat(str(f.get("fixed_on"))[:10]).replace(tzinfo=UTC)
                 due = fixed + datetime.timedelta(days=int(pred.get("window_days")))
             except (ValueError, TypeError):
                 r.find(f"{path.name} {f.get('id')}: FIXED without a readable fixed_on and "
                        f"window_days, so its prediction can never be scored")
                 continue
-            traces = mine(tdir, since=fixed, known_agents=known, now=now) if now >= due else None
-            if traces is None or not traces["scope"]["assistant_messages"]:
+            if metric[:1] == ["audit"]:
+                if len(metric) < 2 or metric[1] not in r.metrics:
+                    r.find(f"{path.name} {f.get('id')}: prediction {metric} names no audit "
+                           f"section this run computed, so it cannot be scored")
+                    continue
+                source = {"audit": r.metrics}
+            else:
+                source = traces_since(fixed) if now >= due else None
+                if source is not None and not source["scope"]["assistant_messages"]:
+                    source = None
+            if now < due or source is None:
                 pending += 1
                 verdicts.append({"finding": f.get("id"), "verdict": "PENDING"})
                 continue
-            value, op = metric_value(traces, pred.get("metric") or []), OPS.get(pred.get("op"))
+            value, op = metric_value(source, metric), OPS.get(pred.get("op"))
             if value is None or op is None or not isinstance(pred.get("value"), (int, float)):
                 r.find(f"{path.name} {f.get('id')}: prediction is not scoreable "
                        f"(metric {pred.get('metric')}, op {pred.get('op')})")
@@ -364,7 +453,8 @@ def audit_predictions(root: Path, r: Report, tdir, now, known) -> list:
                        f"{pred['metric']} {pred['op']} {pred['value']}, observed {value} since "
                        f"{fixed.date()}. DID_NOT_HOLD: revert or re-diagnose")
     r.say(f"predictions: {scored} scored ({held} held), {pending} pending, across "
-          f"{len(reports)} report(s)")
+          f"{len(reports)} report(s); evidence: {rederived} open finding count(s) re-derived, "
+          f"{overclaimed} did not")
     return verdicts
 
 
@@ -403,6 +493,10 @@ def _finding_errors(f, ctx: str, stem: str) -> list:
     else:
         if any(not isinstance(x, str) or not REF_RE.match(x) for x in ev["refs"]):
             errs.append(f"{ctx}.evidence refs must be <session-uuid>:<entry-uuid>")
+        if not (ev["metric"] and all(isinstance(k, str) for k in ev["metric"])
+                and ev["metric"][0] in METRIC_ROOTS):
+            errs.append(f"{ctx}.evidence metric must start with one of {sorted(METRIC_ROOTS)}, "
+                        f"so its count can be re-derived")
         if any(len(s) > 300 or "\n" in s for s in _strings(ev)):
             errs.append(f"{ctx}.evidence carries text: evidence is metrics and refs, never a transcript")
     pred = f["prediction"]
@@ -504,7 +598,8 @@ def main() -> int:
     if a.json:
         print(json.dumps({"as_of": now.date().isoformat(), "examined": r.lines,
                           "findings": r.findings, "traces_scope_empty": r.empty,
-                          "sizes": sizes, "predictions": verdicts, "traces": traces},
+                          "sizes": sizes, "predictions": verdicts, "traces": traces,
+                          "audit_metrics": r.metrics},
                          indent=2, sort_keys=True))
         return 1 if (a.strict and r.findings) else 0
 
