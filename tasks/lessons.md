@@ -103,3 +103,23 @@ it enforceable.
 - **The rule: when a stage reports BLOCKED, the first question is what on disk it was refused for, not what to request.** A blocker that names a path is checked by opening the path under the rule the writer uses (`tools/market_paths.py`, one definition, tested against `fetch.safe_name`). A blocker that names a gate is checked against whether the gate predates the data it refuses. Only then is a request row the answer.
 - Enforced, not just recorded: `check_profile.py` fails a NULL basis that claims a market file is missing when the dashed file exists (from 2026-09-02; 62 committed profiles are named as WARN until re-profiled); the vendor block is admitted into T2/T3 canonical metrics with the O1 cross-check kept; `fetch.py` reads `ifrs-full` and falls through on an empty companyfacts, with `sec_attempted` recorded; screens consume one VERIFIED placement on an ACTIVE mapping (`audit_scope: "PLACEMENT"`) and the fresh-context audit moves to `placement_audits[]` on the placement being dived.
 - The second half of the question, "where should I invest", had a structural answer: nothing on the page or in the digest listed names with verdicts. The page now opens on a board (verdicts, O1 queue, O2 by link heat, blocked-and-on-what), and the digest validator requires a `verdicts` section from ISO week 2026-37. A campaign scoped for 200 profiles was replaced by DEPTH mode (method §6A): 10 to 20 verdicts is done.
+
+## A pinned-hash exemption is dead the moment the file moves, and nothing said so (2026-09-11)
+
+`check_analyst.STOCKY_LEGACY_BASELINE` exempted one dive by exact path plus exact sha256.
+Someone did exactly what the WARN asked and amended that dive onto the campaign schema, so
+its hash moved, the exemption stopped applying, and the entry became configuration that
+exempted nothing while still reading as though it did. Nothing failed at the moment the
+config went dead. It surfaced days later as four red tests whose messages pointed at a
+missing Vertiv profile, which sent the first diagnosis at the wrong target entirely.
+
+The rule: **a pinned-content allowlist needs a test that its pins still match.** Not that the
+exempted thing is valid, that is the gate's job, but that the entry is still live. An
+allowlist entry that matches nothing is indistinguishable from one that matches something,
+and it will be read as load-bearing by the next person.
+
+Second failure of the same shape as `fetch.QUALITY_FIELDS` / `acis.quality` (2026-08-29) and
+`eval_indicators` (2026-09-08): a constant in one file describing state in another, with no
+check that the description is still true. Promoted to a test rather than a memory:
+`TestLegacyBaselineIsNotStale`, verified to refuse both the real historical bug and a
+missing-file entry.
