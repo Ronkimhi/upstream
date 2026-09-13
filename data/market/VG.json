@@ -1,6 +1,6 @@
 {
  "ticker": "VG",
- "fetched_at": "2026-08-31T20:59:56.707148+00:00",
+ "fetched_at": "2026-09-13T14:42:55.933608+00:00",
  "tier": "T1",
  "cik": 2007855,
  "price_status": "AGREED",
@@ -1652,7 +1652,9 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 2007855,
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-13",
+  "taxonomy": "us-gaap",
+  "statement_currency": "USD",
   "revenue_fy": [
    [
     "2023-12-31",
@@ -1701,11 +1703,24 @@
     4578000000
    ]
   ],
-  "net_income_fy": [],
+  "net_income_fy": [
+   [
+    "2023-12-31",
+    3616000000
+   ],
+   [
+    "2024-12-31",
+    1746000000
+   ],
+   [
+    "2025-12-31",
+    2733000000
+   ]
+  ],
   "cash": [
    [
     "2026-06-30",
-    3120000000
+    4590000000
    ]
   ],
   "total_debt": [
@@ -1726,6 +1741,20 @@
    [
     "2025-12-31",
     5156000000
+   ]
+  ],
+  "cost_of_revenue_fy": [
+   [
+    "2023-12-31",
+    1684000000
+   ],
+   [
+    "2024-12-31",
+    1351000000
+   ],
+   [
+    "2025-12-31",
+    5920000000
    ]
   ],
   "operating_cashflow_fy": [
@@ -1837,11 +1866,11 @@
   "equity_fy": [
    [
     "2024-12-31",
-    2897000000
+    6367000000
    ],
    [
     "2025-12-31",
-    6743000000
+    10300000000
    ]
   ],
   "receivables_fy": [
@@ -1881,36 +1910,67 @@
   "long_term_debt_fy": [
    [
     "2024-12-31",
-    29086000000
+    29551000000
    ],
    [
     "2025-12-31",
-    33393000000
+    34812000000
    ]
   ],
+  "merged_concepts": {
+   "equity": [
+    "StockholdersEquity",
+    "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"
+   ],
+   "long_term_debt": [
+    "LongTermDebtNoncurrent",
+    "LongTermDebt",
+    "DebtInstrumentCarryingAmount"
+   ]
+  },
+  "concept_hints": {
+   "gross_profit": [
+    "DerivativeAssetFairValueGrossLiability (2025-12-31)",
+    "DerivativeLiabilityFairValueGrossAsset (2025-12-31)",
+    "DeferredTaxAssetsGross (2025-12-31)",
+    "ShareBasedCompensationArrangementByShareBasedPaymentAwardOptionsGrantsInPeriodGross (2025-12-31)"
+   ],
+   "ppe_net": [
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAccumulatedDepreciationAndAmortization (2025-12-31)",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization (2025-12-31)",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetBeforeAccumulatedDepreciationAndAmortization (2025-12-31)",
+    "DeferredTaxLiabilitiesPropertyPlantAndEquipment (2025-12-31)",
+    "PaymentsToAcquirePropertyPlantAndEquipment (2025-12-31)"
+   ]
+  },
   "coverage": {
-   "annual_fields_found": 16,
+   "annual_fields_found": 18,
    "annual_fields_attempted": 20,
    "missing": [
-    "net_income",
     "gross_profit",
-    "cost_of_revenue",
     "ppe_net"
    ]
   }
  },
  "quality": {
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-13",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-08-31",
+  "fundamentals_as_of": "2026-09-13",
   "piotroski": {
-   "score": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "net_income_fy",
-    "cost_of_revenue_fy"
-   ],
-   "inputs_found": 7,
+   "score": 3,
+   "state": "WEAK",
+   "criteria": {
+    "roa": true,
+    "cfo": true,
+    "d_roa": false,
+    "accruals": true,
+    "d_leverage": false,
+    "d_current": false,
+    "shares": false,
+    "gross_margin": false,
+    "asset_turnover": false
+   },
+   "inputs_found": 9,
    "inputs_needed": 9,
    "proxies": {
     "shares": "share-count increase clipped at zero; companyfacts lacks reliable issuance proceeds"
@@ -1920,11 +1980,9 @@
    "score": null,
    "state": "PENDING_DATA",
    "missing": [
-    "cost_of_revenue_fy",
-    "ppe_net_fy",
-    "net_income_fy"
+    "ppe_net_fy"
    ],
-   "inputs_found": 9,
+   "inputs_found": 11,
    "inputs_needed": 12
   },
   "altman": {
@@ -1948,10 +2006,10 @@
   "derived": {
    "fcf": -6799000000.0,
    "market_cap": 37364300000.0,
-   "enterprise_value": 75771300000.0
+   "enterprise_value": 74301300000.0
   },
   "health": {
-   "statement_fields_found": 16,
+   "statement_fields_found": 18,
    "statement_fields_needed": 20,
    "periods_available": [
     "2023-12-31",

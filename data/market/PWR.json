@@ -1,6 +1,6 @@
 {
  "ticker": "PWR",
- "fetched_at": "2026-09-02T00:12:38.980312+00:00",
+ "fetched_at": "2026-09-13T14:42:55.933608+00:00",
  "tier": "T1",
  "cik": 1050915,
  "price_status": "AGREED",
@@ -2252,7 +2252,9 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 1050915,
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-13",
+  "taxonomy": "us-gaap",
+  "statement_currency": "USD",
   "revenue_fy": [
    [
     "2018-12-31",
@@ -2363,8 +2365,8 @@
   ],
   "total_debt": [
    [
-    "2019-09-30",
-    1810480000
+    "2026-06-30",
+    5421862000
    ]
   ],
   "operating_income_fy": [
@@ -2877,40 +2879,6 @@
     370372000
    ]
   ],
-  "ppe_net_fy": [
-   [
-    "2011-12-31",
-    938902000
-   ],
-   [
-    "2012-12-31",
-    1045983000
-   ],
-   [
-    "2013-12-31",
-    1205608000
-   ],
-   [
-    "2014-12-31",
-    1099574000
-   ],
-   [
-    "2015-12-31",
-    1101959000
-   ],
-   [
-    "2016-12-31",
-    1174094000
-   ],
-   [
-    "2017-12-31",
-    1288602000
-   ],
-   [
-    "2018-12-31",
-    1276032000
-   ]
-  ],
   "shares_fy": [
    [
     "2015-12-31",
@@ -2947,49 +2915,85 @@
   ],
   "long_term_debt_fy": [
    [
-    "2013-12-31",
-    1053000
-   ],
-   [
-    "2014-12-31",
-    72489000
-   ],
-   [
-    "2015-12-31",
-    475364000
-   ],
-   [
-    "2016-12-31",
-    353562000
-   ],
-   [
-    "2017-12-31",
-    670721000
-   ],
-   [
     "2018-12-31",
     1040532000
+   ],
+   [
+    "2019-12-31",
+    1292195000
+   ],
+   [
+    "2020-12-31",
+    1174294000
+   ],
+   [
+    "2021-12-31",
+    3724474000
+   ],
+   [
+    "2022-12-31",
+    3692432000
+   ],
+   [
+    "2023-12-31",
+    3663504000
+   ],
+   [
+    "2024-12-31",
+    4099756000
+   ],
+   [
+    "2025-12-31",
+    5231008000
    ]
   ],
+  "stale_dropped": {
+   "ppe_net": "2018-12-31"
+  },
+  "concept_hints": {
+   "ppe_net": [
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAccumulatedDepreciationAndAmortization (2025-12-31)",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization (2025-12-31)",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetBeforeAccumulatedDepreciationAndAmortization (2025-12-31)",
+    "DeferredTaxLiabilitiesPropertyPlantAndEquipment (2025-12-31)",
+    "PaymentsToAcquirePropertyPlantAndEquipment (2025-12-31)",
+    "GainLossOnSaleOfPropertyPlantEquipment (2022-12-31)",
+    "ProceedsFromSaleOfPropertyPlantAndEquipment (2022-12-31)",
+    "AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment (2020-12-31)",
+    "PropertyPlantAndEquipmentGross (2018-12-31)",
+    "PropertyPlantAndEquipmentNet (2018-12-31)",
+    "DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentCurrent (2018-12-31)",
+    "DisposalGroupIncludingDiscontinuedOperationPropertyPlantAndEquipmentNoncurrent (2014-12-31)"
+   ]
+  },
   "coverage": {
-   "annual_fields_found": 20,
+   "annual_fields_found": 19,
    "annual_fields_attempted": 20,
-   "missing": []
+   "missing": [
+    "ppe_net"
+   ]
   }
  },
  "quality": {
-  "as_of": "2026-08-31",
+  "as_of": "2026-09-13",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-08-31",
+  "fundamentals_as_of": "2026-09-13",
   "piotroski": {
-   "score": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "only 0 common fiscal period(s) across the 9 inputs; the change legs need at least 2"
-   ],
+   "score": 4,
+   "state": "MIDDLING",
+   "criteria": {
+    "roa": true,
+    "cfo": true,
+    "d_roa": false,
+    "accruals": true,
+    "d_leverage": false,
+    "d_current": false,
+    "shares": false,
+    "gross_margin": true,
+    "asset_turnover": false
+   },
    "inputs_found": 9,
    "inputs_needed": 9,
-   "common_periods": [],
    "proxies": {
     "shares": "share-count increase clipped at zero; companyfacts lacks reliable issuance proceeds"
    }
@@ -2998,13 +3002,10 @@
    "score": null,
    "state": "PENDING_DATA",
    "missing": [
-    "only 1 common fiscal period(s) across the 12 inputs; every Beneish index is a year-over-year ratio"
+    "ppe_net_fy"
    ],
-   "inputs_found": 12,
-   "inputs_needed": 12,
-   "common_periods": [
-    "2018-12-31"
-   ]
+   "inputs_found": 11,
+   "inputs_needed": 12
   },
   "altman": {
    "score": 5.19,
@@ -3013,16 +3014,16 @@
    "inputs_needed": 8
   },
   "reverse_dcf": {
-   "implied_fcf_cagr": 0.3527,
+   "implied_fcf_cagr": 0.3638,
    "state": "SOLVED",
    "base_fcf": 1620816000.0,
-   "enterprise_value": 91454446822.8,
+   "enterprise_value": 95065828822.8,
    "implied_by_horizon": {
-    "5": 0.3527,
-    "7": 0.2597,
-    "10": 0.1943
+    "5": 0.3638,
+    "7": 0.2673,
+    "10": 0.1995
    },
-   "horizon_spread": 0.1584,
+   "horizon_spread": 0.1643,
    "horizon_note": "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon shows the same solve over other explicit-period lengths; where the spread is wide, a gap against the headline number is a statement about the horizon convention as much as about the price, and a dive must say which it means.",
    "assumptions": {
     "discount_rate": 0.09,
@@ -3035,16 +3036,12 @@
   "derived": {
    "fcf": 1620816000.0,
    "market_cap": 90150397822.8,
-   "enterprise_value": 91454446822.8
+   "enterprise_value": 95065828822.8
   },
   "health": {
-   "statement_fields_found": 20,
+   "statement_fields_found": 19,
    "statement_fields_needed": 20,
    "periods_available": [
-    "2011-12-31",
-    "2012-12-31",
-    "2013-12-31",
-    "2014-12-31",
     "2015-12-31",
     "2016-12-31",
     "2017-12-31",

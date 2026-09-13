@@ -1,6 +1,6 @@
 {
  "ticker": "NVO",
- "fetched_at": "2026-09-04T16:56:38.243157+00:00",
+ "fetched_at": "2026-09-13T14:42:55.933608+00:00",
  "tier": "T1",
  "cik": 353278,
  "price_status": "SINGLE_SOURCE",
@@ -2264,7 +2264,7 @@
  "fundamentals": {
   "source": "sec-companyfacts",
   "cik": 353278,
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-13",
   "taxonomy": "ifrs-full",
   "statement_currency": "DKK",
   "revenue_fy": [
@@ -2328,8 +2328,18 @@
     102434000000
    ]
   ],
-  "cash": null,
-  "total_debt": null,
+  "cash": [
+   [
+    "2025-12-31",
+    26464000000
+   ]
+  ],
+  "total_debt": [
+   [
+    "2025-12-31",
+    130958000000
+   ]
+  ],
   "operating_income_fy": [
    [
     "2019-12-31",
@@ -2482,20 +2492,32 @@
   ],
   "depreciation_fy": [
    [
+    "2019-12-31",
+    5661000000
+   ],
+   [
+    "2020-12-31",
+    5753000000
+   ],
+   [
+    "2021-12-31",
+    6025000000
+   ],
+   [
     "2022-12-31",
-    6553000000
+    7362000000
    ],
    [
     "2023-12-31",
-    7289000000
+    9413000000
    ],
    [
     "2024-12-31",
-    8545000000
+    19107000000
    ],
    [
     "2025-12-31",
-    14666000000
+    21982000000
    ]
   ],
   "sga_fy": [
@@ -2744,24 +2766,6 @@
     49623000000
    ]
   ],
-  "ppe_net_fy": [
-   [
-    "2020-12-31",
-    50269000000
-   ],
-   [
-    "2021-12-31",
-    55362000000
-   ],
-   [
-    "2022-12-31",
-    66671000000
-   ],
-   [
-    "2023-12-31",
-    90961000000
-   ]
-  ],
   "shares_fy": [
    [
     "2019-12-31",
@@ -2822,16 +2826,32 @@
     130958000000
    ]
   ],
+  "stale_dropped": {
+   "ppe_net": "2023-12-31"
+  },
+  "concept_hints": {
+   "ppe_net": [
+    "PropertyPlantAndEquipmentIncludingRightofuseAssets (2025-12-31)",
+    "DepreciationPropertyPlantAndEquipmentIncludingRightofuseAssets (2025-12-31)",
+    "ImpairmentLossRecognisedInProfitOrLossPropertyPlantAndEquipmentIncludingRightofuseAssets (2025-12-31)",
+    "PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities (2025-12-31)",
+    "PropertyPlantAndEquipmentRecognisedAsOfAcquisitionDate (2024-12-31)",
+    "PropertyPlantAndEquipment (2023-12-31)",
+    "ProceedsFromSalesOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities (2022-12-31)"
+   ]
+  },
   "coverage": {
-   "annual_fields_found": 20,
+   "annual_fields_found": 19,
    "annual_fields_attempted": 20,
-   "missing": []
+   "missing": [
+    "ppe_net"
+   ]
   }
  },
  "quality": {
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-13",
   "source": "sec-companyfacts",
-  "fundamentals_as_of": "2026-09-04",
+  "fundamentals_as_of": "2026-09-13",
   "piotroski": {
    "score": 5,
    "state": "MIDDLING",
@@ -2853,10 +2873,12 @@
    }
   },
   "beneish": {
-   "score": -2.571,
-   "threshold": -1.78,
-   "state": "CLEAN",
-   "inputs_found": 12,
+   "score": null,
+   "state": "PENDING_DATA",
+   "missing": [
+    "ppe_net_fy"
+   ],
+   "inputs_found": 11,
    "inputs_needed": 12
   },
   "altman": {
@@ -2866,11 +2888,17 @@
    "inputs_needed": 8
   },
   "reverse_dcf": {
-   "implied_fcf_cagr": null,
-   "state": "PENDING_DATA",
-   "missing": [
-    "enterprise_value"
-   ],
+   "implied_fcf_cagr": -0.2089,
+   "state": "SOLVED",
+   "base_fcf": 58962000000.0,
+   "enterprise_value": 311895480000.0,
+   "implied_by_horizon": {
+    "5": -0.2089,
+    "7": -0.1624,
+    "10": -0.1273
+   },
+   "horizon_spread": 0.0816,
+   "horizon_note": "implied_fcf_cagr is the solve at the default horizon only. implied_by_horizon shows the same solve over other explicit-period lengths; where the spread is wide, a gap against the headline number is a statement about the horizon convention as much as about the price, and a dive must say which it means.",
    "assumptions": {
     "discount_rate": 0.09,
     "terminal_growth": 0.025,
@@ -2882,10 +2910,10 @@
   "derived": {
    "fcf": 58962000000.0,
    "market_cap": 207401480000.0,
-   "enterprise_value": null
+   "enterprise_value": 311895480000.0
   },
   "health": {
-   "statement_fields_found": 20,
+   "statement_fields_found": 19,
    "statement_fields_needed": 20,
    "periods_available": [
     "2018-12-31",
