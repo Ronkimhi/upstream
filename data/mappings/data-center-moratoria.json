@@ -1022,6 +1022,48 @@
    "kind": "AMEND",
    "change": "refresh data/mappings/data-center-moratoria.json: run deepdive WSP.TO data-center-moratoria was refused by tools/check_analyst.py even though the identity chain otherwise resolved exactly (issuer_id, listing_id, chain_id, link_id, screen_ref, O1 profile, all 7 selection_basis dimensions, mapping placement and screen row), because the TSX-WSP listing carried canonical ticker 'WSP' with no market_ticker field while the only market data ever fetched for this issuer lives at data/market/WSP-TO.json (its own internal ticker field reads 'WSP.TO'); tools/market_paths.market_path() needs the exact vendor-suffixed form to find that file, and check_analyst.py resolves a dive's price series from the dive's own ticker value directly. Added market_ticker: 'WSP.TO' to the TSX-WSP listing: the field this repo's own convention (data/mappings/ai-infrastructure.json, humanoid-actuators.json, glp1-fill-finish.json, h5n1-panzootic.json, prediction-market-plumbing.json, hormuz-maritime.json, munitions-replenishment.json, russian-diesel-ban.json and offshore-counter-drone.json all carry, e.g. NSE-LT ticker 'LT' plus market_ticker 'LT.NS') uses to hold the fetcher-facing vendor ticker beside the officially evidenced canonical one. The value matches data/companies/WSP-GLOBAL.json listings[0].market_ticker exactly, which already carried 'WSP.TO' for this same listing_id (mapping_ref: this file) without the mapping, the actual source of truth, ever recording it. Canonical ticker 'WSP' is left untouched, because the listing's own identity_evidence (WSP Global Inc.'s 2025 Annual Information Form) states verbatim that 'the Shares were listed for trading on the TSX under the symbol \"WSP\"', with no '.TO' anywhere in that filing: rewriting ticker itself to the vendor-suffixed form (the convention data/mappings/tibet-mega-dam.json's TSX:LUN, TSX:FM and TSX:MDA listings use instead, folding the suffix into ticker with no separate market_ticker field) would contradict this listing's own cited primary source rather than extend it, and no identity_evidence exists anywhere establishing a TSX symbol 'WSP.TO' because no official source uses that notation; market_ticker is added uncited, consistent with the ai-infrastructure.json precedent, since it names a mechanical vendor-plane label rather than a separate identity claim. This touches only listings[]; placements[] is unchanged, so the current PASS placement_audits[] entry for WSP-GLOBAL (2026-09-06T15:47:33Z) stays current: check_map.py's placement_claim_digest binds only chain_id/link_id/issuer_id/role/evidence from placements[], never listings[] or market_ticker, confirmed by check_map.py passing clean after this edit with no digest mismatch reported. This edit alone does not admit the dive: tools/check_analyst.py's stock_admission_failures() and would-buy price lookup still resolve market data from the dive's own ticker field via market_paths.market_path() directly and do not yet consult a mapping listing's or screen row's market_ticker, and the WSP-GLOBAL row in data/screens/data-center-moratoria.json still carries market_ticker: 'WSP' (Sieve's file, not amended here). Flagged by the refused dive as background task task_2b80cfea; the remaining gap sits in tools/check_analyst.py and data/screens/, outside data/mappings/ ownership.",
    "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:19:21Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit data-center-moratoria --placement DIGITAL-REALTY (fresh context, batch run c2-paudits-data-center-moratoria): sampled evidence[1], Digital Realty's own FY2025 Form 10-K (SEC EDGAR, filed 2026-02-13), and re-fetched it live, confirming verbatim 'we estimate that our land and other space held for, or actively under, construction could accommodate over 3,500 megawatts of additional data center capacity, including more than 1,000 additional megawatts developable in Northern Virginia.' -- directly supporting the entitled-powered-land role (banked, entitled capacity held ahead of executed demand). Verified listing identity live against SEC EDGAR company-submissions (CIK0001297996): legal name 'DIGITAL REALTY TRUST, INC.', ticker DLR, exchange NYSE, matching the listing exactly. identity_ok, role_ok, and source_date_ok all true; status PASS. Mapping status and the placement itself are left untouched.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:19:21Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit data-center-moratoria --placement EQUINIX (fresh context, batch run c2-paudits-data-center-moratoria, entitled-powered-land link): sampled evidence[1], Equinix's own February 11, 2026 earnings release (newsroom.equinix.com), and re-fetched it live, confirming verbatim 'Also closed on a number of strategic land acquisitions in 2025, adding approximately 1 GW to Equinix's powered land-under-control balance.' -- directly supporting the entitled-powered-land role. Verified listing identity live against SEC EDGAR company-submissions (CIK0001101239): legal name 'EQUINIX INC', ticker EQIX, exchange NASDAQ, matching the listing exactly. identity_ok, role_ok, and source_date_ok all true; status PASS. Mapping status and the placement itself are left untouched.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:19:21Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit data-center-moratoria --placement AMERICAN-ELECTRIC-POWER (fresh context, batch run c2-paudits-data-center-moratoria): sampled evidence[0], the Columbia Climate Law Blog item, and re-fetched it live, confirming verbatim 'in 2025, Ohio's PUC approved a proposed tariff filed by the utility AEP Ohio, targeting new, large data centers.' The same page describes the tariff's terms: a 25 MW+ qualifying threshold, an approximately 85%-of-contracted-demand minimum payment obligation, and a twelve-year minimum initial contract term, matching the link's own bottleneck note on this exact tariff almost exactly and strongly supporting the utility-ratemaking-and-large-load-tariffs role. Verified listing identity live against the placement's own cited SEC EDGAR 8-K cover page (aep-20260720.htm): 'Common Stock, $6.50 par value | AEP | The NASDAQ Stock Market LLC', matching the listing exactly. identity_ok, role_ok, and source_date_ok all true; status PASS. Mapping status and the placement itself are left untouched.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:19:21Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit data-center-moratoria --placement XYLEM (fresh context, batch run c2-paudits-data-center-moratoria): sampled evidence[0], the Insider Monkey listicle, and re-fetched it live, confirming the cited text is present verbatim but describes Xylem as a water TECHNOLOGY and equipment company (treatment, pumping, analytics, metering, wastewater, reuse), matching Xylem's own SEC SIC classification 'Pumps & Pumping Equipment' (reconfirmed live via SEC EDGAR company-submissions, CIK0001524472, which also reconfirms legal name 'Xylem Inc.', ticker XYL, exchange NYSE, matching the listing exactly). Neither the sampled evidence nor Xylem's own SIC classification supports the water-permitting-and-hydrology link's actual role (withdrawal-rights permitting, hydrological studies, and community water-impact assessments): being named on a retail-investor thematic stock list is not evidence the issuer performs permitting or hydrological-study work. identity_ok and source_date_ok true, role_ok false; status FAIL, defect recorded in placement_audits[]. Mapping status and the placement itself are left untouched for a later run universe to correct or reassign.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:19:21Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit data-center-moratoria --placement SOUTHERN-CO (fresh context, batch run c2-paudits-data-center-moratoria): sampled evidence[0], the Utility Dive item, and re-fetched it live, confirming the cited growth statistics (42% year-over-year data center power growth, 28 large-load projects, 11 GW under contract) verbatim but finding no text anywhere in the article connecting this growth to data centers relocating away from, or capital being redirected from, states or counties with moratoria or organized opposition -- the specific causal mechanism the us-secondary-market-shift link and this placement's own role text assert. Verified listing identity live against SEC EDGAR company-submissions (CIK0000092122): legal name 'SOUTHERN CO', ticker SO, exchange NYSE, matching the listing exactly. identity_ok and source_date_ok true, role_ok false; status FAIL, defect recorded in placement_audits[]. Mapping status and the placement itself are left untouched for a later run universe to correct or reassign.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-13T15:19:21Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit data-center-moratoria --placement EQUINIX (fresh context, batch run c2-paudits-data-center-moratoria, offshore-and-periphery-capacity link): sampled evidence[0], the Futurum Group item, and re-fetched the cited URL live twice; the specific quoted claim ('Equinix operates 280 data centers in 77 global markets as of February 2026', with expansion in Germany, the Netherlands, Portugal, and a $115M Japan investment) could not be located anywhere in the live article on either fetch, while a different quote from the same URL, sampled separately on this mapping's entitled-powered-land/EQUINIX placement ('top 25 global metros'), was confirmed present -- ruling out a wholesale fetch failure and leaving the sampled excerpt itself unverifiable. Listing identity is unaffected (same EQUINIX/NASDAQ-EQIX identity independently reverified this run via live SEC EDGAR company-submissions, CIK0001101239, for the entitled-powered-land placement above). identity_ok and source_date_ok true, role_ok false; status FAIL, defect recorded in placement_audits[]. Mapping status and the placement itself are left untouched for a later run universe to correct or reassign.",
+   "prior": null
   }
  ],
  "placement_audits": [
@@ -1140,6 +1182,126 @@
    "role_ok": true,
    "source_date_ok": true,
    "defects": []
+  },
+  {
+   "chain_id": "data-center-moratoria",
+   "link_id": "entitled-powered-land",
+   "issuer_id": "DIGITAL-REALTY",
+   "audited_at": "2026-09-13T15:19:21Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "batch:c2-paudits-data-center-moratoria/data-center-moratoria/entitled-powered-land/DIGITAL-REALTY/2026-09-13",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Fresh detached worktree of origin/main (batch run c2-paudits-data-center-moratoria) with no access to the authoring session's transcript, map log, profiles, or ledger rationale; repository state cannot cryptographically prove reviewer independence, only declared provenance.",
+   "status": "PASS",
+   "evidence_index": 1,
+   "source_excerpt": "as of December 31, 2025, we estimate that our land and other space held for, or actively under, construction could accommodate over 3,500 megawatts of additional data center capacity, including more than 1,000 additional megawatts developable in Northern Virginia.",
+   "record_digest": "e2010dd39f287eb53133f994801f93a69682afdc86434b30902f31272e8bb918",
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "defects": []
+  },
+  {
+   "chain_id": "data-center-moratoria",
+   "link_id": "entitled-powered-land",
+   "issuer_id": "EQUINIX",
+   "audited_at": "2026-09-13T15:19:21Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "batch:c2-paudits-data-center-moratoria/data-center-moratoria/entitled-powered-land/EQUINIX/2026-09-13",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Fresh detached worktree of origin/main (batch run c2-paudits-data-center-moratoria) with no access to the authoring session's transcript, map log, profiles, or ledger rationale; repository state cannot cryptographically prove reviewer independence, only declared provenance.",
+   "status": "PASS",
+   "evidence_index": 1,
+   "source_excerpt": "Also closed on a number of strategic land acquisitions in 2025, adding approximately 1 GW to Equinix's powered land-under-control balance.",
+   "record_digest": "48d1c0bb409b50dca32c7f700708d9a566e6f9d41fc3d24487acb9ab43201307",
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "defects": []
+  },
+  {
+   "chain_id": "data-center-moratoria",
+   "link_id": "utility-ratemaking-and-large-load-tariffs",
+   "issuer_id": "AMERICAN-ELECTRIC-POWER",
+   "audited_at": "2026-09-13T15:19:21Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "batch:c2-paudits-data-center-moratoria/data-center-moratoria/utility-ratemaking-and-large-load-tariffs/AMERICAN-ELECTRIC-POWER/2026-09-13",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Fresh detached worktree of origin/main (batch run c2-paudits-data-center-moratoria) with no access to the authoring session's transcript, map log, profiles, or ledger rationale; repository state cannot cryptographically prove reviewer independence, only declared provenance.",
+   "status": "PASS",
+   "evidence_index": 0,
+   "source_excerpt": "in 2025, Ohio's PUC approved a proposed tariff filed by the utility AEP Ohio, targeting new, large data centers.",
+   "record_digest": "78c46cd82560ef221f8acc0e5a286d0f1cce6d5619e6c5192618d0773d60c0a9",
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "defects": []
+  },
+  {
+   "chain_id": "data-center-moratoria",
+   "link_id": "water-permitting-and-hydrology",
+   "issuer_id": "XYLEM",
+   "audited_at": "2026-09-13T15:19:21Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "batch:c2-paudits-data-center-moratoria/data-center-moratoria/water-permitting-and-hydrology/XYLEM/2026-09-13",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Fresh detached worktree of origin/main (batch run c2-paudits-data-center-moratoria) with no access to the authoring session's transcript, map log, profiles, or ledger rationale; repository state cannot cryptographically prove reviewer independence, only declared provenance. This session's WebSearch budget was exhausted mid-batch, so this placement's role determination rests on the cited source (re-fetched live) plus independently re-verified issuer identity/classification, rather than a broader corroborating search; a speculative fetch of a guessed issuer URL did not surface additional primary evidence either way.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "source_excerpt": "Xylem Inc. provides water technology, treatment, pumping, analytics, metering, wastewater, reuse, and digital infrastructure solutions for utilities, commercial customers, industrial facilities, and communities worldwide.",
+   "record_digest": "e91a314be40c74d7ae445b6923ddb547aee8a1a1c00b6835aa7cb0e58e08cf9a",
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "defects": [
+    "role_mismatch: the placement's sole cited evidence, re-fetched live and confirmed present verbatim, describes Xylem as a water TECHNOLOGY and equipment company (treatment, pumping, analytics, metering, wastewater, reuse) -- matching Xylem's own SEC SIC classification 'Pumps & Pumping Equipment', independently reconfirmed live via SEC EDGAR company-submissions (CIK0001524472, 2026-09-13). Neither source describes Xylem performing water-rights permitting, hydrological studies, or community water-impact assessments, which is specifically what the water-permitting-and-hydrology link is defined around ('withdrawal rights, hydrological studies and community water impact assessments'). Being named on a retail-investor thematic stock list ('10 Best Water Infrastructure Stocks to Buy as AI Data Centers Strain Resources') evidences thematic adjacency to the water-stress narrative, not that the issuer performs the permitting/study role itself."
+   ]
+  },
+  {
+   "chain_id": "data-center-moratoria",
+   "link_id": "us-secondary-market-shift",
+   "issuer_id": "SOUTHERN-CO",
+   "audited_at": "2026-09-13T15:19:21Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "batch:c2-paudits-data-center-moratoria/data-center-moratoria/us-secondary-market-shift/SOUTHERN-CO/2026-09-13",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Fresh detached worktree of origin/main (batch run c2-paudits-data-center-moratoria) with no access to the authoring session's transcript, map log, profiles, or ledger rationale; repository state cannot cryptographically prove reviewer independence, only declared provenance. This session's WebSearch budget was exhausted mid-batch, so this placement's role determination rests on the cited source (re-fetched live) plus independently re-verified issuer identity/classification, rather than a broader corroborating search; a speculative fetch of a guessed issuer URL did not surface additional primary evidence either way.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "source_excerpt": "data centers used 42% more power compared to the first quarter of 2025. The company has 28 large load projects representing 11 GW under contract. The commercial class grew 4.5% in the first quarter when adjusted for weather, bolstered by ongoing growth in data centers.",
+   "record_digest": "a6d513c5f735c4b424e1f3dd15451a69e305f2711da883de3be9a29c6dbb044f",
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "defects": [
+    "role_mismatch: the placement's role and the us-secondary-market-shift link both assert a specific causal mechanism -- that Southern Company is absorbing large-load buildout because the moratorium wave is redirecting capital away from more politically contested markets -- but the sole cited source, re-fetched live 2026-09-13, contains no text anywhere connecting Southern Company's data-center growth to moratoria, bans, political opposition, or capital redirection elsewhere; it reports only general demand growth (42% YoY data center power growth, 28 large-load projects, 11 GW under contract) that would read identically whether or not any other state had ever frozen a permit. The evidence supports 'regulated utility serving large load growth' but not the redirection mechanism that differentiates this link from a generic utility-growth placement."
+   ]
+  },
+  {
+   "chain_id": "data-center-moratoria",
+   "link_id": "offshore-and-periphery-capacity",
+   "issuer_id": "EQUINIX",
+   "audited_at": "2026-09-13T15:19:21Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "batch:c2-paudits-data-center-moratoria/data-center-moratoria/offshore-and-periphery-capacity/EQUINIX/2026-09-13",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Fresh detached worktree of origin/main (batch run c2-paudits-data-center-moratoria) with no access to the authoring session's transcript, map log, profiles, or ledger rationale; repository state cannot cryptographically prove reviewer independence, only declared provenance.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "source_excerpt": "Re-fetched twice live on 2026-09-13; the article contains no text matching 'Equinix operates 280 data centers in 77 global markets as of February 2026' and no mention of Germany, the Netherlands, Portugal, or Japan anywhere on the page. Confirmed live content instead states 'more than 80% of planned capital expansion through FY 2029 will target its top 25 global metros' -- matching a different evidence item sampled separately on this mapping's entitled-powered-land/EQUINIX placement.",
+   "record_digest": "01e91067f4a0e8de4bae9d411485b4bef03dd08de2aad8928c8195f0946cc41a",
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "defects": [
+    "unverifiable_excerpt: the placement's sole evidence item cites 'Equinix operates 280 data centers in 77 global markets as of February 2026, with recent expansion in fast-expanding data center markets across Germany, the Netherlands, and Portugal, and a $115M investment in a new data center in Japan' from the Futurum Group URL, but two independent live re-fetches of that exact URL on 2026-09-13 found no text matching this claim and no mention of Germany, the Netherlands, Portugal, or Japan anywhere on the page; the page's confirmed live content instead discusses 'top 25 global metros' and '33 markets' without naming countries. A different quote from the same URL, sampled separately on this mapping's entitled-powered-land/EQUINIX placement ('...concentrated over 80% of planned capital expansion through fiscal 2029 in its top 25 global metros'), was confirmed present on the same re-fetch, ruling out a wholesale fetch or access failure and leaving the specific cited excerpt itself unverifiable against the live source. Independent of the excerpt question, the role's causal claim (international expansion 'as primary US metros hit permitting and power constraints') is also not stated anywhere in the confirmed live content."
+   ]
   }
  ]
 }
