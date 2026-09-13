@@ -33,6 +33,13 @@ if str(TOOLS) not in sys.path:
 
 from agent_registry import agents_payload  # noqa: E402
 from theme_calibrate import BASELINE_WEEKS, SURGE_MIN_COUNT, SURGE_MULTIPLE  # noqa: E402
+from acis.quality import (  # noqa: E402
+    ALTMAN_DISTRESS_BELOW,
+    ALTMAN_SAFE_ABOVE,
+    BENEISH_REVIEW_THRESHOLD,
+    PIOTROSKI_STRONG_MIN,
+    PIOTROSKI_WEAK_MAX,
+)
 from check_campaign import (  # noqa: E402
     canonical_mapped_placements,
     validated_public_listings,
@@ -947,15 +954,29 @@ def encode_series_rows(rows: list) -> dict:
     return out
 
 
-def project_market(market: dict) -> dict:
+def project_market(market: dict, fundamentals_for=()) -> dict:
     """Every market file whole except the blocks no template renders (MARKET_UNRENDERED),
     with the full daily series for EVERY ticker, compactly encoded (encode_series_rows).
     `row_count`, `inlined_rows` and `sampling` stay on the series header because app.js
-    prints them; since 2026-09-04 they always read equal and COMPLETE."""
+    prints them; since 2026-09-04 they always read equal and COMPLETE.
+
+    Since 2026-09-13 the stock page draws fiscal-year fundamentals, so `fundamentals` is
+    carried whole for the tickers in `fundamentals_for` (the dived ones, the only names
+    with a page that draws it) and left out for every other ticker. app.js prints what it
+    holds (finNote) beside the charts, so a short or vendor-sourced history is said in
+    words rather than drawn as if it were eight filed years."""
+    keep = set()
+    for t in fundamentals_for:
+        if t:
+            keep.add(str(t))
+            keep.add(str(t).replace(".", "-"))
     out = {}
     for key in sorted(market):
         doc = market[key] or {}
-        row = {k: v for k, v in doc.items() if k not in MARKET_UNRENDERED}
+        skip = set(MARKET_UNRENDERED)
+        if key in keep:
+            skip.discard("fundamentals")
+        row = {k: v for k, v in doc.items() if k not in skip}
         series = doc.get("series")
         if isinstance(series, dict):
             rows = series.get("rows") if isinstance(series.get("rows"), list) else []
@@ -1128,7 +1149,8 @@ def _row_valuation(ticker, market):
 
     The link modal shows market cap / price / 52-week range beside the screen's
     fundamentals. Those live in data/market/<T>.json, but project_market() strips
-    `fundamentals` from every ticker and `quality` from every non-dived one, so a modal
+    `fundamentals` from every ticker without a dive (the stock page is the one template
+    that draws the block), so a modal
     that read D.market would find nothing for a screened-but-undived name (POWL, MYRG, …).
     Carrying the four numbers on the screen row instead makes them survive that trimming:
     the row is kept whole by project_screens, and this block is ~8 rows x 4 numbers.
@@ -1598,7 +1620,9 @@ def build_payload(data_dir=DATA, root=ROOT):
         # What this build carried, as numbers the page prints. Always everything since
         # 2026-09-04; the note stays so the page can say so in its own words.
         "carried": {"stocks": stock_note, "chains": chain_note},
-        "market": project_market(market),
+        "market": project_market(
+            market,
+            fundamentals_for=[s.get("ticker") for s in stocks if isinstance(s, dict)]),
         "shadow": {
             "book": json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
             "results": json.loads((DATA / "shadow" / "results.json").read_text()) if (DATA / "shadow" / "results.json").exists() else {},
@@ -1659,13 +1683,24 @@ def build_payload(data_dir=DATA, root=ROOT):
             # second copy of the threshold that decides it.
             "themes": {"surge_min_count": SURGE_MIN_COUNT, "surge_multiple": SURGE_MULTIPLE,
                        "baseline_weeks": BASELINE_WEEKS},
+            # The quality-score zones the stock page draws its meters with (2026-09-13),
+            # from the same constants tools/acis/quality.py decides each state with.
+            "quality": {"altman": {"distress_below": ALTMAN_DISTRESS_BELOW,
+                                   "safe_above": ALTMAN_SAFE_ABOVE},
+                        "beneish": {"review_above": BENEISH_REVIEW_THRESHOLD},
+                        "piotroski": {"strong_min": PIOTROSKI_STRONG_MIN,
+                                      "weak_max": PIOTROSKI_WEAK_MAX}},
             # What this one file carries, shipped so the page can say it in its own words.
             # Since 2026-09-04: everything, at the fidelity the files hold.
             "page": {"fidelity": "FULL",
                      "series_detail_rule": "every ticker, full daily series",
                      "impact_detail_rule": "every appraisal, legs and evidence whole",
                      "history_rows": "all", "ledger_lines": "all",
-                     "not_carried": ["market fundamentals/insider/prints/legs blocks "
+                     "fundamentals_rule": "whole for every dived ticker (the stock page "
+                                          "draws them); other tickers' blocks stay in "
+                                          "data/market",
+                     "not_carried": ["market fundamentals for tickers without a dive, and "
+                                     "insider/prints/legs blocks for every ticker "
                                      "(no template renders them)",
                                      "raw EDGAR filing text (data/edgar/docs, no page)"]},
         },

@@ -192,6 +192,15 @@ class TestEveryStoreIsCarriedWhole(ScaleFixtureCase):
                     self.assertIn("why", moved)
 
     def test_every_market_series_round_trips(self):
+        # Since 2026-09-13 the stock page draws fiscal-year fundamentals, so a dived
+        # ticker carries its block whole; every other ticker's block still reaches no
+        # template and stays in data/market.
+        dived = set()
+        for stock in self.payload["stocks"]:
+            t = str(stock.get("ticker") or "")
+            dived.add(t)
+            dived.add(t.replace(".", "-"))
+        carried = 0
         for ticker, doc in self.payload["market"].items():
             series = doc.get("series")
             self.assertIsNotNone(series, f"{ticker} lost its series")
@@ -202,8 +211,18 @@ class TestEveryStoreIsCarriedWhole(ScaleFixtureCase):
             self.assertEqual(_decode_series(series), rows,
                              f"{ticker}: the compact series does not decode to the file")
             self.assertIn("quality", doc)
-            for gone in ("fundamentals", "insider", "prints", "legs"):
+            for gone in ("insider", "prints", "legs"):
                 self.assertNotIn(gone, doc, f"{gone} reaches no template")
+            if ticker in dived:
+                carried += 1
+                self.assertEqual(doc.get("fundamentals"), on_disk.get("fundamentals"),
+                                 f"{ticker}: a dived ticker carries its fundamentals whole")
+            else:
+                self.assertNotIn("fundamentals", doc,
+                                 f"{ticker}: only the stock page draws fundamentals, and "
+                                 f"this ticker has no dive")
+        self.assertGreater(carried, 0, "the fixture dives no ticker, so the rule that "
+                                       "dived tickers carry fundamentals was not exercised")
 
     def test_impact_carries_legs_and_excerpts(self):
         for appraisal in self.payload["impact"]:

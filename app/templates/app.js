@@ -1555,7 +1555,7 @@
       [["verified", ca.verified || 0], ["inferred", ca.inferred || 0],
        ["speculative", ca.speculative || 0], ["null", ca.null || 0]].map(function (t) {
         return chip(t[1] + " " + t[0], t[0] === "verified" && t[1] ? "accent" : (t[1] ? "neutral" : "stale"));
-      }).join("") + "</div>" +
+      }).join("") + "</div>" + caBar(ca) +
       (caWarn ? "<div class='small' style='margin-top:10px'><b>No VERIFIED evidence supports this INVESTABLE verdict.</b> " +
         "Every claim on this page is inferred or reasoned. Treat the entry zone as a hypothesis, not a level.</div>" : "") +
       "</div>" : "";
@@ -1628,15 +1628,16 @@
       (st.fixture ? '<div class="fixturebanner">Fixture page — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
       '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
       (linkc ? "<div style='margin-top:14px'>" + linkc + "</div>" : "") +
-      seclabel("Price") + "<div class='card'>" + priceChart(mk, st) + "</div>" +
+      seclabel("Price") + "<div class='card'>" + rangeBar(mk, st) + priceChart(mk, st) + "</div>" +
       seclabel("The case") +
-      '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div>" +
-      '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(function (b) { return "<li>" + esc(b) + "</li>"; }).join("") + "</ul></div></div>" +
+      '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(caseBullet).join("") + "</ul></div>" +
+      '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(caseBullet).join("") + "</ul></div></div>" +
       seclabel("Diligence") +
       (gapc ? gapc : "") +
       '<div class="statgrid">' + priced + val + "</div>" +
       (caCard || prCard ? '<div class="statgrid" style="margin-top:14px">' + caCard + prCard + "</div>" : "") +
       (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
+      seclabel("Financials") + finCharts(mk, st) +
       (fec ? "<div style='margin-top:14px'>" + fec + "</div>" : "") +
       "<div style='margin-top:14px'>" + rt + "</div>" +
       notesBlock(st) + changelogBlock(st) + footer() + "</main>";
@@ -1675,6 +1676,7 @@
     return "<div class='card'><h3>The expectations gap</h3>" +
       "<div class='small muted' style='margin-bottom:8px'>What the price assumes, against what this dive expects. " +
       "The implied column is solved in the data plane, never in session: " + esc(g.market_implied_source || "") + "</div>" +
+      gapChart(g) +
       "<div style='overflow-x:auto'><table class='gaptable'><thead><tr><th>Driver</th><th>Market implies</th>" +
       "<th>This dive</th><th>Base rate</th><th>Verification</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
       (st.independence_test ? "<div class='small' style='margin-top:12px'><b>Largest disagreement:</b> " +
@@ -1707,6 +1709,7 @@
       return "<dt>" + label + "</dt><dd>" + body + "</dd>";
     }
     var rd = q.reverse_dcf || {};
+    s += qualityGauges(q, st);
     s += "<div class='kv'>" +
       line("Piotroski F", q.piotroski, function (v) { return v + " / 9"; }) +
       line("Beneish M", q.beneish) +
@@ -1836,6 +1839,437 @@
     return s;
   }
 
+  /* ---------------- stock page graphics (2026-09-13) ----------------
+     Ron: a Board row opens the full analysis, with graphs. Every figure drawn below is
+     READ from the dive or from data/market/<T>.json: no margin, ratio or free cash flow
+     is computed in the page, and a series the file does not hold is said to be absent
+     rather than drawn as zero. Series colours are the page's --s1/--s2/--s3 tokens,
+     checked for colour-vision separation in both themes; every multi-series panel also
+     carries a legend, end labels and a tooltip naming every series, so identity never
+     rests on hue alone. One axis per panel, never two. */
+  var FY_LABEL = { revenue_fy: "Revenue", revenue_q: "Revenue (quarter)", net_income_fy: "Net income",
+    operating_income_fy: "Operating income", gross_profit_fy: "Gross profit", operating_cashflow_fy: "Operating cash flow",
+    capex_fy: "Capital spending", equity_fy: "Equity", long_term_debt_fy: "Long-term debt", total_assets_fy: "Total assets",
+    shares_fy: "Shares", depreciation_fy: "Depreciation", sga_fy: "SG&A", cost_of_revenue_fy: "Cost of revenue",
+    receivables_fy: "Receivables", inventory_fy: "Inventory", ppe_net_fy: "PP&E, net", current_assets_fy: "Current assets",
+    current_liabilities_fy: "Current liabilities", total_liabilities_fy: "Total liabilities", retained_earnings_fy: "Retained earnings" };
+  function fmtCompact(v) {
+    if (typeof v !== "number" || !isFinite(v)) return "–";
+    var a = Math.abs(v), sg = v < 0 ? "−" : "";
+    if (a >= 1e12) return sg + (a / 1e12).toFixed(2) + "T";
+    if (a >= 1e9) return sg + (a / 1e9).toFixed(a >= 1e10 ? 1 : 2) + "B";
+    if (a >= 1e6) return sg + (a / 1e6).toFixed(a >= 1e8 ? 0 : 1) + "M";
+    if (a >= 1e3) return sg + (a / 1e3).toFixed(1) + "K";
+    return sg + a.toFixed(2);
+  }
+  function fmtPct(v) { return typeof v === "number" && isFinite(v) ? (v * 100).toFixed(1) + "%" : "–"; }
+  function niceStep(span, n) {
+    if (!(span > 0)) return 1;
+    var raw = span / (n || 4), mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), r = raw / mag;
+    return (r >= 5 ? 10 : r >= 2 ? 5 : r >= 1 ? 2 : 1) * mag;
+  }
+  function niceTicks(lo, hi, n) {
+    if (!(hi > lo)) hi = lo + 1;
+    var step = niceStep(hi - lo, n), out = [], v = Math.ceil(lo / step - 1e-9) * step;
+    for (; v <= hi + step * 1e-9 && out.length < 12; v += step) out.push(+v.toFixed(10));
+    return out;
+  }
+  /* Period rows across several [date, value] series, aligned on the period-end date.
+     A period one series lacks is null there, never zero. */
+  function fyRows(f, keys) {
+    var seen = {}, dates = [];
+    keys.forEach(function (k) {
+      ((f || {})[k] || []).forEach(function (r) {
+        if (r && r[0] != null && !seen[String(r[0])]) { seen[String(r[0])] = 1; dates.push(String(r[0])); }
+      });
+    });
+    dates.sort();
+    return dates.map(function (d) {
+      var row = { date: d, v: {} };
+      keys.forEach(function (k) {
+        row.v[k] = null;
+        ((f || {})[k] || []).forEach(function (r) {
+          if (r && String(r[0]) === d && typeof r[1] === "number" && isFinite(r[1])) row.v[k] = r[1];
+        });
+      });
+      return row;
+    });
+  }
+  /* A column rounded at its data end and square at the baseline; a negative value
+     hangs below the baseline with the rounding at its foot. A value of 0 is a hairline
+     at the baseline, never a missing mark. */
+  function barPath(x, yTop, yBase, w, r) {
+    var h = Math.abs(yBase - yTop);
+    r = Math.min(r, w / 2, h);
+    x = +x.toFixed(1); yTop = +yTop.toFixed(1); yBase = +yBase.toFixed(1); w = +w.toFixed(1); r = +r.toFixed(1);
+    if (h < 0.6) return "M" + x + " " + (yBase - 0.5) + "h" + w + "v1h-" + w + "z";
+    if (yTop <= yBase) {
+      return "M" + x + " " + yBase + "V" + (yTop + r) + "a" + r + " " + r + " 0 0 1 " + r + " " + (-r) +
+        "h" + (w - 2 * r) + "a" + r + " " + r + " 0 0 1 " + r + " " + r + "V" + yBase + "z";
+    }
+    return "M" + x + " " + yBase + "V" + (yTop - r) + "a" + r + " " + r + " 0 0 0 " + r + " " + r +
+      "h" + (w - 2 * r) + "a" + r + " " + r + " 0 0 0 " + r + " " + (-r) + "V" + yBase + "z";
+  }
+  /* One fiscal-period panel: columns or lines on one axis, a hairline grid, a 2px
+     surface gap between neighbouring columns, the last period labelled, a legend past
+     one series, and a hit strip per period that carries every value into the tooltip. */
+  function finPanel(title, f, series, kind, unit) {
+    var keys = series.map(function (s) { return s.key; });
+    var quarterly = keys.some(function (k) { return /_q$/.test(k); });
+    var rows = fyRows(f, keys);
+    var present = series.filter(function (sr) { return rows.some(function (r) { return r.v[sr.key] != null; }); });
+    var head = '<div class="finpanel"><h4>' + esc(title) + "</h4>";
+    if (!present.length) {
+      return head + '<div class="fsub">no series on file for ' +
+        esc(keys.map(function (k) { return FY_LABEL[k] || k; }).join(", ")) + "</div></div>";
+    }
+    var vals = [];
+    rows.forEach(function (r) { present.forEach(function (sr) { if (r.v[sr.key] != null) vals.push(r.v[sr.key]); }); });
+    var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
+    if (hi === lo) hi = lo + 1;
+    var padv = (hi - lo) * 0.1; hi += padv; if (lo < 0) lo -= padv;
+    var W = 440, H = 210, P = { l: 58, r: 18, t: 20, b: 28 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var n = rows.length, slot = iw / Math.max(n, 1), lastI = n - 1;
+    function Xc(i) { return P.l + slot * (i + 0.5); }
+    function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
+    var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="' + esc(title) + '">';
+    rows.forEach(function (r, i) {
+      var tip = "period end " + r.date + "\n" + present.map(function (sr) {
+        return sr.label + ": " + (r.v[sr.key] == null ? "not on file" : fmtCompact(r.v[sr.key]));
+      }).join("\n");
+      s += '<rect class="finhit" x="' + (P.l + slot * i).toFixed(1) + '" y="' + P.t + '" width="' + slot.toFixed(1) +
+        '" height="' + ih + '" data-tip="' + esc(tip) + '"/>';
+    });
+    niceTicks(lo, hi, 4).forEach(function (t) {
+      s += '<line x1="' + P.l + '" y1="' + Y(t).toFixed(1) + '" x2="' + (W - P.r) + '" y2="' + Y(t).toFixed(1) + '" stroke="var(--chart-grid)"/>' +
+        '<text x="' + (P.l - 8) + '" y="' + (Y(t) + 3).toFixed(1) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + esc(fmtCompact(t)) + "</text>";
+    });
+    if (lo < 0) s += '<line x1="' + P.l + '" y1="' + Y(0).toFixed(1) + '" x2="' + (W - P.r) + '" y2="' + Y(0).toFixed(1) + '" stroke="var(--chart-axis)"/>';
+    if (kind === "bars") {
+      var k = present.length, groupW = slot * 0.72, bw = Math.min(24, (groupW - 2 * (k - 1)) / k);
+      var gx0 = (slot - (bw * k + 2 * (k - 1))) / 2;
+      rows.forEach(function (r, i) {
+        present.forEach(function (sr, j) {
+          var v = r.v[sr.key]; if (v == null) return;
+          s += '<path d="' + barPath(P.l + slot * i + gx0 + j * (bw + 2), Y(v), Y(0), bw, 4) + '" fill="' + sr.color + '" pointer-events="none"/>';
+        });
+      });
+      present.forEach(function (sr, j) {
+        var v = rows[lastI].v[sr.key]; if (v == null) return;
+        var x = P.l + slot * lastI + gx0 + j * (bw + 2) + bw / 2;
+        s += '<text x="' + x.toFixed(1) + '" y="' + (Y(v) + (v >= 0 ? -5 : 12)).toFixed(1) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtCompact(v)) + "</text>";
+      });
+    } else {
+      var ends = [];
+      present.forEach(function (sr) {
+        var d = "", pen = false, lastPt = null;
+        rows.forEach(function (r, i) {
+          var v = r.v[sr.key];
+          if (v == null) { pen = false; return; }
+          d += (pen ? "L" : "M") + Xc(i).toFixed(1) + " " + Y(v).toFixed(1); pen = true; lastPt = [Xc(i), Y(v), v];
+        });
+        s += '<path d="' + d + '" fill="none" stroke="' + sr.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" pointer-events="none"/>';
+        if (lastPt) {
+          s += '<circle cx="' + lastPt[0].toFixed(1) + '" cy="' + lastPt[1].toFixed(1) + '" r="4" fill="' + sr.color + '" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
+          ends.push({ y: lastPt[1], v: lastPt[2] });
+        }
+      });
+      // end labels pushed apart when they collide, and kept inside the plot
+      ends.sort(function (a, b) { return a.y - b.y; });
+      for (var e = 1; e < ends.length; e++) if (ends[e].y - ends[e - 1].y < 11) ends[e].y = ends[e - 1].y + 11;
+      for (var e2 = ends.length - 1; e2 >= 0; e2--) {
+        if (ends[e2].y > P.t + ih) ends[e2].y = P.t + ih;
+        if (e2 < ends.length - 1 && ends[e2 + 1].y - ends[e2].y < 11) ends[e2].y = ends[e2 + 1].y - 11;
+      }
+      ends.forEach(function (en) {
+        s += '<text x="' + (Xc(lastI) + 7).toFixed(1) + '" y="' + (en.y + 3.5).toFixed(1) + '" font-size="9.5" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtCompact(en.v)) + "</text>";
+      });
+    }
+    var every = n > 10 ? 2 : 1;
+    rows.forEach(function (r, i) {
+      if (i % every) return;
+      s += '<text x="' + Xc(i).toFixed(1) + '" y="' + (H - P.b + 16) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' +
+        esc(quarterly ? r.date.slice(0, 7) : r.date.slice(0, 4)) + "</text>";
+    });
+    s += "</svg>";
+    var legend = present.length > 1 ? '<div class="legend-keys">' + present.map(function (sr) {
+      return "<span>" + (kind === "bars" ? '<i class="sw" style="background:' + sr.color + '"></i>' : '<i class="ln" style="border-color:' + sr.color + '"></i>') + esc(sr.label) + "</span>";
+    }).join("") + "</div>" : "";
+    var sub = '<div class="fsub">' + esc(n + (quarterly ? " quarter(s)" : " fiscal period(s)") + (unit ? ", " + unit : "") +
+      " · labels are period-end " + (quarterly ? "months" : "years")) + "</div>";
+    return head + sub + s + legend + "</div>";
+  }
+  function finCharts(mk, st) {
+    var f = mk && mk.fundamentals;
+    var path = "data/market/" + String(st.ticker || "").replace(/\./g, "-") + ".json";
+    if (!f) {
+      return "<div class='card'><h3>Financials, as filed</h3><div class='emptystate'>" +
+        (mk ? "No fundamentals block in " + esc(path) + " yet." : "No market file on disk for " + esc(st.ticker) + " yet.") +
+        '<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills " + path + " in ~5 minutes") + "</div></div></div>";
+    }
+    var unit = str_or_empty(f.statement_currency);
+    var qPanel = (f.revenue_q || []).length
+      ? finPanel("Revenue by quarter", f, [{ key: "revenue_q", label: "Revenue (quarter)", color: "var(--s1)" }], "bars", unit)
+      : '<div class="finpanel"><h4>Revenue by quarter</h4><div class="fsub">' +
+        esc(str_or_empty(f.interim_note) || "no quarterly series on file") + "</div></div>";
+    return "<div class='card'><h3>Financials, as filed</h3><div class='fingrid'>" +
+      finPanel("Revenue by fiscal year", f, [{ key: "revenue_fy", label: "Revenue", color: "var(--s1)" }], "bars", unit) +
+      finPanel("Profit and operating cash flow", f, [
+        { key: "net_income_fy", label: "Net income", color: "var(--s2)" },
+        { key: "operating_income_fy", label: "Operating income", color: "var(--s1)" },
+        { key: "operating_cashflow_fy", label: "Operating cash flow", color: "var(--s3)" }], "lines", unit) +
+      finPanel("Equity and long-term debt", f, [
+        { key: "equity_fy", label: "Equity", color: "var(--s1)" },
+        { key: "long_term_debt_fy", label: "Long-term debt", color: "var(--s3)" }], "bars", unit) +
+      qPanel + "</div>" +
+      "<div class='muted num' style='margin-top:10px'>" + finNote(mk, st.ticker) + "</div></div>";
+  }
+  /* What the page holds of a fundamentals block, in its own words: how many periods,
+     from which source under which tag, how complete, and where the file is. */
+  function finNote(mk, ticker) {
+    var f = mk && mk.fundamentals;
+    var path = "data/market/" + String(ticker || "").replace(/\./g, "-") + ".json";
+    if (!f) return esc("no fundamentals block on this page · " + path);
+    var fyKeys = Object.keys(f).filter(function (k) { return /_fy$/.test(k) && Array.isArray(f[k]); });
+    var periods = fyRows(f, fyKeys), cov = f.coverage || {};
+    var parts = [periods.length + " fiscal period(s) on file" +
+      (periods.length ? " (" + periods[0].date + " to " + periods[periods.length - 1].date + ")" : "")];
+    parts.push("source " + (str_or_empty(f.source) || "unstated") + (str_or_empty(f.as_of) ? ", as of " + f.as_of : "") +
+      (str_or_empty(f.tag) ? ", " + f.tag : ""));
+    if (cov.annual_fields_found != null && cov.annual_fields_attempted != null) {
+      parts.push(cov.annual_fields_found + " of " + cov.annual_fields_attempted + " annual fields found" +
+        ((cov.missing || []).length ? " (missing " + cov.missing.join(", ") + ")" : ""));
+    }
+    if (str_or_empty(f.vendor)) parts.push("vendor " + f.vendor + (str_or_empty(f.vendor_caveat) ? ": " + f.vendor_caveat : ""));
+    parts.push(path);
+    return esc(parts.join(" · "));
+  }
+  /* Where the last close sits in its 52-week range, with the zone the dive drew. */
+  function rangeBar(mk, st) {
+    var w = mk && mk.week52, rows = mk && mk.series && mk.series.rows;
+    if (!w || typeof w.low !== "number" || typeof w.high !== "number" || !(rows || []).length) return "";
+    var last = rows[rows.length - 1], px = last[1];
+    if (typeof px !== "number") return "";
+    var z = st.verdict === "INVESTABLE" && st.entry_zone ? st.entry_zone
+      : (st.verdict === "WATCH" && st.would_buy_zone != null ? st.would_buy_zone : null);
+    if (z && !(typeof z.low === "number" && typeof z.high === "number")) z = null;
+    var zl = st.verdict === "INVESTABLE" ? "entry zone" : "would buy";
+    var nea = typeof st.no_entry_above === "number" ? st.no_entry_above : null;
+    var lo = Math.min(w.low, px), hi = Math.max(w.high, px);
+    if (z) { lo = Math.min(lo, z.low); hi = Math.max(hi, z.high); }
+    if (nea != null) { lo = Math.min(lo, nea); hi = Math.max(hi, nea); }
+    var W = 640, PL = 10, span = (hi - lo) || 1;
+    function X(v) { return PL + (v - lo) / span * (W - 2 * PL); }
+    var s = '<svg class="rangebar" viewBox="0 0 ' + W + ' 48" width="100%" role="img" aria-label="52-week range">';
+    s += '<rect x="' + X(w.low).toFixed(1) + '" y="21" width="' + (X(w.high) - X(w.low)).toFixed(1) + '" height="6" rx="3" fill="var(--surface-3)"/>';
+    if (z) s += '<rect x="' + X(z.low).toFixed(1) + '" y="17" width="' + Math.max(2, X(z.high) - X(z.low)).toFixed(1) + '" height="14" rx="3" fill="var(--band-good)" stroke="var(--und)" stroke-opacity="0.55"/>';
+    if (nea != null) s += '<line x1="' + X(nea).toFixed(1) + '" y1="13" x2="' + X(nea).toFixed(1) + '" y2="35" stroke="var(--ovr)" stroke-width="1.5" stroke-dasharray="2 3"/>';
+    s += '<circle cx="' + X(px).toFixed(1) + '" cy="24" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
+    var lx = Math.max(34, Math.min(W - 34, X(px)));
+    s += '<text x="' + lx.toFixed(1) + '" y="9" text-anchor="middle" font-size="10.5" class="mono-t" fill="var(--ink)">' + esc(fmtMoney(px)) + "</text>";
+    s += '<text x="' + X(w.low).toFixed(1) + '" y="44" text-anchor="start" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(fmtMoney(w.low)) + " low</text>";
+    s += '<text x="' + X(w.high).toFixed(1) + '" y="44" text-anchor="end" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(fmtMoney(w.high)) + " high</text>";
+    s += "</svg>";
+    var cap = "52-week range " + fmtMoney(w.low) + "–" + fmtMoney(w.high) + " [data/market] · last close " + fmtMoney(px) + " on " + esc(last[0]) +
+      (z ? " · " + zl + " " + fmtMoney(z.low) + "–" + fmtMoney(z.high) : "") + (nea != null ? " · no entry above " + fmtMoney(nea) : "");
+    return '<div class="rangewrap">' + s + '<div class="rangecap">' + cap + "</div></div>";
+  }
+  /* A horizontal meter: track, shaded zones, labelled ticks, and the value as a ringed
+     dot with its number above it. Zone edges arrive from the build (D.method.quality),
+     never retyped here. */
+  function meterSvg(o) {
+    var W = 320, H = 46, PL = 10, span = (o.hi - o.lo) || 1;
+    function X(v) { return PL + (Math.min(Math.max(v, o.lo), o.hi) - o.lo) / span * (W - 2 * PL); }
+    var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="' + esc(o.label) + '">';
+    s += '<rect x="' + PL + '" y="20" width="' + (W - 2 * PL) + '" height="8" rx="4" fill="var(--surface-3)"/>';
+    (o.zones || []).forEach(function (zn) {
+      s += '<rect x="' + X(zn.from).toFixed(1) + '" y="20" width="' + Math.max(0, X(zn.to) - X(zn.from)).toFixed(1) + '" height="8" fill="' + zn.fill + '"/>';
+    });
+    (o.ticks || []).forEach(function (t) {
+      s += '<line x1="' + X(t.at).toFixed(1) + '" y1="15" x2="' + X(t.at).toFixed(1) + '" y2="33" stroke="var(--chart-axis)"/>' +
+        '<text x="' + Math.max(40, Math.min(W - 40, X(t.at))).toFixed(1) + '" y="44" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--ink-3)">' + esc(t.label) + "</text>";
+    });
+    s += '<circle cx="' + X(o.value).toFixed(1) + '" cy="24" r="6" fill="' + o.color + '" stroke="var(--surface)" stroke-width="2"/>';
+    s += '<text x="' + Math.max(30, Math.min(W - 30, X(o.value))).toFixed(1) + '" y="9" text-anchor="middle" font-size="10.5" class="mono-t" fill="var(--ink)">' + esc(o.valueLabel) + "</text>";
+    return s + "</svg>";
+  }
+  var PIO_LABEL = { roa: "ROA > 0", cfo: "cash from ops > 0", d_roa: "ROA up", accruals: "cash > profit", d_leverage: "leverage down",
+    d_current: "current ratio up", shares: "no dilution", gross_margin: "gross margin up", asset_turnover: "asset turnover up" };
+  /* The quality block as pictures: nine Piotroski segments with the criteria that
+     passed, the Beneish M against its review threshold, the Altman Z in its zones, and
+     the FCF growth the price implies by horizon beside the dive's own number. */
+  function qualityGauges(q, st) {
+    var out = "";
+    var p = q.piotroski;
+    if (p && p.score != null) {
+      var segs = "";
+      for (var i = 0; i < 9; i++) segs += "<i class='" + (i < p.score ? "on" : "") + "'></i>";
+      var crits = Object.keys(p.criteria || {}).map(function (k) {
+        var v = p.criteria[k];
+        return "<span class='crit " + (v === true ? "ok" : v === false ? "no" : "na") + "'>" +
+          (v === true ? "✓ " : v === false ? "✗ " : "? ") + esc(PIO_LABEL[k] || k) + "</span>";
+      }).join("");
+      out += "<div class='qgauge'><div class='gauge-h'><span>Piotroski F</span><span class='gv'>" + esc(p.score) + " / 9 · " + esc(p.state) + "</span></div>" +
+        "<div class='seg9 " + esc(p.state) + "'>" + segs + "</div><div class='crits'>" + crits + "</div></div>";
+    }
+    var b = q.beneish;
+    if (b && b.score != null) {
+      var th = typeof b.threshold === "number" ? b.threshold : null;
+      var blo = Math.min(b.score, th == null ? b.score : th) - 1, bhi = Math.max(b.score, th == null ? b.score : th) + 1;
+      out += "<div class='qgauge'><div class='gauge-h'><span>Beneish M</span><span class='gv'>" + esc(b.score) + " · " + esc(b.state) + "</span></div>" +
+        meterSvg({ lo: blo, hi: bhi, value: b.score, valueLabel: String(b.score), label: "Beneish M",
+          color: b.state === "CLEAN" ? "var(--und)" : "var(--ovr)",
+          zones: th == null ? [] : [{ from: th, to: bhi, fill: "var(--ovr-bg)" }],
+          ticks: th == null ? [] : [{ at: th, label: "review above " + th }] }) + "</div>";
+    }
+    var a = q.altman;
+    if (a && a.score != null) {
+      var az = (METHOD.quality || {}).altman || null;
+      if (az && !(typeof az.distress_below === "number" && typeof az.safe_above === "number")) az = null;
+      var ahi = Math.max(a.score + 0.5, az ? az.safe_above + 1 : 0), alo = Math.min(0, a.score - 0.5);
+      out += "<div class='qgauge'><div class='gauge-h'><span>Altman Z</span><span class='gv'>" + esc(a.score) + " · " + esc(a.state) + "</span></div>" +
+        meterSvg({ lo: alo, hi: ahi, value: a.score, valueLabel: String(a.score), label: "Altman Z",
+          color: a.state === "SAFE" ? "var(--und)" : a.state === "GREY" ? "var(--emg)" : "var(--ovr)",
+          zones: az ? [{ from: alo, to: az.distress_below, fill: "var(--ovr-bg)" }, { from: az.distress_below, to: az.safe_above, fill: "var(--emg-bg)" },
+                       { from: az.safe_above, to: ahi, fill: "var(--und-bg)" }] : [],
+          ticks: az ? [{ at: az.distress_below, label: "distress below " + az.distress_below }, { at: az.safe_above, label: "safe from " + az.safe_above }] : [] }) +
+        (az ? "" : "<div class='fsub'>zone edges were not shipped by this build; the state is the data plane's</div>") + "</div>";
+    }
+    var rd = q.reverse_dcf || {}, ibh = rd.implied_by_horizon || {};
+    var hz = Object.keys(ibh).filter(function (k) { return typeof ibh[k] === "number"; }).sort(function (x, y) { return +x - +y; });
+    var gapRow = null;
+    ((st.expectations_gap || {}).rows || []).forEach(function (r) { if (r && r.driver === "net_gap_direction") gapRow = r; });
+    var mineBars = [];
+    if (gapRow) {
+      [["my_fcf_cagr_bear", "bear"], ["my_fcf_cagr_base", "base"], ["my_fcf_cagr_bull", "bull"]].forEach(function (k) {
+        if (typeof gapRow[k[0]] === "number") mineBars.push({ label: k[1], v: gapRow[k[0]] });
+      });
+      if (!mineBars.length && typeof gapRow.mine === "number") mineBars.push({ label: "this dive", v: gapRow.mine });
+    }
+    if (hz.length) {
+      var bars = hz.map(function (h) { return { label: h + "y", v: ibh[h], color: "var(--s1)", grp: "price" }; })
+        .concat(mineBars.map(function (m) { return { label: m.label, v: m.v, color: "var(--s2)", grp: "dive" }; }));
+      var bv = bars.map(function (x) { return x.v; });
+      var lo2 = Math.min(0, Math.min.apply(null, bv)), hi2 = Math.max(0, Math.max.apply(null, bv));
+      if (hi2 === lo2) hi2 = lo2 + 0.01;
+      var pad2 = (hi2 - lo2) * 0.18; hi2 += pad2; if (lo2 < 0) lo2 -= pad2;
+      var W = 320, H = 150, P = { l: 46, r: 10, t: 16, b: 26 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
+      var slot = iw / bars.length, bw = Math.min(24, slot * 0.6);
+      function Y(v) { return P.t + (1 - (v - lo2) / (hi2 - lo2)) * ih; }
+      var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="implied FCF growth">';
+      niceTicks(lo2, hi2, 3).forEach(function (t) {
+        s += '<line x1="' + P.l + '" y1="' + Y(t).toFixed(1) + '" x2="' + (W - P.r) + '" y2="' + Y(t).toFixed(1) + '" stroke="var(--chart-grid)"/>' +
+          '<text x="' + (P.l - 6) + '" y="' + (Y(t) + 3).toFixed(1) + '" text-anchor="end" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(fmtPct(t)) + "</text>";
+      });
+      if (lo2 < 0) s += '<line x1="' + P.l + '" y1="' + Y(0).toFixed(1) + '" x2="' + (W - P.r) + '" y2="' + Y(0).toFixed(1) + '" stroke="var(--chart-axis)"/>';
+      bars.forEach(function (bx, i) {
+        var x = P.l + slot * i + (slot - bw) / 2;
+        s += '<rect class="finhit" x="' + (P.l + slot * i).toFixed(1) + '" y="' + P.t + '" width="' + slot.toFixed(1) + '" height="' + ih + '" data-tip="' +
+          esc((bx.grp === "price" ? "price implies, " + bx.label + " horizon: " : "this dive, " + bx.label + ": ") + fmtPct(bx.v)) + '"/>';
+        s += '<path d="' + barPath(x, Y(bx.v), Y(0), bw, 4) + '" fill="' + bx.color + '" pointer-events="none"/>';
+        s += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (Y(bx.v) + (bx.v >= 0 ? -4 : 11)).toFixed(1) + '" text-anchor="middle" font-size="9" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtPct(bx.v)) + "</text>";
+        s += '<text x="' + (P.l + slot * (i + 0.5)).toFixed(1) + '" y="' + (H - P.b + 14) + '" text-anchor="middle" font-size="9.5" fill="var(--chart-axis)">' + esc(bx.label) + "</text>";
+      });
+      s += "</svg>";
+      var as = rd.assumptions || {};
+      out += "<div class='qgauge'><div class='gauge-h'><span>FCF growth the price implies" + (mineBars.length ? ", and this dive's" : "") + "</span><span class='gv'>" +
+        esc(fmtPct(rd.implied_fcf_cagr)) + (as.horizon_years != null ? " at " + esc(as.horizon_years) + "y" : "") + "</span></div>" + s +
+        "<div class='legend-keys'><span><i class='sw' style='background:var(--s1)'></i>price implies, by horizon</span>" +
+        (mineBars.length ? "<span><i class='sw' style='background:var(--s2)'></i>this dive's FCF CAGR</span>"
+          : "<span class='muted'>this dive states no FCF CAGR of its own on the net-gap row</span>") + "</div>" +
+        "<div class='fsub'>" + esc((as.discount_rate != null ? fmtPct(as.discount_rate) + " discount" : "") +
+          (as.terminal_growth != null ? ", " + fmtPct(as.terminal_growth) + " terminal" : "") + (as.method ? ", " + as.method : "") +
+          (as.tag ? " · " + as.tag : "")) + "</div></div>";
+    }
+    return out ? "<div class='gauges'>" + out + "</div>" : "";
+  }
+  /* The expectations gap as a picture: per driver, what the price implies (--s1 dot)
+     against what this dive expects (--s2 dot), and a bear-to-bull band where the dive
+     states one. A row whose market column is NULL shows the dive's dot alone and says
+     so; a row with no number at all stays in the table below. */
+  function gapChart(g) {
+    var LABEL = { revenue_cagr_5y: "5y revenue CAGR", operating_margin: "Steady-state op margin",
+                  reinvestment_return: "Reinvestment return", terminal: "Terminal growth",
+                  net_gap_direction: "This dive's FCF CAGR" };
+    var rows = (g.rows || []).filter(function (r) { return r && typeof r.mine === "number"; });
+    if (!rows.length) return "";
+    var vals = [];
+    rows.forEach(function (r) {
+      vals.push(r.mine);
+      if (typeof r.market_implied === "number") vals.push(r.market_implied);
+      ["my_fcf_cagr_bear", "my_fcf_cagr_bull"].forEach(function (k) { if (typeof r[k] === "number") vals.push(r[k]); });
+    });
+    var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max.apply(null, vals);
+    if (hi <= lo) hi = lo + 0.01;
+    var padv = (hi - lo) * 0.1; hi += padv; if (lo < 0) lo -= padv;
+    var W = 680, L = 190, R = 78, rowH = 36, P = { t: 10, b: 22 }, H = P.t + rows.length * rowH + P.b;
+    function X(v) { return L + (v - lo) / (hi - lo) * (W - L - R); }
+    var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="expectations gap">';
+    niceTicks(lo, hi, 4).forEach(function (t) {
+      s += '<line x1="' + X(t).toFixed(1) + '" y1="' + P.t + '" x2="' + X(t).toFixed(1) + '" y2="' + (H - P.b) + '" stroke="var(--chart-grid)"/>' +
+        '<text x="' + X(t).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(fmtPct(t)) + "</text>";
+    });
+    if (lo < 0) s += '<line x1="' + X(0).toFixed(1) + '" y1="' + P.t + '" x2="' + X(0).toFixed(1) + '" y2="' + (H - P.b) + '" stroke="var(--chart-axis)"/>';
+    rows.forEach(function (r, i) {
+      var y = P.t + rowH * i + rowH / 2, mkv = typeof r.market_implied === "number" ? r.market_implied : null;
+      var name = LABEL[r.driver] || r.driver;
+      var tip = name + "\nmarket implies: " + (mkv == null ? "NULL" + (str_or_empty(r.market_implied_note) ? " (" + r.market_implied_note + ")" : "") : fmtPct(mkv)) +
+        "\nthis dive: " + fmtPct(r.mine) + (r.percentile != null ? "\nbase rate: " + ord(r.percentile) + " percentile" : "") + (r.tag ? "\n" + r.tag : "");
+      s += '<rect class="finhit" x="0" y="' + (y - rowH / 2).toFixed(1) + '" width="' + W + '" height="' + rowH + '" data-tip="' + esc(tip) + '"/>';
+      s += '<text x="' + (L - 12) + '" y="' + (y + 3.5).toFixed(1) + '" text-anchor="end" font-size="11" fill="var(--ink-2)" pointer-events="none">' + esc(name) + "</text>";
+      if (typeof r.my_fcf_cagr_bear === "number" && typeof r.my_fcf_cagr_bull === "number") {
+        s += '<rect x="' + X(r.my_fcf_cagr_bear).toFixed(1) + '" y="' + (y - 5).toFixed(1) + '" width="' + Math.max(1, X(r.my_fcf_cagr_bull) - X(r.my_fcf_cagr_bear)).toFixed(1) + '" height="10" rx="3" fill="var(--band-good)" pointer-events="none"/>';
+      }
+      if (mkv != null) {
+        s += '<line x1="' + X(mkv).toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + X(r.mine).toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--border-strong)" stroke-width="2" pointer-events="none"/>';
+        s += '<circle cx="' + X(mkv).toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
+        s += '<text x="' + X(mkv).toFixed(1) + '" y="' + (y - 9).toFixed(1) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtPct(mkv)) + "</text>";
+      } else {
+        s += '<text x="' + (X(r.mine) + 10).toFixed(1) + '" y="' + (y - 9).toFixed(1) + '" font-size="9.5" fill="var(--ink-3)" pointer-events="none">market: NULL</text>';
+      }
+      s += '<circle cx="' + X(r.mine).toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5" fill="var(--s2)" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
+      s += '<text x="' + X(r.mine).toFixed(1) + '" y="' + (y + 16).toFixed(1) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtPct(r.mine)) + "</text>";
+      if (r.percentile != null) {
+        s += '<text x="' + (W - R + 8) + '" y="' + (y + 3.5).toFixed(1) + '" font-size="9.5" class="mono-t" fill="' +
+          (typeof r.percentile === "number" && r.percentile > 80 ? "var(--crd-ink)" : "var(--ink-3)") + '" pointer-events="none">' + esc(ord(r.percentile) + " pct") + "</text>";
+      }
+    });
+    s += "</svg>";
+    return '<div class="chartwrap">' + s + "</div>" +
+      "<div class='legend-keys'><span><i class='sw' style='background:var(--s1)'></i>market implies</span>" +
+      "<span><i class='sw' style='background:var(--s2)'></i>this dive</span>" +
+      "<span><i class='sw' style='background:var(--band-good);border:1px solid var(--und)'></i>bear to bull, where the dive states one</span></div>";
+  }
+  /* A bull or bear bullet is a string on the older dives and an object {point, tag,
+     evidence, url, source_excerpt, ...} on the newer ones. The page printed the object
+     as "[object Object]" until 2026-09-13; an object with no point prints whole rather
+     than as nothing. */
+  function caseBullet(b) {
+    if (!b || typeof b !== "object") return "<li>" + esc(b) + "</li>";
+    var text = str_or_empty(b.point);
+    if (!text) text = JSON.stringify(b);
+    var src = b.url ? " <a href='" + esc(b.url) + "' target='_blank' rel='noopener'>source</a>" : "";
+    var ev = "";
+    if (str_or_empty(b.evidence)) ev = "<div class='muted small' style='margin-top:3px'>" + esc(b.evidence) + src + "</div>";
+    else if (Array.isArray(b.evidence)) ev = evList(b.evidence) + (src ? "<div class='muted small'>" + src + "</div>" : "");
+    else if (src) ev = "<div class='muted small'>" + src + "</div>";
+    return "<li>" + esc(text) + (b.tag ? " " + chip(b.tag) : "") + ev +
+      (str_or_empty(b.pending_basis) ? "<div class='muted small'>pending: " + esc(b.pending_basis) + "</div>" : "") +
+      (b.source_excerpt ? "<details class='excerpt'><summary class='muted small'>verbatim excerpt</summary><blockquote class='small'>" + esc(b.source_excerpt) + "</blockquote></details>" : "") +
+      "</li>";
+  }
+  /* The confidence audit as one stacked bar: verified, inferred, speculative, null. */
+  function caBar(ca) {
+    var parts = [["verified", "var(--und)"], ["inferred", "var(--accent)"], ["speculative", "var(--emg)"], ["null", "var(--quiet)"]];
+    var total = 0;
+    parts.forEach(function (p) { if (typeof ca[p[0]] === "number") total += ca[p[0]]; });
+    if (!total) return "";
+    return "<div class='stackbar' aria-hidden='true'>" + parts.map(function (p) {
+      var v = typeof ca[p[0]] === "number" ? ca[p[0]] : 0;
+      return v > 0 ? "<i style='flex:" + v + ";background:" + p[1] + "'></i>" : "";
+    }).join("") + "</div>";
+  }
+
   /* ---------------- book & shadow ---------------- */
   function bookView() {
     var trades = D.trades || [];
@@ -1958,11 +2392,21 @@
       (cards ? '<div class="topgrid">' + cards + "</div>" : '<div class="emptystate">No scored link on disk.</div>') +
       "<div class='top-denom muted'>" + denom + "</div>";
   }
+  /* Ron, 2026-09-13: a click anywhere on a Board row opens the name, not only the
+     ticker text. A dived name opens its analysis; a name with no dive yet opens the
+     chain it sits on, which is where its link and screen row live. */
+  function boardRowHref(r) {
+    if (r.dive_status && r.ticker && r.chain_id) return boardStockHref(r);
+    return r.chain_id ? "#/chain/" + encodeURIComponent(r.chain_id) : "";
+  }
+  function boardRowAttrs(href) { return href ? " class='rowlink' data-nav='" + esc(href) + "' tabindex='0'" : ""; }
+  function boardName(label, href) { return href ? "<a href='" + esc(href) + "'>" + esc(label) + "</a>" : esc(label); }
   function boardView() {
     var b = D.board || { verdicts: [], o1_queue: [], o2: [], blocked: [], themes: [], counts: {} };
     var c = b.counts || {};
     var verdictRows = (b.verdicts || []).map(function (r) {
-      return "<tr><td class='tk-name'><a href='" + boardStockHref(r) + "'>" + esc(r.ticker) + "</a> <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      var href = boardStockHref(r);
+      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + boardVerdictChip(r.verdict) + " " + (r.status === "FINAL" ? chip("FINAL", "accent") : chip("DRAFT, no red team yet", "stale")) + "</td>" +
         "<td>" + esc(num(r.clock, "–")) + "</td>" +
         "<td>" + boardEntry(r) + "</td>" +
@@ -1970,19 +2414,22 @@
         "<td class='num'>" + esc(num(r.review_by, "–")) + "</td></tr>";
     }).join("");
     var o1Rows = (b.o1_queue || []).map(function (r) {
-      return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      var href = boardRowHref(r);
+      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + (r.dive_status ? chip(r.dive_status, r.dive_status === "FINAL" ? "accent" : "stale") : chip("not dived", "neutral")) + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
         "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>tier not set</span>") + "</td></tr>";
     }).join("");
     var o2Rows = (b.o2 || []).map(function (r) {
-      return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      var href = boardRowHref(r);
+      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + (r.heat_verdict ? chip(r.heat_verdict.replace(/_/g, " "), r.heat_verdict) : chip("unscored link", "neutral")) + (r.money_corner ? " " + chip("money corner", "accent") : "") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
         "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>tier not set</span>") + "</td></tr>";
     }).join("");
     var blockedRows = (b.blocked || []).map(function (r) {
-      return "<tr><td class='tk-name'>" + esc(r.ticker || r.issuer_id) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      var href = boardRowHref(r);
+      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + chip(r.status || "BLOCKED", "verystale") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + "</td>" +
         "<td>" + esc(r.on || "no data gap recorded on the profile") + "</td></tr>";
@@ -1997,7 +2444,7 @@
       return body ? '<div class="tablewrap"><table><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>" :
         '<div class="emptystate">' + esc(empty) + "</div>";
     }
-    return topbar("board") + "<main><div class='pagehead'><h1>Board</h1><p class='sub'>The three biggest opportunities first, by size. Then every dive with its verdict, the O1 queue waiting on a dive, O2 by the heat of its link, and what blocks the rest. Verdicts come from the stock files; nothing on this page is computed here.</p></div>" +
+    return topbar("board") + "<main><div class='pagehead'><h1>Board</h1><p class='sub'>The three biggest opportunities first, by size. Then every dive with its verdict, the O1 queue waiting on a dive, O2 by the heat of its link, and what blocks the rest. Verdicts come from the stock files; nothing on this page is computed here. Click a row to open the name: its full analysis when a dive exists, its chain otherwise.</p></div>" +
       boardTop(b) +
       '<div class="statgrid">' +
       '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.final, "0")) + '</span><span class="l">FINAL verdicts</span></div></div>' +
@@ -4678,6 +5125,34 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { var host = document.getElementById("drawerHost"); if (host) host.innerHTML = ""; }
     });
+    /* One tooltip for every mark that carries data-tip (the stock-page charts). The
+       text is set with textContent, never innerHTML, because labels are data. Wired
+       once on the app root: route() replaces its children, not the root. */
+    if (!app.__tipWired) {
+      app.__tipWired = true;
+      var tipEl = document.createElement("div");
+      tipEl.className = "tooltip"; tipEl.style.display = "none"; document.body.appendChild(tipEl);
+      var tipAt = function (text, x, y) {
+        tipEl.textContent = text; tipEl.style.display = "block";
+        var w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+        tipEl.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, x + 14)) + "px";
+        tipEl.style.top = Math.max(6, Math.min(window.innerHeight - h - 6, y - 12)) + "px";
+      };
+      var tipTarget = function (e) { return e.target && e.target.closest ? e.target.closest("[data-tip]") : null; };
+      app.addEventListener("mousemove", function (e) {
+        var t = tipTarget(e);
+        if (!t) { tipEl.style.display = "none"; return; }
+        tipAt(t.getAttribute("data-tip"), e.clientX, e.clientY);
+      });
+      app.addEventListener("mouseleave", function () { tipEl.style.display = "none"; });
+      app.addEventListener("focusin", function (e) {
+        var t = tipTarget(e);
+        if (!t) return;
+        var r = t.getBoundingClientRect();
+        tipAt(t.getAttribute("data-tip"), r.left + r.width / 2, r.top);
+      });
+      app.addEventListener("focusout", function () { tipEl.style.display = "none"; });
+    }
     var tb = document.getElementById("themeBtn");
     if (tb) tb.addEventListener("click", cycleTheme);
     var hov = document.getElementById("pxhover");

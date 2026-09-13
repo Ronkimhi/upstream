@@ -19,6 +19,8 @@
   --good: #1F9D5B; --warn: #C08A0B; --bad: #C13A52;
   --band-good: rgba(31, 157, 91, 0.10); --band-bad: rgba(193, 58, 82, 0.07);
   --chart-grid: #EEEEF3; --chart-axis: #B9B9C4;
+  /* chart series, in fixed order (validated for colour-vision separation, 2026-09-13) */
+  --s1: #5B5BD6; --s2: #1F9D5B; --s3: #D2622B;
   --shadow: 0 1px 2px rgba(23, 23, 30, 0.04), 0 6px 24px rgba(23, 23, 30, 0.05);
   --shadow-lift: 0 2px 4px rgba(23, 23, 30, 0.06), 0 12px 32px rgba(23, 23, 30, 0.09);
   --btn-ink: #FFFFFF;
@@ -37,6 +39,7 @@
     --good: #34C77E; --warn: #E3B23C; --bad: #E25C78;
     --band-good: rgba(52, 199, 126, 0.10); --band-bad: rgba(226, 92, 120, 0.08);
     --chart-grid: #1F1F28; --chart-axis: #4A4A58;
+    --s1: #8687F0; --s2: #26A866; --s3: #DC6A3A;
     --shadow: none; --shadow-lift: 0 12px 32px rgba(0, 0, 0, 0.5);
     --btn-ink: #0C0C10;
   }
@@ -438,7 +441,7 @@ blockquote { margin: 8px 0; padding: 9px 13px; border-left: 3px solid var(--acce
 .chartwrap { overflow-x: auto; }
 svg text { font-family: Inter, sans-serif; fill: var(--ink-2); }
 svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
-.tooltip { position: fixed; z-index: 80; pointer-events: none; background: var(--ink); color: var(--bg);
+.tooltip { position: fixed; z-index: 80; pointer-events: none; white-space: pre-line; max-width: 340px; background: var(--ink); color: var(--bg);
   border-radius: 8px; padding: 6px 11px; font-size: 12px; box-shadow: var(--shadow-lift); }
 
 .emptystate { text-align: center; padding: 44px 20px; color: var(--ink-3); border: 1.5px dashed var(--border-strong);
@@ -519,6 +522,39 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .bigval .spark { width: 66px; height: 22px; overflow: visible; }
 .bigval .l { display: block; margin-top: 2px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--ink-3); }
 
+/* ---------------- stock page graphics (2026-09-13) ----------------
+   Board rows open the name; the stock page draws its range, its filed financials, its
+   quality scores, its expectations gap and its evidence mix. Marks wear the series
+   tokens; every label wears an ink token. */
+tr.rowlink { cursor: pointer; }
+tr.rowlink:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.rangewrap { margin: 2px 0 16px; }
+.rangebar { display: block; max-width: 640px; }
+.rangecap { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.fingrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px 20px; margin-top: 4px; }
+.finpanel h4 { margin: 0 0 1px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.fsub { font-size: 11px; color: var(--ink-3); margin: 0 0 6px; line-height: 1.45; }
+.finhit { fill: transparent; }
+.finhit:hover { fill: var(--surface-2); }
+.legend-keys { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--ink-2); margin: 6px 0 2px; }
+.legend-keys .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend-keys .ln { display: inline-block; width: 14px; height: 0; border-top: 2px solid; margin-right: 6px; vertical-align: 3px; }
+.gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px 28px; margin: 6px 0 16px; }
+.qgauge { display: block; min-width: 0; }
+.gauge-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12.5px; color: var(--ink-2); font-weight: 550; }
+.gauge-h .gv { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink); white-space: nowrap; }
+.seg9 { display: flex; gap: 2px; margin: 8px 0 6px; }
+.seg9 i { flex: 1; height: 10px; border-radius: 2px; background: var(--surface-3); }
+.seg9 i.on { background: var(--und); }
+.seg9.MIDDLING i.on { background: var(--emg); }
+.seg9.WEAK i.on { background: var(--ovr); }
+.crits { display: flex; flex-wrap: wrap; gap: 4px; }
+.crit { font-size: 10.5px; padding: 1px 7px; border-radius: 5px; background: var(--surface-2); color: var(--ink-3); white-space: nowrap; }
+.crit.ok { background: var(--und-bg); color: var(--und-ink); }
+.crit.no { background: var(--ovr-bg); color: var(--ovr-ink); }
+.stackbar { display: flex; gap: 2px; height: 10px; border-radius: 4px; overflow: hidden; margin: 10px 0 2px; }
+.stackbar i { display: block; height: 100%; }
+
 /* ---------------- radar signal card: corner brackets + occurrence register ---------------- */
 .sigrow.bracket { position: relative; border-color: transparent; background: var(--surface); }
 .sigrow.bracket:hover { border-color: transparent; }
@@ -545,9 +581,9 @@ svg .mono-t { font-family: "JetBrains Mono", monospace; font-variant-numeric: ta
 .gaptable { width: 100%; border-collapse: collapse; font-size: 13px; }
 .gaptable th {
   text-align: left; font-weight: 600; color: var(--ink-3); padding: 6px 10px 6px 0;
-  border-bottom: 1px solid var(--line); white-space: nowrap;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
 }
-.gaptable td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.gaptable td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
 .gaptable tr:last-child td { border-bottom: 0; }
 .gaptable td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 

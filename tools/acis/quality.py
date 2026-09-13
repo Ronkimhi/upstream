@@ -30,6 +30,14 @@ DEFAULT_HORIZON_YEARS = 5
 
 BENEISH_REVIEW_THRESHOLD = -1.78   # M above this triggers manual review (method §7)
 
+# Score zones. Named here so app/build.py can ship them to the page (D.method.quality)
+# instead of app.js retyping 1.81 / 2.99 / 7 / 3 beside a meter and drifting from the
+# function that decided the state.
+PIOTROSKI_STRONG_MIN = 7           # F at or above this reads STRONG
+PIOTROSKI_WEAK_MAX = 3             # F at or below this reads WEAK; between is MIDDLING
+ALTMAN_DISTRESS_BELOW = 1.81       # Z below this is the distress zone
+ALTMAN_SAFE_ABOVE = 2.99           # Z at or above this is the safe zone; between is GREY
+
 
 def _row(pairs):
     """[[date, value], ...] -> one-row DataFrame with PERIODS AS COLUMNS, oldest first.
@@ -205,7 +213,8 @@ def piotroski(f: dict) -> dict:
     score = int(round(score))
     return {
         "score": score,
-        "state": "STRONG" if score >= 7 else ("WEAK" if score <= 3 else "MIDDLING"),
+        "state": ("STRONG" if score >= PIOTROSKI_STRONG_MIN
+                  else ("WEAK" if score <= PIOTROSKI_WEAK_MAX else "MIDDLING")),
         "criteria": {k: (None if _last(v) is None else bool(_last(v))) for k, v in criteria.items()},
         "inputs_found": len(needed), "inputs_needed": len(needed),
     }
@@ -295,7 +304,8 @@ def altman(f: dict, market_cap: float | None) -> dict:
                 "inputs_found": len(needed) + 1, "inputs_needed": len(needed) + 1}
     return {
         "score": round(z, 2),
-        "state": "DISTRESS" if z < 1.81 else ("GREY" if z < 2.99 else "SAFE"),
+        "state": ("DISTRESS" if z < ALTMAN_DISTRESS_BELOW
+                  else ("GREY" if z < ALTMAN_SAFE_ABOVE else "SAFE")),
         "inputs_found": len(needed) + 1, "inputs_needed": len(needed) + 1,
     }
 

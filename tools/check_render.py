@@ -198,6 +198,21 @@ REQUIRE = [
      "tickers and dates inside the prose"),
     ("app/templates/shell.html", r"family=Heebo",
      "a Hebrew-capable webface; Inter, JetBrains Mono and Baloo 2 ship no Hebrew glyphs"),
+    # --- added 2026-09-13 with the stock-page graphics (Ron: a Board row opens the full
+    # analysis, with graphs) ---------------------------------------------------------
+    ("app/templates/app.js", r"function finCharts\(",
+     "the fiscal-year fundamentals charts on the stock page, drawn only from series the "
+     "market file holds (no margin, ratio or free cash flow is computed in the page)"),
+    ("app/templates/app.js", r"finNote\(mk, st\.ticker\)",
+     "the fundamentals disclosure actually rendered under those charts: periods on file, "
+     "source and tag, coverage, and the path, so a short or vendor-sourced history is "
+     "said in words rather than drawn as if it were eight filed years"),
+    ("app/build.py", r"def project_market\(market: dict, fundamentals_for=",
+     "the rule that a fundamentals block rides the page only for a dived ticker, the one "
+     "place a template draws it; every other ticker's block stays in data/market"),
+    ("app/templates/app.js", r"class='rowlink' data-nav=",
+     "Board rows that open the name's page on a click anywhere in the row, not only on "
+     "the ticker text"),
 ]
 
 
