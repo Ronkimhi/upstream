@@ -171,6 +171,21 @@ No separate routine, deliberately. The Saturday `upstream-digest` routine alread
 evidenced LIVE; a third routine would be one more thing that can silently stop firing, and this
 repo already carries a smoke sentinel that has never fired once.
 
+`run digest` also carries `top3` since 2026-09-13: the three rows `python3 tools/opportunities.py`
+prints, copied, so the page's front door has a weekly history, and `machine.shadow`, the shadow
+book's per-origin hit rates from the build's `shadow_summary`. I copy both; I never re-rank.
+
+### 5b. `run review`: the machine's calls against what happened
+
+`run review` is mine and it is reporting only. One ledger NOTE line: every dive past its
+`review_by`; the shadow book's hit rates **per origin, never pooled**, because Stocky's TOO_LATE
+number, Nell's DISMISSED number and, since 2026-09-13, Ember's OVER_CROWDED number answer three
+different questions; for the OVER_CROWDED origin, each link read as the median of its issuer
+rows with its fund row beside it; and the trade log against the machine's calls. The numbers
+come from `app/build.py`'s `shadow_summary` projection, which is what the shadow page prints,
+so the ledger and the page can never disagree. A row that is not yet +90 days old is counted
+as awaiting, never as right.
+
 ### 6. Groom the deferred-work backlog
 
 `tasks/backlog.md` is mine, and grooming it is part of `run digest`, never a separate routine. The

@@ -123,3 +123,11 @@ Second failure of the same shape as `fetch.QUALITY_FIELDS` / `acis.quality` (202
 check that the description is still true. Promoted to a test rather than a memory:
 `TestLegacyBaselineIsNotStale`, verified to refuse both the real historical bug and a
 missing-file entry.
+
+## 2026-09-13: The method could only see a fund as a symptom
+
+- On 2026-08-30 `hormuz-maritime/crude-tanker-tonnage` scored impact 95 on a freight rate that had risen more than tenfold, crowdedness 84 on the shipping stocks, and closed OVER_CROWDED. The fund that holds that rate directly (BWET, 90% TD3C freight futures) was on no map, in no census and in no screen, because every stage from `example_tickers` to the dive is shaped for operating companies and "ETF" appeared in the method once, as a crowdedness marker. Ron found it on a social feed on 2026-09-13.
+- Two rules earned enforcement at once. The price test (method §4): every HIGH or CHOKE_POINT link answers what price its scarcity sets and which listed instrument holds it, or records the search that found none; `tools/check_chain.py` holds it. Instrument heat (method §3): a link with an instrument is scored twice and the instrument's crowdedness is its own number; `tools/check_heat.py` holds it.
+- The third fault was that nothing could have caught the first two: no heat verdict was ever graded, so OVER_CROWDED was unfalsifiable by construction, and `tasks/backlog.md` had carried "the shadow book has never graded a no" since 2026-09-02. Every OVER_CROWDED call now writes shadow rows (`tools/shadow_heat.py`, refused by `check_heat.py` when missing on a campaign-era run) and the hit rate is reported per origin, never pooled.
+- The reading-side fault: `data/book.json` had no consumer and the digest's `ranked[]` rendered nowhere, so the page never said what the machine thought was biggest. The Board now opens with the three biggest links by size (`tools/opportunities.py`, gated by `tools/check_opportunities.py`), a build projection with every number naming its file.
+- Not fixed and named: radar first logged the war six months after it started, because the machine did not exist in February. Detection latency is a separate lesson when it has two instances.

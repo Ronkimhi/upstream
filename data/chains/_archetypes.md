@@ -157,6 +157,40 @@ QUIET or CROWDED is the usual honest answer.
 
 ---
 
+## ARCH-008 — the scarce thing is a traded price
+
+**Shape:** the link's scarcity sets a published price (a freight route, a war-risk premium, a
+spread, a charter rate) and a listed instrument holds that price directly, with none of the
+dilution an operating company carries. Impact lands first in the price and only then in the
+companies, and the companies' crowdedness says nothing about the instrument's. The instrument
+is the position in front of the companies: they capture the price through charter cover, costs
+and their own multiples; it captures the price net of roll and fees.
+
+**Evidence:** `hormuz-maritime/crude-tanker-tonnage` (impact 95 on the TD3C VLCC rate, a record
+and more than ten times a year earlier; crowdedness 84 on the shipping stocks; verdict
+OVER_CROWDED; BWET, which holds 90% TD3C freight futures, was on no map at all, 2026-08-30).
+`minor-nsr-permits` names FCG, MLPX and AMLP only as saturation markers: the same objects, seen
+only as a symptom. One chain where it should have fired and did not, one where the inversion is
+visible. Pairs with ARCH-003: the order book stays unbuyable; this is the case where the
+schedule's own price is.
+
+**What to check when it fires:** (1) who publishes the price and how often; (2) whether a
+futures market exists on it; (3) which listed wrapper holds those futures, and what it actually
+holds, copied verbatim from its own page into `holds`; (4) roll and fees: what the wrapper keeps
+of a move in the price at its tenor (contango, expense ratio, tracking); (5) the wrapper's own
+crowdedness, scored apart from the companies' (AUM, flows, coverage, PCS on its ticker; method
+§3 instrument heat); (6) how charter cover, costs and multiples dilute the same move for the
+companies on the link. The instrument is scored as its own expression and never profiled or
+dived (§6A and §7 are company-shaped). Record every search in `instrument_search.queries`; an
+empty `price_instruments` with a recorded search is a finding.
+
+**Queries:** `"<price name>" ETF`, `"<price name>" futures`, `"<route or index>"
+exchange-traded`, the issuer pages of Breakwave and Amplify, ProShares, USCF, Teucrium,
+WisdomTree and iShares commodity, plus the listing exchange's product list.
+
+**Origin:** METHOD · **First applied:** 2026-09-13 · **Status:** LIVE · **Chains:** 1 of 12
+(backfill pending on the seed corpus)
+
 ## Inherited query sets (from v8 `value-chain-map-skill`, adopted 2026-08-29)
 
 Kept verbatim because they are theme-specific and already proven to be the right strings, and

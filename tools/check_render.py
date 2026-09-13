@@ -107,6 +107,14 @@ DENY = [
 
 # Structures whose absence silently degrades the page rather than breaking it.
 REQUIRE = [
+    ("app/templates/app.js", r"function boardTop\(",
+     "the Top 3 block at the top of the Board: the three biggest links by size, every "
+     "field a build projection through tools/opportunities.py (Ron, 2026-09-13)"),
+    ("app/build.py", r"def build_top\(",
+     "the build-time Top 3 projection; the renderer never ranks or computes a size"),
+    ("app/build.py", r"def shadow_summary\(",
+     "the per-origin shadow-book summary; a pooled hit rate would mix Stocky's TOO_LATE "
+     "number with Ember's OVER_CROWDED number (method section 8, 2026-09-13)"),
     ("app/templates/app.js", r"function indText\(",
      "the one helper that resolves an indicator keyed `signal` OR `indicator`. Method "
      "section 5 and check_scenarios.py accept both and 141 of 173 on disk use `signal`, "

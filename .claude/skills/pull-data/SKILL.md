@@ -52,6 +52,11 @@ Pull-rebase immediately before writing. Append to `requests` in `data/requests.j
   `edgar_fts` (takes `query` + optional `forms` instead of `ticker`; may carry `link_id`) ·
   `web_doc` (takes `url` instead of `ticker`; stores the page text at `data/web/<id>.json`,
   see `tools/evidence_store.py`; a 403/404 is stored as the page's status, so cite elsewhere).
+- **A price instrument (an ETF, ETN or commodity pool named in a link's `price_instruments`,
+  method §4) queues `prices` and `pcs` only.** Its `fundamentals`, `quality`, `insider` and
+  `edgar_doc` rows would fulfil empty forever: the SEC filer is a trust with no operating
+  statements. Queue a `web_doc` row for the issuer's fund page beside them so the `holds`
+  excerpt is on disk (added 2026-09-13).
 - **Order inside one batch matters and one batch is fine**: the fetcher runs rows in file
   order, and `quality` is pure computation over what `fundamentals` wrote — so per ticker
   queue `prices`, then `fundamentals`, then `quality` (then `pcs`, `insider`, `edgar_doc`

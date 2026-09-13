@@ -23,6 +23,11 @@ rule is stated in terms of CONTENT:
   data/requests.json          union of rows by id; on the same id, a transitioned status
                               (FULFILLED/FAILED) beats PENDING, because Actions is the
                               only status-transitioner and its write is the later fact.
+  data/shadow/book.json       union of rows by id, both sides kept, a's order first then
+                              b's new ids. No status to transition here, unlike
+                              requests.json: a shadow row is never amended in place, only
+                              graded into results.json elsewhere, so there is nothing to
+                              rank between two copies of the same id.
   data/market/*.json,
   data/edgar/docs|fts/*.json  newer `fetched_at` wins. Both sides are the same fetcher
                               writing the same public document.
@@ -103,6 +108,24 @@ def union_requests(a: str, b: str):
                        "requests": [rows[i] for i in order]}, indent=1) + "\n"
 
 
+def union_shadow_book(a: str, b: str):
+    """Mirrors union_requests: rows unioned by id, a's order first, then b's new ids. No
+    rank function, because unlike a request row a shadow row never transitions status in
+    place; the two copies of one id are identical or a's is kept."""
+    da, db = jparse(a), jparse(b)
+    if da is None or db is None:
+        return None
+    rows = {}
+    order = []
+    for src in (da.get("rows", []), db.get("rows", [])):
+        for row in src:
+            rid = row.get("id")
+            if rid not in rows:
+                rows[rid] = row
+                order.append(rid)
+    return json.dumps({"rows": [rows[i] for i in order]}, indent=1) + "\n"
+
+
 def newer_by(a: str, b: str, *keys):
     """Whole-file rule: the side whose nested timestamp is later. Ties/unparseable: a."""
     da, db = jparse(a), jparse(b)
@@ -173,6 +196,9 @@ def resolve_one(root: Path, path: str):
     if path == "data/requests.json":
         m = union_requests(a, b)
         return m, False, "union of rows by id, transitioned status wins"
+    if path == "data/shadow/book.json":
+        m = union_shadow_book(a, b)
+        return m, False, "union of rows by id, both sides kept"
     if path.startswith(("data/market/", "data/edgar/docs/", "data/edgar/fts/")):
         return newer_by(a, b, "fetched_at"), False, "same fetcher, newer fetched_at wins"
     if path == "data/feeds/latest.json":

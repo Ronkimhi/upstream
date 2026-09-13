@@ -1347,6 +1347,16 @@ def v_digest(f: Path) -> None:
         for k in ("named", "o1_queue", "blocked"):
             if not isinstance(d["verdicts"].get(k), list):
                 err(f, f"verdicts.{k} must be a list (empty is a real answer, absent is not)")
+    # Ron, 2026-09-13: the page's front door ranks the three biggest links by size, and the
+    # Saturday digest keeps that history as `top3`, copied from `python3 tools/opportunities.py`.
+    # Warned for the first week it applies to, refused from the next, the verdicts precedent.
+    if "top3" not in d:
+        (err if week >= "2026-39" else warn)(
+            f, "no top3 section: the digest records the page's three biggest opportunities "
+               "so the ranking has a history (required from ISO week 2026-39)")
+    elif not isinstance(d.get("top3"), list) or any(
+            not isinstance(r, dict) or not {"rank", "chain_id", "link_id"} <= set(r) for r in d["top3"]):
+        err(f, "top3 must be a list of {rank, chain_id, link_id, ...} rows copied from tools/opportunities.py")
     # Campaign-era digests must name their writer and carry Adam's machine sweep. Warn-only
     # let a digest omit both and still exit zero, which reads as a healthy machine.
     if not d.get("generated_by"):
@@ -1390,6 +1400,15 @@ def v_digest(f: Path) -> None:
                 if "buckets" not in db or not isinstance(db["buckets"], (list, dict)):
                     err(f, "machine.deferred_backlog.buckets must be a list or object (empty is "
                            "allowed, absence is not): the OPEN rows grouped by concept")
+        # The shadow book's per-origin hit rates ride in the machine block (method section 8,
+        # 2026-09-13). Optional while young, shape-checked when present so a pooled number
+        # cannot read as a per-origin one.
+        sh = m.get("shadow")
+        if sh is not None:
+            if not isinstance(sh, dict) or any(
+                    not isinstance(v, dict) or not {"rows", "graded", "right"} <= set(v) for v in sh.values()):
+                err(f, "machine.shadow must map each origin to {rows, graded, right, hit_rate}, one "
+                       "denominator per kind of no")
         # Legacy total-only field is allowed beside findings_by_category but not instead of it.
         if isinstance(m.get("findings"), int) and not isinstance(m.get("findings_by_category"), dict):
             err(f, "machine.findings is a bare count with no machine.findings_by_category "

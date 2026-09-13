@@ -1853,17 +1853,40 @@
   function shadowView() {
     var rows = ((D.shadow || {}).book || {}).rows || [];
     var res = (D.shadow || {}).results || {};
-    var right = 0, graded = 0;
+    var sm = (D.shadow || {}).summary || {};
+    var origins = sm.by_origin || {};
+    /* Method section 8, 2026-09-13: hit rates per origin, never pooled. Stocky's TOO LATE
+       number and Ember's OVER CROWDED number answer different questions, and the summary
+       is a build projection (app/build.py shadow_summary), not a renderer count. */
+    var prose = {
+      DIVE_TOO_LATE: "RIGHT means skipping the name was correct.",
+      HEAT_OVER_CROWDED: "RIGHT means standing aside from the link was correct: its names underperformed SPY."
+    };
+    var cards = Object.keys(origins).sort().map(function (o) {
+      var x = origins[o] || {};
+      var why = prose[o] || (o.indexOf("DISMISS") >= 0 ? "RIGHT means dismissing the signal was correct." : "RIGHT means the machine's no was correct.");
+      return '<div class="card"><div class="stat"><span class="v">' + (x.hit_rate != null ? esc(x.hit_rate) + "%" : "–") +
+        '</span><span class="l">' + esc(o.replace(/_/g, " ")) + ": " + esc(num(x.right, "0")) + " right of " + esc(num(x.graded, "0")) +
+        " graded, " + esc(num(x.rows, "0")) + " rows. " + esc(why) + "</span></div></div>";
+    }).join("");
+    var linkRows = (sm.by_link || []).map(function (l) {
+      var inst = l.instrument;
+      return "<tr><td class='muted'>" + esc(l.chain_id) + " · " + esc(l.link_id) + "</td><td class='num'>" + esc(l.verdict_date) + "</td>" +
+        "<td class='num'>" + esc(num(l.graded, "0")) + " of " + esc(num(l.rows, "0")) + "</td>" +
+        "<td class='num'>" + (l.median_delta_pct != null ? esc(l.median_delta_pct) + "% vs SPY" : "<span class='muted'>awaiting +90d</span>") + "</td>" +
+        "<td>" + (inst ? esc(inst.ticker) + (inst.delta_pct != null ? " <span class='num'>" + esc(inst.delta_pct) + "% vs SPY</span> " + chip(inst.call, inst.call) : " " + chip("awaiting +90d")) : "<span class='muted'>no fund on this link</span>") + "</td></tr>";
+    }).join("");
     var body = rows.map(function (r) {
       var x = res[r.id];
-      if (x && x.call) { graded++; if (x.call === "RIGHT") right++; }
-      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'>" + esc(r.ticker) + "</td><td>" + chip(r.origin.replace(/_/g, " ")) + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
+      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'>" + esc(r.ticker) + "</td><td>" + chip(String(r.origin || "").replace(/_/g, " ")) +
+        (r.link_id ? " <span class='muted'>" + esc(r.chain_id) + " · " + esc(r.link_id) + "</span>" : "") + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
         "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% vs SPY</span> " + chip(x.call, x.call) : chip("awaiting +90d")) + "</td></tr>";
     }).join("");
-    return topbar("shadow") + "<main><div class='pagehead'><h1>Shadow book</h1><p class='sub'>Every TOO LATE verdict and dismissed signal, repriced at +90 days against SPY. RIGHT means skipping was correct — the machine's \"no\" gets graded here.</p></div>" +
-      (graded ? '<div class="card" style="max-width:320px;margin-bottom:16px"><div class="stat"><span class="v">' + Math.round((100 * right) / graded) + '%</span><span class="l">of graded TOO LATE calls were right (' + right + " of " + graded + ")</span></div></div>" : "") +
-      (rows.length ? '<div class="tablewrap"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
-        '<div class="emptystate">Empty — fills automatically from TOO LATE verdicts and dismissed signals.</div>') +
+    return topbar("shadow") + "<main><div class='pagehead'><h1>Shadow book</h1><p class='sub'>Every TOO LATE verdict, every dismissed signal and, since 2026-09-13, every OVER CROWDED link call, repriced at +90 days against SPY. The machine's \"no\" gets graded here, one hit rate per kind of no.</p></div>" +
+      (cards ? '<div class="statgrid">' + cards + "</div>" : "") +
+      (linkRows ? seclabel("Links the machine stood aside from") + '<div class="tablewrap"><table><thead><tr><th>Chain · link</th><th>Heat date</th><th>Graded</th><th>Names, median</th><th>The fund</th></tr></thead><tbody>' + linkRows + "</tbody></table></div>" : "") +
+      (rows.length ? seclabel("Every row") + '<div class="tablewrap"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
+        '<div class="emptystate">Empty. Fills from TOO LATE verdicts, dismissed signals and OVER CROWDED link calls.</div>') +
       footer() + "</main>";
   }
 
@@ -1894,6 +1917,40 @@
   }
   function boardStockHref(r) {
     return "#/stock/" + encodeURIComponent(r.ticker) + "/" + encodeURIComponent(r.chain_id);
+  }
+  /* Ron, 2026-09-13. The three biggest opportunities first, by size: impact x capture x
+     un-crowdedness per link, best expression (the stocks, or the fund that holds the link's
+     scarce price). Every field here is a projection app/build.py made through
+     tools/opportunities.py; the renderer prints strings and never computes a number. */
+  function boardTopCard(r) {
+    var b = r.best || {};
+    var lines = r.lines || {};
+    var stageChip = b.verdict ? boardVerdictChip(b.verdict) :
+      chip(String(b.stage || "lead").replace(/_/g, " "), b.stage === "FUND" ? "accent" : "neutral");
+    var expr = r.expression === "INSTRUMENT" ? " " + chip("fund holds the price", "accent") : "";
+    var doLine;
+    if (r.next_command) doLine = runButton(r.next_command, null, { compact: true }) + " <span class='muted'>" + esc(lines.next) + "</span>";
+    else if (r.href) doLine = "<a class='top-open' href='" + esc(r.href) + "'>" + esc(lines.next || "Open") + "</a>";
+    else doLine = "<span class='muted'>" + esc(lines.next || "") + "</span>";
+    var note = r.adam_note ? "<div class='top-note muted'>Adam, week " + esc(r.adam_note.week) + ": " + esc(r.adam_note.title) + "</div>" : "";
+    var ticker = b.ticker ? " <span class='top-ticker num'>" + esc(b.ticker) + "</span>" : "";
+    return "<div class='card top'><div class='top-rank num'>" + esc(r.rank) + "</div><div class='top-body'>" +
+      "<div class='top-head'><a href='" + esc(r.href || "#/") + "'>" + esc(lines.headline || r.link_name || r.link_id) + "</a>" + ticker +
+      " <span class='muted'>" + esc(r.chain_title || r.chain_id || "") + "</span></div>" +
+      "<div class='top-why'>" + esc(lines.why || "") + " <span class='muted num'>size " + esc(num(r.size, "–")) + "</span></div>" +
+      "<div class='top-stage'>" + stageChip + expr + " " + esc(lines.stage || "") + "</div>" +
+      "<div class='top-next'>" + doLine + "</div>" + note + "</div></div>";
+  }
+  function boardTop(b) {
+    var t = b.top;
+    if (!t) return '<div class="emptystate">The Top 3 block was not built into this page (app/build.py build_top).</div>';
+    var cards = (t.top || []).map(boardTopCard).join("");
+    var denom = "Ranked " + esc(num(t.ranked_total, "?")) + " of " + esc(num(t.links_total, "?")) +
+      " scored links by size (impact × capture × un-crowdedness). Not ranked: " + esc(num(t.unrankable_total, "?")) +
+      ". Funds not rated yet: " + esc(num(t.instruments_unrated_total, "?")) + ".";
+    return seclabel("The three biggest opportunities right now") +
+      (cards ? '<div class="topgrid">' + cards + "</div>" : '<div class="emptystate">No scored link on disk.</div>') +
+      "<div class='top-denom muted'>" + denom + "</div>";
   }
   function boardView() {
     var b = D.board || { verdicts: [], o1_queue: [], o2: [], blocked: [], themes: [], counts: {} };
@@ -1934,7 +1991,8 @@
       return body ? '<div class="tablewrap"><table><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>" :
         '<div class="emptystate">' + esc(empty) + "</div>";
     }
-    return topbar("board") + "<main><div class='pagehead'><h1>Board</h1><p class='sub'>Names first. Every dive with its verdict, then the O1 queue waiting on a dive, then O2 by the heat of its link, then what blocks the rest. Verdicts come from the stock files; nothing on this page is computed here.</p></div>" +
+    return topbar("board") + "<main><div class='pagehead'><h1>Board</h1><p class='sub'>The three biggest opportunities first, by size. Then every dive with its verdict, the O1 queue waiting on a dive, O2 by the heat of its link, and what blocks the rest. Verdicts come from the stock files; nothing on this page is computed here.</p></div>" +
+      boardTop(b) +
       '<div class="statgrid">' +
       '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.final, "0")) + '</span><span class="l">FINAL verdicts</span></div></div>' +
       '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o1, "0")) + '</span><span class="l">O1 selected</span></div></div>' +

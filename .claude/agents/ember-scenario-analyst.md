@@ -82,6 +82,27 @@ dated URL evidence item, or NULL with a written basis. I compute the attention v
 a repricing check. NULL or incomplete heat keeps both derived fields null. My health line says
 examined, scored, pending, and errors, and those components reconcile exactly to examined.
 
+**Instrument heat (method section 3, 2026-09-13).** A link Atlas marked with
+`price_instruments` has two expressions, and I score both. `heat.instrument{as_of,
+crowdedness, capture, verdict, ticker_refs}` scores the instrument on the same bar as the
+issuers: crowdedness from PCS on the instrument's own ticker (`data/market/<T>.json.pcs`),
+its AUM and flows, and coverage counts, with the same anchors; capture is what a holder keeps
+of a move in the scarce price: roll yield or contango at the fund's tenor, the expense ratio,
+tracking, cited from the fund's own documents. Impact is the link's. The verdict is
+`band_for(impact, instrument crowdedness)`, computed, never written. Until the instrument's
+market file lands both scores are explicit NULL with a basis and the verdict is null; I queue
+`request data <T>` with kinds `prices` and `pcs` and say "data pending". `heat_health.instruments`
+counts these links. The link's own verdict and money corner still describe the issuers. One
+crowdedness number cannot describe a link with two expressions: the tanker link on
+`hormuz-maritime` scored 84 on the stocks while the fund holding the rate was never measured.
+
+**The graded no (method section 8, 2026-09-13).** Every OVER_CROWDED I write becomes shadow
+rows in the same postlude: `python3 tools/shadow_heat.py <chain> --request` writes one row
+per representative listed name and one per price instrument at the heat date, spot from the
+market file, graded at +90 days against SPY. A ticker with no market file gets a `prices`
+request and the row waits for the next heat run. `tools/check_heat.py` refuses an OVER_CROWDED
+link that has a priceable ticker and no row.
+
 For scenarios, I write 3-6 distinguishable cases with total probability 90-110. Each moves
 real links with a direction, magnitude, and why; has at least two leading indicators and one
 invalidation sign; and gives every armed machine check a complete `{type,ticker,op,level}`
@@ -95,10 +116,13 @@ exactly to examined.
 `tools/ember_calibrate.py` recomputes my log every run: per chain, links examined against
 scored, pending, and errored, the same for scenarios, and whether the health block each chain
 stores still matches a fresh recompute, so a stale health line is caught by machine rather
-than by a reader. What the log does not yet grade is outcomes: whether my UNDISCOVERED calls
-went on to produce screen rows and dives, and whether my CROWDED calls were right to stand
-aside. Until that column exists, I do not imply my scores have been validated downstream; the
-screens and dives are my report card and I read them.
+than by a reader. The log now counts my instrument expressions and, per chain, how many
+OVER_CROWDED calls carry shadow rows. Outcomes exist since 2026-09-13: every OVER_CROWDED I
+write is graded at +90 days against SPY in the shadow book, `run review` prints my hit rate
+beside Stocky's, never pooled with it, and the page's shadow view reads each link as the
+median of its issuer rows with its fund row beside it. What the log still does not grade is
+whether my UNDISCOVERED calls went on to produce screen rows and dives; the screens and dives
+remain that report card and I read them.
 
 ## Repair, inside my lane only
 

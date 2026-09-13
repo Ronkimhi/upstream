@@ -22,10 +22,19 @@ Checks, each reported with the denominator it examined (Rule 21):
  11. the explainer bar: a chain touched on or after EXPLAINER_GATE carries a plain-Hebrew
      explainer on every link and at chain level; any explainer present names no figure,
      no em or en dash, and every draws_on path resolves on its own object
+ 12. the price test (method §4 amendment, 2026-09-13): every HIGH/CHOKE_POINT link
+     names the price it sets, with a unit, a publisher and dated evidence, or says in
+     `basis` why it sets none; every such link also records its instrument search; every
+     instrument on any link, required or not, is a real, identified, cited listing that
+     holds what it claims to; and no `price_instruments` entry present at git HEAD may
+     silently vanish. Strict for a chain created on or after 2026-09-13 or touched
+     today; an older, unamended chain is reported as a warning, never a failure
 
 Scope: checks 9 and 10 only bind on a day that actually wrote a chain. On a day with no
 chain run the gate says NOT RUN TODAY for those, rather than reporting a clean pass over
-nothing, and still runs the structural checks over the whole corpus.
+nothing, and still runs the structural checks over the whole corpus. Check 12 uses its
+own per-chain dated ratchet (PRICE_TEST_GATE), independent of whether a chain was
+written today.
 
 Run: python3 tools/check_chain.py [--date YYYY-MM-DD] [--root PATH] [--warn-citations]
 Exit 0 clean, 1 on any failure.
@@ -36,6 +45,19 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
+# check_screen.normalize is the one verbatim-matching rule in the repo (whitespace,
+# case and smart-punctuation folded); imported rather than re-implemented a second
+# time, per method section 1 and this repo's own rule against duplicated-logic drift.
+# TICKER_RE is heat_score's single ticker shape, already shared by check_scenarios.
+# Both check_screen.py and what it in turn imports (check_map.py, evidence_store.py)
+# were read end to end for import-time side effects: none found, every top-level
+# statement there is a constant, a compiled regex, or a def, nothing runs until
+# main() is called under its own __main__ guard. The path insert mirrors check_map.py's
+# own pattern for importing a sibling module out of tools/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_screen import normalize  # noqa: E402
+from heat_score import TICKER_RE  # noqa: E402
 
 # Ledger-content rules bind runs from this date forward, never retroactively. Same pattern
 # as OCCURRENCE_GATE in tools/validate.py: a rule invented today cannot fail yesterday's work.
@@ -55,6 +77,17 @@ NUMERIC_TOKEN = re.compile(r"(?<![A-Za-z0-9])\d+(?:[.,]\d+)*(?![A-Za-z])")
 LINK_KEYS = ("what", "players", "why", "bottleneck", "hands_to")
 CHAIN_KEYS = ("shape", "thesis")
 EXPLAINER_MIN_CHARS = 40
+
+# The price test (method §4 amendment, 2026-09-13). Same dated ratchet as the citation
+# and explainer bars above: a chain created on or after this date, or touched (a
+# changelog entry dated) today, answers the price test in full; an older chain the
+# amendment never reached is the seed corpus and its gaps are reported, not failed,
+# until it is amended.
+PRICE_TEST_GATE = "2026-09-14"  # the day after the gate landed: runs already in flight on 2026-09-13 warn
+REQUIRED_CRITICALITY = ("HIGH", "CHOKE_POINT")
+INSTRUMENT_KINDS = {"ETF", "ETN", "COMMODITY_POOL", "PHYSICAL_TRUST", "FUTURES", "INDEX_NOTE"}
+SEARCH_RESULTS = {"FOUND", "NONE_FOUND", "NOT_APPLICABLE"}
+SEARCHED_AT_RE = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
 def resolve_path(obj, path: str):
@@ -110,6 +143,185 @@ def explainer_failures(owner: dict, keys, ctx: str) -> list[str]:
         if resolve_path(owner, path) is None:
             fails.append(f"{ctx}: explainer.draws_on {path!r} resolves to nothing on this object")
     return fails
+
+
+def _http_url(value) -> bool:
+    return isinstance(value, str) and bool(re.match(r"^https?://", value))
+
+
+def changelog_dated(chain: dict, day: str) -> bool:
+    """True when `chain`'s changelog carries an entry timestamped on `day` (YYYY-MM-DD).
+    Tries `ts`, then `date`, then `as_of`, the three spellings a changelog entry uses
+    across this repo's stores."""
+    for entry in chain.get("changelog") or []:
+        if not isinstance(entry, dict):
+            continue
+        ts = str(entry.get("ts") or entry.get("date") or entry.get("as_of") or "")
+        if ts[:10] == day:
+            return True
+    return False
+
+
+def price_test_strict(chain: dict, today: str) -> bool:
+    """A chain answers the price test in full once it is created on or after
+    PRICE_TEST_GATE, or touched (a changelog entry) on the run day. An older chain the
+    amendment never reached is the seed corpus: its gaps are warnings, not failures,
+    the same ratchet the citation and explainer bars used before their own backfills."""
+    created = str(chain.get("created_at") or "")[:10]
+    if created >= PRICE_TEST_GATE:
+        return True
+    return today >= PRICE_TEST_GATE and changelog_dated(chain, today)
+
+
+def _scarce_price_failures(link_id, sp) -> list[str]:
+    """Method §4: every HIGH/CHOKE_POINT link either names the price it sets, with a
+    unit, a publisher and dated evidence, or says in `basis` why it sets none. Pure."""
+    if not isinstance(sp, dict):
+        return [f"{link_id}: scarce_price missing on a HIGH/CHOKE_POINT link"]
+    name = sp.get("name")
+    if name is None:
+        basis = sp.get("basis")
+        if not isinstance(basis, str) or not basis.strip():
+            return [f"{link_id}: scarce_price.basis missing when name is null"]
+        return []
+    if not isinstance(name, str) or not name.strip():
+        return [f"{link_id}: scarce_price.name is empty; use null with a basis when "
+                f"this link sets no price"]
+    fails = []
+    if not str(sp.get("unit") or "").strip():
+        fails.append(f"{link_id}: scarce_price.unit missing")
+    if not str(sp.get("published_by") or "").strip():
+        fails.append(f"{link_id}: scarce_price.published_by missing")
+    ev = sp.get("evidence") if isinstance(sp.get("evidence"), list) else []
+    if not any(isinstance(e, dict) and e.get("source_date") and _http_url(e.get("url")) for e in ev):
+        fails.append(f"{link_id}: scarce_price.evidence has no item with a source_date "
+                      f"and an http(s) url")
+    return fails
+
+
+def _instrument_search_failures(link_id, isr, n_instruments: int) -> list[str]:
+    """Method §4: every HIGH/CHOKE_POINT link records that it searched for a tradeable
+    instrument, what it searched, and what it found. Pure."""
+    if not isinstance(isr, dict):
+        return [f"{link_id}: instrument_search missing on a HIGH/CHOKE_POINT link"]
+    fails = []
+    searched_at = isr.get("searched_at")
+    if not isinstance(searched_at, str) or not SEARCHED_AT_RE.match(searched_at):
+        fails.append(f"{link_id}: instrument_search.searched_at is not a date string")
+    result = isr.get("result")
+    if result not in SEARCH_RESULTS:
+        fails.append(f"{link_id}: instrument_search.result {result!r} is not one of "
+                      f"{sorted(SEARCH_RESULTS)}")
+    queries = isr.get("queries")
+    if result != "NOT_APPLICABLE" and not (isinstance(queries, list) and queries):
+        fails.append(f"{link_id}: instrument_search.queries must be a non-empty list "
+                      f"unless result is NOT_APPLICABLE")
+    boundary = isr.get("boundary")
+    if not isinstance(boundary, str):
+        fails.append(f"{link_id}: instrument_search.boundary must be a string")
+    elif result != "FOUND" and not boundary.strip():
+        fails.append(f"{link_id}: instrument_search.boundary is empty; only a FOUND "
+                      f"result may leave it blank")
+    if result == "FOUND" and n_instruments == 0:
+        fails.append(f"{link_id}: instrument_search.result FOUND with an empty "
+                      f"price_instruments list")
+    if result in ("NONE_FOUND", "NOT_APPLICABLE") and n_instruments != 0:
+        fails.append(f"{link_id}: instrument_search.result {result} but price_instruments "
+                      f"is non-empty")
+    return fails
+
+
+def _instrument_failures(link_id, instr, index) -> list[str]:
+    """Every instrument on any link, required or not: a real, identified, cited
+    listing that actually holds what it claims to. Pure."""
+    if not isinstance(instr, dict):
+        return [f"{link_id}: price_instruments[{index}] is not an object"]
+    ticker = instr.get("ticker")
+    where = f"{link_id}: price_instruments[{ticker if isinstance(ticker, str) and ticker else index}]"
+    fails = []
+    if not isinstance(ticker, str) or not TICKER_RE.fullmatch(ticker):
+        fails.append(f"{where}.ticker {ticker!r} does not match TICKER_RE")
+    if not str(instr.get("exchange") or "").strip():
+        fails.append(f"{where}.exchange is empty")
+    if instr.get("kind") not in INSTRUMENT_KINDS:
+        fails.append(f"{where}.kind {instr.get('kind')!r} is not one of "
+                      f"{sorted(INSTRUMENT_KINDS)}")
+    holds = instr.get("holds")
+    if not isinstance(holds, str) or not holds.strip():
+        fails.append(f"{where}.holds is empty")
+    ev = instr.get("identity_evidence") if isinstance(instr.get("identity_evidence"), list) else []
+    verified = [e for e in ev if isinstance(e, dict) and e.get("tag") == "VERIFIED"
+                and e.get("source_date") and _http_url(e.get("url"))
+                and isinstance(e.get("source_excerpt"), str) and e.get("source_excerpt").strip()]
+    if not verified:
+        fails.append(f"{where}.identity_evidence has no VERIFIED item with a source_date, "
+                      f"an http(s) url and a non-empty source_excerpt")
+    elif isinstance(holds, str) and holds.strip():
+        if not any(normalize(holds) in normalize(e["source_excerpt"]) for e in verified):
+            fails.append(f"{where}.holds does not appear in any identity_evidence source_excerpt")
+    return fails
+
+
+def price_test_failures(chain: dict, head_chain) -> tuple[list[str], dict]:
+    """Method §4's price-test amendment (2026-09-13), pure. `head_chain` is the chain's
+    own git HEAD version (a dict), or None when it is unavailable, which fails the
+    preservation half open exactly like the heat/scenario preservation check above.
+    Returns every finding as a plain string plus the objective denominator; main()
+    alone decides, per chain, whether a finding fails or warns, because that decision
+    needs today's date and this function has no notion of it."""
+    fails: list[str] = []
+    stats = {"required": 0, "answered": 0, "instruments": 0, "none_found": 0}
+    links = chain.get("links") or []
+
+    for l in links:
+        if not isinstance(l, dict):
+            continue
+        link_id = l.get("id")
+        crit = (l.get("bottleneck") or {}).get("criticality")
+        required = crit in REQUIRED_CRITICALITY
+
+        pis = l.get("price_instruments")
+        if pis is not None and not isinstance(pis, list):
+            fails.append(f"{link_id}: price_instruments is not a list")
+            pis = None
+        n_instr = len(pis) if isinstance(pis, list) else 0
+        stats["instruments"] += n_instr
+
+        if required:
+            stats["required"] += 1
+            sp_fails = _scarce_price_failures(link_id, l.get("scarce_price"))
+            if not sp_fails:
+                stats["answered"] += 1
+            fails.extend(sp_fails)
+
+            isr = l.get("instrument_search")
+            fails.extend(_instrument_search_failures(link_id, isr, n_instr))
+            if isinstance(isr, dict) and isr.get("result") == "NONE_FOUND":
+                stats["none_found"] += 1
+
+        if isinstance(pis, list):
+            for i, instr in enumerate(pis):
+                fails.extend(_instrument_failures(link_id, instr, i))
+
+    if isinstance(head_chain, dict):
+        def _pairs(ch):
+            out = set()
+            for l in ch.get("links") or []:
+                if not isinstance(l, dict):
+                    continue
+                for instr in l.get("price_instruments") or []:
+                    if isinstance(instr, dict) and instr.get("ticker"):
+                        out.add((l.get("id"), instr.get("ticker")))
+            return out
+        dropped = _pairs(head_chain) - _pairs(chain)
+        for link_id, ticker in sorted(dropped):
+            fails.append(f"{link_id}: price_instruments[{ticker}] present at git HEAD is "
+                          f"missing now; a chain rebuild amends links in place")
+    # head_chain is None (git HEAD unreadable): preservation is skipped, not failed,
+    # the same idiom as the heat/scenario preservation check above.
+
+    return fails, stats
+
 
 failures: list[str] = []
 lines: list[str] = []
@@ -176,6 +388,8 @@ def main() -> int:
 
     total_links = sum(len(c.get("links") or []) for c in chains)
     uncited_all, limitations, signal_claims = 0, {}, {}
+    price_required_all = price_answered_all = price_instruments_all = 0
+    price_none_found_all = price_warnings_all = 0
 
     for c in chains:
         cid = c.get("id")
@@ -339,8 +553,26 @@ def main() -> int:
                f"{'yes' if isinstance(chain_x, dict) else 'no'}"
                + ("" if bound else f" (not bound: updated_at {str(c.get('updated_at') or '')[:10] or 'unset'})"))
 
+        # 12. the price test (method §4 amendment, 2026-09-13)
+        pf, pstats = price_test_failures(c, prev)
+        price_required_all += pstats["required"]
+        price_answered_all += pstats["answered"]
+        price_instruments_all += pstats["instruments"]
+        price_none_found_all += pstats["none_found"]
+        if pf:
+            if price_test_strict(c, today):
+                for m in pf:
+                    fail(m)
+            else:
+                for m in pf:
+                    report(m + "  [WARNING: price test amendment 2026-09-13, seed chain]")
+                price_warnings_all += len(pf)
+
     report(f"corpus: {len(chains)} chains, {total_links} links examined, "
            f"{uncited_all} uncited ({'error' if strict else 'warning'} mode)")
+    report(f"price test: {price_required_all} links required (HIGH/CHOKE_POINT), "
+           f"{price_answered_all} answered, {price_instruments_all} instrument(s), "
+           f"{price_none_found_all} NONE_FOUND, {price_warnings_all} warning(s) on seed chains")
 
     # 10. the ledger line
     ledger = (data / "ledger.md").read_text() if (data / "ledger.md").exists() else ""

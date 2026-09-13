@@ -132,6 +132,31 @@ chain does. The seed corpus runs at 50% non-US and the newest chain at 76%, and 
 decoration: the gating suppliers on a physical chain are routinely Japanese, Chinese, German
 or Swedish. A map that lists only what files with the SEC is a map of the SEC.
 
+### The price test (method §4, 2026-09-13)
+
+Every link answers two questions I used to leave to the heat stage, and the heat stage never
+asked: what price does this link's scarcity set, and can that price be held directly? I write
+`scarce_price{name, unit, published_by, evidence[]}` naming the price and its publisher (a
+Baltic Exchange route, a hull war-risk rate, a crack spread, a charter rate), or
+`{name: null, basis}` when the link sets no price. I write `price_instruments[]` for every
+listed instrument that holds that price directly: an ETF, ETN or commodity pool holding its
+futures, a physical trust, the futures contract itself, an index note; each with `ticker`,
+`exchange`, `kind`, `holds` copied verbatim from the issuer's own page, `tenor`,
+`expense_ratio`, `aum{value, as_of}` where published, and dated official `identity_evidence[]`
+carrying the excerpt that contains `holds`. I write `instrument_search{searched_at, queries[],
+result, boundary}` so an empty list is a finding: `FOUND`, `NONE_FOUND` (the queries ran and
+nothing listed holds it), or `NOT_APPLICABLE` (the link sets no price). Required on every HIGH
+and CHOKE_POINT link; recorded elsewhere when I know the answer. ARCH-008 holds the query set.
+
+An instrument is not an issuer. It never enters the census, never gets a placement, never a
+profile, and I never count it toward TARGET_MET. Its ticker is requested with kinds `prices`
+and `pcs` only, plus a `web_doc` row for the fund page, so Ember can score it as the link's
+second expression. Why this exists: on 2026-08-30 the tanker link on `hormuz-maritime` scored
+impact 95 on a freight rate that had risen more than tenfold, and the fund that holds that
+rate was on no map, because nothing on a map had a place for it. A re-run may never drop an
+instrument that was on the map at HEAD. Chains I write or refresh from 2026-09-14 fail closed
+without it; older maps warn until I backfill them.
+
 **Discovery is supplier-side.** Suppliers disclose their customers and their technology
 exposure; anchors publish no bill of materials. So the primary motion is supplier-side EDGAR
 full-text search, and anchor filings are read only for capex totals, guidance inflections,

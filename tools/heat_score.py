@@ -32,6 +32,56 @@ def money_corner(impact, crowdedness, capture):
     return impact >= 60 and crowdedness <= 40 and capture >= 60
 
 
+def link_size(impact, crowdedness, capture):
+    """Method §8 front door (2026-09-13): a link's size for one expression.
+
+    impact × capture × (100 − crowdedness) / 10^4, on 0..100, rounded to one decimal.
+    The money-corner rule made continuous, from the three numbers every scored link
+    already carries. None on any None: a size is never defaulted from a NULL score.
+    """
+    if None in (impact, crowdedness, capture):
+        return None
+    return round(impact * capture * (100 - crowdedness) / 10000, 1)
+
+
+def instrument_bucket(heat: dict):
+    """scored, pending, or errors for heat.instrument, the price-instrument expression.
+
+    Same rules as heat_bucket over two scores (crowdedness, capture) plus the link's
+    shared impact: a scored block has both finite scores, rationale and dated URL
+    evidence on each, and a verdict equal to band_for(impact, instrument crowdedness);
+    a pending block has both scores explicit NULL with a basis and a null verdict.
+    """
+    if not isinstance(heat, dict):
+        return "errors"
+    inst = heat.get("instrument")
+    if not isinstance(inst, dict):
+        return "errors"
+    impact = score_from(heat, "impact")
+    crowd = score_from(inst, "crowdedness")
+    capture = score_from(inst, "capture")
+    raw = [(inst.get(key) or {}).get("score") if isinstance(inst.get(key), dict) else object()
+           for key in ("crowdedness", "capture")]
+    if impact is not None and crowd is not None and capture is not None:
+        if inst.get("verdict") != band_for(impact, crowd):
+            return "errors"
+        for key in ("crowdedness", "capture"):
+            block = inst[key]
+            if not str(block.get("rationale") or "").strip():
+                return "errors"
+            if not any(isinstance(item, dict) and item.get("source_date")
+                       and str(item.get("url") or "").startswith(("http://", "https://"))
+                       for item in block.get("evidence") or []):
+                return "errors"
+        return "scored"
+    if all(value is None for value in raw):
+        blocks = [inst.get(key) for key in ("crowdedness", "capture")]
+        if (all(isinstance(block, dict) and str(block.get("basis") or "").strip() for block in blocks)
+                and inst.get("verdict") is None):
+            return "pending"
+    return "errors"
+
+
 def heat_bucket(heat: dict):
     """Return scored, pending, or errors from heat content and derived fields."""
     if not isinstance(heat, dict):

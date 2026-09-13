@@ -39,6 +39,11 @@ jobs:
       # session could honour or forget.
       - name: renderer lint
         run: python3 tools/check_render.py
+      # The front door (Ron, 2026-09-13): the Top 3 is a build projection, and this gate
+      # re-reads every number on a card from the file the card names, so a card can never
+      # carry a number its source does not.
+      - name: front door gate (Top 3 provenance)
+        run: python3 tools/check_opportunities.py
       - name: screen gate (verbatim earnings quotes)
         run: python3 tools/check_screen.py
       # Each campaign gate returns success before its store exists, then blocks malformed

@@ -115,6 +115,36 @@ class TestCodedRules(unittest.TestCase):
             self.assertEqual("FULFILLED", by_id["REQ-1"]["status"],
                              "the transitioned status is the later fact and must win")
 
+    def test_shadow_book_rows_union_by_id(self):
+        """No status to transition here, unlike data/requests.json: two sides adding two
+        distinct shadow rows must both survive the merge."""
+        with tempfile.TemporaryDirectory() as td:
+            fx = TwoWriters(td)
+            seed = {"rows": [{"id": "SHD-1", "ticker": "X", "origin": "HEAT_OVER_CROWDED"}]}
+            (fx.a / "data" / "shadow").mkdir()
+            (fx.a / "data" / "shadow" / "book.json").write_text(json.dumps(seed, indent=1))
+            fx.commit_all(fx.a, "seed shadow book")
+            git(fx.a, "push", "-q")
+            git(fx.b, "pull", "-q")
+
+            def side_a(c):
+                d = json.loads((c / "data" / "shadow" / "book.json").read_text())
+                d["rows"].append({"id": "SHD-2", "ticker": "Y", "origin": "HEAT_OVER_CROWDED"})
+                (c / "data" / "shadow" / "book.json").write_text(json.dumps(d, indent=1))
+
+            def side_b(c):
+                d = json.loads((c / "data" / "shadow" / "book.json").read_text())
+                d["rows"].append({"id": "SHD-3", "ticker": "Z", "origin": "HEAT_OVER_CROWDED"})
+                (c / "data" / "shadow" / "book.json").write_text(json.dumps(d, indent=1))
+
+            fx.race(side_a, side_b)
+            rr = subprocess.run([sys.executable, str(RESOLVER), "--continue-rebase",
+                                 "--root", str(fx.a)], capture_output=True, text=True)
+            self.assertEqual(0, rr.returncode, rr.stdout + rr.stderr)
+            d = json.loads((fx.a / "data" / "shadow" / "book.json").read_text())
+            self.assertEqual({"SHD-1", "SHD-2", "SHD-3"}, {r["id"] for r in d["rows"]},
+                             "both sides' new rows must survive the union, not just one")
+
     def test_fetcher_documents_take_the_newer_fetch(self):
         with tempfile.TemporaryDirectory() as td:
             fx = TwoWriters(td)

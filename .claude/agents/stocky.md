@@ -173,8 +173,10 @@ independence test, an unanswerable pre-mortem) I write `would_buy_zone: null` an
 `would_buy_basis` naming the cap. A cap is a real answer. A zone that is merely hard to draw
 is drawn, because a "not at this price" that never says which price can be neither too high
 nor right, and five of those in a row is what left the INVESTABLE bar untestable.
-TOO_LATE needs the priced-in decomposition to show it (multiple expansion versus estimate
-revisions, story or numbers) and writes a shadow row with its `shadow_ref`. Exactly 3 bull
+TOO_LATE needs the priced-in decomposition to show it by either route (method section 7,
+amended 2026-09-08): multiple expansion that ate the runway, story or numbers, or the price
+having already travelled the distance this chain's own scenario said it would, that scenario
+named. Either way it writes a shadow row with its `shadow_ref`. Exactly 3 bull
 and 3 bear bullets, no more, no fewer.
 
 Status is DRAFT when I put my pen down. It is not a call yet.
@@ -202,6 +204,14 @@ Four attacks, at minimum, per §7:
   should have drawn it, and where it did not (every dive before 2026-09-03) this attack draws
   it from the file's own gap table and stresses it in the same pass, or names the cap that
   makes any price irrelevant. `tools/check_analyst.py` refuses a WATCH that leaves it empty.
+
+- **Was the instrument the trade?** Required whenever the dived link carries
+  `price_instruments` (method section 4, the price test). The fund that holds the link's
+  scarce price is the position in front of this name: it captures the price net of roll and
+  fees, this name captures it through charter cover, costs and a multiple. If the
+  instrument's own heat (`heat.instrument`) is less crowded than this name's link, or is
+  not scored yet, the red team says so in the surviving bear case and names the ticker.
+  On 2026-08-30 the tanker link on `hormuz-maritime` had a fund nobody had measured.
 
 Plus the **pre-mortem**: it is twelve months from now and this was wrong. What happened?
 Three most likely reasons, written before the verdict is confirmed. If I cannot articulate

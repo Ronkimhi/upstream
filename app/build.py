@@ -337,6 +337,74 @@ def build_board(data_dir=DATA, chains=None, stocks=None, campaign_ix=None) -> di
     }
 
 
+def build_top(data_dir=DATA, chains=None, stocks=None) -> dict:
+    """The three biggest opportunities the machine sees right now (Ron, 2026-09-13).
+
+    A build-time projection over tools/opportunities.py: every chain link ranked by size
+    (impact x capture x un-crowdedness, best expression), the best object on each link
+    named with the stage the machine reached, every number copied from the file named
+    beside it. Nothing here is computed in the renderer, and the block carries how many
+    links it ranked and how many it could not, so a cut is never silent. No run date is
+    stored: the page's drift check would trip on it daily.
+    """
+    import opportunities  # noqa: E402  (tools/ is on sys.path above)
+    top = opportunities.rank(opportunities.load_inputs(Path(data_dir).parent, chains=chains, stocks=stocks))
+    top["instruments_unrated_total"] = len(top.get("instruments_unrated") or [])
+    return top
+
+
+def shadow_summary(book: dict, results: dict) -> dict:
+    """Per-origin and per-link shadow-book statistics, computed here and never in the page.
+
+    The renderer used to pool one hit rate across every origin, which would have mixed
+    Stocky's TOO_LATE number with Ember's OVER_CROWDED number the day the second origin
+    landed (method section 8, 2026-09-13). Each origin answers a different question, so
+    each gets its own denominator. Heat rows are also grouped by link with the median of
+    their graded issuer rows and the instrument row beside it, because a link is graded
+    as a basket and its fund is graded alone.
+    """
+    from statistics import median
+    rows = [r for r in (book or {}).get("rows") or [] if isinstance(r, dict)]
+    results = results or {}
+    by_origin = {}
+    for row in rows:
+        origin = str(row.get("origin") or "UNKNOWN")
+        entry = by_origin.setdefault(origin, {"rows": 0, "graded": 0, "right": 0, "mixed": 0,
+                                              "wrong": 0, "hit_rate": None})
+        entry["rows"] += 1
+        call = (results.get(row.get("id")) or {}).get("call")
+        if call in ("RIGHT", "MIXED", "WRONG"):
+            entry["graded"] += 1
+            entry[call.lower()] += 1
+    for entry in by_origin.values():
+        entry["hit_rate"] = round(100 * entry["right"] / entry["graded"]) if entry["graded"] else None
+    by_link = {}
+    for row in rows:
+        if row.get("origin") != "HEAT_OVER_CROWDED":
+            continue
+        key = (row.get("chain_id"), row.get("link_id"), row.get("verdict_date"))
+        entry = by_link.setdefault(key, {"chain_id": key[0], "link_id": key[1], "verdict_date": key[2],
+                                         "rows": 0, "graded": 0, "issuer_deltas": [], "instrument": None})
+        entry["rows"] += 1
+        graded = results.get(row.get("id")) or {}
+        delta = graded.get("delta_pct")
+        if graded.get("call") in ("RIGHT", "MIXED", "WRONG"):
+            entry["graded"] += 1
+        if row.get("expression") == "INSTRUMENT" and entry["instrument"] is None:
+            entry["instrument"] = {"ticker": row.get("ticker"),
+                                   "delta_pct": delta if isinstance(delta, (int, float)) else None,
+                                   "call": graded.get("call")}
+        elif isinstance(delta, (int, float)):
+            entry["issuer_deltas"].append(delta)
+    links = []
+    for entry in by_link.values():
+        deltas = entry.pop("issuer_deltas")
+        entry["median_delta_pct"] = round(median(deltas), 1) if deltas else None
+        links.append(entry)
+    links.sort(key=lambda e: (str(e["chain_id"]), str(e["link_id"]), str(e["verdict_date"])))
+    return {"by_origin": by_origin, "by_link": links, "rows_total": len(rows)}
+
+
 def build_campaign_ix(data_dir=DATA, chains=None, screens=None, stocks=None,
                       requests=None) -> dict:
     """Build the campaign dashboard's bounded, deterministic projection.
@@ -1530,6 +1598,9 @@ def build_payload(data_dir=DATA, root=ROOT):
         "shadow": {
             "book": json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
             "results": json.loads((DATA / "shadow" / "results.json").read_text()) if (DATA / "shadow" / "results.json").exists() else {},
+            "summary": shadow_summary(
+                json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
+                json.loads((DATA / "shadow" / "results.json").read_text()) if (DATA / "shadow" / "results.json").exists() else {}),
         },
         "trades": trades,
         "requests": project_requests(requests),
@@ -1555,7 +1626,7 @@ def build_payload(data_dir=DATA, root=ROOT):
         "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
         "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
         "campaign_ix": campaign_ix,
-        "board": build_board(DATA, chains, stocks, campaign_ix),
+        "board": {**build_board(DATA, chains, stocks, campaign_ix), "top": build_top(DATA, chains, stocks)},
         # The eight agent contracts, verbatim, plus the ownership map parsed out of the
         # command table. Ron drives eight agents and until now could not read what any of
         # them was told: the only agent-shaped text on the page was two section labels.
