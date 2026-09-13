@@ -2,11 +2,18 @@
 """Stop hook: issuer-universe and fresh-context audit writes close their own loop.
 
 It inspects only this session's transcript. When the session wrote a normalized
-data/mappings/<chain>.json map, it requires:
+data/mappings/<chain>.json map, it requires, FOR THE UTC DAY THAT WRITE HAPPENED:
 
-  1. the latest same-day owning ledger line for each touched map
-  2. universe authoring to have a map-log calibration generated today
-  3. universe-audit to have a current audit written today, without requiring calibration
+  1. the latest owning ledger line for each touched map, dated that day
+  2. universe authoring to have a map-log calibration re-derived on or after it
+  3. universe-audit to have an audit written that day, without requiring calibration
+
+The day is the write's own, not "today". Keyed on today, a census that closed on Friday with
+its own dated line and same-day calibration blocked every stop for the rest of a multi-day
+session, and the only way past was to write `run universe <slug>` into the ledger on a day no
+such run happened (2026-09-13). A forged line in an append-only record is worse than a missing
+one. It also fixes the UTC-midnight edge the old rule had backwards: a write at 23:58Z owes a
+line stamped 23:58Z, which is yesterday's date by 00:02Z.
 
 The hook fails open when its input, transcript, ledger, or an existing calibration file
 cannot be read. A missing required file is not an unreadable file and therefore blocks.
@@ -18,7 +25,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from write_targets import from_tool_use  # noqa: E402
+from write_targets import transcript_writes  # noqa: E402
 
 ALLOW = 0
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -156,26 +163,29 @@ def audit_state_failures(path: Path, day: datetime.date) -> list[str] | None:
     return failures
 
 
-def written_mappings(raw: str) -> set[str]:
-    slugs = set()
-    for line in raw.splitlines():
-        if "data/mappings/" not in line:
+def written_mappings(raw: str, unknown: datetime.date) -> dict[str, datetime.date]:
+    """{chain slug: the most recent UTC day this session wrote that map}.
+
+    The day is the point. This hook used to return bare slugs and then demand a ledger line
+    dated TODAY, so a census that closed on Friday with its own dated line blocked every stop
+    for the rest of the session, and the only way past was to write `run universe <slug>` into
+    the ledger on a day no such run happened. A forged line in an append-only record is worse
+    than a missing one, so the question became "which day was it written", and the line is
+    owed for that day.
+
+    `unknown` is the day assumed for a write whose transcript line cannot be dated: pass
+    today, so an unreadable timestamp keeps the gate firing instead of switching it off.
+    """
+    days: dict[str, datetime.date] = {}
+    for day, target in transcript_writes(raw, "data/mappings/"):
+        match = MAPPING_PATH.search(target)
+        if not match:
             continue
-        try:
-            event = json.loads(line)
-        except Exception:  # noqa: BLE001
-            continue
-        for item in (event.get("message") or {}).get("content") or []:
-            if not isinstance(item, dict) or item.get("type") != "tool_use":
-                continue
-            written, _unresolved = from_tool_use(
-                str(item.get("name") or ""), item.get("input") or {}
-            )
-            for target in written:
-                match = MAPPING_PATH.search(target)
-                if match:
-                    slugs.add(match.group(1))
-    return slugs
+        resolved = day if day is not None else unknown
+        slug = match.group(1)
+        if slug not in days or resolved > days[slug]:
+            days[slug] = resolved
+    return days
 
 
 def main() -> int:
@@ -194,26 +204,28 @@ def main() -> int:
     except Exception:  # noqa: BLE001
         return allow()
 
-    touched = written_mappings(raw)
+    today = utc_today()
+    touched = written_mappings(raw, today)
     if not touched:
         return allow()
 
-    today = utc_today()
     try:
         ledger = (ROOT / "data" / "ledger.md").read_text()
     except Exception:  # noqa: BLE001
         return allow()
 
     missing = []
-    needs_calibration = False
-    for slug in sorted(touched):
+    # The latest write day across the touched maps, for the one calibration check below:
+    # map_calibrate re-derives every chain at once, so the freshest write sets the bar.
+    calibration_day = None
+    for slug, day in sorted(touched.items()):
         try:
-            owner = latest_owning_command(ledger, slug, today)
+            owner = latest_owning_command(ledger, slug, day)
         except Exception:  # noqa: BLE001
             return allow()
         if owner is None:
             missing.append(
-                f"a ledger line dated {today.isoformat()} naming "
+                f"a ledger line dated {day.isoformat()} naming "
                 f"`run universe {slug}` or `run universe-audit {slug}`"
             )
         path = ROOT / "data" / "mappings" / f"{slug}.json"
@@ -221,7 +233,7 @@ def main() -> int:
             missing.append(f"the touched issuer map data/mappings/{slug}.json")
             continue
         if owner == "universe-audit":
-            audit_findings = audit_state_failures(path, today)
+            audit_findings = audit_state_failures(path, day)
             if audit_findings is None:
                 return allow()
             missing.extend(
@@ -229,7 +241,7 @@ def main() -> int:
                 for finding in audit_findings
             )
         elif owner == "universe-audit-placement":
-            audit_findings = placement_audit_state_failures(path, today)
+            audit_findings = placement_audit_state_failures(path, day)
             if audit_findings is None:
                 return allow()
             missing.extend(
@@ -237,9 +249,10 @@ def main() -> int:
                 for finding in audit_findings
             )
         elif owner == "universe":
-            needs_calibration = True
+            if calibration_day is None or day > calibration_day:
+                calibration_day = day
 
-    if needs_calibration:
+    if calibration_day is not None:
         log = ROOT / "data" / "chains" / "_map-log.json"
         if not log.exists():
             missing.append(
@@ -253,17 +266,20 @@ def main() -> int:
                 )
             except Exception:  # noqa: BLE001
                 return allow()
+            # On or after the write day, not exactly on it: a calibration re-derived LATER
+            # than the map already reflects it, and an exact-match rule rejects the fresher
+            # store. Absent or undateable still blocks.
             if generated:
                 try:
-                    generated_today = utc_date(generated) == today
+                    fresh_enough = utc_date(generated) >= calibration_day
                 except Exception:  # noqa: BLE001
                     return allow()
             else:
-                generated_today = False
-            if not generated_today:
+                fresh_enough = False
+            if not fresh_enough:
                 missing.append(
-                    "a map-log calibration regenerated today: "
-                    "run `python3 tools/map_calibrate.py`"
+                    "a map-log calibration re-derived on or after "
+                    f"{calibration_day.isoformat()}: run `python3 tools/map_calibrate.py`"
                 )
 
     if not missing:

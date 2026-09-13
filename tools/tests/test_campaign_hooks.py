@@ -178,10 +178,15 @@ class TestCampaignStopHooks(unittest.TestCase):
                 transcript("data/campaigns/CAMP-20260829-01.json")),
             {"CAMP-20260829-01.json"},
         )
+        # written_mappings now returns {slug: the UTC day that map was written}, and the
+        # `unknown` day is required rather than defaulted: an undateable transcript line is
+        # this hook's blind spot, so every caller has to say out loud what it assumes. The
+        # fixture carries no timestamp, so every write lands on the day passed here.
+        day = datetime.date(2026, 8, 30)
         self.assertEqual(
             self.universe.written_mappings(
-                transcript("data/mappings/ai-infrastructure.json")),
-            {"ai-infrastructure"},
+                transcript("data/mappings/ai-infrastructure.json"), day),
+            {"ai-infrastructure": day},
         )
         self.assertEqual(
             self.profile.written_profiles(
@@ -197,8 +202,8 @@ class TestCampaignStopHooks(unittest.TestCase):
         )
         self.assertEqual(
             self.universe.written_mappings(
-                transcript("data/mappings/_map-log.json")),
-            set(),
+                transcript("data/mappings/_map-log.json"), datetime.date(2026, 8, 30)),
+            {},
         )
         self.assertEqual(
             self.profile.written_profiles(
