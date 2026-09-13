@@ -3,7 +3,7 @@
   "issuer_name": "HF Sinclair Corporation",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T22:30:00Z",
-  "updated_at": "2026-09-04T22:30:00Z",
+  "updated_at": "2026-09-12T00:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -227,6 +227,33 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for HF-SINCLAIR from data/mappings/russian-diesel-ban.json (ACTIVE, current audit status FAIL) and data/market/DINO.json (sec-companyfacts, T1). 11 of 12 canonical fields filled; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 5."
+    },
+    {
+      "ts": "2026-09-12T00:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12): examined against the O1 bar on russian-diesel-ban/conversion-capacity (link_heat OVER_CROWDED, screen_ref data/screens/russian-diesel-ban.json). Held O2. NULL canonical fields: ['quality.beneish_state']. Closest of the six to the O1 data bar: only quality.beneish_state is NULL (PENDING_DATA, missing ppe_net_fy per this profile's own data_gaps); piotroski (6), leverage (0.28x), and reverse_dcf are all sourced. Still barred outright: O1 forbids any NULL canonical field, and a single NULL is as disqualifying as five. Judgmentally also weak on quality (thin 3.5% operating margin, -11.1% 3yr revenue CAGR per its own risk note) and sits on the same OVER_CROWDED conversion-capacity link as MARATHON-PETROLEUM and PAR-PACIFIC-HOLDINGS: duplicate exposure, not a distinguishing edge."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-12",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "quality.beneish_state"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "russia-diesel-ban",
+        "chain_id": "russian-diesel-ban",
+        "link_id": "conversion-capacity",
+        "link_heat_verdict": "OVER_CROWDED",
+        "screen_ref": "data/screens/russian-diesel-ban.json",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field on any profile promoted, so this profile cannot clear the O1 bar until every field is filled.",
+        "detail": "Closest of the six to the O1 data bar: only quality.beneish_state is NULL (PENDING_DATA, missing ppe_net_fy per this profile's own data_gaps); piotroski (6), leverage (0.28x), and reverse_dcf are all sourced. Still barred outright: O1 forbids any NULL canonical field, and a single NULL is as disqualifying as five. Judgmentally also weak on quality (thin 3.5% operating margin, -11.1% 3yr revenue CAGR per its own risk note) and sits on the same OVER_CROWDED conversion-capacity link as MARATHON-PETROLEUM and PAR-PACIFIC-HOLDINGS: duplicate exposure, not a distinguishing edge."
+      }
+    ]
+  }
 }

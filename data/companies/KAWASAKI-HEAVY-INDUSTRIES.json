@@ -3,7 +3,7 @@
   "issuer_name": "Kawasaki Heavy Industries, Ltd.",
   "as_of": "2026-09-02",
   "created_at": "2026-09-01T03:20:00Z",
-  "updated_at": "2026-09-02T16:07:36Z",
+  "updated_at": "2026-09-12T00:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
@@ -52,7 +52,7 @@
       ]
     }
   ],
-  "business_summary": "Kawasaki Heavy Industries, Ltd. \u2014 Owns 50% of UGITEC, which sells and engineers hard-rock and shield TBMs.",
+  "business_summary": "Kawasaki Heavy Industries, Ltd. — Owns 50% of UGITEC, which sells and engineers hard-rock and shield TBMs.",
   "exposure_summary": {
     "narrative": "Kawasaki Heavy Industries, Ltd. has 1 placement(s) on tibet-mega-dam chain. See placements below."
   },
@@ -233,6 +233,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01: examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS), rank 15 of 21. Reason and revisit condition recorded in selection_review; the stale NO_SCREEN_ROW_NO_HANDOFF reason from 15:16:47Z is superseded now that run screen tibet-mega-dam has written campaign-v1 rows on both in-scope links. Status, data tier, listings, placements and every metric unchanged."
+    },
+    {
+      "ts": "2026-09-12T00:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12): examined against the O1 bar on russian-diesel-ban/shipyard-newbuild-capacity (link_heat CROWDED, screen_ref data/screens/russian-diesel-ban.json). Held O2. NULL canonical fields: ['quality.piotroski', 'quality.beneish_state']. Same NULL canonical fields already on record from the 2026-09-02 tibet-mega-dam selection review (quality.piotroski, quality.beneish_state, both PENDING_DATA, 0 common fiscal periods on the yfinance-statements vendor block): the O1 bar is data-completeness, not chain-specific, so this profile is barred on russian-diesel-ban for the identical reason it was barred on tibet-mega-dam. Separately, this profile's placements[] array still carries only the tibet-mega-dam/tunneling-tbm entry; the russian-diesel-ban/shipyard-newbuild-capacity placement the screen seats is sourced from the mapping directly (per the screen's own universe_note) and has not yet been backfilled into this profile's placements array or business narrative. That gap was already named in the screen's universe_note as a follow-up run profile task and is not re-flagged here. shipyard-newbuild-capacity is CROWDED (crowdedness 70) with real but capped capture (score 55, heat's own rationale naming a volume-without-capture trap on fixed-price contracts): picks_and_shovels exposure here is partial (shipbuilding is one of several Kawasaki segments), which independently weakens the direct-exposure case beyond the data gap."
     }
   ],
   "disposition_basis": "Real, evidence-backed placement(s) on the tibet-mega-dam chain, but every canonical metric field is NULL: no market data existed on disk at profiling time. Price, fundamentals and quality requests were queued this run via the vendor leg (no SEC CIK for this non-US ticker). DEFER rather than DRAFT because the placement and role are real and sourced; only the numeric layer is pending. Revisit once the requests fulfill, noting the vendor tag will still be INFERRED/official_source:false and so still cannot populate a canonical field per method section 6A -- official-source IR/filing data must be sourced separately, which needs a WebFetch-capable (local) venue.",
@@ -265,5 +271,49 @@
       "CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY (tunneling-tbm)"
     ],
     "revisit": "Re-examined by the next run selection CAMP-20260901-01 over this theme. A NULL-barred name needs its missing canonical fields filled by run profile first; a name ranked below needs the promoted name on its link to fail its dive or the DEPTH budget to widen."
-  }
+  },
+  "selection_reviews": [
+    {
+      "as_of": "2026-09-02",
+      "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+      "command": "run selection CAMP-20260901-01",
+      "reviewed_by": "sieve-profiler",
+      "outcome": "RETAINED_O2",
+      "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+      "rank": 15,
+      "ranked_against": 21,
+      "null_canonical_fields": [
+        "metrics.quality.beneish_state",
+        "metrics.quality.piotroski"
+      ],
+      "reason": "Ranked 15 and barred outright: quality.piotroski and quality.beneish_state are both NULL.",
+      "promoted_this_run": [
+        "ANDRITZ (global-hydro-spillover)",
+        "CHINA-RAILWAY-CONSTRUCTION-HEAVY-INDUSTRY (tunneling-tbm)"
+      ],
+      "revisit": "Re-examined by the next run selection CAMP-20260901-01 over this theme. A NULL-barred name needs its missing canonical fields filled by run profile first; a name ranked below needs the promoted name on its link to fail its dive or the DEPTH budget to widen."
+    },
+    {
+      "as_of": "2026-09-12",
+      "reviewed_by": "sieve-profiler",
+      "command": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12)",
+      "outcome": "HELD_O2",
+      "null_canonical_fields": [
+        "quality.piotroski",
+        "quality.beneish_state"
+      ],
+      "examined_links": [
+        {
+          "theme_id": "russia-diesel-ban",
+          "chain_id": "russian-diesel-ban",
+          "link_id": "shipyard-newbuild-capacity",
+          "link_heat_verdict": "CROWDED",
+          "screen_ref": "data/screens/russian-diesel-ban.json",
+          "state": "DATA_COMPLETENESS",
+          "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field on any profile promoted, so this profile cannot clear the O1 bar until every field is filled.",
+          "detail": "Same NULL canonical fields already on record from the 2026-09-02 tibet-mega-dam selection review (quality.piotroski, quality.beneish_state, both PENDING_DATA, 0 common fiscal periods on the yfinance-statements vendor block): the O1 bar is data-completeness, not chain-specific, so this profile is barred on russian-diesel-ban for the identical reason it was barred on tibet-mega-dam. Separately, this profile's placements[] array still carries only the tibet-mega-dam/tunneling-tbm entry; the russian-diesel-ban/shipyard-newbuild-capacity placement the screen seats is sourced from the mapping directly (per the screen's own universe_note) and has not yet been backfilled into this profile's placements array or business narrative. That gap was already named in the screen's universe_note as a follow-up run profile task and is not re-flagged here. shipyard-newbuild-capacity is CROWDED (crowdedness 70) with real but capped capture (score 55, heat's own rationale naming a volume-without-capture trap on fixed-price contracts): picks_and_shovels exposure here is partial (shipbuilding is one of several Kawasaki segments), which independently weakens the direct-exposure case beyond the data gap."
+        }
+      ]
+    }
+  ]
 }

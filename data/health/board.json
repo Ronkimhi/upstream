@@ -1,30 +1,36 @@
 {
- "as_of": "2026-08-31",
+ "as_of": "2026-09-11",
  "generated_by": "tools/campaign_board.py",
  "scope": "CAMPAIGN",
  "scope_note": "campaign manifest drives theme identity and rank",
- "campaign_id": "CAMP-20260830-01",
+ "campaign_id": "CAMP-20260901-01",
  "campaign_status": "SELECTED",
  "targets": {
+  "mode": "DEPTH",
   "theme_count": 10,
-  "issuers_per_link": 10,
-  "completed_profiles_min": 200,
-  "profiles_per_theme_min": 10,
-  "o1_min": 30,
-  "o1_max": 60
+  "issuers_per_link": 5,
+  "links_in_scope": [
+   "money_corner",
+   "UNDISCOVERED"
+  ],
+  "profiles_per_theme_min": 1,
+  "o1_per_theme_min": 1,
+  "o1_per_theme_max": 3,
+  "verdicts_min": 10,
+  "verdicts_max": 20
  },
  "denominators": {
   "themes_total": 10,
   "themes_by_stage": {
    "CHAINED": 3,
-   "SCENARIOS": 5,
-   "MAPPED": 1,
-   "COMPLETE": 1
+   "SCENARIOS": 1,
+   "SCREENED": 3,
+   "COMPLETE": 3
   },
-  "distinct_mapped_issuers": 211,
-  "complete_profiles": 11,
-  "o1": 1,
-  "final_dives": 1,
+  "distinct_mapped_issuers": 312,
+  "complete_profiles": 178,
+  "o1": 16,
+  "final_dives": 14,
   "pending_requests": 0,
   "pending_requests_blocking": 0
  },
@@ -52,9 +58,9 @@
     "links": 12,
     "mapped_issuers": 75,
     "placements": 105,
-    "complete_profiles": 11,
-    "o1": 1,
-    "o1_final": 1,
+    "complete_profiles": 42,
+    "o1": 3,
+    "o1_final": 3,
     "pending_profiles": 0
    }
   },
@@ -64,14 +70,22 @@
    "title": "Munitions replenishment: the three-year clock is set by rocket motors and seekers, not by the primes",
    "rank": 2,
    "provisional": false,
-   "stage": "SCENARIOS",
-   "stage_written": "SCENARIOS",
+   "stage": "SCREENED",
+   "stage_written": "SCREENED",
    "next_command": "run universe munitions-replenishment",
-   "next_reason": "author correction after a FAIL audit",
+   "next_reason": "GENERAL-DYNAMICS's dive needs a passing census or placement audit; the census audit FAILed and `run universe` must correct it first",
    "blockers": [
     {
      "kind": "MAPPING_AUDIT_FAIL",
      "detail": "mapping audit FAIL with 8 amendment(s) required; `run universe` corrects it, the audit cannot"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
+    },
+    {
+     "kind": "DIVE_AUDIT_MISSING",
+     "detail": "GENERAL-DYNAMICS at munitions-replenishment/energetic-materials: neither the mapping's census carries a current PASS audit nor does a current placement_audits[] PASS entry cover this placement; tools/check_analyst.py refuses the dive on the same grounds"
     }
    ],
    "mapping": {
@@ -85,8 +99,8 @@
     "links": 13,
     "mapped_issuers": 22,
     "placements": 44,
-    "complete_profiles": 0,
-    "o1": 0,
+    "complete_profiles": 3,
+    "o1": 1,
     "o1_final": 0,
     "pending_profiles": 0
    }
@@ -97,28 +111,32 @@
    "title": "Russia's diesel export ban: the middle-distillate chain behind a crude-priced headline",
    "rank": 3,
    "provisional": false,
-   "stage": "SCENARIOS",
-   "stage_written": "SCENARIOS",
-   "next_command": "run universe-audit russian-diesel-ban",
-   "next_reason": "a fresh-context audit decides COMPLETE",
+   "stage": "SCREENED",
+   "stage_written": "SCREENED",
+   "next_command": "run selection CAMP-20260901-01",
+   "next_reason": "screen exists; no profile here is O1 yet",
    "blockers": [
     {
-     "kind": "MAPPING_AWAITING_AUDIT",
-     "detail": "mapping is ACTIVE and needs a fresh-context `run universe-audit` before profiles or screens may consume it"
+     "kind": "MAPPING_AUDIT_FAIL",
+     "detail": "mapping audit FAIL with 1 amendment(s) required; `run universe` corrects it, the audit cannot"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
     }
    ],
    "mapping": {
     "present": true,
     "status": "ACTIVE",
-    "audit": null,
-    "amendments": 0,
-    "fingerprint_current": null
+    "audit": "FAIL",
+    "amendments": 1,
+    "fingerprint_current": true
    },
    "counts": {
     "links": 13,
     "mapped_issuers": 27,
     "placements": 27,
-    "complete_profiles": 0,
+    "complete_profiles": 9,
     "o1": 0,
     "o1_final": 0,
     "pending_profiles": 0
@@ -130,30 +148,34 @@
    "title": "Iran war at six months: the Hormuz-closure chain beyond the oil-price headline",
    "rank": 4,
    "provisional": false,
-   "stage": "SCENARIOS",
-   "stage_written": "SCENARIOS",
-   "next_command": "run universe-audit hormuz-maritime",
-   "next_reason": "a fresh-context audit decides COMPLETE",
+   "stage": "COMPLETE",
+   "stage_written": "COMPLETE",
+   "next_command": null,
+   "next_reason": "every O1 name on this theme has a FINAL dive",
    "blockers": [
     {
-     "kind": "MAPPING_AWAITING_AUDIT",
-     "detail": "mapping is ACTIVE and needs a fresh-context `run universe-audit` before profiles or screens may consume it"
+     "kind": "MAPPING_AUDIT_FAIL",
+     "detail": "mapping audit FAIL with 20 amendment(s) required; `run universe` corrects it, the audit cannot"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
     }
    ],
    "mapping": {
     "present": true,
     "status": "ACTIVE",
-    "audit": null,
-    "amendments": 0,
-    "fingerprint_current": null
+    "audit": "FAIL",
+    "amendments": 20,
+    "fingerprint_current": true
    },
    "counts": {
     "links": 14,
-    "mapped_issuers": 33,
-    "placements": 34,
-    "complete_profiles": 0,
-    "o1": 0,
-    "o1_final": 0,
+    "mapped_issuers": 83,
+    "placements": 89,
+    "complete_profiles": 29,
+    "o1": 1,
+    "o1_final": 1,
     "pending_profiles": 0
    }
   },
@@ -167,18 +189,28 @@
    "stage_written": "CHAINED",
    "next_command": "run heat prediction-market-plumbing",
    "next_reason": "no link carries a heat verdict yet",
-   "blockers": [],
+   "blockers": [
+    {
+     "kind": "MAPPING_AUDIT_FAIL",
+     "detail": "mapping audit FAIL with 1 amendment(s) required; `run universe` corrects it, the audit cannot"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
+    }
+   ],
    "mapping": {
-    "present": false,
-    "status": null,
-    "audit": null,
-    "fingerprint_current": null
+    "present": true,
+    "status": "ACTIVE",
+    "audit": "FAIL",
+    "amendments": 1,
+    "fingerprint_current": true
    },
    "counts": {
     "links": 11,
-    "mapped_issuers": 0,
-    "placements": 0,
-    "complete_profiles": 0,
+    "mapped_issuers": 18,
+    "placements": 23,
+    "complete_profiles": 9,
     "o1": 0,
     "o1_final": 0,
     "pending_profiles": 0
@@ -190,16 +222,11 @@
    "title": "Tibet mega-dam: the largest infrastructure project on earth, unmapped",
    "rank": 6,
    "provisional": false,
-   "stage": "MAPPED",
-   "stage_written": "MAPPED",
-   "next_command": "run profile --campaign CAMP-20260830-01",
-   "next_reason": "bounded batch, at most 15 issuers per run",
-   "blockers": [
-    {
-     "kind": "PROFILES_BELOW_MINIMUM",
-     "detail": "0/10 COMPLETE O1+O2 profiles on this theme"
-    }
-   ],
+   "stage": "SCENARIOS",
+   "stage_written": "SCENARIOS",
+   "next_command": "run universe tibet-mega-dam",
+   "next_reason": "no COMPLETE issuer mapping for this chain",
+   "blockers": [],
    "mapping": {
     "present": true,
     "status": "COMPLETE",
@@ -211,9 +238,9 @@
     "links": 11,
     "mapped_issuers": 64,
     "placements": 77,
-    "complete_profiles": 0,
-    "o1": 0,
-    "o1_final": 0,
+    "complete_profiles": 63,
+    "o1": 2,
+    "o1_final": 2,
     "pending_profiles": 0
    }
   },
@@ -227,20 +254,30 @@
    "stage_written": "CHAINED",
    "next_command": "run heat data-center-moratoria",
    "next_reason": "no link carries a heat verdict yet",
-   "blockers": [],
+   "blockers": [
+    {
+     "kind": "MAPPING_LINK_UNTOUCHED",
+     "detail": "link_coverage row(s) ['organized-opposition', 'power-equipment-shared', 'state-moratoria-and-siting-law'] have no placement and no EXHAUSTED search; a fresh-context audit has nothing to sample there, so `run universe` must close them before `run universe-audit` can pass"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
+    }
+   ],
    "mapping": {
-    "present": false,
-    "status": null,
+    "present": true,
+    "status": "ACTIVE",
     "audit": null,
+    "amendments": 0,
     "fingerprint_current": null
    },
    "counts": {
     "links": 11,
-    "mapped_issuers": 0,
-    "placements": 0,
-    "complete_profiles": 0,
-    "o1": 0,
-    "o1_final": 0,
+    "mapped_issuers": 14,
+    "placements": 15,
+    "complete_profiles": 5,
+    "o1": 3,
+    "o1_final": 2,
     "pending_profiles": 0
    }
   },
@@ -254,20 +291,30 @@
    "stage_written": "CHAINED",
    "next_command": "run heat minor-nsr-permits",
    "next_reason": "no link carries a heat verdict yet",
-   "blockers": [],
+   "blockers": [
+    {
+     "kind": "MAPPING_LINK_UNTOUCHED",
+     "detail": "link_coverage row(s) ['liquid-fuel-logistics-and-storage', 'power-equipment-shared'] have no placement and no EXHAUSTED search; a fresh-context audit has nothing to sample there, so `run universe` must close them before `run universe-audit` can pass"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
+    }
+   ],
    "mapping": {
-    "present": false,
-    "status": null,
+    "present": true,
+    "status": "ACTIVE",
     "audit": null,
+    "amendments": 0,
     "fingerprint_current": null
    },
    "counts": {
     "links": 14,
-    "mapped_issuers": 0,
-    "placements": 0,
-    "complete_profiles": 0,
-    "o1": 0,
-    "o1_final": 0,
+    "mapped_issuers": 15,
+    "placements": 18,
+    "complete_profiles": 8,
+    "o1": 3,
+    "o1_final": 3,
     "pending_profiles": 0
    }
   },
@@ -277,22 +324,32 @@
    "title": "Offshore energy enters the counter-drone era: a fighter cannon is not a business model",
    "rank": 9,
    "provisional": false,
-   "stage": "SCENARIOS",
-   "stage_written": "SCENARIOS",
-   "next_command": "run universe offshore-counter-drone",
-   "next_reason": "no COMPLETE issuer mapping for this chain",
-   "blockers": [],
+   "stage": "SCREENED",
+   "stage_written": "SCREENED",
+   "next_command": "run selection CAMP-20260901-01",
+   "next_reason": "screen exists; no profile here is O1 yet",
+   "blockers": [
+    {
+     "kind": "MAPPING_AWAITING_AUDIT",
+     "detail": "mapping is ACTIVE and needs a fresh-context `run universe-audit` before profiles or screens may consume it"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
+    }
+   ],
    "mapping": {
-    "present": false,
-    "status": null,
+    "present": true,
+    "status": "ACTIVE",
     "audit": null,
+    "amendments": 0,
     "fingerprint_current": null
    },
    "counts": {
     "links": 13,
-    "mapped_issuers": 0,
-    "placements": 0,
-    "complete_profiles": 0,
+    "mapped_issuers": 14,
+    "placements": 21,
+    "complete_profiles": 2,
     "o1": 0,
     "o1_final": 0,
     "pending_profiles": 0
@@ -304,24 +361,34 @@
    "title": "GLP-1's picks-and-shovels: fill-finish and delivery-device capacity, not the molecules",
    "rank": 10,
    "provisional": false,
-   "stage": "SCENARIOS",
-   "stage_written": "SCENARIOS",
-   "next_command": "run universe glp1-fill-finish",
-   "next_reason": "no COMPLETE issuer mapping for this chain",
-   "blockers": [],
+   "stage": "COMPLETE",
+   "stage_written": "COMPLETE",
+   "next_command": null,
+   "next_reason": "every O1 name on this theme has a FINAL dive",
+   "blockers": [
+    {
+     "kind": "MAPPING_LINK_UNTOUCHED",
+     "detail": "link_coverage row(s) ['halobutyl-elastomer-feedstock', 'peptide-api-supply', 'us-onshoring-tariff-response'] have no placement and no EXHAUSTED search; a fresh-context audit has nothing to sample there, so `run universe` must close them before `run universe-audit` can pass"
+    },
+    {
+     "kind": "SCREEN_MAPPING_STALE",
+     "detail": "a screen exists on this chain while its mapping has no current PASS audit; tools/check_screen.py refuses those rows"
+    }
+   ],
    "mapping": {
-    "present": false,
-    "status": null,
+    "present": true,
+    "status": "ACTIVE",
     "audit": null,
+    "amendments": 0,
     "fingerprint_current": null
    },
    "counts": {
     "links": 13,
-    "mapped_issuers": 0,
-    "placements": 0,
-    "complete_profiles": 0,
-    "o1": 0,
-    "o1_final": 0,
+    "mapped_issuers": 17,
+    "placements": 19,
+    "complete_profiles": 17,
+    "o1": 3,
+    "o1_final": 3,
     "pending_profiles": 0
    }
   }

@@ -3,7 +3,7 @@
  "issuer_name": "Teekay Tankers Ltd.",
  "as_of": "2026-09-04",
  "created_at": "2026-09-04T22:15:00Z",
- "updated_at": "2026-09-04T23:45:00Z",
+ "updated_at": "2026-09-12T00:00:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -256,6 +256,33 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "run profile TNK: re-read data/market/TNK.json after commit 54cbeaa (foreign filer cash/debt fix; fetched_at 2026-09-04T17:38:23Z). fundamentals.cash newly populated (830569000 at 2025-12-31). quality.beneish_state newly SOLVED: -0.613 against the -1.78 threshold, state REVIEW, 12 of 12 inputs found (common-period count rose past the 2 needed). reverse_dcf newly SOLVED: implied_fcf_cagr 0.0748, horizon_spread 0.0217, base FCF 115635000, enterprise value 2254014124.6. leverage.net_debt_to_ebitda stays NULL: fundamentals.total_debt carries only one data point, 0 at 2022-12-31, three fiscal years stale against the newly populated cash figure with no common period, so no ratio is computed from mismatched dates rather than approximated. 11 of 12 canonical fields now sourced, up from 8. Status COMPLETE, opportunity_tier O2 unchanged (selection assigns tiers; not touched this run). Never invented a number."
+  },
+  {
+   "ts": "2026-09-12T00:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12): examined against the O1 bar on russian-diesel-ban/clean-product-shipping (link_heat CROWDED, screen_ref data/screens/russian-diesel-ban.json). Held O2. NULL canonical fields: ['leverage.net_debt_to_ebitda']. Closest of the six to the O1 data bar alongside HF-SINCLAIR: only leverage.net_debt_to_ebitda is NULL (total_debt frozen at a single stale 2022-12-31 point against a 2025-12-31 cash figure, per this profile's own data_gaps); piotroski (7, STRONG), beneish_state (-0.613, REVIEW) and reverse_dcf are all sourced. Still barred outright by the single NULL field. Judgmentally the strongest quality profile of the three clean-product-shipping names, but the link itself is CROWDED (crowdedness 72, repricing_check 2 of 4 legs met, the closest call on the map per chain heat) with 3 pure_play tanker names now seated (TEEKAY-TANKERS, INTERNATIONAL-SEAWAYS, FRONTLINE): duplicate economic exposure to the same ton-mile-inflation trade."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-12",
+  "reviewed_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12)",
+  "outcome": "HELD_O2",
+  "null_canonical_fields": [
+   "leverage.net_debt_to_ebitda"
+  ],
+  "examined_links": [
+   {
+    "theme_id": "russia-diesel-ban",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "clean-product-shipping",
+    "link_heat_verdict": "CROWDED",
+    "screen_ref": "data/screens/russian-diesel-ban.json",
+    "state": "DATA_COMPLETENESS",
+    "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field on any profile promoted, so this profile cannot clear the O1 bar until every field is filled.",
+    "detail": "Closest of the six to the O1 data bar alongside HF-SINCLAIR: only leverage.net_debt_to_ebitda is NULL (total_debt frozen at a single stale 2022-12-31 point against a 2025-12-31 cash figure, per this profile's own data_gaps); piotroski (7, STRONG), beneish_state (-0.613, REVIEW) and reverse_dcf are all sourced. Still barred outright by the single NULL field. Judgmentally the strongest quality profile of the three clean-product-shipping names, but the link itself is CROWDED (crowdedness 72, repricing_check 2 of 4 legs met, the closest call on the map per chain heat) with 3 pure_play tanker names now seated (TEEKAY-TANKERS, INTERNATIONAL-SEAWAYS, FRONTLINE): duplicate economic exposure to the same ton-mile-inflation trade."
+   }
+  ]
+ }
 }

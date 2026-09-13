@@ -3,7 +3,7 @@
   "issuer_name": "Marathon Petroleum Corporation",
   "as_of": "2026-09-04",
   "created_at": "2026-09-04T22:30:00Z",
-  "updated_at": "2026-09-04T23:10:00Z",
+  "updated_at": "2026-09-12T00:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -220,6 +220,37 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "Fundamentals and quality landed (REQ-20260904-92/93 FULFILLED). Amended from BLOCKED to COMPLETE: 6 of 12 canonical fields filled from data/market/MPC.json (sec-companyfacts, T1); 6 stay NULL on real companyfacts coverage gaps (total_debt frozen since 2012-03-31, over 13 years stale, tainting both leverage and the reverse-DCF enterprise-value solve). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 6."
+    },
+    {
+      "ts": "2026-09-12T00:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12): examined against the O1 bar on russian-diesel-ban/conversion-capacity (link_heat OVER_CROWDED, screen_ref data/screens/russian-diesel-ban.json). Held O2. NULL canonical fields: ['leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Five of twelve canonical fields NULL (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), all on the same root cause per this profile's own risk note: companyfacts total_debt and shares_fy are frozen at 2012-03-31/2011-12-31, over a decade stale. Furthest from the O1 bar of the three conversion-capacity names. conversion-capacity is OVER_CROWDED (impact 95, crowdedness 88): heat's own capture rationale (score 80) already flags a volume-without-capture risk on this link, and 3 pure_play refiners (MARATHON-PETROLEUM, HF-SINCLAIR, PAR-PACIFIC-HOLDINGS) now sit on one OVER_CROWDED CHOKE_POINT link: duplicate exposure across the trio is real."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-12",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (russian-diesel-ban, sixth run, 2026-09-12)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski",
+      "quality.beneish_state",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "russia-diesel-ban",
+        "chain_id": "russian-diesel-ban",
+        "link_id": "conversion-capacity",
+        "link_heat_verdict": "OVER_CROWDED",
+        "screen_ref": "data/screens/russian-diesel-ban.json",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field on any profile promoted, so this profile cannot clear the O1 bar until every field is filled.",
+        "detail": "Five of twelve canonical fields NULL (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), all on the same root cause per this profile's own risk note: companyfacts total_debt and shares_fy are frozen at 2012-03-31/2011-12-31, over a decade stale. Furthest from the O1 bar of the three conversion-capacity names. conversion-capacity is OVER_CROWDED (impact 95, crowdedness 88): heat's own capture rationale (score 80) already flags a volume-without-capture risk on this link, and 3 pure_play refiners (MARATHON-PETROLEUM, HF-SINCLAIR, PAR-PACIFIC-HOLDINGS) now sit on one OVER_CROWDED CHOKE_POINT link: duplicate exposure across the trio is real."
+      }
+    ]
+  }
 }

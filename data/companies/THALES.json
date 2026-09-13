@@ -3,10 +3,11 @@
   "issuer_name": "Thales S.A.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-01T09:19:47Z",
-  "updated_at": "2026-09-04T20:00:00Z",
+  "updated_at": "2026-09-13T00:15:00Z",
   "generated_by": "sieve-profiler",
   "listing_refs": [
-    "EPA:HO"
+    "EPA:HO",
+    "EPA-HO"
   ],
   "listings": [
     {
@@ -16,6 +17,14 @@
       "market_ticker": "HO.PA",
       "cik": null,
       "mapping_ref": "data/mappings/tibet-mega-dam.json"
+    },
+    {
+      "listing_id": "EPA-HO",
+      "ticker": "HO",
+      "exchange": "Euronext Paris",
+      "market_ticker": "HO.PA",
+      "cik": null,
+      "mapping_ref": "data/mappings/offshore-counter-drone.json"
     }
   ],
   "placements": [
@@ -38,6 +47,28 @@
           "tag": "INFERRED"
         }
       ]
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "c2-and-sensor-fusion",
+      "link_name": "Command, control and sensor fusion for a fixed installation",
+      "link_position": 7,
+      "role": "CoastShield is a modular, scalable coastal-surveillance product whose maritime Control Centre merges all data collected from a scalable set of sensors into one maritime picture, monitoring from shore to open sea.",
+      "placement_status": "ACTIVE",
+      "money_corner": true,
+      "link_heat": "UNDISCOVERED",
+      "mapping_ref": "data/mappings/offshore-counter-drone.json",
+      "role_evidence": [
+        {
+          "claim": "CoastShield combines a series of sensors to provide constant monitoring and early detection and tracking of even small targets, and the maritime Control Centre then merges all data collected from the various sensors.",
+          "source_name": "Unmanned Airspace, Thales launches new coastal surveillance system",
+          "source_date": "2024-11-04",
+          "url": "https://www.unmannedairspace.info/counter-uas-systems-and-policies/thales-launches-new-coastal-surveillance-system/",
+          "tag": "VERIFIED",
+          "source_excerpt": "CoastShield combines a series of sensors to provide constant monitoring and early detection and tracking of even small targets. The maritime Control Centre then merges all data collected from the various sensors.",
+          "verified_at": "2026-09-04T19:10:49Z"
+        }
+      ]
     }
   ],
   "status": "COMPLETE",
@@ -47,7 +78,7 @@
   "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
   "business_summary": "Thales Group is a French multinational aerospace, defense and technology group; its Thales Alenia Space joint venture builds satellite and digital-twin systems used for flood forecasting and impact assessment.",
   "exposure_summary": {
-    "narrative": "Thales S.A. sits on Riparian risk & monitoring, scored QUIET. Its role: Develops satellite and digital-twin systems for flood forecasting and impact assessment through Thales Alenia Space. Newly filled fundamentals (2026-09-01, yfinance-statements) show 8.01% three-year revenue CAGR and a 10.02% operating margin for the period ended 2025-12-31; no tibet-mega-dam-specific revenue percentage is disclosed or sourced for Thales S.A., only company-wide figures.",
+    "narrative": "Thales S.A. sits on Riparian risk & monitoring (tibet-mega-dam, scored QUIET) and on Command, control and sensor fusion for a fixed installation (offshore-counter-drone, the chain's money-corner CHOKE_POINT link, scored UNDISCOVERED) via its CoastShield coastal-surveillance product. Newly filled fundamentals (2026-09-01, yfinance-statements) show 8.01% three-year revenue CAGR and a 10.02% operating margin for the period ended 2025-12-31; no chain-specific revenue percentage is disclosed or sourced for either exposure, only company-wide figures.",
     "disclosed_revenue_exposure": {
       "value": null,
       "tag": "NULL",
@@ -55,7 +86,7 @@
     }
   },
   "crowdedness_caveats": [
-    "Thales S.A. sits on a link scored QUIET (see placements above); money_corner is False. No pcs block exists locally for this issuer; crowdedness reads from the link heat map only."
+    "Thales S.A. sits on a tibet-mega-dam link scored QUIET; money_corner is False there. On offshore-counter-drone it sits on the money-corner, CHOKE_POINT link c2-and-sensor-fusion, scored UNDISCOVERED: per the chain's own screen (data/screens/offshore-counter-drone.json), this is one of only 2 seated rows on that link (alongside HENSOLDT), and the placement's role evidence is VERIFIED with a current PASS placement audit. No pcs block exists locally for this issuer; crowdedness reads from the link heat map only."
   ],
   "catalysts": [
     {
@@ -238,6 +269,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on offshore-counter-drone. Held O2. Zero NULL canonical fields. No change since the fourth run's finding: the mapping carries an ACTIVE placement with a current PASS placement_audits[] entry for this exact chain/link, but the profile's own placements array still does not include it (only tibet-mega-dam/riparian-risk-monitoring is recorded). Cannot write a screen_handoff resting on an undeclared placement. Next stage `run profile THALES`."
+    },
+    {
+      "ts": "2026-09-13T00:15:00Z",
+      "by": "routine",
+      "kind": "AMEND",
+      "change": "run profile THALES: closed the PROFILE_GAP the 2026-09-06 selection_review named. Added the offshore-counter-drone/c2-and-sensor-fusion placement (money_corner true, link_heat UNDISCOVERED) with role and role_evidence copied verbatim from data/mappings/offshore-counter-drone.json's existing ACTIVE placement (VERIFIED evidence tag, current PASS placement_audits[] entry audited 2026-09-04 by atlas-fresh-context); no new web fetch performed, no metrics changed. Added listing EPA-HO (mapping_ref offshore-counter-drone.json) alongside the existing EPA:HO (tibet-mega-dam.json) since the two mappings independently minted different listing_id spellings for the same HO.PA listing. Updated exposure_summary and crowdedness_caveats to name both chain exposures. opportunity_tier stays O2; this amendment does not run selection and does not promote. Next stage is a fresh run selection CAMP-20260901-01 pass, which can now write a screen_handoff against this placement."
     }
   ],
   "selection_review": {
