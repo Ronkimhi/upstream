@@ -23,7 +23,12 @@ its own blind spot is worse than no gate, so callers print what could not be rea
 """
 from __future__ import annotations
 
+import datetime
+import json
 import re
+from typing import Iterator
+
+UTC = datetime.timezone.utc
 
 STRUCTURED_WRITERS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 
@@ -184,3 +189,84 @@ def from_tool_use(name: str, tool_input: dict) -> tuple[list[str], list[str]]:
 def touches(targets: list[str], pattern: re.Pattern[str]) -> bool:
     """Does any write target match this path pattern? Absolute paths are matched tail-first."""
     return any(pattern.search(t) for t in targets)
+
+
+def line_utc_date(timestamp: object) -> datetime.date | None:
+    """A transcript line's UTC date, or None when it carries no usable timestamp.
+
+    None is not "today". It means the line cannot be dated, and a caller deciding WHEN a
+    write happened must treat that as unknown rather than as absent.
+    """
+    value = str(timestamp or "").strip()
+    if not value:
+        return None
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    try:
+        parsed = datetime.datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed.astimezone(UTC).date()
+
+
+def transcript_writes(raw: str, hint: str = "") -> Iterator[tuple[datetime.date | None, str]]:
+    """Yield (UTC day of the transcript line, write target) for every write in a transcript.
+
+    All seven Stop hooks ran this same loop inline and all seven threw the timestamp away,
+    which is the defect this exists to close. A hook asked "did THIS SESSION ever write an
+    appraisal?" and then demanded a ledger line dated TODAY. In a session spanning several
+    days those are different questions: a loop that closed on Friday with its own dated line
+    and same-day calibration still answered yes on Sunday, and the only way past the block
+    was to forge a ledger line for a run that never happened (2026-08-30, 2026-09-13).
+
+    So the day comes out with the path, and a hook requires the ledger line for the day the
+    write actually happened. That also closes the UTC-midnight edge the old rule had backwards:
+    a write at 23:58Z owes a line stamped 23:58Z, which is yesterday's date by 00:02Z.
+
+    `hint` is the cheap substring prefilter every caller already did by hand. The day is None
+    when the line has no parseable timestamp; callers decide what unknown means, and the
+    conservative choice (keep firing) is the one that preserves the gate.
+    """
+    for line in raw.splitlines():
+        if hint and hint not in line:
+            continue
+        try:
+            event = json.loads(line)
+        except Exception:  # noqa: BLE001
+            continue
+        if not isinstance(event, dict):
+            continue
+        day = line_utc_date(event.get("timestamp"))
+        for item in (event.get("message") or {}).get("content") or []:
+            if not isinstance(item, dict) or item.get("type") != "tool_use":
+                continue
+            written, _unresolved = from_tool_use(
+                str(item.get("name") or ""), item.get("input") or {}
+            )
+            for target in written:
+                yield (day, target)
+
+
+def latest_write_day(
+    raw: str,
+    pattern: re.Pattern[str],
+    *,
+    hint: str = "",
+    unknown: datetime.date | None = None,
+) -> datetime.date | None:
+    """The most recent UTC day this session wrote a path matching `pattern`, else None.
+
+    None means the session never wrote one, so the hook has nothing to hold. `unknown` is the
+    day to assume for a write whose line cannot be dated: pass today, so a transcript this
+    module cannot read keeps the gate firing instead of silently switching it off.
+    """
+    days: list[datetime.date] = []
+    for day, target in transcript_writes(raw, hint):
+        if not pattern.search(target):
+            continue
+        resolved = day if day is not None else unknown
+        if resolved is not None:
+            days.append(resolved)
+    return max(days) if days else None

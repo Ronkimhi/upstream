@@ -123,3 +123,49 @@ Second failure of the same shape as `fetch.QUALITY_FIELDS` / `acis.quality` (202
 check that the description is still true. Promoted to a test rather than a memory:
 `TestLegacyBaselineIsNotStale`, verified to refuse both the real historical bug and a
 missing-file entry.
+
+## A gate keyed on "today" cannot read a session that outlived a day (2026-09-13)
+
+**What happened.** Two Stop hooks, `impact-gate.py` and `universe-gate.py`, scanned the WHOLE
+transcript of a session for writes under `data/impact/` and `data/mappings/`, then demanded a
+ledger line dated TODAY. In a session that ran from 2026-09-10 to 2026-09-13 those are different
+questions. The H5N1 appraisal and census closed correctly on 2026-09-11, each with its own dated
+ledger line and same-day calibration, and both hooks still blocked every attempt to end the
+session two days later. The universe hook could only be satisfied by writing
+`run universe h5n1-panzootic` into the ledger on a day no such run happened.
+
+**Second occurrence.** The first was 2026-08-30, recorded in `CLAUDE.md` under "No Stop hook,
+deliberately": two hooks fired on loops that had closed the day before, and the only way to
+satisfy them was to forge a ledger line. That sighting bought a decision not to add a seventh
+hook. It did not fix the six that had the bug.
+
+**Three things this cost, in order of how much they matter.**
+
+1. The only way through was a false record. An append-only ledger whose lines can be written to
+   satisfy a gate is not a record, it is a formality. Refusing was correct and it is also the
+   reason the session could not end.
+2. The blocking gates were RIGHT and said so, and nobody was reading them. `check_impact` printed
+   "calibration as_of '2026-09-13' (freshness not required off run day)" and `check_map` printed
+   OK, in the same minute the hooks claimed the loop was open. When a hook and its gate disagree,
+   the gate is the one with the denominator.
+3. The rule was also wrong at UTC midnight, in the opposite direction. A write at 23:58Z owes a
+   line stamped 23:58Z, which is already yesterday's date by 00:02Z, so the old rule would have
+   missed a genuinely open loop four minutes after it opened.
+
+**The rule.** A check on WHETHER something was written must also ask WHEN. The obligation attaches
+to the day of the write, never to the day the question is asked. `write_targets.transcript_writes`
+now yields `(UTC day, path)` so the day cannot be dropped by accident, and `latest_write_day`
+reduces it; an undateable line is passed the caller's `unknown` day rather than silently skipped,
+because a detector's blind spot must keep the gate firing, not switch it off.
+
+**Same shape as three earlier entries, which is why it is a rule and not an anecdote.**
+`fetch.QUALITY_FIELDS` / `acis.quality` (2026-08-29), `eval_indicators` (2026-09-08), and the
+pinned-hash exemption (2026-09-11) were all one file describing state in another with nothing
+checking the description was still true. This one is a gate describing WHEN with nothing checking
+it was still the right when. Every one of them passed cleanly at the moment it went wrong and
+surfaced days later pointing somewhere else.
+
+**Still open.** Five hooks carry the same defect (`campaign`, `chain`, `ember`, `profile`,
+`radar`). They are a backlog row, not a fix, because converting them was not what was authorized
+and they have not fired yet. The helper and the tests they need are in place.
+
