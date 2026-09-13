@@ -76,6 +76,7 @@ SHAPES = (
     rf"run screen {_SLUG}",
     rf"run profile {_TICKER}",
     rf"run profile --campaign {_CAMPAIGN}",
+    rf"run pipeline {_TICKER}",
     rf"run deepdive {_TICKER} {_SLUG}",
     rf"run redteam {_TICKER} {_SLUG}",
     rf"run devil (?:{_MACHINE_PATH}|{_SHA})",

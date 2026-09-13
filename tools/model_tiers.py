@@ -50,6 +50,7 @@ COMMAND_TIER = {
     "run screen": "strong",
     "run profile": "fast",
     "run profile --campaign": "fast",
+    "run pipeline": "fast",
     "run selection": "strong",
     "run deepdive": "strong",
     "run redteam": "strong",

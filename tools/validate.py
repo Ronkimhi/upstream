@@ -18,6 +18,7 @@ from check_analyst import WOULD_BUY_GATE, latest_changelog_date, would_buy_failu
 from check_campaign import validate_campaign
 from check_harness import validate_report as harness_report_errors
 from check_map import corpus_identity_failures, validate_mapping
+from check_pipeline import validate_pipeline
 from check_profile import validate_profile
 from market_paths import market_path
 from heat_score import band_for, money_corner, score_from
@@ -766,6 +767,15 @@ def v_company(f: Path) -> None:
     if obj is None:
         return
     for finding in validate_profile(ROOT, f, obj):
+        err(f, finding)
+
+
+def v_pipeline(f: Path) -> None:
+    """Disclosed backlog/RPO, contracts, and product/project pipeline (method 6B)."""
+    obj = load(f)
+    if obj is None:
+        return
+    for finding in validate_pipeline(ROOT, f, obj):
         err(f, finding)
 
 
@@ -1566,6 +1576,7 @@ def main() -> int:
         ("chains", DATA / "chains", "*.json", v_chain),
         ("mappings", DATA / "mappings", "*.json", v_mapping),
         ("companies", DATA / "companies", "*.json", v_company),
+        ("pipelines", DATA / "pipelines", "*.json", v_pipeline),
         ("campaigns", DATA / "campaigns", "CAMP-*.json", v_campaign),
         ("reviews", DATA / "reviews", "REV-*.json", v_review),
         ("harness", DATA / "harness", "20*-W*.json", v_harness),

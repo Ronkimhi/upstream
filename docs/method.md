@@ -461,6 +461,35 @@ exact `issuer_id` and mapped `listing_id`; ticker matching never supplies identi
 `campaign_calibrate.py` recomputes these counts and evidence-backed stages whenever a
 referenced map, profile, screen, or Stocky result changes; no session hand-counts completion.
 
+## 6B. Company pipelines
+
+`run pipeline <TICKER>` (Sieve) writes `data/pipelines/<issuer_id>.json`: the issuer's
+disclosed order backlog or remaining performance obligations (RPO), named contracts and
+awards, product or drug pipeline, and project pipeline, read off its own filings and
+investor-relations material. It is neither a screen nor a profile metric group: a backlog
+figure is disclosed on the issuer's own filing schedule rather than derived the way a
+profile's canonical metrics are, so it gets its own permanent store instead of being folded
+into `metrics`, and it refuses an issuer_id that does not already resolve to a
+`data/companies/<issuer_id>.json` profile rather than creating an orphan.
+
+Every item names a `type` (`BACKLOG | RPO | CONTRACT | PRODUCT | PROJECT`), a `value` and
+`currency` (or both `null`), the ISO `date` the source gives for the figure, and one of
+three source kinds. `edgar_doc` and `web_doc` items carry a verbatim `source_excerpt`
+copied from the stored filing (`data/edgar/docs/<T>.json`) or the stored page
+(`data/web/<id>.json`, queued via the `web_doc` request kind, `pull-data` skill): the same
+rule section 1 states for every quote in this repository, and every number the `claim` and
+the `value` assert must appear in that excerpt. `xbrl` items skip the excerpt bar entirely
+— there is no prose to quote — and instead carry a `source_ref` naming the exact
+`data/market/<T>.json` fundamentals field the item's `value` must equal: a structured
+figure is verified against the structured store it came from, never against a sentence.
+
+`status` is `COMPLETE` (>= 1 item), `PARTIAL`, or `NONE_FOUND` (>= 2 `searched` entries: a
+search that came back empty is a real answer and it has to be written down to be one, the
+same rule an UNRANKED impact leg follows in section 0.2). A pipeline never uses
+`INVESTABLE`, `WATCH`, or `TOO_LATE`, and never sets an entry zone or a no-entry-above
+level: those stay Stocky's verdict duties alone, and a backlog figure is an input a dive
+reads, never a verdict itself. `tools/check_pipeline.py` is the gate.
+
 ## 7. Deep dives and verdicts
 
 Closed vocabulary: `INVESTABLE | WATCH | TOO_LATE`, clock-labeled.
