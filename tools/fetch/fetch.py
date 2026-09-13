@@ -448,6 +448,59 @@ IFRS_FACT_MAP = {
     "long_term_debt": (["NoncurrentBorrowings", "Borrowings", "LongtermBorrowings"],
                        "instant"),
 }
+# ---- remaining performance obligations (ASC 606 / IFRS 15 backlog disclosure) ----
+# The transaction price allocated to performance obligations not yet satisfied as of the
+# period end -- i.e. contracted revenue not yet recognised. Unlike every *_fy field above,
+# this is written as ONE point-in-time fact {value, unit, period_end, concept, taxonomy},
+# never a series: method's "never interpolated" rule applies here to a disclosure the
+# filer does not tag every period, not only to a financial figure, so this never unions
+# concepts or fills a gap the filer itself left open (contrast pick()'s merge behaviour).
+#
+# us-gaap concept confirmed 2026-09-13 by WebSearch, not memory (task instruction):
+# RevenueRemainingPerformanceObligation is the ASC 606 concept added to the taxonomy for
+# the 2018 revenue-recognition adoption; XBRL US's DQC_0076 rule, "Performance
+# Obligations With No Durations," exists specifically because this concept is tagged on
+# an INSTANT context (period end only, no start) -- corroborated independently by
+# xbrl.us's own data-rule and guidance pages and by a live SEC company-facts R-file
+# example, across several searches.
+#
+# ifrs-full: no confirmed core taxonomy element, after eight separate WebSearch queries
+# against xbrl.us, the IFRS Foundation's own taxonomy documentation and ESMA's ESEF
+# reporting manual. IFRS 15.120 mandates the disclosure but, unlike ASC 606, the IASB
+# core taxonomy does not appear to carry one stable, universally-used tag for it: ESMA's
+# own ESEF guidance states a filer "creates extension taxonomy elements when needed" for
+# a figure with no standard tag, which is consistent with there being none here. Left
+# empty rather than guessed: a fabricated ifrs-full concept name is exactly the defect
+# method section 1 exists to catch, and "confirm... never from memory" cuts both ways --
+# it also forbids inventing a plausible-looking name when the search comes back empty.
+RPO_CONCEPTS = {"us-gaap": ["RevenueRemainingPerformanceObligation"], "ifrs-full": []}
+
+
+def _remaining_performance_obligation(taxonomy, gaap, ifrs):
+    """The single latest disclosed value for one filer, verbatim.
+
+    Every candidate concept for this taxonomy is read (interim and annual forms both --
+    the disclosure is routinely made every 10-Q, not only annually) and the row with the
+    LATEST period end wins; nothing is unioned or filled between periods the filer did
+    not itself tag. Returns None when the filer carries no candidate concept at all.
+    """
+    src_map = gaap if taxonomy == "us-gaap" else ifrs
+    best = None
+    for concept in RPO_CONCEPTS.get(taxonomy, []):
+        units = (src_map.get(concept, {}) or {}).get("units", {}) or {}
+        for unit, vals in units.items():
+            for v in vals or []:
+                if v.get("form") not in INTERIM_FORMS:
+                    continue
+                end, val = v.get("end"), v.get("val")
+                if not end or val is None:
+                    continue
+                if best is None or end > best["period_end"]:
+                    best = {"value": val, "unit": unit, "period_end": end,
+                           "concept": concept, "taxonomy": taxonomy}
+    return best
+
+
 ANNUAL_FORMS = ("10-K", "20-F", "40-F")
 # The interim filter also admits the annual forms: it is what the "latest instant" reads
 # of cash and total_debt use, and a 20-F filer files no 10-Q or 10-K at all, so until
@@ -623,6 +676,8 @@ def _fundamentals_sec(ticker, cik):
         "net_income_fy": pick("net_income", True),
         "cash": pick("cash", False)[-1:] or None,
         "total_debt": pick("total_debt", False)[-1:] or None,
+        "remaining_performance_obligations": _remaining_performance_obligation(
+            taxonomy, gaap, ifrs),
     }
     # Annual series for the quality block. A field with no rows stays absent rather than
     # empty, so `quality` names it as missing instead of scoring it as zero (method §1).
@@ -1399,17 +1454,39 @@ def do_edgar_doc(ticker, lookback_days=200):
             if f == "10-Q" and dates[i] >= cutoff:
                 cand = i
                 break
+    # Foreign private issuers file neither an 8-K nor a 10-Q: 6-K is their interim
+    # disclosure vehicle (the same role a 10-Q plays for a domestic filer, so it is
+    # windowed the same way) and 20-F their annual report. This 3-tier gap is exactly
+    # why ABBNY, ASX, BP, TSM, GSK, SNY, STN and KLIN all FAILED here with "no earnings
+    # document" though EDGAR carried both forms for every one of them.
     if cand is None:
-        raise RuntimeError(f"no earnings document in {lookback_days}d window (fail closed — no doc, no nuggets)")
+        for i, f in enumerate(forms):
+            if f == "6-K" and dates[i] >= cutoff:
+                cand = i
+                break
+    # 20-F is annual, filed once a year, so it is NOT windowed by lookback_days the way
+    # the three tiers above are: a 200-day cutoff would routinely find none and defeat
+    # the point of this tier, which is "the last-resort baseline document for a filer
+    # with nothing fresher," not "a fresh 20-F." The single latest one on file is taken.
+    if cand is None:
+        for i, f in enumerate(forms):
+            if f == "20-F":
+                cand = i
+                break
+    if cand is None:
+        raise RuntimeError(f"no earnings document in {lookback_days}d window, and no 6-K "
+                           f"or 20-F on file at all (fail closed — no doc, no nuggets)")
     url = "https://www.sec.gov/Archives/edgar/data/{}/{}/{}".format(int(cik), accs[cand].replace("-", ""), docs[cand])
     edgar_wait()
     dr = requests.get(url, headers=SEC_HEADERS, timeout=60)
     if dr.status_code != 200:
         raise RuntimeError(f"document HTTP {dr.status_code}")
     text = _strip_html(dr.text)[:MAX_DOC_CHARS]
-    # An 8-K primary doc is often just the cover; the earnings text lives in
-    # the EX-99 press-release exhibit. Upgrade to it when the cover is thin.
-    if forms[cand] == "8-K" and len(text) < 8000:
+    # An 8-K or 6-K primary doc is often just the cover; the earnings text lives in
+    # the EX-99 press-release exhibit. Upgrade to it when the cover is thin. 6-K widened
+    # in 2026-09-13 with the same logic: a foreign filer's 6-K cover is exactly the same
+    # shape of stub, for the same reason -- the substance is an exhibit, not the cover.
+    if forms[cand] in ("8-K", "6-K") and len(text) < 8000:
         try:
             base = "https://www.sec.gov/Archives/edgar/data/{}/{}".format(int(cik), accs[cand].replace("-", ""))
             edgar_wait()
@@ -1544,41 +1621,178 @@ def shadow_sweep():
     print(f"shadow sweep: {changed} row(s) graded")
 
 
-def refresh_dive_tickers(counts):
-    """Keep every live dive's price series fresh on the cron.
+# -------------------------------------------------------- scheduled price refresh
+# The cron job's own ceiling is 30 minutes (.github/workflows/fetch.yml timeout-minutes),
+# shared with dependency install, the request-processing loop, feeds, this refresh,
+# eval_indicators, shadow_sweep, the rebuild step and the commit/push retries. A hard job
+# timeout KILLS the runner outright -- no try/except anywhere in this file can catch that,
+# and no commit step runs afterward, which is worse than an ordinary crash (see
+# _guarded_cron_step below): every market file this refresh had already jdumped to the
+# runner's disk this run is thrown away with it. So this loop carries its own SMALLER
+# wall-clock budget, checked in real time, and stops admitting new tickers once spent --
+# leaving a named, logged remainder for the next scheduled run instead of gambling the
+# whole run on one.
+PRICE_REFRESH_BUDGET_SECONDS = 900  # half the 30-minute job ceiling, by design (see above)
+# "Typical" per-ticker cost, from this file's own call shape rather than a live
+# measurement: one do_prices() call makes exactly three ordinary-path network legs --
+# dual_source_price's fetch_price_yf, dual_source_price's fetch_price_stockanalysis
+# (timeout=30, and its own docstring records it answering and agreeing with yfinance "to
+# the cent" in practice), and this file's own fetch_series() yfinance call. Each of those
+# is a small JSON/CSV round trip well inside its configured ceiling when it actually
+# answers; 3s apiece is a deliberately generous, round assumption, not a measurement.
+# Their stooq FALLBACK legs are excluded from this estimate on purpose -- both call
+# sites' own comments say stooq now answers instantly with a wrong body rather than
+# hanging, so it is not a normal-path cost -- and are covered instead by the worst-case
+# figure below, which the live loop checks against real elapsed time regardless of what
+# this estimate assumed. Getting this number wrong costs throughput, never safety.
+PRICE_REFRESH_TYPICAL_SECONDS_PER_TICKER = 9
+# The hard ceiling used by the live wall-clock check: every leg do_prices() can reach,
+# blocked for its own configured timeout instead of answering, summed. dual_source_price:
+# fetch_price_yf (no explicit timeout in this codebase; bounded here at the same 30s it
+# uses for every other HTTP leg) + fetch_price_stockanalysis (timeout=30) +
+# fetch_price_stooq fallback (timeout=30). This file's fetch_series(): a second yfinance
+# history call (30s, same assumption) + its own stooq fallback (timeout=15).
+# 30+30+30+30+15 = 135.
+PRICE_REFRESH_WORST_CASE_SECONDS_PER_TICKER = 135
 
-    Skips underscore-prefixed files, which are AGENT STORES and not dives:
-    `data/stocks/_dive-log.json` is Stocky's record and carries no `ticker`. Without the
-    skip this raised KeyError and killed the whole cron run AFTER the feed batch had
-    already fetched 385 items, so the feeds were discarded and the intake corpus sat
-    frozen from 2026-08-29 to 2026-09-01 while every push-triggered run passed, because
-    this function only runs on the cron. Every other reader in the repo already skips
-    them (`app/build.py:read_json_dir`, `validate.py`'s plans loop,
-    `impact_calibrate.appraisals`); this one did not.
 
-    A dive missing its `ticker` is now skipped and named rather than fatal: one malformed
-    file must never cost a whole scheduled run.
+def _market_ticker_staleness():
+    """Every ticker with a data/market/<T>.json file: [(staleness_key, ticker), ...].
+
+    The key is the series' own `as_of` (the actual last priced session) when present,
+    else the file's `fetched_at`, else "" -- a file with no series at all is the stalest
+    possible ticker and an empty string sorts first under plain comparison, which orders
+    it first without inventing a date for it (the same "never interpolated" discipline
+    BUILD item 5 applies to a fact now applied to a refresh order). ISO date strings and
+    ISO datetime strings compare correctly against each other here because both start
+    with the same YYYY-MM-DD prefix; only same-day ties break arbitrarily, which does not
+    matter for staleness ordering.
     """
-    tickers = set()
-    for sf in sorted((DATA / "stocks").glob("*.json")):
-        if sf.name.startswith("_"):
-            continue
-        st = jload(sf, {})
-        if st.get("status") == "ARCHIVED" or st.get("fixture"):
-            continue
-        t = st.get("ticker")
+    out = []
+    for mf in sorted((DATA / "market").glob("*.json")):
+        m = jload(mf, {})
+        t = m.get("ticker")
         if not t:
-            print(f"  cron refresh: {sf.name} has no ticker, skipped")
             continue
-        tickers.add(t)
-    tickers.add("SPY")  # shadow benchmark stays fresh
-    for t in sorted(tickers):
+        key = (m.get("series") or {}).get("as_of") or m.get("fetched_at") or ""
+        out.append((key, t))
+    return out
+
+
+def select_price_refresh_tickers(candidates, budget_seconds=PRICE_REFRESH_BUDGET_SECONDS,
+                                 per_ticker_seconds=PRICE_REFRESH_TYPICAL_SECONDS_PER_TICKER):
+    """Pure selection over every ticker with a market file: oldest series first, de-duped,
+    sliced to an estimated count meant to fit the wall-clock budget.
+
+    `candidates`: [(staleness_key, ticker), ...] in any order (see
+    _market_ticker_staleness). Returns (selected, remainder): `selected` is oldest-first
+    and duplicate-free; `remainder` is how many de-duped candidates did not fit the
+    estimated slice. The slice is a PLANNING estimate only -- refresh_market_tickers still
+    checks the real wall clock per ticker, which is the actual safety guarantee, so a
+    per_ticker_seconds that runs a little high or low here costs only throughput.
+    """
+    ordered = sorted(candidates, key=lambda kt: kt[0])
+    selected, seen = [], set()
+    for _key, ticker in ordered:
+        if ticker in seen:
+            continue
+        seen.add(ticker)
+        selected.append(ticker)
+    max_n = len(selected) if per_ticker_seconds <= 0 else max(1, int(budget_seconds // per_ticker_seconds))
+    remainder = max(0, len(selected) - max_n)
+    return selected[:max_n], remainder
+
+
+def refresh_market_tickers(counts):
+    """Keep every ticker's price series fresh on the cron, oldest series first.
+
+    Formerly `refresh_dive_tickers`, scoped to Stocky's live dive tickers plus SPY.
+    Broadened 2026-09-13: the scheduled run now tends the whole data/market/ corpus (460
+    files vs. ~14 dive tickers) instead of only the handful under active dive, which is
+    most of what the platform was actually leaving stale. Any dive ticker already has its
+    own market file (a dive requires prior price fetches), so nothing is lost by dropping
+    the separate data/stocks/ scan.
+
+    SPY is still always attempted first, regardless of its own staleness: shadow_sweep
+    needs a current benchmark every run it grades rows, not merely when SPY happens to be
+    the stalest file on disk. (last_close() falls back to a live fetch if SPY's file is
+    ever missing entirely, so this is a freshness courtesy, not the only thing standing
+    between shadow_sweep and a crash.)
+
+    Bounded twice, deliberately redundantly: select_price_refresh_tickers slices to an
+    ESTIMATED count meant to fit PRICE_REFRESH_BUDGET_SECONDS, and this loop separately
+    checks the REAL wall clock after every ticker and stops early if the remaining budget
+    could not absorb one more worst-case row -- because the estimate can be wrong in
+    either direction and only the real clock is a safety guarantee, not a plan. Either
+    way nothing is lost: whatever is not reached this run is simply the stalest file next
+    run, since the selection is re-derived from disk every time, never from a saved
+    cursor.
+    """
+    candidates = _market_ticker_staleness()
+    selected, static_remainder = select_price_refresh_tickers(candidates)
+    ordered = ["SPY"] + [t for t in selected if t != "SPY"]
+    start = time.monotonic()
+    attempted = 0
+    stopped_early = 0
+    for i, t in enumerate(ordered):
+        elapsed = time.monotonic() - start
+        remaining = PRICE_REFRESH_BUDGET_SECONDS - elapsed
+        if attempted > 0 and remaining < PRICE_REFRESH_WORST_CASE_SECONDS_PER_TICKER:
+            stopped_early = len(ordered) - i
+            print(f"  price refresh: stopping after {attempted} ticker(s), {elapsed:.0f}s "
+                  f"elapsed -- {remaining:.0f}s left is not enough for another worst-case "
+                  f"row ({PRICE_REFRESH_WORST_CASE_SECONDS_PER_TICKER}s)")
+            break
+        attempted += 1
         try:
             do_prices(t)
             counts["refreshed"] += 1
         except Exception as e:
             counts["errors"] += 1
             print(f"  cron refresh failed for {t}: {e}")
+    total_remainder = static_remainder + stopped_early
+    counts["refresh_remainder"] = total_remainder
+    if total_remainder:
+        print(f"  price refresh: {total_remainder} stale ticker(s) deferred to the next "
+              f"scheduled run ({static_remainder} by the budget estimate, {stopped_early} "
+              f"by the real-time check)")
+
+
+def prune_fulfilled_requests(reqs, cutoff_days=30):
+    """Drop FULFILLED request rows older than `cutoff_days`. Mutates reqs["requests"] in
+    place; returns the count pruned. Factored out of main() so the cron-step guard (see
+    _guarded_cron_step) has a named function to wrap, the same as the other three steps."""
+    cutoff = (NOW.replace(tzinfo=None) - __import__("datetime").timedelta(days=cutoff_days)).isoformat()
+    before = len(reqs["requests"])
+    reqs["requests"] = [r_ for r_ in reqs["requests"]
+                        if not (r_.get("status") == "FULFILLED" and (r_.get("fulfilled_at") or "9999") < cutoff)]
+    pruned = before - len(reqs["requests"])
+    if pruned:
+        print(f"pruned {pruned} old FULFILLED request(s)")
+    return pruned
+
+
+def _guarded_cron_step(name, fn, errors, counts):
+    """Run one cron-only post-fetch step; a crash here must never cost the whole run.
+
+    Before this guard existed, a crash in ANY of refresh/indicators/shadow-sweep/prune
+    propagated out of main() uncaught. fetch.py's job step then exited non-zero, which --
+    per .github/workflows/fetch.yml -- skips every step after it, commit included: every
+    market file already WRITTEN TO DISK by do_prices/do_fundamentals/etc this same run
+    (each of those jdumps immediately, not at the end) never reached git. Two real
+    incidents did exactly this: refresh_dive_tickers's `st["ticker"]` KeyError and
+    eval_indicators's `ind["indicator"]` KeyError (both fixed individually, b35f4ce). This
+    is the systemic version, so a THIRD bug in any of these steps costs one printed line
+    and a health record instead of ten scheduled runs' worth of fetched data.
+    """
+    try:
+        fn()
+    except Exception as e:  # noqa: BLE001
+        msg = f"{type(e).__name__}: {str(e)[:300]}"
+        errors.append({"step": name, "error": msg, "at": NOW.isoformat()})
+        counts["errors"] += 1
+        print(f"  CRON STEP FAILED ({name}): {msg} -- continuing; this run still commits "
+              f"whatever it already fetched")
 
 
 # ---------------------------------------------------------------- main
@@ -1608,8 +1822,9 @@ def main():
     req_path = DATA / "requests.json"
     reqs = jload(req_path, {"version": 1, "requests": []})
     counts = {"processed": 0, "fulfilled": 0, "failed": 0, "refreshed": 0, "errors": 0,
-              "retried": 0}
+              "retried": 0, "refresh_remainder": 0}
     trips = []
+    cron_step_errors = []
 
     # Explicit CIK assertions first, from every row in the file, so an override on
     # any row for a ticker governs every kind fetched for it this run (quality reads
@@ -1681,15 +1896,16 @@ def main():
             print(f"feeds: run FAILED: {e}")
 
     if is_cron:
-        refresh_dive_tickers(counts)
-        eval_indicators(trips)
-        shadow_sweep()
-        cutoff = (NOW.replace(tzinfo=None) - __import__("datetime").timedelta(days=30)).isoformat()
-        before = len(reqs["requests"])
-        reqs["requests"] = [r_ for r_ in reqs["requests"]
-                            if not (r_.get("status") == "FULFILLED" and (r_.get("fulfilled_at") or "9999") < cutoff)]
-        if len(reqs["requests"]) != before:
-            print(f"pruned {before - len(reqs['requests'])} old FULFILLED request(s)")
+        # Each step runs inside its own guard (_guarded_cron_step): a crash in one must
+        # never cost the others or the commit this run has already earned. See that
+        # function's docstring for the two real incidents that motivated it.
+        _guarded_cron_step("refresh_market_tickers",
+                           lambda: refresh_market_tickers(counts), cron_step_errors, counts)
+        _guarded_cron_step("eval_indicators",
+                           lambda: eval_indicators(trips), cron_step_errors, counts)
+        _guarded_cron_step("shadow_sweep", shadow_sweep, cron_step_errors, counts)
+        _guarded_cron_step("prune_fulfilled_requests",
+                           lambda: prune_fulfilled_requests(reqs), cron_step_errors, counts)
 
     jdump(req_path, reqs)
 
@@ -1698,7 +1914,7 @@ def main():
     fetch_h["last_run"] = NOW.isoformat()
     fetch_h["runs"] = (fetch_h.get("runs", []) + [{
         "ts": NOW.isoformat(), "event": os.environ.get("GITHUB_EVENT_NAME", "manual"),
-        **counts, "trips": len(trips)}])[-14:]
+        **counts, "trips": len(trips), "cron_step_errors": cron_step_errors}])[-14:]
     if feeds_summary is not None:
         health["feeds"] = {"last_run": NOW.isoformat(), "summary": feeds_summary}
     jdump(DATA / "health" / "actions.json", health)

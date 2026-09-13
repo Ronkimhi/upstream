@@ -40,7 +40,17 @@ EMERGING_MIN = 40
 MACHINE_ADMISSION_MIN_FIELDS = 3
 
 NON_US_SUFFIX_TELLS = (".PA", ".SW", ".ST", ".SS", ".SZ", ".L", ".DE", ".MI",
-                       ".AS", ".BR", ".LS", ".T", ".HK", ".TO", ".AX")
+                       ".AS", ".BR", ".LS", ".T", ".HK", ".TO", ".AX",
+                       # Widened 2026-09-13: .NS (India, NSE), .KS (South Korea, KRX),
+                       # .TW (Taiwan, TWSE) and .OL (Norway, Oslo Børs) are exchange
+                       # suffixes yfinance uses exactly like the fourteen already here,
+                       # and a ticker carrying one is exactly as unable to be a US local
+                       # as ENR.DE is. Missing them meant those four exchanges' listings
+                       # fell through the is_non_us check and could be scored
+                       # machine-admissible DARK/EMERGING/CROWDED on a scope the method
+                       # explicitly cuts, not merely COVERAGE-THIN like every other
+                       # non-US local.
+                       ".NS", ".KS", ".TW", ".OL")
 
 
 # ---------------------------------------------------------------------------
