@@ -21,7 +21,7 @@ shape" means when the string came from a web page).
     from queue_allowlist import is_allowed, reject_reason
 
 `tools/tests/test_pressure.py`, `tools/tests/test_campaign_commands.py`,
-`tools/tests/test_cass.py` and `tools/tests/test_impact.py` hold the injection probes. Adding a shape here without a probe is
+`tools/tests/test_cass.py`, `tools/tests/test_impact.py` and `tools/tests/test_harness.py` hold the injection probes. Adding a shape here without a probe is
 how this file stops being trustworthy.
 
 THE SECOND CHANNEL. The page also carries an `upstream-edits` block, because Ron edits agent
@@ -53,6 +53,7 @@ _MACHINE_PATH = (
     rf"(?:\.claude|\.github|app|docs|tools)/(?:{_SAFE_SEGMENT}/)*{_SAFE_SEGMENT})"
 )
 _SHA = r"[0-9a-f]{7,40}"
+_HARNESS_FINDING = r"\d{4}-W\d{2}-F[1-3]"
 
 SHAPES = (
     r"run radar",
@@ -78,6 +79,9 @@ SHAPES = (
     rf"run deepdive {_TICKER} {_SLUG}",
     rf"run redteam {_TICKER} {_SLUG}",
     rf"run devil (?:{_MACHINE_PATH}|{_SHA})",
+    # The fix form sits ABOVE the report form, for the reason given at `run impact --queue`.
+    rf"run harness fix {_HARNESS_FINDING}",
+    r"run harness",
     rf"refresh {_PATH}",
     rf"request data(?: {_TICKER})+",
 )

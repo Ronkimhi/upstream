@@ -1,9 +1,10 @@
-# Data + UI integrity gate: any push that touches data/, app/ or tools/ must leave
-# valid JSON and a buildable page, whichever venue wrote it. No secrets.
+# Data + UI integrity gate: any push that touches data/, app/, tools/ or the harness
+# (.claude/, CLAUDE.md) must leave valid JSON and a buildable page, whichever venue
+# wrote it. No secrets.
 name: ci
 on:
   push:
-    paths: ["data/**", "app/**", "tools/**"]
+    paths: ["data/**", "app/**", "tools/**", ".claude/**", "CLAUDE.md"]
   workflow_dispatch: {}
 
 permissions:
@@ -77,6 +78,11 @@ jobs:
       # lines carry `model:` on day one.
       - name: model tier (advisory)
         run: python3 tools/check_model.py
+      # Hitch's harness audit. CI has no local session logs, so its trace audits print
+      # SCOPE EMPTY here and the static half runs: instruction budget, cited paths, hook
+      # tests, CI coverage, self-edit. Advisory for the same reason as the two above.
+      - name: harness audit (advisory)
+        run: python3 tools/check_harness.py
       # Citation debt, reported but not blocking. It hardens to an error once the seed
       # corpus is backfilled; until then the number is printed every run so the backlog
       # stays visible instead of becoming invisible.
