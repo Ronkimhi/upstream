@@ -130,10 +130,6 @@ def main() -> int:
     )
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
-
-
 def _in_repo(target: str, root, subdir: str, pattern: str):
     r"""Return the matched filename only when `target` really lands in <root>/<subdir>/.
 
@@ -168,3 +164,7 @@ def _in_repo(target: str, root, subdir: str, pattern: str):
     if parts[:len(want)] != want or len(parts) != len(want) + 1:
         return None
     return parts[-1] if _re.fullmatch(pattern, parts[-1]) else None
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

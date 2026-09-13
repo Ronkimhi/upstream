@@ -66,7 +66,9 @@
     "value": 0,
     "window_days": 7
    },
-   "status": "OPEN"
+   "status": "OPEN",
+   "fail_before": "tools.tests.test_hook_scripts.TestChainGateScript.test_chain_write_script_invocation_does_not_crash: exit 1, NameError: name '_in_repo' is not defined (chain-gate.py main(), unfixed tree)",
+   "fixed_on": "2026-09-13"
   },
   {
    "id": "2026-W37-F2",
@@ -145,6 +147,10 @@
   {
    "ts": "2026-09-13T03:27:59Z",
    "change": "Initial harness report: first run of `run harness`. Three findings from the 7-day trace window: chain-gate.py and radar-gate.py have been crashing on a NameError since 2026-08-30 (commit 799793a) instead of enforcing their postlude checks, and impact-gate.py has no regression test."
+  },
+  {
+   "ts": "2026-09-13T03:55:00Z",
+   "change": "run harness fix 2026-W37-F1: added tools/tests/test_hook_scripts.py (TestChainGateScript), a subprocess-based regression test that runs chain-gate.py the way Claude Code actually invokes it. It failed on the unfixed tree exactly as diagnosed (fail_before recorded on the finding), then moved the _in_repo() helper above the `if __name__ == \"__main__\":` guard in chain-gate.py, a pure reorder with no logic change. Test now passes and the full suite (543 tests) stays green. Finding stays OPEN: status, fix_commit go to FIXED only after the parent session commits."
   }
  ]
 }
