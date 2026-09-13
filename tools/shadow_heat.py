@@ -113,9 +113,10 @@ def gather_candidates(link: dict, mapping: dict):
     seen = set()
     instruments = []
     for pi in link.get("price_instruments") or []:
-        if pi.get("expression") != "INSTRUMENT":
-            continue
-        t = pi.get("ticker")
+        # Every price_instruments entry is an instrument (method section 4). This loop used to
+        # require an `expression` key no contract defines, and skipped BWET, the first real
+        # record, on 2026-09-13.
+        t = pi.get("ticker") if isinstance(pi, dict) else None
         if t and t not in seen:
             seen.add(t)
             instruments.append(t)

@@ -317,5 +317,36 @@ class TestRowProvenance(unittest.TestCase):
         self.assertNotIn("after the call", row["note"])
 
 
+class TestInstrumentRecordShape(unittest.TestCase):
+    """Atlas's price_instruments records carry no `expression` key, which method section 4 never
+    defines, and the tool used to skip every instrument without one, so BWET, the first real
+    instrument, got no shadow row (2026-09-13)."""
+
+    def test_an_instrument_without_an_expression_key_still_gets_a_row(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        for folder in ("chains", "market", "shadow", "mappings"):
+            (root / "data" / folder).mkdir(parents=True)
+        chain = {"id": "gamma", "heat_as_of": "2026-08-30", "links": [{
+            "id": "l1", "name": "Link one", "example_tickers": ["AAA"],
+            "price_instruments": [{"ticker": "XFUT", "exchange": "NYSE Arca", "kind": "ETF",
+                                   "holds": "freight futures"}],
+            "heat": {"verdict": "OVER_CROWDED", "crowdedness": {"score": 84}}}]}
+        (root / "data" / "chains" / "gamma.json").write_text(json.dumps(chain))
+        (root / "data" / "mappings" / "gamma.json").write_text("{}")
+        for ticker in ("AAA", "XFUT"):
+            (root / "data" / "market" / f"{ticker}.json").write_text(json.dumps(
+                {"series": {"rows": [["2026-08-28", 10.0]], "source": "test"}}))
+        (root / "data" / "shadow" / "book.json").write_text(json.dumps({"rows": []}, indent=1) + "\n")
+        (root / "data" / "requests.json").write_text(json.dumps({"version": 1, "requests": []}, indent=1) + "\n")
+        result = subprocess.run([sys.executable, str(ROOT / "tools" / "shadow_heat.py"), "gamma",
+                                 "--root", str(root), "--date", "2026-09-13"], capture_output=True, text=True)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        rows = json.loads((root / "data" / "shadow" / "book.json").read_text())["rows"]
+        self.assertEqual({("XFUT", "INSTRUMENT"), ("AAA", "ISSUER")},
+                         {(row["ticker"], row["expression"]) for row in rows})
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -34,7 +34,7 @@ def chain():
 
 
 class TestHeatGate(unittest.TestCase):
-    def run_gate(self, mutate=None, ledger=True, calibration=True):
+    def run_gate(self, mutate=None, ledger=True, calibration=True, ledger_text=None):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             for name in ("chains", "mappings", "market"):
@@ -47,8 +47,8 @@ class TestHeatGate(unittest.TestCase):
             (root / "data" / "chains" / "_ember-log.json").write_text(json.dumps(
                 {"calibration": {"generated_at": f"{TODAY}T00:00:00Z"}} if calibration else {}))
             (root / "data" / "ledger.md").write_text(
-                f"{TODAY} 00:00Z | RUN | run heat test-chain | by: ember | health: 2/2\n"
-                if ledger else "")
+                ledger_text if ledger_text is not None else
+                (f"{TODAY} 00:00Z | RUN | run heat test-chain | by: ember | health: 2/2\n" if ledger else ""))
             return subprocess.run([sys.executable, str(ROOT / "tools" / "check_heat.py"),
                                    "--root", str(root), "--date", TODAY],
                                   capture_output=True, text=True)
@@ -90,6 +90,13 @@ class TestHeatGate(unittest.TestCase):
     def test_missing_postlude_evidence_fails(self):
         self.assertEqual(self.run_gate(ledger=False).returncode, 1)
         self.assertEqual(self.run_gate(calibration=False).returncode, 1)
+
+    def test_a_line_that_only_mentions_run_heat_is_not_the_run_line(self):
+        text = (f"{TODAY} 00:00Z | RUN | request data ZZZZ | by: ron | "
+                f"result: next: run heat test-chain | health: n/a\n")
+        result = self.run_gate(ledger_text=text)
+        self.assertEqual(1, result.returncode, result.stdout)
+        self.assertIn("no same-day RUN/AMEND ledger line for run heat", result.stdout)
 
     def test_null_heat_cannot_retain_promoted_opportunity(self):
         def mutate(value):

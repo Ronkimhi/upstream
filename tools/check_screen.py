@@ -118,6 +118,16 @@ def normalize(s: str) -> str:
     return re.sub(r"\s+", " ", "".join(out)).strip().casefold()
 
 
+def quote_in_text(quote: str, text: str) -> bool:
+    """True when `quote` is a verbatim span of `text` under `normalize`, allowing the quote to
+    close with its own period, comma, semicolon or colon where it was cut from a longer
+    sentence (method section 1, amended 2026-09-13). The span without that mark is already a
+    verbatim span, so the mark adds no words. Refusing it rejected three true broker quotes on
+    a stored Insurance Journal page, the direction of error `normalize` exists to prevent."""
+    q = normalize(quote).rstrip(" .,;:")
+    return bool(q) and q in normalize(text)
+
+
 def check_quotes(data: Path, screens: list) -> None:
     """Check 1 + 2. The core of this file."""
     checked = verified = 0
@@ -140,7 +150,7 @@ def check_quotes(data: Path, screens: list) -> None:
                              f"({doc_path.relative_to(data.parent)}) — a quote that cannot "
                              f"be verified is not evidence, so this is a failure, not a skip")
                         continue
-                    if normalize(quote) in normalize(doc["text"]):
+                    if quote_in_text(quote, doc["text"]):
                         verified += 1
                     else:
                         fail(f"{where}: quote does NOT appear in {doc.get('form')} "

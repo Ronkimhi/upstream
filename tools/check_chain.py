@@ -56,8 +56,9 @@ from pathlib import Path
 # main() is called under its own __main__ guard. The path insert mirrors check_map.py's
 # own pattern for importing a sibling module out of tools/.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from check_screen import normalize  # noqa: E402
+from check_screen import normalize, quote_in_text  # noqa: E402
 from heat_score import TICKER_RE  # noqa: E402
+from ledger_lines import command_lines  # noqa: E402
 
 # Ledger-content rules bind runs from this date forward, never retroactively. Same pattern
 # as OCCURRENCE_GATE in tools/validate.py: a rule invented today cannot fail yesterday's work.
@@ -257,7 +258,7 @@ def _instrument_failures(link_id, instr, index) -> list[str]:
         fails.append(f"{where}.identity_evidence has no VERIFIED item with a source_date, "
                       f"an http(s) url and a non-empty source_excerpt")
     elif isinstance(holds, str) and holds.strip():
-        if not any(normalize(holds) in normalize(e["source_excerpt"]) for e in verified):
+        if not any(quote_in_text(holds, e["source_excerpt"]) for e in verified):
             fails.append(f"{where}.holds does not appear in any identity_evidence source_excerpt")
     return fails
 
@@ -361,14 +362,7 @@ def chain_run_lines(lines):
     whole line, so a `request data` line whose result only named the chain refresh it was
     preparing counted as a chain run with no archetypes and turned CI red on 2026-09-13
     (fc66a90). What a line mentions is not what it ran. Pure."""
-    out = []
-    for line in lines:
-        parts = [part.strip() for part in str(line).split("|")]
-        if len(parts) < 3 or parts[1] not in ("RUN", "AMEND"):
-            continue
-        if re.match(r"(run chain|refresh data/chains)\b", parts[2]):
-            out.append(line)
-    return out
+    return command_lines(lines, ("run chain", "refresh data/chains"))
 
 def main() -> int:
     argv = sys.argv[1:]

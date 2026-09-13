@@ -8,6 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from heat_score import band_for, heat_bucket, instrument_bucket, money_corner, score_from  # noqa: E402
+from ledger_lines import command_lines  # noqa: E402
 
 SCORES = ("impact", "crowdedness", "capture")
 INSTRUMENT_SCORES = ("crowdedness", "capture")
@@ -117,7 +118,7 @@ def main():
         print(f"check_heat: NOT RUN TODAY ({today}). 0 heat runs, {len(chains)} chain(s) examined.")
         return 0
     ledger = (root / "data" / "ledger.md").read_text() if (root / "data" / "ledger.md").exists() else ""
-    ember_lines = [line for line in ledger.splitlines() if line.startswith(today) and "run heat " in line and re.search(r"\|\s*(RUN|AMEND)\s*\|", line)]
+    ember_lines = command_lines(ledger.splitlines(), ("run heat ",), day=today)
     calibration = load(root / "data" / "chains" / "_ember-log.json", {}) or {}
     calibration_today = same_day((calibration.get("calibration") or {}).get("generated_at"), today)
     shadow_rows = (load(root / "data" / "shadow" / "book.json", {}) or {}).get("rows") or []

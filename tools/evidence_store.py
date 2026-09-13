@@ -94,8 +94,14 @@ def normalize(s: str) -> str:
 
 
 def excerpt_in_doc(excerpt: str, text: str) -> bool:
-    ex = normalize(excerpt)
-    return bool(ex) and ex in normalize(text)
+    """check_screen.quote_in_text when importable, so the verbatim rule has one definition;
+    the same rule inline otherwise (the fetch job runs without tools/ on its path)."""
+    try:
+        import check_screen  # noqa: WPS433
+        return check_screen.quote_in_text(excerpt, text)
+    except Exception:  # noqa: BLE001
+        ex = normalize(excerpt).rstrip(" .,;:")
+        return bool(ex) and ex in normalize(text)
 
 
 def verify(data: Path, item: dict) -> dict:

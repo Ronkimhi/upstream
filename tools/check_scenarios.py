@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from heat_score import scenario_bucket  # noqa: E402
+from ledger_lines import command_lines  # noqa: E402
 
 FETCH_OPS = {">", ">=", "<", "<="}
 CHECK_TYPES = {"price"}
@@ -60,7 +61,7 @@ def main():
         print(f"check_scenarios: NOT RUN TODAY ({today}). 0 scenario runs, {len(chains)} chain(s) examined.")
         return 0
     ledger = (root / "data" / "ledger.md").read_text() if (root / "data" / "ledger.md").exists() else ""
-    ledger_lines = [line for line in ledger.splitlines() if line.startswith(today) and "run scenarios " in line and re.search(r"\|\s*(RUN|AMEND)\s*\|", line)]
+    ledger_lines = command_lines(ledger.splitlines(), ("run scenarios ",), day=today)
     calibration = load(root / "data" / "chains" / "_ember-log.json", {}) or {}
     calibrated = same_day((calibration.get("calibration") or {}).get("generated_at"), today)
     failures, notes, total = [], [], 0
