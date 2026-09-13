@@ -1,5 +1,5 @@
 {
- "as_of": "2026-09-10",
+ "as_of": "2026-09-13",
  "owner": "Tally",
  "generated_by": "tools/theme_calibrate.py",
  "themes": [
@@ -125,7 +125,8 @@
      "tibet",
      "nepal-tibet",
      "xi jinping",
-     "yuan"
+     "yuan",
+     "huawei"
     ],
     "all": [],
     "not": []
@@ -136,6 +137,11 @@
      "ts": "2026-08-30T14:47:12Z",
      "by": "Tally",
      "change": "CREATE seed theme from the first full read of the occurrence log (339 rows)"
+    },
+    {
+     "ts": "2026-09-13T14:43:00Z",
+     "by": "Tally",
+     "change": "AMEND match: added 'huawei'. One unassigned occurrence (a US racketeering trial) named Huawei by name with no other China term in its title; the entity is unambiguously Chinese and squarely inside this theme's own definition, so the gap was the term list, not the occurrence"
     }
    ]
   },
@@ -214,6 +220,7 @@
      "fdic",
      "sec rulemaking",
      "prediction market",
+     "prediction-market",
      "stablecoin"
     ],
     "all": [],
@@ -225,6 +232,11 @@
      "ts": "2026-08-30T14:47:12Z",
      "by": "Tally",
      "change": "CREATE seed theme from the first full read of the occurrence log (339 rows)"
+    },
+    {
+     "ts": "2026-09-13T14:43:00Z",
+     "by": "Tally",
+     "change": "AMEND match: added the hyphenated 'prediction-market'. The Ninth/Third Circuit split card and its source candidate both write 'prediction-market' as a compound adjective, which the space-separated 'prediction market' term cannot match as a substring; two occurrences (one signal, one candidate) sat unassigned in a theme built to hold exactly this story"
     }
    ]
   },
@@ -454,6 +466,74 @@
      "change": "CREATE from Ron's 2026-09-10 occurrence, the H5N1 clade 2.3.4.4b panzootic. The first theme in this store about biology: the other thirteen are geopolitics, policy, capital cycles and geophysical hazard, and nothing in them claims an animal pathogen. Precedence limitation, stated rather than worked around: rule assignment takes the first theme in list order whose rule fires, so an avian-influenza occurrence that also names China or a tariff is claimed by that earlier theme instead. Left as it is because changing global precedence is not this run's mission; a hand assignment overrides it where it matters."
     }
    ]
+  },
+  {
+   "id": "THM-15",
+   "label": "Nuclear power buildout",
+   "definition": "The nuclear-power supply chain reasserting itself under AI and grid demand: reactor OEMs and SMR developers, fuel and uranium enrichment and mining, plant restarts and life extensions, utility offtake deals, and the state and multilateral financing behind new build. A single dedicated wire (World Nuclear News) carries most of this volume. Excludes nuclear-weapons and proliferation stories, screened by the not clause below; claimed after THM-01 and THM-02, which take the case when Iran or Russia/Ukraine is the named actor even at a nuclear-armed or nuclear-plant site.",
+   "created_at": "2026-09-13",
+   "created_by": "Tally",
+   "match": {
+    "any": [
+     "nuclear",
+     "reactor",
+     "uranium",
+     "smr",
+     "enrichment",
+     "fusion power",
+     "fusion reactor",
+     "atomic energy"
+    ],
+    "all": [],
+    "not": [
+     "arsenal",
+     "warhead"
+    ]
+   },
+   "signal_refs": [],
+   "changelog": [
+    {
+     "ts": "2026-09-13T14:43:00Z",
+     "by": "Tally",
+     "change": "CREATE. 39 occurrences carry World Nuclear News, a single-subject wire that has run almost daily since 2026-09-01, as their source and sat entirely unassigned: SMR orders (Rolls-Royce, TerraPower, Blykalla, Kairos), fuel and enrichment deals (Orano/KHNP, Centrus/Radiant), restarts (Duane Arnold, Palisades) and utility offtake (Google/Finland). Bare 'nuclear' already claims all 39 because the wire's own name carries the word, which is why the term list is short. One more (a Niger uranium-permit story) surfaces on 'uranium'; a North Korea weapons-arsenal story also carries 'nuclear' but is excluded by not: arsenal, since a warhead build-out is a different subject than power capacity. Real, sustained, single-source-evidenced volume with no existing theme built to hold it"
+    }
+   ]
+  },
+  {
+   "id": "THM-16",
+   "label": "Israel-Gaza war and its regional fallout",
+   "definition": "The Israel-Hamas war on Gaza, the occupied West Bank, and the diplomatic and economic fallout it forces elsewhere: strikes and casualties, settler and settlement expansion, sanctions on settlements or officials, blockade and reconstruction, arms deals, and the Lebanon/Hezbollah front it has opened. A distinct, sustained conflict from THM-01's Iran/Hormuz war and THM-02's Russia/Ukraine war; claimed after both, so an item naming Iran or Hormuz stays with THM-01 even when Israel is also named.",
+   "created_at": "2026-09-13",
+   "created_by": "Tally",
+   "match": {
+    "any": [
+     "israel",
+     "israeli",
+     "israelis",
+     "gaza",
+     "palestinian",
+     "palestinians",
+     "west bank",
+     "hamas",
+     "netanyahu",
+     "idf",
+     "al-aqsa",
+     "unrwa",
+     "ben-gvir",
+     "hezbollah",
+     "jerusalem"
+    ],
+    "all": [],
+    "not": []
+   },
+   "signal_refs": [],
+   "changelog": [
+    {
+     "ts": "2026-09-13T14:43:00Z",
+     "by": "Tally",
+     "change": "CREATE. 29 occurrences spanning every week the log holds (2026-08-26 to 2026-09-10) sat unassigned under Gaza, West Bank and Israel-adjacent terms: settler violence and home demolitions, the UK's Israeli-settlement sanctions and the diplomatic response to them, the Israel-Greece $3.5bn defence deal, and the Hezbollah/Lebanon front. Out of THM-01's scope by that theme's own definition, which is Iran and Hormuz specifically. A war this large and this sustained with nowhere to log it was the gap, not a manufactured cluster. 'settlement'/'settlements' deliberately left off the term list: bare, it also matches a Meta legal settlement, an SEBI options-settlement story and a patent settlement, none of them this war; 'israelis' is listed separately from 'israeli' because the whole-word matcher does not treat one as a prefix of the other"
+    }
+   ]
   }
  ],
  "notes": [],
@@ -517,10 +597,25 @@
    "ts": "2026-09-10T23:29:49Z",
    "by": "theme_calibrate",
    "change": "AMEND calibration recomputed over 1178 logged occurrence(s), 467 assigned, 0 surge(s)"
+  },
+  {
+   "ts": "2026-09-13T14:43:00Z",
+   "by": "Tally",
+   "change": "AMEND: 711 of 1178 logged occurrences carried no theme. Two themes added over real, sustained, well-evidenced clusters this store had no bucket for (THM-15 nuclear power buildout, 39 of it one dedicated wire; THM-16 the Israel-Gaza war and its regional fallout, distinct from THM-01's Iran/Hormuz scope, 29 occurrences over every week the log holds). Two existing themes gained one term each for a real miss the rule form could not catch (THM-04 'huawei'; THM-07 the hyphenated 'prediction-market'). Two signal-origin occurrences hand-assigned where the fit is real but the row's own title carries none of the matching term: SIG-20260830-01 (munitions replenishment) to THM-01, whose own occurrence.window names 'the 2026-02-28 launch of the US-Israel war on Iran' as its trigger; SIG-20260830-06 (offshore counter-drone) to THM-05, whose own occurrence.label names 'an offshore gas platform' as the site. The remainder stays unassigned: reviewed for pattern (word frequency over every unassigned title, every unassigned candidate/calendar/signal row read individually) and found to be diffuse general-interest and market-wrap coverage (US politics, Apple products, court cases, yen/BOJ rate commentary) with no coherent recurring subject and, for the thinner candidates checked (space/PNT resilience at 7, Venezuela oil at 5), no existing signal card to anchor a THM-11-style thin theme on. Not filed under a theme for the count's sake"
+  },
+  {
+   "ts": "2026-09-13T14:45:23Z",
+   "by": "theme_calibrate",
+   "change": "AMEND calibration recomputed over 1178 logged occurrence(s), 541 assigned, 2 surge(s)"
+  },
+  {
+   "ts": "2026-09-13T14:48:13Z",
+   "by": "theme_calibrate",
+   "change": "AMEND calibration recomputed over 1178 logged occurrence(s), 541 assigned, 2 surge(s)"
   }
  ],
  "calibration": {
-  "generated_at": "2026-09-10 23:29Z",
+  "generated_at": "2026-09-13 14:48Z",
   "weeks": [
    "2026-W30",
    "2026-W31",
@@ -539,9 +634,9 @@
   },
   "denominators": {
    "occurrences_logged": 1178,
-   "assigned": 467,
-   "unassigned": 711,
-   "themes": 14,
+   "assigned": 541,
+   "unassigned": 637,
+   "themes": 16,
    "feed_items_on_disk": 800,
    "candidates_on_disk": 37,
    "signals_on_disk": 18,
@@ -565,7 +660,7 @@
   "per_theme": {
    "THM-01": {
     "label": "Iran war and the Strait of Hormuz",
-    "total": 38,
+    "total": 39,
     "by_week": {
      "2026-W30": 0,
      "2026-W31": 0,
@@ -583,10 +678,11 @@
     "surging": false,
     "claimed": true,
     "signal_refs": [
-     "SIG-20260829-04"
+     "SIG-20260829-04",
+     "SIG-20260830-01"
     ],
     "origins": {
-     "signal": 1,
+     "signal": 2,
      "candidate": 3,
      "feed": 34
     }
@@ -654,7 +750,7 @@
    },
    "THM-04": {
     "label": "China, Hong Kong and Taiwan exposure",
-    "total": 108,
+    "total": 109,
     "by_week": {
      "2026-W30": 0,
      "2026-W31": 0,
@@ -663,10 +759,10 @@
      "2026-W34": 0,
      "2026-W35": 33,
      "2026-W36": 44,
-     "2026-W37": 28
+     "2026-W37": 29
     },
     "undated": 0,
-    "current_week": 28,
+    "current_week": 29,
     "baseline": 19.25,
     "baseline_weeks": 4,
     "surging": false,
@@ -678,34 +774,37 @@
     ],
     "origins": {
      "signal": 3,
-     "feed": 100,
+     "feed": 101,
      "candidate": 4,
      "calendar": 1
     }
    },
    "THM-05": {
     "label": "Energy and shipping infrastructure under attack or under strain",
-    "total": 10,
+    "total": 11,
     "by_week": {
      "2026-W30": 0,
      "2026-W31": 0,
      "2026-W32": 0,
      "2026-W33": 0,
-     "2026-W34": 0,
+     "2026-W34": 1,
      "2026-W35": 6,
      "2026-W36": 4,
      "2026-W37": 0
     },
     "undated": 0,
     "current_week": 0,
-    "baseline": 2.5,
+    "baseline": 2.75,
     "baseline_weeks": 4,
     "surging": false,
-    "claimed": false,
-    "signal_refs": [],
+    "claimed": true,
+    "signal_refs": [
+     "SIG-20260830-06"
+    ],
     "origins": {
      "feed": 7,
-     "candidate": 3
+     "candidate": 3,
+     "signal": 1
     }
    },
    "THM-06": {
@@ -736,27 +835,30 @@
    },
    "THM-07": {
     "label": "Crypto, prediction markets and financial regulation",
-    "total": 8,
+    "total": 10,
     "by_week": {
      "2026-W30": 0,
      "2026-W31": 0,
      "2026-W32": 0,
      "2026-W33": 0,
      "2026-W34": 3,
-     "2026-W35": 4,
+     "2026-W35": 6,
      "2026-W36": 0,
      "2026-W37": 1
     },
     "undated": 0,
     "current_week": 1,
-    "baseline": 1.75,
+    "baseline": 2.25,
     "baseline_weeks": 4,
     "surging": false,
-    "claimed": false,
-    "signal_refs": [],
+    "claimed": true,
+    "signal_refs": [
+     "SIG-20260830-03"
+    ],
     "origins": {
-     "candidate": 1,
-     "feed": 7
+     "candidate": 2,
+     "feed": 7,
+     "signal": 1
     }
    },
    "THM-08": {
@@ -938,6 +1040,55 @@
      "feed": 1,
      "signal": 1
     }
+   },
+   "THM-15": {
+    "label": "Nuclear power buildout",
+    "total": 40,
+    "by_week": {
+     "2026-W30": 0,
+     "2026-W31": 0,
+     "2026-W32": 0,
+     "2026-W33": 0,
+     "2026-W34": 0,
+     "2026-W35": 1,
+     "2026-W36": 19,
+     "2026-W37": 20
+    },
+    "undated": 0,
+    "current_week": 20,
+    "baseline": 5.0,
+    "baseline_weeks": 4,
+    "surging": true,
+    "claimed": false,
+    "signal_refs": [],
+    "origins": {
+     "candidate": 1,
+     "feed": 39
+    }
+   },
+   "THM-16": {
+    "label": "Israel-Gaza war and its regional fallout",
+    "total": 29,
+    "by_week": {
+     "2026-W30": 0,
+     "2026-W31": 0,
+     "2026-W32": 0,
+     "2026-W33": 0,
+     "2026-W34": 0,
+     "2026-W35": 6,
+     "2026-W36": 9,
+     "2026-W37": 14
+    },
+    "undated": 0,
+    "current_week": 14,
+    "baseline": 3.75,
+    "baseline_weeks": 4,
+    "surging": true,
+    "claimed": false,
+    "signal_refs": [],
+    "origins": {
+     "feed": 29
+    }
    }
   },
   "unassigned_by_week": {
@@ -945,12 +1096,31 @@
    "2026-W31": 0,
    "2026-W32": 0,
    "2026-W33": 0,
-   "2026-W34": 7,
-   "2026-W35": 159,
-   "2026-W36": 296,
-   "2026-W37": 234
+   "2026-W34": 6,
+   "2026-W35": 150,
+   "2026-W36": 268,
+   "2026-W37": 199
   },
-  "surges": [],
+  "surges": [
+   {
+    "theme_id": "THM-15",
+    "label": "Nuclear power buildout",
+    "week": "2026-W37",
+    "count": 20,
+    "baseline": 5.0,
+    "claimed": false,
+    "signal_refs": []
+   },
+   {
+    "theme_id": "THM-16",
+    "label": "Israel-Gaza war and its regional fallout",
+    "week": "2026-W37",
+    "count": 14,
+    "baseline": 3.75,
+    "claimed": false,
+    "signal_refs": []
+   }
+  ],
   "note": "Baseline is the mean of the 4 complete weeks before 2026-W37. The occurrence log began accumulating on first ingest, so weeks before that hold only what the feed store still carried."
  }
 }
