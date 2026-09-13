@@ -354,6 +354,22 @@ def head_version(root: Path, rel: str):
         return None
 
 
+
+def chain_run_lines(lines):
+    """Ledger lines that record a chain run: kind RUN or AMEND, and a command field (the third
+    `|` field) that starts with `run chain` or `refresh data/chains`. The gate used to match the
+    whole line, so a `request data` line whose result only named the chain refresh it was
+    preparing counted as a chain run with no archetypes and turned CI red on 2026-09-13
+    (fc66a90). What a line mentions is not what it ran. Pure."""
+    out = []
+    for line in lines:
+        parts = [part.strip() for part in str(line).split("|")]
+        if len(parts) < 3 or parts[1] not in ("RUN", "AMEND"):
+            continue
+        if re.match(r"(run chain|refresh data/chains)\b", parts[2]):
+            out.append(line)
+    return out
+
 def main() -> int:
     argv = sys.argv[1:]
     root = Path(argv[argv.index("--root") + 1]).resolve() if "--root" in argv \
@@ -577,7 +593,7 @@ def main() -> int:
     # 10. the ledger line
     ledger = (data / "ledger.md").read_text() if (data / "ledger.md").exists() else ""
     todays = [ln for ln in ledger.splitlines() if ln.startswith(today)]
-    chain_lines = [ln for ln in todays if re.search(r"\|\s*(RUN|AMEND)\s*\|.*\b(run chain|refresh data/chains)", ln)]
+    chain_lines = chain_run_lines(todays)
     if not touched:
         report(f"no chain written today ({today}); the run-line checks did not apply")
     elif not chain_lines:
