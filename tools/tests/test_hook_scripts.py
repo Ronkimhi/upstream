@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Regression tests for harness findings 2026-W37-F1 (chain-gate.py) and 2026-W37-F2
-(radar-gate.py).
+"""Regression tests for harness findings 2026-W37-F1 (chain-gate.py), 2026-W37-F2
+(radar-gate.py), and 2026-W37-F3 (impact-gate.py).
 
 Every other Stop-hook test in this repo (test_pressure.py, test_campaign_hooks.py) loads
 the hook via `importlib.util.spec_from_file_location` + `exec_module`. That never sets the
@@ -16,6 +16,12 @@ every such Stop evaluation raised `NameError: name '_in_repo' is not defined` at
 instead of ever reaching the ledger/calibration check the gate exists to run.
 TestChainGateScript covers the first file (fixed as 2026-W37-F1); TestRadarGateScript covers
 the second (2026-W37-F2).
+
+impact-gate.py had no such defect (every helper is defined before its own `__main__` guard):
+it was simply never watched by any test. TestImpactGateScript (2026-W37-F3) closes that
+coverage gap the same way, as a real subprocess invocation, asserting the `block` decision
+when today's IMPACT ledger line or rank-log calibration is missing or stale, and the
+`approve` decision once both are present.
 """
 import datetime
 import json
@@ -182,6 +188,119 @@ class TestRadarGateScript(unittest.TestCase):
         decision = json.loads(result.stdout)
         self.assertIn("decision", decision)
         self.assertEqual(decision["decision"], "approve")
+
+
+class TestImpactGateScript(unittest.TestCase):
+    """impact-gate.py invoked as a real subprocess, isolated from the live repo state.
+
+    2026-W37-F3: impact-gate.py was the only one of the 7 registered Stop hooks with no
+    test under tools/tests/ naming it beside a block assertion. Its own code looked
+    structurally sound on inspection (UTC-correct, every helper defined before its own
+    `if __name__ == "__main__":` guard, unlike chain-gate.py and radar-gate.py before their
+    fix), so this is a coverage gap, not a proven active defect: nothing had ever watched
+    this gate refuse.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+
+        # impact-gate.py resolves its own root as Path(__file__).resolve().parent.parent.parent
+        # (no env var override), so isolation means copying it plus its one import into a
+        # throwaway tree the same three levels deep. Run from there, the subprocess can never
+        # read or write this repo's real data/ledger.md or data/impact/_rank-log.json.
+        hooks_dir = self.root / ".claude" / "hooks"
+        hooks_dir.mkdir(parents=True)
+        shutil.copy(HOOKS / "impact-gate.py", hooks_dir / "impact-gate.py")
+        shutil.copy(HOOKS / "write_targets.py", hooks_dir / "write_targets.py")
+        self.hook_path = hooks_dir / "impact-gate.py"
+
+        # impact-gate.py dates both its checks in UTC (unlike chain-gate.py and
+        # radar-gate.py, which still use local time), so the test uses the same basis.
+        self.today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+    def _run(self, payload: dict) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(self.hook_path)],
+            input=json.dumps(payload),
+            capture_output=True,
+            text=True,
+        )
+
+    def _transcript_with_impact_write(self) -> Path:
+        # A synthetic Stop-hook transcript: one JSONL line whose tool_use writes a real
+        # (non-underscore) file under data/impact/, the shape main() must resolve through
+        # write_targets.from_tool_use before it ever reaches the ledger/calibration check.
+        target = str(Path("data") / "impact" / "SIG-20260913-01.json")
+        event = {
+            "message": {
+                "content": [{
+                    "type": "tool_use",
+                    "name": "Write",
+                    "input": {"file_path": target},
+                }]
+            }
+        }
+        path = self.root / "transcript.jsonl"
+        path.write_text(json.dumps(event) + "\n")
+        return path
+
+    def _write_ledger(self, *, with_impact_line: bool) -> None:
+        ledger = self.root / "data" / "ledger.md"
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        if with_impact_line:
+            ledger.write_text(
+                f"{self.today} 00:00Z | IMPACT | run impact SIG-20260913-01 | by: test | "
+                f"ranked: 1 | band: PRIME\n"
+            )
+        else:
+            ledger.write_text(
+                f"{self.today} 00:00Z | RUN | run chain ai-infrastructure | by: test\n"
+            )
+
+    def _write_rank_log(self, as_of: str) -> None:
+        log = self.root / "data" / "impact" / "_rank-log.json"
+        log.parent.mkdir(parents=True, exist_ok=True)
+        log.write_text(json.dumps({"calibration": {"as_of": as_of}}))
+
+    def test_no_impact_ledger_line_today_blocks(self):
+        transcript = self._transcript_with_impact_write()
+        self._write_ledger(with_impact_line=False)
+        self._write_rank_log(as_of=self.today)
+
+        result = self._run({"transcript_path": str(transcript)})
+
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(json.loads(result.stdout)["decision"], "block")
+
+    def test_impact_line_but_stale_or_missing_calibration_blocks(self):
+        transcript = self._transcript_with_impact_write()
+        self._write_ledger(with_impact_line=True)
+
+        self._write_rank_log(as_of="2026-09-01")  # stale: not today
+        stale = self._run({"transcript_path": str(transcript)})
+        self.assertNotIn("Traceback", stale.stderr)
+        self.assertEqual(stale.returncode, 0)
+        self.assertEqual(json.loads(stale.stdout)["decision"], "block")
+
+        (self.root / "data" / "impact" / "_rank-log.json").unlink()  # missing entirely
+        missing = self._run({"transcript_path": str(transcript)})
+        self.assertNotIn("Traceback", missing.stderr)
+        self.assertEqual(missing.returncode, 0)
+        self.assertEqual(json.loads(missing.stdout)["decision"], "block")
+
+    def test_ledger_line_and_calibration_both_present_approves(self):
+        transcript = self._transcript_with_impact_write()
+        self._write_ledger(with_impact_line=True)
+        self._write_rank_log(as_of=self.today)
+
+        result = self._run({"transcript_path": str(transcript)})
+
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(json.loads(result.stdout)["decision"], "approve")
 
 
 if __name__ == "__main__":
