@@ -1,0 +1,213 @@
+{
+ "issuer_id": "DYNAGAS-LNG-PARTNERS",
+ "issuer_name": "Dynagas LNG Partners LP",
+ "as_of": "2026-09-13",
+ "created_at": "2026-09-13T15:04:33Z",
+ "updated_at": "2026-09-13T15:04:33Z",
+ "generated_by": "sieve-profiler",
+ "status": "COMPLETE",
+ "data_tier": "T1",
+ "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:DLNG carries a real SEC CIK (1578453) with sec-companyfacts fundamentals in USD in data/market/DLNG.json (17/20 annual fields found); operating income, net income, cash flow and balance-sheet series are populated, but the revenue_fy concept for this MLP filer reads near-zero and non-monotonic (0, 0, 11,602,000, 0 across 2021-2024, no 2025 point), inconsistent with $45-77M annual operating income over the same years, so revenue is treated as a data gap rather than fact.",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch.",
+ "listing_refs": [
+  "NYSE-DLNG"
+ ],
+ "listings": [
+  {
+   "listing_id": "NYSE-DLNG",
+   "ticker": "DLNG",
+   "exchange": "NYSE",
+   "market_ticker": "DLNG",
+   "cik": 1578453,
+   "mapping_ref": "data/mappings/hormuz-maritime.json"
+  }
+ ],
+ "placements": [
+  {
+   "chain_id": "hormuz-maritime",
+   "link_id": "lng-shipping-and-qatari-supply",
+   "link_name": "LNG carriers and the Qatari cargo with no bypass",
+   "link_position": 10,
+   "role": "LNG carrier owner whose six-vessel fleet sits inside the charter market the Hormuz rerouting is tightening.",
+   "placement_status": "ACTIVE",
+   "money_corner": false,
+   "link_heat": "CROWDED",
+   "mapping_ref": "data/mappings/hormuz-maritime.json",
+   "role_evidence": [
+    {
+     "claim": "Dynagas operates six LNG carriers of about 914,000 cubic meters aggregate capacity, and reports LNG carrier charter rates driven sharply higher by lengthened sailing distances and rising ton-mile demand.",
+     "source_name": "StockTitan carrying Dynagas LNG Partners Q1 2026 results release",
+     "source_date": "2026-05-29",
+     "url": "https://www.stocktitan.net/news/DLNG/dynagas-lng-partners-lp-reports-results-for-the-three-months-ended-q7qe04t2ygh3.html",
+     "tag": "INFERRED",
+     "source_excerpt": "The Partnership's current fleet consists of six LNG carriers, with an aggregate carrying capacity of approximately 914,000 cubic meters. Global LNG trade volumes continued to expand as the redirection of trade flows from the Atlantic Basin to Asia has lengthened average sailing distances and increased ton-mile demand, tightening vessel availability and driving LNG carrier charter rates sharply higher."
+    }
+   ]
+  }
+ ],
+ "sources": {
+  "mapping": "data/mappings/hormuz-maritime.json",
+  "mapping_audit": {
+   "status": "FAIL",
+   "audited_at": "2026-09-04T03:53:11Z",
+   "mapping_status": "ACTIVE"
+  },
+  "chain": "data/chains/hormuz-maritime.json",
+  "market": "data/market/DLNG.json"
+ },
+ "business_summary": "Dynagas LNG Partners LP (NYSE: DLNG) owns and operates a six-vessel LNG carrier fleet of about 914,000 cubic meters aggregate capacity, sitting inside the charter market the Hormuz rerouting is tightening per the partnership's own Q1 2026 results release.",
+ "exposure_summary": {
+  "narrative": "DYNAGAS-LNG-PARTNERS has 1 placement on hormuz-maritime (lng-shipping-and-qatari-supply, CROWDED, not the money corner). 5 of 12 canonical metric fields carry a sourced number this run (cash conversion, leverage, market_cap, both reverse_dcf fields); revenue, growth, margins, fcf_margin, price_to_sales and quality stay NULL, revenue-dependent fields because this filer's companyfacts revenue concept reads implausibly near-zero.",
+  "disclosed_revenue_exposure": {
+   "value": null,
+   "tag": "NULL",
+   "basis": "no revenue percentage tied to the hormuz-maritime exposure is sourced for this issuer this run; see data_gaps."
+  }
+ },
+ "metrics": {
+  "revenue": {
+   "latest_fy": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Latest fiscal-year revenue: companyfacts revenue_fy for this filer reads [2021: 0, 2022: 0, 2023: 11,602,000, 2024: 0] with no 2025 point at all, implausible against a populated operating_income_fy series ($45.3-77.4M annually 2018-2025) and net_income_fy series ($34.1-61.6M annually 2020-2025); this looks like a companyfacts concept-tagging gap for this MLP filer rather than real revenue, so the field is left NULL rather than reporting a misleading near-zero figure."
+   }
+  },
+  "growth": {
+   "revenue_cagr_3y": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Revenue 3-year CAGR: no reliable fiscal-year revenue series exists for this filer (see revenue.latest_fy basis); a near-zero, non-monotonic series cannot anchor a growth rate."
+   }
+  },
+  "margins": {
+   "operating_margin": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Operating margin: operating_income_fy is populated (75,328,000 for 2025-12-31) but revenue_fy is not reliable for this filer (see revenue.latest_fy basis), so no margin can be computed against it."
+   }
+  },
+  "cash_conversion": {
+   "operating_cash_flow_to_net_income": {
+    "value": 1.464271,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DLNG.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-13",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+    "basis": "Operating cash flow 90,265,000 divided by net income 61,645,000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+    "official_source": true
+   },
+   "fcf_margin": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Free cash flow margin: free cash flow (90,238,000, data/market/DLNG.json quality.derived.fcf) is known but revenue_fy is not reliable for this filer (see revenue.latest_fy basis), so no margin can be computed against it."
+   }
+  },
+  "leverage": {
+   "net_debt_to_ebitda": {
+    "value": 1.79086,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DLNG.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-13",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+    "basis": "Net debt 192,324,000 (total debt 233,363,000 less cash 41,039,000, both for the fiscal year ended 2025-12-31) divided by an EBITDA proxy 107,392,000 (operating income 75,328,000 plus depreciation 32,064,000, both for the fiscal year ended 2025-12-31), from companyfacts.",
+    "official_source": true
+   }
+  },
+  "quality": {
+   "piotroski": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Piotroski F-score: data/market/DLNG.json quality.piotroski.state is PENDING_DATA (8 of 9 inputs found, missing cost_of_revenue_fy)."
+   },
+   "beneish_state": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Beneish M-score: data/market/DLNG.json quality.beneish.state is PENDING_DATA (11 of 12 inputs found, missing cost_of_revenue_fy)."
+   }
+  },
+  "valuation": {
+   "market_cap": {
+    "value": 138187569.24,
+    "tag": "INFERRED",
+    "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DLNG.json fundamentals (source sec-companyfacts)",
+    "source_date": "2026-09-13",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+    "basis": "Market capitalization 138,187,569.24 computed in data/market/DLNG.json quality.derived.market_cap from companyfacts shares outstanding and the repo's own tracked price.",
+    "official_source": true
+   },
+   "price_to_sales": {
+    "value": null,
+    "tag": "NULL",
+    "basis": "Price to sales cannot be computed for DYNAGAS-LNG-PARTNERS: revenue_fy is not reliable for this filer (see revenue.latest_fy basis), even though market capitalization is known."
+   }
+  },
+  "reverse_dcf": {
+   "implied_fcf_cagr": {
+    "value": -0.2811,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/DLNG.json quality.reverse_dcf",
+    "source_date": "2026-09-13",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+    "basis": "Free-cash-flow CAGR the current enterprise value 330,511,569.24 implies over a 5-year explicit period on base FCF 90,238,000, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements (uses cash flow and balance-sheet concepts only, not the unreliable revenue_fy series). Assumption-dependent expectation reading, not a reported figure."
+   },
+   "horizon_spread": {
+    "value": 0.0961,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/DLNG.json quality.reverse_dcf",
+    "source_date": "2026-09-13",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': -0.2811, '7': -0.226, '10': -0.185})."
+   }
+  }
+ },
+ "crowdedness_caveats": [
+  "Chain heat scores lng-shipping-and-qatari-supply crowdedness 66/100, verdict CROWDED, repricing_check PARTLY_REPRICED with 1 of 3 legs met: gas carriers were the second best performing shipping category since the crisis began, up 30 percent, inside a sector at decade highs (Lloyd's List, 2026-08-20). The price effect is also reported landing on the TTF benchmark rather than visibly on any single carrier owner (Kpler, 2026-07-24)."
+ ],
+ "catalysts": [
+  {
+   "claim": "Operating cash flow exceeds net income by 1.46x and net debt to EBITDA is a moderate 1.79x on a six-vessel fleet the partnership's own Q1 2026 release ties directly to tightening ton-mile demand from lengthened sailing distances; reverse-DCF solves cleanly off cash-flow and balance-sheet concepts alone (implied FCF CAGR -28.11%, independent of the broken revenue series).",
+   "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DLNG.json fundamentals (source sec-companyfacts)",
+   "source_date": "2026-09-13",
+   "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+   "tag": "INFERRED"
+  }
+ ],
+ "risks": [
+  {
+   "claim": "companyfacts revenue_fy for this filer reads implausibly near-zero and non-monotonic (0, 0, 11.6M, 0 across 2021-2024, no 2025 point) against $45-77M annual operating income over the same years, a concept-tagging gap rather than real revenue; revenue, growth, operating margin, fcf_margin and price_to_sales are all left NULL rather than publishing a misleading near-zero figure, and quality.piotroski/beneish_state both stay PENDING_DATA on the same missing cost_of_revenue_fy concept.",
+   "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DLNG.json fundamentals (source sec-companyfacts)",
+   "source_date": "2026-09-13",
+   "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001578453.json",
+   "tag": "INFERRED"
+  }
+ ],
+ "data_gaps": [
+  "Filled 2026-09-13 from data/market/DLNG.json: 5 of 12 canonical fields carry a sourced number. revenue.latest_fy, growth.revenue_cagr_3y, margins.operating_margin, cash_conversion.fcf_margin and valuation.price_to_sales all stay NULL because this filer's companyfacts revenue_fy concept reads implausibly near-zero and non-monotonic (0, 0, 11,602,000, 0 across 2021-12-31 to 2024-12-31, no 2025-12-31 point) against a populated, sane operating_income_fy series over the same years; a repeat fetch would read the same tagged concept, so no request was queued for this specific gap. quality.piotroski and quality.beneish_state stay NULL, both PENDING_DATA on the same missing cost_of_revenue_fy concept (8/9 and 11/12 inputs found respectively)."
+ ],
+ "disposition": {
+  "state": "RETAIN",
+  "as_of": "2026-09-13",
+  "basis": "Created this run from data/market/DLNG.json (sec-companyfacts, T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 5 of 12 canonical fields carry a sourced number, the remaining 7 honest NULL, the revenue-dependent group on a companyfacts concept-tagging gap rather than a genuine business fact. COMPLETE and O2 per method section 6A."
+ },
+ "confidence_audit": {
+  "VERIFIED": 0,
+  "INFERRED": 3,
+  "SPECULATIVE": 2,
+  "NULL": 7,
+  "canonical_fields_written": 12,
+  "basis": "Counts cover the canonical metric fields only. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed (it resolves independently of the broken revenue series, off cash flow and balance-sheet concepts). NULL covers revenue and every field that depends on it (growth, margins, fcf_margin, price_to_sales), plus quality.piotroski and quality.beneish_state (PENDING_DATA on missing cost_of_revenue_fy); revenue is left NULL because the fetched companyfacts concept for this filer reads implausibly near-zero and non-monotonic against a sane operating-income series, never estimated in its place."
+ },
+ "notes": [
+  "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
+  "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other."
+ ],
+ "changelog": [
+  {
+   "ts": "2026-09-13T15:04:33Z",
+   "by": "sieve-profiler",
+   "kind": "BUILD",
+   "change": "Created COMPLETE profile for DYNAGAS-LNG-PARTNERS from data/mappings/hormuz-maritime.json (ACTIVE, current audit status FAIL) and data/market/DLNG.json (sec-companyfacts, T1, 17/20 annual fields). 5 of 12 canonical fields carry a sourced number (cash-conversion ocf/ni, leverage, market_cap, reverse_dcf); revenue and every revenue-dependent field (growth, operating_margin, fcf_margin, price_to_sales) left NULL because companyfacts revenue_fy for this filer reads implausibly near-zero and non-monotonic against a populated operating_income_fy series, a concept-tagging gap rather than a business fact. quality.piotroski/beneish_state NULL (PENDING_DATA, missing cost_of_revenue_fy). Status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01 (batch 2 of 3, hormuz-maritime)."
+  }
+ ]
+}
