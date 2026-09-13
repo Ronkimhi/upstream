@@ -4,32 +4,32 @@
  "generated_by": "hitch-harness",
  "window": {
   "days": 7,
-  "from": "2026-09-06T03:15:53.771790+00:00",
-  "to": "2026-09-13T03:15:53.771790+00:00"
+  "from": "2026-09-06T12:47:04.344381+00:00",
+  "to": "2026-09-13T12:47:04.344381+00:00"
  },
  "scope": {
   "sessions": 11,
   "main_files": 13,
-  "subagent_files": 149,
-  "lines": 46466,
-  "parsed": 32446,
+  "subagent_files": 153,
+  "lines": 48041,
+  "parsed": 33516,
   "unparsed": 0,
-  "assistant_messages": 8711,
+  "assistant_messages": 8962,
   "first_ts": "2026-09-06T14:59:23.870000+00:00",
-  "last_ts": "2026-09-13T03:15:51.835000+00:00"
+  "last_ts": "2026-09-13T12:47:02.923000+00:00"
  },
  "audits": [
-  "traces: 11 session(s), 13 main and 149 subagent transcript(s), 46466 lines (32446 parsed, 0 unparseable), 2026-09-06T14:59:23.870000+00:00 to 2026-09-13T03:15:51.835000+00:00",
-  "hooks: 161 stop evaluation(s), 277 crash(es), blocks by gate (heuristic attribution): {'campaign-gate.py': 7, 'universe-gate.py': 62}",
-  "tools: 9270 call(s), 213 error(s) by class {'exit_code': 101, 'permission': 30, 'other': 78, 'hook': 4}; api errors 0",
-  "models: 3 repo agent type(s) observed against a required tier; output tokens by model {'claude-fable-5-1': 1035417, 'claude-haiku-4-5-20251001': 15, 'claude-opus-5': 551233, 'claude-sonnet-5': 518501, 'other': 0}",
-  "budget: CLAUDE.md 66278 of 66278 B, .claude/agents 117291 of 117291 B, .claude/skills 6375 of 6375 B",
+  "traces: 11 session(s), 13 main and 153 subagent transcript(s), 48041 lines (33516 parsed, 0 unparseable), 2026-09-06T14:59:23.870000+00:00 to 2026-09-13T12:47:02.923000+00:00",
+  "hooks: 171 stop evaluation(s), 278 crash(es), blocks by gate (heuristic attribution): {'campaign-gate.py': 7, 'universe-gate.py': 62}",
+  "tools: 9579 call(s), 219 error(s) by class {'exit_code': 103, 'permission': 30, 'other': 82, 'hook': 4}; api errors 0",
+  "models: 4 repo agent type(s) observed against a required tier; output tokens by model {'claude-fable-5-1': 1035417, 'claude-haiku-4-5-20251001': 15, 'claude-opus-5': 737308, 'claude-sonnet-5': 536578, 'other': 0}",
+  "budget: CLAUDE.md 66278 of 66278 B, .claude/agents 117279 of 117291 B, .claude/skills 6375 of 6375 B",
   "drift: 73 of 73 cited repo path(s) exist",
-  "hook tests: 6 of 7 registered hook(s) named by a test that asserts a block (heuristic)",
+  "hook tests: 7 of 7 registered hook(s) named by a test that asserts a block (heuristic)",
   "ci: push paths ['.claude/**', 'CLAUDE.md', 'app/**', 'data/**', 'tools/**']; 3 of 3 meta-gate(s) run",
   "parity: no Codex mirror in this tree (examined 0)",
   "self-edit: 60 recent commit(s) examined for fixes touching 4 grader path(s)",
-  "predictions: 0 scored (0 held), 0 pending, across 0 report(s)"
+  "predictions: 0 scored (0 held), 3 pending, across 1 report(s); evidence: 0 open finding count(s) re-derived, 0 did not"
  ],
  "findings": [
   {
@@ -145,10 +145,23 @@
   }
  ],
  "deletion_candidate": {
-  "path": ".claude/hooks/chain-gate.py and .claude/hooks/radar-gate.py: the private _in_repo() copy in each",
-  "reason": "Both files carry a byte-identical private _in_repo(), pasted in by the same 2026-08-30 commit that broke both of them the same way at the same time. Once F1 and F2 are fixed, move the one function into write_targets.py (already imported by both, for from_tool_use) and delete both private copies, so a future change to path-anchoring logic cannot be made in one copy and forgotten in the other."
+  "path": "tools/patches/universe-gate-placement.patch, and the run universe-audit row's claim in CLAUDE.md that the Stop hook does not yet recognise --placement",
+  "reason": "Commit b1a3547 (2026-09-01, contracts) already applied this patch into .claude/hooks/universe-gate.py: the file defines placement_audit and handles owner == universe-audit-placement today. git apply --check on the patch now exits 128, patch fragment without header, because the target already diverged past the applied state, so the patch can never land again. The CLAUDE.md sentence still telling a session the gate lacks --placement support and that Ron must apply the patch is twelve days stale. Delete the patch file and cut that sentence, keeping the Machine-checked line."
  },
- "prior_predictions": [],
+ "prior_predictions": [
+  {
+   "finding": "2026-W37-F1",
+   "verdict": "PENDING"
+  },
+  {
+   "finding": "2026-W37-F2",
+   "verdict": "PENDING"
+  },
+  {
+   "finding": "2026-W37-F3",
+   "verdict": "PENDING"
+  }
+ ],
  "changelog": [
   {
    "ts": "2026-09-13T03:27:59Z",
@@ -177,6 +190,10 @@
   {
    "ts": "2026-09-13T04:50:32Z",
    "change": "2026-W37-F3 set FIXED: TestImpactGateScript landed as 0b455da, mutation-checked, hook tests 6 of 7 to 7 of 7. Evidence and prediction re-bound to the audit metrics added in 44b203c: the original evidence cited a hooks.runs count of 0 while that metric read 161, and its crash-count prediction was already true before any fix, so it could not fail. Now 1 of 7 registered hooks untested on the report day, predicted <= 0 within 7 days."
+  },
+  {
+   "ts": "2026-09-13T12:50:00Z",
+   "change": "F1-F3 stay FIXED, predictions PENDING (due 2026-09-20). Split the week at 2026-09-13T05:10Z, when the fix reached this Mac: chain-gate's 211 and radar-gate's 67 crashes are all pre-fix, 0 after. Scanned all 598 local transcripts for post-fix hook block/crash attachments: zero on any of 7 gates, so chain-gate and radar-gate are unexercised since the fix, 0 correct and 0 false blocks. campaign-gate's 7 and universe-gate's 62 blocks are unchanged from the original report, not new. No new backlog rows. New deletion_candidate: the dead universe-gate-placement patch and its stale CLAUDE.md line."
   }
  ]
 }
