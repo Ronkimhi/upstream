@@ -3,7 +3,7 @@
   "issuer_name": "Thales S.A.",
   "as_of": "2026-09-04",
   "created_at": "2026-09-01T09:19:47Z",
-  "updated_at": "2026-09-13T00:15:00Z",
+  "updated_at": "2026-09-13T03:20:00Z",
   "generated_by": "sieve-profiler",
   "listing_refs": [
     "EPA:HO",
@@ -275,12 +275,18 @@
       "by": "routine",
       "kind": "AMEND",
       "change": "run profile THALES: closed the PROFILE_GAP the 2026-09-06 selection_review named. Added the offshore-counter-drone/c2-and-sensor-fusion placement (money_corner true, link_heat UNDISCOVERED) with role and role_evidence copied verbatim from data/mappings/offshore-counter-drone.json's existing ACTIVE placement (VERIFIED evidence tag, current PASS placement_audits[] entry audited 2026-09-04 by atlas-fresh-context); no new web fetch performed, no metrics changed. Added listing EPA-HO (mapping_ref offshore-counter-drone.json) alongside the existing EPA:HO (tibet-mega-dam.json) since the two mappings independently minted different listing_id spellings for the same HO.PA listing. Updated exposure_summary and crowdedness_caveats to name both chain exposures. opportunity_tier stays O2; this amendment does not run selection and does not promote. Next stage is a fresh run selection CAMP-20260901-01 pass, which can now write a screen_handoff against this placement."
+    },
+    {
+      "ts": "2026-09-13T03:20:00Z",
+      "by": "routine",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (sixth run, 2026-09-13): the 2026-09-06 PROFILE_GAP is closed (this profile now carries the offshore-counter-drone/c2-and-sensor-fusion placement), so the screen_handoff blocker is gone and the six selection dimensions were examined for the first time on this placement: direct exposure (CoastShield, VERIFIED role evidence, current PASS placement audit), link heat (money_corner true, verdict UNDISCOVERED, CHOKE_POINT bottleneck, impact score 78), fundamental quality (Piotroski 8/9 STRONG, Beneish -2.769 CLEAN, zero NULL canonical fields), evidence confidence (10 INFERRED vendor-sourced, 2 SPECULATIVE reverse-DCF, 0 NULL), and duplicate exposure (also seated on tibet-mega-dam/riparian-risk-monitoring, a QUIET non-money-corner link, judged immaterial overlap) all clear the bar. The one outstanding gate is method 6A's O1 official-source cross-check on revenue.latest_fy and the cash-conversion field: WebSearch found Thales's own 2026-03-03 FY2025 results release (sales exceeding EUR 22bn, record free operating cash flow EUR 2,577m, up 27%) closely tracking the vendor figures on file (revenue EUR 22,136.4m; FCF EUR 2,565.1m implied from OCF minus capex), but this cloud venue cannot WebFetch the page to pull a verbatim official figure, so promoting on a search-snippet paraphrase would violate the verbatim evidence rule. Queued REQ-20260913-01 (web_doc, the official press release URL) so a future run selection pass can cite the stored text. Held O2 pending that fetch; not a repeat of the 2026-09-06 finding, a new and different blocker."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-06",
-    "reviewed_by": "sieve-profiler",
-    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "as_of": "2026-09-13",
+    "reviewed_by": "routine",
+    "command": "run selection CAMP-20260901-01 (sixth run, 2026-09-13)",
     "outcome": "HELD_O2",
     "null_canonical_fields": [],
     "examined_links": [
@@ -288,10 +294,29 @@
         "theme_id": "offshore-counter-drone",
         "chain_id": "offshore-counter-drone",
         "link_id": "c2-and-sensor-fusion",
-        "state": "PROFILE_GAP",
-        "reason": "The profile itself does not yet describe the placement a current mapping and audit already support; a screen_handoff cannot rest on an undeclared exposure.",
-        "detail": "No change since the fourth run's finding: the mapping carries an ACTIVE placement with a current PASS placement_audits[] entry for this exact chain/link, but the profile's own placements array still does not include it (only tibet-mega-dam/riparian-risk-monitoring is recorded). Cannot write a screen_handoff resting on an undeclared placement. Next stage `run profile THALES`."
+        "state": "OFFICIAL_CROSSCHECK_PENDING",
+        "reason": "Every selection_basis dimension clears (direct exposure, link heat, fundamental quality, evidence confidence, duplicate exposure), but method 6A requires an official-source cross-check on revenue.latest_fy and the cash-conversion field before O1 promotion, and this cloud venue cannot WebFetch the official source to pull a verbatim figure.",
+        "detail": "WebSearch located Thales's own 2026-03-03 FY2025 results release (sales exceeding EUR 22bn; record free operating cash flow EUR 2,577m, up 27%), closely tracking the vendor figures already on file (revenue EUR 22,136.4m; FCF EUR 2,565.1m implied from OCF minus capex), but a search-result paraphrase is not a verbatim fetched excerpt. Queued REQ-20260913-01 (web_doc) for the official press release so a later run selection pass can cite stored text and complete the cross-check. Next stage: `run selection CAMP-20260901-01` once REQ-20260913-01 is FULFILLED (data/web/<id>.json on disk)."
       }
     ]
-  }
+  },
+  "selection_reviews": [
+    {
+      "as_of": "2026-09-06",
+      "reviewed_by": "sieve-profiler",
+      "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+      "outcome": "HELD_O2",
+      "null_canonical_fields": [],
+      "examined_links": [
+        {
+          "theme_id": "offshore-counter-drone",
+          "chain_id": "offshore-counter-drone",
+          "link_id": "c2-and-sensor-fusion",
+          "state": "PROFILE_GAP",
+          "reason": "The profile itself does not yet describe the placement a current mapping and audit already support; a screen_handoff cannot rest on an undeclared exposure.",
+          "detail": "No change since the fourth run's finding: the mapping carries an ACTIVE placement with a current PASS placement_audits[] entry for this exact chain/link, but the profile's own placements array still does not include it (only tibet-mega-dam/riparian-risk-monitoring is recorded). Cannot write a screen_handoff resting on an undeclared placement. Next stage `run profile THALES`."
+        }
+      ]
+    }
+  ]
 }

@@ -62,6 +62,10 @@ COMMAND_TIER = {
     "log trade": "fast",
     "note": "fast",
     "run review": "fast",
+    # Hitch, 2026-09-13: diagnosing traces and accepting a harness fix are judgment and
+    # final acceptance, the strong half of the split.
+    "run harness": "strong",
+    "run harness fix": "strong",
 }
 
 COMMAND_MODEL = {cmd: TIER_MODEL[tier] for cmd, tier in COMMAND_TIER.items()}

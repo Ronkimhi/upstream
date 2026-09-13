@@ -16,6 +16,7 @@ from pathlib import Path
 
 from check_analyst import WOULD_BUY_GATE, latest_changelog_date, would_buy_failures
 from check_campaign import validate_campaign
+from check_harness import validate_report as harness_report_errors
 from check_map import corpus_identity_failures, validate_mapping
 from check_profile import validate_profile
 from market_paths import market_path
@@ -1547,6 +1548,16 @@ def v_themes(f: Path) -> None:
     check_mini_changelog(f, obj.get("changelog"), "changelog")
 
 
+def v_harness(f: Path) -> None:
+    """Hitch's weekly harness report (`run harness`). Its rules live in check_harness.py, a
+    file a `run harness fix` may not edit."""
+    obj = load(f)
+    if obj is None:
+        return
+    for msg in harness_report_errors(obj, f.stem):
+        err(f, msg)
+
+
 def main() -> int:
     counts = {}
     plans = [
@@ -1557,6 +1568,7 @@ def main() -> int:
         ("companies", DATA / "companies", "*.json", v_company),
         ("campaigns", DATA / "campaigns", "CAMP-*.json", v_campaign),
         ("reviews", DATA / "reviews", "REV-*.json", v_review),
+        ("harness", DATA / "harness", "20*-W*.json", v_harness),
         ("screens", DATA / "screens", "*.json", v_screen),
         ("stocks", DATA / "stocks", "*.json", v_stock),
         ("market", DATA / "market", "*.json", v_market),
