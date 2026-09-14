@@ -1,9 +1,9 @@
 {
   "issuer_id": "KEC-INTERNATIONAL",
   "issuer_name": "KEC International Limited",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-14",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-04T16:00:00Z",
+  "updated_at": "2026-09-14T00:45:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
@@ -243,6 +243,26 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "The fetch queued by the prior BLOCKED run (REQ-20260902-155/156/157) has landed: data/market/KEC-NS.json now holds a full 20/20-field yfinance-statements vendor block and a SCORED quality block. Filled 10 of 12 canonical metric fields (all INFERRED vendor-backed); reverse_dcf stays NULL on quality.reverse_dcf.state NOT_APPLICABLE (negative base FCF). Status COMPLETE, opportunity_tier O2. run profile KEC.NS (Ron, 2026-09-04, validate.py stale-market-claim cleanup)."
+    },
+    {
+      "ts": "2026-09-14T00:45:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01 (ai-infrastructure): examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS; in-scope link grid-interconnect but theme O1 also already at cap 3/3). NULL canonical fields: ['reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-14",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01 (ai-infrastructure)",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+    "null_canonical_fields": [
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "reason": "Sits on ai-infrastructure/grid-interconnect (Transmission buildout, substations, and the interconnection process itself; verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate, the only one of 36 previously-unexamined COMPLETE profiles on this theme's screen to clear the link-scope bar. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread, both NULL because quality.reverse_dcf.state is NOT_APPLICABLE on data/market/KEC-NS.json (base FCF -7,428,100,000 INR; the solver declines to run a growth rate on a negative base rather than fabricate one). Independently, the theme's O1 count already stands at 3 of targets.o1_per_theme_max 3 (HUBBELL and VERTIV-HOLDINGS on power-equipment, MYR-GROUP on grid-interconnect), so promotion is barred twice over: by the NULL rule first, by the cap second.",
+    "revisit": "Revisit if a future fiscal year shows positive base FCF (reverse_dcf.state leaves NOT_APPLICABLE) so the two fields carry a real solved value, and only if the theme's O1 count has room under targets.o1_per_theme_max at that time."
+  }
 }

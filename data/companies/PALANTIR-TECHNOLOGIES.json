@@ -1,9 +1,9 @@
 {
   "issuer_id": "PALANTIR-TECHNOLOGIES",
   "issuer_name": "Palantir Technologies Inc.",
-  "as_of": "2026-09-13",
+  "as_of": "2026-09-14",
   "created_at": "2026-09-13T15:05:00Z",
-  "updated_at": "2026-09-13T15:05:00Z",
+  "updated_at": "2026-09-14T00:45:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -244,6 +244,27 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for PALANTIR-TECHNOLOGIES from data/mappings/ai-infrastructure.json (COMPLETE, current audit PASS) and data/market/PLTR.json (sec-companyfacts, T1). 11 of 14 canonical fields filled; leverage NULL on a stale (2021-12-31) total_debt observation, quality NULL on a missing long_term_debt_fy input. Status COMPLETE, opportunity_tier O2. run profile <TICKER> (fan-out full-cycle run 2026-09-13, batch 3 of 3, ai-infrastructure unprofiled)"
+    },
+    {
+      "ts": "2026-09-14T00:45:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01 (ai-infrastructure): examined and retained at O2 (OUT_OF_DEPTH_SCOPE_LINK_HEAT, link ai-applications verdict CROWDED outside DEPTH scope; theme O1 also already at cap 3/3). NULL canonical fields: ['leverage.net_debt_to_ebitda', 'quality.piotroski', 'quality.beneish_state']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-14",
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "command": "run selection CAMP-20260901-01 (ai-infrastructure)",
+    "reviewed_by": "sieve-profiler",
+    "outcome": "RETAINED_O2",
+    "reason_code": "OUT_OF_DEPTH_SCOPE_LINK_HEAT",
+    "null_canonical_fields": [
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski",
+      "quality.beneish_state"
+    ],
+    "reason": "Every ai-infrastructure placement examined for this profile in CAMP-20260901-01's DEPTH scope sits outside that scope, which this run reads strictly as money-corner and UNDISCOVERED links only: ai-infrastructure/ai-applications (AI applications, verdict CROWDED, money_corner False). Not examined as a live O1 candidate this run for that reason alone. It also carries 3 NULL canonical field(s) (leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state), a second, independent bar. Independent of link scope, the theme's O1 count already stands at 3 of targets.o1_per_theme_max 3 (HUBBELL and VERTIV-HOLDINGS on power-equipment, MYR-GROUP on grid-interconnect), so no further promotion is possible on ai-infrastructure this run regardless of any candidate's individual merit.",
+    "revisit": "Revisit if the theme's DEPTH scope widens to include this link, or if a chain refresh moves this link's heat verdict to money-corner or UNDISCOVERED, and the theme's O1 count has room under targets.o1_per_theme_max."
+  }
 }
