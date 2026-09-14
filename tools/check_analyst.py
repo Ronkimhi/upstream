@@ -451,10 +451,18 @@ def stock_admission_failures(root: Path, stock: dict) -> list[str]:
             findings.append(
                 f"mapping listing {listing_id!r} belongs to "
                 f"{listing.get('issuer_id')!r}, not {issuer_id!r}")
-        if listing.get("ticker") != ticker:
+        # A dive is keyed by the listing's market-plane ticker: every price, quality and
+        # would-buy lookup in this gate resolves data/market/ from the dive ticker. A
+        # foreign listing carries its exchange ticker (WSP) and vendor ticker (WSP.TO) as
+        # two fields, which check_screen.py already splits (2026-09-04); comparing the bare
+        # ticker here left no string that both passed admission and found the market file
+        # (WSP-GLOBAL, 2026-09-06 and 2026-09-13). A listing with no market_ticker keeps
+        # the exact-ticker rule.
+        market_ticker = listing.get("market_ticker") or listing.get("ticker")
+        if market_ticker != ticker:
             findings.append(
                 f"dive ticker {ticker!r} does not exactly match mapping listing "
-                f"{listing_id!r} ticker {listing.get('ticker')!r}")
+                f"{listing_id!r} market_ticker {market_ticker!r} (its ticker when unset)")
 
     placements = [
         row for row in mapping.get("placements") or []
@@ -483,7 +491,7 @@ def stock_admission_failures(root: Path, stock: dict) -> list[str]:
         row for row in _screen_rows(screen)
         if row.get("issuer_id") == issuer_id
         and row.get("listing_id") == listing_id
-        and row.get("ticker") == ticker
+        and (row.get("market_ticker") or row.get("ticker")) == ticker
         and row.get("link_id") == link_id
     ]
     if not exact_rows:

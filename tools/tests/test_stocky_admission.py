@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
 import check_analyst  # noqa: E402
+import check_campaign  # noqa: E402
 import check_map  # noqa: E402
 import check_profile  # noqa: E402
 
@@ -434,6 +435,28 @@ class TestExactO1Admission(StockyAdmissionTree):
                     findings,
                 )
 
+    def _split_foreign_listing(self):
+        """Exchange ticker AAA, vendor ticker AAA.T (WSP / WSP.TO, 2026-09-13)."""
+        listing = next(row for row in self.mapping["listings"]
+                       if row["listing_id"] == "XTKS:AAA")
+        listing["market_ticker"] = "AAA.T"
+        self.attach_audit(self.mapping)
+        self.screen["buckets"]["pure_play"][0]["market_ticker"] = "AAA.T"
+        self._write_upstream()
+
+    def test_foreign_listing_is_dived_under_its_market_ticker(self):
+        self._split_foreign_listing()
+        stock = copy.deepcopy(self.stock)
+        stock["ticker"] = "AAA.T"
+        self.assertEqual(self.findings(stock), [])
+
+    def test_foreign_listing_refuses_the_exchange_ticker(self):
+        """The bare exchange ticker resolves no market file, so it cannot key the dive."""
+        self._split_foreign_listing()
+        findings = self.findings()
+        self.assertTrue(any("market_ticker 'AAA.T'" in f for f in findings), findings)
+        self.assertTrue(any("no exact row" in f for f in findings), findings)
+
 
 class TestMappingAuditAdmission(StockyAdmissionTree):
     def test_valid_complete_pass_audit_admits_exact_o1_handoff(self):
@@ -725,6 +748,49 @@ class TestAdmissionMigrationBoundaryTail(StockyAdmissionTree):
                 self.assertIn("campaign-era dive requires non-empty issuer_id", result.stdout)
                 self.assertIn("campaign-era dive requires non-empty listing_id", result.stdout)
                 self.assertIn("campaign-era dive requires non-empty screen_ref", result.stdout)
+
+
+class TestCampaignDiveMatchUsesMarketTicker(unittest.TestCase):
+    """check_campaign counts a FINAL dive under the ticker check_analyst admits it by."""
+
+    def setUp(self):
+        self.profile = {
+            "issuer_id": "ISS-A",
+            "listing_refs": ["TSX-AAA"],
+            "selection_basis": {"screen_handoff": {
+                "screen_ref": "data/screens/theme-a.json",
+                "chain_id": "theme-a",
+                "link_id": "L1",
+                "listing_id": "TSX-AAA",
+            }},
+        }
+        self.inventory = {
+            "placements": {("theme-a", "L1", "ISS-A")},
+            "listings": {("theme-a", "TSX-AAA"): {
+                "listing_id": "TSX-AAA", "issuer_id": "ISS-A",
+                "ticker": "AAA", "market_ticker": "AAA.TO",
+            }},
+            "screen_refs": {"data/screens/theme-a.json": {
+                "chain_id": "theme-a",
+                "buckets": {"pure_play": [{
+                    "issuer_id": "ISS-A", "listing_id": "TSX-AAA", "link_id": "L1",
+                    "ticker": "AAA", "market_ticker": "AAA.TO",
+                }]},
+            }},
+        }
+        self.stock = {
+            "status": "FINAL", "issuer_id": "ISS-A", "listing_id": "TSX-AAA",
+            "chain_id": "theme-a", "link_id": "L1", "ticker": "AAA.TO",
+        }
+
+    def test_foreign_listing_dive_counts_under_its_market_ticker(self):
+        self.assertTrue(check_campaign._stock_matches(
+            self.profile, self.stock, self.inventory))
+
+    def test_foreign_listing_dive_under_the_exchange_ticker_does_not_count(self):
+        stock = dict(self.stock, ticker="AAA")
+        self.assertFalse(check_campaign._stock_matches(
+            self.profile, stock, self.inventory))
 
 
 if __name__ == "__main__":

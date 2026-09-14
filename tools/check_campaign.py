@@ -293,11 +293,13 @@ def _stock_matches(profile: dict, stock: dict, inventory: dict, *,
     listing_id = handoff.get("listing_id")
     chain_id = handoff.get("chain_id")
     listing = inventory["listings"].get((chain_id, listing_id)) or {}
+    # A dive is keyed by the listing's market-plane ticker (ticker when unset), the rule
+    # check_analyst.stock_admission_failures admits it under.
     return stock.get("issuer_id") == issuer_id and \
         stock.get("listing_id") == listing_id and \
         stock.get("chain_id") == chain_id and \
         stock.get("link_id") == handoff.get("link_id") and \
-        stock.get("ticker") == listing.get("ticker")
+        stock.get("ticker") == (listing.get("market_ticker") or listing.get("ticker"))
 
 
 def _actual_theme_stage(theme: dict, inventory, targets: dict) -> str:
