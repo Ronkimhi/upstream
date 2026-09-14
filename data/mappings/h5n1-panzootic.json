@@ -1334,7 +1334,194 @@
    "kind": "AMEND",
    "change": "AMEND census of the four middle links. avian-diagnostics EXHAUSTED at 0 (the chain's four candidate tickers are all absent from the disclosing population), animal-health-vaccines EXHAUSTED at 4, depopulation-disposal EXHAUSTED at 1, egg-processing EXHAUSTED at 2. 7 placements added, all identity-evidenced from the issuers' own SEC-filed earnings releases and all role-evidenced from their own 10-K disclosure.",
    "prior": "links 2, 5, 8 and 9 OPEN with no searches recorded"
+  },
+  {
+   "ts": "2026-09-14T00:44:50Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit h5n1-panzootic --placement TYSON-FOODS (link poultry-genetics): fresh-context placement audit PASS. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. Role confirmed live: refetched Tyson's Form 10-K Exhibit 21 (accession 0000100493-25-000095, filed 2025-11-10, matching the placement's cited source_date exactly) and the stored source_excerpt matches the live filing verbatim, character for character, including the exact list order of Cobb-Vantress entities. Independently confirmed on a second live source (SEC EDGAR company search for Cobb-Vantress, CIK 0001467157) that Cobb-Vantress carries no registered equity class of its own, only co-registrant debt-shelf filings under Tyson's own file numbers, which is what makes Tyson the correct placement issuer rather than Cobb-Vantress itself. No defects found. Mapping status and the whole-census EXHAUSTED coverage for this link are untouched; this PASS admits TYSON-FOODS to run deepdive on this placement without the whole census being COMPLETE."
+  },
+  {
+   "ts": "2026-09-14T00:44:50Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit h5n1-panzootic --placement ZOETIS (link animal-health-vaccines): fresh-context placement audit FAIL. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. role_ok is false: the placement's sole evidence item cites https://efts.sec.gov/LATEST/search-index?q=%22avian+influenza%22&forms=10-K as its source and \"Zoetis Inc.\" (a JSON list of one element) as its source_excerpt. Refetched live, that exact URL (no date range, no entity filter) returns 1,588 hits sorted by relevance and Zoetis is not among the first page; the bare string \"Zoetis Inc.\" is not a verbatim span of any sentence disclosing avian influenza, only an entity name pulled from search metadata elsewhere in the tool's own results. The underlying claim is independently true and was confirmed live: Zoetis's 10-K for fiscal 2025 (accession 0001555280-26-000011), filed 2026-02-12 exactly as the placement's own evidence claims, states it holds \"a conditional license for our Avian Influenza, H5N2, Subtype 2 vaccine for use in chickens\" -- but that sentence lives in the filing document, not at the cited search-index URL, and the placement never cites it."
+  },
+  {
+   "ts": "2026-09-14T00:44:50Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit h5n1-panzootic --placement ELANCO (link animal-health-vaccines): fresh-context placement audit FAIL. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. role_ok is false, on the same defect pattern found on ZOETIS in this same batch: the placement's sole evidence item cites the bare EDGAR full-text-search endpoint and \"Elanco Animal Health Inc\" (a one-element JSON list) as its source_excerpt, which is an entity name from search metadata rather than a verbatim span of any disclosure. The underlying claim is independently true: Elanco's 10-K for fiscal 2025 (accession 0001739104-26-000012), filed 2026-02-24 exactly as claimed, discloses avian influenza in its risk factors, confirmed live and quoted above -- but that sentence is not what the placement cites."
+  },
+  {
+   "ts": "2026-09-14T00:44:50Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit h5n1-panzootic --placement PHIBRO (link animal-health-vaccines): fresh-context placement audit FAIL. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. role_ok is false, the same defect pattern found on ZOETIS and ELANCO in this same batch: the placement's sole evidence item cites the bare EDGAR full-text-search endpoint and \"PHIBRO ANIMAL HEALTH CORP\" (a one-element JSON list) as its source_excerpt, an entity name from search metadata rather than a verbatim span of any disclosure. The underlying claim is independently true: Phibro's 10-K for the fiscal year ended 2026-06-30 (accession 0001104659-26-101493), filed 2026-08-26 exactly as claimed, discloses H5N1 highly pathogenic avian influenza in its risk factors, confirmed live and quoted above -- but that sentence is not what the placement cites."
+  },
+  {
+   "ts": "2026-09-14T00:44:50Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit h5n1-panzootic --placement MERCK (link animal-health-vaccines): fresh-context placement audit FAIL. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. role_ok is false, and worse here than on the other three animal-health-vaccines placements in this same batch: the placement's sole evidence item cites the bare EDGAR full-text-search endpoint and just \"MRK\" (a one-element JSON list carrying only the ticker, not even the legal name) as its source_excerpt, which is not a verbatim span of any disclosure at all. The underlying claim is independently true: Merck's 10-K for fiscal 2025 (accession 0000310158-26-000063), filed 2026-02-24, discloses avian influenza as an animal-health risk factor, confirmed live and quoted above -- but that sentence is not what the placement cites."
+  },
+  {
+   "ts": "2026-09-14T00:44:50Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit h5n1-panzootic --placement DARLING (link depopulation-disposal): fresh-context placement audit PASS. Sampled evidence_index 1 (the corporate-site business-description claim) rather than evidence_index 0 (an EDGAR full-text-search citation with a bare entity-name source_excerpt), because evidence_index 0 on this placement shares the same defect this batch found on all four animal-health-vaccines placements and evidence_index 1 is the placement's stronger, independently verifiable citation. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. Role confirmed live: refetched darlingii.com and the stored source_excerpt matches the live homepage verbatim, word for word. Independently cross-checked that Darling's most recent Form 10-K (accession 0000916540-26-000008, filed 2026-03-03, matching the mapping's separate evidence_index 0 claim for this placement) does disclose avian influenza in its risk factors, confirmed live. No defects found on the sampled evidence item. Mapping status and the whole-census EXHAUSTED coverage for this link are untouched; this PASS admits DARLING to run deepdive on this placement without the whole census being COMPLETE."
   }
  ],
- "placement_audits": []
+ "placement_audits": [
+  {
+   "chain_id": "h5n1-panzootic",
+   "link_id": "poultry-genetics",
+   "issuer_id": "TYSON-FOODS",
+   "audited_at": "2026-09-14T00:44:50Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-h5n1-panzootic--placement-TYSON-FOODS/batch-2026-09-14/audit-h5n1-panzootic-tyson-foods",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the TYSON-FOODS placement on link poultry-genetics and its NYSE-TSN listing within data/mappings/h5n1-panzootic.json, the h5n1-panzootic chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (SEC EDGAR submissions record data.sec.gov/submissions/CIK0000100493.json and Tyson's own Form 10-K Exhibit 21 for fiscal 2025, filed 2025-11-10, accession 0000100493-25-000095); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other five placement audits run in this same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "PASS",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/100493/000010049325000095/tsn2025q410-kexx21.htm",
+   "source_date": "2025-11-10",
+   "source_excerpt": "Cobb-Vantress Brasil, Ltda Brazil Cobb-Vantress New Zealand Limited New Zealand Cobb-Vantress Philippines, Inc. Philippines Cobb-Vantress, Inc. Delaware Cobb-Vantress, LLC Delaware",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0000100493.json",
+   "identity_source_date": "2026-09-14",
+   "identity_source_excerpt": "Live fetch 2026-09-14 of SEC EDGAR submissions record for CIK 0000100493: name \"TYSON FOODS, INC.\", tickers [\"TSN\"], exchanges [\"NYSE\"] -- matches the NYSE-TSN listing's identity_evidence (legal_issuer Tyson Foods, Inc., exchange NYSE, ticker TSN) exactly.",
+   "record_digest": "f4b55ac7a3a0abf146923efc72eb8461352f2ea5375462bd4658d18d699ec752"
+  },
+  {
+   "chain_id": "h5n1-panzootic",
+   "link_id": "animal-health-vaccines",
+   "issuer_id": "ZOETIS",
+   "audited_at": "2026-09-14T00:44:50Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-h5n1-panzootic--placement-ZOETIS/batch-2026-09-14/audit-h5n1-panzootic-zoetis",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the ZOETIS placement on link animal-health-vaccines and its NYSE-ZTS listing within data/mappings/h5n1-panzootic.json, the h5n1-panzootic chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (SEC EDGAR full-text search API and, independently, Zoetis's own Form 10-K for fiscal 2025, filed 2026-02-12, accession 0001555280-26-000011); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other five placement audits run in this same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1555280/000155528026000011/zts-20251231.htm",
+   "source_date": "2026-02-12",
+   "source_excerpt": "a conditional license for our Avian Influenza, H5N2, Subtype 2 vaccine for use in chickens",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0001555280.json",
+   "identity_source_date": "2026-09-14",
+   "identity_source_excerpt": "Live fetch 2026-09-14 of SEC EDGAR submissions record for CIK 0001555280: name \"Zoetis Inc.\", tickers [\"ZTS\"], exchanges [\"NYSE\"] -- matches the NYSE-ZTS listing's identity_evidence (legal_issuer Zoetis Inc, exchange NYSE, ticker ZTS) exactly.",
+   "record_digest": "1f1c7ebf31b6e96e09f7a206164b4ad90b94a7d47650c2908c37775202775c52",
+   "amendments_required": [
+    "placement evidence[0].url cites the EDGAR full-text-search API endpoint rather than the actual disclosing document; placement evidence[0].source_excerpt (\"Zoetis Inc.\", a one-element JSON list) is an entity name pulled from search-hit metadata, not a verbatim span of the disclosure it claims. run universe should replace the citation with the fiscal-2025 Form 10-K itself (https://www.sec.gov/Archives/edgar/data/1555280/000155528026000011/zts-20251231.htm, filed 2026-02-12) and quote the actual disclosing sentence, confirmed live and quoted above as this audit's source_excerpt."
+   ]
+  },
+  {
+   "chain_id": "h5n1-panzootic",
+   "link_id": "animal-health-vaccines",
+   "issuer_id": "ELANCO",
+   "audited_at": "2026-09-14T00:44:50Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-h5n1-panzootic--placement-ELANCO/batch-2026-09-14/audit-h5n1-panzootic-elanco",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the ELANCO placement on link animal-health-vaccines and its NYSE-ELAN listing within data/mappings/h5n1-panzootic.json, the h5n1-panzootic chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (SEC EDGAR full-text search API and, independently, Elanco's own Form 10-K for fiscal 2025, filed 2026-02-24, accession 0001739104-26-000012); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other five placement audits run in this same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1739104/000173910426000012/elan-20251231.htm",
+   "source_date": "2026-02-24",
+   "source_excerpt": "In the past, outbreaks of various diseases such as African Swine Fever, avian influenza, foot-and-mouth disease, bovine spongiform encephalopathy (also known as BSE or “mad cow” disease) and porcine epidemic diarrhea virus (PEDV) have negatively impacted sales of our animal health products",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0001739104.json",
+   "identity_source_date": "2026-09-14",
+   "identity_source_excerpt": "Live fetch 2026-09-14 of SEC EDGAR submissions record for CIK 0001739104: name \"Elanco Animal Health Inc\", tickers [\"ELAN\"], exchanges [\"NYSE\"] -- matches the NYSE-ELAN listing's identity_evidence (legal_issuer Elanco Animal Health Incorporated, exchange NYSE, ticker ELAN) exactly.",
+   "record_digest": "688f12faba3d727c1267d2c2d21a3730f5fd98ddc77155f5ab2aad34c6e7a1c7",
+   "amendments_required": [
+    "placement evidence[0].url cites the EDGAR full-text-search API endpoint rather than the actual disclosing document; placement evidence[0].source_excerpt (\"Elanco Animal Health Inc\", a one-element JSON list) is an entity name pulled from search-hit metadata, not a verbatim span of the disclosure it claims. run universe should replace the citation with the fiscal-2025 Form 10-K itself (https://www.sec.gov/Archives/edgar/data/1739104/000173910426000012/elan-20251231.htm, filed 2026-02-24) and quote the actual disclosing sentence, confirmed live and quoted above as this audit's source_excerpt."
+   ]
+  },
+  {
+   "chain_id": "h5n1-panzootic",
+   "link_id": "animal-health-vaccines",
+   "issuer_id": "PHIBRO",
+   "audited_at": "2026-09-14T00:44:50Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-h5n1-panzootic--placement-PHIBRO/batch-2026-09-14/audit-h5n1-panzootic-phibro",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the PHIBRO placement on link animal-health-vaccines and its NASDAQ-PAHC listing within data/mappings/h5n1-panzootic.json, the h5n1-panzootic chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (SEC EDGAR full-text search API and, independently, Phibro's own Form 10-K for fiscal year ended 2026-06-30, filed 2026-08-26, accession 0001104659-26-101493); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other five placement audits run in this same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1069899/000110465926101493/pahc-20260630x10k.htm",
+   "source_date": "2026-08-26",
+   "source_excerpt": "H5N1, known as Highly Pathogenic Avian Influenza, in the human population, birds and, most recently, dairy cattle",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0001069899.json",
+   "identity_source_date": "2026-09-14",
+   "identity_source_excerpt": "Live fetch 2026-09-14 of SEC EDGAR submissions record for CIK 0001069899: name \"PHIBRO ANIMAL HEALTH CORP\", tickers [\"PAHC\"], exchanges [\"Nasdaq\"] -- matches the NASDAQ-PAHC listing's identity_evidence (legal_issuer Phibro Animal Health Corporation, exchange Nasdaq, ticker PAHC) exactly.",
+   "record_digest": "4bc7a5d2567c1984edf7abd614a401088f4b3f6674b8baef028a6a37d9432a11",
+   "amendments_required": [
+    "placement evidence[0].url cites the EDGAR full-text-search API endpoint rather than the actual disclosing document; placement evidence[0].source_excerpt (\"PHIBRO ANIMAL HEALTH CORP\", a one-element JSON list) is an entity name pulled from search-hit metadata, not a verbatim span of the disclosure it claims. run universe should replace the citation with the fiscal-2026 Form 10-K itself (https://www.sec.gov/Archives/edgar/data/1069899/000110465926101493/pahc-20260630x10k.htm, filed 2026-08-26) and quote the actual disclosing sentence, confirmed live and quoted above as this audit's source_excerpt."
+   ]
+  },
+  {
+   "chain_id": "h5n1-panzootic",
+   "link_id": "animal-health-vaccines",
+   "issuer_id": "MERCK",
+   "audited_at": "2026-09-14T00:44:50Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-h5n1-panzootic--placement-MERCK/batch-2026-09-14/audit-h5n1-panzootic-merck",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the MERCK placement on link animal-health-vaccines and its NYSE-MRK listing within data/mappings/h5n1-panzootic.json, the h5n1-panzootic chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (SEC EDGAR full-text search API and, independently, Merck's own Form 10-K for fiscal 2025, filed 2026-02-24, accession 0000310158-26-000063); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other five placement audits run in this same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/310158/000031015826000063/mrk-20251231.htm",
+   "source_date": "2026-02-24",
+   "source_excerpt": "the outbreak of disease carried by animals, such as Avian Influenza or African Swine Fever, could lead to their widespread death and precautionary destruction",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0000310158.json",
+   "identity_source_date": "2026-09-14",
+   "identity_source_excerpt": "Live fetch 2026-09-14 of SEC EDGAR submissions record for CIK 0000310158: name \"Merck & Co., Inc.\", tickers [\"MRK\"], exchanges [\"NYSE\"] -- matches the NYSE-MRK listing's identity_evidence (legal_issuer Merck & Co., Inc., exchange NYSE, ticker MRK) exactly.",
+   "record_digest": "a99ee55467d4b0d397588d37d1b0b617d17e0642ef0152fbf2d731559160d9d1",
+   "amendments_required": [
+    "placement evidence[0].url cites the EDGAR full-text-search API endpoint rather than the actual disclosing document; placement evidence[0].source_excerpt is the bare ticker \"MRK\" (a one-element JSON list), not a verbatim span of the disclosure it claims and not even the company's name. run universe should replace the citation with the fiscal-2025 Form 10-K itself (https://www.sec.gov/Archives/edgar/data/310158/000031015826000063/mrk-20251231.htm, filed 2026-02-24) and quote the actual disclosing sentence, confirmed live and quoted above as this audit's source_excerpt."
+   ]
+  },
+  {
+   "chain_id": "h5n1-panzootic",
+   "link_id": "depopulation-disposal",
+   "issuer_id": "DARLING",
+   "audited_at": "2026-09-14T00:44:50Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-h5n1-panzootic--placement-DARLING/batch-2026-09-14/audit-h5n1-panzootic-darling",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached scratch worktree started fresh for this command, reading only the DARLING placement on link depopulation-disposal and its NYSE-DAR listing within data/mappings/h5n1-panzootic.json, the h5n1-panzootic chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for contract, and the live source URLs the placement and listing name (Darling Ingredients' own corporate site (darlingii.com) and, independently, its Form 10-K for fiscal year ended 2026-01-03, filed 2026-03-03, accession 0000916540-26-000008); it never read the author's transcript, the map log, company profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session or with the other five placement audits run in this same batch; independence rests on the declared read boundary actually followed, not on any unforgeable separation. This entry additionally records, for the record, that the same placement's evidence_index 0 (an EDGAR full-text-search citation with source_excerpt \"DARLING INGREDIENTS INC.\", a one-element JSON list) was NOT sampled and was NOT separately audited; it carries the identical citation-completeness defect flagged as amendments_required on ZOETIS, ELANCO, PHIBRO and MERCK in this same batch.",
+   "status": "PASS",
+   "evidence_index": 1,
+   "identity_ok": true,
+   "role_ok": true,
+   "source_date_ok": true,
+   "source_url": "https://www.darlingii.com/",
+   "source_date": "2026-09-10",
+   "source_excerpt": "We repurpose and recycle materials from the animal agriculture and food industries",
+   "identity_source_url": "https://data.sec.gov/submissions/CIK0000916540.json",
+   "identity_source_date": "2026-09-14",
+   "identity_source_excerpt": "Live fetch 2026-09-14 of SEC EDGAR submissions record for CIK 0000916540: name \"DARLING INGREDIENTS INC.\", tickers [\"DAR\"], exchanges [\"NYSE\"] -- matches the NYSE-DAR listing's identity_evidence (legal_issuer Darling Ingredients Inc., exchange NYSE, ticker DAR) exactly.",
+   "record_digest": "8c1fdbff24aeed9e58a2f69d2db86ca2f87cfe0421e7c86eb4dda52c8b93c021"
+  }
+ ]
 }
