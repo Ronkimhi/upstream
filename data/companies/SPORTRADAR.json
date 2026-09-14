@@ -240,6 +240,45 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for SPORTRADAR from data/mappings/prediction-market-plumbing.json (2 ACTIVE placement(s)) and data/market/SRAD.json (sec-companyfacts, fetched_at 2026-09-13T14:37:38.997629+00:00). 4 of 12 canonical metric fields carry a sourced number; 8 NULL on named companyfacts gaps. opportunity_tier O2 (COMPLETE default; run selection not run this batch). run profile SRAD (batch 1 of 1 of the unprofiled issuers placed on prediction-market-plumbing)."
+    },
+    {
+      "ts": "2026-09-13T20:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (sixth run, 2026-09-13, prediction-market-plumbing scope): examined against the O1 bar on all 2 seated screen row(s) (official-event-data, market-surveillance-and-integrity). Held O2. NULL canonical fields: margins.operating_margin, leverage.net_debt_to_ebitda, quality.piotroski+beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-13",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (sixth run, 2026-09-13, prediction-market-plumbing scope)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "margins.operating_margin",
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski+beneish_state",
+      "valuation.market_cap",
+      "valuation.price_to_sales",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "prediction-market-plumbing",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "official-event-data",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
+        "detail": "First selection examination: profile newly built 2026-09-13 under run profile --campaign CAMP-20260901-01. 8 of 12 canonical fields NULL on missing companyfacts inputs (no market-cap/valuation block resolved this run). Not close to the O1 bar on data completeness alone; the placement_audits[] PASS entries on both of Sportradar's links (official-event-data, market-surveillance-and-integrity) are a stronger identity basis for a future promotion once the profile itself fills these fields, not a substitute for them."
+      },
+      {
+        "theme_id": "prediction-market-plumbing",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "market-surveillance-and-integrity",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
+        "detail": "First selection examination: profile newly built 2026-09-13 under run profile --campaign CAMP-20260901-01. 8 of 12 canonical fields NULL on missing companyfacts inputs (no market-cap/valuation block resolved this run). Not close to the O1 bar on data completeness alone; the placement_audits[] PASS entries on both of Sportradar's links (official-event-data, market-surveillance-and-integrity) are a stronger identity basis for a future promotion once the profile itself fills these fields, not a substitute for them."
+      }
+    ]
+  }
 }

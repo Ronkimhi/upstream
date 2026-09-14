@@ -236,12 +236,35 @@
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
     "Data tier (T1/T2/T3) describes data availability. Opportunity tier (O1/O2/O3) describes research priority. Neither implies the other."
   ],
+  "selection_review": {
+    "as_of": "2026-09-13",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (sixth run, 2026-09-13, prediction-market-plumbing scope)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [],
+    "examined_links": [
+      {
+        "theme_id": "prediction-market-plumbing",
+        "chain_id": "prediction-market-plumbing",
+        "link_id": "market-surveillance-and-integrity",
+        "state": "THIN_EXPOSURE",
+        "reason": "Zero NULL canonical fields and the O1 official-source cross-check already clears (revenue.latest_fy VERIFIED, cash-conversion field INFERRED with official_source true, both direct SEC EDGAR XBRL, not the vendor block), but direct exposure and expectations gap do not support promotion: the chain's own heat rationale for this link states the Kalshi surveillance contract is immaterial against the rest of Nasdaq's business, no customer-level surveillance revenue is disclosed, and NDAQ trades at 93.1% of its 52-week range on drivers unrelated to this contract.",
+        "detail": "Held O2, not on a data gap but on a genuine exposure finding sourced from data/chains/prediction-market-plumbing.json market-surveillance-and-integrity.heat (as_of 2026-08-30): impact 62 / crowdedness 45 / capture 55, verdict EMERGING (not money-corner, not UNDISCOVERED). Nasdaq is one of at least four sellers into this layer (Nasdaq, Sportradar, Eventus, in-house systems per the chain's bottleneck note), a competed vendor role rather than a scarce one, on a $56.6bn market-cap issuer whose FY2025 revenue of $8.26bn dwarfs any plausible prediction-market-specific slice. Next stage for reconsideration: a disclosed or estimable prediction-market-specific revenue figure for Nasdaq's Market Technology segment, or a new catalyst that reprices the stock specifically on this exposure; neither exists on disk this run."
+      }
+    ]
+  },
   "changelog": [
     {
       "ts": "2026-09-13T16:00:00Z",
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for NASDAQ from data/mappings/prediction-market-plumbing.json (1 ACTIVE placement(s)) and data/market/NDAQ.json (sec-companyfacts, fetched_at 2026-09-13T14:37:38.997629+00:00). 10 of 12 canonical metric fields carry a sourced number; 0 NULL on named companyfacts gaps. opportunity_tier O2 (COMPLETE default; run selection not run this batch). run profile NDAQ (batch 1 of 1 of the unprofiled issuers placed on prediction-market-plumbing)."
+    },
+    {
+      "ts": "2026-09-13T20:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (sixth run, 2026-09-13, prediction-market-plumbing scope): examined against the O1 bar on the sole seated row (market-surveillance-and-integrity). The only one of prediction-market-plumbing's 13 COMPLETE O2 profiles with zero NULL canonical fields, and revenue.latest_fy (VERIFIED) plus the cash-conversion field (INFERRED, official_source: true) both already carry the SEC-EDGAR-sourced official-source cross-check the O1 gate requires, so no further web-evidence work was needed on that ground. Held O2 on a genuine exposure/heat finding instead: this chain's own heat block (data/chains/prediction-market-plumbing.json, market-surveillance-and-integrity.heat, as_of 2026-08-30, by ember-scenario-analyst) states plainly that the Kalshi/Nasdaq surveillance contract is immaterial against the rest of Nasdaq's business ('for the one listed name that matters the contract is immaterial against the rest of the business, so the link moves further than any issuer on it does'), that no customer-level surveillance revenue is disclosed ('who_posted_the_margin: Not established here'), and that NDAQ's own price action (99.31 close, 93.1% of its 52-week range) runs 'on drivers that have nothing to do with this contract, which is the reason the largest name on the link tells you least about it.' Link verdict is EMERGING (capture 55, crowdedness 45), not money-corner and not UNDISCOVERED; the profile's own crowdedness_caveats already name Nasdaq as one of four vendors (Nasdaq, Sportradar, Eventus, in-house), not a scarce one. Taken together this is a mega-cap ($56.6bn market cap, $8.26bn FY2025 revenue) whose fortunes are not meaningfully tied to the prediction-market occurrence, an undisclosed and structurally small revenue sliver, no expectations-gap evidence (price already near 52-week highs on unrelated drivers), and no scarcity in the vendor role. Promoting would clear the mechanical NULL-completeness bar without a real direct-exposure or capture case behind it. All seven selection_basis dimensions were examined; direct exposure and expectations gap are the two that fail to clear, so no selection_basis block is written (method 6A: O1 selection_basis is for names that clear the bar)."
     }
   ]
 }
