@@ -9,7 +9,7 @@
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): Xetra Frankfurt:HAG has no SEC CIK; data/market/HAG-DE.json has a fetched yfinance-statements vendor fundamentals block and a scored quality block; Ron's 2026-09-01 decision admits this vendor aggregate directly into T2/T3 canonical metrics (method section 6A).",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+  "opportunity_tier_basis": "COMPLETE profile, held O2. Examined for O1 by run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14): zero NULL canonical fields and every other selection dimension is favorable on the c2-and-sensor-fusion money-corner CHOKE_POINT placement, but revenue.latest_fy and both cash_conversion fields remain vendor-aggregate INFERRED with official_source false, refusing tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate. REQ-20260914-630 (web_doc) queued for HENSOLDT's own FY2025 results press release to attempt the cross-check. Revisit once FULFILLED.",
   "listing_refs": [
     "XETRA-HAG"
   ],
@@ -266,12 +266,18 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06): examined against the O1 bar on offshore-counter-drone. Held O2. Zero NULL canonical fields. No change since the fourth run's finding: revenue.latest_fy independently confirmed against Hensoldt's own FY2025 release (EUR 2,455m official vs EUR 2,454m in the profile), but the profile's vendor-derived fcf_margin does not cleanly reconcile with Hensoldt's own 'adjusted free cash flow' of EUR 347m (implies roughly EUR 244m from the vendor calc). Held O2 pending a full reconciliation against Hensoldt's annual report; next stage `run profile HENSOLDT`."
+    },
+    {
+      "ts": "2026-09-14T02:15:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14). Examined against the O1 bar; held O2, unchanged in substance since the fourth/fifth runs. Zero NULL canonical fields, favorable heat (money-corner, CHOKE_POINT, UNDISCOVERED), but revenue.latest_fy, cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin remain vendor-aggregate INFERRED/official_source false, refusing the O1 official-source cross-check. Queued REQ-20260914-630 (web_doc) for HENSOLDT's own FY2025 results press release (a confirmed-real HTML page, already cited VERIFIED elsewhere in data/mappings/munitions-replenishment.json) so a future run can cite stored text rather than a search-snippet paraphrase. Not promoted."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-06",
+    "as_of": "2026-09-14",
     "reviewed_by": "sieve-profiler",
-    "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+    "command": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14)",
     "outcome": "HELD_O2",
     "null_canonical_fields": [],
     "examined_links": [
@@ -279,10 +285,29 @@
         "theme_id": "offshore-counter-drone",
         "chain_id": "offshore-counter-drone",
         "link_id": "c2-and-sensor-fusion",
-        "state": "DATA_VERIFICATION",
-        "reason": "Zero NULL canonical fields, but at least one vendor-block canonical field could not be cleanly reconciled against an official source this run; see basis.",
-        "detail": "No change since the fourth run's finding: revenue.latest_fy independently confirmed against Hensoldt's own FY2025 release (EUR 2,455m official vs EUR 2,454m in the profile), but the profile's vendor-derived fcf_margin does not cleanly reconcile with Hensoldt's own 'adjusted free cash flow' of EUR 347m (implies roughly EUR 244m from the vendor calc). Held O2 pending a full reconciliation against Hensoldt's annual report; next stage `run profile HENSOLDT`."
+        "state": "OFFICIAL_CROSSCHECK_MISSING",
+        "reason": "Unchanged since the fourth/fifth runs: zero NULL canonical fields, direct exposure, heat (money-corner, CHOKE_POINT, UNDISCOVERED) and quality all clear, but revenue.latest_fy, cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin are all still vendor-aggregate INFERRED with official_source false, so tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate refuses O1 on all three fields.",
+        "detail": "A prior local-session finding (campaign BLK-13, 2026-09-06) WebFetched HENSOLDT's own FY2025 results press release directly and found revenue close (EUR 2,455m official vs EUR 2,454m on file) but could not cleanly reconcile cash conversion (an 'adjusted free cash flow' of EUR 347m against the vendor-implied ~EUR 244m), and that work was never written into this profile's own metrics with official_source true, so it does not count for this gate regardless. This cloud venue cannot WebFetch; queued REQ-20260914-630 (web_doc) for the same press release URL (https://www.hensoldt.net/news/financial-year-2025-hensoldt-achieves-record-order-intake-and-confirms-structural-growth-path), already confirmed real and HTML via a separate VERIFIED citation in data/mappings/munitions-replenishment.json, so a future run selection or run profile pass can cite stored text and either complete or further narrow the reconciliation. Held O2. DEPTH's 1-3 O1 per theme remains unmet at 0 for offshore-counter-drone."
       }
     ]
-  }
+  },
+  "selection_reviews": [
+    {
+      "as_of": "2026-09-06",
+      "reviewed_by": "sieve-profiler",
+      "command": "run selection CAMP-20260901-01 (fifth run, 2026-09-06)",
+      "outcome": "HELD_O2",
+      "null_canonical_fields": [],
+      "examined_links": [
+        {
+          "theme_id": "offshore-counter-drone",
+          "chain_id": "offshore-counter-drone",
+          "link_id": "c2-and-sensor-fusion",
+          "state": "DATA_VERIFICATION",
+          "reason": "Zero NULL canonical fields, but at least one vendor-block canonical field could not be cleanly reconciled against an official source this run; see basis.",
+          "detail": "No change since the fourth run's finding: revenue.latest_fy independently confirmed against Hensoldt's own FY2025 release (EUR 2,455m official vs EUR 2,454m in the profile), but the profile's vendor-derived fcf_margin does not cleanly reconcile with Hensoldt's own 'adjusted free cash flow' of EUR 347m (implies roughly EUR 244m from the vendor calc). Held O2 pending a full reconciliation against Hensoldt's annual report; next stage `run profile HENSOLDT`."
+        }
+      ]
+    }
+  ]
 }

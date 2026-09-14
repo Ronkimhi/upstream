@@ -9,7 +9,7 @@
   "data_tier": "T1",
   "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:CB carries a real SEC CIK (896159) with sec-companyfacts fundamentals in data/market/CB.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profile awaiting run selection; not yet examined for O1 promotion this batch (profiling only, per method section 6A).",
+  "opportunity_tier_basis": "COMPLETE profile, held O2. First examined for O1 by run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14): the profile's own placements[] array does not include the offshore-counter-drone/reinsurance-and-lloyds-capacity placement the mapping and screen both carry (built and last amended against hormuz-maritime only), so a screen_handoff cannot be written; separately carries 7 NULL canonical fields (an insurer XBRL coverage gap). Next stage `run profile CHUBB` for both.",
   "listing_refs": [
     "NYSE-CB"
   ],
@@ -235,6 +235,37 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created COMPLETE profile for CHUBB from data/mappings/hormuz-maritime.json (ACTIVE, audit FAIL) and data/market/CB.json (sec-companyfacts, T1). 5 of 12 canonical fields filled; 7 NULL on real coverage gaps. Status COMPLETE, opportunity_tier O2. run profile --campaign, hormuz-maritime batch 1 of 3."
+    },
+    {
+      "ts": "2026-09-14T02:15:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14). First O1 examination of this profile against its offshore-counter-drone screen row (reinsurance-and-lloyds-capacity). The mapping and screen both carry this placement as ACTIVE/evidence-VERIFIED, but this profile's own placements[] array names only its two hormuz-maritime placements: it was built and last amended entirely against that chain and never describes the offshore-counter-drone exposure. Cannot write a screen_handoff resting on an undeclared placement -- the identical gap class campaign BLK-13 named for THALES on 2026-09-06, since fixed. Also carries 7 NULL canonical fields (insurer XBRL coverage gap), which would refuse O1 on its own even with the placement added. Held O2. Next stage `run profile CHUBB`."
     }
-  ]
+  ],
+  "selection_review": {
+    "as_of": "2026-09-14",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14)",
+    "outcome": "HELD_O2",
+    "null_canonical_fields": [
+      "margins.operating_margin",
+      "cash_conversion.fcf_margin",
+      "leverage.net_debt_to_ebitda",
+      "quality.piotroski",
+      "quality.beneish_state",
+      "reverse_dcf.implied_fcf_cagr",
+      "reverse_dcf.horizon_spread"
+    ],
+    "examined_links": [
+      {
+        "theme_id": "offshore-counter-drone",
+        "chain_id": "offshore-counter-drone",
+        "link_id": "reinsurance-and-lloyds-capacity",
+        "state": "PROFILE_GAP",
+        "reason": "data/mappings/offshore-counter-drone.json carries an ACTIVE, evidence-VERIFIED placement (CHUBB, reinsurance-and-lloyds-capacity) and data/screens/offshore-counter-drone.json seats CHUBB as a row on it (bucket hedge), but this profile's own placements[] array names only two hormuz-maritime placements (war-risk-reinsurance-capacity, marine-war-risk-underwriting); it was built and last amended (2026-09-13) entirely against the hormuz-maritime chain and never describes the offshore-counter-drone exposure at all. Method section 6A item 4 (Stocky admission chain, applied identically at selection): the handoff listing_id must be in the profile's listing_refs AND the profile must carry an exact (chain_id, link_id) placement. Selection cannot write a screen_handoff resting on a placement the profile's own business_summary and exposure_summary never describe. This is the identical class of gap campaign BLK-13 named for THALES on 2026-09-06 (since fixed by a run profile THALES pass on 2026-09-13); same fix needed here.",
+        "detail": "Also carries 7 NULL canonical fields (margins.operating_margin, cash_conversion.fcf_margin, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), an insurer-coverage gap in SEC XBRL companyfacts (no operating_income_fy tag for CIK 896159) independent of the placement gap, so even a fixed placements[] array would not by itself clear O1: the no-NULL rule refuses it too. Held O2. Next stage `run profile CHUBB` to both add the offshore-counter-drone/reinsurance-and-lloyds-capacity placement and, separately, address the insurer-specific NULL fields, owned by sieve-profiler."
+      }
+    ]
+  }
 }

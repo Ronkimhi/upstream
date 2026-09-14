@@ -9,7 +9,7 @@
  "data_tier": "T3",
  "data_tier_basis": "Local-only KOSDAQ listing (method section 6): RFHIC Corporation has no US SEC filing and no SEC CIK; data/market/218410-KQ.json carries a full yfinance-statements vendor aggregate (fundamentals and a scored quality block), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A).",
  "opportunity_tier": "O2",
- "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+ "opportunity_tier_basis": "COMPLETE profile, held O2. First examined for O1 by run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14): zero NULL canonical fields, but revenue.latest_fy and both cash_conversion fields remain vendor-aggregate INFERRED with official_source false, refusing tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate; the placement's link (rf-and-radar-front-end-components) is also QUIET, not money-corner. REQ-20260914-631 (web_doc) queued for rfhic.com/investors/ as a first attempt at an official-source cross-check. Revisit once FULFILLED.",
  "listing_refs": [
   "KOSDAQ-218410"
  ],
@@ -278,6 +278,29 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for RFHIC from the ACTIVE offshore-counter-drone mapping (two placements: rf-and-radar-front-end-components, rf-detection-and-jamming) directly from the already-fetched data/market/218410-KQ.json (yfinance-statements vendor aggregate, INFERRED, official_source false, per the 2026-09-01 method decision); status COMPLETE, data tier T3, opportunity tier O2; 0 of 8 canonical fields NULL. run profile --campaign CAMP-20260901-01."
+  },
+  {
+   "ts": "2026-09-14T02:15:00Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14). First O1 examination of this profile. Zero NULL canonical fields, but revenue.latest_fy, cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin are all vendor-aggregate INFERRED/official_source false, refusing the O1 official-source cross-check; the placement's own link (rf-and-radar-front-end-components) is QUIET, not money-corner or CHOKE_POINT, a materially weaker heat position than the theme's money-corner candidates. Queued REQ-20260914-631 (web_doc) for rfhic.com/investors/, a confirmed-real HTML page, as a first attempt at an official-source figure; a DART filing would be a stronger source and is not yet identified. Not promoted; held O2."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "reviewed_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14)",
+  "outcome": "HELD_O2",
+  "null_canonical_fields": [],
+  "examined_links": [
+   {
+    "theme_id": "offshore-counter-drone",
+    "chain_id": "offshore-counter-drone",
+    "link_id": "rf-and-radar-front-end-components",
+    "state": "OFFICIAL_CROSSCHECK_MISSING",
+    "reason": "First O1 examination of this profile. Zero NULL canonical fields (COMPLETE), direct exposure evidence VERIFIED (GaN wideband amplifiers marketed directly for counter-UAS integration, rfhic.com product page), but this link is QUIET (crowdedness 30, impact 45, capture 52), not money-corner and not CHOKE_POINT -- a materially weaker heat position than HENSOLDT/THALES on c2-and-sensor-fusion. Every canonical metric (revenue.latest_fy and both cash_conversion fields) is vendor-aggregate INFERRED with official_source false, so tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate refuses O1 outright.",
+    "detail": "RFHIC is a T3 KOSDAQ-listed Korean issuer with no SEC XBRL and no official-source citation on file for any canonical metric. Queued REQ-20260914-631 (web_doc) for https://rfhic.com/investors/, the one already-confirmed-live-fetchable URL on file, though it is described in the mapping only as a stock-quote widget and is unlikely by itself to carry full revenue/cash-flow figures; a DART (Korea's official disclosure system) filing would be the stronger source and is not yet identified. Held O2. Even if the cross-check clears, this link's QUIET/non-money-corner heat weakens the case relative to the theme's money-corner candidates, a duplicate_exposure/heat consideration for a future run rather than a reason to hold now on its own."
+   }
+  ]
+ }
 }

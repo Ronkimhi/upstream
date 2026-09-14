@@ -9,7 +9,7 @@
  "data_tier": "T3",
  "data_tier_basis": "Local-only Bucharest Stock Exchange listing (method section 6): OMV Petrom has no US SEC filing and no SEC CIK; data/market/SNP-RO.json carries a yfinance-statements vendor aggregate (fundamentals and a scored quality block), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A).",
  "opportunity_tier": "O2",
- "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+ "opportunity_tier_basis": "COMPLETE profile, held O2. First examined for O1 by run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14): 2 canonical field(s) are NULL (quality.piotroski, quality.beneish_state), which method section 6A refuses on any O1 profile outright, regardless of the separate official-source cross-check. Next stage `run profile OMV-PETROM` to fill these fields before selection can reconsider.",
  "listing_refs": [
   "BVB-SNP"
  ],
@@ -256,6 +256,32 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for OMV-PETROM from the ACTIVE offshore-counter-drone mapping (offshore-energy-operator placement) directly from the already-fetched data/market/SNP-RO.json (yfinance-statements vendor aggregate, INFERRED, official_source false, per the 2026-09-01 method decision); status COMPLETE, data tier T3, opportunity tier O2; 2 of 8 canonical fields NULL (piotroski, beneish_state; vendor block aligns only one common fiscal period across their inputs). run profile --campaign CAMP-20260901-01."
+  },
+  {
+   "ts": "2026-09-14T02:15:00Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14). First O1 examination of this profile. 2 canonical field(s) NULL (quality.piotroski, quality.beneish_state), which method section 6A's no-NULL-on-O1 rule refuses outright; the O1 official-source cross-check was not attempted since it would be moot. Held O2. Next stage `run profile OMV-PETROM` to fill the NULL fields."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "reviewed_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out re-run, 2026-09-14)",
+  "outcome": "HELD_O2",
+  "null_canonical_fields": [
+   "quality.piotroski",
+   "quality.beneish_state"
+  ],
+  "examined_links": [
+   {
+    "theme_id": "offshore-counter-drone",
+    "chain_id": "offshore-counter-drone",
+    "link_id": "offshore-energy-operator",
+    "state": "NULL_CANONICAL_FIELDS",
+    "reason": "First O1 examination of this profile. Method section 6A: 'O1 profiles may not retain NULL or unknown-state placeholders on any canonical field.' 2 canonical field(s) are NULL on this profile (quality.piotroski, quality.beneish_state), which refuses O1 outright and makes the separate official-source cross-check moot; no web work was attempted this run for that reason.",
+    "detail": "both quality-score fields are NULL from missing vendor-block inputs, on a link (offshore-energy-operator) that is the buyer of counter-drone protection rather than a supplier of it, the chain's own map_limitation for this link. Filling these is `run profile OMV-PETROM`'s job (a vendor-block re-fetch, or an official filing citation per method section 6A's T2/T3 allowance), not `run selection`'s. Held O2; no request row queued by this run, since the gap is a computed/derived field absent from an already-fetched vendor block, not a missing document this stage can request."
+   }
+  ]
+ }
 }
