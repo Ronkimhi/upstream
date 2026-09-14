@@ -9,7 +9,7 @@
  "data_tier": "T1",
  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:WMB carries a real SEC CIK (107263); data/market/WMB.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
  "opportunity_tier": "O2",
- "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+ "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-14 and retained at O2 (CAP_REACHED). minor-nsr-permits/gas-supply-and-interconnection sits outside this campaign's DEPTH scope (link heat CROWDED, money_corner false) and the theme is already at its 3-O1 DEPTH cap (CATERPILLAR, CUMMINS, ONT); the second placement, behind-the-meter-power-developers, carries no campaign-v1 screen row yet so could not be examined as a live candidate either. Also carries 2 NULL canonical fields. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
  "listing_refs": [
   "NYSE-WMB"
  ],
@@ -229,6 +229,40 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for WILLIAMS-COMPANIES from data/mappings/minor-nsr-permits.json (ACTIVE), 2 placements: minor-nsr-permits/gas-supply-and-interconnection and minor-nsr-permits/behind-the-meter-power-developers (secondary_link_basis stated on the second). Fundamentals and quality sourced from data/market/WMB.json (SEC XBRL companyfacts, fetched 2026-09-13). quality.piotroski and quality.beneish_state are NULL (missing cost_of_revenue_fy); reverse_dcf solved (SPECULATIVE by construction). Status COMPLETE, opportunity_tier O2. run profile WMB (unprofiled-issuer fan-out, minor-nsr-permits chain, batch 1 of 1)."
+  },
+  {
+   "ts": "2026-09-14T01:08:26Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (minor-nsr-permits scope): examined against the O1 bar on both placements. Held O2. gas-supply-and-interconnection: theme opportunity_tier O1 count is already at DEPTH's 3-per-theme maximum (CATERPILLAR, CUMMINS, ONT), and independently the link heat is CROWDED (money_corner false), not money-corner or UNDISCOVERED; also carries 2 NULL canonical fields (quality.piotroski, quality.beneish_state, both missing cost_of_revenue_fy). behind-the-meter-power-developers: no campaign-v1 screen row exists for this issuer on this link in data/screens/minor-nsr-permits.json, so a selection_basis.screen_handoff could not be written even if the metrics closed; not examined as a live candidate for that reason alone (prerequisite: run screen minor-nsr-permits). O1 official-source cross-check not attempted on either placement: moot given the disposing findings above, and no request row queued for it."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "reviewed_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01 (minor-nsr-permits scope)",
+  "outcome": "HELD_O2",
+  "null_canonical_fields": [
+   "quality.piotroski",
+   "quality.beneish_state"
+  ],
+  "examined_links": [
+   {
+    "theme_id": "minor-nsr-permits",
+    "chain_id": "minor-nsr-permits",
+    "link_id": "gas-supply-and-interconnection",
+    "state": "CAP_REACHED",
+    "reason": "Theme opportunity_tier O1 count is already at DEPTH's 3-per-theme maximum (CATERPILLAR, CUMMINS, ONT); held O2 regardless of this profile's own completeness.",
+    "detail": "Independently out of DEPTH census scope: link heat is CROWDED (money_corner false), not money-corner or UNDISCOVERED (reason_code OUT_OF_DEPTH_SCOPE_LINK_HEAT). Also carries 2 NULL canonical fields (quality.piotroski, quality.beneish_state, both missing cost_of_revenue_fy). O1 official-source cross-check not attempted, moot given the two disposing findings; no request row queued."
+   },
+   {
+    "theme_id": "minor-nsr-permits",
+    "chain_id": "minor-nsr-permits",
+    "link_id": "behind-the-meter-power-developers",
+    "state": "NO_SCREEN_ROW_NO_HANDOFF",
+    "reason": "No campaign-v1 screen row exists for this issuer on this link in data/screens/minor-nsr-permits.json; a selection_basis.screen_handoff could not be written even if the metrics closed. Prerequisite: run screen minor-nsr-permits to seat this placement.",
+    "detail": "Link heat EMERGING, money_corner false; not examined as a live O1 candidate this run for the screen-row gap alone. Theme is separately already at its 3-O1 DEPTH cap (CATERPILLAR, CUMMINS, ONT)."
+   }
+  ]
+ }
 }

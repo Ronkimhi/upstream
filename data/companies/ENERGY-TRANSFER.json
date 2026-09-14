@@ -9,7 +9,7 @@
  "data_tier": "T1",
  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:ET carries a real SEC CIK (1276187); data/market/ET.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
  "opportunity_tier": "O2",
- "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+ "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-14 and retained at O2 (CAP_REACHED). minor-nsr-permits/gas-supply-and-interconnection sits outside this campaign's DEPTH scope (link heat CROWDED, money_corner false, not money-corner or UNDISCOVERED) and the theme is already at its 3-O1 DEPTH cap (CATERPILLAR, CUMMINS, ONT); also carries 6 NULL canonical fields. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
  "listing_refs": [
   "NYSE-ET"
  ],
@@ -202,6 +202,36 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for ENERGY-TRANSFER from data/mappings/minor-nsr-permits.json (ACTIVE), placement minor-nsr-permits/gas-supply-and-interconnection. Fundamentals sourced from data/market/ET.json (SEC XBRL companyfacts, fetched 2026-09-13). Six of twelve canonical metric fields (quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread) are NULL because this issuer's current SEC XBRL companyfacts concept coverage is missing a mapped shares-outstanding concept. Status COMPLETE, opportunity_tier O2. run profile ET (unprofiled-issuer fan-out, minor-nsr-permits chain, batch 1 of 1)."
+  },
+  {
+   "ts": "2026-09-14T01:08:26Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (minor-nsr-permits scope): examined against the O1 bar on minor-nsr-permits/gas-supply-and-interconnection. Held O2. Theme opportunity_tier O1 count is already at DEPTH's 3-per-theme maximum (CATERPILLAR, CUMMINS, ONT); held O2 regardless of this profile's own completeness. Independently out of DEPTH census scope: this placement's link heat is CROWDED (money_corner false), not money-corner or UNDISCOVERED. Also carries 6 NULL canonical fields (quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread), all traced to one missing SEC XBRL shares-outstanding concept for this issuer (Beneish also missing receivables_fy), as a third, independent bar. O1 official-source cross-check not attempted: moot given the two disposing findings above, and no request row queued for it."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "reviewed_by": "sieve-profiler",
+  "command": "run selection CAMP-20260901-01 (minor-nsr-permits scope)",
+  "outcome": "HELD_O2",
+  "null_canonical_fields": [
+   "quality.piotroski",
+   "quality.beneish_state",
+   "valuation.market_cap",
+   "valuation.price_to_sales",
+   "reverse_dcf.implied_fcf_cagr",
+   "reverse_dcf.horizon_spread"
+  ],
+  "examined_links": [
+   {
+    "theme_id": "minor-nsr-permits",
+    "chain_id": "minor-nsr-permits",
+    "link_id": "gas-supply-and-interconnection",
+    "state": "CAP_REACHED",
+    "reason": "Theme opportunity_tier O1 count is already at DEPTH's 3-per-theme maximum (CATERPILLAR, CUMMINS, ONT); held O2 regardless of this profile's own completeness.",
+    "detail": "Independently out of DEPTH census scope: link heat is CROWDED (money_corner false), not money-corner or UNDISCOVERED (reason_code OUT_OF_DEPTH_SCOPE_LINK_HEAT). Also carries 6 NULL canonical fields, all traced to one missing SEC XBRL shares-outstanding concept for this issuer (Beneish also missing receivables_fy). O1 official-source cross-check not attempted, moot given the two disposing findings; no request row queued."
+   }
+  ]
+ }
 }
