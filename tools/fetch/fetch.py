@@ -23,6 +23,7 @@ import html
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -1795,7 +1796,7 @@ def _guarded_cron_step(name, fn, errors, counts):
               f"whatever it already fetched")
 
 
-# ---------------------------------------------------------------- main
+# ------------------------------------------------------------- main-loop support
 MAX_FETCH_ATTEMPTS = 3
 
 
@@ -1817,12 +1818,144 @@ def request_due(req, is_cron):
     return False
 
 
+# ------------------------------------------------------ request-row wall-clock budget
+# BUILD (2026-09-14): 673 rows landed PENDING at once (00:35Z-02:45Z), and the next 8
+# push-triggered runs (01:24Z-01:38Z) all hit the 30-minute job timeout
+# (.github/workflows/fetch.yml timeout-minutes) processing them in plain file order --
+# pcs sources throttle and web_doc alone carries a 45s-per-request ceiling, so one run
+# cannot walk a queue this size. A hard job timeout KILLS the runner outright: same
+# caution as PRICE_REFRESH_BUDGET_SECONDS above, no try/except in this file can catch
+# it, and nothing after it -- commit included -- ever runs, which is why those 8 runs
+# fetched data that never reached git. This loop now carries its own SMALLER wall-clock
+# budget, checked in real time before each row, and simply stops admitting new rows once
+# spent. A row the run did not reach is left exactly as it was found -- PENDING, zero
+# attempts touched -- and the run still commits everything it DID fetch, same as any
+# other run. Draining a queue this size is self-chaining's job (dispatch_decision /
+# dispatch_next_run below), not one run's.
+def _env_int(name, default):
+    """int(os.environ[name]) if present and parseable, else `default`. A malformed
+    override (a typo in the workflow env block) must degrade to the safe default, never
+    crash the run before a single row is even read."""
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        print(f"  {name}={raw!r} is not an integer; using default {default}")
+        return default
+
+
+# Environment-configurable so a run can be given more or less room without a code
+# change. The default (20 minutes) leaves the 30-minute job ceiling room for dependency
+# install (~1-2 observed minutes), the best-effort rebuild step, the commit/push
+# retries, and the self-dispatch call itself -- none of which this budget covers.
+FETCH_ROW_BUDGET_SECONDS = _env_int("FETCH_ROW_BUDGET_SECONDS", 1200)
+
+# Kind priority for the request-row loop. Prices first (cheapest, and the most
+# sessions are blocked on exactly this), then fundamentals, then quality -- quality is
+# pure computation over what fundamentals just wrote to disk (tools/acis/quality.py),
+# so every fundamentals row must be attempted before any quality row. Grouping strictly
+# by kind gives that guarantee as a side effect, for free, with no per-ticker
+# bookkeeping: since every "fundamentals" row (any ticker) sorts before every "quality"
+# row (any ticker), a budget cutoff can only land before quality starts, between the two
+# groups, or after both -- never so it reaches a ticker's quality row without having
+# already reached that ticker's fundamentals row first. edgar_doc/insider/edgar_fts/
+# web_doc follow in roughly ascending cost; pcs -- throttled at the source and least
+# time-sensitive -- goes last, exactly the kind BUILD found starving everything behind
+# it in the 2026-09-14 backlog (267 of the 673 PENDING rows).
+REQUEST_KIND_PRIORITY = ["prices", "fundamentals", "quality", "edgar_doc", "insider",
+                         "edgar_fts", "web_doc", "pcs"]
+
+
+def order_due_requests(due):
+    """Pure: sort already-filtered "due" rows by kind priority, oldest `requested_at`
+    first within a kind, `id` as a final tiebreak for rows sharing one timestamp (a
+    same-batch queue write, the common case). Returns a NEW list; `due`'s rows are not
+    mutated and the source `requests.json` array keeps its original append order on
+    disk -- only which row main() reaches first changes, never the file's own row order.
+
+    An unknown `kind` (should not happen; every writer follows the pull-data skill, but
+    this file must not crash the SORT over a bad row) sorts after every known kind; the
+    per-row try/except in main() is still what reports it as an error when it is
+    actually attempted.
+    """
+    rank = {k: i for i, k in enumerate(REQUEST_KIND_PRIORITY)}
+    unknown_rank = len(REQUEST_KIND_PRIORITY)
+    return sorted(
+        due,
+        key=lambda r: (rank.get(r.get("kind"), unknown_rank),
+                       r.get("requested_at") or "", r.get("id") or ""))
+
+
+def dispatch_decision(pending_remaining, transitioned):
+    """Whether this run should chain into a fresh run of this same workflow, and why
+    (or why not) -- recorded in data/health/actions.json regardless of the answer, per
+    Rule 21 (a check reports what it examined, not just what it found). Pure: no
+    subprocess, no environment reads; see dispatch_next_run for the actual call.
+
+    `pending_remaining`: PENDING rows left in requests.json after this run's writes.
+    `transitioned`: rows whose `status` value actually CHANGED this run (PENDING or
+    FAILED becoming something else) -- not merely attempted. Requiring real progress is
+    what stops the one loop GitHub Actions cannot stop on its own: dispatching a
+    successor on "PENDING rows exist" alone would, if a misconfigured budget or a total
+    outage let zero rows ever actually complete, queue an identical run forever, each
+    one burning Actions minutes for nothing and never draining anything.
+    """
+    if pending_remaining <= 0:
+        return False, "queue drained: 0 PENDING row(s) remain"
+    if transitioned <= 0:
+        return False, (f"no progress this run (0 rows transitioned; {pending_remaining} "
+                       f"PENDING row(s) remain) -- refusing to self-dispatch without "
+                       f"progress")
+    return True, (f"{pending_remaining} PENDING row(s) remain and {transitioned} "
+                 f"transitioned this run")
+
+
+def dispatch_next_run(reason):
+    """Fire-and-forget: ask GitHub to queue the next run of this same workflow (BUILD
+    2026-09-14), so a backlog too big for one 30-minute job drains itself a
+    budget-sized bite at a time instead of waiting for the next weekday cron.
+
+    A push made with GITHUB_TOKEN (this job's commit step) deliberately does NOT
+    retrigger this workflow's own `push:` trigger -- GitHub suppresses that recursion by
+    design -- so this explicit `gh workflow run` (a workflow_dispatch call, which
+    GITHUB_TOKEN CAN fire) is the only thing that actually chains runs. Needs the `gh`
+    CLI (preinstalled on every GitHub-hosted runner) and a token with `actions: write`
+    (.github/workflows/fetch.yml grants the job that scope and passes the token to the
+    fetch step's environment specifically for this call).
+
+    Must never raise: this runs after this run's own fetching is done, and a dispatch
+    failure (network blip, missing token, gh not installed) must cost only this one
+    convenience, never the commit this run has already earned. Returns True iff `gh`
+    reported success.
+    """
+    cmd = ["gh", "workflow", "run", "fetch.yml", "--ref", "main"]
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if repo:
+        cmd += ["--repo", repo]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        if result.returncode != 0:
+            print(f"  self-dispatch FAILED (rc={result.returncode}): "
+                  f"{(result.stderr or '').strip()[:300]}")
+            return False
+        print(f"  self-dispatch OK: {reason}")
+        return True
+    except Exception as e:  # noqa: BLE001 -- never let this cost the run
+        print(f"  self-dispatch FAILED: {type(e).__name__}: {str(e)[:200]}")
+        return False
+
+
+# ---------------------------------------------------------------- main
 def main():
     is_cron = "--cron" in sys.argv or os.environ.get("GITHUB_EVENT_NAME") == "schedule"
     req_path = DATA / "requests.json"
     reqs = jload(req_path, {"version": 1, "requests": []})
     counts = {"processed": 0, "fulfilled": 0, "failed": 0, "refreshed": 0, "errors": 0,
-              "retried": 0, "refresh_remainder": 0}
+              "retried": 0, "refresh_remainder": 0, "transitioned": 0,
+              "deferred_by_budget": 0, "pending_remaining": 0,
+              "dispatched_next_run": False, "dispatch_reason": None}
     trips = []
     cron_step_errors = []
 
@@ -1833,10 +1966,24 @@ def main():
         if req.get("ticker") and req.get("cik"):
             register_cik_override(req["ticker"], req["cik"])
 
-    for req in reqs.get("requests", []):
-        if not request_due(req, is_cron):
-            continue
-        if req.get("status") == "FAILED":
+    # Priority order, not file order (BUILD 2026-09-14): prices, fundamentals, quality,
+    # edgar_doc, insider, edgar_fts, web_doc, pcs last; oldest `requested_at` first
+    # within a kind. See order_due_requests / REQUEST_KIND_PRIORITY above. The sort
+    # covers only rows already due; `reqs["requests"]` itself is never reordered, so a
+    # row's position in the committed file does not change, only the order main()
+    # reaches them in.
+    due = [req for req in reqs.get("requests", []) if request_due(req, is_cron)]
+    ordered = order_due_requests(due)
+    budget_start = time.monotonic()
+    for _i, req in enumerate(ordered):
+        if time.monotonic() - budget_start >= FETCH_ROW_BUDGET_SECONDS:
+            counts["deferred_by_budget"] = len(ordered) - _i
+            print(f"  request budget spent ({FETCH_ROW_BUDGET_SECONDS}s elapsed): "
+                  f"stopping with {counts['deferred_by_budget']} due row(s) left "
+                  f"PENDING/untouched for a later run")
+            break
+        before_status = req.get("status")
+        if before_status == "FAILED":
             counts["retried"] += 1
             print(f"RETRY {req['id']} (attempt {int(req.get('attempts') or 1) + 1}"
                   f"/{MAX_FETCH_ATTEMPTS})")
@@ -1882,6 +2029,8 @@ def main():
             else:
                 print(f"FAILED {req['id']} (attempt {req['attempts']}"
                       f"/{MAX_FETCH_ATTEMPTS}, will retry on next cron): {e}")
+        if req.get("status") != before_status:
+            counts["transitioned"] += 1
 
     feeds_due = is_cron or "--feeds" in sys.argv or \
         os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
@@ -1907,6 +2056,23 @@ def main():
         _guarded_cron_step("prune_fulfilled_requests",
                            lambda: prune_fulfilled_requests(reqs), cron_step_errors, counts)
 
+    # Self-chaining (BUILD 2026-09-14): decide, and record why, regardless of the
+    # answer -- see dispatch_decision's docstring. Computed from the in-memory `reqs`
+    # state (post-prune), which is what jdump is about to persist.
+    pending_remaining = sum(1 for r in reqs.get("requests", [])
+                            if r.get("status") == "PENDING")
+    should_dispatch, dispatch_reason = dispatch_decision(pending_remaining, counts["transitioned"])
+    dispatched = False
+    if should_dispatch:
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            dispatched = dispatch_next_run(dispatch_reason)
+        else:
+            dispatch_reason += " (skipped: not running in GitHub Actions)"
+            print(f"  self-dispatch SKIPPED: {dispatch_reason}")
+    counts["pending_remaining"] = pending_remaining
+    counts["dispatched_next_run"] = dispatched
+    counts["dispatch_reason"] = dispatch_reason
+
     jdump(req_path, reqs)
 
     health = jload(DATA / "health" / "actions.json", {})
@@ -1925,7 +2091,9 @@ def main():
             for t in trips))
 
     print(f"fetch summary: processed={counts['processed']} fulfilled={counts['fulfilled']} "
-          f"failed={counts['failed']} cron_refreshed={counts['refreshed']} errors={counts['errors']} trips={len(trips)}")
+          f"failed={counts['failed']} cron_refreshed={counts['refreshed']} errors={counts['errors']} trips={len(trips)} "
+          f"deferred_by_budget={counts['deferred_by_budget']} pending_remaining={pending_remaining} "
+          f"dispatched_next_run={dispatched}")
     return 0
 
 

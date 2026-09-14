@@ -12,11 +12,20 @@ on:
 
 concurrency:
   group: fetch
+  # A running job is NEVER cancelled by a newer event in this group -- the 2026-09-14
+  # deadlock was the 30-minute job timeout killing runs before their commit step, and
+  # cancellation-by-concurrency would be the same failure by a different cause. With
+  # cancel-in-progress false, an event that arrives while a run is IN PROGRESS simply
+  # QUEUES; if more than one is queued at once (a push landing while fetch.py's own
+  # self-dispatch, below, is also queued), GitHub keeps only the most recently queued
+  # run and cancels the earlier one(s) still WAITING -- that cancellation can only ever
+  # hit a run that has not started, never the one currently executing.
   cancel-in-progress: false
 
 permissions:
   contents: write
   issues: write
+  actions: write   # lets the fetch step below dispatch its own successor run
 
 jobs:
   fetch:
@@ -37,6 +46,20 @@ jobs:
             "edgartools==5.53.0" "financetoolkit==2.2.0"
           python3 -c "import edgar, financetoolkit; from financetoolkit.models import piotroski_model, beneish_model, altman_model; print('analyst deps import OK')"
       - name: fetch
+        env:
+          # Self-chaining (BUILD 2026-09-14): a request-row backlog too big for one
+          # 30-minute job (673 PENDING rows landed at once, pcs throttled, web_doc
+          # alone carries a 45s-per-request ceiling) now drains itself. When a run
+          # finishes with PENDING rows still queued and made real progress this run,
+          # tools/fetch/fetch.py dispatches the next run of this same workflow via
+          # `gh workflow run` instead of waiting for the next weekday cron. GitHub
+          # deliberately does not let a push made with GITHUB_TOKEN (the commit step
+          # below) retrigger this workflow's own `push:` trigger -- that recursion
+          # guard is what left 673 rows sitting idle with no push to wake a new run --
+          # so this explicit workflow_dispatch call is the only thing that actually
+          # chains runs. GH_TOKEN here is what lets `gh` authenticate as this job;
+          # `actions: write` above is what lets that token dispatch a workflow.
+          GH_TOKEN: ${{ github.token }}
         run: python3 tools/fetch/fetch.py
       # Best-effort, never a gate on the data commit. app/build.py runs validate.py first
       # and validate examines session-written profiles: from 2026-09-02 a profile whose NULL
