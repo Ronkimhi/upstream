@@ -1924,6 +1924,23 @@
           ? "<div class='small' style='margin-top:8px'>" + esc(st.link_id_basis) + "</div>" : "") +
         "</div>";
     }
+    /* admission_lapse (method section 7, 2026-09-14, Ron's decision): a FINAL dive whose
+       placement audit fails LATER, after the verdict already closed, is not deleted and
+       not silently left at its old verdict. It downgrades its own verdict to WATCH and
+       stays on the page naming the gap. tools/check_analyst.py requires this field to be
+       rendered somewhere (see gate_rendered_failures in tools/check_render.py) exactly
+       like price_source_note and link_id_basis above — a gate-required disclosure that
+       only the JSON carries is not a disclosure. */
+    var alc = "";
+    if (st.admission_lapse) {
+      var al = st.admission_lapse;
+      alc = "<div class='card redteam'><h3>הכשירות לצלילה הזאת פקעה</h3>" +
+        "<div class='small'>ירדה דרגה מ<b>" + he(al.prior_verdict) + "</b> ל<b>" + he(st.verdict) +
+        "</b> בתאריך <span class='num'>" + esc(al.date) + "</span>: " + esc(al.reason) + "</div>" +
+        "<div class='small' style='margin-top:8px'><b>הביקורת שנכשלה:</b> " + esc(al.audit_ref) + "</div>" +
+        "<div class='small' style='margin-top:8px'><b>מה יחזיר את הכשירות:</b> " + esc(al.restore_when) + "</div>" +
+        "</div>";
+    }
     /* filing_evidence is the strongest material in the file — passages lifted from the
        filing on disk, each verified verbatim against data/edgar/docs/<T>.json by
        tools/check_analyst.py — and it was the only evidence the page never showed. A
@@ -1958,6 +1975,7 @@
     return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
       (st.fixture ? '<div class="fixturebanner">עמוד לדוגמה: נתוני הדגמה מלאכותיים כדי שאפשר יהיה לבדוק את הממשק. הוא יימחק כשתגיע הצלילה האמיתית הראשונה.</div>' : "") +
       '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
+      (alc ? "<div style='margin-top:14px'>" + alc + "</div>" : "") +
       (linkc ? "<div style='margin-top:14px'>" + linkc + "</div>" : "") +
       seclabel("מחיר") + "<div class='card'>" + rangeBar(mk, st) + priceChart(mk, st) + "</div>" +
       seclabel("הטענה") +

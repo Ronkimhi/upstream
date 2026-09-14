@@ -8,7 +8,11 @@ as an exit code. Sibling of `tools/check_radar.py`; same contract, same shape.
 Checks, each reported with the denominator it examined:
   0. every campaign-era DRAFT or FINAL resolves through one exact COMPLETE O1 profile,
      a COMPLETE mapping with a current PASS audit that passes check_map audit validation,
-     qualified mapping listing and placement, and normalized screen handoff
+     qualified mapping listing and placement, and normalized screen handoff — OR carries a
+     well-formed `admission_lapse` on a FINAL WATCH verdict, which reports those same
+     admission findings as a lapse instead of failing them (method section 7, 2026-09-14).
+     A malformed lapse, a lapse recorded on any other verdict, or a lapse whose admission
+     now resolves cleanly (stale — the gap it named has closed) still fails
   1. every dive touched today: verdict completeness per method section 7, its chain-link
      attribution, the price it reasoned from, and every filing passage it quotes verified
      verbatim against data/edgar/docs/<T>.json with the screen gate's own normalizer
@@ -103,6 +107,19 @@ STOCKY_LEGACY_BASELINE: dict[str, str] = {}
 # path, so a re-run that leaves the field empty fails.
 WOULD_BUY_GATE = "2026-09-03"
 WOULD_BUY_CAPS = ("grade C", "grade NULL", "independence test", "pre-mortem")
+
+# Method section 7, 2026-09-14 (Ron's decision). A FINAL dive's admission is proved once,
+# through the exact handoff chain stock_admission_failures() checks, and nothing re-derives
+# it afterward. A placement's fresh-context audit can fail LATER, after Stocky already
+# closed a verdict on the role it qualified — the case this exists for is
+# data/stocks/WSP.TO__data-center-moratoria.json, FINAL INVESTABLE on the WSP-GLOBAL
+# placement for permitting-and-environmental-consultancy, where no readable source states
+# the mapped data-center-permitting role. Deleting the dive erases a real verdict on a real
+# question; leaving it at its old verdict misstates what evidence currently supports.
+# `admission_lapse` is the third option: the dive downgrades its own verdict to WATCH, stays
+# FINAL and visible, and names the gap — nothing is ever un-said, the same rule every other
+# amendment in this file already follows.
+ADMISSION_LAPSE_FIELDS = ("date", "reason", "audit_ref", "prior_verdict", "restore_when")
 
 failures: list[str] = []
 lines: list[str] = []
@@ -234,6 +251,74 @@ def would_buy_reached(zone: dict, rows: list) -> bool:
         except (TypeError, ValueError, IndexError):
             continue
     return False
+
+
+def admission_lapse_failures(lapse) -> list[str]:
+    """Shape only, for method section 7's `admission_lapse` (2026-09-14):
+    {date, reason, audit_ref, prior_verdict, restore_when}.
+
+    Whether the lapse is even ELIGIBLE to excuse admission findings (status FINAL, verdict
+    WATCH) is the caller's question — admission_lapse_outcome() below. This only asks
+    whether the object itself is well-formed, a question with the same answer regardless of
+    what verdict or status it sits on, so a malformed lapse is reported as malformed even
+    when it is also on the wrong verdict.
+    """
+    if not isinstance(lapse, dict):
+        return ["admission_lapse must be an object"]
+    failures = []
+    missing = sorted(f for f in ADMISSION_LAPSE_FIELDS if f not in lapse)
+    if missing:
+        failures.append(f"admission_lapse missing {', '.join(missing)}")
+    if "date" in lapse and not check_map.valid_date(lapse.get("date")):
+        failures.append(f"admission_lapse.date {lapse.get('date')!r} is not YYYY-MM-DD")
+    if "reason" in lapse and not check_map._substantive_text(lapse.get("reason")):
+        failures.append("admission_lapse.reason must be substantive: name the missing "
+                        "evidence, not a token attestation")
+    if "audit_ref" in lapse and not str(lapse.get("audit_ref") or "").strip():
+        failures.append("admission_lapse.audit_ref must name the failing audit")
+    if "prior_verdict" in lapse and lapse.get("prior_verdict") not in check_profile.VERDICT_WORDS:
+        failures.append(
+            f"admission_lapse.prior_verdict {lapse.get('prior_verdict')!r} must be one of "
+            f"{sorted(check_profile.VERDICT_WORDS)}")
+    if "restore_when" in lapse and not check_map._substantive_text(lapse.get("restore_when")):
+        failures.append("admission_lapse.restore_when must be substantive: name the "
+                        "evidence that would restore admission")
+    return failures
+
+
+def admission_lapse_outcome(d: dict, admission_findings: list) -> tuple[list, list]:
+    """(fail_messages, lapse_messages) for one dive's admission result.
+
+    Method section 7, 2026-09-14. No `admission_lapse`: today's behaviour, unchanged —
+    every admission finding fails, exactly as if this function did not exist.
+
+    `admission_lapse` present: only a well-formed object on a FINAL WATCH dive is eligible.
+    Eligible: every admission finding moves to lapse_messages (reported, not failed) —
+    UNLESS admission_findings is already empty, which means the gap the lapse named has
+    closed and the object is stale ("Keep the check honest: an admission that actually
+    passes while a lapse is still present is a finding"). Not eligible (malformed, wrong
+    status, wrong verdict): the lapse buys nothing, so its own defects fail alongside the
+    admission findings it failed to excuse — carrying a lapse is never a quieter way to lose
+    admission checking than carrying none.
+    """
+    lapse = d.get("admission_lapse")
+    if lapse is None:
+        return list(admission_findings), []
+    defects = admission_lapse_failures(lapse)
+    if d.get("status") != "FINAL":
+        defects.append(
+            f"admission_lapse requires status FINAL, found {d.get('status')!r}")
+    if d.get("verdict") != "WATCH":
+        defects.append(
+            f"admission_lapse is only valid on verdict WATCH, found {d.get('verdict')!r} — "
+            "method section 7 (2026-09-14): a lapsed placement downgrades to WATCH, it does "
+            "not excuse any other verdict")
+    if defects:
+        return defects + list(admission_findings), []
+    if not admission_findings:
+        return ["admission_lapse is recorded but admission resolves cleanly today: stale "
+                "lapse, remove it"], []
+    return [], list(admission_findings)
 
 
 def report(msg: str) -> None:
@@ -643,7 +728,7 @@ def main() -> int:
 
     # Admission is a corpus invariant, not a campaign-completion calculation and not a
     # FINAL-only check. A bad DRAFT must stop here, before red-team work can bless it.
-    admission_checked = legacy = 0
+    admission_checked = legacy = lapsed = 0
     for p, d in dives:
         if is_committed_legacy_stock(root, p):
             legacy += 1
@@ -654,11 +739,18 @@ def main() -> int:
                 "campaign coverage.")
             continue
         admission_checked += 1
-        for finding in stock_admission_failures(root, d):
+        admission_findings = stock_admission_failures(root, d)
+        fail_msgs, lapse_msgs = admission_lapse_outcome(d, admission_findings)
+        for finding in fail_msgs:
             fail(f"{p.name}: {finding}")
+        if lapse_msgs:
+            lapsed += 1
+            report(
+                f"LAPSE {p.name}: admission_lapse recorded, {len(lapse_msgs)} admission "
+                "finding(s) reported rather than failed: " + " | ".join(lapse_msgs))
     report(
         f"admission: {admission_checked} campaign-era dive(s) checked; "
-        f"{legacy} pre-{STOCKY_ADMISSION_GATE} legacy warning(s)")
+        f"{lapsed} lapse(s) reported; {legacy} pre-{STOCKY_ADMISSION_GATE} legacy warning(s)")
 
     # 12. the would-buy denominator, every run, over the whole corpus: a WATCH with no
     # price at which it would have been a yes is the state that left the INVESTABLE bar
