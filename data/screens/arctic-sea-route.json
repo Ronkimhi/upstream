@@ -1,0 +1,769 @@
+{
+ "id": "arctic-sea-route",
+ "chain_id": "arctic-sea-route",
+ "scenario_id": null,
+ "identity_schema": "campaign-v1",
+ "campaign_ref": null,
+ "mapping_ref": "data/mappings/arctic-sea-route.json",
+ "created_at": "2026-09-14",
+ "as_of": "2026-09-14",
+ "universe_note": "Every link worked in priority order (money-corner first, then CHOKE_POINT, then remaining chain position) against the mapping's ACTIVE-but-un-audited census (no top-level `audit` block exists on data/mappings/arctic-sea-route.json; six 2026-09-14 fresh-context `--placement` audits exist instead). Per-link account:\n\nice-class-propulsion-systems [MONEY CORNER, CHOKE_POINT]: 2 ROWS WRITTEN (WARTSILA, KONGSBERG), bucketed picks_and_shovels. Both carry a current PASS placement_audits[] entry dated 2026-09-14 and a fresh COMPLETE O2 profile built for this exact chain/link. ABB REFUSED despite also carrying a PASS placement_audits[] entry on this link: ABB's only profile on disk (data/companies/ABB.json, status COMPLETE, data_tier T2) resolves listing_refs ['OTC-ABBNY'] and carries placements only for chain_id ai-infrastructure (power-equipment, grid-interconnect); it names no arctic-sea-route placement and no SIX-ABBN listing, even though the mapping's own SIX-ABBN listing and a fetched data/market/ABBN-SW.json both exist. Seating ABB here would attribute an OTC-ADR-listing profile's USD-denominated fundamentals to a row identified by the SIX Swiss primary listing (ABBN, CHF) the profile never resolves -- a wrong-listing defect the campaign-v1 identity rule exists to refuse, even though check_screen.py's mechanical gate does not itself cross-check a profile's own placements[] array against the row's link_id (see the 2026-09-14 MITSUBISHI-HEAVY-INDUSTRIES finding in tasks/backlog.md, bucket profile-multi-chain-gap, same root cause). Fix is `run profile ABB` adding the SIX-ABBN listing_ref and an arctic-sea-route/ice-class-propulsion-systems placement over data/market/ABBN-SW.json; captured to tasks/backlog.md rather than chased in this run. GE-VERNOVA REFUSED: its sole placement_audits entry FAILed 2026-09-14 (role_ok false, source_date_ok false -- the cited Magnetics Magazine article never names the Arctic Offshore Patrol Ships class the role claims), its lone evidence item is INFERRED not VERIFIED, and its own profile (data/companies/GE-VERNOVA.json, T1, listing_refs ['NYSE:GEV']) carries no arctic-sea-route placement either.\n\npolar-marine-hull-and-war-risk-insurance [MONEY CORNER]: 1 ROW WRITTEN (BEAZLEY), bucketed picks_and_shovels (the capital/underwriting layer around the transit, not the transit itself). BEAZLEY carries a current PASS placement_audits[] entry and a fresh COMPLETE O2 profile. LANCASHIRE-HOLDINGS REFUSED: its sole placement_audits entry FAILed 2026-09-14 (role_ok false, source_date_ok false -- the cited Ship Universe 'Top 12' page, fetched twice this audit, names neither Lancashire nor Hiscox anywhere in its current body text), its lone evidence item is INFERRED not VERIFIED, and its own profile (data/companies/LANCASHIRE-HOLDINGS.json, T2, listing_refs ['LSE-LRE']) carries no arctic-sea-route placement. CHUBB, MARKEL-GROUP and ALLIANZ are all COMPLETE O2 profiled (CHUBB T1, MARKEL-GROUP T1, ALLIANZ T3; ALLIANZ's profile even carries a matching arctic-sea-route/polar-marine-hull-and-war-risk-insurance placement) but every one rests on a single INFERRED evidence item with no placement_audits entry, which the campaign-v1 audit_scope:PLACEMENT rule over an un-audited mapping refuses without either an all-VERIFIED evidence set or a current PASS placement audit; none has been sampled for them. Re-evidencing or a fresh-context placement audit, not more profiling, is what would seat these three.\n\nrussian-arctic-lng-export [CHOKE_POINT]: 1 ROW WRITTEN (CNOOC), bucketed second_order (a minority, once-removed equity claim on the cargo rather than the operator or an enabling supplier). CNOOC's single evidence item is VERIFIED (Mitsui's own 2019 investment-decision release), clearing the audit_scope:PLACEMENT all-VERIFIED bar with no placement audit needed. NOVATEK, TOTALENERGIES and MITSUI are all COMPLETE O2 profiled with matching placements on this exact link but each rests on a single INFERRED evidence item (TASS, Rigzone/Moscow Times, and an S&P Global 2019 release respectively) with no placement_audits entry, so none is admissible this run -- notably NOVATEK itself, the project operator and the cargo owner every other link on this chain exists to move, insure and berth, is not seated for exactly this reason: its identity/role evidence has never been audited in fresh context, only INFERRED-tagged from a TASS report.\n\nnsr-transit-control-and-escort [CHOKE_POINT, UNINVESTABLE]: 0 rows, correctly empty. The mapping's own link_coverage names this OPEN at 0 issuers by design: Rosatom, the appointed NSR infrastructure operator, is a shareholder-less Russian State Corporation with no possible public or private shareholder. No placement exists to screen.\n\nrussian-arctic-shipbuilding [CHOKE_POINT, UNINVESTABLE]: 0 rows, correctly empty. OPEN at 0 issuers: Zvezda Shipbuilding Complex was founded by a Rosneft-led consortium never itemised by a current, dated public equity percentage; no placement exists to screen.\n\nice-class-classification-and-notation [HIGH bottleneck]: 1 ROW WRITTEN (BUREAU-VERITAS), bucketed picks_and_shovels (a regulatory/certification gatekeeper enabling every vessel on the route to sail). BUREAU-VERITAS's single evidence item is VERIFIED (its own Polar Rules page), clearing the all-VERIFIED bar directly; it is also the only listed issuer the mapping's EXHAUSTED census found on this link at all (every rival class society is a foundation, mutual or state body).\n\npolar-grade-steel-plate, arctic-satellite-ice-monitoring, allied-polar-icebreaker-buildout, arctic-lng-terminal-construction, nsr-container-and-multipurpose-shipping, asia-europe-arctic-trade-demand: 0 rows, correctly empty. Each is OPEN at 0 placements on the mapping itself -- no issuer has been censused for these six links yet (mapping changelog: 'left OPEN at 0 placements with a dated note naming the chain's own example tickers as unresearched candidates for a future pass'). A screen cannot seat a row `run universe` has not yet placed; these are unresearched links, not searched-and-empty ones, named here so the gap is visible rather than silent.\n\n5 rows written across 4 of 12 links (both money-corner links covered, 2 of 4 CHOKE_POINT links covered -- the other 2 are UNINVESTABLE by the chain's own classification and correctly carry no placement). No EDGAR document exists on disk for any of the 5 seated names (all five are non-US foreign filers with no SEC CIK); every row's earnings_nuggets is therefore an honest empty array rather than a fabricated quote.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/arctic-sea-route.json carrying an ACTIVE status and role evidence, joined to its official listing",
+   "forms": null,
+   "hits_examined": 14,
+   "names_extracted": 14
+  },
+  {
+   "query": "placement admissibility over an un-audited (no top-level `audit` block) ACTIVE mapping: ACTIVE placements whose role evidence is ALL VERIFIED, or whose placement carries a current PASS placement_audits[] entry for this exact issuer/link/chain (Ron, 2026-09-01, amended 2026-09-04)",
+   "forms": null,
+   "hits_examined": 14,
+   "names_extracted": 6
+  },
+  {
+   "query": "COMPLETE O1/O2 profiles under data/companies/ whose profile.placements[] and listing_refs actually name chain arctic-sea-route and the mapping's own listing, cross-referenced against the 6 admissible placements",
+   "forms": null,
+   "hits_examined": 6,
+   "names_extracted": 5
+  }
+ ],
+ "buckets": {
+  "pure_play": [],
+  "picks_and_shovels": [
+   {
+    "issuer_id": "WARTSILA",
+    "listing_id": "HELSINKI-WRT1V",
+    "ticker": "WRT1V",
+    "market_ticker": "WRT1V.HE",
+    "chain_id": "arctic-sea-route",
+    "link_id": "ice-class-propulsion-systems",
+    "mapping_ref": "data/mappings/arctic-sea-route.json",
+    "profile_ref": "data/companies/WARTSILA.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "Wärtsilä Oyj Abp",
+    "exchange": "Nasdaq Helsinki",
+    "tier": "T3",
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Co-originator of azimuthing podded propulsion (with ABB) and current supplier of the ICEPOD azimuthing pulling thruster built to 1A Super Ice Class or higher; marine power and propulsion is one segment inside a much larger diversified industrial group, so exposure is partial.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No ice class propulsion and power systems-specific revenue percentage is sourced for WARTSILA this run; it is a slice of a much larger group book.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 6,914,000,000 EUR from the yfinance-statements vendor series in WRT1V-HE.json.",
+      "value": 6914000000.0
+     },
+     "revenue_cagr_3y": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Compound annual revenue growth computed as (6,914,000,000/5,842,000,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "value": 0.05775164872748162
+     },
+     "operating_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Operating income 816,000,000 EUR divided by revenue 6,914,000,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "value": 0.11802140584321666
+     },
+     "operating_cash_flow_to_net_income": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Operating cash flow 1,598,000,000 EUR divided by net income 626,000,000 EUR, both for the fiscal year ended 2025-12-31, from yfinance-statements.",
+      "value": 2.5527156549520766
+     },
+     "fcf_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Free cash flow margin: operating cash flow 1,598,000,000 EUR less capex 150,000,000 EUR, divided by revenue 6,914,000,000 EUR, all for the period ended 2025-12-31, from yfinance-statements.",
+      "value": 0.20943014174139427
+     },
+     "net_debt_to_ebitda": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Net debt to EBITDA: total debt 582,000,000 EUR (as of 2025-12-31) less cash 2,590,000,000 EUR (as of 2025-12-31) = net debt -2,008,000,000, divided by an EBITDA proxy 980,000,000 EUR (operating income 816,000,000 plus depreciation 164,000,000 for the period ended 2025-12-31), from yfinance-statements.",
+      "value": -2.048979591836735
+     },
+     "piotroski": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Piotroski F-score 8 of 9, state STRONG, computed over yfinance-statements in data/market/WRT1V-HE.json quality.piotroski, 9 of 9 inputs found.",
+      "value": 8
+     },
+     "beneish_state": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Beneish M-score -3.09 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements in data/market/WRT1V-HE.json quality.beneish, 12 of 12 inputs found.",
+      "value": -3.09
+     },
+     "market_cap": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "quality.derived.market_cap for WARTSILA in data/market/WRT1V-HE.json: price_used 28.9 x shares_used 588436960.0, from the fetch plane's acis quality computation over yfinance-statements.",
+      "value": 17005828144.0
+     },
+     "price_to_book": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Price to book: market cap 17,005,828,144 EUR divided by book equity 2,877,000,000 EUR as of 2025-12-31, from yfinance-statements.",
+      "value": 5.910958687521724
+     },
+     "implied_fcf_cagr": {
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/WRT1V-HE.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Reverse-DCF implied FCF CAGR -0.0691 at the 5-year default horizon (base FCF 1,448,000,000, enterprise value 14,997,828,144, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/WRT1V-HE.json quality.reverse_dcf.state is SOLVED. The discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE.",
+      "value": -0.0691
+     },
+     "horizon_spread": {
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/WRT1V-HE.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/WRT1V.HE/financials",
+      "basis": "Horizon spread 0.0375 across the explicit 5/7/10-year implied FCF CAGR solves in data/market/WRT1V-HE.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note.",
+      "value": 0.0375
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/WRT1V-HE.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/WRT1V-HE.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "KONGSBERG",
+    "listing_id": "OSLO-KOG",
+    "ticker": "KOG",
+    "market_ticker": "KOG.OL",
+    "chain_id": "arctic-sea-route",
+    "link_id": "ice-class-propulsion-systems",
+    "mapping_ref": "data/mappings/arctic-sea-route.json",
+    "profile_ref": "data/companies/KONGSBERG.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "Kongsberg Gruppen ASA",
+    "exchange": "Oslo Bors",
+    "tier": "T3",
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Azimuth thruster and marine propulsion supplier that agreed in September 2026 to acquire Steerprop, the market-leading Arctic/ice-class podded propulsion specialist, consolidating rather than expanding organically into this choke point; maritime is one of several Kongsberg segments alongside defense and aerospace.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No ice class propulsion and power systems-specific revenue percentage is sourced for KONGSBERG this run; it is a slice of a much larger group book.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 31,562,000,000 NOK from the yfinance-statements vendor series in KOG-OL.json.",
+      "value": 31562000000.0
+     },
+     "revenue_cagr_3y": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Compound annual revenue growth computed as (31,562,000,000/31,803,000,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "value": -0.0025317977517048673
+     },
+     "operating_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Operating income 4,697,000,000 NOK divided by revenue 31,562,000,000 NOK, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "value": 0.14881819910018376
+     },
+     "operating_cash_flow_to_net_income": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Operating cash flow 12,732,000,000 NOK divided by net income 7,953,000,000 NOK, both for the fiscal year ended 2025-12-31, from yfinance-statements.",
+      "value": 1.6009053187476423
+     },
+     "fcf_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Free cash flow margin: operating cash flow 12,732,000,000 NOK less capex 2,932,000,000 NOK, divided by revenue 31,562,000,000 NOK, all for the period ended 2025-12-31, from yfinance-statements.",
+      "value": 0.31049996831632976
+     },
+     "net_debt_to_ebitda": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Net debt to EBITDA: total debt 5,359,000,000 NOK (as of 2025-12-31) less cash 20,189,000,000 NOK (as of 2025-12-31) = net debt -14,830,000,000, divided by an EBITDA proxy 6,425,000,000 NOK (operating income 4,697,000,000 plus depreciation 1,728,000,000 for the period ended 2025-12-31), from yfinance-statements.",
+      "value": -2.3081712062256807
+     },
+     "piotroski": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Piotroski F-score 7 of 9, state STRONG, computed over yfinance-statements in data/market/KOG-OL.json quality.piotroski, 9 of 9 inputs found.",
+      "value": 7
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state cannot be scored for KONGSBERG: data/market/KOG-OL.json quality.beneish.state is PENDING_DATA (missing sga_fy; 11 of 12 inputs found)."
+     },
+     "market_cap": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "quality.derived.market_cap for KONGSBERG in data/market/KOG-OL.json: price_used 315.4 x shares_used 879592378.0, from the fetch plane's acis quality computation over yfinance-statements.",
+      "value": 277423436021.19995
+     },
+     "price_to_book": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Price to book: market cap 277,423,436,021 NOK divided by book equity 22,579,000,000 NOK as of 2025-12-31, from yfinance-statements.",
+      "value": 12.286790204225163
+     },
+     "implied_fcf_cagr": {
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/KOG-OL.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Reverse-DCF implied FCF CAGR 0.1528 at the 5-year default horizon (base FCF 9,800,000,000, enterprise value 262,593,436,021, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/KOG-OL.json quality.reverse_dcf.state is SOLVED. The discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE.",
+      "value": 0.1528
+     },
+     "horizon_spread": {
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/KOG-OL.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/KOG.OL/financials",
+      "basis": "Horizon spread 0.0576 across the explicit 5/7/10-year implied FCF CAGR solves in data/market/KOG-OL.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note.",
+      "value": 0.0576
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/KOG-OL.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/KOG-OL.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "BEAZLEY",
+    "listing_id": "LSE-BEZ",
+    "ticker": "BEZ",
+    "market_ticker": "BEZ.L",
+    "chain_id": "arctic-sea-route",
+    "link_id": "polar-marine-hull-and-war-risk-insurance",
+    "mapping_ref": "data/mappings/arctic-sea-route.json",
+    "profile_ref": "data/companies/BEAZLEY.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "Beazley plc",
+    "exchange": "London Stock Exchange",
+    "tier": "T3",
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Lloyd's-market leader in marine hull and war risk insurance, writing hull war cover up to US $75,000,000 per placement and launching a new Marine War consortium adding up to $1bn of Lloyd's capacity in 2026; the underwriter most directly named as a leader in marine war risks, though marine is one line inside a broader specialty book.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No polar marine hull and war risk insurance-specific revenue percentage is sourced for BEAZLEY this run; it is a slice of a much larger group book.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-08-30",
+      "url": "https://finance.yahoo.com/quote/BEZ.L/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 1,058,100,000 USD from the yfinance-statements vendor series in BEZ-L.json.",
+      "value": 1058100000.0
+     },
+     "revenue_cagr_3y": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-08-30",
+      "url": "https://finance.yahoo.com/quote/BEZ.L/financials",
+      "basis": "Compound annual revenue growth computed as (1,058,100,000/51,300,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "value": 1.741804657788233
+     },
+     "operating_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-08-30",
+      "url": "https://finance.yahoo.com/quote/BEZ.L/financials",
+      "basis": "Operating income 1,187,400,000 USD divided by revenue 1,058,100,000 USD, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "value": 1.122200170116246
+     },
+     "operating_cash_flow_to_net_income": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-08-30",
+      "url": "https://finance.yahoo.com/quote/BEZ.L/financials",
+      "basis": "Operating cash flow 1,314,800,000 USD divided by net income 913,400,000 USD, both for the fiscal year ended 2025-12-31, from yfinance-statements.",
+      "value": 1.4394569739435077
+     },
+     "fcf_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-08-30",
+      "url": "https://finance.yahoo.com/quote/BEZ.L/financials",
+      "basis": "Free cash flow margin: operating cash flow 1,314,800,000 USD less capex 66,900,000 USD, divided by revenue 1,058,100,000 USD, all for the period ended 2025-12-31, from yfinance-statements.",
+      "value": 1.1793781306114735
+     },
+     "net_debt_to_ebitda": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-08-30",
+      "url": "https://finance.yahoo.com/quote/BEZ.L/financials",
+      "basis": "Net debt to EBITDA: total debt 626,700,000 USD (as of 2025-12-31) less cash 1,368,500,000 USD (as of 2025-12-31) = net debt -741,800,000, divided by an EBITDA proxy 1,217,300,000 USD (operating income 1,187,400,000 plus depreciation 29,900,000 for the period ended 2025-12-31), from yfinance-statements.",
+      "value": -0.6093814178920562
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "piotroski cannot be scored for BEAZLEY: data/market/BEZ-L.json quality.piotroski.state is PENDING_DATA (missing current_assets_fy, current_liabilities_fy, cost_of_revenue_fy; 6 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state cannot be scored for BEAZLEY: data/market/BEZ-L.json quality.beneish.state is PENDING_DATA (missing cost_of_revenue_fy, current_assets_fy, current_liabilities_fy; 9 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "quality.derived.market_cap is null for BEAZLEY in data/market/BEZ-L.json: statements reported in USD, listing trades in GBp; no FX source on disk, so market cap and enterprise value are NULL rather than mixed-currency arithmetic (method section 1 dual-source price plane known-gap note on vendor statement currency versus trading currency)."
+     },
+     "price_to_book": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "price to book cannot be computed for BEAZLEY because valuation.market_cap is unavailable this run due to the statement-versus-trading currency mismatch (see metrics.valuation.market_cap basis); no market capitalization figure exists to divide by book equity."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr not usable for BEAZLEY: data/market/BEZ-L.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "horizon_spread not usable for BEAZLEY for the same reason as implied_fcf_cagr: quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/BEZ-L.json",
+     "as_of": "2026-08-30",
+     "tag": "NULL",
+     "basis": "data/market/BEZ-L.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "BUREAU-VERITAS",
+    "listing_id": "EPA-BVI",
+    "ticker": "BVI",
+    "market_ticker": "BVI.PA",
+    "chain_id": "arctic-sea-route",
+    "link_id": "ice-class-classification-and-notation",
+    "mapping_ref": "data/mappings/arctic-sea-route.json",
+    "profile_ref": "data/companies/BUREAU-VERITAS.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "Bureau Veritas",
+    "exchange": "Euronext Paris",
+    "tier": "T3",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "The only listed classification society among the handful that actually publish Polar Class / ice-class notation rules; every rival in this specific gatekeeping role is a foundation, mutual or state body with no listed equity, but classification is one of several Bureau Veritas testing/inspection/certification businesses.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No ice class classification and notation-specific revenue percentage is sourced for BUREAU-VERITAS this run; it is a slice of a much larger group book.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 6,466,400,000 EUR from the yfinance-statements vendor series in BVI-PA.json.",
+      "value": 6466400000.0
+     },
+     "revenue_cagr_3y": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Compound annual revenue growth computed as (6,466,400,000/5,650,600,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "value": 0.04596755600231317
+     },
+     "operating_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Operating income 938,700,000 EUR divided by revenue 6,466,400,000 EUR, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "value": 0.14516578003216626
+     },
+     "operating_cash_flow_to_net_income": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Operating cash flow 1,006,700,000 EUR divided by net income 588,000,000 EUR, both for the fiscal year ended 2025-12-31, from yfinance-statements.",
+      "value": 1.7120748299319728
+     },
+     "fcf_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Free cash flow margin: operating cash flow 1,006,700,000 EUR less capex 147,000,000 EUR, divided by revenue 6,466,400,000 EUR, all for the period ended 2025-12-31, from yfinance-statements.",
+      "value": 0.13294878139304714
+     },
+     "net_debt_to_ebitda": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Net debt to EBITDA: total debt 3,085,400,000 EUR (as of 2025-12-31) less cash 1,366,100,000 EUR (as of 2025-12-31) = net debt 1,719,300,000, divided by an EBITDA proxy 1,238,200,000 EUR (operating income 938,700,000 plus depreciation 299,500,000 for the period ended 2025-12-31), from yfinance-statements.",
+      "value": 1.3885478921014376
+     },
+     "piotroski": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Piotroski F-score 8 of 9, state STRONG, computed over yfinance-statements in data/market/BVI-PA.json quality.piotroski, 9 of 9 inputs found.",
+      "value": 8
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state cannot be scored for BUREAU-VERITAS: data/market/BVI-PA.json quality.beneish.state is PENDING_DATA (missing sga_fy; 11 of 12 inputs found)."
+     },
+     "market_cap": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "quality.derived.market_cap for BUREAU-VERITAS in data/market/BVI-PA.json: price_used 27.93 x shares_used 443652690.0, from the fetch plane's acis quality computation over yfinance-statements.",
+      "value": 12391219631.7
+     },
+     "price_to_book": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Price to book: market cap 12,391,219,632 EUR divided by book equity 1,711,000,000 EUR as of 2025-12-31, from yfinance-statements.",
+      "value": 7.242092128404442
+     },
+     "implied_fcf_cagr": {
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/BVI-PA.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Reverse-DCF implied FCF CAGR 0.0343 at the 5-year default horizon (base FCF 859,700,000, enterprise value 14,110,519,632, discount rate 9%, terminal growth 2.5%, bisection solve): data/market/BVI-PA.json quality.reverse_dcf.state is SOLVED. The discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE.",
+      "value": 0.0343
+     },
+     "horizon_spread": {
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream reverse-DCF over data/market/BVI-PA.json quality.reverse_dcf (base yfinance-statements, solve assumptions repo-internal)",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/BVI.PA/financials",
+      "basis": "Horizon spread 0.004 across the explicit 5/7/10-year implied FCF CAGR solves in data/market/BVI-PA.json quality.reverse_dcf.implied_by_horizon; a wide spread is itself a statement about the horizon convention, per the block's own horizon_note.",
+      "value": 0.004
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/BVI-PA.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/BVI-PA.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "second_order": [
+   {
+    "issuer_id": "CNOOC",
+    "listing_id": "HKEX-00883",
+    "ticker": "00883",
+    "market_ticker": "0883.HK",
+    "chain_id": "arctic-sea-route",
+    "link_id": "russian-arctic-lng-export",
+    "mapping_ref": "data/mappings/arctic-sea-route.json",
+    "profile_ref": "data/companies/CNOOC.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "CNOOC Limited",
+    "exchange": "Hong Kong Stock Exchange",
+    "tier": "T3",
+    "money_corner": false,
+    "link_heat_verdict": "EMERGING",
+    "thesis_1line": "Chinese state oil major holding a direct 10% equity stake in the Arctic LNG 2 project, one of four non-Novatek shareholders financing Russia's Arctic LNG export capacity; a minority, once-removed equity claim on the cargo this whole chain exists to move, inside a much larger integrated oil and gas book.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No russian arctic lng export-specific revenue percentage is sourced for CNOOC this run; it is a slice of a much larger group book.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31: 398,220,000,000 CNY from the yfinance-statements vendor series in 0883-HK.json.",
+      "value": 398220000000.0
+     },
+     "revenue_cagr_3y": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Compound annual revenue growth computed as (398,220,000,000/432,225,000,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "value": -0.026938176256778412
+     },
+     "operating_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Operating income 173,402,000,000 CNY divided by revenue 398,220,000,000 CNY, both for the period ended 2025-12-31, from the yfinance-statements series.",
+      "value": 0.4354427201044649
+     },
+     "operating_cash_flow_to_net_income": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Operating cash flow 209,042,000,000 CNY divided by net income 122,082,000,000 CNY, both for the fiscal year ended 2025-12-31, from yfinance-statements.",
+      "value": 1.712308120771285
+     },
+     "fcf_margin": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Free cash flow margin: operating cash flow 209,042,000,000 CNY less capex 111,555,000,000 CNY, divided by revenue 398,220,000,000 CNY, all for the period ended 2025-12-31, from yfinance-statements.",
+      "value": 0.24480689066345238
+     },
+     "net_debt_to_ebitda": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Net debt to EBITDA: total debt 69,800,000,000 CNY (as of 2025-12-31) less cash 78,679,000,000 CNY (as of 2025-12-31) = net debt -8,879,000,000, divided by an EBITDA proxy 254,522,000,000 CNY (operating income 173,402,000,000 plus depreciation 81,120,000,000 for the period ended 2025-12-31), from yfinance-statements.",
+      "value": -0.034885000117868006
+     },
+     "piotroski": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Piotroski F-score 6 of 9, state MIDDLING, computed over yfinance-statements in data/market/0883-HK.json quality.piotroski, 9 of 9 inputs found.",
+      "value": 6
+     },
+     "beneish_state": {
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/0883.HK/financials",
+      "basis": "Beneish M-score -2.893 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements in data/market/0883-HK.json quality.beneish, 12 of 12 inputs found.",
+      "value": -2.893
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "quality.derived.market_cap is null for CNOOC in data/market/0883-HK.json: statements reported in CNY, listing trades in HKD; no FX source on disk, so market cap and enterprise value are NULL rather than mixed-currency arithmetic (method section 1 dual-source price plane known-gap note on vendor statement currency versus trading currency)."
+     },
+     "price_to_book": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "price to book cannot be computed for CNOOC because valuation.market_cap is unavailable this run due to the statement-versus-trading currency mismatch (see metrics.valuation.market_cap basis); no market capitalization figure exists to divide by book equity."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr not usable for CNOOC: data/market/0883-HK.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "horizon_spread not usable for CNOOC for the same reason as implied_fcf_cagr: quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/0883-HK.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/0883-HK.json pcs is null; no PCS attention read for this T3 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "hedge": []
+ },
+ "superseded_rows": [],
+ "data_gaps": [
+  "polar-marine-hull-and-war-risk-insurance: CHUBB, MARKEL-GROUP and ALLIANZ are COMPLETE O2 profiled (ALLIANZ with a matching placement already recorded) but each rests on a single INFERRED evidence item with no placement_audits entry; a fresh-context placement audit, not more profiling, is what would seat them.",
+  "russian-arctic-lng-export: NOVATEK, TOTALENERGIES and MITSUI are COMPLETE O2 profiled with matching placements but each rests on a single INFERRED evidence item with no placement_audits entry; NOVATEK is the project operator itself and the single highest-value name left unseated on this chain.",
+  "ice-class-propulsion-systems: ABB carries a current PASS placement_audits[] entry (mechanically admissible) but its only profile on disk resolves a different listing (OTC-ABBNY, ai-infrastructure chain only) with no arctic-sea-route placement or SIX-ABBN listing_ref; `run profile ABB` adding the SIX-ABBN listing and this placement over data/market/ABBN-SW.json (already fetched) would unblock it. GE-VERNOVA and LANCASHIRE-HOLDINGS both drew a FAIL placement audit 2026-09-14 and need a corrected role citation before re-audit.",
+  "polar-grade-steel-plate, arctic-satellite-ice-monitoring, allied-polar-icebreaker-buildout, arctic-lng-terminal-construction, nsr-container-and-multipurpose-shipping, asia-europe-arctic-trade-demand: all six links carry zero mapping placements (OPEN, unresearched); a `run universe arctic-sea-route` census pass is the unblock, not a screen re-run."
+ ],
+ "taste_filtered": [
+  {
+   "ticker": "(none filtered)",
+   "rule": "No taste.md rule matches this name set (industrial propulsion/power OEMs, Lloyd's-market marine insurers, a classification society, and a Chinese state oil major's minority LNG equity stake); no filtering action taken."
+  }
+ ],
+ "health": {
+  "tickers_examined": 14,
+  "rows_written": 5,
+  "fully_scored": 5,
+  "pending": 0,
+  "errors": 0,
+  "rows_superseded": 0,
+  "rows_with_quality_gaps": 5,
+  "links_worked": 12,
+  "links_total": 12,
+  "target_links_this_run": 12,
+  "target_links_covered": 4,
+  "target_links_not_screened_this_run": [],
+  "target_links_no_profiled_issuer": [],
+  "money_corner_links_total": 2,
+  "money_corner_links_covered": 2,
+  "choke_point_links_total": 4,
+  "choke_point_links_covered": 2
+ },
+ "notes": [
+  {
+   "ts": "2026-09-14T20:00:00Z",
+   "by": "sieve-profiler",
+   "text": "First screen run for this chain. 5 rows across 4 of 12 links: both money-corner links covered (ice-class-propulsion-systems 2 rows, polar-marine-hull-and-war-risk-insurance 1 row), plus russian-arctic-lng-export (1 row, CHOKE_POINT) and ice-class-classification-and-notation (1 row). The other 2 CHOKE_POINT links (nsr-transit-control-and-escort, russian-arctic-shipbuilding) are UNINVESTABLE by the chain's own classification and carry zero mapping placements by design (Rosatom and Zvezda's Rosneft-led consortium are unlisted/unitemised). 6 links carry zero mapping placements at all (unresearched, not searched-and-empty); a `run universe arctic-sea-route` pass is their unblock. See universe_note for the full per-link account, including 5 mechanically- or evidentially-admissible placements refused this run (ABB, GE-VERNOVA, LANCASHIRE-HOLDINGS, plus the un-audited INFERRED-only CHUBB/MARKEL-GROUP/ALLIANZ/NOVATEK/TOTALENERGIES/MITSUI group) and why."
+  }
+ ],
+ "confidence_audit": {
+  "verified": 0,
+  "inferred": 42,
+  "speculative": 6,
+  "null": 22
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-14T20:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "BUILD",
+   "change": "run screen arctic-sea-route (chain-wide, first run): seated 5 rows across 4 of 12 links from the 5 newly COMPLETE O2 profiles (WARTSILA, KONGSBERG, BEAZLEY, CNOOC, BUREAU-VERITAS) landed today, each admissible either on a current PASS placement_audits[] entry (WARTSILA, KONGSBERG, BEAZLEY) or all-VERIFIED placement evidence (CNOOC, BUREAU-VERITAS) over the mapping's ACTIVE-but-un-audited census, per the campaign-v1 audit_scope:PLACEMENT rule. ABB (PASS placement audit but no arctic-sea-route placement or correct listing on its only profile), GE-VERNOVA and LANCASHIRE-HOLDINGS (both FAILed placement audit 2026-09-14) were refused; CHUBB, MARKEL-GROUP, ALLIANZ, NOVATEK, TOTALENERGIES and MITSUI (all COMPLETE O2, all single-INFERRED-evidence with no placement audit) were refused. 6 links (polar-grade-steel-plate, arctic-satellite-ice-monitoring, allied-polar-icebreaker-buildout, arctic-lng-terminal-construction, nsr-container-and-multipurpose-shipping, asia-europe-arctic-trade-demand) carry zero mapping placements and produced no rows by construction. 2 links (nsr-transit-control-and-escort, russian-arctic-shipbuilding) are UNINVESTABLE CHOKE_POINTs with zero placements by design. Both money-corner links (ice-class-propulsion-systems, polar-marine-hull-and-war-risk-insurance) are covered. No EDGAR document exists on disk for any seated name (5 non-US foreign filers, no SEC CIK); every row's earnings_nuggets is an honest empty array.",
+   "prior": null
+  }
+ ]
+}
