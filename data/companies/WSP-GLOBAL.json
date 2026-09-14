@@ -1,15 +1,15 @@
 {
   "issuer_id": "WSP-GLOBAL",
   "issuer_name": "WSP GLOBAL INC",
-  "as_of": "2026-09-06",
+  "as_of": "2026-09-14",
   "created_at": "2026-09-06T15:45:00Z",
-  "updated_at": "2026-09-06T17:24:58Z",
+  "updated_at": "2026-09-14T23:45:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Foreign local listing (TSX, Canada) with no SEC CIK asserted in the mapping:. Pass 2 (2026-09-06 15:56Z fetch): data/market/WSP-TO.json now carries a full yfinance-statements fundamentals and quality block.",
-  "opportunity_tier": "O1",
-  "opportunity_tier_basis": "Promoted O2 -> O1 by run selection CAMP-20260901-01 (fifth run, 2026-09-06). COMPLETE profile, all 12 canonical fields sourced with zero NULL (T3 vendor-aggregate, yfinance-statements). O1 official-source cross-check on revenue.latest_fy and both cash_conversion fields performed this run against WSP Global's own FY2025 results press release (globenewswire.com, 2026-02-25): revenue CAD 18,285.0m matches the vendor figure exactly; operating cash flow CAD 2,246.0m and net earnings attributable to shareholders CAD 964.3m both match the vendor inputs exactly (operating_cash_flow_to_net_income 2.329, unchanged); fcf_margin is recomputed from WSP's own officially disclosed 'net capital expenditures' of CAD 147.2m (OCF less capex, 0.114783) in place of the vendor's own slightly different capex figure (CAD 152.9m, 0.11447), a 3.6% change confined to the capex input. WSP's own headline 'free cash flow' (CAD 1,714.1m) additionally nets CAD 384.7m of lease payments and is a stricter, differently defined metric, recorded as a DEFINITION NOTE on the field rather than substituted in. All three cross-checked fields now carry official_source: true. Full seven-dimension selection_basis and screen_handoff below.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "Demoted O1 -> O2 by run selection CAMP-20260901-01 (scoped re-run, 2026-09-14). The 2026-09-06 promotion rested on a current PASS placement_audits[] entry and a seated screen row; both are gone. A same-day evidence re-citation (mapping amendment 2026-09-14T20:02:02Z, prompted by wsp.com's data-center page answering HTTP 403) moved the placement's primary evidence item to an Industrial Info Resources source, and a fresh-context run universe-audit --placement re-test of that new citation FAILED on role-mismatch (audited_at 2026-09-14T20:20:13Z, data/mappings/data-center-moratoria.json placement_audits[]): the cited evidence supports commercial involvement in roughly $6bn of North American data-center construction but states nothing about which service WSP performs on that work, not the environmental-assessment/permitting mechanism this link prices. The screen row (data/screens/data-center-moratoria.json, bucket pure_play, ticker WSP) was removed the same day. See selection_review for the full basis. The profile itself is unaffected: still COMPLETE, T3, all 12 canonical fields sourced with zero NULL.",
   "listing_refs": [
     "TSX-WSP"
   ],
@@ -265,6 +265,12 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run selection CAMP-20260901-01 (fifth run, 2026-09-06), completing the O1 official-source cross-check: set official_source true on metrics.revenue.latest_fy, metrics.cash_conversion.operating_cash_flow_to_net_income, and metrics.cash_conversion.fcf_margin after verifying each against WSP Global's own FY2025 results press release (globenewswire.com, 2026-02-25). Revenue ($18,285.0m) and the operating-cash-flow-to-net-income inputs (OCF $2,246.0m, net earnings $964.3m) match the vendor figures exactly. fcf_margin is recomputed from officially disclosed inputs (OCF $2,246.0m less WSP's own stated 'net capital expenditures' of $147.2m, divided by revenue) rather than the vendor's own slightly different capex figure ($152.9m vs $147.2m); the recomputed value (0.114783) is carried in place of the prior vendor value (0.11447), a 3.6% change confined to the capex input. WSP's own branded 'free cash flow' headline ($1,714.1m, 9.375% margin) additionally nets $384.7m of lease payments and is recorded as a DEFINITION NOTE on the field rather than substituted in, since this canonical field follows the OCF-less-capex convention throughout the repo."
+    },
+    {
+      "ts": "2026-09-14T23:45:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01, scoped to WSP-GLOBAL on data-center-moratoria (2026-09-14). Demoted opportunity_tier O1 -> O2: the placement's current PASS placement_audits[] entry (2026-09-06T15:47:33Z) was superseded by a fresh-context FAIL (audited_at 2026-09-14T20:20:13Z, role_mismatch: cited evidence supports commercial data-center-construction involvement, not the specific permitting/environmental-assessment mechanism this link prices), following a same-day evidence re-citation (20:02:02Z) that had already made the old PASS non-current. Its screen row (data/screens/data-center-moratoria.json, bucket pure_play, ticker WSP) was removed the same run. Closed selection_basis.screen_handoff (renamed screen_handoff_closed, preserved for history) and added selection_basis.superseded plus a new selection_review entry naming the full basis. Profile itself unaffected: still COMPLETE, T3, 12/12 canonical fields sourced, zero NULL. Ron's decision, 2026-09-14: the WSP.TO FINAL dive (verdict INVESTABLE) is downgraded to WATCH by a separate Stocky pass, not removed; that amendment is not made in this file. data-center-moratoria now carries 2 O1 (AECOM, JACOBS-SOLUTIONS), still within DEPTH's 1-3 target."
     }
   ],
   "selection_basis": {
@@ -387,11 +393,35 @@
         "data/mappings/data-center-moratoria.json"
       ]
     },
-    "screen_handoff": {
-      "screen_ref": "data/screens/data-center-moratoria.json",
-      "chain_id": "data-center-moratoria",
-      "link_id": "permitting-and-environmental-consultancy",
-      "listing_id": "TSX-WSP"
+    "screen_handoff_closed": {
+      "closed_at": "2026-09-14",
+      "closed_reason": "Row removed from data/screens/data-center-moratoria.json (bucket pure_play, ticker WSP) because the placement's admissibility basis (current PASS placement_audits[] entry) no longer holds; see selection_basis.superseded and selection_review.",
+      "prior_screen_ref": "data/screens/data-center-moratoria.json",
+      "prior_chain_id": "data-center-moratoria",
+      "prior_link_id": "permitting-and-environmental-consultancy",
+      "prior_listing_id": "TSX-WSP"
+    },
+    "superseded": {
+      "state": "CLOSED",
+      "as_of": "2026-09-14",
+      "by": "sieve-profiler",
+      "reason": "This basis supported the 2026-09-06 O1 promotion and is preserved as the historical record of that original reasoning, not as a current admissibility claim. Superseded 2026-09-14: the placement's PASS placement_audits[] entry dated 2026-09-06T15:47:33Z no longer resolves as current under tools/check_map.placement_audit_for (a same-day evidence re-citation changed the sampled evidence item), and the fresh-context re-test of the new citation returned FAIL (audited_at 2026-09-14T20:20:13Z, role_mismatch). See opportunity_tier_basis and selection_review for the demotion record."
     }
+  },
+  "selection_review": {
+    "as_of": "2026-09-14",
+    "reviewed_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (scoped to WSP-GLOBAL, data-center-moratoria, 2026-09-14)",
+    "outcome": "DEMOTED_O2",
+    "examined_links": [
+      {
+        "theme_id": "data-center-moratoria",
+        "chain_id": "data-center-moratoria",
+        "link_id": "permitting-and-environmental-consultancy",
+        "state": "AUDIT_FAILED",
+        "reason": "The mapping's placement_audits[] entry that admitted this placement (PASS, audited_at 2026-09-06T15:47:33Z) stopped resolving as current once a same-day evidence re-citation (2026-09-14T20:02:02Z) changed the sampled evidence item; a fresh-context re-test of the new citation FAILED on role-mismatch (audited_at 2026-09-14T20:20:13Z): the cited evidence (Industrial Info Resources, WSP Broadens Role in U.S. Power, Data Center Development) states only that WSP is commercially involved in roughly $6bn of North American data-center construction, naming two Microsoft buildings, with no statement of which service WSP performs on that work. A full-text scan of the stored article for 'environmental', 'permit', 'due diligence', 'site select', 'stakeholder', 'regulatory', 'compliance' and 'impact assessment' returned zero hits. Neither admissibility path in tools/check_screen.py._placement_admissible now clears (evidence mixed VERIFIED/INFERRED; no current PASS placement_audits[] entry).",
+        "detail": "Its screen row (data/screens/data-center-moratoria.json, bucket pure_play, ticker WSP) was removed the same day. The O1 basis (selection_basis.screen_handoff resolving to that row, plus the current PASS placement audit) no longer holds, so opportunity_tier is demoted O1 -> O2; the profile itself is unaffected (still COMPLETE, T3, 12/12 canonical fields sourced, zero NULL). Ron's decision, 2026-09-14: the WSP.TO dive (data/stocks/WSP.TO__data-center-moratoria.json, verdict INVESTABLE) is downgraded to WATCH by a separate Stocky pass naming the missing evidence, not removed outright; that amendment is not made in this file."
+      }
+    ]
   }
 }
