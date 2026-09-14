@@ -1357,7 +1357,474 @@
    }
   }
  ],
- "scenarios": [],
+ "scenarios": [
+  {
+   "id": "S1",
+   "title": "The remote-access rule goes final and the workaround gets squeezed",
+   "probability_pct": 30,
+   "status": "OPEN",
+   "narrative": "BIS moves its drafted remote-access rule to the Federal Register within the scenario window, either as a formal Notice of Proposed Rulemaking or, if the Senate passes S.3519 first, as a rule riding the Act's new statutory authority. This is the map's own base case: BIS was already reported drafting language that could reach industry groups as early as September 2026, and the House passed the Remote Access Security Act 369-22 in January. Once a rule exists, the map's choke-point link stops being a schedule everyone waits on and starts being a live compliance mandate the whole downstream chain has to answer to immediately. Nvidia's own customer compliance reviews were already reported hitting neoclouds hardest before any rule was final; a published rule turns that pressure into a legal deadline. The layer whose entire business model is exactly the newly regulated act, reselling remote access, is the one with nowhere left to hide.",
+   "links_moved": [
+    {
+     "link_id": "export-control-rulemaking",
+     "direction": "UP",
+     "magnitude": "LARGE",
+     "why": "The draft becomes a filed rule, or RASA reaches the President's desk, converting the map's own choke point from a schedule everyone waits on into binding law with an effective date. This is the single event every other link in this chain is structurally downstream of."
+    },
+    {
+     "link_id": "denied-party-screening-software",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "A live remote-access mandate makes AI-chip-specific denied-party screening a named compliance requirement rather than a generic trade-compliance nice-to-have, sharpening the demand Descartes' own Q1 FY2027 call already described in general Global Trade Intelligence terms. MEDIUM, not LARGE, because none of the five named vendors yet reports this as its own separately disclosed revenue line, the map's own honest finding."
+    },
+    {
+     "link_id": "neocloud-gpu-rental",
+     "direction": "DOWN",
+     "magnitude": "LARGE",
+     "why": "Its whole business model, reselling remote access to controlled chips, becomes the specific regulated act. Nvidia's own compliance reviews were already reported hitting this layer hardest before any rule existed at all."
+    },
+    {
+     "link_id": "sea-colocation-landlords",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "Landlords accelerate the Bridge/Megaspeed playbook to protect the same lender covenants that already made that eviction a financing necessity, not only a legal one, ahead of a now-binding enforcement date."
+    },
+    {
+     "link_id": "compliant-hyperscaler-cloud",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "Demand reshores to the compliant alternative by default, the same dynamic the map already scores as real but diffuse and not yet attributable in dollars to this occurrence specifically."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "BIS publishes the remote-access rule in the Federal Register, as a Notice of Proposed Rulemaking or a final rule, rather than remaining a draft circulated privately to industry groups.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "The Senate passes S.3519 (the RASA companion) or schedules a floor vote, ending the months-long stall in Senate Banking Committee reported since the House's 369-22 vote in January 2026.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "CoreWeave, the more richly-discounted-from-its-highs of the two named neocloud tickers on this exact link, breaks below its recent trading range as a binding compliance deadline gets priced as a going-concern risk rather than a growth story.",
+     "armed": true,
+     "check": {
+      "type": "price",
+      "ticker": "CRWV",
+      "op": "<",
+      "level": 70
+     },
+     "check_source": "data/market/CRWV.json week52.low 60.82, last close 88.99 as of 2026-09-11 (fetched_at 2026-09-13T15:14:14Z); 70 sits between the two, below the current close but above the 52-week floor, testing a genuine breakdown rather than noise."
+    }
+   ],
+   "invalidation_signs": [
+    "BIS formally withdraws or indefinitely tables the remote-access draft without ever publishing a Federal Register notice, which would say the same cloud-provider compliance-burden pushback this map already documents (AWS, Azure, Google Cloud) won the policy argument this scenario assumes it loses."
+   ],
+   "evidence": [
+    {
+     "claim": "Commerce's Bureau of Industry and Security is drafting a rule that would for the first time target remote access to AI chips rather than their physical movement, with a draft that could reach industry groups as early as September 2026.",
+     "source_name": "Forbes, The AI Chip War's New Front: Control The Cloud, Not The Silicon",
+     "source_date": "2026-08-31",
+     "url": "https://www.forbes.com/sites/viviantoh/2026/08/31/the-ai-chip-wars-new-front-control-the-cloud-not-the-silicon/",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "The Trump administration's Commerce Department is drafting a new export control rule that would, for the first time, target not the physical movement of chips but remote access to them",
+      "a draft could be circulated to industry groups as early as September"
+     ]
+    },
+    {
+     "claim": "The House passed the Remote Access Security Act 369 to 22 on January 12, 2026; the Senate companion (S.3519) sat in the Senate Banking Committee for months afterward with no confirmed floor-vote timeline.",
+     "source_name": "The Register, Congress votes to close China cloud chip export loophole",
+     "source_date": "2026-01-13",
+     "url": "https://www.theregister.com/on-prem/2026/01/13/congress-votes-to-close-china-cloud-chip-export-loophole/4462528",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "The House of Representatives passed the Remote Access Security Act on Monday by an overwhelming 369-22 bipartisan vote",
+      "Passage of the bill through the Senate, and a signature from President Trump, aren't guarantees"
+     ]
+    },
+    {
+     "claim": "Neocloud providers, the firms whose entire business is renting out AI compute, were described as hit hardest by Nvidia's own customer compliance reviews as they intensified through summer 2026.",
+     "source_name": "Forbes, The AI Chip War's New Front: Control The Cloud, Not The Silicon",
+     "source_date": "2026-08-31",
+     "url": "https://www.forbes.com/sites/viviantoh/2026/08/31/the-ai-chip-wars-new-front-control-the-cloud-not-the-silicon/",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Neocloud providers -- the firms whose entire business is renting out AI compute -- hit hardest"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S2",
+   "title": "RASA stalls and the third-country route gets a reprieve",
+   "probability_pct": 20,
+   "status": "OPEN",
+   "narrative": "The Senate never schedules a floor vote on S.3519 within the window, and BIS's drafted remote-access rule does not advance past private circulation to industry groups, exactly the outcome the same cloud-provider compliance-burden concerns already reported (AWS, Azure, Google Cloud) argue for. Congress is not obviously in a rush: the House's 369-22 margin was itself no guarantee of Senate action, and Commerce's own reporting already frames the draft as closing a loophole it created by rescinding an earlier requirement rather than responding to new urgency. Without a rule or a statute, BIS may lack clear authority to police remote access at all, exactly the argument the map's own bottleneck note already records export-control law firms making publicly. The workaround the whole rest of this chain exists to close stays open a while longer.",
+   "links_moved": [
+    {
+     "link_id": "export-control-rulemaking",
+     "direction": "DOWN",
+     "magnitude": "MEDIUM",
+     "why": "No Federal Register filing appears and RASA sits without a scheduled vote, so the choke point the whole map waits on stays a schedule rather than becoming law; DOWN reflects the enforcement clock resetting, not the link becoming investable."
+    },
+    {
+     "link_id": "neocloud-gpu-rental",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "The layer under the most direct existential pressure on the map gets a reprieve: the specific activity a rule would have regulated stays unregulated, and Nvidia's own compliance reviews lose the legal backstop that would have made them urgent rather than voluntary."
+    },
+    {
+     "link_id": "china-hyperscaler-cloud-demand",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "The demand this whole chain exists to constrain keeps its current channel open longer than the map's base case assumes; SMALL because this is demand being tolerated a while longer, not legitimized."
+    },
+    {
+     "link_id": "denied-party-screening-software",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "The AI-chip-specific catalyst for screening adoption softens without a binding mandate forcing it; Descartes' own broader trade-compliance growth (tariffs, e-commerce customs, foreign-trade-zone tools) continues regardless, which is why this is SMALL, not a reversal of the underlying business."
+    },
+    {
+     "link_id": "chip-location-attestation",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "The regulatory tailwind behind mandatory hardware attestation weakens without a companion remote-access rule creating enforcement urgency at the operator level too."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "RASA remains in Senate Banking Committee with no scheduled markup or floor vote at a point meaningfully past the House's January 2026 passage, echoing the stall the map's own bottleneck note already flags.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "Reporting attributes a delay or narrowing of BIS's draft rule specifically to cloud-provider compliance-burden objections, the same concern AWS, Azure and Google Cloud were already reported voicing.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "CoreWeave rallies on relief that the compliance deadline priced in scenario S1 is not materializing on the reported timeline.",
+     "armed": true,
+     "check": {
+      "type": "price",
+      "ticker": "CRWV",
+      "op": ">",
+      "level": 105
+     },
+     "check_source": "data/market/CRWV.json last close 88.99 as of 2026-09-11 (fetched_at 2026-09-13T15:14:14Z), week52.high 143.08; 105 sits meaningfully above the current close and below the high, testing a genuine relief rally rather than noise."
+    }
+   ],
+   "invalidation_signs": [
+    "BIS publishes the remote-access rule in the Federal Register as a Notice of Proposed Rulemaking within the scenario window, which would convert the 'shelved' assumption into an active rulemaking clock and undercut the relief case for neoclouds this scenario rests on."
+   ],
+   "evidence": [
+    {
+     "claim": "Multiple export-control law firms have publicly argued BIS may lack the authority to regulate remote access at all until the Senate passes RASA, a bill that sat in committee for months after passing the House 369 to 22.",
+     "source_name": "The Register, Congress votes to close China cloud chip export loophole",
+     "source_date": "2026-01-13",
+     "url": "https://www.theregister.com/on-prem/2026/01/13/congress-votes-to-close-china-cloud-chip-export-loophole/4462528",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Passage of the bill through the Senate, and a signature from President Trump, aren't guarantees"
+     ]
+    },
+    {
+     "claim": "Major US cloud service providers including AWS, Microsoft Azure, and Google Cloud were reported as concerned specifically about the administrative compliance burden of BIS's drafted remote-access rule.",
+     "source_name": "BigGo Finance, U.S. Moves to Block China's Third-Country Cloud Workaround, Targeting Data Centers in Thailand and Singapore",
+     "source_date": "2026-08-31",
+     "url": "https://finance.biggo.com/news/071ddebb-37c2-4b18-8413-cbfedb4a75a8",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "major U.S. cloud service providers",
+      "administrative compliance burdens"
+     ]
+    },
+    {
+     "claim": "Reporting frames the current draft rule as closing a loophole Commerce itself created when an earlier Biden-era know-your-customer requirement for cloud access to advanced chips was rescinded.",
+     "source_name": "Tech Times, Commerce Drafts AI Chip Rule for Loophole It Created by Rescinding Biden Know-Your-Customer",
+     "source_date": "2026-08-29",
+     "url": "https://www.techtimes.com/articles/325957/20260829/commerce-drafts-ai-chip-rule-loophole-it-created-rescinding-biden-know-your-customer.htm",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Commerce Drafts AI Chip Rule for Loophole It Created by Rescinding Biden Know-Your-Customer"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S3",
+   "title": "The Chip Security Act clears the Senate and attestation goes mandatory",
+   "probability_pct": 15,
+   "status": "OPEN",
+   "narrative": "The Chip Security Act's Senate companion (S.1705) follows its unanimous 42-0 House Foreign Affairs Committee vote to a floor vote and is signed into law within the scenario window, starting the 180-day clock for covered export-controlled AI chips to carry a reliable location-verification mechanism. Nvidia's own feature, already built and demonstrated privately to customers as opt-in, read-only fleet management, ships as a requirement rather than a private demo. This is the map's own genuine-chokepoint-in-waiting becoming a real one: a technology layer distinct from customer screening, verifying where the silicon physically is rather than who is renting it, goes from a bet on a bill to a shipped mandate.",
+   "links_moved": [
+    {
+     "link_id": "chip-location-attestation",
+     "direction": "UP",
+     "magnitude": "LARGE",
+     "why": "The bill this link's whole story rests on passes; a demonstrated-but-unshipped feature becomes a 180-day mandatory shipping requirement across every covered chip, the exact transition the map's own bottleneck note names as the missing piece."
+    },
+    {
+     "link_id": "controlled-ai-accelerators",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "Nvidia ships attestation bundled into its chip sales as a compliance differentiator, reinforcing the qualification lock-in the map already scores OVER_CROWDED; SMALL because the chip business is already fully discovered and this adds a feature, not a new revenue line."
+    },
+    {
+     "link_id": "denied-party-screening-software",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "Hardware attestation and software screening become a complementary compliance bundle procurement teams buy together; SMALL because the mandate targets location, not customer identity, a distinct question the map's own role text is careful to separate."
+    },
+    {
+     "link_id": "neocloud-gpu-rental",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "Forced fleet-location transparency narrows the gray-market advantage this layer's business model depends on; SMALL relative to scenario S1 because attestation alone, without a remote-access rule, still leaves the underlying rental activity itself unregulated."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "The Chip Security Act (S.1705) receives a full Senate floor vote and is signed, following its 42-0 House Foreign Affairs Committee passage in March 2026.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "Nvidia announces general availability of its location-verification feature as a shipped product rather than a private customer demonstration.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "Nvidia prints a new 52-week high as a compliance-differentiation mandate is priced as incremental share protection layered on top of the already fully-discovered chip narrative.",
+     "armed": true,
+     "check": {
+      "type": "price",
+      "ticker": "NVDA",
+      "op": ">",
+      "level": 235.74
+     },
+     "check_source": "data/market/NVDA.json week52.high 235.74, last close 218.29 as of 2026-09-11 (fetched_at 2026-09-13T15:14:14Z); the level is the name's own 52-week high, so no judgment sets it."
+    }
+   ],
+   "invalidation_signs": [
+    "The Chip Security Act stalls in the Senate for a year or more past its committee win with no floor vote scheduled, echoing exactly the fate RASA has already had despite a larger House margin, which would show committee passage does not predict Senate floor action in this Congress."
+   ],
+   "evidence": [
+    {
+     "claim": "The Chip Security Act (H.R.3447), which would require covered export-controlled AI chips to carry a reliable location-verification mechanism within 180 days of enactment, passed the House Foreign Affairs Committee 42 to 0 on March 26, 2026; a Senate companion (S.1705) was introduced by Senator Tom Cotton.",
+     "source_name": "Select Committee on the CCP, House Committee Passes Chip Security Act",
+     "source_date": "2026-03-26",
+     "url": "https://chinaselectcommittee.house.gov/media/press-releases/house-committee-passes-chip-security-act",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "the U.S. House Foreign Affairs Committee voted 42-0",
+      "to advance the Chip Security Act, bipartisan legislation to prevent the illicit smuggling of advanced artificial intelligence chips"
+     ]
+    },
+    {
+     "claim": "Nvidia had built a software-based location verification feature, demonstrated privately to customers but not yet released, described by Nvidia's own blog post as opt-in and read-only, with no hardware kill switch or backdoor.",
+     "source_name": "Modern Diplomacy, Nvidia Develops Location-Tracking Tech to Combat AI Chip Smuggling",
+     "source_date": "2025-12-10",
+     "url": "https://moderndiplomacy.eu/2025/12/10/nvidia-develops-location-tracking-tech-to-combat-ai-chip-smuggling/",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Nvidia had developed a software-based location verification feature that would indicate in which country AI accelerators are operating",
+      "demonstrated privately to customers",
+      "opt-in software for the fleet management of data center GPUs",
+      "no hardware tracking technology in the GPUs, no kill switches and no backdoors"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S4",
+   "title": "Southeast Asia enforcement widens and demand reshores",
+   "probability_pct": 15,
+   "status": "OPEN",
+   "narrative": "A second Southeast Asian data center operator, beyond Bain's Bridge Data Centers, is reported evicting or requalifying a tenant flagged in the same kind of compliance review that hit Megaspeed, spreading the April 2026 precedent from one facility to a market-wide landlord practice. Lenders behind these facilities' expansion loans, the same financing dependency the map's own capture note already names for Bridge, push other operators toward the same tenant vetting Bridge performed under scrutiny. Demand does not disappear, it reshores: to the compliant hyperscaler capacity built in allied jurisdictions (Microsoft's own $60bn-plus neocloud commitment already shows this pattern) and to the sovereign Validated End User buildouts in the Gulf that exist for exactly this purpose.",
+   "links_moved": [
+    {
+     "link_id": "sea-colocation-landlords",
+     "direction": "UP",
+     "magnitude": "LARGE",
+     "why": "A second documented eviction turns one facility's story into a market-wide requalification practice, the same lender-covenant leverage the map's own capture note already ties to Bridge's own expansion financing."
+    },
+    {
+     "link_id": "neocloud-gpu-rental",
+     "direction": "DOWN",
+     "magnitude": "LARGE",
+     "why": "The physical racks this layer depends on narrow further as more landlords protect covenant compliance ahead of enforcement, compounding the pressure the map already scores as the worst capture on the chain."
+    },
+    {
+     "link_id": "compliant-hyperscaler-cloud",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "Demand reshores at visible scale to the compliant alternative; MEDIUM rather than LARGE because the map's own impact rationale is explicit that no source yet attributes a specific dollar of this occurrence's demand to these four names distinctly from the broader AI capex supercycle."
+    },
+    {
+     "link_id": "sovereign-veu-ai-buildouts",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "The Gulf's formally validated buyers are where compute flows once the third-country route narrows further, the map's own demand-anchor logic; MEDIUM because G42 and Humain remain pre-listing and mostly private, so the move is directional rather than a repriced position."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "A Southeast Asian data center operator beyond Bridge Data Centers is reported evicting or requalifying a tenant under the same kind of US compliance scrutiny that removed Megaspeed from Bridge's Malaysian hub.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "G42 or Humain is reported receiving an increase to its Commerce-approved chip-purchase cap beyond the current 35,000-70,000 range, or the UAE's Country Group A:5 status is extended toward a broader class of entities.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "AJBU.SI, the Singapore-listed name on this exact link alongside EQIX in the map's own example tickers, prints a new 52-week high as compliant Southeast Asian colocation capacity gets repriced beyond the single Malaysian eviction already on record.",
+     "armed": true,
+     "check": {
+      "type": "price",
+      "ticker": "AJBU.SI",
+      "op": ">",
+      "level": 2.43
+     },
+     "check_source": "data/market/AJBU-SI.json (ticker AJBU.SI) week52.high 2.43, last close 2.14 as of 2026-09-11 (fetched_at 2026-09-13T15:14:14Z), the name currently sitting at its own 52-week low; the level is the name's own 52-week high, so no judgment sets it."
+    }
+   ],
+   "invalidation_signs": [
+    "No further Southeast Asian eviction or requalification is reported over the scenario window, leaving Bridge's removal of Megaspeed a single non-repeated incident rather than the spreading landlord practice this scenario assumes."
+   ],
+   "evidence": [
+    {
+     "claim": "Bain Capital's Bridge Data Centers removed the Singapore neocloud Megaspeed from its Malaysian hub in April 2026 after a US probe, reassigning the roughly 68.4 megawatts of capacity to Los Angeles-based cloud provider Zenlayer.",
+     "source_name": "Bloomberg, Bain Data Center Unit Cuts Ties With Nvidia Buyer After US Probe",
+     "source_date": "2026-04-08",
+     "url": "https://www.bloomberg.com/news/articles/2026-04-08/bain-data-center-unit-cuts-ties-with-nvidia-buyer-after-us-probe",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Bain Capital's Bridge Data Centres removed from its Malaysian computing hub Megaspeed International Pte.",
+      "replaced it with cloud provider Zenlayer Inc.",
+      "Megaspeed International Pte had been allocated 68.4MW of capacity"
+     ]
+    },
+    {
+     "claim": "Bain Capital's Bridge Data Centers finances its expansion partly through bank loans that hinge on demonstrating steady cash flow from tenants, precisely the leverage that makes tenant compliance a financing issue and not only a legal one.",
+     "source_name": "CNBC, Bain Capital taps buyer interest for Bridge Data Centres, offering up to 70% stake",
+     "source_date": "2026-03-18",
+     "url": "https://www.cnbc.com/2026/03/18/bain-capital-bridge-data-centres-ai-buildout.html",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "bank loans are a key way for BDC to finance its expansion, which hinge on its ability to demonstrate steady cash flows from tenants"
+     ]
+    },
+    {
+     "claim": "Microsoft has committed over $60 billion to neocloud providers, including roughly $23 billion to British startup Nscale alone for 200,000 GB300 GPUs deployed across the United Kingdom, Norway, Portugal, and Texas, compliant capacity built in allied jurisdictions rather than the Southeast Asian route now under scrutiny.",
+     "source_name": "Introl Blog, Microsoft's $60B Neocloud Bet",
+     "source_date": "2026-01-06",
+     "url": "https://introl.com/blog/microsoft-60-billion-neocloud-spending-capacity-crunch-december-2025",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Microsoft has committed over $60 billion to neocloud providers",
+      "$23 billion going to British startup Nscale alone for 200,000 GB300 GPUs",
+      "the United Kingdom, Norway, Portugal, and Texas"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S5",
+   "title": "The UAE's Country Group A:5 status narrows and Gulf demand contracts",
+   "probability_pct": 12,
+   "status": "OPEN",
+   "narrative": "The UAE's July 2026 move into Country Group A:5, tied by reporting to a specific and reversible geopolitical rationale (support in the Iran war) rather than a durable structural grant, gets narrowed or reversed within the scenario window, and Humain's already-explicit case-by-case cap is held flat or cut rather than raised. This is the map's own bottleneck note's stated risk made concrete: sovereign VEU status, the map's demand anchor, is a political grant that can be revoked as easily as it was given, and every layer upstream that had begun treating Gulf buildouts as the chain's clean destination has to find that demand a different, likely less favorable, home.",
+   "links_moved": [
+    {
+     "link_id": "sovereign-veu-ai-buildouts",
+     "direction": "DOWN",
+     "magnitude": "LARGE",
+     "why": "The map's own demand anchor is a named, capped, explicitly reversible grant; a narrowing of Country Group A:5 or a frozen Humain cap removes the destination the whole rest of the chain funnels compliant demand toward."
+    },
+    {
+     "link_id": "export-control-rulemaking",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "A reversal of one geopolitically-granted exception signals the same rulemaking apparatus tightening broadly rather than only at the margin it was granted, a small but real read-through to the choke point every other link waits on."
+    },
+    {
+     "link_id": "compliant-hyperscaler-cloud",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "Microsoft's own $1.5bn minority stake and board seat in G42 lose some of the licensed-buildout upside the map's capture note already flags as partial and overlapping with Nvidia's and Microsoft's existing margin; SMALL because this exposure is a minority stake inside a much larger business, not a standalone position."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "BIS issues a rule narrowing or reversing the UAE's Country Group A:5 status, re-imposing some form of the D:3/D:4 license requirement the July 2026 rule removed.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    },
+    {
+     "signal": "Humain's Commerce-approved case-by-case chip cap is held flat or reduced below its current 35,000-chip ceiling at its next review, rather than raised.",
+     "armed": false,
+     "check": null,
+     "check_basis": "Not armable. The only machine check this repo supports is a price check, and this indicator is a count of statutes, filings, or reported enforcement events, read by hand."
+    }
+   ],
+   "invalidation_signs": [
+    "The UAE's Country Group A:5 status remains unchanged through the scenario window and Commerce raises rather than freezes or lowers Humain's chip cap, indicating the geopolitical rationale behind the Gulf upgrade is durable rather than reversible as this scenario assumes."
+   ],
+   "evidence": [
+    {
+     "claim": "BIS published a final rule in the Federal Register on July 14, 2026 moving the UAE from Country Groups D:3 and D:4 into Country Group A:5, effective July 10, 2026, giving the UAE government and approved commercial entities license-free access to advanced computing items; by contrast Humain in Saudi Arabia continued to buy under a case-by-case authorization capped at 35,000 accelerators.",
+     "source_name": "Federal Register, Enhanced Favorable Treatment for the United Arab Emirates Under the Export Administration Regulations",
+     "source_date": "2026-07-14",
+     "url": "https://www.federalregister.gov/documents/2026/07/14/2026-14132/enhanced-favorable-treatment-for-the-united-arab-emirates-under-the-export-administration",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "removes the UAE from Country Groups D:3 and D:4 and adds it to Country Group A:5",
+      "license-free access to advanced computing items",
+      "The rule became effective on July 10, 2026"
+     ]
+    },
+    {
+     "claim": "The US Commerce Department announced on November 19, 2025 that it authorized the export of advanced American semiconductors to G42 of the UAE and Humain of Saudi Arabia, each approved to purchase the equivalent of up to 35,000 Nvidia Blackwell GB300 chips, conditioned on security and reporting requirements.",
+     "source_name": "U.S. Department of Commerce, Statement on UAE and Saudi Chip Exports",
+     "source_date": "2025-11-19",
+     "url": "https://www.commerce.gov/news/press-releases/2025/11/statement-uae-and-saudi-chip-exports",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "authorized the export of advanced American semiconductors to G42, based in the United Arab Emirates, and Humain, based in Saudi Arabia",
+      "up to 35,000 Nvidia Blackwell chips (GB300s)"
+     ]
+    },
+    {
+     "claim": "Microsoft invested $1.5 billion for a minority stake in Abu Dhabi's G42, with a board seat, as part of a wider commitment of roughly $15.2 billion in the UAE between 2023 and 2029.",
+     "source_name": "Microsoft On the Issues, Microsoft's $15.2 billion USD investment in the UAE",
+     "source_date": "2025-11-03",
+     "url": "https://blogs.microsoft.com/on-the-issues/2025/11/03/microsofts-15-2-billion-usd-investment-in-the-uae/",
+     "tag": "INFERRED",
+     "source_excerpt": [
+      "Microsoft invested $1.5 billion to take a minority stake in Abu Dhabi AI company G42",
+      "giving the U.S. tech giant a board seat",
+      "Microsoft will invest $15.2 billion USD in the UAE between the start of this initiative in 2023 and the end of 2029"
+     ]
+    }
+   ]
+  }
+ ],
  "notes": [
   {
    "ts": "2026-09-13T14:48:10Z",
@@ -1368,6 +1835,11 @@
    "ts": "2026-09-13T14:48:10Z",
    "by": "atlas-cartographer",
    "text": "Built entirely from dated WebSearch research this run, no edgar_fts queries queued (a chain build's supplementary discovery motion, not its only one; run universe is where supplier-side EDGAR full-text search does the issuer census). Two evidence items were upgraded to VERIFIED by fetching the underlying SEC filing directly: AMD's own 8-K on the MI308 export-control charge (filed 2025-04-16) and Descartes Systems Group's Form 6-K exhibit carrying its fiscal 2027 first-quarter results (furnished 2026-06-03), both quoted verbatim from the fetched document rather than from a news paraphrase. Every other evidence item is tagged INFERRED per method 4 (a filing citation from an SEC registrant is VERIFIED, dated research is INFERRED otherwise) since it is drawn from news, government press releases, or a company's own non-filing web page rather than a filing. Deliberately kept to 10 links rather than padded toward 15: every link earns its place with a dated, named, checkable fact, including the two zero-ticker links (rulemaking, legal advisory), which are honest findings about where this chain's money is not, not gaps apologized for."
+  },
+  {
+   "ts": "2026-09-14T00:00:00Z",
+   "by": "ember-scenario-analyst",
+   "text": "5 scenarios written from the chain's own already-dated, cited evidence (no new WebSearch needed to establish facts already established at chain build; the near-term event claims behind each scenario were reviewed against the chain's own sourcing and found unchanged as of this run). Probabilities: S1 30 (rule goes final, base case given the House's 369-22 margin and BIS's own September-draft timeline), S2 20 (RASA/BIS stall, the documented alternative given RASA's months-long Senate stall already on record), S3 15 (Chip Security Act clears the Senate, a narrower and more specific bet than S1), S4 15 (Southeast Asia enforcement spreads beyond the single Bridge/Megaspeed incident), S5 12 (UAE Country Group A:5 narrows, the map's own bottleneck note's stated reversibility risk), summing to 92. Armed checks use only tickers with a market file on disk (CRWV, NVDA, AJBU.SI); every other named ticker on this chain without a market file (DSGX, LSEG.L, TRI, MCO, SPGI, IREN, APLD, 6742.KL, 4863.KL, TCEHY, 9988.HK) was left unarmed rather than guessed. Every armed level is the ticker's own current close or 52-week high/low from data/market, so no judgment sets a level. Scenario ids S1-S5 are new (chain had zero prior scenarios); nothing preserved because nothing existed to preserve."
   }
  ],
  "confidence_audit": {
@@ -1382,6 +1854,13 @@
    "by": "atlas-cartographer",
    "change": "chain built from run chain SIG-20260901-01 (fan-out run d1-chain-chip-cloud): 10 links, upstream first from controlled-ai-accelerators (position 1) to sovereign-veu-ai-buildouts (position 10, demand anchor), two independent topological roots (the controlled chip and the US rulemaking apparatus), dated WebSearch/WebFetch evidence throughout including two VERIFIED SEC-filing citations (AMD 8-K, Descartes 6-K), heat and scenarios left null pending run heat / run scenarios",
    "prior": null
+  },
+  {
+   "ts": "2026-09-14T00:00:00Z",
+   "by": "ember-scenario-analyst",
+   "kind": "AMEND",
+   "change": "run scenarios neocloud-export-compliance: wrote 5 scenarios (S1-S5, probability total 92) covering the chain's own two independent topological roots (chip export control and cloud-access rulemaking) resolving toward or away from the demand anchor. Each scenario moves 3-5 real links with direction, magnitude and why; carries >=2 leading indicators and >=1 invalidation sign; 3 of 5 carry one armed price check apiece (CRWV, NVDA, AJBU.SI), all keyed to tickers with an existing data/market/ file and a level taken directly from that file's own current close or 52-week high/low. scenarios_as_of 2026-09-14, scenario_health 5/5/0/0. No heat, link, or evidence field touched.",
+   "prior": "scenarios: [] (chain built 2026-09-13 with heat scored 2026-09-14; scenarios left empty pending this run per the chain's own build note)"
   }
  ],
  "explainer": {
@@ -1395,6 +1874,13 @@
  "heat_health": {
   "examined": 10,
   "scored": 10,
+  "pending": 0,
+  "errors": 0
+ },
+ "scenarios_as_of": "2026-09-14",
+ "scenario_health": {
+  "examined": 5,
+  "scored": 5,
   "pending": 0,
   "errors": 0
  }
