@@ -3,11 +3,11 @@
  "chain_id": "russian-diesel-ban",
  "scenario_id": null,
  "created_at": "2026-09-04",
- "as_of": "2026-09-06",
+ "as_of": "2026-09-14",
  "identity_schema": "campaign-v1",
  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
  "mapping_ref": "data/mappings/russian-diesel-ban.json",
- "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), second run for this chain (first run 2026-09-04). The mapping (data/mappings/russian-diesel-ban.json, 27 issuers, 27 placements) still carries the same fresh-context census audit dated 2026-09-04T03:32:44Z (atlas-fresh-context, status FAIL): not on any evidence defect (41 of 41 sampled placement/listing/search checks came back clean) but because 12 of 13 link_coverage rows are still OPEN and none are TARGET_MET. Mapping status stays ACTIVE. Every row this run again rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT', admitted only when the consumed placement's role evidence is entirely VERIFIED. All 27 placements clear that bar.\n\nGATE DEFECT FROM THE FIRST RUN IS NOW FIXED: tools/check_screen.py lines 399-406 (checked this run) now compare listing.market_ticker against row.market_ticker and listing.ticker against row.ticker separately, instead of comparing listing.ticker against both. The three rows the first run had to drop for this reason (BHARAT-PETROLEUM, CHINA-PETROLEUM-AND-CHEMICAL, both foreign listings with a suffixed market_ticker, and KAWASAKI-HEAVY-INDUSTRIES) are seated this run, each written with its real market_ticker (BPCL.NS, 0386.HK, 7012.T) rather than a bare exchange ticker no data/market file resolves.\n\nSince the first run, `run profile --campaign` batches have also completed 5 more names this chain's mapping needed: HINDUSTAN-PETROLEUM, INDIAN-OIL (refinery-capacity-response), and MARATHON-PETROLEUM, HF-SINCLAIR, PAR-PACIFIC-HOLDINGS (conversion-capacity) are now COMPLETE O2, up from no profile on disk. Separately, TEEKAY-TANKERS and FRONTLINE (clean-product-shipping) moved from BLOCKED O3 (refused as screen inputs at the first run) to COMPLETE O2. This run seats all of them. Net: 11 rows across 4 of 13 links, up from 1 row on 1 link.\n\nhydroprocessing-catalysts [MONEY CORNER, UNDISCOVERED]: searched and empty, reaffirmed. ALBEMARLE remains the mapping's sole placement (ACTIVE, all-VERIFIED role evidence citing an April 2025 10-Q: 'Owns the Ketjen catalyst business whose Refining Solutions unit supplies refining catalysts') with a COMPLETE O2 profile, so it still mechanically clears every check_screen.py bar. This run re-read data/edgar/docs/ALB.json and re-confirmed, verbatim, that Albemarle's own Q2 2026 8-K earnings-release exhibit (accession 0000915913-26-000101, filed 2026-08-05) states: 'During the first quarter of 2026, the Company divested its controlling ownership interest in its Refining Solutions business and its full 50% ownership interest in the Eurecat joint venture.' Nothing has changed since the first run's finding: the placement's April 2025 evidence predates and is reversed by this March 2026 divestiture. Seating ALBEMARLE would put the chain's only money-corner name in front of Ron on a business the issuer sold five months before this screen ran, so this run again declines it on judgment, not on any gate failure. Not fixed here: data/mappings/ is outside this run's write scope; the backlog flag for Atlas to re-evidence or close this placement stands.\n\nrefinery-capacity-response [UNDISCOVERED]: fully seated, 4 of 4 mechanically admissible names. HINDUSTAN-PETROLEUM (Pachpadra/HRRL, commercial operation declared June 2026) and INDIAN-OIL (Panipat/Gujarat/Barauni expansions) newly seated this run (profiles completed since the first run); BHARAT-PETROLEUM (Bina expansion) and CHINA-PETROLEUM-AND-CHEMICAL (Fujian Gulei Phase II, Jiujiang hydrocracker) newly seated this run only because the ticker/market_ticker gate defect that dropped them at the first run is now fixed. All four carry sourced theme_revenue_exposure NULL (no project-level revenue percentage disclosed by any of the four), consistent with the profiles' own exposure_summary blocks. Second_order bucket: none of the four is a pure conversion-capacity play; each is a large integrated refiner for whom the cited new capacity is one project among many.\n\nconversion-capacity [CHOKE_POINT, OVER_CROWDED]: 3 of 6 admissible placements now seated (MARATHON-PETROLEUM, HF-SINCLAIR, PAR-PACIFIC-HOLDINGS), all newly profiled since the first run and all US T1 names (ticker == market_ticker, no gate issue). Placed in pure_play, not second_order or picks_and_shovels, because conversion capacity is these three issuers' entire refining business, exactly what this CHOKE_POINT link measures, not a side project. VALERO-ENERGY, PHILLIPS-66, and PBF-ENERGY remain ACTIVE, all-VERIFIED placements with no profile on disk; still the single largest concrete next step for `run profile --campaign CAMP-20260901-01` on this chain.\n\nrussian-refining-attrition [CHOKE_POINT, OVER_CROWDED]: unchanged, searched and empty. Zero mapped placements: the census closed this link EXHAUSTED with no qualifying public issuer, exactly as the chain's own bottleneck note states (Rosneft, Lukoil, Gazprom Neft and Surgutneftegas are sanctioned and unreachable from this venue).\n\nshipyard-newbuild-capacity [CROWDED]: attributed, 1 of 2 admissible placements seated. KAWASAKI-HEAVY-INDUSTRIES (ACTIVE, all-VERIFIED role evidence citing two dated VLCC-delivery press releases, COMPLETE O2 profile) is seated this run now that the ticker/market_ticker gate defect is fixed (picks_and_shovels: shipbuilding is one of several Kawasaki segments alongside aerospace, rolling stock, energy and robotics, so exposure is partial). Kawasaki's own profile business_summary and exposure_summary still describe only its tibet-mega-dam tunnel-boring-machine placement and have not been amended with this chain's VLCC-newbuild role; this row's thesis rests on the mapping's own placement record (independently sourced, all-VERIFIED) rather than the profile narrative, per method section 6A's reusable-profile rule, but the profile backfill is flagged again in data_gaps. CSSC-OFFSHORE-MARINE-ENGINEERING (ACTIVE, all-VERIFIED) still has no profile on disk.\n\nclean-product-shipping [CROWDED]: attributed, now 3 of 4 admissible placements seated. INTERNATIONAL-SEAWAYS (seated at the first run) is unchanged; its profile has since been amended with a russian-diesel-ban placements[] entry of its own (no longer a cross-chain-only reference). TEEKAY-TANKERS and FRONTLINE are newly seated this run: both were refused as O3 BLOCKED at the first run and have since become COMPLETE O2. Frontline's metrics are substantially populated (revenue, growth, both margin fields, market_cap, price_to_sales, reverse_dcf all sourced from SEC companyfacts; leverage and quality remain NULL for stated per-field reasons: missing depreciation and cost-of-revenue concepts respectively). Teekay Tankers is similarly populated except net_debt_to_ebitda (NULL: total_debt frozen at a single stale 2022 point with no common fiscal year against current cash). SCORPIO-TANKERS (ACTIVE, all-VERIFIED) still has no profile on disk.\n\ncrude-feedstock [OVER_CROWDED], refinery-hydrogen [QUIET], hydroprocessing-technology [QUIET], turnaround-and-catalyst-services [QUIET], storage-and-blending-terminals [QUIET], wholesale-fuel-distribution [QUIET], diesel-demand-anchor [OVER_CROWDED]: unchanged from the first run, searched and empty for lack of any COMPLETE profile among their admissible, all-VERIFIED placements (CONOCOPHILLIPS; AIR-PRODUCTS; KBR-INC; MATRIX-SERVICE, MISTRAS-GROUP; KINDER-MORGAN; SUNOCO-LP, GLOBAL-PARTNERS-LP; OLD-DOMINION-FREIGHT-LINE, DEERE respectively).\n\nNet effect: 4 of 13 links now produce rows (11 rows total, up from 3 links/1 row at the first run). The money-corner link and one of the two CHOKE_POINT links remain genuinely searched-and-empty with a stated reason (ALBEMARLE's role reversed by its own divestiture; russian-refining-attrition's issuers are sanctioned and unreachable), never silently absent. The single largest concrete next step is `run profile --campaign CAMP-20260901-01` on VALERO-ENERGY, PHILLIPS-66, PBF-ENERGY (conversion-capacity, the remaining CHOKE_POINT gap), CSSC-OFFSHORE-MARINE-ENGINEERING (shipyard-newbuild-capacity), and SCORPIO-TANKERS (clean-product-shipping). A second step is a `run universe russian-diesel-ban` amendment closing or re-evidencing the ALBEMARLE/hydroprocessing-catalysts placement now that its Refining Solutions business is divested. A third is a `run profile KAWASAKI-HEAVY-INDUSTRIES` (or equivalent amend) pass to add this chain's placement to that profile's own business_summary and exposure_summary narrative, which still reads as if tibet-mega-dam were its only exposure.",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), third run for this chain (prior runs 2026-09-04, 2026-09-06). The mapping (data/mappings/russian-diesel-ban.json, 27 issuers, 27 placements) still carries the same fresh-context census audit dated 2026-09-04T03:32:44Z (atlas-fresh-context, status FAIL, not on any evidence defect: 41/41 sampled placement/listing/search checks clean, but 12 of 13 link_coverage rows are OPEN and none TARGET_MET). Mapping status stays ACTIVE. Every row again rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT', admitted because the consumed placement's evidence is entirely VERIFIED (checked fresh this run, all 27 of 27 placements). Nine of those 27 placements additionally now carry a current PASS fresh-context placement_audits[] entry landed since the second run (HINDUSTAN-PETROLEUM, INDIAN-OIL, BHARAT-PETROLEUM, CHINA-PETROLEUM-AND-CHEMICAL on refinery-capacity-response; MARATHON-PETROLEUM, VALERO-ENERGY, PHILLIPS-66, PBF-ENERGY, HF-SINCLAIR on conversion-capacity), so those nine rows now clear the stronger of the two admission routes, not only the evidence-tag route.\n\nSince the second run, `run profile --campaign` batches finished the remaining COMPLETE O2 profiles this chain's mapping needed: all 27 mapped issuers are now COMPLETE O2 (up from 12 at the second run). This run seats every one of the 26 mechanically admissible names (27 placements minus the standing ALBEMARLE decline), up from 11 rows on 4 of 13 links. Net: 26 rows across 12 of 13 links.\n\nhydroprocessing-catalysts [MONEY CORNER, UNDISCOVERED]: searched and empty, reaffirmed a third time. ALBEMARLE remains the mapping's sole placement and is now doubly confirmed unfit by two independent fresh-context placement_audits[] entries (2026-09-06T17:21:44Z, SELF_REVIEW; 2026-09-14T00:33:59Z, true FRESH_CONTEXT reopening the primary SEC source directly), both status FAIL with role_ok:false: Albemarle's own Form 8-K (CIK 0000915913, accession 0000915913-26-000032, filed 2026-03-06, Item 2.01) states the company completed the sale of its 51% controlling interest in Ketjen Corporation on 2026-03-02, retaining only a 49% minority stake plus its separate Performance Catalyst Solutions business. The placement's role evidence (an April 2025 10-Q) predates and is reversed by this divestiture. Seating ALBEMARLE would put the chain's only money-corner name in front of Ron on a business the issuer no longer controls, so this run again declines it on judgment, not on any gate failure: the placement's evidence tags are still VERIFIED and it would mechanically clear check_screen.py. data/mappings/ is outside this run's write scope; the backlog flag for Atlas to re-evidence or close this placement stands, now backed by two FAIL audits instead of one.\n\nconversion-capacity [CHOKE_POINT, OVER_CROWDED]: fully seated, 6 of 6 admissible placements now carry rows. VALERO-ENERGY, PHILLIPS-66 and PBF-ENERGY (newly profiled since the second run, all PASS placement_audits[] entries dated today) join the already-seated MARATHON-PETROLEUM, HF-SINCLAIR and PAR-PACIFIC-HOLDINGS in pure_play: conversion capacity is each issuer's entire refining business, exactly what this CHOKE_POINT link measures, not a side project. This closes the second run's single largest named gap.\n\nclean-product-shipping [CROWDED]: fully seated, 4 of 4 admissible placements. SCORPIO-TANKERS (newly profiled, all-VERIFIED placement evidence) joins INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS and FRONTLINE in pure_play.\n\nshipyard-newbuild-capacity [CROWDED]: fully seated, 2 of 2 admissible placements. CSSC-OFFSHORE-MARINE-ENGINEERING (newly profiled) joins KAWASAKI-HEAVY-INDUSTRIES in picks_and_shovels; both are diversified shipbuilding-group listings whose current order books skew toward containerships, gas carriers and defence work rather than product tankers, which each profile's own placement role names as the substitution this link's mechanism rests on rather than a direct read-through.\n\nrefinery-capacity-response [UNDISCOVERED]: unchanged from the second run, still 4 of 4 seated (all now additionally carrying PASS placement_audits[] entries dated today, the stronger admission basis).\n\nSix links seated for the first time this run, each newly profiled since the second run and each with a single admissible placement: crude-feedstock (CONOCOPHILLIPS, second_order: a diversified E&P producer for whom the discounted heavy-sour barrel is one input among many, and the link's own capture score of 35 marks it a price-taker, not the thesis). refinery-hydrogen (AIR-PRODUCTS, picks_and_shovels: over-the-fence industrial-gas infrastructure, one of several AIR-PRODUCTS businesses). hydroprocessing-technology (KBR-INC, picks_and_shovels: licensing/engineering revenue, one segment among several). turnaround-and-catalyst-services (MATRIX-SERVICE, MISTRAS-GROUP, both picks_and_shovels: inspection and turnaround contractors). storage-and-blending-terminals (KINDER-MORGAN, picks_and_shovels: one terminal/blending business inside a much larger diversified midstream footprint). wholesale-fuel-distribution (SUNOCO-LP, GLOBAL-PARTNERS-LP, both second_order: the link's own bottleneck note reads 'a few cents a gallon on someone else's crack, structurally low capture').\n\ndiesel-demand-anchor [OVER_CROWDED]: seated for the first time, 2 of 2 admissible placements (OLD-DOMINION-FREIGHT-LINE, DEERE), both bucketed hedge rather than pure_play or second_order: the link's own role text states the exposure directly, 'the demand anchor and the party that pays... their fuel bill is the transfer every upstream link on this map is collecting,' and its bottleneck note is explicit that 'exposure here is negative: a diesel-intensive fleet, farm or mine is short this chain.' These two rows are the basket's natural offset, not a second way to be long the thesis.\n\nrussian-refining-attrition [CHOKE_POINT, OVER_CROWDED]: unchanged, searched and empty by chain design (zero mapped placements: the census closed this link EXHAUSTED, Rosneft/Lukoil/Gazprom Neft/Surgutneftegas are sanctioned and unreachable from this venue).\n\nNet effect: 11 of 13 links now produce rows (26 rows total, up from 11 rows on 4 links at the second run). Every admissible mapped placement except one is now seated; the money-corner link and one of the two CHOKE_POINT links remain genuinely empty with a stated reason (ALBEMARLE's role doubly disconfirmed by its own divestiture filing; russian-refining-attrition's issuers are sanctioned and unreachable), never silently absent. The single remaining concrete step on this chain is a `run universe russian-diesel-ban` amendment closing or re-evidencing the ALBEMARLE/hydroprocessing-catalysts placement now that Ketjen is divested, which is the only path back to a seated money-corner name; a second step is a `run universe-audit` pass to close the 12 OPEN link_coverage rows the census audit is still blocked on, and profile narrative backfill for KAWASAKI-HEAVY-INDUSTRIES and CSSC-OFFSHORE-MARINE-ENGINEERING whose business_summary text does not yet mention this chain's placement.",
  "queries_run": [
   {
    "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/russian-diesel-ban.json carrying an ACTIVE status and all-VERIFIED role evidence, joined to its official listing",
@@ -851,6 +851,528 @@
     "earnings_nuggets": [],
     "status": "CANDIDATE",
     "cik": 913290
+   },
+   {
+    "issuer_id": "VALERO-ENERGY",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:VLO",
+    "ticker": "VLO",
+    "market_ticker": "VLO",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "conversion-capacity",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/VALERO-ENERGY.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Valero Energy Corporation",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "Operates a multi-country petroleum refining system whose throughput is the conversion capacity this link measures.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 122687000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VLO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Valero Energy (VLO).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.11397235202184985,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VLO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Three-year compound annual revenue growth computed as (122687000000/176383000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.02592776740811985,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VLO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Operating income 3181000000 divided by revenue 122687000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Free cash flow margin cannot be computed for Valero from matching periods: capex_fy's latest entry in SEC XBRL companyfacts is dated 2024-12-31, one fiscal year behind operating_cashflow_fy's latest entry (2025-12-31); dividing the two would mismatch fiscal periods, so the field is left NULL."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.4812606473594547,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VLO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Operating cash flow 5826000000 divided by net income 2348000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 0.06105063890203502,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VLO.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Net debt 387000000 (total debt 8261000000 as of 2025-12-31 less cash 7874000000 as of 2026-06-30) divided by an EBITDA proxy 6339000000 (operating income 3181000000 plus depreciation 3158000000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 6,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/VLO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/VLO.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Valero: data/market/VLO.json quality.beneish is missing ppe_net_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 237315021309.48,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/VLO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Market capitalization 237315021309.48 computed in data/market/VLO.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 1.9343126925385739,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/VLO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Market capitalization 237315021309.48 divided by fiscal year 2025-12-31 revenue 122687000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.3849,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/VLO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR. base_fcf 3769000000.0, enterprise_value 237702021309.48, from data/market/VLO.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.1756,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/VLO.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001035002.json",
+      "basis": "Spread 0.1756 across explicit horizons {'5': 0.3849, '7': 0.2816, '10': 0.2093} from data/market/VLO.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/VLO.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/VLO.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1035002
+   },
+   {
+    "issuer_id": "PHILLIPS-66",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:PSX",
+    "ticker": "PSX",
+    "market_ticker": "PSX",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "conversion-capacity",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/PHILLIPS-66.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Phillips 66",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "Owns refining assets and discloses net crude throughput capacity per facility, the unit this link is measured in.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 132376000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PSX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534701.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Phillips 66 (PSX).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.0799841840778086,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PSX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534701.json",
+      "basis": "Three-year compound annual revenue growth computed as (132376000000/169990000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Operating margin cannot be computed for Phillips 66: data/market/PSX.json fundamentals carries no operating_income_fy series at all for CIK 1534701 this fetch; only revenue and net_income are directly tagged, and quality.altman separately reads PENDING_DATA missing operating_income_fy."
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Free cash flow margin cannot be computed for Phillips 66: capex_fy is entirely absent from SEC XBRL companyfacts for CIK 1534701 this fetch, so there is no capital-expenditure figure to net against the 4962000000 operating cash flow."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.126958891664774,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PSX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534701.json",
+      "basis": "Operating cash flow 4962000000 divided by net income 4403000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Net debt to EBITDA cannot be computed for Phillips 66: the EBITDA proxy needs operating_income_fy, which is entirely absent from SEC XBRL companyfacts for CIK 1534701 this fetch (the same gap that leaves operating_margin NULL); with no operating-income figure to add depreciation to, no EBITDA proxy exists to divide the 18768000000 total debt and 4099000000 cash figures on file."
+     },
+     "piotroski": {
+      "value": 6,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/PSX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534701.json",
+      "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/PSX.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Phillips 66: data/market/PSX.json quality.beneish is missing ppe_net_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 160898116010.84,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/PSX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534701.json",
+      "basis": "Market capitalization 160898116010.84 computed in data/market/PSX.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 1.2154628936577627,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/PSX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534701.json",
+      "basis": "Market capitalization 160898116010.84 divided by fiscal year 2025-12-31 revenue 132376000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR cannot be solved for Phillips 66: quality.reverse_dcf reads PENDING_DATA missing fcf because capex_fy is not tagged in SEC XBRL companyfacts this fetch, leaving no free-cash-flow base for the bisection solve."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread across the 5, 7 and 10-year reverse-DCF solves is undefined for Phillips 66: with no base free-cash-flow figure (the same fcf gap that blocks implied_fcf_cagr), quality.reverse_dcf.implied_by_horizon was never populated, so there is no per-horizon spread to report."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/PSX.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/PSX.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1534701
+   },
+   {
+    "issuer_id": "PBF-ENERGY",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:PBF",
+    "ticker": "PBF",
+    "market_ticker": "PBF",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "conversion-capacity",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/PBF-ENERGY.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "PBF Energy Inc.",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "Independent refiner supplying unbranded transportation fuels, which is the diesel-producing conversion stage of this chain.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 29332300000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for PBF Energy (PBF).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.14439550126798595,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Three-year compound annual revenue growth computed as (29332300000/46830300000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": -0.0018512015764191694,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Operating income -54300000 divided by revenue 29332300000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": -0.026700940601316638,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Free cash flow margin: operating cash flow -78000000 less capital expenditure 705200000, divided by revenue 29332300000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 0.4921135646687697,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Operating cash flow -78000000 divided by net income -158500000, both for the period ended 2025-12-31, from the companyfacts series; both figures are negative, so the positive ratio reflects a smaller cash outflow than the reported net loss.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 2.694610778443114,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Net debt 855000000 (total debt 1749100000 as of 2026-06-30 less cash 894100000 as of 2026-06-30) divided by an EBITDA proxy 317300000 (operating income -54300000 plus depreciation 371600000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 3,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/PBF.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Piotroski F-score 3 (state WEAK) computed over SEC companyfacts statements in data/market/PBF.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for PBF Energy: data/market/PBF.json quality.beneish is missing receivables_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 8191177766.64,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/PBF.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Market capitalization 8191177766.64 computed in data/market/PBF.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 0.2792545339656283,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/PBF.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+      "basis": "Market capitalization 8191177766.64 divided by fiscal year 2025-12-31 revenue 29332300000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR is not solvable for PBF Energy: quality.reverse_dcf reads NOT_APPLICABLE because base-year free cash flow is negative (operating cash flow -78000000 less capex 705200000 for the period ended 2025-12-31), and a growth rate on a negative base is not meaningful per the tool's own guard."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread is likewise undefined for PBF Energy: with the base-year free cash flow negative, the reverse-DCF bisection solve never runs at any of the 5, 7 or 10-year horizons, so quality.reverse_dcf.implied_by_horizon carries no figures to spread."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/PBF.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/PBF.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1534504
+   },
+   {
+    "issuer_id": "SCORPIO-TANKERS",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:STNG",
+    "ticker": "STNG",
+    "market_ticker": "STNG",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "clean-product-shipping",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/SCORPIO-TANKERS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Scorpio Tankers Inc.",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "CROWDED",
+    "thesis_1line": "Owns and operates a product-tanker fleet that moves refined middle distillates, the ton-mile exposure this link measures.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 938222000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Scorpio Tankers (STNG).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.15641799301199333,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Three-year compound annual revenue growth computed as (938222000/1562873000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.37857138289232184,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Operating income 355184000 divided by revenue 938222000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": -0.08673213802277073,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Free cash flow margin: operating cash flow 491226000 less capital expenditure 572600000, divided by revenue 938222000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.426771461433899,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/STNG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Operating cash flow 491226000 divided by net income 344292000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Net debt to EBITDA cannot be computed for Scorpio Tankers: depreciation_fy is not tagged in SEC XBRL companyfacts for CIK 1483934 this fetch (ifrs-full taxonomy; quality.beneish separately reads PENDING_DATA missing cost_of_revenue_fy, depreciation_fy and sga_fy), so no EBITDA proxy (operating income plus depreciation) can be formed to divide the 619204000 total debt and 751955000 cash figures on file."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score reads PENDING_DATA for Scorpio Tankers: data/market/STNG.json quality.piotroski is missing cost_of_revenue_fy (8 of 9 inputs found), an IFRS-taxonomy concept-mapping gap rather than a missing filing."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Scorpio Tankers: data/market/STNG.json quality.beneish is missing cost_of_revenue_fy, depreciation_fy and sga_fy (9 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 4039050503.7000003,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/STNG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Market capitalization 4039050503.7000003 computed in data/market/STNG.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 4.305005109345124,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/STNG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001483934.json",
+      "basis": "Market capitalization 4039050503.7000003 divided by fiscal year 2025-12-31 revenue 938222000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR is not solvable for Scorpio Tankers: quality.reverse_dcf reads NOT_APPLICABLE because base-year free cash flow is negative (operating cash flow 491226000 less capex 572600000 for the period ended 2025-12-31), and a growth rate on a negative base is not meaningful per the tool's own guard."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread is likewise undefined for Scorpio Tankers: with the base-year free cash flow negative, the reverse-DCF bisection solve never runs at any of the 5, 7 or 10-year horizons, so quality.reverse_dcf.implied_by_horizon carries no figures to spread."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/STNG.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/STNG.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1483934
    }
   ],
   "picks_and_shovels": [
@@ -986,6 +1508,823 @@
      "as_of": "2026-09-02",
      "tag": "NULL",
      "basis": "data/market/7012-T.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "KBR-INC",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:KBR",
+    "ticker": "KBR",
+    "market_ticker": "KBR",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "hydroprocessing-technology",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/KBR-INC.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "KBR, Inc.",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Licenses proprietary process technology to energy producers, which is the licence-availability constraint this link describes.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 7786000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KBR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Fiscal-year revenue for the period ended 2026-01-02, from SEC XBRL companyfacts for KBR (KBR).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.05855950390285991,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KBR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Three-year compound annual revenue growth computed as (7786000000/6564000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2026-01-02 (KBR's 52/53-week fiscal year).",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.09992293860775751,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KBR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Operating income 778000000 divided by revenue 7786000000, both for the period ended 2026-01-02, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Free cash flow margin needs operating_cashflow_fy and capex_fy at the same period end; KBR's operating-cash-flow concept in SEC XBRL companyfacts stops one fiscal year earlier (2025-01-03) than the capex and revenue series (2026-01-02), so this field is NULL rather than mixing periods."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Operating cash flow to net income cannot be computed for KBR from matching periods: operating_cashflow_fy's latest entry in SEC XBRL companyfacts is dated 2025-01-03, one fiscal year behind net_income_fy's latest entry (2026-01-02); dividing the two would mismatch fiscal periods, so the field is left NULL."
+     },
+     "net_debt_to_ebitda": {
+      "value": 2.3136219640971487,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KBR.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Net debt 2191000000 (total debt 2503000000 as of 2026-07-03 less cash 312000000 as of 2026-07-03) divided by an EBITDA proxy 947000000 (operating income 778000000 plus depreciation 169000000, both for the period ended 2026-01-02), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 8,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/KBR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Piotroski F-score 8 (state STRONG) computed over SEC companyfacts statements in data/market/KBR.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for KBR: data/market/KBR.json quality.beneish is missing receivables_fy and ppe_net_fy (10 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 4673750521.440001,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/KBR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Market capitalization 4673750521.440001 computed in data/market/KBR.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 0.6002762036270229,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/KBR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Market capitalization 4673750521.440001 divided by fiscal year 2026-01-02 revenue 7786000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.0333,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/KBR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR. base_fcf 420000000.0, enterprise_value 6864750521.440001, from data/market/KBR.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.0035,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/KBR.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001357615.json",
+      "basis": "Spread 0.0035 across explicit horizons {'5': 0.0333, '7': 0.0313, '10': 0.0298} from data/market/KBR.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/KBR.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/KBR.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1357615
+   },
+   {
+    "issuer_id": "AIR-PRODUCTS",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:APD",
+    "ticker": "APD",
+    "market_ticker": "APD",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "refinery-hydrogen",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/AIR-PRODUCTS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Air Products and Chemicals, Inc.",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Supplies industrial gases including hydrogen over the fence to refinery complexes, the local-monopoly supply this link describes.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 12037300000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/APD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-09-30, from SEC XBRL companyfacts for Air Products (APD).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.01766923192508929,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/APD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Three-year compound annual revenue growth computed as (12037300000/12698600000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-09-30 to period ended 2025-09-30.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": -0.07285686989607304,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/APD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Operating income -877000000 divided by revenue 12037300000, both for the period ended 2025-09-30, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": -0.31284424247962583,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/APD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Free cash flow margin: operating cash flow 3256800000 less capital expenditure 7022600000, divided by revenue 12037300000, all for the period ended 2025-09-30, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": -8.25551330798479,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/APD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Operating cash flow 3256800000 divided by net income -394500000, both for the period ended 2025-09-30, from the companyfacts series; the ratio is negative because net income itself is negative that period.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 24.277066356228172,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/APD.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Net debt 16683200000 (total debt 17663700000 as of 2025-09-30 less cash 980500000 as of 2026-06-30) divided by an EBITDA proxy 687200000 (operating income -877000000 plus depreciation 1564200000, both for the period ended 2025-09-30), from the companyfacts series; the multiple is elevated because the EBITDA proxy is compressed by the FY2025 operating loss.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 2,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/APD.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Piotroski F-score 2 (state WEAK) computed over SEC companyfacts statements in data/market/APD.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": -2.893,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/APD.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Beneish M-score -2.893 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/APD.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": 68577215791.03999,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/APD.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Market capitalization 68577215791.03999 computed in data/market/APD.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 5.697059622260806,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/APD.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000002969.json",
+      "basis": "Market capitalization 68577215791.03999 divided by fiscal year 2025-09-30 revenue 12037300000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR is not solvable for Air Products: quality.reverse_dcf reads NOT_APPLICABLE because base-year free cash flow is negative (operating cash flow 3256800000 less capex 7022600000 for the period ended 2025-09-30), and a growth rate on a negative base is not meaningful per the tool's own guard."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread is likewise undefined for Air Products: with the base-year free cash flow negative, the reverse-DCF bisection solve never runs at any of the 5, 7 or 10-year horizons, so quality.reverse_dcf.implied_by_horizon carries no figures to spread."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/APD.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/APD.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 2969
+   },
+   {
+    "issuer_id": "MATRIX-SERVICE",
+    "listing_id": "NASDAQ-GLOBAL-SELECT-MARKET:MTRX",
+    "ticker": "MTRX",
+    "market_ticker": "MTRX",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "turnaround-and-catalyst-services",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/MATRIX-SERVICE.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Matrix Service Company",
+    "exchange": "NASDAQ Global Select Market",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Performs plant maintenance, repair and turnaround work at downstream process facilities, which is this link's scope.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 873632000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MTRX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Fiscal-year revenue for the period ended 2026-06-30, from SEC XBRL companyfacts for Matrix Service (MTRX).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.03192981317987531,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MTRX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Three-year compound annual revenue growth computed as (873632000/795020000)**(1/3)-1 from the companyfacts revenue series, period ended 2023-06-30 to period ended 2026-06-30.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": -0.01100921211677228,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MTRX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Operating income -9618000 divided by revenue 873632000, both for the period ended 2026-06-30, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.0016299769239222007,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MTRX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Free cash flow margin: operating cash flow 6907000 less capital expenditure 5483000, divided by revenue 873632000, all for the period ended 2026-06-30, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": -2.6771317829457364,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MTRX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Operating cash flow 6907000 divided by net income -2580000, both for the period ended 2026-06-30, from the companyfacts series; the ratio is negative because net income itself is negative that period.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Net debt to EBITDA is not reported for Matrix Service: the EBITDA proxy (operating income -9618000 plus depreciation 8640000 = -978000, both for the fiscal year ended 2026-06-30) is negative, so a debt-to-EBITDA multiple is not a meaningful number; separately, the only total_debt figure SEC XBRL companyfacts carries is a single stale entry dated 2020-03-31, more than six years before the current cash balance, and no long_term_debt_fy series exists as an alternative (piotroski and beneish both read PENDING_DATA missing long_term_debt_fy for the same reason)."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score reads PENDING_DATA for Matrix Service: data/market/MTRX.json quality.piotroski is missing long_term_debt_fy (8 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Matrix Service: data/market/MTRX.json quality.beneish is also missing long_term_debt_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 304689595.5,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/MTRX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Market capitalization 304689595.5 computed in data/market/MTRX.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 0.3487619449608073,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/MTRX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Market capitalization 304689595.5 divided by fiscal year 2026-06-30 revenue 873632000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.3875,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/MTRX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR. base_fcf 1424000.0, enterprise_value 90611595.5, from data/market/MTRX.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.177,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/MTRX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000866273.json",
+      "basis": "Spread 0.177 across explicit horizons {'5': 0.3875, '7': 0.2833, '10': 0.2105} from data/market/MTRX.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/MTRX.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/MTRX.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 866273
+   },
+   {
+    "issuer_id": "MISTRAS-GROUP",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:MG",
+    "ticker": "MG",
+    "market_ticker": "MG",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "turnaround-and-catalyst-services",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/MISTRAS-GROUP.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Mistras Group, Inc.",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Provides inspection and asset-protection services to refinery and other asset-intensive infrastructure during and between turnarounds.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 724024000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Mistras Group (MG).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": 0.01746660646928966,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Three-year compound annual revenue growth computed as (724024000/687373000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.0560368164591229,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Operating income 40572000 divided by revenue 724024000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.01147337657315227,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Free cash flow margin: operating cash flow 32981000 less capital expenditure 24674000, divided by revenue 724024000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.9588406485715983,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Operating cash flow 32981000 divided by net income 16837000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 1.9177982676725343,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MG.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Net debt 137276000 (total debt 159264000 as of 2026-06-30 less cash 21988000 as of 2026-06-30) divided by an EBITDA proxy 71580000 (operating income 40572000 plus depreciation 31008000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 5,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/MG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Piotroski F-score 5 (state MIDDLING) computed over SEC companyfacts statements in data/market/MG.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Mistras Group: data/market/MG.json quality.beneish is missing ppe_net_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 583681854.66,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/MG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Market capitalization 583681854.66 computed in data/market/MG.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 0.8061636833309392,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/MG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Market capitalization 583681854.66 divided by fiscal year 2025-12-31 revenue 724024000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.4811,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/MG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR. base_fcf 8307000.0, enterprise_value 720957854.66, from data/market/MG.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.2282,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/MG.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001436126.json",
+      "basis": "Spread 0.2282 across explicit horizons {'5': 0.4811, '7': 0.346, '10': 0.2529} from data/market/MG.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/MG.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/MG.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1436126
+   },
+   {
+    "issuer_id": "KINDER-MORGAN",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:KMI",
+    "ticker": "KMI",
+    "market_ticker": "KMI",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "storage-and-blending-terminals",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/KINDER-MORGAN.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Kinder Morgan, Inc.",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Operates refined-product liquids terminals that store fuels and provide blending services, the hub tankage this link describes.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 15202000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KMI.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Kinder Morgan (KMI).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.05698859500480058,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KMI.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Three-year compound annual revenue growth computed as (15202000000/18128000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.31074858571240627,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KMI.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Operating income 4724000000 divided by revenue 15202000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.19017234574398106,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KMI.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Free cash flow margin: operating cash flow 5917000000 less capital expenditure 3026000000, divided by revenue 15202000000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.9361910994764397,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KMI.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Operating cash flow 5917000000 divided by net income 3056000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 4.1404486554270585,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/KMI.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Net debt 29716000000 (total debt 29805000000 as of 2026-06-30 less cash 89000000 as of 2026-06-30) divided by an EBITDA proxy 7177000000 (operating income 4724000000 plus depreciation 2453000000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": 6,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/KMI.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/KMI.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Kinder Morgan: data/market/KMI.json quality.beneish is missing receivables_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 70213985790.0,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/KMI.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Market capitalization 70213985790.0 computed in data/market/KMI.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 4.618733442310222,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/KMI.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Market capitalization 70213985790.0 divided by fiscal year 2025-12-31 revenue 15202000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.2182,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/KMI.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR. base_fcf 2891000000.0, enterprise_value 99929985790.0, from data/market/KMI.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.0894,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/KMI.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001506307.json",
+      "basis": "Spread 0.0894 across explicit horizons {'5': 0.2182, '7': 0.1662, '10': 0.1288} from data/market/KMI.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/KMI.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/KMI.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1506307
+   },
+   {
+    "issuer_id": "CSSC-OFFSHORE-MARINE-ENGINEERING",
+    "listing_id": "THE-STOCK-EXCHANGE-OF-HONG-KONG-LIMITED:00317",
+    "ticker": "00317",
+    "market_ticker": "0317.HK",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "shipyard-newbuild-capacity",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/CSSC-OFFSHORE-MARINE-ENGINEERING.json",
+    "data_tier": "T3",
+    "audit_scope": "PLACEMENT",
+    "name": "CSSC Offshore & Marine Engineering (Group) Company Limited",
+    "exchange": "The Stock Exchange of Hong Kong Limited",
+    "tier": "T3",
+    "money_corner": false,
+    "link_heat_verdict": "CROWDED",
+    "thesis_1line": "Listed vehicle for the CSSC group's Guangzhou merchant yards, Huangpu Wenchong and Wenchong Shipyard, and holder of a 4,527,400 DWT shipbuilding order book that occupies those berths years ahead. The berths, not owner appetite, are what this link measures, and this order book is containerships, gas carriers and defence work rather than product tankers, which is precisely the substitution the link's mechanism rests on.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 20547052116.16,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Fiscal-year revenue (CNY) for the period ended 2025-12-31, from the yfinance-statements vendor aggregate in data/market/0317-HK.json fundamentals.",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.17103083474235636,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Three-year compound annual revenue growth computed as (20547052116.16/12795124917.87)**(1/3)-1 from the vendor-aggregate revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": false
+     },
+     "operating_margin": {
+      "value": 0.019229435851250525,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Operating income 395108220.6 CNY divided by revenue 20547052116.16 CNY, both for the period ended 2025-12-31, from the vendor-aggregate series.",
+      "official_source": false
+     },
+     "fcf_margin": {
+      "value": -0.02956177341917976,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Free cash flow margin: operating cash flow -322225535.26 CNY less capital expenditure 285181763.83 CNY, divided by revenue 20547052116.16 CNY, all for the period ended 2025-12-31, from the vendor-aggregate series.",
+      "official_source": false
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": -0.3195849165180921,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Operating cash flow -322225535.26 CNY divided by net income 1008262651.35 CNY, both for the period ended 2025-12-31, from the vendor-aggregate series; the ratio is negative because operating cash flow itself is negative that period (working-capital build against the growing order book).",
+      "official_source": false
+     },
+     "net_debt_to_ebitda": {
+      "value": -8.904674613463609,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Net debt -7836029221.36 CNY (total debt 6019395822.37 CNY less cash 13855425043.73 CNY, both as of 2025-12-31) divided by an EBITDA proxy 879990517.51 CNY (operating income 395108220.6 plus depreciation 484882296.91, both for the period ended 2025-12-31), from the vendor-aggregate series; the negative multiple reflects a net cash position, not a leverage risk.",
+      "official_source": false
+     },
+     "piotroski": {
+      "value": 6,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Piotroski F-score 6 (state MIDDLING) computed over yfinance-statements vendor-aggregate statements in data/market/0317-HK.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": false
+     },
+     "beneish_state": {
+      "value": -2.596,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-13",
+      "url": "https://finance.yahoo.com/quote/0317.HK/financials",
+      "basis": "Beneish M-score -2.596 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements vendor-aggregate statements in data/market/0317-HK.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": false
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Market capitalization cannot be computed for CSSC Offshore: data/market/0317-HK.json quality.currency_note records that statements are reported in CNY while the 00317.HK listing trades in HKD, and no FX source is on disk, so quality.derived.market_cap is left NULL rather than mixed-currency arithmetic."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Price-to-sales cannot be computed for CSSC Offshore because it depends on market_cap, which quality.derived leaves NULL for the same CNY-versus-HKD currency mismatch (no FX source on disk to convert between the statement currency and the listing's trading currency)."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR cannot be solved for CSSC Offshore: quality.reverse_dcf reads PENDING_DATA missing enterprise_value, which itself depends on the market_cap left NULL by the CNY/HKD currency mismatch, so there is no enterprise-value base for the bisection solve."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread is likewise undefined for CSSC Offshore: with enterprise_value unavailable (same currency-mismatch root cause), quality.reverse_dcf.implied_by_horizon was never populated, so there is no per-horizon spread to report."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/0317-HK.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/0317-HK.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
     },
     "earnings_nuggets": [],
     "status": "CANDIDATE"
@@ -1557,50 +2896,675 @@
     },
     "earnings_nuggets": [],
     "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "CONOCOPHILLIPS",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:COP",
+    "ticker": "COP",
+    "market_ticker": "COP",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "crude-feedstock",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/CONOCOPHILLIPS.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "ConocoPhillips",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "Explores for and produces the crude oil and bitumen that feed the conversion stages downstream on this chain.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 51824000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/COP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001163165.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for ConocoPhillips (COP).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.05314358606609759,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/COP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001163165.json",
+      "basis": "Three-year compound annual revenue growth computed as (51824000000/61049000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Operating margin cannot be computed for ConocoPhillips: data/market/COP.json fundamentals carries no operating_income_fy series at all for CIK 1163165 this fetch (coverage.missing names operating_income, and quality.altman separately reads PENDING_DATA missing operating_income_fy); only cost_of_revenue_fy and sga_fy are tagged alongside revenue."
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Free cash flow margin cannot be computed for ConocoPhillips: capex_fy is entirely absent from SEC XBRL companyfacts for CIK 1163165 this fetch (coverage.missing names capex; stale_dropped records capex as a concept last tagged in an earlier period), so there is no capital-expenditure figure to net against the 19796000000 operating cash flow."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.4782173259889833,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/COP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001163165.json",
+      "basis": "Operating cash flow 19796000000 divided by net income 7988000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Net debt to EBITDA cannot be computed for ConocoPhillips: the EBITDA proxy needs operating_income_fy, which SEC XBRL companyfacts does not carry at all for CIK 1163165 this fetch (the same gap that leaves operating_margin NULL); with no operating-income figure to add depreciation to, no EBITDA proxy exists to divide the 22828000000 total debt and 6574000000 cash figures on file."
+     },
+     "piotroski": {
+      "value": 5,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/COP.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001163165.json",
+      "basis": "Piotroski F-score 5 (state MIDDLING) computed over SEC companyfacts statements in data/market/COP.json quality.piotroski; 9 of 9 inputs found.",
+      "official_source": true
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for ConocoPhillips: data/market/COP.json quality.beneish is missing ppe_net_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": 306906654825.58,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/COP.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001163165.json",
+      "basis": "Market capitalization 306906654825.58 computed in data/market/COP.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 5.922095068415792,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/COP.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001163165.json",
+      "basis": "Market capitalization 306906654825.58 divided by fiscal year 2025-12-31 revenue 51824000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR cannot be solved for ConocoPhillips: quality.reverse_dcf reads PENDING_DATA missing fcf because capex_fy is not tagged in SEC XBRL companyfacts this fetch, leaving no free-cash-flow base for the bisection solve."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread across the 5, 7 and 10-year reverse-DCF solves is undefined for ConocoPhillips: with no base free-cash-flow figure (the same fcf gap that blocks implied_fcf_cagr), quality.reverse_dcf.implied_by_horizon was never populated, so there is no per-horizon spread to report."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/COP.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/COP.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1163165
+   },
+   {
+    "issuer_id": "SUNOCO-LP",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:SUN",
+    "ticker": "SUN",
+    "market_ticker": "SUN",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "wholesale-fuel-distribution",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/SUNOCO-LP.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Sunoco LP",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Distributes motor fuels at wholesale across a multi-country footprint, the few-cents-a-gallon stage of this chain.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 25201000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SUN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001552275.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Sunoco (SUN).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.0068878638837518436,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SUN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001552275.json",
+      "basis": "Three-year compound annual revenue growth computed as (25201000000/25729000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.037101702313400264,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SUN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001552275.json",
+      "basis": "Operating income 935000000 divided by revenue 25201000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Free cash flow margin cannot be computed for Sunoco: capex_fy is not tagged in SEC XBRL companyfacts for CIK 1552275 this fetch (coverage.missing lists capex), so there is no capital-expenditure figure to net against the 1192000000 operating cash flow."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.2618595825426944,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SUN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001552275.json",
+      "basis": "Operating cash flow 1192000000 divided by net income 527000000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 7.690080098582871,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/SUN.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001552275.json",
+      "basis": "Net debt 12481000000 (total debt 13372000000 less cash 891000000, both as of 2025-12-31) divided by an EBITDA proxy 1623000000 (operating income 935000000 plus depreciation 688000000, both for the period ended 2025-12-31), from the companyfacts series.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score reads PENDING_DATA for Sunoco: data/market/SUN.json quality.piotroski is missing shares_fy (8 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Sunoco: data/market/SUN.json quality.beneish is missing receivables_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Market capitalization cannot be computed for Sunoco: shares_fy is not tagged in SEC XBRL companyfacts for CIK 1552275 this fetch (coverage.missing lists shares), so quality.derived.market_cap has no share count to multiply against the 74.65 close on file."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Price-to-sales cannot be computed for Sunoco because it depends on market_cap, which is undefined for the same reason: no shares-outstanding figure is tagged in SEC XBRL companyfacts to multiply against price."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR cannot be solved for Sunoco: quality.reverse_dcf reads PENDING_DATA missing both fcf (capex_fy is untagged, so free cash flow cannot be formed) and enterprise_value (which depends on the market_cap left NULL by the missing shares_fy figure), leaving no base for the bisection solve."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread is likewise undefined for Sunoco: with neither a base free-cash-flow figure nor an enterprise-value figure available, quality.reverse_dcf.implied_by_horizon was never populated, so there is no per-horizon spread to report."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/SUN.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/SUN.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1552275
+   },
+   {
+    "issuer_id": "GLOBAL-PARTNERS-LP",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:GLP",
+    "ticker": "GLP",
+    "market_ticker": "GLP",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "wholesale-fuel-distribution",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/GLOBAL-PARTNERS-LP.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Global Partners LP",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "Distributes gasoline and distillates including diesel, which is this link's wholesale movement of middle distillate.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 8713114000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001323468.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Global Partners (GLP).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.07881203061957898,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001323468.json",
+      "basis": "Three-year compound annual revenue growth computed as (8713114000/11146246000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.02693227702518296,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001323468.json",
+      "basis": "Operating income 234664000 divided by revenue 8713114000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.02218896711325021,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001323468.json",
+      "basis": "Free cash flow margin: operating cash flow 284804000 less capital expenditure 91469000, divided by revenue 8713114000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.9068454841442377,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLP.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001323468.json",
+      "basis": "Operating cash flow 284804000 divided by net income 97977000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Net debt to EBITDA cannot be computed for Global Partners: neither total_debt nor long_term_debt_fy is tagged in SEC XBRL companyfacts for CIK 1323468 this fetch (coverage.missing lists long_term_debt), and depreciation_fy is also missing (coverage.missing lists depreciation), so no EBITDA proxy exists either; only the 23913000 cash figure is on file."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score reads PENDING_DATA for Global Partners: data/market/GLP.json quality.piotroski is missing long_term_debt_fy and shares_fy (7 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Global Partners: data/market/GLP.json quality.beneish is missing depreciation_fy and long_term_debt_fy (10 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Market capitalization cannot be computed for Global Partners: shares_fy is not tagged in SEC XBRL companyfacts for CIK 1323468 this fetch (coverage.missing lists shares), so quality.derived.market_cap has no share count to multiply against the 50.5 close on file."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Price-to-sales cannot be computed for Global Partners because it depends on market_cap, which is undefined for the same reason: no shares-outstanding figure is tagged in SEC XBRL companyfacts to multiply against price."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR cannot be solved for Global Partners: quality.reverse_dcf reads PENDING_DATA missing enterprise_value, which itself depends on the market_cap left NULL by the missing shares_fy figure, so there is no enterprise-value base for the bisection solve."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "The horizon spread is likewise undefined for Global Partners: with enterprise_value unavailable (the same missing-shares root cause), quality.reverse_dcf.implied_by_horizon was never populated, so there is no per-horizon spread to report."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/GLP.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/GLP.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 1323468
    }
   ],
-  "hedge": []
+  "hedge": [
+   {
+    "issuer_id": "OLD-DOMINION-FREIGHT-LINE",
+    "listing_id": "THE-NASDAQ-STOCK-MARKET-LLC:ODFL",
+    "ticker": "ODFL",
+    "market_ticker": "ODFL",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "diesel-demand-anchor",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/OLD-DOMINION-FREIGHT-LINE.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Old Dominion Freight Line, Inc.",
+    "exchange": "The Nasdaq Stock Market LLC",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "Runs a large diesel-consuming line-haul truck fleet, one of the payers at the demand end of this chain.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 5496389000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ODFL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for Old Dominion (ODFL).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.042440148127076416,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ODFL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Three-year compound annual revenue growth computed as (5496389000/6260077000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.247625304540854,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ODFL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Operating income 1361045000 divided by revenue 5496389000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.1737684505226977,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ODFL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Free cash flow margin: operating cash flow 1370133000 less capital expenditure 415034000, divided by revenue 5496389000, all for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.3384086986166885,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ODFL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Operating cash flow 1370133000 divided by net income 1023703000, both for the period ended 2025-12-31, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": -0.15294646665059616,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ODFL.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Net debt -263944000 (total debt 19995000 as of 2025-12-31 less cash 283939000 as of 2026-06-30) divided by an EBITDA proxy 1725728000 (operating income 1361045000 plus depreciation 364683000, both for the period ended 2025-12-31), from the companyfacts series; the negative multiple reflects a near-debt-free balance sheet.",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score reads PENDING_DATA for Old Dominion: data/market/ODFL.json quality.piotroski is missing cost_of_revenue_fy (8 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Old Dominion: data/market/ODFL.json quality.beneish is missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 41425634800.44,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/ODFL.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Market capitalization 41425634800.44 computed in data/market/ODFL.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 7.536881905636592,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/ODFL.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Market capitalization 41425634800.44 divided by fiscal year 2025-12-31 revenue 5496389000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.2773,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/ODFL.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR, from data/market/ODFL.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.1191,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/ODFL.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000878927.json",
+      "basis": "Spread 0.1191 across explicit horizons {'5': 0.2773, '7': 0.2077, '10': 0.1582} from data/market/ODFL.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/ODFL.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/ODFL.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 878927
+   },
+   {
+    "issuer_id": "DEERE",
+    "listing_id": "NEW-YORK-STOCK-EXCHANGE:DE",
+    "ticker": "DE",
+    "market_ticker": "DE",
+    "chain_id": "russian-diesel-ban",
+    "link_id": "diesel-demand-anchor",
+    "mapping_ref": "data/mappings/russian-diesel-ban.json",
+    "profile_ref": "data/companies/DEERE.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "name": "Deere & Company",
+    "exchange": "New York Stock Exchange",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "OVER_CROWDED",
+    "thesis_1line": "Builds diesel-fuelled agricultural machinery whose owners carry the diesel cost this chain sets.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "not disclosed",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 45684000000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Fiscal-year revenue for the period ended 2025-11-02, from SEC XBRL companyfacts for Deere (DE).",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.045763318851563706,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Three-year compound annual revenue growth computed as (45684000000/52577000000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-10-30 to period ended 2025-11-02.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Operating margin cannot be computed for Deere against its latest fiscal year: revenue_fy's latest entry in SEC XBRL companyfacts is dated 2025-11-02 (45684000000), but operating_income_fy's latest entry is one fiscal year behind at 2024-10-27 (9039000000); dividing the two would mismatch fiscal periods, so the field is left NULL rather than reporting a stale-period margin as current."
+     },
+     "fcf_margin": {
+      "value": 0.13350407144733387,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Free cash flow margin: operating cash flow 7459000000 less capital expenditure 1360000000, divided by revenue 45684000000, all for the period ended 2025-11-02, from the companyfacts series.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 1.4837875472448776,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DE.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Operating cash flow 7459000000 divided by net income 5027000000, both for the period ended 2025-11-02, from the companyfacts series.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Net debt to EBITDA cannot be computed for Deere: the EBITDA proxy needs operating_income_fy and depreciation_fy at the same fiscal period end, but operating_income_fy's latest companyfacts entry (2024-10-27) is one fiscal year behind depreciation_fy's (2025-11-02), the same period gap that leaves operating_margin NULL. Separately, total_debt is a single stale companyfacts entry dated 2022-05-01 (over three years before the 2026-08-02 cash balance) with no long_term_debt_fy series to substitute (coverage.missing lists long_term_debt), so a net-debt figure would also pair a stale debt number with a current cash number; both problems leave this field NULL."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score reads PENDING_DATA for Deere: data/market/DE.json quality.piotroski is missing long_term_debt_fy, current_assets_fy, current_liabilities_fy and cost_of_revenue_fy (5 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Beneish M-score reads PENDING_DATA for Deere: data/market/DE.json quality.beneish is missing cost_of_revenue_fy, current_assets_fy, ppe_net_fy, current_liabilities_fy and long_term_debt_fy (7 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 338128680817.32,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/DE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Market capitalization 338128680817.32 computed in data/market/DE.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+      "official_source": true
+     },
+     "price_to_sales": {
+      "value": 7.401468365671132,
+      "tag": "INFERRED",
+      "source_name": "Upstream market store data/market/DE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Market capitalization 338128680817.32 divided by fiscal year 2025-11-02 revenue 45684000000.",
+      "official_source": true
+     },
+     "implied_fcf_cagr": {
+      "value": 0.367,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/DE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR, from data/market/DE.json quality.reverse_dcf."
+     },
+     "horizon_spread": {
+      "value": 0.166,
+      "tag": "SPECULATIVE",
+      "source_name": "Upstream market store data/market/DE.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-13",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315189.json",
+      "basis": "Spread 0.166 across explicit horizons {'5': 0.367, '7': 0.2694, '10': 0.201} from data/market/DE.json quality.reverse_dcf.implied_by_horizon."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/DE.json",
+     "as_of": "2026-09-13",
+     "tag": "NULL",
+     "basis": "data/market/DE.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE",
+    "cik": 315189
+   }
+  ]
  },
  "data_gaps": [
-  "GATE DEFECT FROM THE FIRST RUN (check_screen.py campaign-identity ticker check) IS NOW FIXED: as of this run tools/check_screen.py lines 399-406 correctly compare listing.market_ticker against row.market_ticker and listing.ticker against row.ticker separately. Verified by re-reading the file this run. The three rows it previously blocked (BHARAT-PETROLEUM, CHINA-PETROLEUM-AND-CHEMICAL, KAWASAKI-HEAVY-INDUSTRIES) are seated this run.",
-  "Money-corner link hydroprocessing-catalysts is genuinely empty this run, reaffirmed: its sole placement (ALBEMARLE) is mechanically admissible (COMPLETE O2, all-VERIFIED evidence) but declined on judgment because Albemarle's own Q2 2026 8-K (data/edgar/docs/ALB.json, accession 0000915913-26-000101) states the Refining Solutions/Ketjen business the placement's role rests on was divested (controlling stake) in Q1 2026, along with the full Eurecat JV stake. Re-verified verbatim this run. Flagged to tasks/backlog.md for Atlas; the placement's role evidence (an April 2025 10-Q) is now stale in a way that reverses the claim.",
-  "15 issuers still carry ACTIVE, all-VERIFIED mapping placements on this chain with no profile on disk (admissible-but-unprofiled), down from 20 at the first run: crude-feedstock: CONOCOPHILLIPS. refinery-hydrogen: AIR-PRODUCTS. hydroprocessing-technology: KBR-INC. turnaround-and-catalyst-services: MATRIX-SERVICE, MISTRAS-GROUP. shipyard-newbuild-capacity: CSSC-OFFSHORE-MARINE-ENGINEERING. conversion-capacity (CHOKE_POINT): VALERO-ENERGY, PHILLIPS-66, PBF-ENERGY. clean-product-shipping: SCORPIO-TANKERS. storage-and-blending-terminals: KINDER-MORGAN. wholesale-fuel-distribution: SUNOCO-LP, GLOBAL-PARTNERS-LP. diesel-demand-anchor: OLD-DOMINION-FREIGHT-LINE, DEERE. `run profile --campaign` should prioritize conversion-capacity (CHOKE_POINT, 3 remaining names) next.",
-  "KAWASAKI-HEAVY-INDUSTRIES's own profile (business_summary and exposure_summary) still describes only its tibet-mega-dam tunnel-boring-machine placement and has not been amended with this chain's VLCC-newbuild shipyard role; this row's identity and thesis rest on the mapping's own placement record instead, which is independently sourced and all-VERIFIED (method section 6A treats a profile as reusable across chains). Next `run profile KAWASAKI-HEAVY-INDUSTRIES` pass should append the russian-diesel-ban placement to the profile's own narrative.",
-  "No earnings_nuggets are written on any row: only ALBEMARLE (declined) has a fetched EDGAR document on disk (data/edgar/docs/ALB.json). None of the 11 seated names (4 foreign T3 listings with no SEC filings at all, and 6 US T1 names: MPC, DINO, PARR, TNK, FRO, plus INSW already noted at the first run) carries a data/edgar/docs/<T>.json file, so no verbatim quote could be verified this run rather than being fabricated.",
-  "Crowdedness is NULL/COVERAGE-THIN on all 11 rows: every row's data/market/<T>.json.pcs reads null (checked for HINDPETRO-NS, BPCL-NS, IOC-NS, 0386-HK, MPC, DINO, PARR, TNK, FRO, 7012-T and INSW alike); method section 6 treats T2/T3 PCS as COVERAGE-THIN and never a blocker, and this run does not estimate a NULL read for the T1 names either.",
-  "CHINA-PETROLEUM-AND-CHEMICAL's valuation and reverse_dcf fields (market_cap, price_to_sales, implied_fcf_cagr, horizon_spread) are NULL per the profile's own currency-mismatch basis: statement_currency CNY vs price_currency HKD with no FX source on disk. Not something this screen run can resolve; flagged in the profile itself already."
+  "Money-corner link hydroprocessing-catalysts is genuinely empty this run, reaffirmed a third time: its sole placement (ALBEMARLE) is mechanically admissible (COMPLETE O2, all-VERIFIED role evidence) but declined on judgment. Two independent fresh-context placement_audits[] entries (2026-09-06T17:21:44Z SELF_REVIEW and 2026-09-14T00:33:59Z true FRESH_CONTEXT) both return status FAIL, role_ok:false, over Albemarle's own Form 8-K (accession 0000915913-26-000032) disclosing the 2026-03-02 sale of its 51% controlling Ketjen interest. Flagged to tasks/backlog.md for Atlas; the placement's role evidence (an April 2025 10-Q) is stale in a way that reverses the claim, and closing it needs a mapping amendment outside this run's write scope.",
+  "All 27 mapped issuers are now COMPLETE O2; the admissible-but-unprofiled backlog from the first two runs is closed. The only unseated placement is the declined ALBEMARLE row.",
+  "KAWASAKI-HEAVY-INDUSTRIES's and CSSC-OFFSHORE-MARINE-ENGINEERING's own profiles (business_summary and exposure_summary) do not yet name their russian-diesel-ban/shipyard-newbuild-capacity placement in prose; both rows here rest on the mapping's own independently-sourced placement record per method section 6A's reusable-profile rule, but the profile backfill is flagged again.",
+  "The mapping's fresh-context census audit (2026-09-04T03:32:44Z, status FAIL) is unchanged: 12 of 13 link_coverage rows remain OPEN and none TARGET_MET, so the mapping stays ACTIVE rather than COMPLETE. Every row on this screen rests on the placement-scope route, not the whole-census route. A `run universe-audit` pass to close OPEN links is the standing next step, unrelated to this run's seating."
  ],
  "taste_filtered": [],
  "health": {
   "tickers_examined": 27,
-  "rows_written": 11,
+  "rows_written": 26,
   "fully_scored": 0,
-  "pending": 11,
+  "pending": 26,
   "errors": 0,
   "rows_superseded": 0,
-  "rows_with_quality_gaps": 8,
+  "rows_with_quality_gaps": 20,
   "links_worked": 13,
   "links_total": 13,
-  "target_links_covered": 4,
+  "target_links_covered": 11,
   "money_corner_links_total": 1,
   "money_corner_links_covered": 0,
   "choke_point_links_total": 2,
   "choke_point_links_covered": 1,
   "quotes_verified": 0,
-  "distinct_issuers": 11,
-  "profiles_available_repo_wide": 168,
+  "distinct_issuers": 26,
+  "profiles_available_repo_wide": 328,
   "admissible_placements_all_verified_evidence": 27,
-  "admissible_but_unprofiled_issuers": 15,
+  "admissible_but_unprofiled_issuers": 0,
   "admissible_profiled_but_declined_on_judgment": 1,
   "admissible_profiled_but_blocked_o3": 0,
   "admissible_profiled_but_blocked_by_gate_defect": 0
  },
  "notes": [],
  "confidence_audit": {
-  "verified": 6,
-  "inferred": 91,
-  "speculative": 13,
-  "null": 43
+  "verified": 20,
+  "inferred": 187,
+  "speculative": 27,
+  "null": 129
  },
  "changelog": [
   {
@@ -1612,6 +3576,11 @@
    "ts": "2026-09-06T00:00:00Z",
    "by": "sieve-profiler",
    "change": "Second run screen russian-diesel-ban (chain-level, scenario_id null). Re-verified the first run's ALBEMARLE/hydroprocessing-catalysts divestiture finding against data/edgar/docs/ALB.json (quote unchanged, verbatim) and reaffirmed the money-corner decline on the same judgment basis. Confirmed tools/check_screen.py's campaign-identity ticker/market_ticker comparison defect (lines 399-406) is fixed since the first run: it now compares listing.market_ticker against row.market_ticker and listing.ticker against row.ticker separately. Re-checked data/companies/_profile-log.json calibration and found 7 issuers newly COMPLETE O2 since the first run (HINDUSTAN-PETROLEUM, INDIAN-OIL, MARATHON-PETROLEUM, HF-SINCLAIR, PAR-PACIFIC-HOLDINGS, TEEKAY-TANKERS, FRONTLINE), plus 2 (BHARAT-PETROLEUM, CHINA-PETROLEUM-AND-CHEMICAL) and KAWASAKI-HEAVY-INDUSTRIES that were already COMPLETE O2 at the first run but dropped only by the now-fixed gate defect. Seated 10 new rows across 3 newly-covered links: HINDUSTAN-PETROLEUM, BHARAT-PETROLEUM, INDIAN-OIL, CHINA-PETROLEUM-AND-CHEMICAL on refinery-capacity-response (second_order, now fully covered at 4 of 4 admissible names); MARATHON-PETROLEUM, HF-SINCLAIR, PAR-PACIFIC-HOLDINGS on conversion-capacity (pure_play, 3 of 6 admissible names, the chain's second CHOKE_POINT link, now partly covered); KAWASAKI-HEAVY-INDUSTRIES on shipyard-newbuild-capacity (picks_and_shovels); TEEKAY-TANKERS and FRONTLINE on clean-product-shipping (pure_play, alongside the already-seated INTERNATIONAL-SEAWAYS). Every new row's fundamentals block is copied field-for-field, with its original tag, source, date, url and basis, from that issuer's own COMPLETE profile metrics (data/companies/<issuer_id>.json), never recomputed. No earnings_nuggets on any new row: none of the 10 newly-seated tickers has a data/edgar/docs/<T>.json file on disk. Screen totals 4 of 13 links, 11 rows, up from 1 link and 1 row. Money corner (hydroprocessing-catalysts) and one CHOKE_POINT link (russian-refining-attrition) remain genuinely searched-and-empty with stated reasons. Remaining admissible-but-unprofiled issuers dropped from 20 to 15; next `run profile --campaign` step named in universe_note (VALERO-ENERGY, PHILLIPS-66, PBF-ENERGY on conversion-capacity first)."
+  },
+  {
+   "ts": "2026-09-14T00:00:00Z",
+   "by": "sieve-profiler",
+   "change": "Third run screen russian-diesel-ban (chain-level, scenario_id null). Re-verified all 27 mapping placements are ACTIVE with all-VERIFIED role evidence (audit_scope PLACEMENT route) and confirmed 9 of 27 additionally now carry a current PASS fresh-context placement_audits[] entry (4 on refinery-capacity-response, 5 on conversion-capacity), the stronger admission route. Re-checked data/companies/_profile-log.json calibration: all 27 mapped issuers are now COMPLETE O2, up from 12 at the second run (15 newly complete: VALERO-ENERGY, PHILLIPS-66, PBF-ENERGY, CONOCOPHILLIPS, AIR-PRODUCTS, KBR-INC, MATRIX-SERVICE, MISTRAS-GROUP, SCORPIO-TANKERS, KINDER-MORGAN, SUNOCO-LP, GLOBAL-PARTNERS-LP, OLD-DOMINION-FREIGHT-LINE, DEERE, CSSC-OFFSHORE-MARINE-ENGINEERING). Seated all 15 in the same 6 links they map to plus 6 newly-seated links (crude-feedstock, refinery-hydrogen, hydroprocessing-technology, turnaround-and-catalyst-services, storage-and-blending-terminals, wholesale-fuel-distribution, diesel-demand-anchor), completing conversion-capacity (CHOKE_POINT, now 6/6), clean-product-shipping (now 4/4) and shipyard-newbuild-capacity (now 2/2). Re-read data/edgar/docs/ALB.json's stored 8-K exhibit and the mapping's own new 2026-09-14T00:33:59Z FRESH_CONTEXT placement_audits[] FAIL entry for ALBEMARLE (role_ok:false, second independent confirmation) and again declined the money-corner row on judgment. Net: 15 new rows across 9 links (6 newly covered), bringing the screen to 26 rows across 11 of 13 links, up from 11 rows on 4 links. Only hydroprocessing-catalysts (money corner, single declined placement) and russian-refining-attrition (CHOKE_POINT, zero mapped placements by chain design) remain unseated, both documented searched-and-empty with a stated reason."
   }
  ]
 }
