@@ -39,6 +39,11 @@ jobs:
       # session could honour or forget.
       - name: renderer lint
         run: python3 tools/check_render.py
+      # The page speaks plain Hebrew (Ron, 2026-09-13). This lint holds every visible
+      # string in the renderer, the guide and the two build-time prose generators to
+      # Hebrew, so one English label added by one session cannot drift the page back.
+      - name: hebrew page gate
+        run: python3 tools/check_hebrew.py
       # The front door (Ron, 2026-09-13): the Top 3 is a build projection, and this gate
       # re-reads every number on a card from the file the card names, so a card can never
       # carry a number its source does not.

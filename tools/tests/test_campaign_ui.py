@@ -700,11 +700,13 @@ class TestCampaignRendererContract(unittest.TestCase):
         cls.css = (ROOT / "app" / "templates" / "app.css").read_text()
 
     def test_campaign_has_nav_route_and_truthful_empty_state(self):
-        self.assertIn('na("#/campaign", "Campaign", "campaign")', self.js)
+        # The page speaks Hebrew (Ron, 2026-09-13): the pinned labels are the Hebrew ones
+        # tools/check_hebrew.py holds the whole renderer to.
+        self.assertIn('na("#/campaign", "קמפיין", "campaign")', self.js)
         self.assertIn('p[0] === "campaign"', self.js)
-        self.assertIn("No campaign data exists yet.", self.js)
-        self.assertIn("Nothing has been inferred.", self.js)
-        self.assertIn("mapping unavailable", self.js)
+        self.assertIn("אין עדיין נתוני קמפיין.", self.js)
+        self.assertIn("לא הוסק דבר.", self.js)
+        self.assertIn("אין מיפוי זמין", self.js)
         self.assertIn("theme.mapping_present", self.js)
         self.assertIn("staleChip(theme.coverage_as_of)", self.js)
         self.assertIn("staleChip(ix.coverage_as_of)", self.js)
@@ -722,8 +724,8 @@ class TestCampaignRendererContract(unittest.TestCase):
         self.assertIn(".chip.opp-O1", self.css)
 
     def test_dashboard_exposes_required_campaign_surfaces(self):
-        for label in ("Theme coverage", "Per-link coverage", "complete profiles",
-                      "O1 queue", "O1 FINAL", "pending data", "Blockers"):
+        for label in ("כיסוי לפי נושא", "כיסוי לפי חוליה", "פרופילים מלאים",
+                      "תור O1", "O1 סופי", "ממתין לנתונים", "חסמים"):
             self.assertIn(label, self.js)
         self.assertIn("t.profiles_per_theme", self.js)
 

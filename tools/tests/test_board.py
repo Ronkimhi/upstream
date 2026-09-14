@@ -462,7 +462,7 @@ class TestScopeEmpty(unittest.TestCase):
             tree = Tree(td)  # a real tree shape, but nothing analysed in it
             board = tree.board()
         self.assertEqual(board["scope"], "SCOPE_EMPTY")
-        self.assertIn("no campaign manifest and no chain on disk", board["scope_note"])
+        self.assertIn("אין מניפסט קמפיין ואין שרשרת בדיסק", board["scope_note"])
 
     def test_strict_exits_one_on_scope_empty_and_zero_otherwise(self):
         with tempfile.TemporaryDirectory() as td:

@@ -302,27 +302,27 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
         if mapping_state["status"] == "ACTIVE" and mapping_state["audit"] == "FAIL":
             blockers.append(_blocker(
                 "MAPPING_AUDIT_FAIL",
-                f"mapping audit FAIL with {mapping_state['amendments']} amendment(s) "
-                f"required; `run universe` corrects it, the audit cannot"))
+                f"ביקורת המיפוי היא FAIL. מספר התיקונים הנדרשים: "
+                f"{mapping_state['amendments']}. `run universe` מתקן את זה, הביקורת לא יכולה."))
         elif mapping_state["status"] == "ACTIVE" and _unauditable_links(mapping):
             untouched = _unauditable_links(mapping)
             blockers.append(_blocker(
                 "MAPPING_LINK_UNTOUCHED",
-                f"link_coverage row(s) {untouched} have no placement and no EXHAUSTED "
-                "search; a fresh-context audit has nothing to sample there, so `run "
-                "universe` must close them before `run universe-audit` can pass"))
+                f"לשורות link_coverage {untouched} אין שיבוץ ואין חיפוש EXHAUSTED; "
+                "לביקורת בעיניים חדשות אין שם מה לבדוק, אז `run universe` צריכה לסגור "
+                "אותן קודם, לפני שהפקודה `run universe-audit` יכולה לעבור"))
         elif mapping_state["status"] == "ACTIVE":
             blockers.append(_blocker(
                 "MAPPING_AWAITING_AUDIT",
-                "mapping is ACTIVE and needs a fresh-context `run universe-audit` before "
-                "profiles or screens may consume it"))
+                "המיפוי במצב ACTIVE וצריך ביקורת בעיניים חדשות, `run universe-audit`, "
+                "לפני שפרופילים או סריקות יכולים להשתמש בו"))
         elif mapping_state["status"] == "COMPLETE" and (
                 mapping_state["audit"] != "PASS"
                 or mapping_state["fingerprint_current"] is not True):
             blockers.append(_blocker(
                 "MAPPING_FINGERPRINT_STALE",
-                "mapping is COMPLETE but its PASS audit no longer covers current material "
-                "content (fingerprint mismatch); screens resting on it fail the screen gate"))
+                "המיפוי במצב COMPLETE, אבל ביקורת ה-PASS שלו כבר לא מכסה את התוכן "
+                "הנוכחי (אי התאמה בטביעת האצבע); סריקות שנשענות עליו נכשלות בשער הסריקה"))
 
     if any(screen.get("chain_id") == chain_id for screen in inventory["screens"]) and \
             mapping_state["present"] and not (
@@ -331,8 +331,8 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
                 and mapping_state["fingerprint_current"] is True):
         blockers.append(_blocker(
             "SCREEN_MAPPING_STALE",
-            "a screen exists on this chain while its mapping has no current PASS audit; "
-            "tools/check_screen.py refuses those rows"))
+            "קיימת סריקה על השרשרת הזאת, אבל למיפוי שלה אין ביקורת PASS עדכנית; "
+            "tools/check_screen.py דוחה את השורות האלה"))
 
     # --- profiles blocked on data --------------------------------------------------
     stuck = sorted(
@@ -345,26 +345,26 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
                           for issuer_id, reqs in stuck[:5])
         blockers.append(_blocker(
             "PROFILE_PENDING_DATA",
-            f"{len(stuck)} profile(s) BLOCKED behind PENDING request rows: {named}"
+            f"מספר הפרופילים במצב BLOCKED מאחורי שורות בקשה PENDING: {len(stuck)}. {named}"
             + (" …" if len(stuck) > 5 else "")))
 
     # --- the next command ----------------------------------------------------------
     if stage == "SELECTED":
         signal_id = _identity(theme.get("signal_id"))
         command, why = _checked(f"run chain {signal_id}" if signal_id else None)
-        reason = "no chain exists for this theme yet"
+        reason = "עדיין אין שרשרת לנושא הזה"
         if command is None:
             blockers.append(_blocker(
                 "NO_SIGNAL",
-                why or "the theme names no signal_id, so no chain command can be formed"))
+                why or "לנושא הזה אין signal_id, ולכן אי אפשר לבנות פקודת שרשרת"))
     elif stage == "CHAINED":
         command, why = _checked(f"run heat {chain_id}" if chain_id else None)
-        reason = "no link carries a heat verdict yet"
+        reason = "אף חוליה עדיין לא קיבלה הכרעת חום"
         if why:
             blockers.append(_blocker("BAD_CHAIN_ID", why))
     elif stage == "HEATED":
         command, why = _checked(f"run scenarios {chain_id}" if chain_id else None)
-        reason = "every link is scored; no scenarios yet"
+        reason = "כל חוליה מדורגת; עדיין אין תרחישים"
         if why:
             blockers.append(_blocker("BAD_CHAIN_ID", why))
     elif stage == "SCENARIOS":
@@ -372,16 +372,16 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
         if mapping_state["present"] and mapping_state["status"] == "ACTIVE" and \
                 mapping_state["audit"] != "FAIL" and not unauditable:
             command, why = _checked(f"run universe-audit {chain_id}")
-            reason = "a fresh-context audit decides COMPLETE"
+            reason = "ביקורת בעיניים חדשות קובעת אם המיפוי יעבור ל-COMPLETE"
         else:
             command, why = _checked(f"run universe {chain_id}")
             if mapping_state["audit"] == "FAIL":
-                reason = "author correction after a FAIL audit"
+                reason = "תיקון של הכותב אחרי ביקורת שנכשלה (FAIL)"
             elif unauditable:
-                reason = (f"link_coverage row(s) {unauditable} have no placement or "
-                          "EXHAUSTED search yet; not audit-ready")
+                reason = (f"לשורות link_coverage {unauditable} אין עדיין שיבוץ או חיפוש "
+                          "EXHAUSTED; לא מוכן לביקורת")
             else:
-                reason = "no COMPLETE issuer mapping for this chain"
+                reason = "אין עדיין מיפוי חברות במצב COMPLETE לשרשרת הזאת"
         if why:
             blockers.append(_blocker("BAD_CHAIN_ID", why))
     elif stage == "MAPPED":
@@ -389,10 +389,10 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
                               LOCKED_TARGETS["profiles_per_theme_min"])
         blockers.append(_blocker(
             "PROFILES_BELOW_MINIMUM",
-            f"{len(complete)}/{minimum} COMPLETE O1+O2 profiles on this theme"))
+            f"{len(complete)}/{minimum} פרופילים במצב COMPLETE (O1+O2) בנושא הזה"))
         if campaign_id:
             command, why = _checked(f"run profile --campaign {campaign_id}")
-            reason = "bounded batch, at most 15 issuers per run"
+            reason = "אצווה מוגבלת: עד 15 חברות בכל הרצה"
             if why:
                 blockers.append(_blocker("BAD_CAMPAIGN_ID", why))
         else:
@@ -404,17 +404,17 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
                 if issuer_id in tickers and issuer_id not in profiled
             )
             command, why = _checked(f"run profile {queue[0][1]}" if queue else None)
-            reason = "no manifest: one ticker at a time, money corner first"
+            reason = "אין מניפסט: טיקר אחד בכל פעם, פינת הכסף קודם"
             if why:
                 blockers.append(_blocker("UNRUNNABLE_TICKER", why))
             elif not queue:
                 blockers.append(_blocker(
                     "NO_UNPROFILED_ISSUER",
-                    "every mapped issuer on this chain already has a profile, yet the "
-                    "COMPLETE count is short: the gap is profile quality, not coverage"))
+                    "לכל חברה ממופה בשרשרת הזאת כבר יש פרופיל, אבל מספר הפרופילים "
+                    "במצב COMPLETE נמוך מדי: הפער הוא באיכות הפרופילים, לא בכיסוי"))
     elif stage == "PROFILED":
         command, why = _checked(f"run screen {chain_id}")
-        reason = "profiles are in place; no screen yet"
+        reason = "הפרופילים מוכנים; עדיין אין סריקה"
         if why:
             blockers.append(_blocker("BAD_CHAIN_ID", why))
     elif stage == "SCREENED":
@@ -447,70 +447,71 @@ def _theme_row(root: Path, theme: dict, inventory, campaign, targets, pending) -
                 unauditable = _unauditable_links(mapping) if mapping_state["present"] else []
                 if mapping_state["status"] == "ACTIVE" and unauditable:
                     command, why = _checked(f"run universe {chain_id}")
-                    reason = (f"{issuer_id}'s dive needs a passing audit, but link_coverage "
-                              f"row(s) {unauditable} are not audit-ready yet")
+                    reason = (f"הצלילה של {issuer_id} צריכה ביקורת שעוברת, אבל שורות "
+                              f"link_coverage {unauditable} עדיין לא מוכנות לביקורת")
                 elif mapping_state["status"] == "ACTIVE" and mapping_state["audit"] == "FAIL":
                     command, why = _checked(f"run universe {chain_id}")
-                    reason = (f"{issuer_id}'s dive needs a passing census or placement audit; "
-                              "the census audit FAILed and `run universe` must correct it first")
+                    reason = (f"הצלילה של {issuer_id} צריכה ביקורת מפקד או ביקורת שיבוץ "
+                              "שעוברת; ביקורת המפקד נכשלה (FAIL) ו-`run universe` צריכה "
+                              "לתקן קודם")
                 elif mapping_state["status"] == "ACTIVE":
                     command, why = _checked(f"run universe-audit {chain_id}")
-                    reason = (f"{issuer_id}'s dive needs a passing census or placement audit; "
-                              "no current placement_audits[] entry covers it yet")
+                    reason = (f"הצלילה של {issuer_id} צריכה ביקורת מפקד או ביקורת שיבוץ "
+                              "שעוברת; אין עדיין רשומת placement_audits[] עדכנית שמכסה "
+                              "את זה")
                 else:
-                    command, why = None, "no mapping remediation command applies"
-                    reason = f"{issuer_id}'s dive is blocked on a fresh-context audit"
+                    command, why = None, "אין פקודת תיקון מיפוי שמתאימה כאן"
+                    reason = f"הצלילה של {issuer_id} חסומה בגלל ביקורת בעיניים חדשות"
                 if why:
                     blockers.append(_blocker("BAD_CHAIN_ID", why))
                 blockers.append(_blocker(
                     "DIVE_AUDIT_MISSING",
-                    f"{issuer_id} at {chain_id}/{link_id}: neither the mapping's census "
-                    "carries a current PASS audit nor does a current placement_audits[] "
-                    "PASS entry cover this placement; tools/check_analyst.py refuses "
-                    "the dive on the same grounds"))
+                    f"{issuer_id} ב-{chain_id}/{link_id}: למפקד של המיפוי אין ביקורת PASS "
+                    "עדכנית, וגם אין רשומת placement_audits[] במצב PASS שמכסה את השיבוץ "
+                    "הזה; tools/check_analyst.py דוחה את הצלילה מאותה סיבה"))
             else:
                 quality = _market_quality(root, ticker) if ticker else "NO_MARKET_FILE"
                 if ticker and quality != "PRESENT":
                     command, why = _checked(f"request data {ticker}")
-                    reason = f"{ticker} is queued for a dive; its market file is not ready"
-                    missing = ("no data/market file at all"
+                    reason = f"{ticker} בתור לצלילה; קובץ השוק שלה עדיין לא מוכן"
+                    missing = ("אין בכלל קובץ data/market"
                                if quality == "NO_MARKET_FILE"
-                               else "market file carries no quality block")
+                               else "לקובץ השוק אין מקטע quality")
                     blockers.append(_blocker(
                         "DIVE_DATA_MISSING",
-                        f"{ticker}: {missing}; tools/check_analyst.py requires the "
-                        f"series AND the quality block"))
+                        f"{ticker}: {missing}; tools/check_analyst.py דורש גם את ה-series "
+                        f"וגם את מקטע ה-quality"))
                 else:
                     command, why = _checked(
                         f"run deepdive {ticker} {chain_id}" if ticker else None)
-                    reason = "an O1 name on this theme has no dive"
+                    reason = "לשם O1 בנושא הזה עדיין אין צלילה"
                     if why or not ticker:
                         blockers.append(_blocker(
                             "UNRUNNABLE_TICKER",
-                            why or "the O1 handoff resolves no listing ticker"))
+                            why or "מסירת ה-O1 לא פותרת טיקר רישום"))
         elif campaign_id:
             command, why = _checked(f"run selection {campaign_id}")
-            reason = "screen exists; no profile here is O1 yet"
+            reason = "יש סריקה; עדיין אין כאן פרופיל במצב O1"
             if why:
                 blockers.append(_blocker("BAD_CAMPAIGN_ID", why))
         else:
-            reason = "screen exists; no profile here is O1 yet"
+            reason = "יש סריקה; עדיין אין כאן פרופיל במצב O1"
             blockers.append(_blocker(
                 "SELECTION_NEEDS_CAMPAIGN",
-                "O1 selection runs as `run selection <CAMP-ID>` and no campaign manifest "
-                "exists; run `run campaign init` first"))
+                "בחירת O1 רצה בתור `run selection <CAMP-ID>`, ואין מניפסט קמפיין; "
+                "קודם צריך להריץ `run campaign init`"))
     elif stage == "DIVED":
         pairs = sorted(drafts, key=lambda pair: str(pair[1].get("ticker") or ""))
         ticker = _identity(pairs[0][1].get("ticker")) if pairs else None
         command, why = _checked(
             f"run redteam {ticker} {chain_id}" if ticker else None)
-        reason = "a DRAFT dive awaits its fresh-context red team"
+        reason = "צלילה במצב DRAFT מחכה לצוות אדום בעיניים חדשות"
         if why or not ticker:
             blockers.append(_blocker(
                 "UNRUNNABLE_TICKER",
-                why or "the DRAFT dive names no ticker"))
+                why or "לצלילה במצב DRAFT אין טיקר"))
     else:  # COMPLETE
-        reason = "every O1 name on this theme has a FINAL dive"
+        reason = "לכל שם O1 בנושא הזה יש צלילה במצב FINAL"
 
     return {
         "theme_id": _identity(theme.get("theme_id")) or chain_id,
@@ -549,14 +550,14 @@ def build_board(root: Path) -> dict:
               else _provisional_themes(inventory))
 
     if missing or not themes:
-        why = (f"missing {', '.join(missing)}" if missing
-               else "no campaign manifest and no chain on disk")
+        why = (f"חסרים: {', '.join(missing)}" if missing
+               else "אין מניפסט קמפיין ואין שרשרת בדיסק")
         return {
             "as_of": today,
             "generated_by": "tools/campaign_board.py",
             "scope": "SCOPE_EMPTY",
-            "scope_note": (f"SCOPE EMPTY at {root}: {why}. This is not a clean board; "
-                           f"the board could not see any campaign work."),
+            "scope_note": (f"התחום ריק ב-{root}: {why}. זה לא לוח נקי; "
+                           f"הלוח לא הצליח לראות שום עבודת קמפיין."),
             "campaign_id": _identity((campaign or {}).get("id")),
             "campaign_status": (campaign or {}).get("status"),
             "targets": dict(LOCKED_TARGETS),
@@ -632,10 +633,10 @@ def build_board(root: Path) -> dict:
         "generated_by": "tools/campaign_board.py",
         "scope": "CAMPAIGN" if campaign else "PROVISIONAL",
         "scope_note": (
-            "campaign manifest drives theme identity and rank"
+            "מניפסט הקמפיין קובע את זהות הנושאים ואת הדירוג שלהם"
             if campaign else
-            "no campaign manifest: every chain on disk is shown as an unranked "
-            "provisional theme, and `run campaign init` freezes the real slate"),
+            "אין מניפסט קמפיין: כל שרשרת בדיסק מוצגת כנושא זמני ללא דירוג, "
+            "ו-`run campaign init` קובע את הרשימה האמיתית"),
         "campaign_id": _identity((campaign or {}).get("id")),
         "campaign_status": (campaign or {}).get("status"),
         "targets": dict(targets),

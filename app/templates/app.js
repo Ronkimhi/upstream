@@ -25,10 +25,10 @@
      and date, the link, and the verbatim excerpt the gates verified, behind a toggle. */
   function evRow(e) {
     if (!e || typeof e !== "object") return "<div class='evli'>" + esc(String(e)) + "</div>";
-    var src = e.source_name ? (e.url ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>" + esc(e.source_name) + "</a>" : esc(e.source_name)) : (e.url ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>source</a>" : "");
+    var src = e.source_name ? (e.url ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>" + esc(e.source_name) + "</a>" : esc(e.source_name)) : (e.url ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>מקור</a>" : "");
     return "<div class='evli'>" + (e.tag ? chip(e.tag) + " " : "") + esc(e.claim || "") +
       (src || e.source_date ? " <span class='muted'>[" + src + (e.source_date ? (src ? ", " : "") + esc(e.source_date) : "") + "]</span>" : "") +
-      (e.source_excerpt ? "<details class='excerpt'><summary class='muted small'>verbatim excerpt</summary><blockquote class='small'>" + esc(e.source_excerpt) + "</blockquote></details>" : "") +
+      (e.source_excerpt ? "<details class='excerpt'><summary class='muted small'>ציטוט מילה במילה</summary><blockquote class='small'>" + esc(e.source_excerpt) + "</blockquote></details>" : "") +
       "</div>";
   }
   function evList(items) { return (items || []).map(evRow).join(""); }
@@ -72,11 +72,15 @@
   function staleChip(asOf) {
     if (!asOf) return "";
     var d = daysBetween(asOf, TODAY);
-    if (d > 90) return '<span class="chip verystale">stale · ' + esc(asOf) + "</span>";
-    if (d > 30) return '<span class="chip stale">stale · ' + esc(asOf) + "</span>";
+    if (d > 90) return '<span class="chip verystale">לא עדכני · ' + esc(asOf) + "</span>";
+    if (d > 30) return '<span class="chip stale">לא עדכני · ' + esc(asOf) + "</span>";
     return "";
   }
-  function chip(text, cls) { return '<span class="chip ' + esc(cls || "neutral") + '">' + esc(text) + "</span>"; }
+  function chip(text, cls) {
+    var shown = he(text);
+    var tip = shown !== String(text == null ? "" : text) ? ' title="' + esc(text) + '"' : "";
+    return '<span class="chip ' + esc(cls || "neutral") + '"' + tip + '>' + esc(shown) + "</span>";
+  }
   function tierChip(t) { return t ? '<span class="chip tier">' + esc(t) + "</span>" : ""; }
   /* The impact appraisal (method 0.2). Every value here is read, never derived: the band
      is computed by tools/impact_score.py and the page prints what that wrote. A renderer
@@ -91,21 +95,21 @@
   function impactChip(a) {
     if (!a || !a.impact_band) return "";
     var b = a.impact_band;
-    var label = b === "UNRANKED" ? "unranked"
-      : b.toLowerCase() + (a.impact_score != null ? " " + a.impact_score : "");
+    var label = b === "UNRANKED" ? he(b)
+      : he(b) + (a.impact_score != null ? " " + a.impact_score : "");
     return '<span class="chip impact-' + esc(b) + '" title="' + esc(impactTitle(a)) + '">'
       + esc(label) + "</span>";
   }
   function impactTitle(a) {
     if (!a) return "";
     if (a.impact_band === "UNRANKED") {
-      return "Not appraised: " + (a.unranked_reason || "a leg is NULL");
+      return "לא הוערך: " + (a.unranked_reason || "אחת הרגליים ריקה");
     }
-    var money = a.money_at_stake && a.money_at_stake.band ? a.money_at_stake.band : "no band";
-    return "money " + money
-      + " / reach " + num((a.public_reach || {}).score)
-      + " / capture " + num((a.capture_odds || {}).score)
-      + " / timing " + num((a.timing_fit || {}).score);
+    var money = a.money_at_stake && a.money_at_stake.band ? he(a.money_at_stake.band) : "אין טווח";
+    return "כסף " + money
+      + " · הגעה " + num((a.public_reach || {}).score)
+      + " · לכידה " + num((a.capture_odds || {}).score)
+      + " · תזמון " + num((a.timing_fit || {}).score);
   }
   function opportunityChip(t) {
     if (!t) return "";
@@ -116,6 +120,86 @@
   function marketFor(t) { return (D.market || {})[String(t).replace(/\./g, "-")] || (D.market || {})[t] || null; }
   function fmtMoney(x) { return typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(x); }
   function seclabel(t) { return '<div class="seclabel">' + esc(t) + "</div>"; }
+
+  /* ---------------- Hebrew: the page speaks plain Hebrew (Ron, 2026-09-13) ----------------
+     Every label this renderer writes is Hebrew, in the register of the chain explainers.
+     The machine vocabulary (FINAL, UNDISCOVERED, O1, PENDING_DATA) stays Latin in the data,
+     in every class name, id, ledger line and command, and reaches the reader through he():
+     the Hebrew word, with the token kept in a title attribute so the term the gates and the
+     files use is one hover away. Tickers, dates, paths and commands stay Latin and
+     left-to-right; app.css isolates them (.num, .mono, code, bdi). tools/check_hebrew.py
+     lints this file for English that slipped back in. */
+  document.documentElement.setAttribute("dir", "rtl");
+  document.documentElement.setAttribute("lang", "he");
+  var HE = {
+    // heat verdicts (method section 3)
+    UNDISCOVERED: "לא מזוהה", EMERGING: "מתגלה", CROWDED: "צפוף", OVER_CROWDED: "צפוף מדי", QUIET: "שקט",
+    // stock verdicts (method section 7)
+    INVESTABLE: "ראוי להשקעה", WATCH: "במעקב", TOO_LATE: "מאוחר מדי",
+    // statuses
+    NEW: "חדש", CHAINED: "יש שרשרת", DISMISSED: "נדחה", EXPIRED: "פג תוקף", FINAL: "סופי", DRAFT: "טיוטה",
+    ARCHIVED: "בארכיון", OPEN: "פתוח", SCREENED: "נסרק", INVALIDATED: "הופרך", PLAYED_OUT: "התממש",
+    PENDING: "ממתין", FAILED: "נכשל", FULFILLED: "הושלם", COMPLETE: "הושלם", TARGET_MET: "היעד הושג",
+    EXHAUSTED: "מוצה", PENDING_DATA: "ממתין לנתונים", BLOCKED: "חסום", NOT_STARTED: "לא התחיל",
+    CANDIDATE: "מועמד", DIVED: "נחקר לעומק", ACTIVE: "פעיל", SELECTED: "נבחר", HEATED: "דורג חום",
+    SCENARIOS: "תרחישים", MAPPED: "ממופה", PROFILED: "עם פרופילים", AMBIENT: "ברקע", PROMOTED: "קודם",
+    WATCHING: "במעקב", LIVE: "פעיל", REGISTERED: "רשום", PAUSED: "מושהה", HARDENED: "מוקשח", PROPOSED: "מוצע",
+    // impact bands (method section 0.2)
+    PRIME: "מובחר", REACHABLE: "בהישג יד", COMPETED: "תחרותי", LEAKY: "דולף", THIN: "דק", UNRANKED: "לא דורג",
+    // lanes and clocks
+    MACRO: "מאקרו", INDUSTRY: "תעשייה", USE_CASE: "שימוש", COMPOUNDER: "צובר לאורך שנים", EVENT: "אירוע מתוארך",
+    // evidence tags
+    VERIFIED: "מאומת", INFERRED: "מוסק", SPECULATIVE: "ספקולטיבי", NULL: "ריק",
+    // crowdedness states on a screen row
+    DARK: "חשוך", "COVERAGE-THIN": "סיקור דק", NO_READ: "אין קריאה", MIXED: "מעורב",
+    // occurrence kinds
+    HAPPENED: "קרה", SCHEDULED: "מתוזמן", UNDERWAY: "בעיצומו", UNDATED: "ללא תאריך",
+    // link investability and bottleneck
+    PURE_PLAYS_EXIST: "יש מניות ממוקדות", PARTIAL: "חלקי", MOSTLY_PRIVATE: "בעיקר חברות פרטיות", UNINVESTABLE: "אין דרך להשקיע",
+    CHOKE_POINT: "נקודת חנק", HIGH: "גבוה", MEDIUM: "בינוני", LOW: "נמוך",
+    // scenario moves
+    UP: "עולה", DOWN: "יורד", LARGE: "גדול", SMALL: "קטן", ABOVE: "מעל", BELOW: "מתחת",
+    // shadow book
+    RIGHT: "צדק", WRONG: "שגה", DIVE_TOO_LATE: "צלילה: מאוחר מדי", HEAT_OVER_CROWDED: "חום: צפוף מדי",
+    // trade actions
+    bought: "קנה", sold: "מכר", trimmed: "הקטין", added: "הוסיף",
+    // occurrence families
+    GEO: "גיאופוליטיקה", POLICY: "מדיניות", TECH: "טכנולוגיה", CORPORATE: "תאגידים", PHYSICAL: "פיזי", LEGAL: "משפטי", UNFILED: "ללא משפחה",
+    // screen buckets
+    pure_play: "שחקן ממוקד", picks_and_shovels: "ספקי הציוד", second_order: "השפעה משנית", hedge: "גידור",
+    // money bands
+    LT_1B: "מתחת למיליארד", B1_10: "מיליארד עד עשרה", B10_100: "עשרה עד מאה מיליארד", GT_100B: "מעל מאה מיליארד",
+    // board stages (tools/opportunities.py)
+    VERDICT: "הכרעה", DIVE_DRAFT: "טיוטת צלילה", O1_QUEUED: "בתור O1", FUND: "קרן", LEAD: "רמז ראשון", UNRATED: "לא דורג",
+    INSTRUMENT: "מכשיר", ISSUER: "חברה",
+    // board and campaign blocker kinds (tools/campaign_board.py)
+    NO_SIGNAL: "אין אות", BAD_CHAIN_ID: "מזהה שרשרת שגוי", BAD_CAMPAIGN_ID: "מזהה קמפיין שגוי",
+    PROFILES_BELOW_MINIMUM: "פרופילים מתחת למינימום", DIVE_AUDIT_MISSING: "חסרה ביקורת לצלילה",
+    DIVE_DATA_MISSING: "חסרים נתונים לצלילה", UNRUNNABLE_TICKER: "טיקר שאי אפשר להריץ",
+    SELECTION_NEEDS_CAMPAIGN: "הבחירה דורשת קמפיין", PROFILE_PENDING_DATA: "פרופיל ממתין לנתונים",
+    MAPPING_AWAITING_AUDIT: "המיפוי ממתין לביקורת", MAPPING_LINK_UNTOUCHED: "חוליה שלא מופתה",
+    MAPPING_AUDIT_FAIL: "ביקורת המיפוי נכשלה", MAPPING_FINGERPRINT_STALE: "חתימת המיפוי לא עדכנית",
+    SCREEN_MAPPING_STALE: "הסריקה לא עדכנית מול המיפוי", NO_UNPROFILED_ISSUER: "לכל החברות כבר יש פרופיל",
+    SCOPE_EMPTY: "אין מה לבדוק",
+    // price status of a market file (tools/validate.py PRICE_STATUS)
+    AGREED: "מוסכם", SINGLE_SOURCE: "מקור יחיד", DISPUTED: "במחלוקת", NO_DATA: "אין נתונים", VERIFIED_ZERO: "אפס מאומת", SIGNAL_DISMISSED: "אות שנדחה",
+    // quality-score states (Piotroski F / Beneish M / Altman Z, tools/acis/quality.py)
+    STRONG: "חזק", WEAK: "חלש", MIDDLING: "בינוני", CLEAN: "נקי", REVIEW: "לבדיקה", SAFE: "בטוח", GREY: "אפור", DISTRESS: "מצוקה",
+    // cortex tiers by how unmapped a signal is
+    MAJOR: "גדול", "LONG TAIL": "זנב ארוך"
+  };
+  /* The Hebrew word for a machine token, or the token itself with its underscores spaced
+     when no gloss exists (so a new status added tomorrow still reads, in Latin, rather
+     than as an empty chip). Never applied to a ticker, an id or a date: those carry no
+     underscore-and-capitals shape and fall through unchanged. */
+  function he(tok) {
+    if (tok == null) return "";
+    var k = String(tok).trim();
+    if (HE.hasOwnProperty(k)) return HE[k];
+    var u = k.toUpperCase().replace(/[\s\-]+/g, "_");
+    if (HE.hasOwnProperty(u)) return HE[u];
+    return k.replace(/_/g, " ");
+  }
 
   /* ---------------- agents ----------------
      The eight contracts, shipped into the page by app/build.py through
@@ -144,7 +228,7 @@
     var a = agentFor(cmd);
     if (!a) return "";
     return '<a class="chip agent" href="#/agent/' + esc(a.slug) +
-      '" title="read ' + esc(a.name) + "'s instructions · " + esc(a.role) +
+      '" title="קרא את ההוראות של ' + esc(a.name) + " · " + esc(a.role) +
       '">' + esc(a.name) + " ▸</a>";
   }
 
@@ -279,7 +363,7 @@
     return fetch("index.html", { cache: "no-store" }).then(ok)
       .catch(function () { return fetch(location.href.split("#")[0], { cache: "no-store" }).then(ok); })
       .then(function (src) {
-        if (src.indexOf('id="' + id + '"') < 0) throw new Error(id + " block not found in source");
+        if (src.indexOf('id="' + id + '"') < 0) throw new Error("הבלוק " + id + " לא נמצא במקור");
         return src;
       });
   }
@@ -299,20 +383,20 @@
   function enqueue(cmd, btn) {
     if (QSTATE.busy) return;
     QSTATE.busy = true;
-    if (btn) { btn.disabled = true; btn.textContent = "Queuing…"; }
+    if (btn) { btn.disabled = true; btn.textContent = "מוסיף לתור…"; }
     var fail = function (msg, permanent) {
       QSTATE.busy = false;
       if (permanent) QSTATE.readonly = true;
       toast(msg, 6500);
       route();
     };
-    if (!canQueue()) return fail("Queueing unavailable in this view — copy the command into a Claude session instead.", false);
+    if (!canQueue()) return fail("אי אפשר להוסיף לתור בתצוגה הזאת, העתק את הפקודה לסשן Claude במקום.", false);
     window.claude.use("artifact").then(function (ns) {
-      if (!ns) return fail("This view cannot queue — copy the command into a Claude session instead.", true);
+      if (!ns) return fail("בתצוגה הזאת אי אפשר להוסיף לתור, העתק את הפקודה לסשן Claude במקום.", true);
       return fetchSelfSource(QUEUE_ID).then(function (src) {
         var cur = blockOf(src, QUEUE_ID, { v: 1, queue: [] });
         if ((cur.queue || []).some(function (q) { return q.cmd === cmd; })) {
-          QSTATE.busy = false; QUEUE = cur; toast("Already queued: " + cmd); route(); return;
+          QSTATE.busy = false; QUEUE = cur; toast("כבר בתור: " + cmd); route(); return;
         }
         cur.queue = (cur.queue || []).concat([{ id: "q-" + Date.now(), cmd: cmd, ts: new Date().toISOString() }]);
         try { sessionStorage.setItem("upstream.justQueued", cmd); } catch (e) {}
@@ -322,12 +406,12 @@
           if (code === "conflict") { QSTATE.busy = false; return; } // view reloads to the winner; re-click there
           if (code === "not_writer" || code === "not_granted" || code === "not_declared" ||
               code === "capability_disabled" || code === "capability_removed")
-            return fail("This view is read-only — buttons switched to copy mode.", true);
-          if (code === "rate_limited") return fail("Queueing too fast — wait a minute and try again.", false);
-          return fail("Queueing failed (" + code + ") — use copy this time.", false);
+            return fail("התצוגה הזאת לקריאה בלבד, הכפתורים עברו למצב העתקה.", true);
+          if (code === "rate_limited") return fail("יותר מדי בקשות להוספה לתור, חכה דקה ונסה שוב.", false);
+          return fail("ההוספה לתור נכשלה (" + code + "), הפעם השתמש בהעתקה.", false);
         });
       });
-    }).catch(function () { fail("Queueing unavailable — use copy instead.", false); });
+    }).catch(function () { fail("אי אפשר להוסיף לתור, השתמש בהעתקה במקום.", false); });
   }
   /* Saving an edited contract. Ron chose apply-immediately: the next session that drains
      writes the file with no diff step. So the checks that survive here are the ones about
@@ -356,12 +440,12 @@
   function publishEdit(slug, body, base, btn) {
     if (QSTATE.busy) return;
     var bytes = editByteLength(body);
-    if (!body || !body.trim()) return toast("Refused: an empty contract would leave that agent with no instructions.", 6500);
-    if (bytes > EDIT_MAX_BYTES) return toast("Refused: " + bytes + " bytes is over the " + EDIT_MAX_BYTES + "-byte cap for one contract.", 6500);
-    if (body.indexOf("</scr" + "ipt") > -1) return toast("Refused: the body carries a literal script-close, which would break the page it travels on.", 6500);
+    if (!body || !body.trim()) return toast("נדחה: חוזה ריק ישאיר את הסוכן הזה בלי הוראות.", 6500);
+    if (bytes > EDIT_MAX_BYTES) return toast("נדחה: " + bytes + " בייטים חורג מהתקרה של " + EDIT_MAX_BYTES + " בייטים לחוזה אחד.", 6500);
+    if (body.indexOf("</scr" + "ipt") > -1) return toast("נדחה: הטקסט מכיל סגירת script מילולית, שתשבור את הדף שהוא נוסע עליו.", 6500);
     QSTATE.busy = true;
     var prev = btn ? btn.textContent : null;
-    if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+    if (btn) { btn.disabled = true; btn.textContent = "שומר…"; }
     var fail = function (msg, permanent) {
       QSTATE.busy = false;
       if (permanent) QSTATE.readonly = true;
@@ -369,10 +453,10 @@
       toast(msg, 6500);
       route();
     };
-    if (!canQueue()) return fail("This view cannot write back — edit .claude/agents/" + slug + ".md in the repo instead.", false);
+    if (!canQueue()) return fail("בתצוגה הזאת אי אפשר לכתוב בחזרה, ערוך את .claude/agents/" + slug + ".md בריפו במקום.", false);
     sha256Hex(base).then(function (digest) {
       return window.claude.use("artifact").then(function (ns) {
-        if (!ns) return fail("This view is read-only — edit the file in the repo instead.", true);
+        if (!ns) return fail("התצוגה הזאת לקריאה בלבד, ערוך את הקובץ בריפו במקום.", true);
         return fetchSelfSource(EDITS_ID).then(function (src) {
           var cur = blockOf(src, EDITS_ID, { v: 1, edits: [] });
           // One pending edit per agent: a second save supersedes the first rather than
@@ -387,34 +471,34 @@
             if (code === "conflict") { QSTATE.busy = false; return; }
             if (code === "not_writer" || code === "not_granted" || code === "not_declared" ||
                 code === "capability_disabled" || code === "capability_removed")
-              return fail("This view is read-only — edit the file in the repo instead.", true);
-            if (code === "rate_limited") return fail("Saving too fast — wait a minute and try again.", false);
-            return fail("Save failed (" + code + ") — the contract on disk is unchanged.", false);
+              return fail("התצוגה הזאת לקריאה בלבד, ערוך את הקובץ בריפו במקום.", true);
+            if (code === "rate_limited") return fail("יותר מדי שמירות, חכה דקה ונסה שוב.", false);
+            return fail("השמירה נכשלה (" + code + "), החוזה על הדיסק לא השתנה.", false);
           });
         });
       });
-    }).catch(function () { fail("Save unavailable — the contract on disk is unchanged.", false); });
+    }).catch(function () { fail("אי אפשר לשמור כרגע, החוזה על הדיסק לא השתנה.", false); });
   }
 
   var RUN_LABELS = [
-    [/^run chain /, "Build chain"], [/^run heat /, "Score heat map"], [/^run scenarios /, "Write scenarios"],
-    [/^run screen /, "Screen stocks"], [/^run deepdive /, "Run deep dive"], [/^run redteam /, "Red-team it"],
-    [/^request data /, "Fetch data"], [/^refresh /, "Update"], [/^run radar/, "Run radar"], [/^run digest/, "Build digest"],
-    [/^run campaign init/, "Start campaign"], [/^run universe-audit /, "Audit universe"],
-    [/^run universe /, "Map issuers"], [/^run profile /, "Profile issuer"],
-    [/^run selection /, "Select O1"],
+    [/^run chain /, "בנה שרשרת"], [/^run heat /, "דרג חום"], [/^run scenarios /, "כתוב תרחישים"],
+    [/^run screen /, "סרוק מניות"], [/^run deepdive /, "צלול לעומק"], [/^run redteam /, "תקוף בצוות אדום"],
+    [/^request data /, "משוך נתונים"], [/^refresh /, "עדכן"], [/^run radar/, "הרץ רדאר"], [/^run digest/, "כתוב סיכום שבועי"],
+    [/^run campaign init/, "פתח קמפיין"], [/^run universe-audit /, "בקר את המיפוי"],
+    [/^run universe /, "מפה חברות"], [/^run profile /, "כתוב פרופיל"],
+    [/^run selection /, "בחר O1"],
     // --queue before the parameterised shape: first match wins, and `run impact ` would
     // otherwise claim `run impact --queue` and label a batch as one appraisal.
-    [/^run impact --queue/, "Appraise the queue"], [/^run impact /, "Size the money"],
-    [/^run themes/, "Cluster occurrences"], [/^run devil /, "Review this file"],
-    [/^check health/, "Check health"],
+    [/^run impact --queue/, "שום את התור"], [/^run impact /, "מדוד את הכסף"],
+    [/^run themes/, "קבץ התרחשויות"], [/^run devil /, "בקר את הקובץ"],
+    [/^check health/, "בדוק תקינות"],
   ];
   function runLabel(cmd) {
     for (var i = 0; i < RUN_LABELS.length; i++) if (RUN_LABELS[i][0].test(cmd)) return RUN_LABELS[i][1];
-    return "Run";
+    return "הרץ";
   }
   function cmdline(cmd) {
-    return '<span class="cmdline"><code>' + esc(cmd) + '</code><button data-copy="' + esc(cmd) + '" title="copy command">copy</button></span>';
+    return '<span class="cmdline"><code>' + esc(cmd) + '</code><button data-copy="' + esc(cmd) + '" title="העתק פקודה">העתק</button></span>';
   }
   /* Every Run button carries the chip of the agent that will execute it, linking to that
      agent's full instructions. Placed HERE rather than at the twenty-odd call sites, so a
@@ -427,16 +511,16 @@
     opts = opts || {};
     var who = opts.compact ? "" : agentChip(cmd);
     if (isQueued(cmd)) {
-      if (opts.compact) return '<button class="btn-run q" disabled>Queued ✓</button>';
-      return '<div class="runwrap"><div class="runhead"><button class="btn-run q" disabled>Queued ✓</button>' + who +
-        '</div><span class="cmdline">waiting for a live Claude session · ' + cmdline(cmd) + "</span></div>";
+      if (opts.compact) return '<button class="btn-run q" disabled>בתור ✓</button>';
+      return '<div class="runwrap"><div class="runhead"><button class="btn-run q" disabled>בתור ✓</button>' + who +
+        '</div><span class="cmdline">ממתין לסשן Claude פעיל · ' + cmdline(cmd) + "</span></div>";
     }
     var btn = canQueue()
       ? '<button class="btn-run" data-run="' + esc(cmd) + '">' + esc(runLabel(cmd)) + "</button>"
-      : '<button class="btn-run" data-copyrun="' + esc(cmd) + '">' + esc(runLabel(cmd)) + (opts.compact ? "" : " — copy") + "</button>";
+      : '<button class="btn-run" data-copyrun="' + esc(cmd) + '">' + esc(runLabel(cmd)) + (opts.compact ? "" : " · העתק") + "</button>";
     if (opts.compact) return btn;
     return '<div class="runwrap"><div class="runhead">' + btn + who + "</div>" +
-      '<span class="cmdline">' + esc(caption || (canQueue() ? "runs in a live Claude session; results land on this page" : "copies the command — paste into a Claude session on this repo")) +
+      '<span class="cmdline">' + esc(caption || (canQueue() ? "רץ בסשן Claude פעיל, התוצאות ינחתו בדף הזה" : "מעתיק את הפקודה, הדבק אותה בסשן Claude על הריפו הזה")) +
       " · " + cmdline(cmd) + "</span></div>";
   }
 
@@ -448,15 +532,15 @@
     return ((D.requests || {}).requests || []).filter(function (x) { return x.status === "FAILED"; }).length;
   }
   function healthState() {
-    if (failedCount() > 0) return ["var(--bad)", failedCount() + " data request(s) FAILED — see data/requests.json"];
+    if (failedCount() > 0) return ["var(--bad)", (failedCount() === 1 ? "בקשת נתונים אחת נכשלה" : failedCount() + " בקשות נתונים נכשלו") + ", ראה data/requests.json"];
     var rs = ((D.health || {}).sessions || {}).routine_status || {};
     if (rs.radar === "LIVE") {
       var lastRadar = null;
       (D.ledger || []).forEach(function (l) { if (l.indexOf("| RADAR") > -1) lastRadar = l.slice(0, 10); });
-      if (lastRadar && daysBetween(lastRadar, TODAY) > 4) return ["var(--bad)", "radar silent since " + lastRadar];
+      if (lastRadar && daysBetween(lastRadar, TODAY) > 4) return ["var(--bad)", "הרדאר שקט מאז " + lastRadar];
     }
-    if (pendingCount() > 0) return ["var(--warn)", pendingCount() + " data request(s) pending"];
-    return ["var(--good)", "all loops quiet"];
+    if (pendingCount() > 0) return ["var(--warn)", (pendingCount() === 1 ? "בקשת נתונים אחת ממתינה" : pendingCount() + " בקשות נתונים ממתינות")];
+    return ["var(--good)", "הכל שקט"];
   }
   function navHrefChains() {
     return (D.chains || []).length === 1 ? "#/chain/" + D.chains[0].id : "#/chains";
@@ -470,26 +554,26 @@
     return '<div class="topbar">' +
       '<a href="#/" class="wordmark"><span class="tick">▲</span>UPSTREAM</a>' +
       '<nav class="nav">' +
-      na("#/", "Board", "board") +
-      na("#/cortex", "Cortex", "cortex") +
-      na("#/radar", "Radar", "radar") +
-      na(navHrefChains(), (D.chains || []).length === 1 ? "Chain" : "Chains", "chain") +
-      na("#/campaign", "Campaign", "campaign") +
-      na("#/themes", "Log", "themes") +
-      na("#/agents", "Agents", "agents") +
-      na("#/book", "Book", "book") +
-      na("#/shadow", "Shadow", "shadow") +
-      na("#/guide", "Guide", "guide") +
+      na("#/", "לוח", "board") +
+      na("#/cortex", "קורטקס", "cortex") +
+      na("#/radar", "רדאר", "radar") +
+      na(navHrefChains(), (D.chains || []).length === 1 ? "שרשרת" : "שרשראות", "chain") +
+      na("#/campaign", "קמפיין", "campaign") +
+      na("#/themes", "יומן", "themes") +
+      na("#/agents", "סוכנים", "agents") +
+      na("#/book", "עסקאות", "book") +
+      na("#/shadow", "צל", "shadow") +
+      na("#/guide", "מדריך", "guide") +
       "</nav>" +
       '<span class="spacer"></span>' +
-      (q ? '<span class="tb-chip" title="queued commands awaiting a live Claude session"><span class="healthdot" style="background:var(--accent)"></span>' + q + " queued</span>" : "") +
-      (pendingCount() ? '<span class="tb-chip"><span class="healthdot" style="background:var(--warn)"></span>' + pendingCount() + " fetching</span>" : "") +
-      '<span class="tb-chip" title="' + esc(hs[1]) + '"><span class="healthdot" style="background:' + hs[0] + '"></span>health</span>' +
-      '<button class="tb-btn" id="themeBtn" title="theme">◐</button>' +
+      (q ? '<span class="tb-chip" title="פקודות בתור שממתינות לסשן Claude פעיל"><span class="healthdot" style="background:var(--accent)"></span>' + q + " בתור</span>" : "") +
+      (pendingCount() ? '<span class="tb-chip"><span class="healthdot" style="background:var(--warn)"></span>' + pendingCount() + " נמשך</span>" : "") +
+      '<span class="tb-chip" title="' + esc(hs[1]) + '"><span class="healthdot" style="background:' + hs[0] + '"></span>תקינות</span>' +
+      '<button class="tb-btn" id="themeBtn" title="ערכת נושא">◐</button>' +
       "</div>";
   }
   function crumbs(parts) {
-    var h = '<div class="crumbs"><a href="#/radar">Radar</a>';
+    var h = '<div class="crumbs"><a href="#/radar">רדאר</a>';
     parts.forEach(function (p, i) {
       h += '<span class="sep">/</span>';
       if (p.href && i < parts.length - 1) h += '<a href="' + p.href + '">' + esc(p.label) + "</a>";
@@ -498,7 +582,7 @@
     return h + "</div>";
   }
   function footer() {
-    return '<div class="footer">Upstream is a private research tool for Ron and the collaborators he invites. Verdicts, zones, and levels are analytical outputs from public data with stated methods and gaps — not investment advice. Built ' + esc(D.built_at || "?") + " · canonical copy: <span class='mono'>app/index.html</span> in the repo.</div>";
+    return '<div class="footer">אפסטרים הוא כלי מחקר פרטי לרון ולשותפים שהוא מזמין. ההכרעות, הטווחים והרמות הם תוצרים אנליטיים מתוך נתונים ציבוריים, בשיטה גלויה ועם פערים ידועים, לא ייעוץ השקעות. נבנה ב-' + esc(D.built_at || "?") + " · העותק הרשמי: <span class='mono'>app/index.html</span> בריפו.</div>";
   }
 
   /* ---------------- what changed ---------------- */
@@ -509,14 +593,14 @@
     var items = [];
     (D.signals || []).forEach(function (s) {
       if (!since || (s.created_at && s.created_at > since.slice(0, 10)))
-        items.push({ k: "new", h: "Signal: <a href='#/signal/" + s.id + "'>" + esc(s.title) + "</a>" });
+        items.push({ k: "new", h: "אות: <a href='#/signal/" + s.id + "'>" + esc(s.title) + "</a>" });
     });
     (D.stocks || []).forEach(function (st) {
       (st.changelog || []).forEach(function (c) {
-        if (since && c.ts > since) items.push({ k: "upd", h: "<a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> — " + esc(c.change) });
+        if (since && c.ts > since) items.push({ k: "upd", h: "<a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> · " + esc(c.change) });
       });
       if (st.review_by && st.review_by <= TODAY && st.status !== "ARCHIVED")
-        items.push({ k: "due", h: "Review due: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> (by " + esc(st.review_by) + ")" });
+        items.push({ k: "due", h: "לבדיקה: <a href='#/stock/" + st.ticker + "/" + st.chain_id + "'>" + esc(st.ticker) + "</a> (עד " + esc(st.review_by) + ")" });
     });
     (D.chains || []).forEach(function (c) {
       (c.scenarios || []).forEach(function (sc) {
@@ -527,7 +611,7 @@
     });
     ((D.indicators || {}).trips || []).forEach(function (t) {
       if (!since || t.tripped_at >= since.slice(0, 10))
-        items.push({ k: "trip", h: esc(t.indicator) + " (" + esc(t.ticker) + " " + esc(t.op) + " " + esc(t.level) + ", seen " + esc(t.seen) + ") → <a href='#/chain/" + t.chain + "/scen'>" + esc(t.chain + " " + t.scenario) + "</a>" });
+        items.push({ k: "trip", h: esc(t.indicator) + " (" + esc(t.ticker) + " " + esc(t.op) + " " + esc(t.level) + ", נצפה " + esc(t.seen) + ") → <a href='#/chain/" + t.chain + "/scen'>" + esc(t.chain + " " + t.scenario) + "</a>" });
     });
     return { since: since, items: items };
   }
@@ -541,14 +625,14 @@
     var nVer = (D.stocks || []).length;
     var one = (D.chains || [])[0];
     var stages = [
-      { n: nSig, l: "Signals", href: "#/radar" },
-      { n: nCh, l: nCh === 1 ? "Chain" : "Chains", href: navHrefChains() },
-      { n: nScen, l: "Scenarios", href: one ? "#/chain/" + one.id + "/scen" : "#/radar" },
-      { n: nScr, l: "Screens", href: nScr && one ? "#/screen/" + D.screens[0].chain_id + "/" + D.screens[0].scenario_id : "#/radar" },
-      { n: nVer, l: "Verdicts", href: nVer ? "#/stock/" + D.stocks[0].ticker + "/" + D.stocks[0].chain_id : "#/radar" },
+      { n: nSig, l: "אותות", href: "#/radar" },
+      { n: nCh, l: nCh === 1 ? "שרשרת" : "שרשראות", href: navHrefChains() },
+      { n: nScen, l: "תרחישים", href: one ? "#/chain/" + one.id + "/scen" : "#/radar" },
+      { n: nScr, l: "סריקות", href: nScr && one ? "#/screen/" + D.screens[0].chain_id + "/" + D.screens[0].scenario_id : "#/radar" },
+      { n: nVer, l: "הכרעות", href: nVer ? "#/stock/" + D.stocks[0].ticker + "/" + D.stocks[0].chain_id : "#/radar" },
     ];
     var W = 520, H = 132, n = stages.length, gap = 14, segW = (W - gap * (n - 1)) / n;
-    var s = '<svg class="funnel" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="pipeline">';
+    var s = '<svg class="funnel" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="משפך">';
     stages.forEach(function (st, i) {
       var x = i * (segW + gap);
       var op = 1 - i * 0.17;
@@ -560,52 +644,52 @@
       if (i < n - 1) s += '<path d="M' + (x + segW + 2.5) + ' 63 l8 6 -8 6" fill="none" stroke="var(--border-strong)" stroke-width="1.6" stroke-linecap="round"/>';
     });
     s += "</svg>";
-    return '<div class="card funnelcard"><div class="fc-title">The funnel — click a stage</div>' + s +
-      '<div class="muted" style="margin-top:10px">Lazy by design: each stage runs only when someone asks, and everything ever run is saved here.</div></div>';
+    return '<div class="card funnelcard"><div class="fc-title">המשפך, לחץ על שלב</div>' + s +
+      '<div class="muted" style="margin-top:10px">עצלן בכוונה: כל שלב רץ רק כשמישהו מבקש, וכל מה שרץ אי פעם נשמר כאן.</div></div>';
   }
   function todayCard() {
     var d = deltaItems();
     var body;
     if (!d.items.length) {
-      body = '<div class="quiet"><span class="big">All quiet.</span><span class="muted">Nothing changed since ' +
-        (d.since ? "your last visit (" + esc(d.since.slice(0, 10)) + ")" : "the seed build") + ". The radar accumulates on weekdays; Saturday brings the digest.</span></div>";
+      body = '<div class="quiet"><span class="big">הכל שקט.</span><span class="muted">שום דבר לא השתנה מאז ' +
+        (d.since ? "הביקור האחרון שלך (" + esc(d.since.slice(0, 10)) + ")" : "הבנייה הראשונית") + ". הרדאר צובר בימי חול, בשבת מגיע הסיכום השבועי.</span></div>";
     } else {
       body = '<ul class="delta">' + d.items.slice(0, 6).map(function (i) {
-        var lbl = { new: "new", trip: "tripped", due: "due", upd: "updated" }[i.k];
+        var lbl = { new: "חדש", trip: "הופעל", due: "לבדיקה", upd: "עודכן" }[i.k];
         return '<li><span class="k ' + i.k + '">' + lbl + "</span><span>" + i.h + "</span></li>";
       }).join("") + "</ul>";
     }
     var dg = (D.digests || [])[0];
-    return '<div class="card today"><h2>' + (d.items.length ? "Since you last looked" : "Today") + "</h2>" +
+    return '<div class="card today"><h2>' + (d.items.length ? "מאז שהסתכלת לאחרונה" : "היום") + "</h2>" +
       '<div class="when">' + esc(TODAY) + "</div>" + body +
-      (dg ? '<div class="muted" style="margin-top:12px">Latest digest: <b>' + esc(dg.week || "") + "</b> — " + esc((dg.summary || "").slice(0, 140)) + "</div>" : "") +
+      (dg ? '<div class="muted" style="margin-top:12px">הסיכום האחרון: <b>' + esc(dg.week || "") + "</b> · " + esc((dg.summary || "").slice(0, 140)) + "</div>" : "") +
       (dg && dg.machine && dg.machine.next_action
-        ? '<div class="muted" style="margin-top:6px">Machine: ' + esc(dg.machine.next_action) + "</div>" : "") +
+        ? '<div class="muted" style="margin-top:6px">המכונה: ' + esc(dg.machine.next_action) + "</div>" : "") +
       "</div>";
   }
   function sigRow(s) {
-    var laneName = { MACRO: "Macro", INDUSTRY: "Industry", USE_CASE: "Use case" }[s.lane] || s.lane;
+    var laneName = he(s.lane);
     var un = (s.unmappedness || {}).score;
     var cta = s.status === "NEW"
       ? runButton("run chain " + s.id, null, { compact: true })
       : s.status === "CHAINED"
-        ? '<a class="chip accent" href="#/chain/' + esc(s.chain_id) + '">Open chain →</a>'
+        ? '<a class="chip accent" href="#/chain/' + esc(s.chain_id) + '">פתח שרשרת →</a>'
         : chip(s.status);
     var occ = s.occurrence || null;
-    var occLine = '<div class="occline">' + esc(laneName.toUpperCase()) + " &middot; " + esc(s.suggested_clock) +
-      (occ ? " &middot; " + esc(occ.kind) + " " + esc(occ.anchor_date) : " &middot; UNDATED") +
+    var occLine = '<div class="occline">' + esc(laneName) + " &middot; " + esc(he(s.suggested_clock)) +
+      (occ ? " &middot; " + esc(he(occ.kind)) + " " + esc(occ.anchor_date) : " &middot; " + he("UNDATED")) +
       (occ && occ.label ? '<span class="ol">' + esc(occ.label) + "</span>" : "") + "</div>";
     return '<div class="sigrow bracket" data-nav="#/signal/' + esc(s.id) + '" tabindex="0" role="link" aria-label="' + esc(s.title) + '">' +
       '<i class="bk tl"></i><i class="bk tr"></i><i class="bk bl"></i><i class="bk br"></i>' +
       "<div>" + occLine +
       '<div class="meta">' +
-      '<span class="num">' + esc((s.horizon_years || []).join("–")) + "y</span>" +
-      "<span>" + (s.evidence || []).length + " evidence</span>" + staleChip(s.updated_at) + "</div>" +
+      '<span class="num">' + esc((s.horizon_years || []).join(" עד ")) + " שנים</span>" +
+      "<span>" + (s.evidence || []).length + " ראיות</span>" + staleChip(s.updated_at) + "</div>" +
       '<div class="t">' + esc(s.title) + "</div>" +
       '<div class="th">' + esc(s.thesis) + "</div>" +
       "</div>" +
       '<div class="right">' +
-      '<span class="gauge" title="how unmapped this event\'s chain consequences are"><span class="track"><i style="width:' + (un || 0) + '%"></i></span><span class="num">' + esc(un) + "</span> unmapped</span>" +
+      '<span class="gauge" title="כמה לא ממופות ההשלכות של האירוע הזה על השרשרת"><span class="track"><i style="width:' + (un || 0) + '%"></i></span><span class="num">' + esc(un) + "</span> לא ממופה</span>" +
       impactChip(impactFor(s.id)) +
       "<span data-stop>" + cta + "</span>" +
       "</div></div>";
@@ -627,38 +711,38 @@
     function stat(v, label) {
       return '<div class="scstat"><div class="scnum">' + esc(v) + '</div><div class="muted">' + esc(label) + "</div></div>";
     }
-    return seclabel("Scout — how good this intake has been") +
+    return seclabel("הסקאוט, כמה טובה הייתה הקליטה הזאת") +
       '<div class="statgrid">' +
-      '<div class="card"><h3>Conversion</h3><div class="scrow">' +
-      stat(cv.promoted + "/" + cv.candidates_triaged, "candidates promoted") +
-      stat(fd.reached_chain + "/" + fd.signals_total, "signals chained") +
-      stat(fd.in_money_corner_chain + "/" + fd.signals_total, "reached a money corner") +
-      "</div><div class='small'>" + esc(cv.ambient) + " AMBIENT still open · " +
-      esc(dn.feed_items_examined) + " feed items examined this run</div></div>" +
+      '<div class="card"><h3>המרה</h3><div class="scrow">' +
+      stat(cv.promoted + "/" + cv.candidates_triaged, "מועמדים קודמו") +
+      stat(fd.reached_chain + "/" + fd.signals_total, "אותות ששורשרו") +
+      stat(fd.in_money_corner_chain + "/" + fd.signals_total, "הגיעו לפינת הכסף") +
+      "</div><div class='small'>" + esc(cv.ambient) + " מועמדים בברקע עדיין פתוחים · " +
+      esc(dn.feed_items_examined) + " פריטי פיד נבדקו בריצה הזאת</div></div>" +
 
-      '<div class="card"><h3>Latency</h3><div class="scrow">' +
-      stat(med === null ? "n/a" : med + "d", days.length >= 3 ? "median days late" : "days late (n=" + days.length + ", not a median)") +
-      stat(lat.length + "/" + dn.signals_examined, "measurable") +
+      '<div class="card"><h3>פיגור</h3><div class="scrow">' +
+      stat(med === null ? "אין" : med + "d", days.length >= 3 ? "חציון ימי איחור" : "ימי איחור (n=" + days.length + ", לא חציון)") +
+      stat(lat.length + "/" + dn.signals_examined, "ניתן למדידה") +
       "</div><div class='small'>" +
-      (unm.length ? esc(unm.length) + " signal(s) unmeasurable: " + esc(unm[0].reason) +
-        ". Latency is the gap between an occurrence first appearing in the feed store and radar writing the card."
-        : "Every signal is joined back to its first feed appearance.") +
+      (unm.length ? (unm.length === 1 ? "אות אחד שלא ניתן למדוד" : esc(unm.length) + " אותות שלא ניתן למדוד") + ": " + esc(unm[0].reason) +
+        ". הפיגור הוא הפער בין ההופעה הראשונה של ההתרחשות במאגר הפיד לבין כתיבת הכרטיס על ידי הרדאר."
+        : "כל אות מקושר חזרה להופעה הראשונה שלו בפיד.") +
       "</div></div>" +
 
-      '<div class="card"><h3>My misses</h3><div class="scrow">' +
-      stat((dd.signals_new_past_review_by || []).length + "/" + dn.signals_examined, "past review_by") +
-      stat((dd.candidates_past_expiry || []).length + "/" + cv.ambient, "past 45d expiry") +
-      stat(dn.calendar_examined ? (dd.calendar_passed_unpromoted || []).length + "/" + dn.calendar_examined : "—", "calendar passed") +
-      "</div><div class='small'>False positives are counted against the radar, not hidden." +
-      (dn.calendar_examined ? "" : " The forward calendar is empty, so that leg checked nothing: a scope boundary, not a clean result.") +
+      '<div class="card"><h3>הפספוסים שלי</h3><div class="scrow">' +
+      stat((dd.signals_new_past_review_by || []).length + "/" + dn.signals_examined, "עברו את תאריך הבדיקה") +
+      stat((dd.candidates_past_expiry || []).length + "/" + cv.ambient, "אחרי תפוגה של 45 יום") +
+      stat(dn.calendar_examined ? (dd.calendar_passed_unpromoted || []).length + "/" + dn.calendar_examined : "אין", "עברו ביומן") +
+      "</div><div class='small'>תוצאות שווא נספרות נגד הרדאר, לא מוסתרות." +
+      (dn.calendar_examined ? "" : " יומן האירועים העתידי ריק, כך שהרגל הזאת לא בדקה כלום: גבול היקף, לא תוצאה נקייה.") +
       "</div></div>" +
 
-      '<div class="card"><h3>Taste rules</h3>' +
+      '<div class="card"><h3>כללי טעם</h3>' +
       (hardened.length ? hardened.map(function (r) {
         return '<div class="evli">' + chip(r.origin) + " <b>" + esc(r.id) + "</b> " + esc(r.pattern) + "</div>";
-      }).join("") : "<div class='small'>No rules yet.</div>") +
+      }).join("") : "<div class='small'>עדיין אין כללים.</div>") +
       (proposed.length ? "<div class='muted' style='margin-top:8px'>" + esc(proposed.length) +
-        " proposed, waiting on a second occurrence</div>" : "") +
+        " הוצעו, ממתינים להתרחשות שנייה</div>" : "") +
       "</div>" + "</div>" +
       esc_.map(function (n) {
         return '<div class="sysline"><span class="healthdot" style="background:var(--crd)"></span>' +
@@ -681,51 +765,51 @@
       if (!v) return "";
       var st = v.structure || {};
       var findings = [];
-      if ((st.orphans || []).length) findings.push(st.orphans.length + " orphan link(s)");
-      if ((st.one_way_edges || []).length) findings.push(st.one_way_edges.length + " one-way edge(s)");
-      if ((st.wrong_direction_edges || []).length) findings.push(st.wrong_direction_edges.length + " edge(s) against the direction rule");
-      if ((st.verdict_mismatches || []).length) findings.push(st.verdict_mismatches.length + " verdict(s) disagreeing with their scores");
-      if ((st.thin_choke_points || []).length) findings.push("thin choke point: " + st.thin_choke_points.join(", "));
-      if ((st.links_without_tickers || []).length) findings.push(st.links_without_tickers.length + " link(s) with no tickers");
+      if ((st.orphans || []).length) findings.push(st.orphans.length === 1 ? "חוליה יתומה אחת" : st.orphans.length + " חוליות יתומות");
+      if ((st.one_way_edges || []).length) findings.push(st.one_way_edges.length === 1 ? "קשת חד-כיוונית אחת" : st.one_way_edges.length + " קשתות חד-כיווניות");
+      if ((st.wrong_direction_edges || []).length) findings.push(st.wrong_direction_edges.length === 1 ? "קשת אחת שנגד כלל הכיוון" : st.wrong_direction_edges.length + " קשתות שנגד כלל הכיוון");
+      if ((st.verdict_mismatches || []).length) findings.push(st.verdict_mismatches.length === 1 ? "הכרעה אחת שסותרת את הציון שלה" : st.verdict_mismatches.length + " הכרעות שסותרות את הציונים שלהן");
+      if ((st.thin_choke_points || []).length) findings.push("נקודת חנק דקה: " + st.thin_choke_points.join(", "));
+      if ((st.links_without_tickers || []).length) findings.push(st.links_without_tickers.length === 1 ? "חוליה אחת בלי טיקרים" : st.links_without_tickers.length + " חוליות בלי טיקרים");
       return '<div class="card mapq">' +
         '<div class="row" style="justify-content:space-between;align-items:flex-start">' +
-        "<h3>Map quality</h3>" +
+        "<h3>איכות המיפוי</h3>" +
         '<span class="muted">' + esc(st.links_without_evidence ? st.links_without_evidence.length : 0) +
-        "/" + esc(v.links) + " links uncited</span></div>" +
+        "/" + esc(v.links) + " חוליות ללא ציטוט</span></div>" +
         '<div class="scrow">' +
-        mapStat(v.yielded_a_name + "/" + v.links, "links that produced a name") +
-        mapStat(v.scored + "/" + v.links, "scored") +
-        mapStat((st.non_us_ticker_share == null ? "n/a" : Math.round(st.non_us_ticker_share * 100) + "%"), "non-US tickers") +
-        mapStat((v.money_corner_links || []).length, "money corner") +
+        mapStat(v.yielded_a_name + "/" + v.links, "חוליות שהניבו שם") +
+        mapStat(v.scored + "/" + v.links, "נוקדו") +
+        mapStat((st.non_us_ticker_share == null ? "אין" : Math.round(st.non_us_ticker_share * 100) + "%"), "טיקרים לא אמריקאים") +
+        mapStat((v.money_corner_links || []).length, "פינת הכסף") +
         "</div>" +
         "<div class='small'>" +
-        (findings.length ? "Findings: " + esc(findings.join(" · ")) : "No structural findings across " +
-          esc(v.links) + " links and " + esc(st.tickers_examined) + " tickers examined.") +
+        (findings.length ? "ממצאים: " + esc(findings.join(" · ")) : "אין ממצאים מבניים על פני " +
+          esc(v.links) + " חוליות ו-" + esc(st.tickers_examined) + " טיקרים שנבדקו.") +
         ((v.dead_links || []).length
-          ? " Links that have never produced a name: " + esc(v.dead_links.join(", ")) + "."
+          ? " חוליות שמעולם לא הניבו שם: " + esc(v.dead_links.join(", ")) + "."
           : "") +
         "</div></div>";
     }
     // global view (#/chains)
     var ly = cal.link_yield || {}, dep = ly.depth || {};
-    return seclabel("Atlas — how good these maps have been") +
+    return seclabel("Atlas, כמה טובים היו המיפויים האלה") +
       '<div class="statgrid">' +
-      '<div class="card"><h3>Link yield</h3><div class="scrow">' +
-      mapStat(ly.yielded_a_name + "/" + ly.links_total, "produced a name") +
-      mapStat((dep.DIVED || 0) + "/" + ly.links_total, "reached a dive") +
-      mapStat(ly.money_corner_links, "money corner") +
-      "</div><div class='small'>Joined on link_id only. " + esc(ly.note || "") + "</div></div>" +
-      '<div class="card"><h3>Depth</h3><div class="scrow">' +
-      mapStat(dep.MAPPED || 0, "mapped only") + mapStat(dep.SCORED || 0, "scored") +
-      mapStat(dep.SCREENED || 0, "screened") + mapStat(dep.DIVED || 0, "dived") +
-      "</div><div class='small'>" + esc(dn.chains_examined) + " chains, " + esc(dn.links_examined) +
-      " links, " + esc(dn.edges_examined) + " edges, " + esc(dn.screen_rows_examined) +
-      " screen rows examined.</div></div>" +
-      '<div class="card"><h3>Archetypes</h3>' +
+      '<div class="card"><h3>תפוקת חוליות</h3><div class="scrow">' +
+      mapStat(ly.yielded_a_name + "/" + ly.links_total, "הניבו שם") +
+      mapStat((dep.DIVED || 0) + "/" + ly.links_total, "הגיעו לצלילה") +
+      mapStat(ly.money_corner_links, "פינת הכסף") +
+      "</div><div class='small'>מחובר לפי link_id בלבד. " + esc(ly.note || "") + "</div></div>" +
+      '<div class="card"><h3>עומק</h3><div class="scrow">' +
+      mapStat(dep.MAPPED || 0, "ממופה בלבד") + mapStat(dep.SCORED || 0, "נוקד") +
+      mapStat(dep.SCREENED || 0, "נסרק") + mapStat(dep.DIVED || 0, "נחקר לעומק") +
+      "</div><div class='small'>" + esc(dn.chains_examined) + " שרשראות, " + esc(dn.links_examined) +
+      " חוליות, " + esc(dn.edges_examined) + " קשתות, " + esc(dn.screen_rows_examined) +
+      " שורות סריקה נבדקו.</div></div>" +
+      '<div class="card"><h3>תבניות</h3>' +
       (arch.length ? arch.map(function (a) {
         return '<div class="evli">' + chip(a.origin) + " <b>" + esc(a.id) + "</b> " + esc(a.pattern) +
-          ' <span class="muted">(' + esc(a.occurrences) + " chain" + (a.occurrences === 1 ? "" : "s") + ")</span></div>";
-      }).join("") : "<div class='small'>None yet.</div>") + "</div>" +
+          ' <span class="muted">(' + (a.occurrences === 1 ? "שרשרת אחת" : esc(a.occurrences) + " שרשראות") + ")</span></div>";
+      }).join("") : "<div class='small'>עדיין אין.</div>") + "</div>" +
       "</div>" +
       (ml.notes || []).filter(function (n) { return /^ESCALATION/.test(String(n.text || "")); })
         .map(function (n) {
@@ -750,39 +834,39 @@
       '<div class="hero">' + todayCard() + funnelCard() + "</div>" +
       /* The screen called Radar could not start a radar. The two `run radar` buttons that
          existed were both inside cortex drawers, two clicks and a graph node away. */
-      seclabel("Run the intake") +
+      seclabel("הרץ את הקליטה") +
       "<div class='card runstrip'>" +
-      runButton("run radar", "sweeps the feed store and the calendar, triages candidates, writes signal cards") +
-      runButton("run themes", "logs every occurrence on disk and clusters it into themes") +
+      runButton("run radar", "סורק את מאגר הפיד ואת יומן האירועים, ממיין מועמדים, כותב כרטיסי אות") +
+      runButton("run themes", "רושם כל התרחשות שעל הדיסק ומקבץ אותה לפי נושאים") +
       /* The count is the argument for pressing it. An impact queue at one sixteenth
          coverage is not ordering anything, and the number says so without a session
          having to notice. */
       (unappraisedCount() > 0
-        ? runButton("run impact --queue", "sizes the money behind the next 15 of " +
-            unappraisedCount() + " unappraised occurrences, in the log's own order")
+        ? runButton("run impact --queue", "מודד את הכסף מאחורי 15 מתוך " +
+            unappraisedCount() + " ההתרחשויות שעדיין לא הוערכו, לפי סדר היומן")
         : "") +
       "</div>" +
-      seclabel("Signals — ranked by how unmapped they still are") +
+      seclabel("אותות, מדורגים לפי כמה הם עדיין לא ממופים") +
       '<div class="siglist">' + (sigs.map(sigRow).join("") ||
-        '<div class="emptystate">No signals yet — the weekday radar routine fills this.</div>') + "</div>" +
+        '<div class="emptystate">עדיין אין אותות, שגרת הרדאר בימי החול תמלא את זה.</div>') + "</div>" +
       scoutCard() +
-      seclabel("System") +
+      seclabel("מערכת") +
       "<div>" +
       '<div class="sysline"><span class="healthdot" style="background:' + hs[0] + '"></span>' + esc(hs[1]) +
-      " · radar " + esc((((D.health || {}).sessions || {}).routine_status || {}).radar || "?").toLowerCase() +
-      " · digest " + esc((((D.health || {}).sessions || {}).routine_status || {}).digest || "?").toLowerCase() + "</div>" +
+      " · רדאר " + he((((D.health || {}).sessions || {}).routine_status || {}).radar || "?") +
+      " · סיכום שבועי " + he((((D.health || {}).sessions || {}).routine_status || {}).digest || "?") + "</div>" +
       sys.map(function (l) { return '<div class="sysline"><span class="mono">' + esc(l) + "</span></div>"; }).join("") +
       "</div>" +
       footer() + "</main>";
   }
   function chainsView() {
-    return topbar("chain") + "<main><div class='pagehead'><h1>Chains</h1></div>" + mapCard(null) + "<div class='siglist'>" +
+    return topbar("chain") + "<main><div class='pagehead'><h1>שרשראות</h1></div>" + mapCard(null) + "<div class='siglist'>" +
       (D.chains || []).map(function (c) {
         var money = (c.links || []).filter(function (l) { return l.heat && l.heat.money_corner; });
         return '<div class="sigrow" data-nav="#/chain/' + esc(c.id) + '" tabindex="0" role="link"><div>' +
-          '<div class="meta">' + chip(c.clock) + "<span>" + (c.links || []).length + " links</span><span>" + (c.scenarios || []).length + " scenarios</span>" + staleChip(c.heat_as_of) + "</div>" +
+          '<div class="meta">' + chip(c.clock) + "<span>" + ((c.links || []).length === 1 ? "חוליה אחת" : (c.links || []).length + " חוליות") + "</span><span>" + ((c.scenarios || []).length === 1 ? "תרחיש אחד" : (c.scenarios || []).length + " תרחישים") + "</span>" + staleChip(c.heat_as_of) + "</div>" +
           '<div class="t">' + esc(c.title) + "</div>" +
-          (money.length ? '<div class="th">★ money corner: ' + esc(money.map(function (l) { return l.name; }).join(", ")) + "</div>" : "") +
+          (money.length ? '<div class="th">★ פינת הכסף: ' + esc(money.map(function (l) { return l.name; }).join(", ")) + "</div>" : "") +
           "</div></div>";
       }).join("") + "</div>" + footer() + "</main>";
   }
@@ -796,49 +880,49 @@
   function impactCard(s) {
     var a = impactFor(s.id);
     if (!a) {
-      return seclabel("Financial impact") +
-        "<div class='card'><div class='small muted'>Not appraised yet. Unmappedness says how " +
-        "unmapped this chain is; nothing here says how much investable money is behind it.</div>" +
+      return seclabel("השפעה כספית") +
+        "<div class='card'><div class='small muted'>עדיין לא הוערך. הציון של כמה זה לא ממופה אומר " +
+        "כמה השרשרת הזאת לא ממופה. שום דבר כאן לא אומר כמה כסף בר-השקעה עומד מאחוריה.</div>" +
         "<div style='margin-top:10px'>" + runButton("run impact " + s.id,
-          "scores the money at stake, how much of it reaches listed issuers, whether it is " +
-          "kept as profit, and whether it moves inside the horizon") + "</div></div>";
+          "מודד את הכסף שעל הפרק, כמה ממנו מגיע לחברות נסחרות, האם הוא נשמר " +
+          "כרווח, ואם זה קורה בתוך אופק הזמן") + "</div></div>";
     }
     if (a.impact_band === "UNRANKED") {
-      return seclabel("Financial impact") +
+      return seclabel("השפעה כספית") +
         "<div class='card'><div class='row'>" + impactChip(a) + staleChip(a.as_of) + "</div>" +
         "<div class='small' style='margin-top:8px'>" + esc(a.unranked_reason ||
-          "A leg could not be sourced.") + "</div>" +
-        "<div class='small muted' style='margin-top:6px'>No published sizing was found. That is " +
-        "a finding about how early this occurrence is, not a gap in the writeup.</div></div>";
+          "לא ניתן היה למצוא מקור לאחת הרגליים.") + "</div>" +
+        "<div class='small muted' style='margin-top:6px'>לא נמצא אומדן כספי מפורסם. זה " +
+        "ממצא על כמה מוקדם ההתרחשות הזאת, לא פער בכתיבה.</div></div>";
     }
     /* The four legs, each with its rationale and every cited source's verbatim excerpt
        (app/build.py carries appraisals whole since 2026-09-04). */
     var file = a.id ? "data/impact/" + a.id + ".json" : "data/impact/";
     var legs = [
-      ["Money at stake", (a.money_at_stake || {}).band, a.money_at_stake],
-      ["Public reach", num((a.public_reach || {}).score), a.public_reach],
-      ["Value capture", num((a.capture_odds || {}).score), a.capture_odds],
-      ["Timing fit", num((a.timing_fit || {}).score), a.timing_fit]
+      ["הכסף שעל הפרק", (a.money_at_stake || {}).band, a.money_at_stake],
+      ["הגעה לחברות נסחרות", num((a.public_reach || {}).score), a.public_reach],
+      ["לכידת ערך", num((a.capture_odds || {}).score), a.capture_odds],
+      ["תזמון", num((a.timing_fit || {}).score), a.timing_fit]
     ].map(function (r) {
       var leg = r[2] || {}, n = (leg.evidence || []).length;
       return "<div class='evli'><b>" + esc(r[0]) + "</b> " + chip(num(r[1])) +
-        chip(n + " cited", n ? "neutral" : "stale") +
+        chip(n === 1 ? "מקור מצוטט אחד" : n + " מקורות מצוטטים", n ? "neutral" : "stale") +
         "<div class='small muted'>" + esc(leg.rationale || leg.basis || "") + "</div>" +
         (n ? "<div style='margin-top:6px'>" + evList(leg.evidence) + "</div>" : "") + "</div>";
     }).join("");
     var ca = a.confidence_audit;
     var audit = ca && typeof ca === "object"
-      ? "<div class='small muted' style='margin-top:10px'><b>Confidence audit:</b> " +
+      ? "<div class='small muted' style='margin-top:10px'><b>ביקורת מהימנות:</b> " +
         Object.keys(ca).map(function (k) { return esc(k) + " " + esc(typeof ca[k] === "object" ? JSON.stringify(ca[k]) : ca[k]); }).join(" · ") + "</div>"
       : "";
-    return seclabel("Financial impact") +
+    return seclabel("השפעה כספית") +
       "<div class='card'><div class='row'>" + impactChip(a) +
-      chip("unmapped " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) +
-      (a.review_by ? "<span class='muted'>review <span class='num'>" + esc(a.review_by) + "</span></span>" : "") + "</div>" +
+      chip("לא ממופה " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) +
+      (a.review_by ? "<span class='muted'>לבדיקה עד <span class='num'>" + esc(a.review_by) + "</span></span>" : "") + "</div>" +
       "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
       "<div style='margin-top:10px'>" + legs + "</div>" + audit +
-      ((a.ticker_refs || []).length ? "<div class='small muted' style='margin-top:6px'>Tickers referenced: " + esc((a.ticker_refs || []).map(function (t) { return typeof t === "string" ? t : (t.ticker || JSON.stringify(t)); }).join(", ")) + "</div>" : "") +
-      "<div class='small muted' style='margin-top:8px'>Canonical file: <span class='mono'>" + esc(file) + "</span></div>" +
+      ((a.ticker_refs || []).length ? "<div class='small muted' style='margin-top:6px'>טיקרים שאוזכרו: " + esc((a.ticker_refs || []).map(function (t) { return typeof t === "string" ? t : (t.ticker || JSON.stringify(t)); }).join(", ")) + "</div>" : "") +
+      "<div class='small muted' style='margin-top:8px'>הקובץ הקנוני: <span class='mono'>" + esc(file) + "</span></div>" +
       notesBlock(a) + changelogBlock(a) + "</div>";
   }
 
@@ -853,14 +937,14 @@
       '<div class="pagehead"><div class="row">' + chip(s.lane) + chip(s.suggested_clock) + chip(s.status, s.status === "NEW" ? "accent" : "neutral") + staleChip(s.updated_at) + "</div>" +
       "<h1>" + esc(s.title) + "</h1><p class='sub'>" + esc(s.thesis) + "</p></div>" +
       '<div class="statgrid" style="margin-top:14px">' +
-      "<div class='card'><h3>Why now</h3><div class='small'>" + esc(s.why_now) + "</div></div>" +
-      "<div class='card'><h3>The retail gap</h3><div class='small'>" + esc(s.retail_gap) + "</div></div>" +
-      "<div class='card'><div class='stat'><span class='v'>" + esc((s.unmappedness || {}).score) + "</span><span class='l'>unmapped / 100 — " + esc((s.unmappedness || {}).rationale) + "</span></div></div></div>" +
+      "<div class='card'><h3>למה עכשיו</h3><div class='small'>" + esc(s.why_now) + "</div></div>" +
+      "<div class='card'><h3>הפער מול הציבור</h3><div class='small'>" + esc(s.retail_gap) + "</div></div>" +
+      "<div class='card'><div class='stat'><span class='v'>" + esc((s.unmappedness || {}).score) + "</span><span class='l'>לא ממופה מתוך 100 · " + esc((s.unmappedness || {}).rationale) + "</span></div></div></div>" +
       impactCard(s) +
-      seclabel("Evidence") + "<div class='card'>" + (evid || "<div class='muted'>none</div>") + "</div>" +
-      seclabel("Next step") +
-      (s.chain_id ? "<a class='chip accent' href='#/chain/" + esc(s.chain_id) + "'>Open the value chain →</a>" :
-        s.status === "NEW" ? runButton("run chain " + s.id, "maps this signal into an 8-15 link value chain") : "<span class='muted'>" + esc(s.status) + "</span>") +
+      seclabel("ראיות") + "<div class='card'>" + (evid || "<div class='muted'>אין</div>") + "</div>" +
+      seclabel("הצעד הבא") +
+      (s.chain_id ? "<a class='chip accent' href='#/chain/" + esc(s.chain_id) + "'>פתח את שרשרת הערך →</a>" :
+        s.status === "NEW" ? runButton("run chain " + s.id, "ממפה את האות הזה לשרשרת ערך של 8 עד 15 חוליות") : "<span class='muted'>" + esc(he(s.status)) + "</span>") +
       notesBlock(s) + changelogBlock(s) + footer() + "</main>";
   }
 
@@ -884,16 +968,16 @@
     var money = links.filter(function (l) { return l.heat && l.heat.money_corner; });
     var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : chainTab === "graph" ? graphTab(c, links) : flowTab(c, links);
     var subtitle = scored.length
-      ? (money.length ? "Money corner: " + money.map(function (l) { return l.name; }).join(", ") + ". " : "No link clears all three thresholds yet. ") +
-        scored.length + " of " + links.length + " links scored, as of " + (c.heat_as_of || "—") + "."
-      : "Chain mapped; heat not scored yet.";
+      ? (money.length ? "פינת הכסף: " + money.map(function (l) { return l.name; }).join(", ") + ". " : "עדיין אין חוליה שעוברת את שלושת הספים. ") +
+        scored.length + " מתוך " + links.length + " חוליות נוקדו, נכון ל " + (c.heat_as_of || "לא ידוע") + "."
+      : "השרשרת מופתה; החום עדיין לא נוקד.";
     return topbar("chain") + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
       '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) +
-      (c.chain_fidelity && c.chain_fidelity !== "FULL" ? chip("reduced fidelity", "CROWDED") : "") + "</div>" +
+      (c.chain_fidelity && c.chain_fidelity !== "FULL" ? chip("נאמנות מופחתת", "CROWDED") : "") + "</div>" +
       "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
        chainScreenAction(c) + mapCard(c.id) +
       '<div class="seg">' +
-      [["flow", "Flow"], ["graph", "Graph"], ["heat", "Heat map"], ["scen", "Scenarios"]].map(function (k) {
+      [["flow", "זרימה"], ["graph", "גרף"], ["heat", "מפת חום"], ["scen", "תרחישים"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
       }).join("") + "</div>" + body +
       notesBlock(c) + changelogBlock(c) + footer() + "</main>";
@@ -912,21 +996,21 @@
     links.forEach(function (l, i) {
       var hv = (l.heat && l.heat.verdict) || null;
       h += '<div class="fnode ' + (hv ? "v-" + hv : "v-none") + '" data-drawer="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.name) + '">' +
-        (l.heat && l.heat.money_corner ? '<span class="star" title="money corner">★</span>' : "") +
-        (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT" ? '<span class="choke" title="choke point"></span>' : "") +
+        (l.heat && l.heat.money_corner ? '<span class="star" title="פינת הכסף">★</span>' : "") +
+        (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT" ? '<span class="choke" title="נקודת חנק"></span>' : "") +
         '<div class="pos">' + String(i + 1).padStart(2, "0") + "</div>" +
         '<div class="nm">' + esc(l.name) + "</div>" +
-        '<div class="verd ' + (hv ? "v-" + hv : "v-none") + '">' + (hv ? esc(hv.replace("_", " ")) : "unscored") + "</div>" +
+        '<div class="verd ' + (hv ? "v-" + hv : "v-none") + '">' + (hv ? esc(he(hv)) : "לא נוקד") + "</div>" +
         triad(l.heat) + "</div>";
       if (i < links.length - 1) h += '<div class="farrow">›</div>';
     });
     h += "</div>";
     h += '<div class="legend">' +
-      '<span><span class="tri-demo"><i style="height:11px;background:var(--accent)"></i><i style="height:7px;background:var(--crd)"></i><i style="height:9px;background:var(--und)"></i></span>impact · crowdedness · capture</span>' +
-      [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
-        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
+      '<span><span class="tri-demo"><i style="height:11px;background:var(--accent)"></i><i style="height:7px;background:var(--crd)"></i><i style="height:9px;background:var(--und)"></i></span>השפעה · צפיפות · לכידה</span>' +
+      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + esc(he(v[0])) + "</span>";
       }).join("") +
-      '<span style="color:var(--gold)">★ money corner</span><span><span class="choke" style="position:static;display:inline-block;vertical-align:-1px;margin-right:6px"></span>choke point</span>' +
+      '<span style="color:var(--gold)">★ פינת הכסף</span><span><span class="choke" style="position:static;display:inline-block;vertical-align:-1px;margin-right:6px"></span>נקודת חנק</span>' +
       "</div>";
     h += "<div id='drawerHost'></div>";
     return h;
@@ -948,13 +1032,13 @@
     // sources under a score would otherwise believe three is all there is.
     function ev(o) {
       var items = (o || {}).evidence || [];
-      return evList(items) + (items.length ? "" : "<div class='evli muted'>no cited source recorded on this leg</div>");
+      return evList(items) + (items.length ? "" : "<div class='evli muted'>לא נרשם מקור מצוטט לרגל הזאת</div>");
     }
     function block(title, o) {
       if (!o) return "";
       var why = o.rationale != null
         ? "<div class='small'>" + esc(o.rationale) + "</div>"
-        : (o.score != null ? "<div class='small muted'>Scored " + o.score + "/100 with no written rationale on file.</div>" : "");
+        : (o.score != null ? "<div class='small muted'>נוקד " + o.score + "/100 בלי נימוק כתוב בתיק.</div>" : "");
       return "<h3>" + title + "</h3>" + why + ev(o);
     }
     function kvBlock(obj) {
@@ -963,22 +1047,22 @@
       if (typeof obj !== "object") return "<div class='small'>" + esc(String(obj)) + "</div>";
       return "<div class='kv'>" + Object.keys(obj).map(function (k) {
         var v = obj[k];
-        var text = v == null ? "null" : (typeof v === "object" ? (v.note || v.basis ? [v.state, v.note || v.basis].filter(Boolean).join(" · ") : JSON.stringify(v)) : String(v));
+        var text = v == null ? "ריק" : (typeof v === "object" ? (v.note || v.basis ? [v.state, v.note || v.basis].filter(Boolean).join(" · ") : JSON.stringify(v)) : String(v));
         return "<dt>" + esc(k.replace(/_/g, " ")) + "</dt><dd class='small'>" + esc(text) + "</dd>";
       }).join("") + "</div>";
     }
-    var chips = '<div class="row">' + (h.verdict ? chip(h.verdict.replace("_", " "), h.verdict) : chip("unscored")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") + chip((l.investability || "").replace(/_/g, " ")) + ((l.bottleneck || {}).criticality ? chip(l.bottleneck.criticality === "CHOKE_POINT" ? "choke point" : "bottleneck " + String(l.bottleneck.criticality).toLowerCase()) : chip("bottleneck not rated", "stale")) + "</div>";
+    var chips = '<div class="row">' + (h.verdict ? chip(h.verdict, h.verdict) : chip("לא נוקד")) + (h.money_corner ? '<span class="chip UNDISCOVERED">★ פינת הכסף</span>' : "") + chip(l.investability || "") + ((l.bottleneck || {}).criticality ? chip(l.bottleneck.criticality === "CHOKE_POINT" ? "נקודת חנק" : "צוואר בקבוק " + he(l.bottleneck.criticality)) : chip("צוואר בקבוק לא דורג", "stale")) + "</div>";
     var analysis = explainerBlock(c, l) +
-      scoreBar("Impact", h.impact, "--accent") + scoreBar("Crowdedness", h.crowdedness, "--crd") + scoreBar("Value capture", h.capture, "--und") +
-      block("Impact", h.impact) + block("Crowdedness", h.crowdedness) + block("Value capture", h.capture) +
-      (h.repricing_check && (h.repricing_check.note || h.repricing_check.legs) ? "<h3>Repricing check</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + "/4 legs</span> · " : "") + esc(h.repricing_check.note || "") + "</div>" +
+      scoreBar("השפעה", h.impact, "--accent") + scoreBar("צפיפות", h.crowdedness, "--crd") + scoreBar("לכידת ערך", h.capture, "--und") +
+      block("השפעה", h.impact) + block("צפיפות", h.crowdedness) + block("לכידת ערך", h.capture) +
+      (h.repricing_check && (h.repricing_check.note || h.repricing_check.legs) ? "<h3>בדיקת תמחור מחדש</h3><div class='small'>" + (h.repricing_check.legs_met != null ? "<span class='num'>" + h.repricing_check.legs_met + " מתוך 4 רגליים</span> · " : "") + esc(h.repricing_check.note || "") + "</div>" +
         (h.repricing_check.legs ? kvBlock(h.repricing_check.legs) : "") : "") +
-      (l.capture_inputs ? "<h3>Capture inputs</h3>" + kvBlock(l.capture_inputs) : "") +
-      (((l.bottleneck || {}).note || (l.bottleneck || {}).basis) ? "<h3>Bottleneck</h3><div class='small'>" + esc(l.bottleneck.note || l.bottleneck.basis) + "</div>" : "") +
-      "<h3>Feeds</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
-      "<h3>Fed by</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "none") + "</div>" +
-      ((l.evidence || []).length ? "<h3>Map citations</h3><div class='small muted'>" + l.evidence.length + " dated source(s) behind this link</div>" + evList(l.evidence) : "<h3>Map citations</h3><div class='small muted'>no dated source recorded on this link</div>") +
-      (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "scores every unscored link with fetched evidence", { compact: true }) + "</div>");
+      (l.capture_inputs ? "<h3>מה קובע את הלכידה</h3>" + kvBlock(l.capture_inputs) : "") +
+      (((l.bottleneck || {}).note || (l.bottleneck || {}).basis) ? "<h3>צוואר בקבוק</h3><div class='small'>" + esc(l.bottleneck.note || l.bottleneck.basis) + "</div>" : "") +
+      "<h3>מזין את</h3><div class='small'>" + ((l.upstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "אין") + "</div>" +
+      "<h3>מוזן מ</h3><div class='small'>" + ((l.downstream_of || []).map(function (x) { return esc(linkName(c, x)); }).join(", ") || "אין") + "</div>" +
+      ((l.evidence || []).length ? "<h3>מקורות המפה</h3><div class='small muted'>" + (l.evidence.length === 1 ? "מקור מתוארך אחד מאחורי החוליה הזאת" : l.evidence.length + " מקורות מתוארכים מאחורי החוליה הזאת") + "</div>" + evList(l.evidence) : "<h3>מקורות המפה</h3><div class='small muted'>לא נרשם מקור מתוארך לחוליה הזאת</div>") +
+      (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "מדרג כל חוליה שלא נוקדה, עם ראיות שנמשכו", { compact: true }) + "</div>");
 
     var sc = chainScreen(c.id);
     var rows = [];
@@ -989,18 +1073,18 @@
     if (rows.length) {
       stocks = rows.map(function (x) { return stockCard(c, x.r, x.bucket); }).join("");
       var others = (l.example_tickers || []).filter(function (t) { return !seen[t]; });
-      if (others.length) stocks += "<div class='stk-more'><h4>Also named on this link</h4><div class='row'>" + others.map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small' style='margin-top:6px'>not screened yet, no fundamentals fetched</div></div>";
+      if (others.length) stocks += "<div class='stk-more'><h4>שמות נוספים בחוליה</h4><div class='row'>" + others.map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small' style='margin-top:6px'>עדיין לא נסרקו, לא נמשכו נתונים</div></div>";
     } else {
-      stocks = "<div class='stk-empty'>No stocks screened onto this link yet." +
-        ((l.example_tickers || []).length ? "<div class='row' style='margin:10px 0'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small'>example names only; run a screen to appraise them and fetch fundamentals</div>" : "") +
-        "<div style='margin-top:12px'>" + runButton("run screen " + c.id, "screens every link on this chain for listed names", { compact: true }) + "</div></div>";
+      stocks = "<div class='stk-empty'>עדיין לא נסרקו מניות לחוליה הזאת." +
+        ((l.example_tickers || []).length ? "<div class='row' style='margin:10px 0'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small'>רק שמות לדוגמה, הרץ סריקה כדי להעריך אותן ולמשוך נתונים</div>" : "") +
+        "<div style='margin-top:12px'>" + runButton("run screen " + c.id, "סורק כל חוליה בשרשרת הזאת לחיפוש חברות נסחרות", { compact: true }) + "</div></div>";
     }
 
     return '<div class="scrim" data-closedrawer></div><div class="modal-card" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
       '<div class="modal-head">' + chips + "<h2>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p></div>" +
       '<div class="modal-body">' +
         '<div class="modal-pane modal-analysis">' + analysis + "</div>" +
-        '<div class="modal-pane modal-stocks"><div class="stocks-h">Stocks on this link' + (rows.length ? " <span class='num'>" + rows.length + "</span>" : "") + "</div>" + stocks + "</div>" +
+        '<div class="modal-pane modal-stocks"><div class="stocks-h">מניות בחוליה הזאת' + (rows.length ? " <span class='num'>" + rows.length + "</span>" : "") + "</div>" + stocks + "</div>" +
       "</div></div>";
   }
 
@@ -1011,7 +1095,7 @@
   function stockCard(c, r, bucket) {
     var f = (r.fundamentals && typeof r.fundamentals === "object") ? r.fundamentals : null;
     var v = (r.valuation && typeof r.valuation === "object") ? r.valuation : null;
-    var BN = { pure_play: "Pure play", picks_and_shovels: "Picks and shovels", second_order: "Second order", hedge: "Hedge" };
+    // screen buckets (pure_play, picks_and_shovels, second_order, hedge) render via he(bucket)
     function fval(x) { return (x && typeof x === "object" && "value" in x) ? x.value : (typeof x === "number" ? x : null); }
     function bigMoney(n) {
       if (typeof n !== "number") return null;
@@ -1023,7 +1107,7 @@
     }
     function pct(x) { return (typeof x === "number") ? (x * 100).toFixed(0) + "%" : null; }
     function price(n) { return (typeof n === "number") ? "$" + n.toFixed(2) : null; }
-    function stat(label, val) { return "<div class='sc-stat'><span class='sc-l'>" + esc(label) + "</span><span class='sc-v'>" + (val == null ? "<span class='muted'>n/a</span>" : val) + "</span></div>"; }
+    function stat(label, val) { return "<div class='sc-stat'><span class='sc-l'>" + esc(label) + "</span><span class='sc-v'>" + (val == null ? "<span class='muted'>אין</span>" : val) + "</span></div>"; }
 
     var cap = v ? bigMoney(v.market_cap) : null;
     var px = v ? price(v.price) : null;
@@ -1033,23 +1117,23 @@
     var revg = f ? pct(fval(f.revenue_cagr_3y)) : null;
     var fcf = f ? pct(fval(f.market_implied_fcf_cagr)) : null;
     var pio = (f && typeof f.piotroski === "number") ? (f.piotroski + " / 9") : null;
-    var ben = (f && typeof f.beneish_state === "string") ? f.beneish_state : null;
+    var ben = (f && typeof f.beneish_state === "string") ? he(f.beneish_state) : null;
     var cwo = (r.crowdedness && typeof r.crowdedness === "object") ? r.crowdedness : null;
-    var cw = (cwo && cwo.state) ? chip(cwo.state + (typeof cwo.pcs_axis_a === "number" ? " " + Math.round(cwo.pcs_axis_a) : ""), cwo.state === "DARK" ? "UNDISCOVERED" : cwo.state === "CROWDED" ? "CROWDED" : "neutral") : "";
-    var nug = (r.earnings_nuggets || []).length ? "<details class='sc-nug'><summary>" + r.earnings_nuggets.length + " earnings nugget(s)</summary>" + r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + (n.url ? " · <a href='" + esc(n.url) + "' target='_blank' rel='noopener'>" + esc(n.accession || "filing") + "</a>" : "") + "</div></blockquote>"; }).join("") + "</details>" : "";
-    var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(c.id) + '">Full dive →</a>' :
+    var cw = (cwo && cwo.state) ? chip(he(cwo.state) + (typeof cwo.pcs_axis_a === "number" ? " " + Math.round(cwo.pcs_axis_a) : ""), cwo.state === "DARK" ? "UNDISCOVERED" : cwo.state === "CROWDED" ? "CROWDED" : "neutral") : "";
+    var nug = (r.earnings_nuggets || []).length ? "<details class='sc-nug'><summary>" + r.earnings_nuggets.length + " ציטוטים מהדוחות</summary>" + r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + (n.url ? " · <a href='" + esc(n.url) + "' target='_blank' rel='noopener'>" + esc(n.accession || "filing") + "</a>" : "") + "</div></blockquote>"; }).join("") + "</details>" : "";
+    var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(c.id) + '">צלילה מלאה →</a>' :
       r.status === "CANDIDATE" ? "<span data-stop>" + runButton("run deepdive " + r.ticker + " " + c.id, null, { compact: true }) + "</span>" :
       (r.status ? chip(r.status) : "");
 
     return "<div class='stockcard'>" +
-      "<div class='sc-head'><div class='sc-id'><span class='sc-tk'>" + esc(r.ticker) + "</span>" + (r.money_corner ? "<span class='star' title='money-corner link'>★</span>" : "") + tierChip(r.tier) + "<span class='sc-bkt'>" + esc(BN[bucket] || bucket) + "</span></div><div class='sc-co'>" + esc(r.name || "") + (r.exchange ? " · " + esc(r.exchange) : "") + "</div></div>" +
+      "<div class='sc-head'><div class='sc-id'><span class='sc-tk'>" + esc(r.ticker) + "</span>" + (r.money_corner ? "<span class='star' title='פינת הכסף'>★</span>" : "") + tierChip(r.tier) + "<span class='sc-bkt'>" + esc(he(bucket)) + "</span></div><div class='sc-co'>" + esc(r.name || "") + (r.exchange ? " · " + esc(r.exchange) : "") + "</div></div>" +
       (r.thesis_1line ? "<div class='sc-thesis'>" + esc(r.thesis_1line) + "</div>" : "") +
       "<div class='sc-grid'>" +
-        stat("Market cap", cap) + stat("Price", px) + stat("52 week", w52) +
-        stat("Revenue FY", rev) + stat("Rev 3y CAGR", revg) + stat("Net income", ni) +
-        stat("Implied FCF CAGR", fcf) + stat("Piotroski F", pio) + stat("Beneish", ben) +
+        stat("שווי שוק", cap) + stat("מחיר", px) + stat("טווח 52 שבועות", w52) +
+        stat("הכנסות שנתיות", rev) + stat("צמיחת הכנסות 3 שנים", revg) + stat("רווח נקי", ni) +
+        stat("צמיחת תזרים מגולמת", fcf) + stat("Piotroski F", pio) + stat("ציון Beneish", ben) +
       "</div>" +
-      (cw ? "<div class='sc-cw'><span class='sc-l'>Crowdedness</span> " + cw + "</div>" : "") +
+      (cw ? "<div class='sc-cw'><span class='sc-l'>צפיפות</span> " + cw + "</div>" : "") +
       nug +
       (act ? "<div class='sc-act'>" + act + "</div>" : "") +
       "</div>";
@@ -1147,7 +1231,7 @@
     var g = chainLayout(links), by = {};
     links.forEach(function (l) { by[l.id] = l; });
     var s = overviewBlock(c);
-    s += '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + g.W + " " + g.H + '" width="' + g.W + '" height="' + g.H + '" role="img" aria-label="Value chain graph, upstream on the left">';
+    s += '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + g.W + " " + g.H + '" width="' + g.W + '" height="' + g.H + '" role="img" aria-label="גרף שרשרת הערך, המעלה משמאל">';
     s += '<defs><marker id="gArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0.5 L8,4 L0,7.5 z" fill="var(--border-strong)"/></marker></defs>';
     g.edges.forEach(function (e) {
       var a = g.nodes[e.from], b = g.nodes[e.to];
@@ -1160,25 +1244,25 @@
       var hv = (l.heat && l.heat.verdict) || null;
       var vcls = hv ? "v-" + hv : "v-none";
       s += '<g class="gnode ' + vcls + '" transform="translate(' + n.x + "," + n.y + ')" data-drawer="' + esc(l.id) + '" tabindex="0" role="button" aria-label="' + esc(l.name) + '">';
-      s += "<title>" + esc(l.name) + (hv ? " · " + esc(hv.replace("_", " ")) : " · unscored") + "</title>";
+      s += "<title>" + esc(l.name) + (hv ? " · " + esc(he(hv)) : " · לא נוקד") + "</title>";
       s += '<rect class="body' + (hv ? "" : " unscored") + '" x="0" y="0" width="' + G.NODE_W + '" height="' + G.NODE_H + '" rx="10"/>';
       s += '<rect x="0" y="10" width="4" height="' + (G.NODE_H - 20) + '" rx="2" fill="' + verdColor(hv) + '"/>';
-      if (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT") s += '<circle cx="14" cy="0" r="4.5" fill="var(--bg)" stroke="var(--ovr)" stroke-width="2"><title>choke point</title></circle>';
-      if (l.heat && l.heat.money_corner) s += '<text class="star" x="' + (G.NODE_W - 16) + '" y="17">★<title>money corner</title></text>';
+      if (l.bottleneck && l.bottleneck.criticality === "CHOKE_POINT") s += '<circle cx="14" cy="0" r="4.5" fill="var(--bg)" stroke="var(--ovr)" stroke-width="2"><title>נקודת חנק</title></circle>';
+      if (l.heat && l.heat.money_corner) s += '<text class="star" x="' + (G.NODE_W - 16) + '" y="17">★<title>פינת הכסף</title></text>';
       s += '<text class="pos" x="12" y="15">' + String(l.position).padStart(2, "0") + "</text>";
       wrapText(shortName(l.name), 21, 2).forEach(function (ln, i) { s += '<text class="nm" x="12" y="' + (29 + i * 12) + '">' + esc(ln) + "</text>"; });
-      s += '<text class="verd ' + vcls + '" x="12" y="53">' + (hv ? esc(hv.replace("_", " ")) : "unscored") + "</text>";
+      s += '<text class="verd ' + vcls + '" x="12" y="53">' + (hv ? esc(he(hv)) : "לא נוקד") + "</text>";
       s += triadSvg(l.heat, G.NODE_W - 34, 52);
       s += "</g>";
     });
     s += "</svg></div>";
     s += '<div class="legend">' +
-      '<span><span class="tri-demo"><i style="height:11px;background:var(--accent)"></i><i style="height:7px;background:var(--crd)"></i><i style="height:9px;background:var(--und)"></i></span>impact · crowdedness · capture</span>' +
-      [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
-        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
+      '<span><span class="tri-demo"><i style="height:11px;background:var(--accent)"></i><i style="height:7px;background:var(--crd)"></i><i style="height:9px;background:var(--und)"></i></span>השפעה · צפיפות · לכידה</span>' +
+      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + esc(he(v[0])) + "</span>";
       }).join("") +
-      '<span style="color:var(--gold)">★ money corner</span><span><span class="choke" style="position:static;display:inline-block;vertical-align:-1px;margin-right:6px"></span>choke point</span>' +
-      "<span>upstream on the left, demand on the right; hover a stage to light its edges</span></div>";
+      '<span style="color:var(--gold)">★ פינת הכסף</span><span><span class="choke" style="position:static;display:inline-block;vertical-align:-1px;margin-right:6px"></span>נקודת חנק</span>' +
+      "<span>המעלה משמאל, הביקוש מימין; העבר את העכבר על שלב כדי להאיר את הקשרים שלו</span></div>";
     var roots = links.filter(function (l) { return !(l.downstream_of || []).length; }).length;
     var widest = links.slice().sort(function (a, b) { return (b.downstream_of || []).length - (a.downstream_of || []).length; })[0];
     s += '<div class="gshape he" dir="rtl" lang="he">נקודות מוצא: <bdi>' + roots + "</bdi> · שלבים: <bdi>" + g.cols.length + "</bdi> · צומת ההתכנסות הרחב ביותר: <bdi>" + esc(widest ? widest.name : "") + "</bdi> (<bdi>" + (widest ? (widest.downstream_of || []).length : 0) + "</bdi> חוליות נכנסות)</div>";
@@ -1204,14 +1288,14 @@
       '<div class="stamp">נכתב <bdi>' + esc(x.as_of) + "</bdi> · <bdi>" + esc(x.by) + "</bdi></div></div>";
   }
   function heatTab(c, links, scored) {
-    if (!scored.length) return '<div class="emptystate">No links scored yet.<div class="runwrap">' + runButton("run heat " + c.id) + "</div></div>";
+    if (!scored.length) return '<div class="emptystate">עדיין אין חוליות מדורגות.<div class="runwrap">' + runButton("run heat " + c.id) + "</div></div>";
     var W = 940, H = 560, P = { l: 64, r: 40, t: 34, b: 52 };
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
     function X(v) { return P.l + (v / 100) * iw; }
     function Y(cr) { return P.t + (cr / 100) * ih; } // crowdedness 0 at TOP → money corner top-right
-    var s = '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="Impact vs crowdedness map">';
+    var s = '<div class="card"><div class="chartwrap"><svg viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="מפת השפעה מול צפיפות">';
     s += '<rect x="' + X(60) + '" y="' + Y(0) + '" width="' + (X(100) - X(60)) + '" height="' + (Y(40) - Y(0)) + '" fill="var(--band-good)" rx="10"/>';
-    s += '<text x="' + X(80) + '" y="' + (Y(0) + 20) + '" text-anchor="middle" font-size="11" font-weight="650" fill="var(--und)" letter-spacing="1">★ MONEY CORNER</text>';
+    s += '<text x="' + X(80) + '" y="' + (Y(0) + 20) + '" text-anchor="middle" font-size="11" font-weight="650" fill="var(--und)" letter-spacing="1">★ פינת הכסף</text>';
     [0, 25, 50, 75, 100].forEach(function (v) {
       s += '<line x1="' + X(v) + '" y1="' + P.t + '" x2="' + X(v) + '" y2="' + (H - P.b) + '" stroke="var(--chart-grid)"/>';
       s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
@@ -1220,8 +1304,8 @@
     });
     s += '<line x1="' + X(60) + '" y1="' + P.t + '" x2="' + X(60) + '" y2="' + (H - P.b) + '" stroke="var(--chart-axis)" stroke-dasharray="3 5"/>';
     s += '<line x1="' + P.l + '" y1="' + Y(40) + '" x2="' + (W - P.r) + '" y2="' + Y(40) + '" stroke="var(--chart-axis)" stroke-dasharray="3 5"/>';
-    s += '<text x="' + (P.l + iw / 2) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11.5" font-weight="550">Impact →</text>';
-    s += '<text transform="rotate(-90)" x="' + (-(P.t + ih / 2)) + '" y="18" text-anchor="middle" font-size="11.5" font-weight="550">Quieter →</text>';
+    s += '<text x="' + (P.l + iw / 2) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11.5" font-weight="550">השפעה →</text>';
+    s += '<text transform="rotate(-90)" x="' + (-(P.t + ih / 2)) + '" y="18" text-anchor="middle" font-size="11.5" font-weight="550">שקט יותר →</text>';
     var placed = [];
     function labelSpot(x, yCands, name) {
       var w = name.length * 5.6;
@@ -1247,25 +1331,25 @@
       var nm = shortName(l.name);
       var ly = labelSpot(X(im), [Y(cr) - r - 8, Y(cr) + r + 14, Y(cr) - r - 22, Y(cr) + r + 28, Y(cr) - r - 36], nm);
       s += '<circle cx="' + X(im) + '" cy="' + Y(cr) + '" r="' + r.toFixed(1) + '" fill="' + verdColor(l.heat.verdict) + '" fill-opacity="0.85" stroke="var(--surface)" stroke-width="2"' +
-        (cp == null ? ' stroke-dasharray="2 2"' : "") + "><title>" + esc(l.name) + " — impact " + im + ", crowdedness " + cr + ", capture " + (cp == null ? "unscored" : cp) + "</title></circle>";
+        (cp == null ? ' stroke-dasharray="2 2"' : "") + "><title>" + esc(l.name) + " · השפעה " + im + ", צפיפות " + cr + ", לכידה " + (cp == null ? "לא נוקד" : cp) + "</title></circle>";
       s += '<text x="' + X(im) + '" y="' + ly + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--ink)">' + esc(nm) + "</text>";
     });
     s += "</svg></div>";
-    s += '<div class="legend"><span>dot size = value capture</span>' +
-      [["Undiscovered", "--und"], ["Emerging", "--emg"], ["Crowded", "--crd"], ["Over-crowded", "--ovr"]].map(function (v) {
-        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + v[0] + "</span>";
+    s += '<div class="legend"><span>גודל הנקודה = לכידת ערך</span>' +
+      [["UNDISCOVERED", "--und"], ["EMERGING", "--emg"], ["CROWDED", "--crd"], ["OVER_CROWDED", "--ovr"]].map(function (v) {
+        return '<span><span class="sw" style="background:var(' + v[1] + ')"></span>' + esc(he(v[0])) + "</span>";
       }).join("") + "</div></div>";
     var un = links.filter(function (l) { return !isPlottable(l); });
-    if (un.length) s += '<div class="muted" style="margin-top:10px">Not scored: ' + un.map(function (l) { return esc(l.name); }).join(", ") + "</div>";
+    if (un.length) s += '<div class="muted" style="margin-top:10px">לא נוקדו: ' + un.map(function (l) { return esc(l.name); }).join(", ") + "</div>";
     var mc = links.filter(function (l) { return l.heat && l.heat.money_corner; });
     s += '<div class="callout" style="margin-top:14px">' +
       (function () {
-        var bars = "impact ≥ " + MC.impact_min + ", crowdedness ≤ " + MC.crowd_max + ", capture ≥ " + MC.capture_min;
+        var bars = "השפעה ≥ " + MC.impact_min + ", צפיפות ≤ " + MC.crowd_max + ", לכידה ≥ " + MC.capture_min;
         return mc.length
-          ? "<b>★ " + mc.map(function (l) { return esc(l.name); }).join(" · ") + "</b> clears all three bars (" + bars + "). "
-          : "<b>No money corner yet</b> — no link clears " + bars + " together. ";
+          ? "<b>★ " + mc.map(function (l) { return esc(l.name); }).join(" · ") + "</b> עוברת את שלושת הספים (" + bars + "). "
+          : "<b>עדיין אין פינת כסף</b>, אף חוליה לא עוברת יחד את " + bars + ". ";
       })() +
-      "Quiet links with <b>small dots</b> are the trap: ignored because capture is capped, not because the market missed them.</div>";
+      "חוליות שקטות עם <b>נקודות קטנות</b> הן המלכודת: הן מתעלמות כי הלכידה מוגבלת, לא כי השוק פספס אותן.</div>";
     return s;
   }
   // method section 5 and check_scenarios.py both accept an indicator keyed `signal` OR
@@ -1276,35 +1360,35 @@
 
   function scenTab(c) {
     var scens = c.scenarios || [];
-    if (!scens.length) return '<div class="emptystate">No scenarios yet.<div class="runwrap">' + runButton("run scenarios " + c.id) + "</div></div>";
+    if (!scens.length) return '<div class="emptystate">עדיין אין תרחישים.<div class="runwrap">' + runButton("run scenarios " + c.id) + "</div></div>";
     return scens.map(function (s) {
       var mv = (s.links_moved || []).map(function (m) {
-        return '<span class="mv" title="' + esc(m.why || "") + '"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(shortName(linkName(c, m.link_id))) + " · " + esc(String(m.magnitude || "").toLowerCase()) + "</span>";
+        return '<span class="mv" title="' + esc(m.why || "") + '"><span class="' + (m.direction === "UP" ? "up" : "down") + '">' + (m.direction === "UP" ? "↑" : "↓") + "</span>" + esc(shortName(linkName(c, m.link_id))) + " · " + esc(he(m.magnitude)) + "</span>";
       }).join("");
       var inds = (s.leading_indicators || []).map(function (i) {
         var trip = ((D.indicators || {}).trips || []).filter(function (t) {
           return t.chain === c.id && t.scenario === s.id && t.indicator === indText(i);
         })[0];
         var trippedAt = i.tripped_at || (trip && trip.tripped_at);
-        var badge = trippedAt ? chip("tripped " + trippedAt, "OVER_CROWDED") : i.armed ? chip("armed", "accent") : "";
+        var badge = trippedAt ? chip("הופעל " + trippedAt, "OVER_CROWDED") : i.armed ? chip("דרוך", "accent") : "";
         return "<li>" + esc(indText(i)) + (i.where_to_watch ? " <span class='muted'>(" + esc(i.where_to_watch) + ")</span>" : "") + " " + badge +
           (i.check_basis ? "<div class='muted small'>" + esc(i.check_basis) + "</div>" : "") + "</li>";
       }).join("");
       var whys = (s.links_moved || []).filter(function (m) { return m && m.why; }).map(function (m) {
         return "<div class='small'><b>" + esc(shortName(linkName(c, m.link_id))) + ":</b> " + esc(m.why) + "</div>";
       }).join("");
-      return '<div class="card scen"><div class="head"><span class="t">' + esc(s.id) + " — " + esc(s.title) + "</span>" +
+      return '<div class="card scen"><div class="head"><span class="t">' + esc(s.id) + " · " + esc(s.title) + "</span>" +
         chip(s.status, s.status === "SCREENED" ? "accent" : "neutral") + (s.clock && s.clock !== c.clock ? chip(s.clock) : "") +
         '<span class="p">' + esc(s.probability_pct) + "<small>%</small></span></div>" +
         '<div class="pbar"><i style="width:' + esc(s.probability_pct) + '%"></i></div>' +
         "<div class='small'>" + esc(s.narrative) + "</div>" +
         "<div style='margin:10px 0 2px'>" + mv + "</div>" +
         (whys ? "<div style='margin:6px 0'>" + whys + "</div>" : "") +
-        "<details><summary>Leading indicators & invalidation</summary><div class='body'><ul class='bullets'>" + inds + "</ul>" +
-        "<div class='small' style='margin-top:8px'><b>Invalidation:</b> " + ((s.invalidation_signs || []).length ? (s.invalidation_signs || []).map(esc).join(" · ") : "<span class='muted'>none recorded</span>") + "</div>" +
-        ((s.evidence || []).length ? "<div style='margin-top:8px'><b class='small'>Sources (" + s.evidence.length + ")</b>" + evList(s.evidence) + "</div>" : "") +
+        "<details><summary>סימנים מקדימים ומה מפריך</summary><div class='body'><ul class='bullets'>" + inds + "</ul>" +
+        "<div class='small' style='margin-top:8px'><b>מה מפריך:</b> " + ((s.invalidation_signs || []).length ? (s.invalidation_signs || []).map(esc).join(" · ") : "<span class='muted'>לא נרשם</span>") + "</div>" +
+        ((s.evidence || []).length ? "<div style='margin-top:8px'><b class='small'>מקורות (" + s.evidence.length + ")</b>" + evList(s.evidence) + "</div>" : "") +
         "</div></details>" +
-        "<div style='margin-top:14px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">Open stock screen →</a>' : runButton("run screen " + c.id + " " + s.id, "screens stocks for this scenario, bucketed and tiered")) + "</div></div>";
+        "<div style='margin-top:14px'>" + (s.screen_ref ? '<a class="chip accent" href="#/screen/' + esc(c.id) + "/" + esc(s.id) + '">פתח סריקת מניות →</a>' : runButton("run screen " + c.id + " " + s.id, "סורק מניות לתרחיש הזה, מחולקות לקבוצות ולרמות")) + "</div></div>";
     }).join("");
   }
 
@@ -1325,10 +1409,10 @@
     var sc = chainScreen(c.id);
     if (sc) {
       var n = screenNameCount(sc);
-      return '<div class="chainaction"><div><span class="lbl">Stock opportunities</span>' +
-        '<span class="val">' + n + ' name' + (n === 1 ? "" : "s") + ' across the chain</span>' +
-        '<span class="lbl">as of ' + esc(sc.as_of || "?") + "</span></div>" +
-        '<div class="row"><a class="chip accent" href="#/screen/' + esc(c.id) + '">Open →</a>' +
+      return '<div class="chainaction"><div><span class="lbl">הזדמנויות במניות</span>' +
+        '<span class="val">' + (n === 1 ? "שם אחד בכל השרשרת" : n + " שמות בכל השרשרת") + '</span>' +
+        '<span class="lbl">נכון ל ' + esc(sc.as_of || "?") + "</span></div>" +
+        '<div class="row"><a class="chip accent" href="#/screen/' + esc(c.id) + '">פתח →</a>' +
         "<span data-stop>" + runButton("run screen " + c.id, null, { compact: true }) + "</span></div></div>";
     }
     /* "not screened yet" is only true of the CHAIN-level screen. Scenario screens
@@ -1336,11 +1420,11 @@
        but the sentence read as though nothing had ever been screened on this chain while
        a scenario screen sat in data/screens/ saying otherwise. Say which scope is missing. */
     var scen = (D.screens || []).filter(function (x) { return x.chain_id === c.id && x.scenario_id; });
-    return '<div class="chainaction"><div><span class="lbl">Stock opportunities</span>' +
+    return '<div class="chainaction"><div><span class="lbl">הזדמנויות במניות</span>' +
       '<span class="val">' + (scen.length
-        ? "no chain-wide screen yet — " + scen.length + " scenario screen" + (scen.length === 1 ? "" : "s")
-        : "not screened yet") + "</span>" +
-      '<span class="lbl">finds every name this chain touches, link by link</span></div>' +
+        ? "עדיין אין סריקה לכל השרשרת · " + (scen.length === 1 ? "סריקת תרחיש אחת" : scen.length + " סריקות תרחיש")
+        : "עדיין לא נסרק") + "</span>" +
+      '<span class="lbl">מוצאת כל שם שהשרשרת הזאת נוגעת בו, חוליה אחרי חוליה</span></div>' +
       "<div class='row'>" + (scen.length
         ? scen.map(function (x) { return '<a class="chip" href="#/screen/' + esc(x.chain_id) + "/" + esc(x.scenario_id) + '">' + esc(x.scenario_id) + " →</a>"; }).join("")
         : "") +
@@ -1350,8 +1434,8 @@
   function chainScreenView(chainId, byBucket) {
     var c = byId(D.chains, chainId);
     var sc = chainScreen(chainId);
-    if (!sc) return notFound("chain screen " + chainId);
-    var BN = { pure_play: "Pure play", picks_and_shovels: "Picks and shovels", second_order: "Second order", hedge: "Hedge" };
+    if (!sc) return notFound("סריקת שרשרת " + chainId);
+    var BN = { pure_play: "pure_play", picks_and_shovels: "picks_and_shovels", second_order: "second_order", hedge: "hedge" };
     var rows = [];
     Object.keys(BN).forEach(function (k) {
       (sc.buckets[k] || []).forEach(function (r) { rows.push({ r: r, bucket: k }); });
@@ -1359,22 +1443,22 @@
     function nameCell(x) {
       var r = x.r;
       var mk = marketFor(r.ticker);
-      var dot = mk ? '<span class="pxdot on" title="market data present"></span>'
-                   : '<span class="pxdot" title="no market data yet — request queued"></span>';
+      var dot = mk ? '<span class="pxdot on" title="יש נתוני שוק"></span>'
+                   : '<span class="pxdot" title="אין עדיין נתוני שוק · הבקשה בתור"></span>';
       var act = r.status === "DIVED"
-        ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">Dive →</a>'
+        ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">צלילה →</a>'
         : r.status === "CANDIDATE" ? "<span data-stop>" + runButton("run deepdive " + r.ticker + " " + chainId, null, { compact: true }) + "</span>"
         : chip(r.status);
       return "<tr><td>" + dot + "<span class='tk-name'>" + esc(r.ticker) + "</span>" +
-        (r.money_corner ? '<span class="star" title="money-corner link">★</span>' : "") +
+        (r.money_corner ? '<span class="star" title="חוליה בפינת הכסף">★</span>' : "") +
         "<div class='tk-co'>" + esc(r.name || "") + "</div></td>" +
         "<td>" + tierChip(r.tier) + "</td>" +
         "<td class='small' style='max-width:300px'>" + esc(r.thesis_1line) + "</td>" +
-        "<td>" + chip(BN[x.bucket] || x.bucket) + "</td>" +
+        "<td>" + chip(he(x.bucket)) + "</td>" +
         "<td>" + act + "</td></tr>";
     }
     function table(inner) {
-      return '<div class="tablewrap"><table><thead><tr><th>Name</th><th>Tier</th><th>Thesis</th><th>Bucket</th><th></th></tr></thead><tbody>' +
+      return '<div class="tablewrap"><table><thead><tr><th>שם</th><th>רמה</th><th>תזה</th><th>קבוצה</th><th></th></tr></thead><tbody>' +
         inner + "</tbody></table></div>";
     }
     var body;
@@ -1382,7 +1466,7 @@
       body = Object.keys(BN).map(function (k) {
         var rs = rows.filter(function (x) { return x.bucket === k; });
         if (!rs.length) return "";
-        return seclabel(BN[k] + " — " + rs.length) + table(rs.map(nameCell).join(""));
+        return seclabel(he(k) + " · " + rs.length) + table(rs.map(nameCell).join(""));
       }).join("");
     } else {
       var links = ((c || {}).links || []).slice().sort(function (a, b) { return a.position - b.position; });
@@ -1392,28 +1476,28 @@
         var hv = (l.heat || {}).verdict;
         return '<div class="linkhead ' + (hv ? "v-" + hv : "v-none") + '">' +
           "<span class='nm'>" + esc(l.name) + "</span>" +
-          (hv ? chip(hv.replace("_", " "), hv) : chip("unscored")) +
-          ((l.heat || {}).money_corner ? '<span class="chip UNDISCOVERED">★ money corner</span>' : "") +
-          ((l.bottleneck || {}).criticality === "CHOKE_POINT" ? chip("choke point", "OVER_CROWDED") : "") +
-          "<span class='ct'>" + rs.length + " name" + (rs.length === 1 ? "" : "s") + "</span></div>" +
+          (hv ? chip(hv, hv) : chip("לא דורג")) +
+          ((l.heat || {}).money_corner ? '<span class="chip UNDISCOVERED">★ פינת הכסף</span>' : "") +
+          ((l.bottleneck || {}).criticality === "CHOKE_POINT" ? chip("נקודת חנק", "OVER_CROWDED") : "") +
+          "<span class='ct'>" + (rs.length === 1 ? "שם אחד" : rs.length + " שמות") + "</span></div>" +
           table(rs.map(nameCell).join(""));
       }).join("");
       var orphan = rows.filter(function (x) { return !byId((c || {}).links || [], x.r.link_id); });
-      if (orphan.length) body += seclabel("Unlinked — " + orphan.length) + table(orphan.map(nameCell).join(""));
+      if (orphan.length) body += seclabel("בלי חוליה · " + orphan.length) + table(orphan.map(nameCell).join(""));
     }
     var h = sc.health || {};
-    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "Stock opportunities" }]) + "<main>" +
-      '<div class="pagehead"><div class="row">' + chip("chain screen", "accent") +
-      chip(screenNameCount(sc) + " names") + staleChip(sc.as_of) + "</div>" +
-      "<h1>Stock opportunities — " + esc(c ? c.title : chainId) + "</h1>" +
+    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "הזדמנויות במניות" }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip("סריקת שרשרת", "accent") +
+      chip(screenNameCount(sc) + " שמות") + staleChip(sc.as_of) + "</div>" +
+      "<h1>הזדמנויות במניות · " + esc(c ? c.title : chainId) + "</h1>" +
       "<p class='sub'>" + esc(sc.universe_note || "") + "</p></div>" +
-      '<div class="seg"><button class="' + (byBucket ? "" : "on") + '" data-nav="#/screen/' + esc(chainId) + '">By link</button>' +
-      '<button class="' + (byBucket ? "on" : "") + '" data-nav="#/screen/' + esc(chainId) + '/bucket">By bucket</button></div>' +
-      (body || '<div class="emptystate">No names surfaced yet.</div>') +
-      ((sc.taste_filtered || []).length ? '<div class="callout" style="margin-top:16px"><b>Filtered by taste:</b> ' + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
-      "<div style='margin-top:18px'>" + runButton("run screen " + chainId, "re-runs discovery across every link") + "</div>" +
-      "<div class='healthline'>examined " + esc(h.tickers_examined) + " · scored " + esc(h.fully_scored) +
-      " · pending " + esc(h.pending) + " · errors " + esc(h.errors) + "</div>" +
+      '<div class="seg"><button class="' + (byBucket ? "" : "on") + '" data-nav="#/screen/' + esc(chainId) + '">לפי חוליה</button>' +
+      '<button class="' + (byBucket ? "on" : "") + '" data-nav="#/screen/' + esc(chainId) + '/bucket">לפי קבוצה</button></div>' +
+      (body || '<div class="emptystate">עדיין לא עלו שמות.</div>') +
+      ((sc.taste_filtered || []).length ? '<div class="callout" style="margin-top:16px"><b>סוננו לפי כללי הטעם:</b> ' + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
+      "<div style='margin-top:18px'>" + runButton("run screen " + chainId, "מריץ מחדש את האיתור בכל חוליה") + "</div>" +
+      "<div class='healthline'>נבדקו " + esc(h.tickers_examined) + " · נוקדו " + esc(h.fully_scored) +
+      " · ממתינים " + esc(h.pending) + " · שגיאות " + esc(h.errors) + "</div>" +
       notesBlock(sc) + changelogBlock(sc) + footer() + "</main>";
   }
   function screenView(chainId, scenId) {
@@ -1421,38 +1505,38 @@
     var sc = null;
     (D.screens || []).forEach(function (s) { if (s.chain_id === chainId && s.scenario_id === scenId) sc = s; });
     var c = byId(D.chains, chainId);
-    if (!sc) return notFound("screen " + chainId + " " + scenId);
+    if (!sc) return notFound("סריקה " + chainId + " " + scenId);
     var scen = c ? byId(c.scenarios, scenId) : null;
-    var names = { pure_play: "Pure play", picks_and_shovels: "Picks and shovels", second_order: "Second order", hedge: "Hedge" };
+    var names = { pure_play: "pure_play", picks_and_shovels: "picks_and_shovels", second_order: "second_order", hedge: "hedge" };
     var body = Object.keys(names).map(function (k) {
       var rows = (sc.buckets || {})[k] || [];
       if (!rows.length) return "";
-      return seclabel(names[k] + " — " + rows.length) +
-        '<div class="tablewrap"><table><thead><tr><th>Name</th><th>Tier</th><th>Thesis</th><th>Exposure</th><th>Fundamentals</th><th>Attention</th><th></th></tr></thead><tbody>' +
+      return seclabel(he(k) + " · " + rows.length) +
+        '<div class="tablewrap"><table><thead><tr><th>שם</th><th>רמה</th><th>תזה</th><th>חשיפה</th><th>נתוני יסוד</th><th>תשומת לב</th><th></th></tr></thead><tbody>' +
         rows.map(function (r) {
-          var f = r.fundamentals === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>pending</span>' :
-            (typeof r.fundamentals === "object" && r.fundamentals ? "<span class='num small'>" + esc(r.fundamentals.summary || "fetched") + "</span>" : "—");
-          var cw = r.crowdedness === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>pending</span>' :
-            (r.crowdedness && r.crowdedness.state ? chip(r.crowdedness.state + (r.crowdedness.pcs_score != null ? " " + r.crowdedness.pcs_score : ""), r.crowdedness.state === "DARK" ? "UNDISCOVERED" : r.crowdedness.state === "CROWDED" ? "CROWDED" : "neutral") : "—");
+          var f = r.fundamentals === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>ממתין</span>' :
+            (typeof r.fundamentals === "object" && r.fundamentals ? "<span class='num small'>" + esc(r.fundamentals.summary || "נמשך") + "</span>" : "—");
+          var cw = r.crowdedness === "PENDING_DATA" ? '<span class="pend"><span class="dot"></span>ממתין</span>' :
+            (r.crowdedness && r.crowdedness.state ? chip(he(r.crowdedness.state) + (r.crowdedness.pcs_score != null ? " " + r.crowdedness.pcs_score : ""), r.crowdedness.state === "DARK" ? "UNDISCOVERED" : r.crowdedness.state === "CROWDED" ? "CROWDED" : "neutral") : "—");
           var ex = r.theme_revenue_exposure && r.theme_revenue_exposure.pct != null ? "<span class='num'>" + esc(r.theme_revenue_exposure.pct) + "%</span>" :
-            '<span class="muted">null</span>' + ((r.theme_revenue_exposure || {}).basis ? "<div class='muted small'>" + esc(r.theme_revenue_exposure.basis) + "</div>" : "");
-          var nug = (r.earnings_nuggets || []).length ? "<details><summary>" + r.earnings_nuggets.length + " earnings nugget(s)</summary>" +
+            '<span class="muted">ריק</span>' + ((r.theme_revenue_exposure || {}).basis ? "<div class='muted small'>" + esc(r.theme_revenue_exposure.basis) + "</div>" : "");
+          var nug = (r.earnings_nuggets || []).length ? "<details><summary>" + r.earnings_nuggets.length + " ציטוטים מהדוחות</summary>" +
             r.earnings_nuggets.map(function (n) { return "<blockquote>“" + esc(n.quote) + "”<div class='muted'>" + esc(n.form || "") + " · <a href='" + esc(n.url) + "'>" + esc(n.accession) + "</a></div></blockquote>"; }).join("") + "</details>" : "";
-          var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">Dive →</a>' :
-            r.status === "CANDIDATE" ? runButton("run deepdive " + r.ticker + " " + chainId, "opens the last-mile analysis on this name", { compact: true }) : chip(r.status);
+          var act = r.status === "DIVED" ? '<a class="chip accent" href="#/stock/' + esc(r.ticker) + "/" + esc(chainId) + '">צלילה →</a>' :
+            r.status === "CANDIDATE" ? runButton("run deepdive " + r.ticker + " " + chainId, "פותח את הצלילה לעומק על השם הזה", { compact: true }) : chip(r.status);
           return "<tr><td><div class='tk-name'>" + esc(r.ticker) + "</div><div class='tk-co'>" + esc(r.name || "") + " · " + esc(r.exchange || "") + "</div>" + nug + "</td>" +
             "<td>" + tierChip(r.tier) + "</td><td class='small' style='max-width:280px'>" + esc(r.thesis_1line) + "</td>" +
             "<td>" + ex + "</td><td>" + f + "</td><td>" + cw + "</td><td>" + act + "</td></tr>";
         }).join("") + "</tbody></table></div>";
     }).join("");
     var gaps = sc.data_gaps || [];
-    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "Screen " + scenId }]) + "<main>" +
-      '<div class="pagehead"><div class="row">' + chip(scenId) + chip((sc.health || {}).fully_scored + "/" + (sc.health || {}).tickers_examined + " scored") + "</div>" +
+    return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: "סריקה " + scenId }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip(scenId) + chip((sc.health || {}).fully_scored + "/" + (sc.health || {}).tickers_examined + " נוקדו") + "</div>" +
       "<h1>" + esc(scen ? scen.title : scenId) + "</h1>" +
       "<p class='sub'>" + esc(sc.universe_note) + "</p></div>" + body +
-      ((sc.taste_filtered || []).length ? '<div class="callout" style="margin-top:16px"><b>Filtered by taste:</b> ' + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
-      (gaps.length ? "<div style='margin-top:18px'>" + runButton("run screen " + chainId + " " + scenId, "re-scores once fetched data lands (" + gaps.length + " names pending)") + "</div>" : "") +
-      "<div class='healthline'>examined " + esc((sc.health || {}).tickers_examined) + " · scored " + esc((sc.health || {}).fully_scored) + " · pending " + esc((sc.health || {}).pending) + " · errors " + esc((sc.health || {}).errors) + "</div>" +
+      ((sc.taste_filtered || []).length ? '<div class="callout" style="margin-top:16px"><b>סוננו לפי כללי הטעם:</b> ' + sc.taste_filtered.map(esc).join(", ") + "</div>" : "") +
+      (gaps.length ? "<div style='margin-top:18px'>" + runButton("run screen " + chainId + " " + scenId, "מנקד מחדש כשהנתונים יגיעו (" + gaps.length + " שמות ממתינים)") + "</div>" : "") +
+      "<div class='healthline'>נבדקו " + esc((sc.health || {}).tickers_examined) + " · נוקדו " + esc((sc.health || {}).fully_scored) + " · ממתינים " + esc((sc.health || {}).pending) + " · שגיאות " + esc((sc.health || {}).errors) + "</div>" +
       notesBlock(sc) + changelogBlock(sc) + footer() + "</main>";
   }
 
@@ -1460,35 +1544,35 @@
   function stockView(ticker, chainId) {
     var st = null;
     (D.stocks || []).forEach(function (s) { if (s.ticker === ticker && s.chain_id === chainId) st = s; });
-    if (!st) return notFound("deep dive " + ticker + " / " + chainId);
+    if (!st) return notFound("צלילה " + ticker + " / " + chainId);
     var c = byId(D.chains, chainId);
     var mk = marketFor(ticker);
     var pos = (D.trades || []).filter(function (t) { return t.ticker === ticker; });
     var zone = "";
     if (st.verdict === "INVESTABLE" && st.entry_zone) {
-      zone = '<div class="zone"><span class="zl">Entry zone</span><span class="zv">' + fmtMoney(st.entry_zone.low) + "–" + fmtMoney(st.entry_zone.high) + "</span></div>" +
-        '<div class="zone"><span class="zl">No entry above</span><span class="zv">' + fmtMoney(st.no_entry_above) + "</span></div>";
+      zone = '<div class="zone"><span class="zl">טווח כניסה</span><span class="zv">' + fmtMoney(st.entry_zone.low) + "–" + fmtMoney(st.entry_zone.high) + "</span></div>" +
+        '<div class="zone"><span class="zl">אין כניסה מעל</span><span class="zv">' + fmtMoney(st.no_entry_above) + "</span></div>";
     } else if (st.verdict === "WATCH") {
-      zone = '<div class="zone"><span class="zl">Waiting on</span><span class="zv" style="font-size:14px">' +
+      zone = '<div class="zone"><span class="zl">מחכים ל</span><span class="zv" style="font-size:14px">' +
         (st.watch_triggers || []).map(function (t) { return esc(t.metric) + " " + esc(t.direction || "") + " " + esc(t.level); }).join(" · ") + "</span></div>";
       // Ron, 2026-09-03: a WATCH says at what price it would have been a yes, or names the
       // cap that binds at any price. A dive written before that date carries neither, and
       // the page says so rather than drawing nothing.
       if (st.would_buy_zone != null) {
-        zone += '<div class="zone"><span class="zl">Would buy</span><span class="zv">' + fmtMoney(st.would_buy_zone.low) + "–" + fmtMoney(st.would_buy_zone.high) + "</span></div>";
+        zone += '<div class="zone"><span class="zl">היינו קונים ב</span><span class="zv">' + fmtMoney(st.would_buy_zone.low) + "–" + fmtMoney(st.would_buy_zone.high) + "</span></div>";
         // A bear-case zone that already contains today's price is the single most
         // actionable thing on this page, and until 2026-09-08 the gate forbade it from
         // ever happening. Say it in words rather than making the reader compare numbers.
         if (st.zone_contains_spot === true) {
-          zone += '<div class="zone"><span class="zl">In zone now</span><span class="zv" style="font-size:14px">bear case clears at today\u2019s price</span></div>';
+          zone += '<div class="zone"><span class="zl">\u05d1\u05d8\u05d5\u05d5\u05d7 \u05e2\u05db\u05e9\u05d9\u05d5</span><span class="zv" style="font-size:14px">\u05d4\u05ea\u05e8\u05d7\u05d9\u05e9 \u05d4\u05e9\u05dc\u05d9\u05dc\u05d9 \u05e2\u05d5\u05d1\u05e8 \u05d1\u05de\u05d7\u05d9\u05e8 \u05e9\u05dc \u05d4\u05d9\u05d5\u05dd</span></div>';
         }
       } else if (str_or_empty(st.would_buy_basis)) {
-        zone += '<div class="zone"><span class="zl">No price fixes it</span><span class="zv" style="font-size:14px">' + esc(st.would_buy_basis) + "</span></div>";
+        zone += '<div class="zone"><span class="zl">אין מחיר שמתקן את זה</span><span class="zv" style="font-size:14px">' + esc(st.would_buy_basis) + "</span></div>";
       } else {
-        zone += '<div class="zone"><span class="zl">Would buy</span><span class="zv muted" style="font-size:14px">not yet drawn (dive predates the 2026-09-03 rule)</span></div>';
+        zone += '<div class="zone"><span class="zl">היינו קונים ב</span><span class="zv muted" style="font-size:14px">עוד לא סומן (הצלילה נכתבה לפני הכלל של 2026-09-03)</span></div>';
       }
     } else {
-      zone = '<div class="zone"><span class="zl">Shadow book</span><span class="zv" style="font-size:14px"><a href="#/shadow">graded at +90d vs SPY →</a></span></div>';
+      zone = '<div class="zone"><span class="zl">ספר הצל</span><span class="zv" style="font-size:14px"><a href="#/shadow">נבדק אחרי 90 יום מול SPY →</a></span></div>';
     }
     var bigval = "";
     if (mk && mk.series && (mk.series.rows || []).length) {
@@ -1518,30 +1602,30 @@
       bigval = '<div class="bigval"><div><span class="v">' + fmtMoney(lastRow[1]) + "</span>" +
         '<svg class="spark" viewBox="0 0 66 22" aria-hidden="true"><path d="' + sp + '" fill="none" stroke="' +
         (chg >= 0 ? "var(--und)" : "var(--ovr)") + '" stroke-width="1.6"/></svg></div>' +
-        '<span class="l">last close · ' + esc(lastRow[0]) +
-        (chg == null ? "" : " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% since " + esc(sn[0][0])) + "</span></div>";
+        '<span class="l">סגירה אחרונה · ' + esc(lastRow[0]) +
+        (chg == null ? "" : " · " + (chg >= 0 ? "+" : "") + chg.toFixed(1) + "% מאז " + esc(sn[0][0])) + "</span></div>";
     }
     var hero = bigval + '<div class="vhero ' + esc(st.verdict) + '">' +
-      '<span class="vword"><span class="dot"></span>' + esc(st.verdict.replace("_", " ")) + "</span>" + zone +
+      '<span class="vword"><span class="dot"></span>' + he(st.verdict) + "</span>" + zone +
       '<span class="right">' + chip(st.clock) + tierChip(st.tier) + chip(st.status, st.status === "FINAL" ? "accent" : "stale") +
-      (pos.length ? chip("in book @ " + pos[pos.length - 1].price, "accent") : "") +
+      (pos.length ? chip("בספר העסקאות ב " + pos[pos.length - 1].price, "accent") : "") +
       gradeChip(st.earnings_quality) +
-      '<span class="muted">updated <span class="num">' + esc(st.updated_at) + '</span> · review <span class="num">' + esc(st.review_by) + "</span></span>" +
+      '<span class="muted">עודכן <span class="num">' + esc(st.updated_at) + '</span> · לבדיקה עד <span class="num">' + esc(st.review_by) + "</span></span>" +
       staleChip(st.updated_at) + "</span></div>";
     var rt = st.red_team
-      ? '<div class="card redteam"><div class="rt-label">Red team — attacked ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "verdict survived" : "verdict overturned") + "</div>" +
+      ? '<div class="card redteam"><div class="rt-label">צוות אדום · תקף ב ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "ההכרעה שרדה" : "ההכרעה נהפכה") + "</div>" +
         (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
-        (st.red_team.amendments ? "<div class='small'><b>Amended:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
+        (st.red_team.amendments ? "<div class='small'><b>תוקן:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
         /* The pre-mortem is the check that catches a lazy verdict — "it is twelve months
            on and this was wrong, why?" — and it rendered nowhere, so the page showed the
            attack's conclusion without the reasoning that is most likely to change a
            reader's mind. Raised by the first red team. */
-        (st.red_team.pre_mortem ? "<div class='small' style='margin-top:10px'><b>Pre-mortem — if this verdict is wrong in twelve months:</b>" +
+        (st.red_team.pre_mortem ? "<div class='small' style='margin-top:10px'><b>מבט לאחור מדומה: אם ההכרעה הזאת תתברר כשגויה בעוד שנה:</b>" +
           (Array.isArray(st.red_team.pre_mortem)
             ? "<ul class='bullets'>" + st.red_team.pre_mortem.map(function (r) { return "<li>" + esc(typeof r === "string" ? r : (r.reason || JSON.stringify(r))) + "</li>"; }).join("") + "</ul>"
             : " " + esc(st.red_team.pre_mortem)) + "</div>" : "") +
-        "<div class='small' style='margin-top:10px'><b>Surviving bear case:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
-      : '<div class="card redteam"><div class="rt-label">Red team</div><div class="small" style="margin-top:8px">This dive is DRAFT — it becomes FINAL only after a fresh-context attack.</div><div style="margin-top:12px">' + runButton("run redteam " + ticker + " " + chainId) + "</div></div>";
+        "<div class='small' style='margin-top:10px'><b>הטענה השלילית ששרדה:</b> " + esc(st.red_team.surviving_bear_case) + "</div></div>"
+      : '<div class="card redteam"><div class="rt-label">צוות אדום</div><div class="small" style="margin-top:8px">הצלילה הזאת היא טיוטה. היא הופכת לסופית רק אחרי תקיפה בעיניים חדשות.</div><div style="margin-top:12px">' + runButton("run redteam " + ticker + " " + chainId) + "</div></div>";
     /* R7: confidence_audit was written by every dive and rendered by nothing, so the
        DEMO page showed INVESTABLE with an entry zone while every claim under it was
        SPECULATIVE. An audit that only the file knows about cannot inform the reader.
@@ -1550,14 +1634,14 @@
     var ca = st.confidence_audit || {};
     var caTotal = (ca.verified || 0) + (ca.inferred || 0) + (ca.speculative || 0) + (ca.null || 0);
     var caWarn = caTotal > 0 && !ca.verified && st.verdict === "INVESTABLE";
-    var caCard = caTotal ? "<div class='card" + (caWarn ? " redteam" : "") + "'><h3>Evidence strength</h3>" +
+    var caCard = caTotal ? "<div class='card" + (caWarn ? " redteam" : "") + "'><h3>חוזק הראיות</h3>" +
       "<div class='row' style='gap:6px;flex-wrap:wrap'>" +
       [["verified", ca.verified || 0], ["inferred", ca.inferred || 0],
        ["speculative", ca.speculative || 0], ["null", ca.null || 0]].map(function (t) {
-        return chip(t[1] + " " + t[0], t[0] === "verified" && t[1] ? "accent" : (t[1] ? "neutral" : "stale"));
+        return chip(t[1] + " " + he(t[0].toUpperCase()), t[0] === "verified" && t[1] ? "accent" : (t[1] ? "neutral" : "stale"));
       }).join("") + "</div>" + caBar(ca) +
-      (caWarn ? "<div class='small' style='margin-top:10px'><b>No VERIFIED evidence supports this INVESTABLE verdict.</b> " +
-        "Every claim on this page is inferred or reasoned. Treat the entry zone as a hypothesis, not a level.</div>" : "") +
+      (caWarn ? "<div class='small' style='margin-top:10px'><b>אין ראיה מאומתת שתומכת בהכרעה הזאת של ראוי להשקעה.</b> " +
+        "כל טענה בעמוד הזה מוסקת או משוערת. יש להתייחס לטווח הכניסה כהשערה, לא כרמה קבועה.</div>" : "") +
       "</div>" : "";
     var prCard = "";
     if (st.price_ref && st.price_ref.value != null) {
@@ -1569,13 +1653,13 @@
          never told the levels rest on one unconfirmed print. A disclosure that only the
          JSON carries is not a disclosure. Raised by the first real dive. */
       var psn = str_or_empty(st.price_source_note);
-      prCard = "<div class='card'><h3>Price the dive reasoned from</h3><div class='kv'>" +
-        "<dt>price_ref</dt><dd class='num'>" + fmtMoney(st.price_ref.value) +
+      prCard = "<div class='card'><h3>המחיר שממנו הצלילה חשבה</h3><div class='kv'>" +
+        "<dt>מחיר ייחוס</dt><dd class='num'>" + fmtMoney(st.price_ref.value) +
         " <span class='muted'>[" + esc(st.price_ref.source) + ", " + esc(st.price_ref.as_of) + "]</span></dd>" +
-        (lastClose != null ? "<dt>latest close</dt><dd class='num'>" + fmtMoney(lastClose) +
+        (lastClose != null ? "<dt>סגירה אחרונה</dt><dd class='num'>" + fmtMoney(lastClose) +
           " <span class='muted'>" + esc((mk.series || {}).as_of) + "</span></dd>" : "") +
-        "</div>" + (diverged ? "<div class='small' style='margin-top:8px'><b>The price this dive reasoned from is more than 5% away from the latest close.</b> Re-run the dive before acting on its levels.</div>" : "") +
-        (psn ? "<div class='small' style='margin-top:8px'><b>Single-source price.</b> " + esc(psn) + "</div>" : "") +
+        "</div>" + (diverged ? "<div class='small' style='margin-top:8px'><b>המחיר שממנו הצלילה חשבה רחוק ביותר מ-5% מהסגירה האחרונה.</b> יש להריץ את הצלילה מחדש לפני פעולה לפי הרמות שלה.</div>" : "") +
+        (psn ? "<div class='small' style='margin-top:8px'><b>מחיר ממקור יחיד.</b> " + esc(psn) + "</div>" : "") +
         "</div>";
     }
     /* link_id and link_id_basis are required of every dive by method section 7 and by
@@ -1585,9 +1669,9 @@
        nobody could read it. Same defect as price_source_note: gate-required, invisible. */
     var linkc = "";
     if (st.link_id || str_or_empty(st.link_id_basis)) {
-      linkc = "<div class='card'><h3>Chain link</h3><div class='row' style='gap:6px;flex-wrap:wrap'>" +
+      linkc = "<div class='card'><h3>החוליה בשרשרת</h3><div class='row' style='gap:6px;flex-wrap:wrap'>" +
         (st.link_id ? chip(c ? linkName(c, st.link_id) : st.link_id, "accent")
-                    : chip("unattributed", "stale")) +
+                    : chip("לא שויך", "stale")) +
         "</div>" +
         (str_or_empty(st.link_id_basis)
           ? "<div class='small' style='margin-top:8px'>" + esc(st.link_id_basis) + "</div>" : "") +
@@ -1598,46 +1682,46 @@
        tools/check_analyst.py — and it was the only evidence the page never showed. A
        quote the machine checks and the reader cannot see is a check performed for nobody. */
     var fe = st.filing_evidence || [];
-    var fec = fe.length ? "<div class='card'><h3>Filing evidence</h3>" +
-      "<div class='small muted'>" + fe.length + " passage(s), each verified word for word against the filing on disk.</div>" +
+    var fec = fe.length ? "<div class='card'><h3>ראיות מהדוחות</h3>" +
+      "<div class='small muted'>" + (fe.length === 1 ? "קטע אחד, מאומת מילה במילה מול הדוח בדיסק." : fe.length + " קטעים, כל אחד מאומת מילה במילה מול הדוח בדיסק.") + "</div>" +
       fe.map(function (q) {
         return "<blockquote>\u201c" + esc(q.quote) + "\u201d<div class='muted'>" + chip(q.tag || "VERIFIED", q.tag === "VERIFIED" ? "accent" : "neutral") +
           " " + esc(q.form || "") + " · " + esc(q.filing_date || "") + " · " +
-          (q.url ? "<a href='" + esc(q.url) + "'>" + esc(q.accession || "source") + "</a>" : esc(q.accession || "")) +
+          (q.url ? "<a href='" + esc(q.url) + "'>" + esc(q.accession || "מקור") + "</a>" : esc(q.accession || "")) +
           "</div></blockquote>";
       }).join("") +
       (str_or_empty(st.filing_evidence_note)
         ? "<div class='small' style='margin-top:10px'>" + esc(st.filing_evidence_note) + "</div>" : "") +
       "</div>" : "";
-    var val = "<div class='card'><h3>Valuation snapshot</h3><div class='kv'>" +
-      "<dt>Price</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
-      "<dt>Market cap</dt><dd class='num'>" + esc(num((st.valuation_snapshot.market_cap || {}).value)) + "</dd>" +
+    var val = "<div class='card'><h3>תמונת שווי</h3><div class='kv'>" +
+      "<dt>מחיר</dt><dd class='num'>" + fmtMoney((st.valuation_snapshot.price || {}).value) + " <span class='muted'>[" + esc((st.valuation_snapshot.price || {}).source) + ", " + esc((st.valuation_snapshot.price || {}).as_of) + "]</span></dd>" +
+      "<dt>שווי שוק</dt><dd class='num'>" + esc(num((st.valuation_snapshot.market_cap || {}).value)) + "</dd>" +
       (st.valuation_snapshot.lines || []).map(function (l) { return "<dt>" + esc(l.name) + "</dt><dd class='num'>" + esc(l.value) + " <span class='muted'>[" + esc(l.tag) + "]</span></dd>"; }).join("") +
-      (st.entry_zone ? "<dt>Entry basis</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") +
-      (st.would_buy_zone != null ? "<dt>Would-buy basis</dt><dd class='small'>" + esc(st.would_buy_zone.basis) + (str_or_empty(st.would_buy_zone.as_of) ? " <span class='muted'>[drawn " + esc(st.would_buy_zone.as_of) + "]</span>" : "") + "</dd>" : "") +
+      (st.entry_zone ? "<dt>בסיס הכניסה</dt><dd class='small'>" + esc(st.entry_zone.basis) + "</dd>" : "") +
+      (st.would_buy_zone != null ? "<dt>בסיס טווח הקנייה</dt><dd class='small'>" + esc(st.would_buy_zone.basis) + (str_or_empty(st.would_buy_zone.as_of) ? " <span class='muted'>[סומן " + esc(st.would_buy_zone.as_of) + "]</span>" : "") + "</dd>" : "") +
       // method §7's upward check: a WATCH that cleared every downward cap has to name what
       // still binds. That line IS the verdict's reason, so it renders beside the zone.
-      (str_or_empty(st.watch_basis) ? "<dt>What still caps this</dt><dd class='small'>" + esc(st.watch_basis) + "</dd>" : "") +
-      (str_or_empty(st.clock_basis) ? "<dt>Clock basis</dt><dd class='small'>" + esc(st.clock_basis) + "</dd>" : "") + "</div></div>";
-    var priced = "<div class='card'><h3>What is already priced in</h3>" +
+      (str_or_empty(st.watch_basis) ? "<dt>מה עדיין תוקע את זה</dt><dd class='small'>" + esc(st.watch_basis) + "</dd>" : "") +
+      (str_or_empty(st.clock_basis) ? "<dt>בסיס השעון</dt><dd class='small'>" + esc(st.clock_basis) + "</dd>" : "") + "</div></div>";
+    var priced = "<div class='card'><h3>מה כבר מגולם במחיר</h3>" +
       (st.what_is_priced_in || []).map(function (p) { return "<div class='evli'>" + chip(p.tag) + " " + esc(p.expectation) + "</div>"; }).join("") +
       "<div class='small' style='margin-top:10px'>" + esc(st.priced_in_summary || "") + "</div></div>";
     var gapc = gapTable(st);
     var qualc = qualityCard(mk, st);
     return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
-      (st.fixture ? '<div class="fixturebanner">Fixture page — synthetic demo data so the UI can be reviewed; deleted when the first real deep dive lands.</div>' : "") +
+      (st.fixture ? '<div class="fixturebanner">עמוד לדוגמה: נתוני הדגמה מלאכותיים כדי שאפשר יהיה לבדוק את הממשק. הוא יימחק כשתגיע הצלילה האמיתית הראשונה.</div>' : "") +
       '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
       (linkc ? "<div style='margin-top:14px'>" + linkc + "</div>" : "") +
-      seclabel("Price") + "<div class='card'>" + rangeBar(mk, st) + priceChart(mk, st) + "</div>" +
-      seclabel("The case") +
-      '<div class="statgrid"><div><h3 style="color:var(--good)">Bull</h3><ul class="bullets good">' + (st.bull || []).map(caseBullet).join("") + "</ul></div>" +
-      '<div><h3 style="color:var(--bad)">Bear</h3><ul class="bullets bad">' + (st.bear || []).map(caseBullet).join("") + "</ul></div></div>" +
-      seclabel("Diligence") +
+      seclabel("מחיר") + "<div class='card'>" + rangeBar(mk, st) + priceChart(mk, st) + "</div>" +
+      seclabel("הטענה") +
+      '<div class="statgrid"><div><h3 style="color:var(--good)">הצד החיובי</h3><ul class="bullets good">' + (st.bull || []).map(caseBullet).join("") + "</ul></div>" +
+      '<div><h3 style="color:var(--bad)">הצד השלילי</h3><ul class="bullets bad">' + (st.bear || []).map(caseBullet).join("") + "</ul></div></div>" +
+      seclabel("בדיקת נאותות") +
       (gapc ? gapc : "") +
       '<div class="statgrid">' + priced + val + "</div>" +
       (caCard || prCard ? '<div class="statgrid" style="margin-top:14px">' + caCard + prCard + "</div>" : "") +
       (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
-      seclabel("Financials") + finCharts(mk, st) +
+      seclabel("נתונים פיננסיים") + finCharts(mk, st) +
       (fec ? "<div style='margin-top:14px'>" + fec + "</div>" : "") +
       "<div style='margin-top:14px'>" + rt + "</div>" +
       notesBlock(st) + changelogBlock(st) + footer() + "</main>";
@@ -1648,62 +1732,62 @@
     if (!eq || eq.grade === undefined) return "";
     var g = eq.grade;
     var cls = (g === "A" || g === "B") ? "accent" : (g === "C" ? "CROWDED" : g === "D" ? "OVER_CROWDED" : "stale");
-    return chip("earnings " + (g === null ? "NULL" : esc(g)), cls);
+    return chip("רווחים " + (g === null ? he("NULL") : esc(g)), cls);
   }
   function pct(v) { return v == null ? "–" : (v * 100).toFixed(1) + "%"; }
   function ord(n) {
     var r = n % 100;
-    if (r >= 11 && r <= 13) return n + "th";
-    return n + (["th", "st", "nd", "rd"][n % 10] || "th");
+    if (r >= 11 && r <= 13) return "אחוזון " + n;
+    return "אחוזון " + n;
   }
   function gapTable(st) {
     var g = st.expectations_gap;
     if (!g || !(g.rows || []).length) return "";
-    var LABEL = { revenue_cagr_5y: "5y revenue CAGR", operating_margin: "Steady-state op margin",
-                  reinvestment_return: "Reinvestment return", terminal: "Terminal multiple / g",
-                  net_gap_direction: "Net gap direction" };
+    var LABEL = { revenue_cagr_5y: "צמיחת הכנסות 5 שנים", operating_margin: "שולי רווח תפעולי יציבים",
+                  reinvestment_return: "תשואה על השקעה חוזרת", terminal: "מכפיל סופי / צמיחה",
+                  net_gap_direction: "כיוון הפער הכולל" };
     var rows = g.rows.map(function (r) {
       var mine = typeof r.mine === "number" ? pct(r.mine) : esc(r.mine == null ? "—" : r.mine);
       var mkt = typeof r.market_implied === "number" ? pct(r.market_implied)
         : esc(r.market_implied == null ? "—" : r.market_implied);
       var flag = (typeof r.percentile === "number" && r.percentile > 80)
-        ? " " + chip(ord(r.percentile) + " pct", "CROWDED") : (r.percentile != null ? " <span class='muted'>" + ord(r.percentile) + "</span>" : "");
+        ? " " + chip(ord(r.percentile), "CROWDED") : (r.percentile != null ? " <span class='muted'>" + ord(r.percentile) + "</span>" : "");
       return "<tr><td>" + esc(LABEL[r.driver] || r.driver) + "</td>" +
         "<td class='num'>" + mkt + "</td><td class='num'>" + mine + "</td>" +
         "<td class='small'>" + flag + "</td>" +
         "<td class='small'>" + esc(r.leading_indicator || r.structural_reason || "") + "</td></tr>";
     }).join("");
-    return "<div class='card'><h3>The expectations gap</h3>" +
-      "<div class='small muted' style='margin-bottom:8px'>What the price assumes, against what this dive expects. " +
-      "The implied column is solved in the data plane, never in session: " + esc(g.market_implied_source || "") + "</div>" +
+    return "<div class='card'><h3>פער הציפיות</h3>" +
+      "<div class='small muted' style='margin-bottom:8px'>מה שהמחיר מניח, מול מה שהצלילה הזאת מצפה. " +
+      "עמודת מה שהשוק מגלם מחושבת תמיד בשכבת הנתונים, לא בזמן השיחה: " + esc(g.market_implied_source || "") + "</div>" +
       gapChart(g) +
-      "<div style='overflow-x:auto'><table class='gaptable'><thead><tr><th>Driver</th><th>Market implies</th>" +
-      "<th>This dive</th><th>Base rate</th><th>Verification</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
-      (st.independence_test ? "<div class='small' style='margin-top:12px'><b>Largest disagreement:</b> " +
-        esc(st.independence_test.largest_disagreement) + "<br><b>Why the gap exists:</b> " +
-        esc(st.independence_test.why_the_gap_exists) + "<br><b>Falsified by:</b> " +
+      "<div style='overflow-x:auto'><table class='gaptable'><thead><tr><th>מנוע</th><th>מה השוק מגלם</th>" +
+      "<th>הצלילה הזאת</th><th>שיעור בסיס</th><th>אימות</th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
+      (st.independence_test ? "<div class='small' style='margin-top:12px'><b>הפער הגדול ביותר:</b> " +
+        esc(st.independence_test.largest_disagreement) + "<br><b>למה הפער קיים:</b> " +
+        esc(st.independence_test.why_the_gap_exists) + "<br><b>מה יפריך:</b> " +
         esc(st.independence_test.falsification) + "</div>" : "") + "</div>";
   }
   function qualityCard(mk, st) {
     var q = mk && mk.quality;
     var eq = st.earnings_quality;
     if (!q && !eq) return "";
-    var s = "<div class='card'><h3>Earnings quality and distress</h3>";
+    var s = "<div class='card'><h3>איכות הרווחים ומצוקה</h3>";
     if (eq) {
       s += "<div class='small' style='margin-bottom:10px'>" + gradeChip(eq) + " " + esc(eq.basis || "") +
-        (eq.grade === "D" ? " <b>Grade D forbids INVESTABLE.</b>"
-          : (eq.grade === "C" || eq.grade === null) ? " <b>Caps the verdict at WATCH.</b>" : "") + "</div>";
+        (eq.grade === "D" ? " <b>ציון D שולל את ההכרעה ״ראוי להשקעה״.</b>"
+          : (eq.grade === "C" || eq.grade === null) ? " <b>ההכרעה מוגבלת ל״במעקב״.</b>" : "") + "</div>";
     }
     if (!q) {
-      return s + "<div class='emptystate'>No quality block yet.<div class='runwrap'>" +
-        runButton("request data " + st.ticker, "fundamentals then quality, ~5 minutes") + "</div></div></div>";
+      return s + "<div class='emptystate'>עדיין אין בלוק איכות.<div class='runwrap'>" +
+        runButton("request data " + st.ticker, "נתוני יסוד ואז איכות, כ 5 דקות") + "</div></div></div>";
     }
     function line(label, blk, fmt) {
       if (!blk) return "";
       var v = blk.score;
       var body = v == null
-        ? "<span class='pend'><span class='dot'></span>" + esc(blk.state || "pending") + "</span>" +
-          (blk.missing && blk.missing.length ? " <span class='muted small'>missing " + esc(blk.missing.slice(0, 3).join(", ")) +
+        ? "<span class='pend'><span class='dot'></span>" + he(blk.state || "PENDING") + "</span>" +
+          (blk.missing && blk.missing.length ? " <span class='muted small'>חסרים " + esc(blk.missing.slice(0, 3).join(", ")) +
             (blk.missing.length > 3 ? " +" + (blk.missing.length - 3) : "") + "</span>" : "")
         : "<span class='num'>" + esc(fmt ? fmt(v) : v) + "</span> " + chip(blk.state);
       return "<dt>" + label + "</dt><dd>" + body + "</dd>";
@@ -1714,18 +1798,18 @@
       line("Piotroski F", q.piotroski, function (v) { return v + " / 9"; }) +
       line("Beneish M", q.beneish) +
       line("Altman Z", q.altman) +
-      "<dt>Market-implied FCF CAGR</dt><dd>" +
+      "<dt>צמיחת תזרים שהשוק מגלם</dt><dd>" +
       (rd.implied_fcf_cagr == null
-        ? "<span class='pend'><span class='dot'></span>" + esc(rd.state || "pending") + "</span>" +
+        ? "<span class='pend'><span class='dot'></span>" + he(rd.state || "PENDING") + "</span>" +
           (rd.reason ? " <span class='muted small'>" + esc(rd.reason) + "</span>" : "")
-        : "<span class='num'>" + pct(rd.implied_fcf_cagr) + "</span> <span class='muted small'>at " +
-          pct((rd.assumptions || {}).discount_rate) + " discount, " + pct((rd.assumptions || {}).terminal_growth) +
-          " terminal, " + esc((rd.assumptions || {}).horizon_years) + "y</span>") + "</dd>" +
+        : "<span class='num'>" + pct(rd.implied_fcf_cagr) + "</span> <span class='muted small'>בהיוון " +
+          pct((rd.assumptions || {}).discount_rate) + ", צמיחה סופית " + pct((rd.assumptions || {}).terminal_growth) +
+          ", " + esc((rd.assumptions || {}).horizon_years) + " שנים</span>") + "</dd>" +
       "</div>";
     if (q.health) {
-      s += "<div class='small muted' style='margin-top:10px'>" + esc(q.health.statement_fields_found) + " of " +
-        esc(q.health.statement_fields_needed) + " statement fields on file · as of " + esc(q.as_of || "—") +
-        " · formulas: " + esc(q.formulas || "") + "</div>";
+      s += "<div class='small muted' style='margin-top:10px'>" + esc(q.health.statement_fields_found) + " מתוך " +
+        esc(q.health.statement_fields_needed) + " שדות דוחות בדיסק · נכון ל " + esc(q.as_of || "—") +
+        " · נוסחאות: " + esc(q.formulas || "") + "</div>";
     }
     return s + "</div>";
   }
@@ -1737,16 +1821,16 @@
     if (!s || s.row_count == null) return "";
     var path = "data/market/" + String(ticker || "").replace(/\./g, "-") + ".json";
     var have = (s.rows || []).length;
-    if (have < s.row_count) return have + " of " + s.row_count + " price points on this page (build defect: the page is meant to carry them all) · " + path;
-    return "all " + s.row_count + " daily price points on file · " + path;
+    if (have < s.row_count) return have + " מתוך " + s.row_count + " נקודות מחיר בעמוד הזה (תקלת בנייה: העמוד אמור לשאת את כולן) · " + path;
+    return "כל " + s.row_count + " נקודות המחיר היומיות בדיסק · " + path;
   }
   function priceChart(mk, st) {
     if (!mk || !mk.series) {
-      return '<div class="emptystate">No price series yet.<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
+      return '<div class="emptystate">אין עדיין סדרת מחירים.<div class="runwrap">' + runButton("request data " + st.ticker, "תהליך המשיכה ימלא את data/market בעוד כ 5 דקות") + "</div></div>";
     }
     if ((mk.series.rows || []).length < 2) {
-      return '<div class="emptystate">' + ((mk.series.rows || []).length ? "Only one price point on file, nothing to draw yet." : "No price series yet.") +
-        '<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills data/market in ~5 minutes") + "</div></div>";
+      return '<div class="emptystate">' + ((mk.series.rows || []).length ? "יש רק נקודת מחיר אחת בדיסק, אין עדיין מה לצייר." : "אין עדיין סדרת מחירים.") +
+        '<div class="runwrap">' + runButton("request data " + st.ticker, "תהליך המשיכה ימלא את data/market בעוד כ 5 דקות") + "</div></div>";
     }
     var rows = mk.series.rows;
     var step = Math.max(1, Math.floor(rows.length / 420));
@@ -1765,14 +1849,14 @@
     var pad = (hi - lo) * 0.07; lo -= pad; hi += pad;
     function X(i) { return P.l + (i / (pts.length - 1)) * iw; }
     function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
-    var s = '<div class="chartwrap"><svg id="pxchart" viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="price chart">';
+    var s = '<div class="chartwrap"><svg id="pxchart" viewBox="0 0 ' + W + " " + H + '" width="100%" style="max-width:' + W + 'px" role="img" aria-label="תרשים מחיר">';
     if (st.entry_zone) {
       s += '<rect x="' + P.l + '" y="' + Y(st.entry_zone.high) + '" width="' + iw + '" height="' + (Y(st.entry_zone.low) - Y(st.entry_zone.high)) + '" fill="var(--band-good)"/>' +
         '<line x1="' + P.l + '" y1="' + Y(st.entry_zone.high) + '" x2="' + (W - P.r) + '" y2="' + Y(st.entry_zone.high) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
         '<line x1="' + P.l + '" y1="' + Y(st.entry_zone.low) + '" x2="' + (W - P.r) + '" y2="' + Y(st.entry_zone.low) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.entry_zone.high) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(st.entry_zone.high) + "</text>" +
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.entry_zone.low) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(st.entry_zone.low) + "</text>" +
-        '<text x="' + (P.l + 8) + '" y="' + (Y(st.entry_zone.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">ENTRY ZONE</text>';
+        '<text x="' + (P.l + 8) + '" y="' + (Y(st.entry_zone.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">טווח כניסה</text>';
     }
     if (wbz) {
       s += '<rect x="' + P.l + '" y="' + Y(wbz.high) + '" width="' + iw + '" height="' + (Y(wbz.low) - Y(wbz.high)) + '" fill="var(--band-good)"/>' +
@@ -1780,11 +1864,11 @@
         '<line x1="' + P.l + '" y1="' + Y(wbz.low) + '" x2="' + (W - P.r) + '" y2="' + Y(wbz.low) + '" stroke="var(--und)" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.7"/>' +
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(wbz.high) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(wbz.high) + "</text>" +
         '<text x="' + (W - P.r + 6) + '" y="' + (Y(wbz.low) + 4) + '" font-size="10" class="mono-t" fill="var(--und)">' + esc(wbz.low) + "</text>" +
-        '<text x="' + (P.l + 8) + '" y="' + (Y(wbz.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">WOULD BUY</text>';
+        '<text x="' + (P.l + 8) + '" y="' + (Y(wbz.high) + 14) + '" font-size="10" font-weight="600" fill="var(--und)">היינו קונים</text>';
     }
     if (st.no_entry_above) {
       s += '<line x1="' + P.l + '" y1="' + Y(st.no_entry_above) + '" x2="' + (W - P.r) + '" y2="' + Y(st.no_entry_above) + '" stroke="var(--ovr)" stroke-width="0.9" stroke-dasharray="2 5"/>' +
-        '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.no_entry_above) + 4) + '" font-size="10" class="mono-t" fill="var(--ovr)">' + esc(st.no_entry_above) + " no entry</text>";
+        '<text x="' + (W - P.r + 6) + '" y="' + (Y(st.no_entry_above) + 4) + '" font-size="10" class="mono-t" fill="var(--ovr)">' + esc(st.no_entry_above) + " אין כניסה</text>";
     }
     /* Tick precision follows the axis span: a 3-to-6 range printed with toFixed(0) drew
        two gridlines both labelled "5" (688425.SS, 2026-09-04). */
@@ -1795,7 +1879,7 @@
       s += '<line x1="' + P.l + '" y1="' + Y(v) + '" x2="' + (W - P.r) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>';
       // top tick carries the axis name inline; the rest keep bare numbers (Evidence axis grammar)
       // sits just inside the plot on the top gridline, so the event-label band above stays clear
-      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(tickDp) + "   price" + (mk.series.currency ? ", " + esc(mk.series.currency) : "") + "</text>";
+      if (t === 4) s += '<text x="' + (P.l + 6) + '" y="' + (Y(v) + 13) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + v.toFixed(tickDp) + "   מחיר" + (mk.series.currency ? ", " + esc(mk.series.currency) : "") + "</text>";
       else s += '<text x="' + (P.l - 8) + '" y="' + (Y(v) + 3) + '" text-anchor="end" font-size="10" class="mono-t" fill="var(--chart-axis)">' + v.toFixed(tickDp) + "</text>";
     }
     var lbl = Math.max(1, Math.floor(pts.length / 6));
@@ -1829,11 +1913,11 @@
     var last = pts[pts.length - 1];
     s += '<circle cx="' + X(pts.length - 1) + '" cy="' + Y(last[1]) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
     s += '<text x="' + (X(pts.length - 1) + 9) + '" y="' + (Y(last[1]) + 4) + '" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(last[0]) + "</text>";
-    s += '<text x="' + (W - P.r) + '" y="' + (H - 6) + '" text-anchor="end" font-size="10.5" class="mono-t" fill="var(--ink-3)">date \u2192</text>';
+    s += '<text x="' + (W - P.r) + '" y="' + (H - 6) + '" text-anchor="end" font-size="10.5" class="mono-t" fill="var(--ink-3)">תאריך \u2192</text>';
     s += '<rect id="pxhover" x="' + P.l + '" y="' + P.t + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>';
     s += "</svg></div>";
-    s += '<div class="muted num" style="margin-top:8px">prices [' + esc(mk.series.source) + ", as of " + esc(mk.series.as_of) + "] · " + esc(mk.price_status) +
-      (mk.price_status === "DISPUTED" ? " — both prints kept in data/market, never averaged" : "") +
+    s += '<div class="muted num" style="margin-top:8px">מחירים [' + esc(mk.series.source) + ", נכון ל " + esc(mk.series.as_of) + "] · " + he(mk.price_status) +
+      (mk.price_status === "DISPUTED" ? " · שני הנתונים נשמרים ב data/market, לעולם לא בממוצע" : "") +
       " · " + esc(seriesNote(mk, st.ticker)) + "</div>";
     window.__px = { pts: pts, X: X, Y: Y, P: P, W: W };
     return s;
@@ -1847,12 +1931,12 @@
      checked for colour-vision separation in both themes; every multi-series panel also
      carries a legend, end labels and a tooltip naming every series, so identity never
      rests on hue alone. One axis per panel, never two. */
-  var FY_LABEL = { revenue_fy: "Revenue", revenue_q: "Revenue (quarter)", net_income_fy: "Net income",
-    operating_income_fy: "Operating income", gross_profit_fy: "Gross profit", operating_cashflow_fy: "Operating cash flow",
-    capex_fy: "Capital spending", equity_fy: "Equity", long_term_debt_fy: "Long-term debt", total_assets_fy: "Total assets",
-    shares_fy: "Shares", depreciation_fy: "Depreciation", sga_fy: "SG&A", cost_of_revenue_fy: "Cost of revenue",
-    receivables_fy: "Receivables", inventory_fy: "Inventory", ppe_net_fy: "PP&E, net", current_assets_fy: "Current assets",
-    current_liabilities_fy: "Current liabilities", total_liabilities_fy: "Total liabilities", retained_earnings_fy: "Retained earnings" };
+  var FY_LABEL = { revenue_fy: "הכנסות", revenue_q: "הכנסות (רבעון)", net_income_fy: "רווח נקי",
+    operating_income_fy: "רווח תפעולי", gross_profit_fy: "רווח גולמי", operating_cashflow_fy: "תזרים מפעילות",
+    capex_fy: "השקעות הוניות", equity_fy: "הון עצמי", long_term_debt_fy: "חוב לזמן ארוך", total_assets_fy: "סך הנכסים",
+    shares_fy: "מניות", depreciation_fy: "פחת", sga_fy: "הוצאות מכירה, הנהלה וכלליות", cost_of_revenue_fy: "עלות המכירות",
+    receivables_fy: "חייבים", inventory_fy: "מלאי", ppe_net_fy: "רכוש קבוע, נטו", current_assets_fy: "נכסים שוטפים",
+    current_liabilities_fy: "התחייבויות שוטפות", total_liabilities_fy: "סך ההתחייבויות", retained_earnings_fy: "עודפים" };
   function fmtCompact(v) {
     if (typeof v !== "number" || !isFinite(v)) return "–";
     var a = Math.abs(v), sg = v < 0 ? "−" : "";
@@ -1920,7 +2004,7 @@
     var present = series.filter(function (sr) { return rows.some(function (r) { return r.v[sr.key] != null; }); });
     var head = '<div class="finpanel"><h4>' + esc(title) + "</h4>";
     if (!present.length) {
-      return head + '<div class="fsub">no series on file for ' +
+      return head + '<div class="fsub">אין סדרה בדיסק עבור ' +
         esc(keys.map(function (k) { return FY_LABEL[k] || k; }).join(", ")) + "</div></div>";
     }
     var vals = [];
@@ -1934,8 +2018,8 @@
     function Y(v) { return P.t + (1 - (v - lo) / (hi - lo)) * ih; }
     var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="' + esc(title) + '">';
     rows.forEach(function (r, i) {
-      var tip = "period end " + r.date + "\n" + present.map(function (sr) {
-        return sr.label + ": " + (r.v[sr.key] == null ? "not on file" : fmtCompact(r.v[sr.key]));
+      var tip = "סוף תקופה " + r.date + "\n" + present.map(function (sr) {
+        return sr.label + ": " + (r.v[sr.key] == null ? "לא בדיסק" : fmtCompact(r.v[sr.key]));
       }).join("\n");
       s += '<rect class="finhit" x="' + (P.l + slot * i).toFixed(1) + '" y="' + P.t + '" width="' + slot.toFixed(1) +
         '" height="' + ih + '" data-tip="' + esc(tip) + '"/>';
@@ -1995,32 +2079,33 @@
     var legend = present.length > 1 ? '<div class="legend-keys">' + present.map(function (sr) {
       return "<span>" + (kind === "bars" ? '<i class="sw" style="background:' + sr.color + '"></i>' : '<i class="ln" style="border-color:' + sr.color + '"></i>') + esc(sr.label) + "</span>";
     }).join("") + "</div>" : "";
-    var sub = '<div class="fsub">' + esc(n + (quarterly ? " quarter(s)" : " fiscal period(s)") + (unit ? ", " + unit : "") +
-      " · labels are period-end " + (quarterly ? "months" : "years")) + "</div>";
+    var periodWord = quarterly ? (n === 1 ? "רבעון אחד" : n + " רבעונים") : (n === 1 ? "תקופת דיווח אחת" : n + " תקופות דיווח");
+    var sub = '<div class="fsub">' + esc(periodWord + (unit ? ", " + unit : "") +
+      " · התוויות הן סוף תקופה, " + (quarterly ? "חודשים" : "שנים")) + "</div>";
     return head + sub + s + legend + "</div>";
   }
   function finCharts(mk, st) {
     var f = mk && mk.fundamentals;
     var path = "data/market/" + String(st.ticker || "").replace(/\./g, "-") + ".json";
     if (!f) {
-      return "<div class='card'><h3>Financials, as filed</h3><div class='emptystate'>" +
-        (mk ? "No fundamentals block in " + esc(path) + " yet." : "No market file on disk for " + esc(st.ticker) + " yet.") +
-        '<div class="runwrap">' + runButton("request data " + st.ticker, "the fetch workflow fills " + path + " in ~5 minutes") + "</div></div></div>";
+      return "<div class='card'><h3>נתונים פיננסיים, כפי שדווחו</h3><div class='emptystate'>" +
+        (mk ? "אין עדיין בלוק נתוני יסוד ב" + esc(path) + "." : "אין עדיין קובץ שוק בדיסק עבור " + esc(st.ticker) + ".") +
+        '<div class="runwrap">' + runButton("request data " + st.ticker, "תהליך המשיכה ימלא את " + path + " בעוד כ 5 דקות") + "</div></div></div>";
     }
     var unit = str_or_empty(f.statement_currency);
     var qPanel = (f.revenue_q || []).length
-      ? finPanel("Revenue by quarter", f, [{ key: "revenue_q", label: "Revenue (quarter)", color: "var(--s1)" }], "bars", unit)
-      : '<div class="finpanel"><h4>Revenue by quarter</h4><div class="fsub">' +
-        esc(str_or_empty(f.interim_note) || "no quarterly series on file") + "</div></div>";
-    return "<div class='card'><h3>Financials, as filed</h3><div class='fingrid'>" +
-      finPanel("Revenue by fiscal year", f, [{ key: "revenue_fy", label: "Revenue", color: "var(--s1)" }], "bars", unit) +
-      finPanel("Profit and operating cash flow", f, [
-        { key: "net_income_fy", label: "Net income", color: "var(--s2)" },
-        { key: "operating_income_fy", label: "Operating income", color: "var(--s1)" },
-        { key: "operating_cashflow_fy", label: "Operating cash flow", color: "var(--s3)" }], "lines", unit) +
-      finPanel("Equity and long-term debt", f, [
-        { key: "equity_fy", label: "Equity", color: "var(--s1)" },
-        { key: "long_term_debt_fy", label: "Long-term debt", color: "var(--s3)" }], "bars", unit) +
+      ? finPanel("הכנסות לפי רבעון", f, [{ key: "revenue_q", label: "הכנסות (רבעון)", color: "var(--s1)" }], "bars", unit)
+      : '<div class="finpanel"><h4>הכנסות לפי רבעון</h4><div class="fsub">' +
+        esc(str_or_empty(f.interim_note) || "אין סדרה רבעונית בדיסק") + "</div></div>";
+    return "<div class='card'><h3>נתונים פיננסיים, כפי שדווחו</h3><div class='fingrid'>" +
+      finPanel("הכנסות לפי שנת כספים", f, [{ key: "revenue_fy", label: "הכנסות", color: "var(--s1)" }], "bars", unit) +
+      finPanel("רווח ותזרים מפעילות", f, [
+        { key: "net_income_fy", label: "רווח נקי", color: "var(--s2)" },
+        { key: "operating_income_fy", label: "רווח תפעולי", color: "var(--s1)" },
+        { key: "operating_cashflow_fy", label: "תזרים מפעילות", color: "var(--s3)" }], "lines", unit) +
+      finPanel("הון עצמי וחוב לזמן ארוך", f, [
+        { key: "equity_fy", label: "הון עצמי", color: "var(--s1)" },
+        { key: "long_term_debt_fy", label: "חוב לזמן ארוך", color: "var(--s3)" }], "bars", unit) +
       qPanel + "</div>" +
       "<div class='muted num' style='margin-top:10px'>" + finNote(mk, st.ticker) + "</div></div>";
   }
@@ -2029,18 +2114,18 @@
   function finNote(mk, ticker) {
     var f = mk && mk.fundamentals;
     var path = "data/market/" + String(ticker || "").replace(/\./g, "-") + ".json";
-    if (!f) return esc("no fundamentals block on this page · " + path);
+    if (!f) return esc("אין בלוק נתוני יסוד בעמוד הזה · " + path);
     var fyKeys = Object.keys(f).filter(function (k) { return /_fy$/.test(k) && Array.isArray(f[k]); });
     var periods = fyRows(f, fyKeys), cov = f.coverage || {};
-    var parts = [periods.length + " fiscal period(s) on file" +
-      (periods.length ? " (" + periods[0].date + " to " + periods[periods.length - 1].date + ")" : "")];
-    parts.push("source " + (str_or_empty(f.source) || "unstated") + (str_or_empty(f.as_of) ? ", as of " + f.as_of : "") +
+    var parts = [(periods.length === 1 ? "תקופת דיווח אחת בדיסק" : periods.length + " תקופות דיווח בדיסק") +
+      (periods.length ? " (" + periods[0].date + " עד " + periods[periods.length - 1].date + ")" : "")];
+    parts.push("מקור " + (str_or_empty(f.source) || "לא צוין") + (str_or_empty(f.as_of) ? ", נכון ל " + f.as_of : "") +
       (str_or_empty(f.tag) ? ", " + f.tag : ""));
     if (cov.annual_fields_found != null && cov.annual_fields_attempted != null) {
-      parts.push(cov.annual_fields_found + " of " + cov.annual_fields_attempted + " annual fields found" +
-        ((cov.missing || []).length ? " (missing " + cov.missing.join(", ") + ")" : ""));
+      parts.push(cov.annual_fields_found + " מתוך " + cov.annual_fields_attempted + " שדות שנתיים שנמצאו" +
+        ((cov.missing || []).length ? " (חסרים: " + cov.missing.join(", ") + ")" : ""));
     }
-    if (str_or_empty(f.vendor)) parts.push("vendor " + f.vendor + (str_or_empty(f.vendor_caveat) ? ": " + f.vendor_caveat : ""));
+    if (str_or_empty(f.vendor)) parts.push("ספק " + f.vendor + (str_or_empty(f.vendor_caveat) ? ": " + f.vendor_caveat : ""));
     parts.push(path);
     return esc(parts.join(" · "));
   }
@@ -2053,25 +2138,25 @@
     var z = st.verdict === "INVESTABLE" && st.entry_zone ? st.entry_zone
       : (st.verdict === "WATCH" && st.would_buy_zone != null ? st.would_buy_zone : null);
     if (z && !(typeof z.low === "number" && typeof z.high === "number")) z = null;
-    var zl = st.verdict === "INVESTABLE" ? "entry zone" : "would buy";
+    var zl = st.verdict === "INVESTABLE" ? "טווח כניסה" : "היינו קונים";
     var nea = typeof st.no_entry_above === "number" ? st.no_entry_above : null;
     var lo = Math.min(w.low, px), hi = Math.max(w.high, px);
     if (z) { lo = Math.min(lo, z.low); hi = Math.max(hi, z.high); }
     if (nea != null) { lo = Math.min(lo, nea); hi = Math.max(hi, nea); }
     var W = 640, PL = 10, span = (hi - lo) || 1;
     function X(v) { return PL + (v - lo) / span * (W - 2 * PL); }
-    var s = '<svg class="rangebar" viewBox="0 0 ' + W + ' 48" width="100%" role="img" aria-label="52-week range">';
+    var s = '<svg class="rangebar" viewBox="0 0 ' + W + ' 48" width="100%" role="img" aria-label="טווח 52 שבועות">';
     s += '<rect x="' + X(w.low).toFixed(1) + '" y="21" width="' + (X(w.high) - X(w.low)).toFixed(1) + '" height="6" rx="3" fill="var(--surface-3)"/>';
     if (z) s += '<rect x="' + X(z.low).toFixed(1) + '" y="17" width="' + Math.max(2, X(z.high) - X(z.low)).toFixed(1) + '" height="14" rx="3" fill="var(--band-good)" stroke="var(--und)" stroke-opacity="0.55"/>';
     if (nea != null) s += '<line x1="' + X(nea).toFixed(1) + '" y1="13" x2="' + X(nea).toFixed(1) + '" y2="35" stroke="var(--ovr)" stroke-width="1.5" stroke-dasharray="2 3"/>';
     s += '<circle cx="' + X(px).toFixed(1) + '" cy="24" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>';
     var lx = Math.max(34, Math.min(W - 34, X(px)));
     s += '<text x="' + lx.toFixed(1) + '" y="9" text-anchor="middle" font-size="10.5" class="mono-t" fill="var(--ink)">' + esc(fmtMoney(px)) + "</text>";
-    s += '<text x="' + X(w.low).toFixed(1) + '" y="44" text-anchor="start" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(fmtMoney(w.low)) + " low</text>";
-    s += '<text x="' + X(w.high).toFixed(1) + '" y="44" text-anchor="end" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(fmtMoney(w.high)) + " high</text>";
+    s += '<text x="' + X(w.low).toFixed(1) + '" y="44" text-anchor="start" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(fmtMoney(w.low)) + " נמוך</text>";
+    s += '<text x="' + X(w.high).toFixed(1) + '" y="44" text-anchor="end" font-size="10" class="mono-t" fill="var(--ink-3)">' + esc(fmtMoney(w.high)) + " גבוה</text>";
     s += "</svg>";
-    var cap = "52-week range " + fmtMoney(w.low) + "–" + fmtMoney(w.high) + " [data/market] · last close " + fmtMoney(px) + " on " + esc(last[0]) +
-      (z ? " · " + zl + " " + fmtMoney(z.low) + "–" + fmtMoney(z.high) : "") + (nea != null ? " · no entry above " + fmtMoney(nea) : "");
+    var cap = "טווח 52 שבועות " + fmtMoney(w.low) + " עד " + fmtMoney(w.high) + " [data/market] · סגירה אחרונה " + fmtMoney(px) + ", נכון ל " + esc(last[0]) +
+      (z ? " · " + zl + " " + fmtMoney(z.low) + " עד " + fmtMoney(z.high) : "") + (nea != null ? " · אין כניסה מעל " + fmtMoney(nea) : "");
     return '<div class="rangewrap">' + s + '<div class="rangecap">' + cap + "</div></div>";
   }
   /* A horizontal meter: track, shaded zones, labelled ticks, and the value as a ringed
@@ -2093,8 +2178,8 @@
     s += '<text x="' + Math.max(30, Math.min(W - 30, X(o.value))).toFixed(1) + '" y="9" text-anchor="middle" font-size="10.5" class="mono-t" fill="var(--ink)">' + esc(o.valueLabel) + "</text>";
     return s + "</svg>";
   }
-  var PIO_LABEL = { roa: "ROA > 0", cfo: "cash from ops > 0", d_roa: "ROA up", accruals: "cash > profit", d_leverage: "leverage down",
-    d_current: "current ratio up", shares: "no dilution", gross_margin: "gross margin up", asset_turnover: "asset turnover up" };
+  var PIO_LABEL = { roa: "ROA חיובי", cfo: "תזרים מפעילות חיובי", d_roa: "ROA עולה", accruals: "תזרים עולה על הרווח", d_leverage: "מינוף יורד",
+    d_current: "יחס שוטף עולה", shares: "אין דילול", gross_margin: "שולי רווח גולמי עולים", asset_turnover: "מחזור נכסים עולה" };
   /* The quality block as pictures: nine Piotroski segments with the criteria that
      passed, the Beneish M against its review threshold, the Altman Z in its zones, and
      the FCF growth the price implies by horizon beside the dive's own number. */
@@ -2109,31 +2194,31 @@
         return "<span class='crit " + (v === true ? "ok" : v === false ? "no" : "na") + "'>" +
           (v === true ? "✓ " : v === false ? "✗ " : "? ") + esc(PIO_LABEL[k] || k) + "</span>";
       }).join("");
-      out += "<div class='qgauge'><div class='gauge-h'><span>Piotroski F</span><span class='gv'>" + esc(p.score) + " / 9 · " + esc(p.state) + "</span></div>" +
+      out += "<div class='qgauge'><div class='gauge-h'><span>ציון Piotroski F</span><span class='gv'>" + esc(p.score) + " / 9 · " + esc(he(p.state)) + "</span></div>" +
         "<div class='seg9 " + esc(p.state) + "'>" + segs + "</div><div class='crits'>" + crits + "</div></div>";
     }
     var b = q.beneish;
     if (b && b.score != null) {
       var th = typeof b.threshold === "number" ? b.threshold : null;
       var blo = Math.min(b.score, th == null ? b.score : th) - 1, bhi = Math.max(b.score, th == null ? b.score : th) + 1;
-      out += "<div class='qgauge'><div class='gauge-h'><span>Beneish M</span><span class='gv'>" + esc(b.score) + " · " + esc(b.state) + "</span></div>" +
+      out += "<div class='qgauge'><div class='gauge-h'><span>ציון Beneish M</span><span class='gv'>" + esc(b.score) + " · " + esc(he(b.state)) + "</span></div>" +
         meterSvg({ lo: blo, hi: bhi, value: b.score, valueLabel: String(b.score), label: "Beneish M",
           color: b.state === "CLEAN" ? "var(--und)" : "var(--ovr)",
           zones: th == null ? [] : [{ from: th, to: bhi, fill: "var(--ovr-bg)" }],
-          ticks: th == null ? [] : [{ at: th, label: "review above " + th }] }) + "</div>";
+          ticks: th == null ? [] : [{ at: th, label: "לבדיקה מעל " + th }] }) + "</div>";
     }
     var a = q.altman;
     if (a && a.score != null) {
       var az = (METHOD.quality || {}).altman || null;
       if (az && !(typeof az.distress_below === "number" && typeof az.safe_above === "number")) az = null;
       var ahi = Math.max(a.score + 0.5, az ? az.safe_above + 1 : 0), alo = Math.min(0, a.score - 0.5);
-      out += "<div class='qgauge'><div class='gauge-h'><span>Altman Z</span><span class='gv'>" + esc(a.score) + " · " + esc(a.state) + "</span></div>" +
+      out += "<div class='qgauge'><div class='gauge-h'><span>ציון Altman Z</span><span class='gv'>" + esc(a.score) + " · " + esc(he(a.state)) + "</span></div>" +
         meterSvg({ lo: alo, hi: ahi, value: a.score, valueLabel: String(a.score), label: "Altman Z",
           color: a.state === "SAFE" ? "var(--und)" : a.state === "GREY" ? "var(--emg)" : "var(--ovr)",
           zones: az ? [{ from: alo, to: az.distress_below, fill: "var(--ovr-bg)" }, { from: az.distress_below, to: az.safe_above, fill: "var(--emg-bg)" },
                        { from: az.safe_above, to: ahi, fill: "var(--und-bg)" }] : [],
-          ticks: az ? [{ at: az.distress_below, label: "distress below " + az.distress_below }, { at: az.safe_above, label: "safe from " + az.safe_above }] : [] }) +
-        (az ? "" : "<div class='fsub'>zone edges were not shipped by this build; the state is the data plane's</div>") + "</div>";
+          ticks: az ? [{ at: az.distress_below, label: "מצוקה מתחת " + az.distress_below }, { at: az.safe_above, label: "בטוח מעל " + az.safe_above }] : [] }) +
+        (az ? "" : "<div class='fsub'>קצות הטווח לא נשלחו בבנייה הזאת; המצב הוא של שכבת הנתונים</div>") + "</div>";
     }
     var rd = q.reverse_dcf || {}, ibh = rd.implied_by_horizon || {};
     var hz = Object.keys(ibh).filter(function (k) { return typeof ibh[k] === "number"; }).sort(function (x, y) { return +x - +y; });
@@ -2141,10 +2226,10 @@
     ((st.expectations_gap || {}).rows || []).forEach(function (r) { if (r && r.driver === "net_gap_direction") gapRow = r; });
     var mineBars = [];
     if (gapRow) {
-      [["my_fcf_cagr_bear", "bear"], ["my_fcf_cagr_base", "base"], ["my_fcf_cagr_bull", "bull"]].forEach(function (k) {
+      [["my_fcf_cagr_bear", "שלילי"], ["my_fcf_cagr_base", "בסיס"], ["my_fcf_cagr_bull", "חיובי"]].forEach(function (k) {
         if (typeof gapRow[k[0]] === "number") mineBars.push({ label: k[1], v: gapRow[k[0]] });
       });
-      if (!mineBars.length && typeof gapRow.mine === "number") mineBars.push({ label: "this dive", v: gapRow.mine });
+      if (!mineBars.length && typeof gapRow.mine === "number") mineBars.push({ label: "הצלילה הזאת", v: gapRow.mine });
     }
     if (hz.length) {
       var bars = hz.map(function (h) { return { label: h + "y", v: ibh[h], color: "var(--s1)", grp: "price" }; })
@@ -2156,7 +2241,7 @@
       var W = 320, H = 150, P = { l: 46, r: 10, t: 16, b: 26 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
       var slot = iw / bars.length, bw = Math.min(24, slot * 0.6);
       function Y(v) { return P.t + (1 - (v - lo2) / (hi2 - lo2)) * ih; }
-      var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="implied FCF growth">';
+      var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="צמיחת FCF מגולמת">';
       niceTicks(lo2, hi2, 3).forEach(function (t) {
         s += '<line x1="' + P.l + '" y1="' + Y(t).toFixed(1) + '" x2="' + (W - P.r) + '" y2="' + Y(t).toFixed(1) + '" stroke="var(--chart-grid)"/>' +
           '<text x="' + (P.l - 6) + '" y="' + (Y(t) + 3).toFixed(1) + '" text-anchor="end" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(fmtPct(t)) + "</text>";
@@ -2165,20 +2250,20 @@
       bars.forEach(function (bx, i) {
         var x = P.l + slot * i + (slot - bw) / 2;
         s += '<rect class="finhit" x="' + (P.l + slot * i).toFixed(1) + '" y="' + P.t + '" width="' + slot.toFixed(1) + '" height="' + ih + '" data-tip="' +
-          esc((bx.grp === "price" ? "price implies, " + bx.label + " horizon: " : "this dive, " + bx.label + ": ") + fmtPct(bx.v)) + '"/>';
+          esc((bx.grp === "price" ? "המחיר מגלם, אופק " + bx.label + ": " : "הצלילה הזאת, " + bx.label + ": ") + fmtPct(bx.v)) + '"/>';
         s += '<path d="' + barPath(x, Y(bx.v), Y(0), bw, 4) + '" fill="' + bx.color + '" pointer-events="none"/>';
         s += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (Y(bx.v) + (bx.v >= 0 ? -4 : 11)).toFixed(1) + '" text-anchor="middle" font-size="9" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtPct(bx.v)) + "</text>";
         s += '<text x="' + (P.l + slot * (i + 0.5)).toFixed(1) + '" y="' + (H - P.b + 14) + '" text-anchor="middle" font-size="9.5" fill="var(--chart-axis)">' + esc(bx.label) + "</text>";
       });
       s += "</svg>";
       var as = rd.assumptions || {};
-      out += "<div class='qgauge'><div class='gauge-h'><span>FCF growth the price implies" + (mineBars.length ? ", and this dive's" : "") + "</span><span class='gv'>" +
-        esc(fmtPct(rd.implied_fcf_cagr)) + (as.horizon_years != null ? " at " + esc(as.horizon_years) + "y" : "") + "</span></div>" + s +
-        "<div class='legend-keys'><span><i class='sw' style='background:var(--s1)'></i>price implies, by horizon</span>" +
-        (mineBars.length ? "<span><i class='sw' style='background:var(--s2)'></i>this dive's FCF CAGR</span>"
-          : "<span class='muted'>this dive states no FCF CAGR of its own on the net-gap row</span>") + "</div>" +
-        "<div class='fsub'>" + esc((as.discount_rate != null ? fmtPct(as.discount_rate) + " discount" : "") +
-          (as.terminal_growth != null ? ", " + fmtPct(as.terminal_growth) + " terminal" : "") + (as.method ? ", " + as.method : "") +
+      out += "<div class='qgauge'><div class='gauge-h'><span>צמיחת FCF שהמחיר מגלם" + (mineBars.length ? ", ושל הצלילה הזאת" : "") + "</span><span class='gv'>" +
+        esc(fmtPct(rd.implied_fcf_cagr)) + (as.horizon_years != null ? ", אופק " + esc(as.horizon_years) + " שנים" : "") + "</span></div>" + s +
+        "<div class='legend-keys'><span><i class='sw' style='background:var(--s1)'></i>המחיר מגלם, לפי אופק</span>" +
+        (mineBars.length ? "<span><i class='sw' style='background:var(--s2)'></i>צמיחת ה-FCF של הצלילה הזאת</span>"
+          : "<span class='muted'>הצלילה הזאת לא מציינת צמיחת FCF משלה בשורת הפער הכולל</span>") + "</div>" +
+        "<div class='fsub'>" + esc((as.discount_rate != null ? "בהיוון " + fmtPct(as.discount_rate) : "") +
+          (as.terminal_growth != null ? ", צמיחה סופית " + fmtPct(as.terminal_growth) : "") + (as.method ? ", " + as.method : "") +
           (as.tag ? " · " + as.tag : "")) + "</div></div>";
     }
     return out ? "<div class='gauges'>" + out + "</div>" : "";
@@ -2188,9 +2273,9 @@
      states one. A row whose market column is NULL shows the dive's dot alone and says
      so; a row with no number at all stays in the table below. */
   function gapChart(g) {
-    var LABEL = { revenue_cagr_5y: "5y revenue CAGR", operating_margin: "Steady-state op margin",
-                  reinvestment_return: "Reinvestment return", terminal: "Terminal growth",
-                  net_gap_direction: "This dive's FCF CAGR" };
+    var LABEL = { revenue_cagr_5y: "צמיחת הכנסות 5 שנים", operating_margin: "שולי רווח תפעולי יציבים",
+                  reinvestment_return: "תשואה על השקעה חוזרת", terminal: "מכפיל סופי / צמיחה",
+                  net_gap_direction: "כיוון הפער הכולל" };
     var rows = (g.rows || []).filter(function (r) { return r && typeof r.mine === "number"; });
     if (!rows.length) return "";
     var vals = [];
@@ -2204,7 +2289,7 @@
     var padv = (hi - lo) * 0.1; hi += padv; if (lo < 0) lo -= padv;
     var W = 680, L = 190, R = 78, rowH = 36, P = { t: 10, b: 22 }, H = P.t + rows.length * rowH + P.b;
     function X(v) { return L + (v - lo) / (hi - lo) * (W - L - R); }
-    var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="expectations gap">';
+    var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="פער הציפיות">';
     niceTicks(lo, hi, 4).forEach(function (t) {
       s += '<line x1="' + X(t).toFixed(1) + '" y1="' + P.t + '" x2="' + X(t).toFixed(1) + '" y2="' + (H - P.b) + '" stroke="var(--chart-grid)"/>' +
         '<text x="' + X(t).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--chart-axis)">' + esc(fmtPct(t)) + "</text>";
@@ -2213,8 +2298,8 @@
     rows.forEach(function (r, i) {
       var y = P.t + rowH * i + rowH / 2, mkv = typeof r.market_implied === "number" ? r.market_implied : null;
       var name = LABEL[r.driver] || r.driver;
-      var tip = name + "\nmarket implies: " + (mkv == null ? "NULL" + (str_or_empty(r.market_implied_note) ? " (" + r.market_implied_note + ")" : "") : fmtPct(mkv)) +
-        "\nthis dive: " + fmtPct(r.mine) + (r.percentile != null ? "\nbase rate: " + ord(r.percentile) + " percentile" : "") + (r.tag ? "\n" + r.tag : "");
+      var tip = name + "\nמה השוק מגלם: " + (mkv == null ? "ריק" + (str_or_empty(r.market_implied_note) ? " (" + r.market_implied_note + ")" : "") : fmtPct(mkv)) +
+        "\nהצלילה הזאת: " + fmtPct(r.mine) + (r.percentile != null ? "\nשיעור בסיס: " + ord(r.percentile) : "") + (r.tag ? "\n" + r.tag : "");
       s += '<rect class="finhit" x="0" y="' + (y - rowH / 2).toFixed(1) + '" width="' + W + '" height="' + rowH + '" data-tip="' + esc(tip) + '"/>';
       s += '<text x="' + (L - 12) + '" y="' + (y + 3.5).toFixed(1) + '" text-anchor="end" font-size="11" fill="var(--ink-2)" pointer-events="none">' + esc(name) + "</text>";
       if (typeof r.my_fcf_cagr_bear === "number" && typeof r.my_fcf_cagr_bull === "number") {
@@ -2225,20 +2310,20 @@
         s += '<circle cx="' + X(mkv).toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
         s += '<text x="' + X(mkv).toFixed(1) + '" y="' + (y - 9).toFixed(1) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtPct(mkv)) + "</text>";
       } else {
-        s += '<text x="' + (X(r.mine) + 10).toFixed(1) + '" y="' + (y - 9).toFixed(1) + '" font-size="9.5" fill="var(--ink-3)" pointer-events="none">market: NULL</text>';
+        s += '<text x="' + (X(r.mine) + 10).toFixed(1) + '" y="' + (y - 9).toFixed(1) + '" font-size="9.5" fill="var(--ink-3)" pointer-events="none">שוק: ריק</text>';
       }
       s += '<circle cx="' + X(r.mine).toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5" fill="var(--s2)" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
       s += '<text x="' + X(r.mine).toFixed(1) + '" y="' + (y + 16).toFixed(1) + '" text-anchor="middle" font-size="9.5" class="mono-t" fill="var(--ink-2)" pointer-events="none">' + esc(fmtPct(r.mine)) + "</text>";
       if (r.percentile != null) {
         s += '<text x="' + (W - R + 8) + '" y="' + (y + 3.5).toFixed(1) + '" font-size="9.5" class="mono-t" fill="' +
-          (typeof r.percentile === "number" && r.percentile > 80 ? "var(--crd-ink)" : "var(--ink-3)") + '" pointer-events="none">' + esc(ord(r.percentile) + " pct") + "</text>";
+          (typeof r.percentile === "number" && r.percentile > 80 ? "var(--crd-ink)" : "var(--ink-3)") + '" pointer-events="none">' + esc(ord(r.percentile)) + "</text>";
       }
     });
     s += "</svg>";
     return '<div class="chartwrap">' + s + "</div>" +
-      "<div class='legend-keys'><span><i class='sw' style='background:var(--s1)'></i>market implies</span>" +
-      "<span><i class='sw' style='background:var(--s2)'></i>this dive</span>" +
-      "<span><i class='sw' style='background:var(--band-good);border:1px solid var(--und)'></i>bear to bull, where the dive states one</span></div>";
+      "<div class='legend-keys'><span><i class='sw' style='background:var(--s1)'></i>מה השוק מגלם</span>" +
+      "<span><i class='sw' style='background:var(--s2)'></i>הצלילה הזאת</span>" +
+      "<span><i class='sw' style='background:var(--band-good);border:1px solid var(--und)'></i>מהצד השלילי לחיובי, היכן שהצלילה מציינת אחד</span></div>";
   }
   /* A bull or bear bullet is a string on the older dives and an object {point, tag,
      evidence, url, source_excerpt, ...} on the newer ones. The page printed the object
@@ -2248,14 +2333,14 @@
     if (!b || typeof b !== "object") return "<li>" + esc(b) + "</li>";
     var text = str_or_empty(b.point);
     if (!text) text = JSON.stringify(b);
-    var src = b.url ? " <a href='" + esc(b.url) + "' target='_blank' rel='noopener'>source</a>" : "";
+    var src = b.url ? " <a href='" + esc(b.url) + "' target='_blank' rel='noopener'>מקור</a>" : "";
     var ev = "";
     if (str_or_empty(b.evidence)) ev = "<div class='muted small' style='margin-top:3px'>" + esc(b.evidence) + src + "</div>";
     else if (Array.isArray(b.evidence)) ev = evList(b.evidence) + (src ? "<div class='muted small'>" + src + "</div>" : "");
     else if (src) ev = "<div class='muted small'>" + src + "</div>";
     return "<li>" + esc(text) + (b.tag ? " " + chip(b.tag) : "") + ev +
-      (str_or_empty(b.pending_basis) ? "<div class='muted small'>pending: " + esc(b.pending_basis) + "</div>" : "") +
-      (b.source_excerpt ? "<details class='excerpt'><summary class='muted small'>verbatim excerpt</summary><blockquote class='small'>" + esc(b.source_excerpt) + "</blockquote></details>" : "") +
+      (str_or_empty(b.pending_basis) ? "<div class='muted small'>ממתין: " + esc(b.pending_basis) + "</div>" : "") +
+      (b.source_excerpt ? "<details class='excerpt'><summary class='muted small'>ציטוט מילה במילה</summary><blockquote class='small'>" + esc(b.source_excerpt) + "</blockquote></details>" : "") +
       "</li>";
   }
   /* The confidence audit as one stacked bar: verified, inferred, speculative, null. */
@@ -2277,11 +2362,11 @@
       var st = null;
       (D.stocks || []).forEach(function (s) { if (s.ticker === t.ticker) st = s; });
       return "<tr><td class='num'>" + esc((t.ts || "").slice(0, 10)) + "</td><td class='tk-name'>" + esc(t.ticker) + "</td><td>" + chip(t.action) + "</td><td class='num'>" + fmtMoney(t.price) + "</td><td>" + esc(t.by) + "</td><td>" +
-        (st ? '<a href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '">' + chip(st.verdict.replace("_", " "), st.verdict) + "</a>" : "<span class='muted'>no dive</span>") + "</td><td class='small'>" + esc(t.note || "") + "</td></tr>";
+        (st ? '<a href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '">' + chip(st.verdict, st.verdict) + "</a>" : "<span class='muted'>אין צלילה</span>") + "</td><td class='small'>" + esc(t.note || "") + "</td></tr>";
     }).join("");
-    return topbar("book") + "<main><div class='pagehead'><h1>Book</h1><p class='sub'>Real positions, one line each. Calibration measures your money, not hypotheticals.</p></div>" +
-      (trades.length ? '<div class="tablewrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Action</th><th>Price</th><th>By</th><th>Machine call</th><th>Note</th></tr></thead><tbody>' + rows + "</tbody></table></div>" :
-        '<div class="emptystate">No trades logged yet.<div style="margin-top:12px">' + cmdline('log trade VRT bought 112 "starter position"') + "</div></div>") +
+    return topbar("book") + "<main><div class='pagehead'><h1>ספר העסקאות</h1><p class='sub'>פוזיציות אמיתיות, שורה אחת לכל אחת. הכיול מודד את הכסף שלך, לא תרחישים היפותטיים.</p></div>" +
+      (trades.length ? '<div class="tablewrap"><table><thead><tr><th>תאריך</th><th>טיקר</th><th>פעולה</th><th>מחיר</th><th>מי</th><th>הכרעת המכונה</th><th>הערה</th></tr></thead><tbody>' + rows + "</tbody></table></div>" :
+        '<div class="emptystate">עדיין לא נרשמו עסקאות.<div style="margin-top:12px">' + cmdline('log trade VRT bought 112 "starter position"') + "</div></div>") +
       footer() + "</main>";
   }
   function shadowView() {
@@ -2293,34 +2378,34 @@
        number and Ember's OVER CROWDED number answer different questions, and the summary
        is a build projection (app/build.py shadow_summary), not a renderer count. */
     var prose = {
-      DIVE_TOO_LATE: "RIGHT means skipping the name was correct.",
-      HEAT_OVER_CROWDED: "RIGHT means standing aside from the link was correct: its names underperformed SPY."
+      DIVE_TOO_LATE: "צדק פירושו שהיה נכון לדלג על השם.",
+      HEAT_OVER_CROWDED: "צדק פירושו שהיה נכון להימנע מהחוליה: השמות שלה חלשו מול SPY."
     };
     var cards = Object.keys(origins).sort().map(function (o) {
       var x = origins[o] || {};
-      var why = prose[o] || (o.indexOf("DISMISS") >= 0 ? "RIGHT means dismissing the signal was correct." : "RIGHT means the machine's no was correct.");
+      var why = prose[o] || (o.indexOf("DISMISS") >= 0 ? "צדק פירושו שהיה נכון לדחות את האות." : "צדק פירושו שה'לא' של המכונה היה נכון.");
       return '<div class="card"><div class="stat"><span class="v">' + (x.hit_rate != null ? esc(x.hit_rate) + "%" : "–") +
-        '</span><span class="l">' + esc(o.replace(/_/g, " ")) + ": " + esc(num(x.right, "0")) + " right of " + esc(num(x.graded, "0")) +
-        " graded, " + esc(num(x.rows, "0")) + " rows. " + esc(why) + "</span></div></div>";
+        '</span><span class="l">' + he(o) + ": " + esc(num(x.right, "0")) + " צדקו מתוך " + esc(num(x.graded, "0")) +
+        " שנוקדו, " + esc(num(x.rows, "0")) + " שורות. " + esc(why) + "</span></div></div>";
     }).join("");
     var linkRows = (sm.by_link || []).map(function (l) {
       var inst = l.instrument;
       return "<tr><td class='muted'>" + esc(l.chain_id) + " · " + esc(l.link_id) + "</td><td class='num'>" + esc(l.verdict_date) + "</td>" +
-        "<td class='num'>" + esc(num(l.graded, "0")) + " of " + esc(num(l.rows, "0")) + "</td>" +
-        "<td class='num'>" + (l.median_delta_pct != null ? esc(l.median_delta_pct) + "% vs SPY" : "<span class='muted'>awaiting +90d</span>") + "</td>" +
-        "<td>" + (inst ? esc(inst.ticker) + (inst.delta_pct != null ? " <span class='num'>" + esc(inst.delta_pct) + "% vs SPY</span> " + chip(inst.call, inst.call) : " " + chip("awaiting +90d")) : "<span class='muted'>no fund on this link</span>") + "</td></tr>";
+        "<td class='num'>" + esc(num(l.graded, "0")) + " מתוך " + esc(num(l.rows, "0")) + "</td>" +
+        "<td class='num'>" + (l.median_delta_pct != null ? esc(l.median_delta_pct) + "% מול SPY" : "<span class='muted'>מחכה ל 90 יום</span>") + "</td>" +
+        "<td>" + (inst ? esc(inst.ticker) + (inst.delta_pct != null ? " <span class='num'>" + esc(inst.delta_pct) + "% מול SPY</span> " + chip(inst.call, inst.call) : " " + chip("מחכה ל 90 יום")) : "<span class='muted'>אין קרן בחוליה</span>") + "</td></tr>";
     }).join("");
     var body = rows.map(function (r) {
       var x = res[r.id];
-      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'>" + esc(r.ticker) + "</td><td>" + chip(String(r.origin || "").replace(/_/g, " ")) +
+      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'>" + esc(r.ticker) + "</td><td>" + chip(he(r.origin)) +
         (r.link_id ? " <span class='muted'>" + esc(r.chain_id) + " · " + esc(r.link_id) + "</span>" : "") + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
-        "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% vs SPY</span> " + chip(x.call, x.call) : chip("awaiting +90d")) + "</td></tr>";
+        "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% מול SPY</span> " + chip(x.call, x.call) : chip("מחכה ל 90 יום")) + "</td></tr>";
     }).join("");
-    return topbar("shadow") + "<main><div class='pagehead'><h1>Shadow book</h1><p class='sub'>Every TOO LATE verdict, every dismissed signal and, since 2026-09-13, every OVER CROWDED link call, repriced at +90 days against SPY. The machine's \"no\" gets graded here, one hit rate per kind of no.</p></div>" +
+    return topbar("shadow") + "<main><div class='pagehead'><h1>ספר הצל</h1><p class='sub'>כל הכרעת " + he("TOO_LATE") + ", כל אות שנדחה, ומאז 2026-09-13 גם כל קריאת חוליה " + he("OVER_CROWDED") + ", מתומחרים מחדש אחרי 90 יום מול SPY. כאן נבדק ה\"לא\" של המכונה, שיעור הצלחה אחד לכל סוג של לא.</p></div>" +
       (cards ? '<div class="statgrid">' + cards + "</div>" : "") +
-      (linkRows ? seclabel("Links the machine stood aside from") + '<div class="tablewrap"><table><thead><tr><th>Chain · link</th><th>Heat date</th><th>Graded</th><th>Names, median</th><th>The fund</th></tr></thead><tbody>' + linkRows + "</tbody></table></div>" : "") +
-      (rows.length ? seclabel("Every row") + '<div class="tablewrap"><table><thead><tr><th>Verdict date</th><th>Ticker</th><th>Origin</th><th>Spot</th><th>Reprice at</th><th>Result</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
-        '<div class="emptystate">Empty. Fills from TOO LATE verdicts, dismissed signals and OVER CROWDED link calls.</div>') +
+      (linkRows ? seclabel("חוליות שהמכונה נמנעה מהן") + '<div class="tablewrap"><table><thead><tr><th>שרשרת · חוליה</th><th>תאריך חום</th><th>נוקדו</th><th>שמות, חציון</th><th>הקרן</th></tr></thead><tbody>' + linkRows + "</tbody></table></div>" : "") +
+      (rows.length ? seclabel("כל השורות") + '<div class="tablewrap"><table><thead><tr><th>תאריך ההכרעה</th><th>טיקר</th><th>מקור</th><th>מחיר ספוט</th><th>תמחור מחדש ב</th><th>תוצאה</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
+        '<div class="emptystate">ריק. מתמלא מהכרעות ' + he("TOO_LATE") + ", אותות שנדחו וקריאות חוליה " + he("OVER_CROWDED") + '.</div>') +
       footer() + "</main>";
   }
 
@@ -2331,14 +2416,14 @@
      Every number here is a projection app/build.py made from a store; nothing is computed
      in the renderer, and every cut list prints its *_total beside it. */
   function boardVerdictChip(v) {
-    if (v == null) return chip("no verdict", "neutral");
-    return chip(v.replace(/_/g, " "), v);
+    if (v == null) return chip("אין הכרעה", "neutral");
+    return chip(v, v);
   }
   function boardEntry(r) {
     var z = r.entry_zone;
     if (r.verdict === "INVESTABLE" && z && z.low != null && z.high != null) {
       return "<span class='num'>" + fmtMoney(z.low) + "–" + fmtMoney(z.high) + "</span>" +
-        (r.no_entry_above != null ? " <span class='muted'>no entry above <span class='num'>" + fmtMoney(r.no_entry_above) + "</span></span>" : "");
+        (r.no_entry_above != null ? " <span class='muted'>אין כניסה מעל <span class='num'>" + fmtMoney(r.no_entry_above) + "</span></span>" : "");
     }
     var t = r.watch_triggers;
     if (r.verdict === "WATCH" && t && t.length) {
@@ -2346,7 +2431,7 @@
         return esc(w.metric) + " " + esc(w.direction) + " <span class='num'>" + esc(num(w.level, "?")) + "</span>";
       }).join("; ");
     }
-    if (r.verdict === "TOO_LATE") return "<span class='muted'>in the shadow book</span>";
+    if (r.verdict === "TOO_LATE") return "<span class='muted'>בספר הצל</span>";
     return "<span class='muted'>–</span>";
   }
   function boardStockHref(r) {
@@ -2360,36 +2445,36 @@
     var b = r.best || {};
     var lines = r.lines || {};
     var stageChip = b.verdict ? boardVerdictChip(b.verdict) :
-      chip(String(b.stage || "lead").replace(/_/g, " "), b.stage === "FUND" ? "accent" : "neutral");
-    var expr = r.expression === "INSTRUMENT" ? " " + chip("fund holds the price", "accent") : "";
+      chip(he(b.stage || "LEAD"), b.stage === "FUND" ? "accent" : "neutral");
+    var expr = r.expression === "INSTRUMENT" ? " " + chip("קרן מחזיקה את המחיר", "accent") : "";
     var doLine;
     if (r.next_command) doLine = runButton(r.next_command, null, { compact: true }) + " <span class='muted'>" + esc(lines.next) + "</span>";
-    else if (r.href) doLine = "<a class='top-open' href='" + esc(r.href) + "'>" + esc(lines.next || "Open") + "</a>";
+    else if (r.href) doLine = "<a class='top-open' href='" + esc(r.href) + "'>" + esc(lines.next || "פתח") + "</a>";
     else doLine = "<span class='muted'>" + esc(lines.next || "") + "</span>";
-    var note = r.adam_note ? "<div class='top-note muted'>Adam, week " + esc(r.adam_note.week) + ": " + esc(r.adam_note.title) + "</div>" : "";
+    var note = r.adam_note ? "<div class='top-note muted'>Adam, שבוע " + esc(r.adam_note.week) + ": " + esc(r.adam_note.title) + "</div>" : "";
     var ticker = b.ticker ? " <span class='top-ticker num'>" + esc(b.ticker) + "</span>" : "";
     return "<div class='card top'><div class='top-rank num'>" + esc(r.rank) + "</div><div class='top-body'>" +
       "<div class='top-head'><a href='" + esc(r.href || "#/") + "'>" + esc(lines.headline || r.link_name || r.link_id) + "</a>" + ticker +
       " <span class='muted'>" + esc(r.chain_title || r.chain_id || "") + "</span></div>" +
-      "<div class='top-why'>" + esc(lines.why || "") + " <span class='muted num'>size " + esc(num(r.size, "–")) + "</span></div>" +
+      "<div class='top-why'>" + esc(lines.why || "") + " <span class='muted num'>גודל " + esc(num(r.size, "–")) + "</span></div>" +
       "<div class='top-stage'>" + stageChip + expr + " " + esc(lines.stage || "") + "</div>" +
       "<div class='top-next'>" + doLine + "</div>" + note + "</div></div>";
   }
   function boardTop(b) {
     var t = b.top;
-    if (!t) return '<div class="emptystate">The Top 3 block was not built into this page (app/build.py build_top).</div>';
+    if (!t) return '<div class="emptystate">בלוק שלושת המובילים לא נבנה לתוך העמוד הזה (app/build.py build_top).</div>';
     var cards = (t.top || []).map(boardTopCard).join("");
-    var reasonWords = { "heat block missing": "not heat-scored yet", "NULL heat": "heat left NULL",
-      "UNINVESTABLE: no listed name, no instrument": "nothing listed to own", "no expression scored": "no expression scored" };
+    var reasonWords = { "heat block missing": "עדיין בלי ניקוד חום", "NULL heat": "החום נשאר ריק",
+      "UNINVESTABLE: no listed name, no instrument": "אין שום דבר נסחר להחזיק", "no expression scored": "שום ביטוי לא נוקד" };
     var byReason = t.unrankable_by_reason;
     var why = byReason ? Object.keys(byReason).map(function (k) {
       return esc(num(byReason[k], "?")) + " " + esc(reasonWords[k] != null ? reasonWords[k] : k);
     }).join(", ") : "";
-    var denom = "Ranked " + esc(num(t.ranked_total, "?")) + " of " + esc(num(t.links_total, "?")) +
-      " links by size (impact × capture × un-crowdedness). Not ranked: " + esc(num(t.unrankable_total, "?")) +
-      (why ? " (" + why + ")" : "") + ". Funds not rated yet: " + esc(num(t.instruments_unrated_total, "?")) + ".";
-    return seclabel("The three biggest opportunities right now") +
-      (cards ? '<div class="topgrid">' + cards + "</div>" : '<div class="emptystate">No scored link on disk.</div>') +
+    var denom = "דורגו " + esc(num(t.ranked_total, "?")) + " מתוך " + esc(num(t.links_total, "?")) +
+      " חוליות לפי גודל (השפעה × לכידה × אי-צפיפות). לא דורגו: " + esc(num(t.unrankable_total, "?")) +
+      (why ? " (" + why + ")" : "") + ". קרנות שעדיין לא דורגו: " + esc(num(t.instruments_unrated_total, "?")) + ".";
+    return seclabel("שלוש ההזדמנויות הגדולות ביותר עכשיו") +
+      (cards ? '<div class="topgrid">' + cards + "</div>" : '<div class="emptystate">אין חוליה מנוקדת בדיסק.</div>') +
       "<div class='top-denom muted'>" + denom + "</div>";
   }
   /* Ron, 2026-09-13: a click anywhere on a Board row opens the name, not only the
@@ -2407,7 +2492,7 @@
     var verdictRows = (b.verdicts || []).map(function (r) {
       var href = boardStockHref(r);
       return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
-        "<td>" + boardVerdictChip(r.verdict) + " " + (r.status === "FINAL" ? chip("FINAL", "accent") : chip("DRAFT, no red team yet", "stale")) + "</td>" +
+        "<td>" + boardVerdictChip(r.verdict) + " " + (r.status === "FINAL" ? chip("FINAL", "accent") : chip("טיוטה, עוד אין צוות אדום", "stale")) + "</td>" +
         "<td>" + esc(num(r.clock, "–")) + "</td>" +
         "<td>" + boardEntry(r) + "</td>" +
         "<td class='muted'>" + esc(r.chain_title || r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
@@ -2416,57 +2501,57 @@
     var o1Rows = (b.o1_queue || []).map(function (r) {
       var href = boardRowHref(r);
       return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
-        "<td>" + (r.dive_status ? chip(r.dive_status, r.dive_status === "FINAL" ? "accent" : "stale") : chip("not dived", "neutral")) + "</td>" +
+        "<td>" + (r.dive_status ? chip(r.dive_status, r.dive_status === "FINAL" ? "accent" : "stale") : chip("לא נחקרה", "neutral")) + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
-        "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>tier not set</span>") + "</td></tr>";
+        "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>רמה לא נקבעה</span>") + "</td></tr>";
     }).join("");
     var o2Rows = (b.o2 || []).map(function (r) {
       var href = boardRowHref(r);
       return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
-        "<td>" + (r.heat_verdict ? chip(r.heat_verdict.replace(/_/g, " "), r.heat_verdict) : chip("unscored link", "neutral")) + (r.money_corner ? " " + chip("money corner", "accent") : "") + "</td>" +
+        "<td>" + (r.heat_verdict ? chip(r.heat_verdict, r.heat_verdict) : chip("חוליה לא מנוקדת", "neutral")) + (r.money_corner ? " " + chip("פינת הכסף", "accent") : "") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
-        "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>tier not set</span>") + "</td></tr>";
+        "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>רמה לא נקבעה</span>") + "</td></tr>";
     }).join("");
     var blockedRows = (b.blocked || []).map(function (r) {
       var href = boardRowHref(r);
       return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
         "<td>" + chip(r.status || "BLOCKED", "verystale") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + "</td>" +
-        "<td>" + esc(r.on || "no data gap recorded on the profile") + "</td></tr>";
+        "<td>" + esc(r.on || "לא נרשם פער נתונים בפרופיל") + "</td></tr>";
     }).join("");
     var themeRows = (b.themes || []).map(function (t) {
       return "<tr><td class='tk-name'><a href='#/campaign/" + encodeURIComponent(t.id) + "'>" + esc(t.title || t.id) + "</a></td>" +
         "<td>" + campaignStatusChip(t.stage) + "</td>" +
         "<td class='num'>" + esc(num(t.profiles, "–")) + " / " + esc(num(t.o1, "–")) + " / " + esc(num(t.finals, "–")) + "</td>" +
-        "<td>" + esc(t.refusing || "nothing recorded as blocking") + "</td></tr>";
+        "<td>" + esc(t.refusing || "לא נרשם חסם") + "</td></tr>";
     }).join("");
     function table(head, body, empty) {
       return body ? '<div class="tablewrap"><table><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>" :
         '<div class="emptystate">' + esc(empty) + "</div>";
     }
-    return topbar("board") + "<main><div class='pagehead'><h1>Board</h1><p class='sub'>The three biggest opportunities first, by size. Then every dive with its verdict, the O1 queue waiting on a dive, O2 by the heat of its link, and what blocks the rest. Verdicts come from the stock files; nothing on this page is computed here. Click a row to open the name: its full analysis when a dive exists, its chain otherwise.</p></div>" +
+    return topbar("board") + "<main><div class='pagehead'><h1>לוח</h1><p class='sub'>שלוש ההזדמנויות הגדולות ביותר קודם, לפי גודל. אחר כך כל צלילה עם ההכרעה שלה, תור ה O1 שמחכה לצלילה, O2 לפי חום החוליה שלו, ומה חוסם את השאר. ההכרעות מגיעות מקובצי המניות: שום דבר בעמוד הזה לא מחושב כאן. לחיצה על שורה פותחת את השם: את הניתוח המלא כשיש צלילה, ואת השרשרת שלו אחרת.</p></div>" +
       boardTop(b) +
       '<div class="statgrid">' +
-      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.final, "0")) + '</span><span class="l">FINAL verdicts</span></div></div>' +
-      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o1, "0")) + '</span><span class="l">O1 selected</span></div></div>' +
-      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o2, "0")) + '</span><span class="l">O2 complete, not selected</span></div></div>' +
-      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.blocked, "0")) + '</span><span class="l">profiles blocked</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.final, "0")) + '</span><span class="l">הכרעות סופיות</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o1, "0")) + '</span><span class="l">O1 נבחרו</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.o2, "0")) + '</span><span class="l">O2 מלאים, לא נבחרו</span></div></div>' +
+      '<div class="card"><div class="stat"><span class="v num">' + esc(num(c.blocked, "0")) + '</span><span class="l">פרופילים חסומים</span></div></div>' +
       "</div>" +
-      seclabel("Verdicts") +
-      table("<th>Name</th><th>Verdict</th><th>Clock</th><th>Entry zone / triggers</th><th>Chain · link</th><th>Review by</th>", verdictRows,
-        "No dive has been written yet. A verdict exists only as a data/stocks file; none is on disk.") +
-      seclabel("O1 queue") +
-      table("<th>Name</th><th>Dive</th><th>Chain · link</th><th>Data tier</th>", o1Rows,
-        "No O1 issuer is waiting. run selection promotes COMPLETE O2 profiles here.") +
-      seclabel("O2, by link heat" + (b.o2_total != null && b.o2_total > (b.o2 || []).length ? " (showing " + (b.o2 || []).length + " of " + b.o2_total + ")" : "")) +
-      table("<th>Name</th><th>Link heat</th><th>Chain · link</th><th>Data tier</th>", o2Rows,
-        "No COMPLETE O2 profile exists.") +
-      seclabel("Blocked, and on what" + (b.blocked_total != null && b.blocked_total > (b.blocked || []).length ? " (showing " + (b.blocked || []).length + " of " + b.blocked_total + ")" : "")) +
-      table("<th>Name</th><th>State</th><th>Chain</th><th>First recorded data gap</th>", blockedRows,
-        "No profile is BLOCKED or DRAFT.") +
-      seclabel("Themes: stage, and what refuses the next stage") +
-      table("<th>Theme</th><th>Stage</th><th>profiles / O1 / FINAL</th><th>Recorded blocker</th>", themeRows,
-        "No campaign manifest on disk.") +
+      seclabel("הכרעות") +
+      table("<th>שם</th><th>הכרעה</th><th>שעון</th><th>טווח כניסה / טריגרים</th><th>שרשרת · חוליה</th><th>לבדיקה עד</th>", verdictRows,
+        "עוד לא נכתבה אף צלילה. הכרעה קיימת רק כקובץ ב data/stocks, ואין אף אחד כזה בדיסק.") +
+      seclabel("תור O1") +
+      table("<th>שם</th><th>צלילה</th><th>שרשרת · חוליה</th><th>רמת נתונים</th>", o1Rows,
+        "אין חברת O1 שמחכה. הפקודה run selection מקדמת לכאן פרופילי O2 מלאים.") +
+      seclabel("O2, לפי חום החוליה" + (b.o2_total != null && b.o2_total > (b.o2 || []).length ? " (מוצגים " + (b.o2 || []).length + " מתוך " + b.o2_total + ")" : "")) +
+      table("<th>שם</th><th>חום החוליה</th><th>שרשרת · חוליה</th><th>רמת נתונים</th>", o2Rows,
+        "אין אף פרופיל O2 מלא.") +
+      seclabel("חסומים, ועל מה" + (b.blocked_total != null && b.blocked_total > (b.blocked || []).length ? " (מוצגים " + (b.blocked || []).length + " מתוך " + b.blocked_total + ")" : "")) +
+      table("<th>שם</th><th>מצב</th><th>שרשרת</th><th>הפער הראשון שנרשם בנתונים</th>", blockedRows,
+        "אין פרופיל במצב חסום או טיוטה.") +
+      seclabel("נושאים: השלב, ומה מסרב לשלב הבא") +
+      table("<th>נושא</th><th>שלב</th><th>פרופילים / O1 / סופי</th><th>החסם שנרשם</th>", themeRows,
+        "אין מניפסט קמפיין בדיסק.") +
       footer() + "</main>";
   }
 
@@ -2482,26 +2567,26 @@
       status === "OPEN" || status === "PENDING_DATA" ? "stale" :
       status === "BLOCKED" ? "verystale" :
       status === "NOT_STARTED" ? "verystale" : "neutral";
-    return chip(status.replace(/_/g, " "), cls);
+    return chip(status, cls);
   }
   function campaignSummaryStat(value, label, target) {
     return '<div class="card campaign-stat"><div class="stat"><span class="v">' +
       campaignMetric(value, target) + '</span><span class="l">' + esc(label) + "</span></div></div>";
   }
   function campaignSelectionStamp(asOf) {
-    return asOf ? '<span class="muted">selected <span class="num">' + esc(asOf) + "</span></span>" : "";
+    return asOf ? '<span class="muted">נבחר <span class="num">' + esc(asOf) + "</span></span>" : "";
   }
   function campaignBlockers(items) {
     if (!(items || []).length) return "";
-    return '<div class="callout campaign-blockers"><b>Blockers</b><ul class="bullets bad">' +
+    return '<div class="callout campaign-blockers"><b>חסמים</b><ul class="bullets bad">' +
       items.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") +
       "</ul></div>";
   }
   function campaignO1Queue(ix) {
     var rows = ix.o1 || [];
     if (!rows.length) {
-      return seclabel("O1 queue") +
-        '<div class="emptystate campaign-empty-small">No O1 names have been selected. The dashboard does not promote names from data tier alone.</div>';
+      return seclabel("תור O1") +
+        '<div class="emptystate campaign-empty-small">עוד לא נבחר אף שם ל O1. הלוח לא מקדם שמות רק לפי רמת הנתונים.</div>';
     }
     var body = rows.map(function (row) {
       var action, ticker = row.stock_ticker;
@@ -2509,24 +2594,24 @@
         action = '<a href="#/stock/' + encodeURIComponent(ticker) + "/" + encodeURIComponent(row.chain_id) + '">' +
           chip("FINAL", "accent") + "</a>";
       } else if (row.pending) {
-        action = '<span class="pend"><span class="dot"></span>pending data</span>';
+        action = '<span class="pend"><span class="dot"></span>ממתין לנתונים</span>';
       } else if (row.handoff_present && ticker) {
         action = runButton("run deepdive " + ticker + " " + row.chain_id, null, { compact: true });
       } else {
-        action = '<span class="muted">screen handoff unavailable</span>';
+        action = '<span class="muted">אין העברה מהסריקה</span>';
       }
       return "<tr><td class='num'>" + esc(num(row.rank)) + "</td>" +
         "<td><div class='tk-name'>" + esc(ticker || row.issuer_id) + "</div><div class='tk-co'>" + esc(row.name) + "</div></td>" +
-        "<td><span class='tier-plane'><span class='plane-label'>data</span>" + tierChip(row.data_tier) + "</span></td>" +
-        "<td><span class='tier-plane'><span class='plane-label'>work</span>" + opportunityChip(row.opportunity_tier) + "</span></td>" +
+        "<td><span class='tier-plane'><span class='plane-label'>נתונים</span>" + tierChip(row.data_tier) + "</span></td>" +
+        "<td><span class='tier-plane'><span class='plane-label'>עבודה</span>" + opportunityChip(row.opportunity_tier) + "</span></td>" +
         "<td>" + (row.handoff_present
           ? "<a href='#/campaign/" + encodeURIComponent(row.chain_id) + "'>" + esc(row.chain_id) + "</a><div class='tk-co'>" + esc(row.link_id) + "</div>"
-          : '<span class="muted">unresolved</span>') + "</td>" +
+          : '<span class="muted">לא נפתר</span>') + "</td>" +
         "<td>" + campaignStatusChip(row.profile_status) + staleChip(row.as_of) + "</td>" +
         "<td>" + action + "</td></tr>";
     }).join("");
-    return seclabel("O1 queue") +
-      '<div class="tablewrap campaign-o1"><table><thead><tr><th>Rank</th><th>Company</th><th>Data tier</th><th>Opportunity</th><th>Primary theme</th><th>Profile</th><th>Next step</th></tr></thead><tbody>' +
+    return seclabel("תור O1") +
+      '<div class="tablewrap campaign-o1"><table><thead><tr><th>דירוג</th><th>חברה</th><th>רמת נתונים</th><th>הזדמנות</th><th>הנושא הראשי</th><th>פרופיל</th><th>הצעד הבא</th></tr></thead><tbody>' +
       body + "</tbody></table></div>";
   }
   /* The orchestrator's resume point: tools/campaign_board.py derives every row from
@@ -2537,7 +2622,7 @@
      to disagree with the gate and the reader could not tell which one was lying.
      A null board means "the board has not been generated", never "no work outstanding". */
   function campaignBoardBlockers(rows) {
-    if (!(rows || []).length) return '<span class="muted">none</span>';
+    if (!(rows || []).length) return '<span class="muted">אין</span>';
     return rows.map(function (b) {
       return "<div>" + campaignStatusChip(b.kind) +
         "<div class='tk-co campaign-bad'>" + esc(b.detail) + "</div></div>";
@@ -2545,7 +2630,7 @@
   }
   function campaignBoardNext(row) {
     if (!row.next_command) {
-      return '<span class="muted">nothing to run</span>' +
+      return '<span class="muted">אין מה להריץ</span>' +
         (row.next_reason ? "<div class='tk-co'>" + esc(row.next_reason) + "</div>" : "");
     }
     return runButton(row.next_command, null, { compact: true }) +
@@ -2555,15 +2640,15 @@
   function campaignBoard() {
     var board = ((D.health || {}).board) || null;
     if (!board) {
-      return seclabel("Worklist") +
-        '<div class="emptystate campaign-empty-small"><b>No board has been generated.</b><br>' +
-        "The resume point is derived from disk, never hand-written. Run " +
+      return seclabel("רשימת העבודה") +
+        '<div class="emptystate campaign-empty-small"><b>עדיין לא נוצר לוח עבודה.</b><br>' +
+        "נקודת ההמשך נגזרת תמיד מהדיסק, ואף פעם לא נכתבת ביד. הרץ " +
         cmdline("python3 tools/campaign_board.py --write") +
-        " in a session on this repo, rebuild, and every theme's stage, next command and blocker appear here.</div>";
+        " בסשן על המאגר הזה, בנה מחדש, וכל שלב, פקודה הבאה וחסם של כל נושא יופיעו כאן.</div>";
     }
     if (board.scope === "SCOPE_EMPTY") {
-      return seclabel("Worklist") +
-        '<div class="emptystate campaign-empty-small"><b>SCOPE EMPTY.</b><br>' +
+      return seclabel("רשימת העבודה") +
+        '<div class="emptystate campaign-empty-small"><b>אין מה לבדוק.</b><br>' +
         esc(board.scope_note) + "</div>";
     }
     var d = board.denominators || {}, t = board.targets || {};
@@ -2572,29 +2657,29 @@
         "<td><div class='tk-name'>" + esc(row.title) + "</div>" +
         "<div class='tk-co mono'>" + esc(row.theme_id) + "</div></td>" +
         "<td>" + campaignStatusChip(row.stage) +
-        (row.provisional ? chip("provisional", "stale") : "") + "</td>" +
+        (row.provisional ? chip("זמני", "stale") : "") + "</td>" +
         "<td>" + campaignBoardNext(row) + "</td>" +
         "<td>" + campaignBoardBlockers(row.blockers) + "</td></tr>";
     }).join("");
-    return seclabel("Worklist") +
+    return seclabel("רשימת העבודה") +
       "<div class='row'>" + staleChip(board.as_of) +
-      '<span class="muted">computed from disk ' +
+      '<span class="muted">חושב מהדיסק ' +
       '<span class="num">' + esc(board.as_of) + "</span> · " + esc(board.scope_note) +
       "</span></div>" +
       '<div class="statgrid campaign-summary">' +
-      campaignSummaryStat(d.themes_total, "themes on the board") +
-      campaignSummaryStat(d.distinct_mapped_issuers, "distinct mapped issuers") +
-      campaignSummaryStat(d.complete_profiles, "complete profiles", t.completed_profiles_min) +
+      campaignSummaryStat(d.themes_total, "נושאים בלוח") +
+      campaignSummaryStat(d.distinct_mapped_issuers, "חברות ממופות שונות") +
+      campaignSummaryStat(d.complete_profiles, "פרופילים מלאים", t.completed_profiles_min) +
       campaignSummaryStat(d.o1, "O1", (t.o1_min != null && t.o1_max != null) ? t.o1_min + "–" + t.o1_max : null) +
-      campaignSummaryStat(d.final_dives, "FINAL dives", d.o1) +
-      campaignSummaryStat(d.pending_requests_blocking, "pending rows blocking work") +
+      campaignSummaryStat(d.final_dives, "צלילות סופיות", d.o1) +
+      campaignSummaryStat(d.pending_requests_blocking, "שורות ממתינות שחוסמות עבודה") +
       "</div>" +
       (rows
-        ? '<div class="tablewrap campaign-o1"><table><thead><tr><th>Rank</th><th>Theme</th><th>Stage</th><th>Next command</th><th>Blocker</th></tr></thead><tbody>' +
+        ? '<div class="tablewrap campaign-o1"><table><thead><tr><th>דירוג</th><th>נושא</th><th>שלב</th><th>הפקודה הבאה</th><th>חסם</th></tr></thead><tbody>' +
           rows + "</tbody></table></div>"
-        : '<div class="emptystate campaign-empty-small">The board resolved no themes. Nothing has been inferred.</div>') +
+        : '<div class="emptystate campaign-empty-small">הלוח לא פתר אף נושא. לא הוסק דבר.</div>') +
       (board.next_command
-        ? runButton(board.next_command, "the first step on the board, in rank then stage order")
+        ? runButton(board.next_command, "הצעד הראשון בלוח, לפי דירוג ואז לפי שלב")
         : "");
   }
   function campaignThemeCard(theme, profileTarget) {
@@ -2606,63 +2691,63 @@
       campaignStatusChip(theme.status) + staleChip(theme.coverage_as_of) +
       campaignSelectionStamp(theme.selection_as_of) +
       '</div><h3>' + esc(theme.title) + '</h3><div class="muted mono">' + esc(theme.id) + "</div></div>" +
-      '<a class="campaign-open" href="#/campaign/' + encodeURIComponent(theme.id) + '">link coverage →</a></div>' +
-      '<div class="coverage-line"><span>complete profiles</span><b>' + campaignMetric(c.profiles, profileTarget) + "</b></div>" +
+      '<a class="campaign-open" href="#/campaign/' + encodeURIComponent(theme.id) + '">כיסוי חוליות →</a></div>' +
+      '<div class="coverage-line"><span>פרופילים מלאים</span><b>' + campaignMetric(c.profiles, profileTarget) + "</b></div>" +
       '<div class="coverage-track"' + (pct == null ? ' data-empty="true"' : "") + ">" +
       (pct == null ? "" : '<i style="width:' + pct.toFixed(1) + '%"></i>') + "</div>" +
       '<div class="campaign-mini">' +
-      "<span><b class='num'>" + esc(num(c.links)) + "</b> links</span>" +
+      "<span><b class='num'>" + esc(num(c.links)) + "</b> חוליות</span>" +
       (theme.mapping_present
-        ? "<span><b class='num'>" + esc(num(c.mapped_issuers)) + "</b> mapped issuers</span>"
-        : "<span class='campaign-warn'>mapping unavailable</span>") +
+        ? "<span><b class='num'>" + esc(num(c.mapped_issuers)) + "</b> חברות ממופות</span>"
+        : "<span class='campaign-warn'>אין מיפוי זמין</span>") +
       "<span>" + opportunityChip("O1") + " <b class='num'>" + esc(num(c.o1)) + "</b></span>" +
-      "<span><b class='num'>" + esc(num(c.finals)) + " / " + esc(num(c.o1)) + "</b> O1 FINAL</span>" +
-      (c.pending ? "<span class='campaign-warn'><b class='num'>" + esc(c.pending) + "</b> pending</span>" : "") +
-      (c.blockers ? "<span class='campaign-bad'><b class='num'>" + esc(c.blockers) + "</b> blockers</span>" : "") +
+      "<span><b class='num'>" + esc(num(c.finals)) + " / " + esc(num(c.o1)) + "</b> O1 סופי</span>" +
+      (c.pending ? "<span class='campaign-warn'><b class='num'>" + esc(c.pending) + "</b> ממתין</span>" : "") +
+      (c.blockers ? "<span class='campaign-bad'><b class='num'>" + esc(c.blockers) + "</b> חסמים</span>" : "") +
       "</div></article>";
   }
   function campaignThemeView(ix, id) {
     var theme = byId(ix.themes, id);
-    if (!theme) return notFound("campaign theme " + id);
+    if (!theme) return notFound("נושא קמפיין " + id);
     var c = theme.counts || {};
     var rows = (theme.links || []).map(function (link) {
       return "<tr><td class='num'>" + esc(num(link.position)) + "</td>" +
         "<td><div class='tk-name'>" + esc(link.name) + "</div><div class='tk-co mono'>" + esc(link.id) + "</div></td>" +
-        "<td>" + (theme.mapping_present ? campaignStatusChip(link.status) : '<span class="muted">mapping unavailable</span>') + "</td>" +
-        "<td>" + (theme.mapping_present ? campaignMetric(link.mapped, link.target) : '<span class="muted">mapping unavailable</span>') + "</td>" +
+        "<td>" + (theme.mapping_present ? campaignStatusChip(link.status) : '<span class="muted">אין מיפוי זמין</span>') + "</td>" +
+        "<td>" + (theme.mapping_present ? campaignMetric(link.mapped, link.target) : '<span class="muted">אין מיפוי זמין</span>') + "</td>" +
         "<td class='num'>" + esc(num(link.profiled)) + "</td>" +
         "<td>" + opportunityChip("O1") + " <span class='num'>" + esc(num(link.o1)) + "</span></td>" +
         "<td class='num'>" + esc(num(link.finals)) + "</td>" +
-        "<td>" + (link.pending ? '<span class="pend"><span class="dot"></span>' + esc(link.pending) + "</span>" : '<span class="muted">none</span>') + "</td>" +
-        "<td>" + (link.blocker ? '<span class="campaign-bad">' + esc(link.blocker) + "</span>" : '<span class="muted">none</span>') +
+        "<td>" + (link.pending ? '<span class="pend"><span class="dot"></span>' + esc(link.pending) + "</span>" : '<span class="muted">אין</span>') + "</td>" +
+        "<td>" + (link.blocker ? '<span class="campaign-bad">' + esc(link.blocker) + "</span>" : '<span class="muted">אין</span>') +
         staleChip(link.coverage_as_of) + "</td></tr>";
     }).join("");
     return topbar("campaign") +
-      '<div class="crumbs"><a href="#/campaign">Campaign</a><span class="sep">/</span><span class="here">' + esc(theme.title) + "</span></div>" +
+      '<div class="crumbs"><a href="#/campaign">קמפיין</a><span class="sep">/</span><span class="here">' + esc(theme.title) + "</span></div>" +
       "<main><div class='pagehead'><div class='row'>" + campaignStatusChip(theme.status) + staleChip(theme.coverage_as_of) +
       campaignSelectionStamp(theme.selection_as_of) +
-      "</div><h1>" + esc(theme.title) + "</h1><p class='sub'>Every value-chain link keeps its own issuer denominator. EXHAUSTED is shown as a finding, not filled with a proxy.</p></div>" +
+      "</div><h1>" + esc(theme.title) + "</h1><p class='sub'>כל חוליה בשרשרת הערך שומרת מונה חברות משלה. הסטטוס מוצה מוצג כממצא, לא מתמלא בפרוקסי.</p></div>" +
       '<div class="statgrid campaign-theme-stats">' +
-      campaignSummaryStat(c.links, "links") +
-      campaignSummaryStat(theme.mapping_present ? c.mapped_issuers : "mapping unavailable", "mapped issuers") +
-      campaignSummaryStat(c.profiles, "complete profiles", ix.targets.profiles_per_theme) +
-      campaignSummaryStat(c.o1, "O1 names") +
-      campaignSummaryStat(c.finals, "O1 FINAL", c.o1) +
-      campaignSummaryStat(c.pending, "pending data") +
+      campaignSummaryStat(c.links, "חוליות") +
+      campaignSummaryStat(theme.mapping_present ? c.mapped_issuers : "אין מיפוי זמין", "חברות ממופות") +
+      campaignSummaryStat(c.profiles, "פרופילים מלאים", ix.targets.profiles_per_theme) +
+      campaignSummaryStat(c.o1, "שמות O1") +
+      campaignSummaryStat(c.finals, "O1 סופי", c.o1) +
+      campaignSummaryStat(c.pending, "ממתין לנתונים") +
       "</div>" +
       campaignBlockers(theme.blockers) +
-      seclabel("Per-link coverage") +
+      seclabel("כיסוי לפי חוליה") +
       ((theme.links || []).length
-        ? '<div class="tablewrap campaign-links"><table><thead><tr><th>Pos</th><th>Link</th><th>Status</th><th>Mapped / target</th><th>Profiles</th><th>Opportunity</th><th>FINAL</th><th>Pending</th><th>Blocker / freshness</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
-        : '<div class="emptystate">No links are projected for this theme. A missing mapping store is not treated as zero coverage.</div>') +
-      "<div class='campaign-chain-link'><a href='#/chain/" + encodeURIComponent(theme.id) + "'>open value chain →</a></div>" +
+        ? '<div class="tablewrap campaign-links"><table><thead><tr><th>מקום</th><th>חוליה</th><th>מצב</th><th>ממופה / יעד</th><th>פרופילים</th><th>הזדמנות</th><th>סופי</th><th>ממתין</th><th>חסם / עדכניות</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
+        : '<div class="emptystate">אין חוליות משוערכות לנושא הזה. מיפוי חסר לא נחשב לכיסוי אפס.</div>') +
+      "<div class='campaign-chain-link'><a href='#/chain/" + encodeURIComponent(theme.id) + "'>פתח את שרשרת הערך →</a></div>" +
       footer() + "</main>";
   }
   function campaignView(themeId) {
     var ix = D.campaign_ix || { present: false, themes: [], o1: [] };
     if (!ix.present) {
-      return topbar("campaign") + "<main><div class='pagehead'><h1>Campaign</h1><p class='sub'>Ten-theme research coverage, from mappings through final verdicts.</p></div>" +
-        '<div class="emptystate campaign-empty"><b>No campaign data exists yet.</b><br>A campaign manifest must exist under <span class="mono">data/campaigns/</span> before mappings or company files are counted. Nothing has been inferred.</div>' +
+      return topbar("campaign") + "<main><div class='pagehead'><h1>קמפיין</h1><p class='sub'>כיסוי מחקר על עשרה נושאים, מהמיפויים ועד ההכרעות הסופיות.</p></div>" +
+        '<div class="emptystate campaign-empty"><b>אין עדיין נתוני קמפיין.</b><br>צריך שיהיה מניפסט קמפיין תחת <span class="mono">data/campaigns/</span> לפני שסופרים מיפויים או קובצי חברות. לא הוסק דבר.</div>' +
         campaignBoard() +
         footer() + "</main>";
     }
@@ -2673,23 +2758,23 @@
     return topbar("campaign") + "<main><div class='pagehead'><div class='row'>" +
       campaignStatusChip(ix.status) + staleChip(ix.coverage_as_of) +
       campaignSelectionStamp(ix.selection_as_of) +
-      "</div><h1>" + esc(ix.title || "Campaign") + "</h1><p class='sub'>Ten themes in one bounded view. Coverage counts come from saved mapping and company stores; raw evidence and full profiles stay out of this artifact.</p></div>" +
+      "</div><h1>" + esc(ix.title || "קמפיין") + "</h1><p class='sub'>עשרה נושאים בתצוגה אחת חסומה. מונה הכיסוי מגיע ממאגרי המיפוי והחברות השמורים: ראיות גולמיות ופרופילים מלאים נשארים מחוץ לתוצר הזה.</p></div>" +
       '<div class="statgrid campaign-summary">' +
-      campaignSummaryStat(c.themes, "themes", t.themes) +
-      campaignSummaryStat(c.links, "links") +
-      campaignSummaryStat(c.mapped_issuers, "mapped issuers") +
-      campaignSummaryStat(c.profiles, "complete profiles", t.profiles_min) +
-      campaignSummaryStat(c.o1, "O1 queue", opportunityTarget) +
-      campaignSummaryStat(c.finals, "O1 FINAL", c.o1) +
-      campaignSummaryStat(c.pending, "pending data") +
-      campaignSummaryStat(c.blockers, "blockers") +
+      campaignSummaryStat(c.themes, "נושאים", t.themes) +
+      campaignSummaryStat(c.links, "חוליות") +
+      campaignSummaryStat(c.mapped_issuers, "חברות ממופות") +
+      campaignSummaryStat(c.profiles, "פרופילים מלאים", t.profiles_min) +
+      campaignSummaryStat(c.o1, "תור O1", opportunityTarget) +
+      campaignSummaryStat(c.finals, "O1 סופי", c.o1) +
+      campaignSummaryStat(c.pending, "ממתין לנתונים") +
+      campaignSummaryStat(c.blockers, "חסמים") +
       "</div>" +
       campaignBlockers(ix.blockers) +
       campaignBoard() +
-      seclabel("Theme coverage") +
+      seclabel("כיסוי לפי נושא") +
       ((ix.themes || []).length
         ? '<div class="campaign-grid">' + ix.themes.map(function (theme) { return campaignThemeCard(theme, t.profiles_per_theme); }).join("") + "</div>"
-        : '<div class="emptystate">The campaign exists, but its theme slate is empty. No ten-theme target is claimed.</div>') +
+        : '<div class="emptystate">הקמפיין קיים, אבל רשימת הנושאים שלו ריקה. לא נטען יעד של עשרה נושאים.</div>') +
       campaignO1Queue(ix) +
       footer() + "</main>";
   }
@@ -2724,10 +2809,10 @@
   var CX_RIM = 396, CX_DUST0 = 326, CX_DUST1 = 384, CX_AMB0 = 262, CX_AMB1 = 296, CX_HUB0 = 72, CX_HUB1 = 248;
   var CX_CLAMP = 1460;   // days: the time scale saturates at four years
   var CX_HEAT_ORDER = { UNDISCOVERED: 0, EMERGING: 1, CROWDED: 2, OVER_CROWDED: 3, QUIET: 4 };
-  var CX_FACTORS = [["impact", "IMPACT", "#8687F0"], ["crowdedness", "CROWDEDNESS", "#E97F4E"], ["capture", "CAPTURE", "#34C77E"]];
+  var CX_FACTORS = [["impact", "השפעה", "#8687F0"], ["crowdedness", "צפיפות", "#E97F4E"], ["capture", "לכידה", "#34C77E"]];
   var CX_MODE = { phase: "network", sig: null };
   var CX_FILTER = { kinds: {}, fam: null, q: "" };
-  var CX_KIND_CHIPS = [["sig", "signals"], ["link", "links"], ["scen", "scenarios"], ["co", "names"], ["dive", "verdicts"], ["cand", "ambient"], ["evt", "future"], ["dust", "feed"]];
+  var CX_KIND_CHIPS = [["sig", "אותות"], ["link", "חוליות"], ["scen", "תרחישים"], ["co", "שמות"], ["dive", "הכרעות"], ["cand", "ברקע"], ["evt", "עתיד"], ["dust", "פיד"]];
   var CX_CACHE = null;
   // viewer-tuned render gains: per-type size multipliers plus a label density cut.
   // Per-viewer convenience only: never touches the data, a cleared localStorage restores
@@ -2780,17 +2865,17 @@
      since Jul 2025". Every figure is the record's own or the word for its absence; nothing
      here rounds a missing number into a plausible one. The second line names the money
      corner with the tickers named at it, and draws nothing when the chain has none. */
-  var CX_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var CX_MON = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
   function cxMonthYear(d) {
     var m = /^(\d{4})-(\d{2})/.exec(String(d || ""));
     return m ? CX_MON[parseInt(m[2], 10) - 1] + " " + m[1] : String(d || "");
   }
   function cxCaption(un, ap, c, occ) {
-    var parts = [num(un, "?") + " unmapped"];
-    if (ap) parts.push(ap.impact_score == null ? "money unranked" : "money reachable " + Math.round(ap.impact_score));
-    else parts.push("not yet appraised");
-    if (!c) parts.push("no chain yet");
-    else parts.push(occ && occ.anchor_date ? "since " + cxMonthYear(occ.anchor_date) : "undated");
+    var parts = [num(un, "?") + " לא ממופה"];
+    if (ap) parts.push(ap.impact_score == null ? "כסף לא דורג" : "כסף בהישג יד " + Math.round(ap.impact_score));
+    else parts.push("עוד לא הוערך");
+    if (!c) parts.push("עדיין אין שרשרת");
+    else parts.push(occ && occ.anchor_date ? "מאז " + cxMonthYear(occ.anchor_date) : "ללא תאריך");
     return parts.join(" · ");
   }
   function cxCornerCaption(c) {
@@ -2801,14 +2886,14 @@
     return { name: cxTrim(l.name, 36) + (money.length > 1 ? " +" + (money.length - 1) : ""), tickers: (l.example_tickers || []).slice(0, 3).join("  ") };
   }
   function cxOdds(pct) {
-    if (pct == null) return "unscored";
+    if (pct == null) return "לא נוקד";
     if (pct <= 0) return "0%";
     if (pct >= 50) return pct + "%";
-    return "one in " + Math.round(100 / pct);
+    return "אחד מ " + Math.round(100 / pct);
   }
   function cxVerdictWord(v, status) {
-    var w = v === "INVESTABLE" ? "investable" : v === "WATCH" ? "watch" : v === "TOO_LATE" ? "too late" : String(v || "").toLowerCase().replace(/_/g, " ");
-    return status === "DRAFT" ? w + ", draft" : w;
+    var w = he(v);
+    return status === "DRAFT" ? w + ", טיוטה" : w;
   }
   function cxLiveSignals() {
     return (D.signals || []).filter(function (s) { return s.status !== "DISMISSED" && s.status !== "EXPIRED"; });
@@ -2914,7 +2999,7 @@
         label: sg.short_title || cxShort(sg.title),
         cap: cxCaption(un, ap, c, occ),
         corner: cxCornerCaption(c),
-        tip: sg.title + " — " + (occ.kind || "undated") + (occ.anchor_date ? " · " + occ.anchor_date : ""),
+        tip: sg.title + " · " + he(occ.kind || "UNDATED") + (occ.anchor_date ? " · " + occ.anchor_date : ""),
         days: cxDays(occ.anchor_date || sg.created_at)
       });
       (perSec[sec.fam] = perSec[sec.fam] || []).push(n);
@@ -2984,8 +3069,8 @@
           verdict: ht.verdict || null, money: !!ht.money_corner,
           choke: (l.bottleneck || {}).criticality === "CHOKE_POINT",
           color: ht.verdict ? CXP.verd[ht.verdict] : CXP.none, r: 2.4,
-          label: l.name, sub: ht.verdict ? "i" + num(cxScore(l, "impact")) + " · c" + num(cxScore(l, "crowdedness")) + " · v" + num(cxScore(l, "capture")) : "unscored",
-          tip: l.name + " — " + (ht.verdict ? ht.verdict.replace(/_/g, " ") : "unscored") + (ht.money_corner ? " · money corner" : "")
+          label: l.name, sub: ht.verdict ? "השפעה " + num(cxScore(l, "impact")) + " · צפיפות " + num(cxScore(l, "crowdedness")) + " · לכידה " + num(cxScore(l, "capture")) : "לא נוקד",
+          tip: l.name + " · " + (ht.verdict ? he(ht.verdict) : "לא נוקד") + (ht.money_corner ? " · פינת הכסף" : "")
         });
         n.links = n.links || []; n.links.push(ln);
         var ticks = (l.example_tickers || []).slice(0, 6);
@@ -2994,16 +3079,16 @@
           if (byKey[key]) { byKey[key].also = (byKey[key].also || []).concat([c.title + " · " + l.name]); return; }
           add({ kind: "co", id: t, r: 1.4, color: "#C9CBE3", link: ln, sig: n, chainIds: [c.id],
                 ringA: th + (q - (ticks.length - 1) / 2) * 5.5, hollow: !marketFor(t),
-                label: t, tip: t + " — named at " + l.name, chains: [cxTrim(c.title, 26)] });
+                label: t, tip: t + " · מופיעה ב " + l.name, chains: [cxTrim(c.title, 26)] });
         });
       });
       (c.scenarios || []).forEach(function (s, k, arr) {
         var th = -120 + 360 * (k + 0.5) / Math.max(1, arr.length);
         add({ kind: "scen", id: c.id + "/" + s.id, ref: s, chainId: c.id, sig: n, ringA: th, r: 3.6,
               color: s.status === "SCREENED" ? CXP.verd.UNDISCOVERED : (s.status === "INVALIDATED" || s.status === "PLAYED_OUT") ? CXP.ink3 : "#C9CBE3",
-              label: s.id + " · " + (s.probability_pct == null ? "unscored" : s.probability_pct + "%"),
+              label: s.id + " · " + (s.probability_pct == null ? "לא נוקד" : s.probability_pct + "%"),
               word: s.id + ", " + cxOdds(s.probability_pct),
-              tip: s.id + " · " + s.title + " — " + (s.probability_pct == null ? "unscored" : s.probability_pct + "%") });
+              tip: s.id + " · " + s.title + " · " + (s.probability_pct == null ? "לא נוקד" : s.probability_pct + "%") });
       });
     });
     // dives: an amber square on the link they were dived from
@@ -3013,9 +3098,9 @@
       if (!sg) sigsN.forEach(function (n) { if (!sg && n.chain && n.chain.id === st.chain_id) sg = n; });
       add({ kind: "dive", id: st.ticker + "__" + st.chain_id, ref: st, sig: sg, link: ln, ringA: ln ? ln.ringA : -90,
             color: CXP.dive[st.verdict] || CXP.none, r: 3, dashed: st.status === "DRAFT",
-            label: st.ticker + " · " + (st.verdict || "").replace("_", " "),
+            label: st.ticker + " · " + he(st.verdict),
             word: cxVerdictWord(st.verdict, st.status),
-            tip: st.ticker + " — " + st.verdict + " (" + st.clock + ", " + st.status + ")" });
+            tip: st.ticker + " · " + he(st.verdict) + " (" + he(st.clock) + ", " + he(st.status) + ")" });
     });
     // ambient candidates: hollow circles in their family's band; PRIME ones carry a core
     var cands = (((D.candidates || {}).candidates) || []).filter(function (c) { return c.status === "AMBIENT"; });
@@ -3030,7 +3115,7 @@
         var d = cxDays(c.date), pt = cxPol(cxTimeR(d), cxFold(th, d));
         add({ kind: "cand", id: c.id, ref: c, wx: p.x, wy: p.y, tx: pt.x, ty: pt.y, r: ap && ap.impact_band === "PRIME" ? 3.2 : 2.4,
               prime: !!(ap && ap.impact_band === "PRIME"), color: CXP.ambient, hollow: true,
-              label: cxTrim(c.title, 44), tip: c.title + " — " + (c.family || "?") + " · " + (c.date || ""), days: d });
+              label: cxTrim(c.title, 44), tip: c.title + " · " + (c.family ? he(c.family) : "?") + " · " + (c.date || ""), days: d });
       });
     });
     // known future events: dashed diamonds, spread around the band (they carry no family)
@@ -3040,7 +3125,7 @@
       var rw = CX_AMB0 + 4 + (CX_AMB1 - CX_AMB0 - 8) * rng();
       var p = cxPol(rw, th), d = cxDays(e.date), pt = cxPol(cxTimeR(d), cxFold(th, d == null ? 200 : d));
       add({ kind: "evt", id: e.id, ref: e, wx: p.x, wy: p.y, tx: pt.x, ty: pt.y, r: 3.4, color: CXP.ambient, dashed: true,
-            label: cxFmtDate(e.date).slice(0, 7) + " · " + cxTrim(e.title, 44), tip: e.title + " — " + (e.kind || "") + " · " + (e.date || ""), days: d });
+            label: cxFmtDate(e.date).slice(0, 7) + " · " + cxTrim(e.title, 44), tip: e.title + " · " + he(e.kind || "") + " · " + (e.date || ""), days: d });
     });
     // feed dust: one dot per headline the page carries, in its family's stretch of the belt
     var items = (D.feeds || {}).items || [];
@@ -3054,7 +3139,7 @@
       var p3 = cxPol(cxTimeR(dd == null ? -3 : dd), cxFold(th2, dd == null ? -3 : dd));
       add({ kind: "dust", id: "d" + i, ref: it, wx: p2.x, wy: p2.y, tx: p3.x, ty: p3.y, r: 0.55 + 0.6 * rng(),
             a: 0.16 + 0.34 * rng(), color: CXP.dust, seat: i,
-            tip: cxTrim(it.t, 84) + " — " + (it.s || "") + " · " + cxFmtDate(it.d) });
+            tip: cxTrim(it.t, 84) + " · " + (it.s || "") + " · " + cxFmtDate(it.d) });
     }
     nodes.forEach(function (n) { if (n.x == null) { n.x = n.wx || 0; n.y = n.wy || 0; } });
     return { nodes: nodes, byKey: byKey, sectors: secs, builtAt: D.built_at, sigs: sigsN };
@@ -3178,7 +3263,7 @@
     full.classList.toggle("ui-hidden", hid);
     document.body.classList.toggle("cx-ui-hidden", hid);
     var b = document.getElementById("cxUIBtn");
-    if (b) { b.textContent = hid ? "SHOW UI" : "HIDE UI"; b.setAttribute("aria-pressed", hid ? "true" : "false"); }
+    if (b) { b.textContent = hid ? "הצג ממשק" : "הסתר ממשק"; b.setAttribute("aria-pressed", hid ? "true" : "false"); }
     try { localStorage.setItem("upstream.cxUI", hid ? "hidden" : "shown"); } catch (e) {}
   }
   var CX_ICON = {
@@ -3191,17 +3276,17 @@
   };
   function cxPhaseCtl() {
     var ph = CX_MODE.phase;
-    return '<div class="cx-phasectl" role="group" aria-label="phase">' +
-      [["network", "Network"], ["radial", "Radial"], ["timeline", "Timeline"]].map(function (p) {
+    return '<div class="cx-phasectl" role="group" aria-label="שלב תצוגה">' +
+      [["network", "רשת"], ["radial", "רדיאלי"], ["timeline", "ציר זמן"]].map(function (p) {
         return '<button class="cx-phbtn' + (ph === p[0] ? " on" : "") + '" data-cxphase="' + p[0] + '" aria-pressed="' + (ph === p[0] ? "true" : "false") + '">' + CX_ICON[p[0]] + p[1] + "</button>";
       }).join("") + "</div>";
   }
   function cxTopRight() {
     var hid = cxUIHidden();
     return '<div class="cx-topright">' +
-      '<label class="cx-search"><span class="ic">' + CX_ICON.search + '</span><input id="cxSearch" type="search" placeholder="Search signals, links, names" autocomplete="off" aria-label="search the field" value="' + esc(CX_FILTER.q) + '"><kbd>/</kbd></label>' +
-      '<button class="cx-iconbtn" id="cxViewBtn" title="view settings: what shows, how big" aria-expanded="false" aria-controls="cxViewPop">' + CX_ICON.sliders + "</button>" +
-      '<button class="cx-uibtn" id="cxUIBtn" aria-pressed="' + (hid ? "true" : "false") + '" title="hide or show the interface (H)">' + (hid ? "SHOW UI" : "HIDE UI") + ' <kbd>H</kbd></button>' +
+      '<label class="cx-search"><span class="ic">' + CX_ICON.search + '</span><input id="cxSearch" type="search" placeholder="חפש אותות, חוליות, שמות" autocomplete="off" aria-label="חיפוש בשדה" value="' + esc(CX_FILTER.q) + '"><kbd>/</kbd></label>' +
+      '<button class="cx-iconbtn" id="cxViewBtn" title="הגדרות תצוגה: מה מוצג וכמה גדול" aria-expanded="false" aria-controls="cxViewPop">' + CX_ICON.sliders + "</button>" +
+      '<button class="cx-uibtn" id="cxUIBtn" aria-pressed="' + (hid ? "true" : "false") + '" title="הצג או הסתר את הממשק (H)">' + (hid ? "הצג ממשק" : "הסתר ממשק") + ' <kbd>H</kbd></button>' +
       "</div>" + cxViewPop();
   }
   function cxViewPop() {
@@ -3214,21 +3299,21 @@
         '<span class="val" id="cxgv-' + key + '">×' + v.toFixed(2) + "</span></div>";
     }
     return '<div class="cx-viewpop" id="cxViewPop" hidden>' +
-      '<div class="lbl">SHOW</div><div class="cxchips">' + CX_KIND_CHIPS.map(function (kc) {
+      '<div class="lbl">הצג</div><div class="cxchips">' + CX_KIND_CHIPS.map(function (kc) {
         return '<button class="cxfchip' + (CX_FILTER.kinds[kc[0]] === false ? " off" : "") + '" data-cxk="' + kc[0] + '">' + kc[1] + "</button>";
       }).join("") + "</div>" +
-      '<div class="lbl">SIZE</div>' +
-      row("contrast", "CONTRAST", "above 1: the biggest nodes grow, the smallest shrink; below 1 they even out") +
-      row("sig", "SIGNALS", "signal hubs") + row("link", "LINKS", "value-chain links") + row("scen", "SCENARIOS", "scenarios") +
-      row("co", "NAMES", "companies and verdicts") + row("intake", "INTAKE", "candidates and calendar events") + row("dust", "FEED", "raw feed dust") +
-      row("labels", "LABELS", "label density: left shows only the most important names, right shows everything") +
-      '<button class="cx-rst" id="cxGainReset">RESET VIEW</button></div>';
+      '<div class="lbl">גודל</div>' +
+      row("contrast", "ניגודיות", "מעל 1: הצמתים הגדולים גדלים והקטנים מצטמצמים, מתחת ל-1 הכל מתאזן") +
+      row("sig", "אותות", "מוקדי האותות") + row("link", "חוליות", "חוליות שרשרת הערך") + row("scen", "תרחישים", "תרחישים") +
+      row("co", "שמות", "חברות והכרעות") + row("intake", "קליטה", "מועמדים ואירועי יומן") + row("dust", "פיד", "אבק הפיד הגולמי") +
+      row("labels", "תוויות", "צפיפות התוויות: משמאל מוצגים רק השמות החשובים ביותר, מימין מוצג הכל") +
+      '<button class="cx-rst" id="cxGainReset">אפס תצוגה</button></div>';
   }
   function cxOppRows() {
     var ranked = cxRanked(), out = [], last = null;
     ranked.forEach(function (s, i) {
       var un = (s.unmappedness || {}).score, t = cxTier(un);
-      if (t !== last) { out.push('<div class="cx-tierlbl">' + t + "</div>"); last = t; }
+      if (t !== last) { out.push('<div class="cx-tierlbl">' + he(t) + "</div>"); last = t; }
       var title = String(s.title || ""), ci = title.indexOf(":");
       var head = ci > 0 ? title.slice(0, ci).trim() : title, rest = ci > 0 ? title.slice(ci + 1).trim() : "";
       var c = s.chain_id ? byId(D.chains, s.chain_id) : null;
@@ -3239,8 +3324,8 @@
         out.push('<button class="cxopp major' + (on ? " on" : "") + '" data-cxfly="sig:' + esc(s.id) + '" title="' + esc(s.title) + '">' +
           '<span class="rk">' + (i < 9 ? "0" : "") + (i + 1) + "</span>" +
           '<span class="body"><span class="nm">' + esc(head) + "</span>" + (rest ? '<span class="rest">' + esc(rest) + "</span>" : "") +
-          (money.length ? '<span class="mc">★ ' + esc(money.join(", ")) + "</span>" : '<span class="mc dim">' + (c ? "no money corner yet" : "unchained · run chain") + "</span>") + "</span>" +
-          '<span class="sc"><span class="un">' + num(un, "?") + '</span><span class="band">' + (ap ? esc((ap.impact_band || "").toUpperCase()) + " " + (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) : "UNAPPRAISED") + "</span></span></button>");
+          (money.length ? '<span class="mc">★ ' + esc(money.join(", ")) + "</span>" : '<span class="mc dim">' + (c ? "עדיין אין פינת כסף" : "בלי שרשרת · run chain") + "</span>") + "</span>" +
+          '<span class="sc"><span class="un">' + num(un, "?") + '</span><span class="band">' + (ap ? esc(he(ap.impact_band || "")) + " " + (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) : "לא הוערך") + "</span></span></button>");
       } else {
         out.push('<button class="cxopp' + (on ? " on" : "") + '" data-cxfly="sig:' + esc(s.id) + '" title="' + esc(s.title) + '">' +
           '<span class="rk">' + (i < 9 ? "0" : "") + (i + 1) + "</span>" +
@@ -3260,11 +3345,11 @@
      machine is the false all-clear the audit itself exists to catch. */
   function machineReg() {
     var m = (((D.digests || [])[0] || {}).machine) || null;
-    if (!m) return cxReg("machine", "not audited", true);
+    if (!m) return cxReg("המכונה", "לא נבדקה", true);
     var ex = m.examined || {};
-    var denom = ex.commands != null ? ex.commands + " cmds" : "";
-    return cxReg("machine", (m.findings != null ? m.findings + " findings" : "—") + (denom ? " / " + denom : "")) +
-      cxReg("v8 tree", m.v8_reachable === true ? "read" : "unreachable", m.v8_reachable !== true);
+    var denom = ex.commands != null ? ex.commands + " פקודות" : "";
+    return cxReg("המכונה", (m.findings != null ? m.findings + " ממצאים" : "—") + (denom ? " / " + denom : "")) +
+      cxReg("עץ v8", m.v8_reachable === true ? "נקרא" : "לא נגיש", m.v8_reachable !== true);
   }
   function cxRegisters() {
     var sigs = cxLiveSignals();
@@ -3305,15 +3390,15 @@
     var mixbar = '<div class="cx-mix">' + ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].map(function (k) {
       return '<i style="width:' + (links.length ? (100 * vc[k] / links.length).toFixed(1) : 0) + "%;background:" + CXP.verd[k] + '"></i>';
     }).join("") + "</div>";
-    function stat(s) { return String(s || "?").toLowerCase().replace(/\s*\(.*\)$/, ""); }
-    var summary = cxReg("funnel", sigs.length + " · " + (D.chains || []).length + " · " + links.length + " · " + scens + " · " + (D.stocks || []).length) +
-      '<div class="cx-cap">SIGNALS · CHAINS · LINKS · SCENARIOS · VERDICTS</div>' +
-      cxReg("heat scored", scoredN + " / " + links.length) + mixbar +
-      cxReg("money corners", money + " · choke " + choke) +
-      cxReg("feed", feedHeld + " held · " + (fs.sources_ok != null ? fs.sources_ok + "/" + (fs.sources_ok + (fs.sources_failed || []).length) : "—") +
+    function stat(s) { return he(String(s || "?").replace(/\s*\(.*\)$/, "")); }
+    var summary = cxReg("משפך", sigs.length + " · " + (D.chains || []).length + " · " + links.length + " · " + scens + " · " + (D.stocks || []).length) +
+      '<div class="cx-cap">אותות · שרשראות · חוליות · תרחישים · הכרעות</div>' +
+      cxReg("חום נוקד", scoredN + " / " + links.length) + mixbar +
+      cxReg("פינות כסף", money + " · נקודות חנק " + choke) +
+      cxReg("פיד", feedHeld + " נשמרו · " + (fs.sources_ok != null ? fs.sources_ok + "/" + (fs.sources_ok + (fs.sources_failed || []).length) : "—") +
         (cxAgeDays((act.feeds || {}).last_run) != null ? " · " + cxAgeDays((act.feeds || {}).last_run) + "d" : "")) +
-      cxReg("requests", pendingCount() + "P / " + failedCount() + "F" + ((D.requests || {}).settled ? " / " + D.requests.settled + " done" : ""), !pendingCount() && !failedCount()) +
-      cxReg("radar / digest", stat(rs.radar) + " · " + stat(rs.digest));
+      cxReg("בקשות", pendingCount() + " ממתינות / " + failedCount() + " נכשלו" + ((D.requests || {}).settled ? " / " + D.requests.settled + " הושלמו" : ""), !pendingCount() && !failedCount()) +
+      cxReg("רדאר / סיכום", stat(rs.radar) + " · " + stat(rs.digest));
     var mcal = (D.map || {}).calibration, mapReg = "";
     if (mcal) {
       var mly = mcal.link_yield || {}, mper = mcal.per_chain || {};
@@ -3324,49 +3409,49 @@
         mThin += (st.thin_choke_points || []).length;
         mUncited += (st.links_without_evidence || []).length;
       });
-      mapReg = '<div class="cx-grp">MAP · ' + (mly.yielded_a_name || 0) + "/" + (mly.links_total || 0) + " YIELDED</div>" +
-        cxReg("dead links", (mly.links_total || 0) - (mly.yielded_a_name || 0)) +
+      mapReg = '<div class="cx-grp">מפה · ' + (mly.yielded_a_name || 0) + "/" + (mly.links_total || 0) + " הניבו שם</div>" +
+        cxReg("חוליות בלי שם", (mly.links_total || 0) - (mly.yielded_a_name || 0)) +
         cxBar(mly.links_total ? (mly.yielded_a_name || 0) / mly.links_total : 0, CXP.verd.UNDISCOVERED) +
-        cxReg("structural findings", mFind, !mFind) + cxReg("thin choke points", mThin, !mThin) + cxReg("uncited links", mUncited, !mUncited) +
-        cxReg("archetypes", ((D.map || {}).archetypes || []).filter(function (a) { return a.status === "HARDENED"; }).length);
+        cxReg("ממצאים מבניים", mFind, !mFind) + cxReg("נקודות חנק דקות", mThin, !mThin) + cxReg("חוליות בלי מקור", mUncited, !mUncited) +
+        cxReg("ארכיטיפים", ((D.map || {}).archetypes || []).filter(function (a) { return a.status === "HARDENED"; }).length);
     }
     var fam = {};
     items.forEach(function (it) { fam[it.f] = (fam[it.f] || 0) + 1; });
     var famTot = (D.feeds || {}).families || fam;
-    var more = '<div class="cx-grp">FUNNEL</div>' +
-      cxReg("screens", (D.screens || []).length) + cxReg("names", nNames) +
-      cxReg("shadow", ((((D.shadow || {}).book) || {}).rows || []).length) +
-      cxReg("ambient", cands) + cxReg("known future", evts) +
-      '<div class="cx-grp">HEAT</div>' +
-      [["undiscovered", vc.UNDISCOVERED, CXP.verd.UNDISCOVERED], ["emerging", vc.EMERGING, CXP.verd.EMERGING], ["crowded", vc.CROWDED, CXP.verd.CROWDED],
-       ["over-crowded", vc.OVER_CROWDED, CXP.verd.OVER_CROWDED], ["quiet", vc.QUIET, CXP.verd.QUIET]].map(function (r) {
-        return cxReg(r[0], r[1]) + cxBar(links.length ? r[1] / links.length : 0, r[2]);
-      }).join("") + cxReg("unscored", unscored, !unscored) +
+    var more = '<div class="cx-grp">משפך</div>' +
+      cxReg("סריקות", (D.screens || []).length) + cxReg("שמות", nNames) +
+      cxReg("ספר הצל", ((((D.shadow || {}).book) || {}).rows || []).length) +
+      cxReg("ברקע", cands) + cxReg("עתיד ידוע", evts) +
+      '<div class="cx-grp">חום</div>' +
+      [["UNDISCOVERED", vc.UNDISCOVERED, CXP.verd.UNDISCOVERED], ["EMERGING", vc.EMERGING, CXP.verd.EMERGING], ["CROWDED", vc.CROWDED, CXP.verd.CROWDED],
+       ["OVER_CROWDED", vc.OVER_CROWDED, CXP.verd.OVER_CROWDED], ["QUIET", vc.QUIET, CXP.verd.QUIET]].map(function (r) {
+        return cxReg(he(r[0]), r[1]) + cxBar(links.length ? r[1] / links.length : 0, r[2]);
+      }).join("") + cxReg("לא נוקד", unscored, !unscored) +
       mapReg +
-      '<div class="cx-grp">FEED · ' + feedHeld + " HELD</div>" +
+      '<div class="cx-grp">פיד · ' + feedHeld + " נשמרו</div>" +
       Object.keys(famTot).sort(function (a, b) { return famTot[b] - famTot[a]; }).map(function (f) {
-        return cxReg(f.toLowerCase(), famTot[f]) + cxBar(feedHeld ? famTot[f] / feedHeld : 0, CXP.fam[f] || CXP.ink3);
+        return cxReg(he(f), famTot[f]) + cxBar(feedHeld ? famTot[f] / feedHeld : 0, CXP.fam[f] || CXP.ink3);
       }).join("") +
-      '<div class="cx-grp">SYSTEM</div>' +
-      cxReg("fetch", cxAgeDays((act.fetch || {}).last_run) != null ? cxAgeDays((act.fetch || {}).last_run) + "d" : "—") +
-      cxReg("trips", ((D.indicators || {}).trips || []).length, !((D.indicators || {}).trips || []).length) +
-      cxReg("pcs armed", pcsOk + "/" + nNames, !pcsOk) +
-      cxReg("queued", (QUEUE.queue || []).length, !(QUEUE.queue || []).length) +
-      cxReg("digest wk", ((D.digests || [])[0] || {}).week || "—") +
+      '<div class="cx-grp">מערכת</div>' +
+      cxReg("משיכה", cxAgeDays((act.fetch || {}).last_run) != null ? cxAgeDays((act.fetch || {}).last_run) + "d" : "—") +
+      cxReg("הפעלות", ((D.indicators || {}).trips || []).length, !((D.indicators || {}).trips || []).length) +
+      cxReg("PCS דרוך", pcsOk + "/" + nNames, !pcsOk) +
+      cxReg("בתור", (QUEUE.queue || []).length, !(QUEUE.queue || []).length) +
+      cxReg("שבוע הסיכום", ((D.digests || [])[0] || {}).week || "—") +
       machineReg() +
-      cxReg("stalest", stalest ? stalest + "d" : "—") +
-      cxReg("since visit", deltaItems().items.length);
-    return '<div class="cx-machine"><button class="cx-mhead" id="cxMachineBtn" aria-expanded="false"><span>MACHINE</span><span class="dim">registers · more ▾</span></button>' +
+      cxReg("הישן ביותר", stalest ? stalest + "d" : "—") +
+      cxReg("מאז הביקור", deltaItems().items.length);
+    return '<div class="cx-machine"><button class="cx-mhead" id="cxMachineBtn" aria-expanded="false"><span>המכונה</span><span class="dim">מדדים · עוד ▾</span></button>' +
       '<div class="cx-msum">' + summary + '</div><div class="cx-mmore" id="cxMachineMore" hidden>' + more + "</div></div>";
   }
   function cxPanel() {
     return '<div class="cx-panel" id="cxPanel">' +
-      '<div class="cx-head"><span class="cx-title">CORTEX</span>' +
-      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="what am I looking at?">' + CX_ICON.eye + "<span>How to read this</span></button></div>" +
-      '<div class="cx-oppshead"><div class="cx-serif">Opportunities</div><div class="cx-sub">' + cxLiveSignals().length + " SIGNALS · RANKED BY HOW UNMAPPED · CLICK TO FLY</div></div>" +
+      '<div class="cx-head"><span class="cx-title">קורטקס</span>' +
+      '<button class="cxinfo-btn" id="cxInfoBtn" aria-expanded="false" aria-controls="cxInfo" title="על מה אני מסתכל?">' + CX_ICON.eye + "<span>איך לקרוא את זה</span></button></div>" +
+      '<div class="cx-oppshead"><div class="cx-serif">הזדמנויות</div><div class="cx-sub">' + cxLiveSignals().length + " אותות · מדורגים לפי כמה לא ממופים · לחץ כדי לעוף</div></div>" +
       '<div class="cx-opps" id="cxOpps">' + cxOppRows() + "</div>" +
       cxRegisters() +
-      '<div class="cx-note">Analytical outputs from public data · not investment advice</div>' +
+      '<div class="cx-note">תוצרי ניתוח מנתונים ציבוריים · לא ייעוץ השקעות</div>' +
       "</div>";
   }
   /* The dock (Ron's pick, 2026-09-08: "E + D"). The selected signal's numbers live here,
@@ -3391,54 +3476,54 @@
     var rows = links.map(function (l) {
       var ht = l.heat || {}, v = ht.verdict, tk = (l.example_tickers || []).slice(0, 6);
       var mark = ht.money_corner ? '<span class="mk gold">★</span>' : '<span class="mk sq" style="background:' + (v ? CXP.verd[v] : CXP.none) + '"></span>';
-      var choke = (l.bottleneck || {}).criticality === "CHOKE_POINT" ? '<span class="choke" title="choke point"></span>' : "";
+      var choke = (l.bottleneck || {}).criticality === "CHOKE_POINT" ? '<span class="choke" title="נקודת חנק"></span>' : "";
       return '<div class="lrow' + (v === "UNDISCOVERED" || v === "EMERGING" ? " hot" : "") + '">' + mark + '<span class="ln">' + esc(l.name) + choke + "</span>" +
-        '<span class="lt mono">' + (tk.length ? esc(tk.join("  ")) : '<span class="none">no listed issuer</span>') + "</span></div>";
+        '<span class="lt mono">' + (tk.length ? esc(tk.join("  ")) : '<span class="none">אין חברה נסחרת</span>') + "</span></div>";
     }).join("");
     var foot = [];
-    scens.forEach(function (sc) { foot.push('<span class="mono">' + esc(sc.id) + " " + (sc.probability_pct == null ? "unscored" : sc.probability_pct + "%") + "</span>"); });
+    scens.forEach(function (sc) { foot.push('<span class="mono">' + esc(sc.id) + " " + (sc.probability_pct == null ? "לא נוקד" : sc.probability_pct + "%") + "</span>"); });
     dives.forEach(function (st) {
-      foot.push('<a class="mono verd" href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '" style="color:' + (CXP.dive[st.verdict] || CXP.ink2) + '">' + esc(st.ticker) + " " + esc((st.verdict || "").replace("_", " ")) + (st.status === "DRAFT" ? " draft" : "") +
+      foot.push('<a class="mono verd" href="#/stock/' + esc(st.ticker) + "/" + esc(st.chain_id) + '" style="color:' + (CXP.dive[st.verdict] || CXP.ink2) + '">' + esc(st.ticker) + " " + esc(he(st.verdict)) + (st.status === "DRAFT" ? " טיוטה" : "") +
         // a TOO LATE verdict's shadow row is part of the verdict: the page shows the pairing
-        (st.shadow_ref ? ' <span class="dim">· shadow ' + esc(st.shadow_ref) + "</span>" : "") + "</a>");
+        (st.shadow_ref ? ' <span class="dim">· צל ' + esc(st.shadow_ref) + "</span>" : "") + "</a>");
     });
-    return '<div class="cx-inspector" id="cxInspector" role="complementary" aria-label="selected signal">' +
-      '<div class="ihead"><span class="eyebrow"><i class="pip"></i>SIGNAL · ' + esc(occ.kind || "undated") + (fam ? " · " + esc(fam) : "") + "</span>" +
+    return '<div class="cx-inspector" id="cxInspector" role="complementary" aria-label="אות נבחר">' +
+      '<div class="ihead"><span class="eyebrow"><i class="pip"></i>אות · ' + esc(he(occ.kind || "UNDATED")) + (fam ? " · " + esc(he(fam)) : "") + "</span>" +
       '<span class="id mono">' + esc(s.id) + "</span></div>" +
       '<div class="ititle">' + esc(s.short_title || cxShort(s.title)) + "</div>" +
-      '<div class="isub mono">' + esc(cxTier(un)) + " · " + (occ.anchor_date ? "anchored " + esc(occ.anchor_date) : "undated") + (occ.label ? " · " + esc(cxTrim(occ.label, 40)) : "") + "</div>" +
+      '<div class="isub mono">' + esc(he(cxTier(un))) + " · " + (occ.anchor_date ? "מתוארך " + esc(occ.anchor_date) : "ללא תאריך") + (occ.label ? " · " + esc(cxTrim(occ.label, 40)) : "") + "</div>" +
       '<div class="ifigs">' +
-      fig("UNMAPPED", num(un, "?"), "accent") +
-      (ap ? fig(esc((ap.impact_band || "IMPACT").toUpperCase()), ap.impact_score == null ? "?" : Math.round(ap.impact_score), "gold") : fig("MONEY", '<span class="none">not appraised</span>')) +
-      (c ? fig("LINKS", links.length) : fig("CHAIN", '<span class="none">none yet</span>')) +
+      fig("לא ממופה", num(un, "?"), "accent") +
+      (ap ? fig(esc(he(ap.impact_band || "IMPACT")), ap.impact_score == null ? "?" : Math.round(ap.impact_score), "gold") : fig("כסף", '<span class="none">לא הוערך</span>')) +
+      (c ? fig("חוליות", links.length) : fig("שרשרת", '<span class="none">עדיין אין</span>')) +
       "</div>" +
-      (c ? '<div class="ilinks"><div class="k">LINKS BY HEAT · ' + esc(c.heat_as_of ? "heat " + c.heat_as_of : "unscored") + "</div>" + rows + "</div>"
-         : '<div class="ilinks"><div class="k">CHAIN</div><div class="none">unchained · run chain maps it</div></div>') +
+      (c ? '<div class="ilinks"><div class="k">חוליות לפי חום · ' + esc(c.heat_as_of ? "חום " + c.heat_as_of : "לא נוקד") + "</div>" + rows + "</div>"
+         : '<div class="ilinks"><div class="k">שרשרת</div><div class="none">בלי שרשרת · run chain · ימפה אותה</div></div>') +
       (foot.length ? '<div class="ifoot">' + foot.join('<span class="sep">·</span>') + "</div>" : "") +
-      '<div class="ifoot dim">' + (s.evidence || []).length + " cited · horizon " + esc((s.horizon_years || []).join("-") || "?") + "y · review by " + esc(s.review_by || "—") + "</div>" +
-      '<div class="ibtns"><button class="cx-btn primary" data-cxopen="' + esc(s.id) + '">OPEN CARD</button>' +
-      (c ? '<a class="cx-btn" href="#/chain/' + esc(c.id) + '">OPEN CHAIN</a>' : '<button class="cx-btn" data-cxopen="' + esc(s.id) + '">RUN CHAIN</button>') +
-      '<button class="cx-btn" data-cxfly="sig:' + esc(s.id) + '">FLY TO</button><button class="cx-btn x" id="cxInspClose" title="clear selection (Esc)">×</button></div>' +
+      '<div class="ifoot dim">' + (s.evidence || []).length + " מקורות · אופק " + esc((s.horizon_years || []).join("-") || "?") + " שנים · לבדיקה עד " + esc(s.review_by || "—") + "</div>" +
+      '<div class="ibtns"><button class="cx-btn primary" data-cxopen="' + esc(s.id) + '">פתח כרטיס</button>' +
+      (c ? '<a class="cx-btn" href="#/chain/' + esc(c.id) + '">פתח שרשרת</a>' : '<button class="cx-btn" data-cxopen="' + esc(s.id) + '">בנה שרשרת</button>') +
+      '<button class="cx-btn" data-cxfly="sig:' + esc(s.id) + '">עוף לשם</button><button class="cx-btn x" id="cxInspClose" title="נקה בחירה (Esc)">×</button></div>' +
       "</div>";
   }
   function cxFoot() {
     return '<div class="cx-foot" aria-live="polite">' +
       '<div class="l"><div class="read" id="cxRead"></div><div class="legend">' +
       ["UNDISCOVERED", "EMERGING", "CROWDED", "OVER_CROWDED", "QUIET"].map(function (k) {
-        return '<span><i style="background:' + CXP.verd[k] + '"></i>' + k.replace("_", " ") + "</span>";
+        return '<span><i style="background:' + CXP.verd[k] + '"></i>' + he(k) + "</span>";
       }).join("") +
-      '<span class="sep">|</span><span><b style="color:' + CXP.gold + '">★</b> money corner</span><span><b>◎</b> choke point</span><span><b>◇</b> scenario</span><span><b style="color:' + CXP.verd.EMERGING + '">▢</b> verdict</span>' +
+      '<span class="sep">|</span><span><b style="color:' + CXP.gold + '">★</b> פינת הכסף</span><span><b>◎</b> נקודת חנק</span><span><b>◇</b> תרחיש</span><span><b style="color:' + CXP.verd.EMERGING + '">▢</b> הכרעה</span>' +
       "</div></div>" +
-      '<div class="r"><div><span id="cxCounts"></span> · <span id="cxZoom"></span> · <button class="cx-rbtn" data-crot="-1" title="rotate left (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="rotate right (E)">⟳</button></div>' +
-      "<div>BUILT " + esc(D.built_at || TODAY) + "</div><div>ANALYTICAL OUTPUTS FROM PUBLIC DATA · NOT INVESTMENT ADVICE</div></div></div>";
+      '<div class="r"><div><span id="cxCounts"></span> · <span id="cxZoom"></span> · <button class="cx-rbtn" data-crot="-1" title="סובב שמאלה (Q)">⟲</button><button class="cx-rbtn" data-crot="1" title="סובב ימינה (E)">⟳</button></div>' +
+      "<div>נבנה " + esc(D.built_at || TODAY) + "</div><div>תוצרי ניתוח מנתונים ציבוריים · לא ייעוץ השקעות</div></div></div>";
   }
   function cortexView() {
     var hid = cxUIHidden();
     return topbar("cortex") +
       '<div class="cxfull' + (hid ? " ui-hidden" : "") + '" id="cxFull">' +
-      '<div class="cx-stage"><canvas id="cortexCanvas" tabindex="0" role="img" aria-label="Cortex field"></canvas></div>' +
+      '<div class="cx-stage"><canvas id="cortexCanvas" tabindex="0" role="img" aria-label="שדה הקורטקס"></canvas></div>' +
       cxPanel() +
-      '<div class="cxinfo" id="cxInfo" hidden><p>The machine as a wheel. Angle is the occurrence family, with the real headline and signal counts at the rim. Distance from the centre is how unmapped a signal still is: the eye of the field is the biggest gap. Size is the money Tally found reachable. Each signal wears its chain as a ring of links coloured by heat: a gold star is the money corner, a white ring a choke point, an amber square a verdict, a dashed orbit a signal with no chain yet. The belt at the rim is the raw feed, one dot per headline. Drag to pan, scroll to fly closer (names, then companies appear as you approach), Q and E turn the wheel. Hover any mark for its story, click a hub to select it, click anything else to open it. RADIAL ranks the selected signal\'s links by heat; TIMELINE makes distance time from today, past left, future right. H hides the interface.</p></div>' +
+      '<div class="cxinfo" id="cxInfo" hidden><p>המכונה מוצגת כגלגל. הזווית היא משפחת ההתרחשות, ולידה מוצגים הכותרת האמיתית ומספר האותות בשפה החיצונית. המרחק מהמרכז מראה כמה האות עדיין לא ממופה: עין השדה היא הפער הכי גדול. הגודל הוא כמה כסף Tally מצא בהישג יד. כל אות לובש את השרשרת שלו כטבעת של חוליות צבועות לפי חום: כוכב זהב הוא פינת הכסף, טבעת לבנה היא נקודת חנק, ריבוע ענבר הוא הכרעה, ומסלול מקווקו הוא אות בלי שרשרת עדיין. הרצועה בשפה החיצונית היא הפיד הגולמי, נקודה אחת לכל כותרת. גררו כדי להזיז את התצוגה, גללו כדי להתקרב (שמות, ואז חברות, מופיעים ככל שמתקרבים), Q ו-E מסובבים את הגלגל. העבירו עכבר מעל כל סימן כדי לראות את הסיפור שלו, לחצו על מוקד כדי לבחור אותו, ולחצו על כל דבר אחר כדי לפתוח אותו. רדיאלי מדרג את החוליות של האות הנבחר לפי חום. ציר זמן הופך את המרחק לזמן מהיום, עבר משמאל ועתיד מימין. H מסתיר את הממשק.</p></div>' +
       '<div class="cx-top">' + cxPhaseCtl() + cxTopRight() + "</div>" +
       '<div id="cxInspHost">' + (CX_MODE.sig ? cxInspectorHTML(CX_MODE.sig) : "") + "</div>" +
       cxFoot() +
@@ -3463,7 +3548,7 @@
         e.preventDefault();
         var cmd = b.getAttribute("data-copyrun");
         try { navigator.clipboard.writeText(cmd); } catch (err) { fallbackCopy(cmd); }
-        b.textContent = "Copied ✓";
+        b.textContent = "הועתק ✓";
       });
     });
   }
@@ -3475,16 +3560,16 @@
     if (n.kind === "link") { var c = byId(D.chains, n.chainId); return c ? linkModal(c, o) : ""; }
     if (n.kind === "dust") return cxDustDrawer(o);
     if (n.kind === "scen") {
-      return cxDrawerShell(o.id + " — " + o.title,
-        chip(o.status) + chip(o.probability_pct + "%", "accent") + (o.clock ? chip(o.clock) : ""),
+      return cxDrawerShell(o.id + " · " + o.title,
+        chip(he(o.status)) + chip(o.probability_pct + "%", "accent") + (o.clock ? chip(he(o.clock)) : ""),
         "<p class='small'>" + esc(o.narrative) + "</p>" +
-        "<h3>Leading indicators</h3><ul class='bullets'>" + (o.leading_indicators || []).map(function (x) {
-          return "<li>" + esc(indText(x)) + (x.armed ? " " + chip("armed", "accent") : "") + "</li>";
+        "<h3>סימנים מקדימים</h3><ul class='bullets'>" + (o.leading_indicators || []).map(function (x) {
+          return "<li>" + esc(indText(x)) + (x.armed ? " " + chip("דרוך", "accent") : "") + "</li>";
         }).join("") + "</ul>" +
-        "<div class='small'><b>Invalidation:</b> " + ((o.invalidation_signs || []).length ? (o.invalidation_signs || []).map(esc).join(" · ") : "<span class='muted'>none recorded</span>") + "</div>" +
+        "<div class='small'><b>מה מפריך:</b> " + ((o.invalidation_signs || []).length ? (o.invalidation_signs || []).map(esc).join(" · ") : "<span class='muted'>לא נרשם</span>") + "</div>" +
         '<div style="margin-top:14px">' + (o.screen_ref
-          ? '<a class="chip accent" href="#/screen/' + esc(n.chainId) + "/" + esc(o.id) + '">Open screen →</a>'
-          : runButton("run screen " + n.chainId + " " + o.id, "screens stocks for this scenario")) + "</div>");
+          ? '<a class="chip accent" href="#/screen/' + esc(n.chainId) + "/" + esc(o.id) + '">פתח סריקה →</a>'
+          : runButton("run screen " + n.chainId + " " + o.id, "סורק מניות עבור התרחיש הזה")) + "</div>");
     }
     if (n.kind === "dive") { location.hash = "#/stock/" + o.ticker + "/" + o.chain_id; return ""; }
     if (n.kind === "co") {
@@ -3501,17 +3586,17 @@
       });
       var dv = null;
       (D.stocks || []).forEach(function (st) { if (st.ticker === t) dv = st; });
-      return cxDrawerShell(t + (srow && srow.r.name ? " — " + srow.r.name : ""),
-        (srow ? tierChip(srow.r.tier) + chip(srow.b.replace(/_/g, " ")) : chip("named in a chain")) +
-        (mk ? chip("market data", "accent") : chip("no market data")) + (dv ? chip(dv.verdict.replace("_", " "), dv.verdict) : ""),
+      return cxDrawerShell(t + (srow && srow.r.name ? " · " + srow.r.name : ""),
+        (srow ? tierChip(srow.r.tier) + chip(he(srow.b)) : chip("מופיעה בשרשרת")) +
+        (mk ? chip("נתוני שוק", "accent") : chip("אין נתוני שוק")) + (dv ? chip(he(dv.verdict), dv.verdict) : ""),
         (srow && srow.r.thesis_1line ? "<p class='small'>" + esc(srow.r.thesis_1line) + "</p>" : "") +
-        "<h3>Named in</h3><div class='small'>" + (where.map(esc).join("<br>") || "—") + "</div>" +
-        (mk ? "<h3>Market</h3><div class='small num'>" + esc(mk.price_status) + (mk.series ? " · series as of " + esc(mk.series.as_of) : "") + "</div>"
-            : "<div class='muted small' style='margin-top:10px'>No market file — queue a fetch to price it.</div>") +
+        "<h3>מופיעה ב</h3><div class='small'>" + (where.map(esc).join("<br>") || "—") + "</div>" +
+        (mk ? "<h3>שוק</h3><div class='small num'>" + esc(mk.price_status) + (mk.series ? " · סדרה נכון ל " + esc(mk.series.as_of) : "") + "</div>"
+            : "<div class='muted small' style='margin-top:10px'>אין קובץ שוק. הכנס בקשה לתור כדי לקבל מחיר.</div>") +
         '<div style="margin-top:14px">' + (dv
-          ? '<a class="chip accent" href="#/stock/' + esc(t) + "/" + esc(dv.chain_id) + '">Open dive →</a>'
-          : srow ? runButton("run deepdive " + t + " " + srow.sc.chain_id, "full dive: clock, verdict, entry basis")
-                 : runButton("request data " + t, "queues prices + fundamentals")) + "</div>");
+          ? '<a class="chip accent" href="#/stock/' + esc(t) + "/" + esc(dv.chain_id) + '">פתח צלילה →</a>'
+          : srow ? runButton("run deepdive " + t + " " + srow.sc.chain_id, "צלילה מלאה: שעון, הכרעה, בסיס כניסה")
+                 : runButton("request data " + t, "מכניס לתור מחירים ונתוני יסוד")) + "</div>");
     }
     return "";
   }
@@ -3522,15 +3607,15 @@
   }
   function cxDustDrawer(it) {
     return cxDrawerShell(it.t,
-      chip(it.f || "?") + chip((it.d || "").slice(0, 10), "neutral") + chip("raw feed"),
-      "<div class='muted small'>[" + esc(it.s || "?") + "] · untriaged feed item — the weekday radar sweep decides whether it becomes a candidate (method §0.1)</div>" +
-      "<div style='margin-top:16px'>" + runButton("run radar", "triage the feed into candidates and signals") + "</div>");
+      chip(it.f ? he(it.f) : "?") + chip((it.d || "").slice(0, 10), "neutral") + chip("פיד גולמי"),
+      "<div class='muted small'>[" + esc(it.s || "?") + "] · פריט פיד לא מסונן. סריקת הרדאר בימי החול מחליטה אם הוא יהפוך למועמד (method §0.1)</div>" +
+      "<div style='margin-top:16px'>" + runButton("run radar", "ממיין את הפיד למועמדים ולאותות") + "</div>");
   }
 
   /* ---- hover card: the story behind a mark, from the record itself ---- */
   function cxCardRow(k, v) { return "<div class='r'><span class='k'>" + esc(k) + "</span><span>" + esc(v) + "</span></div>"; }
   function cxCardBar(lab, v, col) {
-    return "<div class='bar'><span class='k'>" + esc(lab) + "</span><span class='t'>" + (v == null ? "" : "<i style='width:" + v + "%;background:" + col + "'></i>") + "</span><span class='n'>" + num(v, "unscored") + "</span></div>";
+    return "<div class='bar'><span class='k'>" + esc(lab) + "</span><span class='t'>" + (v == null ? "" : "<i style='width:" + v + "%;background:" + col + "'></i>") + "</span><span class='n'>" + num(v, "לא נוקד") + "</span></div>";
   }
   function cxHoverCard(n) {
     var o = n.ref || {}, h = "";
@@ -3539,51 +3624,51 @@
     }
     if (n.kind === "sig") {
       var occ = o.occurrence || {}, ap = impactFor(o.id);
-      h = head("signal · " + (occ.kind || "undated") + (n.fam && n.fam !== "UNFILED" ? " · " + n.fam : ""), o.title) +
+      h = head("אות · " + he(occ.kind || "UNDATED") + (n.fam && n.fam !== "UNFILED" ? " · " + he(n.fam) : ""), o.title) +
         "<div class='bd'>" + esc(cxTrim(o.thesis, 200)) + "</div>" +
-        cxCardRow("occurrence", (occ.label ? cxTrim(occ.label, 34) + " · " : "") + (occ.anchor_date || "?")) +
-        cxCardRow("unmapped", num((o.unmappedness || {}).score, "?") + " / 100") +
-        cxCardRow("impact", ap ? (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) + " · " + (ap.impact_band || "") : "not appraised") +
-        cxCardRow("chain", n.chain ? (n.chain.links || []).length + " links · " + (n.chain.scenarios || []).length + " scenarios" : "unchained") +
-        cxCardRow("review by", o.review_by || "—");
+        cxCardRow("התרחשות", (occ.label ? cxTrim(occ.label, 34) + " · " : "") + (occ.anchor_date || "?")) +
+        cxCardRow("לא ממופה", num((o.unmappedness || {}).score, "?") + " / 100") +
+        cxCardRow("השפעה", ap ? (ap.impact_score == null ? "?" : Math.round(ap.impact_score)) + " · " + he(ap.impact_band || "") : "לא הוערך") +
+        cxCardRow("שרשרת", n.chain ? (n.chain.links || []).length + " חוליות · " + (n.chain.scenarios || []).length + " תרחישים" : "בלי שרשרת") +
+        cxCardRow("לבדיקה עד", o.review_by || "—");
     } else if (n.kind === "link") {
       var ht = o.heat || {}, c = byId(D.chains, n.chainId);
-      h = head("link " + o.position + (c ? " of " + (c.links || []).length : "") + (ht.money_corner ? " · ★ money corner" : "") + (n.choke ? " · choke point" : ""), o.name) +
+      h = head("חוליה " + o.position + (c ? " מתוך " + (c.links || []).length : "") + (ht.money_corner ? " · ★ פינת הכסף" : "") + (n.choke ? " · נקודת חנק" : ""), o.name) +
         "<div class='bd'>" + esc(cxTrim(o.role, 170)) + "</div>" +
-        "<div class='vd' style='color:" + n.color + "'>" + esc(ht.verdict ? ht.verdict.replace("_", " ") : "UNSCORED") + "</div>" +
-        cxCardBar("IMPACT", cxScore(o, "impact"), CXP.accent) + cxCardBar("CROWDEDNESS", cxScore(o, "crowdedness"), "#E97F4E") + cxCardBar("CAPTURE", cxScore(o, "capture"), "#34C77E") +
-        ((o.example_tickers || []).length ? cxCardRow("names", o.example_tickers.slice(0, 5).join(" · ")) : "");
+        "<div class='vd' style='color:" + n.color + "'>" + esc(ht.verdict ? he(ht.verdict) : "לא נוקד") + "</div>" +
+        cxCardBar("השפעה", cxScore(o, "impact"), CXP.accent) + cxCardBar("צפיפות", cxScore(o, "crowdedness"), "#E97F4E") + cxCardBar("לכידה", cxScore(o, "capture"), "#34C77E") +
+        ((o.example_tickers || []).length ? cxCardRow("שמות", o.example_tickers.slice(0, 5).join(" · ")) : "");
     } else if (n.kind === "scen") {
-      h = head("scenario " + o.id, o.title) +
+      h = head("תרחיש " + o.id, o.title) +
         "<div class='bd'>" + esc(cxTrim(o.narrative, 180)) + "</div>" +
-        cxCardRow("probability", num(o.probability_pct, "?") + "% · " + (o.status || "")) +
-        cxCardRow("indicators", (o.leading_indicators || []).length + " (" + (o.leading_indicators || []).filter(function (x) { return x.armed; }).length + " armed)");
+        cxCardRow("סבירות", num(o.probability_pct, "?") + "% · " + (o.status ? he(o.status) : "")) +
+        cxCardRow("סימנים מקדימים", (o.leading_indicators || []).length + " (" + (o.leading_indicators || []).filter(function (x) { return x.armed; }).length + " דרוכים)");
     } else if (n.kind === "co") {
-      h = head("company", n.id) + cxCardRow("named at", n.link ? n.link.ref.name : "—") +
-        cxCardRow("market data", n.hollow ? "none yet" : "fetched") +
-        (n.chains && n.chains.length ? cxCardRow("chain", n.chains.join(", ")) : "");
+      h = head("חברה", n.id) + cxCardRow("מופיעה ב", n.link ? n.link.ref.name : "—") +
+        cxCardRow("נתוני שוק", n.hollow ? "עדיין אין" : "נמשכו") +
+        (n.chains && n.chains.length ? cxCardRow("שרשרת", n.chains.join(", ")) : "");
     } else if (n.kind === "dive") {
-      h = head("deep dive", o.ticker) +
-        cxCardRow("verdict", (o.verdict || "") + " · " + (o.clock || "") + (o.status === "DRAFT" ? " · draft" : "")) +
-        (o.entry_zone ? cxCardRow("entry zone", o.entry_zone.low + " to " + o.entry_zone.high) : "") +
-        cxCardRow("review by", o.review_by || "—");
+      h = head("צלילה", o.ticker) +
+        cxCardRow("הכרעה", (o.verdict ? he(o.verdict) : "") + " · " + (o.clock ? he(o.clock) : "") + (o.status === "DRAFT" ? " · טיוטה" : "")) +
+        (o.entry_zone ? cxCardRow("טווח כניסה", o.entry_zone.low + " עד " + o.entry_zone.high) : "") +
+        cxCardRow("לבדיקה עד", o.review_by || "—");
     } else if (n.kind === "cand") {
       var ca = impactFor(o.id);
-      h = head("ambient candidate", o.title) +
+      h = head("מועמד ברקע", o.title) +
         "<div class='bd'>" + esc(cxTrim(o.why, 200)) + "</div>" +
-        cxCardRow("family", (o.family || "") + " · " + (o.date || "")) +
-        (ca ? cxCardRow("impact", (ca.impact_band || "").toLowerCase() + (ca.impact_score != null ? " " + ca.impact_score : "") + " · " + impactTitle(ca)) : "") +
-        cxCardRow("source", cxTrim(o.source_name, 44));
+        cxCardRow("משפחה", (o.family ? he(o.family) : "") + " · " + (o.date || "")) +
+        (ca ? cxCardRow("השפעה", he(ca.impact_band || "") + (ca.impact_score != null ? " " + ca.impact_score : "") + " · " + impactTitle(ca)) : "") +
+        cxCardRow("מקור", cxTrim(o.source_name, 44));
     } else if (n.kind === "evt") {
-      h = head("known future event", o.title) +
+      h = head("אירוע עתידי ידוע", o.title) +
         "<div class='bd'>" + esc(cxTrim(o.why_it_matters, 200)) + "</div>" +
-        cxCardRow("when", o.date + (o.window ? " · " + o.window : "")) +
-        cxCardRow("source", cxTrim(o.source_name, 44));
+        cxCardRow("מתי", o.date + (o.window ? " · " + o.window : "")) +
+        cxCardRow("מקור", cxTrim(o.source_name, 44));
     } else if (n.kind === "dust") {
-      h = head("raw feed", o.t) + cxCardRow("source", (o.s || "") + " · " + ((o.d || "").slice(0, 10))) + cxCardRow("family", o.f || "?") +
-        "<div class='bd dim'>untriaged — the radar sweep judges promotion</div>";
+      h = head("פיד גולמי", o.t) + cxCardRow("מקור", (o.s || "") + " · " + ((o.d || "").slice(0, 10))) + cxCardRow("משפחה", o.f ? he(o.f) : "?") +
+        "<div class='bd dim'>טרם סונן. סריקת הרדאר מחליטה על קידום</div>";
     }
-    return h + "<div class='ft'>" + (n.kind === "sig" ? "click to select · double-click to open" : "click to open") + "</div>";
+    return h + "<div class='ft'>" + (n.kind === "sig" ? "לחץ לבחירה · לחיצה כפולה לפתיחה" : "לחץ לפתיחה") + "</div>";
   }
   function cxMatch(n) {
     var kk = n.kind;
@@ -3620,8 +3705,8 @@
     if (!cam) { cam = fitCam(440); CX_CACHE.k0 = cam.k; }
     var nObj = g.nodes.filter(function (n) { return n.kind !== "dust"; }).length;
     var nDust = g.nodes.length - nObj;
-    if (cntEl) cntEl.textContent = nObj + " OBJECTS · " + nDust + " HEADLINES";
-    canvas.setAttribute("aria-label", "Cortex wheel: " + nObj + " research objects by family, unmappedness and reachable money, with " + nDust + " feed headlines at the rim");
+    if (cntEl) cntEl.textContent = nObj + " עצמים · " + nDust + " כותרות";
+    canvas.setAttribute("aria-label", "גלגל הקורטקס: " + nObj + " עצמי מחקר לפי משפחה, כמה הם לא ממופים והכסף שבהישג יד, וגם " + nDust + " כותרות פיד בשפה החיצונית");
     // the serif for names arrives from Google Fonts; the loop simply starts using it
     try {
       if (document.fonts && document.fonts.load) {
@@ -3661,11 +3746,20 @@
       if (tb && !hidden) top = tb.getBoundingClientRect().height;
       var phone = w < 640;
       if (!hidden) {
+        /* The page reads right-to-left (2026-09-13), so the panel docks on the right and
+           the inspector on the left; the free area is whatever the two leave, measured
+           from where each one actually is rather than from the side it used to be on. */
         var panel = document.getElementById("cxPanel");
-        if (panel && !phone) left = panel.getBoundingClientRect().right + 8;
+        if (panel && !phone) {
+          var pr = panel.getBoundingClientRect();
+          if (pr.left + pr.width / 2 > w / 2) right = Math.min(right, pr.left - 8); else left = Math.max(left, pr.right + 8);
+        }
         if (panel && phone) bottom = h - panel.getBoundingClientRect().height - 8;
         var insp = document.getElementById("cxInspector");
-        if (insp && !phone) right = insp.getBoundingClientRect().left - 8;
+        if (insp && !phone) {
+          var ir = insp.getBoundingClientRect();
+          if (ir.left + ir.width / 2 > w / 2) right = Math.min(right, ir.left - 8); else left = Math.max(left, ir.right + 8);
+        }
         top += 44;
         if (!phone) bottom = h - 60;
       }
@@ -3807,7 +3901,7 @@
       ctx.font = font; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = color;
       ctx.globalAlpha = alpha == null ? 1 : alpha;
       var bottom = ((midDeg % 360) + 360) % 360 > 90 && ((midDeg % 360) + 360) % 360 < 270;
-      var chars = txt.split(""), widths = chars.map(function (ch) { return ctx.measureText(ch).width; });
+      var chars = txt.split(""); if (/[֐-׿]/.test(txt)) chars.reverse(); var widths = chars.map(function (ch) { return ctx.measureText(ch).width; });
       var total = widths.reduce(function (p, c) { return p + c; }, 0) + (chars.length - 1) * 2.2;
       var rr = r * cam.k, arc = total / rr;
       var a0 = (midDeg * Math.PI / 180) + cam.rot - (bottom ? -arc / 2 : arc / 2);
@@ -3859,17 +3953,17 @@
         ctx.beginPath(); ctx.arc(o.x, o.y, CX_RIM * K, a0 - Math.PI / 2 + 0.028, a1 - Math.PI / 2 - 0.028); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(o.x + (CX_RIM - 5) * K * Math.sin(a0), o.y - (CX_RIM - 5) * K * Math.cos(a0));
         ctx.lineTo(o.x + (CX_RIM + 5) * K * Math.sin(a0), o.y - (CX_RIM + 5) * K * Math.cos(a0)); ctx.stroke();
-        var name = s.fam === "UNFILED" ? "NO FAMILY" : s.fam;
+        var name = s.fam === "UNFILED" ? "ללא משפחה" : he(s.fam);
         var col = s.fam === "UNFILED" ? "#5E617C" : (fam === s.fam ? "#FFFFFF" : "#C7CAE0");
         var fsz = Math.max(9, Math.min(13, 10.5 * Math.sqrt(cam.k / (CX_CACHE.k0 || cam.k))));
-        arcText(name, (CX_RIM + 16) * scale, s.mid, "600 " + fsz.toFixed(1) + "px Inter, sans-serif", col, al * (dimS ? 0.45 : 1));
-        var sub = s.fam === "UNFILED" ? s.sigs + " signal" + (s.sigs === 1 ? "" : "s") + " not yet filed"
-          : s.heads + " headline" + (s.heads === 1 ? "" : "s") + " · " + s.sigs + " signal" + (s.sigs === 1 ? "" : "s");
+        arcText(name, (CX_RIM + 16) * scale, s.mid, "600 " + fsz.toFixed(1) + "px Heebo, Inter, sans-serif", col, al * (dimS ? 0.45 : 1));
+        var sub = s.fam === "UNFILED" ? (s.sigs === 1 ? "אות אחד עוד לא סווג" : s.sigs + " אותות עוד לא סווגו")
+          : (s.heads === 1 ? "כותרת אחת" : s.heads + " כותרות") + " · " + (s.sigs === 1 ? "אות אחד" : s.sigs + " אותות");
         var md = ((s.mid % 360) + 360) % 360, inside = md > 140 && md < 220;
         var lp = cxPol((inside ? CX_RIM - 26 : CX_RIM + 32) * scale, s.mid), sp = proj(lp.x, lp.y);
         var mdr = ((s.mid + cam.rot * 180 / Math.PI) % 360 + 360) % 360;
         var align = inside ? "center" : (mdr > 0 && mdr < 180 ? "left" : mdr > 180 ? "right" : "center");
-        label(sub, sp.x, sp.y, "9px 'JetBrains Mono', monospace", CXP.ink3, align, al * (dimS ? 0.45 : 1));
+        label(sub, sp.x, sp.y, "9px Heebo, 'JetBrains Mono', monospace", CXP.ink3, align, al * (dimS ? 0.45 : 1));
         var np = cxPol((CX_RIM + 16) * scale, s.mid), npp = proj(np.x, np.y);
         rimHits.push({ x: npp.x, y: npp.y, fam: s.fam, r: 46 });
       });
@@ -3898,9 +3992,9 @@
       var top = cxTimeR(CX_CLAMP) * K + 32;
       ctx.globalAlpha = al * 0.55; ctx.strokeStyle = CXP.accent2; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(o.x, o.y - top); ctx.lineTo(o.x, o.y + top); ctx.stroke();
-      label("NOW · " + TODAY, o.x + 8, o.y - top + 10, "9.5px 'JetBrains Mono', monospace", CXP.accent2, "left", al);
-      label("PAST", o.x - top - 10, o.y - top + 10, "600 10.5px Inter, sans-serif", "#C7CAE0", "left", al);
-      label("FUTURE", o.x + top + 10, o.y - top + 10, "600 10.5px Inter, sans-serif", "#C7CAE0", "right", al);
+      label("עכשיו · " + TODAY, o.x + 8, o.y - top + 10, "9.5px Heebo, 'JetBrains Mono', monospace", CXP.accent2, "left", al);
+      label("עבר", o.x - top - 10, o.y - top + 10, "600 10.5px Heebo, Inter, sans-serif", "#C7CAE0", "left", al);
+      label("עתיד", o.x + top + 10, o.y - top + 10, "600 10.5px Heebo, Inter, sans-serif", "#C7CAE0", "right", al);
       ctx.globalAlpha = 1;
     }
 
@@ -4077,7 +4171,7 @@
 
       if (pinned && pinned._px != null) placeCard(cxHoverCard(pinned), canvas.getBoundingClientRect().left + pinned._px, canvas.getBoundingClientRect().top + pinned._py);
       statusLine(w, h);
-      if (zoomEl) zoomEl.textContent = "ZOOM " + zoomF.toFixed(2) + "× · TURN " + (Math.round(cam.rot * 180 / Math.PI) % 360) + "°";
+      if (zoomEl) zoomEl.textContent = "זום " + zoomF.toFixed(2) + "× · סיבוב " + (Math.round(cam.rot * 180 / Math.PI) % 360) + "°";
       raf = requestAnimationFrame(draw);
     }
 
@@ -4140,12 +4234,12 @@
       if (isRad && sel) {
         var fr = FR;
         var tf = "italic 400 " + Math.round(30 * (ui || 1)) + "px Newsreader, Georgia, serif";
-        var sf2 = "9px 'JetBrains Mono', monospace";
-        var sub2 = (sel.chain.links || []).length + " LINKS RANKED BY HEAT · UNMAPPED " + num(sel.un, "?") + " · " + (sel.band ? sel.band.toUpperCase() + " " + Math.round(sel.imp) : "UNAPPRAISED") + " · " + (sel.chain.scenarios || []).length + " SCENARIOS ON THE OUTER RING";
+        var sf2 = "9px Heebo, 'JetBrains Mono', monospace";
+        var sub2 = (sel.chain.links || []).length + " חוליות לפי חום · לא ממופה " + num(sel.un, "?") + " · " + (sel.band ? he(sel.band) + " " + Math.round(sel.imp) : "לא הוערך") + " · " + (sel.chain.scenarios || []).length + " תרחישים על הטבעת החיצונית";
         label(sel.label, fr.x0 + 24, fr.y0 + 30, tf, CXP.ink, "left", 1);
         label(sub2, fr.x0 + 24, fr.y0 + 50, sf2, CXP.ink3, "left", 1);
         claim(fr.x0 + 20, fr.y0 + 12, fr.x0 + 28 + Math.max(tw(tf, sel.label), tw(sf2, sub2)), fr.y0 + 60);
-        var lg = fr.y1 - 14, lgf = "8.5px 'JetBrains Mono', monospace";
+        var lg = fr.y1 - 14, lgf = "8.5px Heebo, 'JetBrains Mono', monospace";
         CX_FACTORS.forEach(function (f, q) {
           ctx.globalAlpha = 1; ctx.strokeStyle = f[2]; ctx.lineWidth = 3; ctx.lineCap = "round";
           ctx.beginPath(); ctx.moveTo(fr.x0 + 24 + q * 118, lg); ctx.lineTo(fr.x0 + 46 + q * 118, lg); ctx.stroke(); ctx.lineCap = "butt";
@@ -4153,7 +4247,7 @@
           claim(fr.x0 + 20 + q * 118, lg - 8, fr.x0 + 56 + q * 118 + tw(lgf, f[1]), lg + 8);
         });
       }
-      var capF = "400 " + (11 * sz).toFixed(1) + "px Newsreader, Georgia, serif";
+      var capF = "400 " + (11 * sz).toFixed(1) + "px Heebo, Newsreader, Georgia, serif";
       var tkF = (8.2 * sz).toFixed(1) + "px 'JetBrains Mono', monospace";
       var capH = 11 * sz + 5, cornerH = 11 * sz + 6;
       function cornerW(n) {
@@ -4280,13 +4374,13 @@
           if (!(focused || linkNames || near || n === hi || (anyFilter && cxMatch(n) && CX_FILTER.q))) return;
           if (focused) return drawRadialLinkLabel(n);
           var c = Math.cos(n.ringA * Math.PI / 180), s = Math.sin(n.ringA * Math.PI / 180);
-          put(n.label, "500 10.5px Inter, sans-serif", CXP.ink2,
+          put(n.label, "500 10.5px Heebo, Inter, sans-serif", CXP.ink2,
               sides(n._px, n._py + s * 9, 9, c >= 0), n === hi ? 1 : 0.85, forced);
         } else if (n.kind === "dive") {
           var show = focused || (zoomF > 0.9 && (ui || 1) >= 0.8) || zoomF > 1.6 || n === hi;
           if (!show) return;
           var c2 = Math.cos((n.radialA != null && focused ? n.radialA : n.ringA) * Math.PI / 180);
-          var dtF = "600 8.5px 'JetBrains Mono', monospace", dwF = "italic 400 10.5px Newsreader, Georgia, serif";
+          var dtF = "600 8.5px 'JetBrains Mono', monospace", dwF = "italic 400 10.5px Heebo, Newsreader, Georgia, serif";
           var tkW = tw(dtF, n.ref.ticker), wdW = tw(dwF, n.word || ""), gap = 6;
           var st2 = seat(tkW + gap + wdW, 14, sides(n._px, n._py + (focused ? 11 : 0), 7, c2 >= 0), forced);
           if (st2) {
@@ -4302,7 +4396,7 @@
         } else if (n.kind === "scen") {
           if (!(focused || zoomF > 2.4 || n === hi)) return;
           var c3 = focused && n.radialA != null ? Math.cos(n.radialA * Math.PI / 180 + cam.rot) : 1;
-          put(n.word || n.label, "italic 400 10.5px Newsreader, Georgia, serif", CXP.ink2,
+          put(n.word || n.label, "italic 400 10.5px Heebo, Newsreader, Georgia, serif", CXP.ink2,
               sides(n._px, n._py, 9, c3 >= -0.05), 0.9, forced);
         } else if (n.kind === "cand") {
           if (!(n === hi || (anyFilter && CX_FILTER.q && cxMatch(n)) || zoomF > 2.6)) return;
@@ -4328,28 +4422,28 @@
       }
       lines.push(rest);
       var y0 = ty - (lines.length - 1) * 7;
-      lines.forEach(function (ln, q) { label(ln, tx, y0 + q * 14, "500 12px Inter, sans-serif", CXP.ink, ax, 1); });
+      lines.forEach(function (ln, q) { label(ln, tx, y0 + q * 14, "500 12px Heebo, Inter, sans-serif", CXP.ink, ax, 1); });
       // the focused ring's own read-out: it always draws, and it claims so nothing else lands on it
       var lw = 0;
       lines.forEach(function (ln) { lw = Math.max(lw, ctx.measureText(ln).width); });
       claim(right ? tx : tx - lw - 6, y0 - 9, right ? tx + lw + 6 : tx, y0 + (lines.length - 1) * 14 + 22);
       var l = n.ref, tags = [];
-      if (n.choke) tags.push("CHOKE POINT");
-      if (n.money) tags.push("MONEY CORNER");
-      var sub = (n.verdict ? n.verdict.replace("_", " ") : "UNSCORED") + " · i" + num(cxScore(l, "impact")) + " c" + num(cxScore(l, "crowdedness")) + " v" + num(cxScore(l, "capture")) + (tags.length ? " · " + tags.join(" · ") : "");
-      label(sub, tx, y0 + (lines.length - 1) * 14 + 13, "8.6px 'JetBrains Mono', monospace", n.color, ax, 1);
+      if (n.choke) tags.push("נקודת חנק");
+      if (n.money) tags.push("פינת הכסף");
+      var sub = (n.verdict ? he(n.verdict) : "לא נוקד") + " · השפעה " + num(cxScore(l, "impact")) + " צפיפות " + num(cxScore(l, "crowdedness")) + " לכידה " + num(cxScore(l, "capture")) + (tags.length ? " · " + tags.join(" · ") : "");
+      label(sub, tx, y0 + (lines.length - 1) * 14 + 13, "8.6px Heebo, 'JetBrains Mono', monospace", n.color, ax, 1);
     }
     function statusLine(w, h) {
       var txt;
-      var sel = CX_MODE.sig ? g.byKey["sig:" + CX_MODE.sig] : null;
-      if (hover) txt = hover.kind.toUpperCase() + " · " + (hover.tip || hover.label || "");
-      else if (CX_MODE.phase === "radial" && sel) txt = "FOCUSED · " + sel.label.toUpperCase() + " · " + ((sel.chain || {}).links || []).length + " LINKS RANKED BY HEAT · BARS: IMPACT · CROWDEDNESS · CAPTURE · ESC TO CLEAR";
-      else if (CX_MODE.phase === "timeline") txt = "TIMELINE · DISTANCE FROM CENTRE = TIME FROM TODAY · PAST LEFT, FUTURE RIGHT · THE FEED IS THE LAST FORTNIGHT";
+      var sel = CX_MODE.sig ? g.byKey["sig:" + CX_MODE.sig] : null; var HOVER_KIND = { sig: "אות", link: "חוליה", scen: "תרחיש", co: "חברה", dive: "צלילה", cand: "מועמד", evt: "אירוע", dust: "כותרת" };
+      if (hover) txt = (HOVER_KIND[hover.kind] || hover.kind) + " · " + (hover.tip || hover.label || "");
+      else if (CX_MODE.phase === "radial" && sel) txt = "במיקוד · " + sel.label + " · " + ((sel.chain || {}).links || []).length + " חוליות לפי חום · פסים: השפעה · צפיפות · לכידה · Esc לניקוי";
+      else if (CX_MODE.phase === "timeline") txt = "ציר זמן · מרחק מהמרכז = זמן מהיום · עבר משמאל, עתיד מימין · הפיד הוא השבועיים האחרונים";
       else if (CX_FILTER.fam) {
         var sec = null;
         g.sectors.forEach(function (s) { if (s.fam === CX_FILTER.fam) sec = s; });
-        txt = "FILTERED · " + CX_FILTER.fam + (sec ? " · " + sec.sigs + " SIGNALS · " + sec.heads + " HEADLINES" : "") + " · ESC TO CLEAR";
-      } else txt = "ANGLE = FAMILY · DISTANCE FROM CENTRE = HOW UNMAPPED · SIZE = MONEY REACHABLE · RING = ITS CHAIN, COLOURED BY HEAT";
+        txt = "מסונן · " + he(CX_FILTER.fam) + (sec ? " · " + sec.sigs + " אותות · " + sec.heads + " כותרות" : "") + " · Esc לניקוי";
+      } else txt = "זווית = משפחה · מרחק מהמרכז = כמה לא ממופה · גודל = כסף בהישג יד · טבעת = השרשרת שלו, צבועה לפי חום";
       if (readEl) readEl.textContent = txt;
     }
     function placeCard(html, cx2, cy2) {
@@ -4442,7 +4536,7 @@
       var open = more.hasAttribute("hidden");
       if (open) more.removeAttribute("hidden"); else more.setAttribute("hidden", "");
       mBtn.setAttribute("aria-expanded", open ? "true" : "false");
-      mBtn.querySelector(".dim").textContent = open ? "registers · less ▴" : "registers · more ▾";
+      mBtn.querySelector(".dim").textContent = open ? "מדדים · פחות ▴" : "מדדים · עוד ▾";
     });
     // view popover: what shows and how big (bound once; sliders keep their positions)
     var vBtn = document.getElementById("cxViewBtn"), vPop = document.getElementById("cxViewPop");
@@ -4627,13 +4721,13 @@
       if (!sg) return "";
       var occ = sg.occurrence || {};
       return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(sg.title) + '"><button class="x" data-closedrawer>✕</button>' +
-        '<div class="row">' + chip(occ.kind || "undated") + (occ.anchor_date ? chip(occ.anchor_date, "neutral") : "") + chip(sg.lane) + chip(sg.suggested_clock) + chip(sg.status, sg.status === "NEW" ? "accent" : "neutral") + "</div>" +
+        '<div class="row">' + chip(he(occ.kind || "UNDATED")) + (occ.anchor_date ? chip(occ.anchor_date, "neutral") : "") + chip(he(sg.lane)) + chip(he(sg.suggested_clock)) + chip(he(sg.status), sg.status === "NEW" ? "accent" : "neutral") + "</div>" +
         "<h2>" + esc(sg.title) + "</h2>" +
-        (occ.label ? "<p class='small'><b>" + esc(occ.label) + "</b>" + (occ.window ? " — " + esc(occ.window) : "") + "</p>" : "") +
+        (occ.label ? "<p class='small'><b>" + esc(occ.label) + "</b>" + (occ.window ? " · " + esc(occ.window) : "") + "</p>" : "") +
         "<p class='small'>" + esc(sg.thesis) + "</p>" +
-        '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/signal/' + esc(sg.id) + '">Open signal →</a>' +
-        (sg.chain_id ? ' <a class="chip accent" href="#/chain/' + esc(sg.chain_id) + '">Open chain →</a>' : "") + "</div>" +
-        (sg.status === "NEW" ? "<div style='margin-top:14px'>" + runButton("run chain " + sg.id, "maps this signal into a value chain") + "</div>" : "") +
+        '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/signal/' + esc(sg.id) + '">פתח אות →</a>' +
+        (sg.chain_id ? ' <a class="chip accent" href="#/chain/' + esc(sg.chain_id) + '">פתח שרשרת →</a>' : "") + "</div>" +
+        (sg.status === "NEW" ? "<div style='margin-top:14px'>" + runButton("run chain " + sg.id, "ממפה את האות לשרשרת ערך") + "</div>" : "") +
         "</div>";
     }
     var obj = null, isEvt = kind === "evt";
@@ -4644,12 +4738,12 @@
        called with a signal id, so 30 of 36 appraisals were inlined and rendered nowhere.
        The chip fields are what the page keeps for them, so the page shows them here. */
     return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(obj.title) + '"><button class="x" data-closedrawer>✕</button>' +
-      '<div class="row">' + chip(isEvt ? obj.kind : obj.family) + chip(obj.date, "neutral") + chip(obj.status) +
+      '<div class="row">' + chip(he(isEvt ? obj.kind : obj.family)) + chip(obj.date, "neutral") + chip(he(obj.status)) +
       (isEvt ? "" : impactChip(impactFor(obj.id))) + "</div>" +
       "<h2>" + esc(obj.title) + "</h2>" +
       "<p class='small'>" + esc(isEvt ? obj.why_it_matters : obj.why) + "</p>" +
       "<div class='muted small'>[" + esc(obj.source_name) + (obj.source_date ? ", " + esc(obj.source_date) : "") + "]" + (obj.window ? " · " + esc(obj.window) : "") + "</div>" +
-      "<div style='margin-top:16px'>" + runButton("run radar", "the radar run judges promotion to a full signal card (method §0.1)") + "</div>" +
+      "<div style='margin-top:16px'>" + runButton("run radar", "הרצת הרדאר מחליטה על קידום לכרטיס אות מלא (method §0.1)") + "</div>" +
       "</div>";
   }
 
@@ -4658,7 +4752,7 @@
   function objPath(obj) {
     if (obj.ticker && obj.chain_id) return "data/stocks/" + obj.ticker + "__" + obj.chain_id + ".json";
     if (obj.links) return chainPath(obj);
-    if (obj.id) return "the object's file in data/";
+    if (obj.id) return "הקובץ של העצם בתוך data/";
     return "data/";
   }
   function notesBlock(obj) {
@@ -4668,20 +4762,20 @@
        tell the reader nobody has ever annotated the chain, which is the opposite of what
        the data says. */
     if (!n.length && obj.notes_total) {
-      return seclabel("Notes") + "<div class='muted'>" + obj.notes_total +
-        " note(s) on this object, none carried on this page — they are in <span class='mono'>" +
+      return seclabel("הערות") + "<div class='muted'>" + (obj.notes_total === 1 ? "הערה אחת" : obj.notes_total + " הערות") +
+        " על העצם הזה, אף אחת לא מוצגת בעמוד הזה. הן נמצאות ב <span class='mono'>" +
         esc(objPath(obj)) + "</span>.</div>";
     }
-    return seclabel("Notes") + (n.length ? n.map(function (x) {
+    return seclabel("הערות") + (n.length ? n.map(function (x) {
       return '<div class="note"><span class="who">' + esc(x.by) + " · " + esc((x.ts || "").slice(0, 10)) + "</span><br>" + esc(x.text) + "</div>";
     }).join("")
-      : '<div class="muted">None — add one from any session: <span class="mono">note ' + esc(obj.id || obj.ticker || "") + ' "…"</span></div>');
+      : '<div class="muted">אין. אפשר להוסיף מכל סשן: <span class="mono">note ' + esc(obj.id || obj.ticker || "") + ' "…"</span></div>');
   }
   function changelogBlock(obj) {
     var c = (obj.changelog || []).slice().reverse();
-    if (!c.length) return seclabel("History") + "<div class='muted'>No history entries recorded on this object.</div>";
-    return seclabel("History") + "<div class='timeline'>" + c.map(function (x) {
-      return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(was: " + esc(x.prior) + ")</span>" : "") + "</div>";
+    if (!c.length) return seclabel("היסטוריה") + "<div class='muted'>לא נרשמה היסטוריה על העצם הזה.</div>";
+    return seclabel("היסטוריה") + "<div class='timeline'>" + c.map(function (x) {
+      return '<div class="t"><span class="when">' + esc((x.ts || "").slice(0, 10)) + " · " + esc(x.by) + "</span><br>" + esc(x.change) + (x.prior ? " <span class='muted'>(היה: " + esc(x.prior) + ")</span>" : "") + "</div>";
     }).join("") + "</div>";
   }
   /* ---------------- themes: the occurrence log ----------------
@@ -4704,7 +4798,7 @@
     if (!themeId) return rows;
     return rows.filter(function (r) { return r.th === themeId; });
   }
-  var ORIGIN_LABEL = { feed: "feed", candidate: "candidate", signal: "signal card", calendar: "calendar" };
+  var ORIGIN_LABEL = { feed: "פיד", candidate: "מועמד", signal: "כרטיס אות", calendar: "יומן אירועים" };
   function originChip(o) {
     return '<span class="chip origin o-' + esc(o || "none") + '">' + esc(ORIGIN_LABEL[o] || o || "?") + "</span>";
   }
@@ -4719,7 +4813,7 @@
   }
   function thGrid() {
     var cal = thCal(), weeks = cal.weeks || [], per = cal.per_theme || {};
-    if (!weeks.length) return "<div class='muted small'>No weekly occurrence counts calibrated yet (run themes).</div>";
+    if (!weeks.length) return "<div class='muted small'>עדיין לא חושבה ספירה שבועית של ההתרחשויות " + "(run themes)." + "</div>";
     var peak = 0;
     Object.keys(per).forEach(function (id) {
       weeks.forEach(function (w) { peak = Math.max(peak, (per[id].by_week || {})[w] || 0); });
@@ -4729,46 +4823,46 @@
     var body = thByIdList().map(function (t) {
       var v = per[t.id] || { by_week: {}, total: 0 };
       return '<tr><th class="thname"><a href="#/themes/' + esc(t.id) + '">' + esc(t.label) + "</a>" +
-        (v.surging ? '<span class="chip surge">surging</span>' : "") +
-        (v.surging && !v.claimed ? '<span class="chip unclaimed">unclaimed</span>' : "") +
+        (v.surging ? '<span class="chip surge">בעלייה</span>' : "") +
+        (v.surging && !v.claimed ? '<span class="chip unclaimed">ללא אות</span>' : "") +
         "</th>" +
         weeks.map(function (w) { return thCell((v.by_week || {})[w] || 0, peak); }).join("") +
         '<td class="thtot">' + esc(v.total) + "</td></tr>";
     }).join("");
-    var unrow = '<tr class="unassigned"><th class="thname"><a href="#/themes/__unassigned">Unassigned</a>' +
-      '<span class="muted"> no theme claims these</span></th>' +
+    var unrow = '<tr class="unassigned"><th class="thname"><a href="#/themes/__unassigned">ללא נושא</a>' +
+      '<span class="muted"> שום נושא לא תובע אותן</span></th>' +
       weeks.map(function (w) { return thCell(unas[w] || 0, peak); }).join("") +
       '<td class="thtot">' + esc((cal.denominators || {}).unassigned) + "</td></tr>";
     return '<div class="mdtable"><table class="thgrid"><tr><th></th>' +
       weeks.map(function (w) { return "<th>" + esc(String(w).replace(/^\d{4}-/, "")) + "</th>"; }).join("") +
-      "<th>all</th></tr>" + body + unrow + "</table></div>";
+      "<th>הכל</th></tr>" + body + unrow + "</table></div>";
   }
   function thSurges() {
     var cal = thCal(), surges = cal.surges || [];
     var unclaimed = surges.filter(function (s) { return !s.claimed; });
     if (!surges.length) {
-      return "<div class='card'><div class='small'>No theme cleared the surge bar in " +
-        esc(cal.current_week || "this week") + ". A surge is at least " + esc(THM.surge_min_count) +
-        " occurrences in one ISO week AND at least " + esc(THM.surge_multiple) +
-        "x the mean of the previous " + esc(THM.baseline_weeks) + " weeks.</div></div>";
+      return "<div class='card'><div class='small'>אף נושא לא עבר את סף העלייה החדה " +
+        (cal.current_week ? "בשבוע " + esc(cal.current_week) : "השבוע") + ". עלייה חדה היא לפחות " + esc(THM.surge_min_count) +
+        " התרחשויות בשבוע ISO אחד וגם לפחות פי " + esc(THM.surge_multiple) +
+        " מהממוצע של " + esc(THM.baseline_weeks) + " השבועות הקודמים.</div></div>";
     }
     return "<div class='card'>" +
-      "<div class='small'>A surge is at least " + esc(THM.surge_min_count) +
-      " occurrences in one ISO week AND at least " + esc(THM.surge_multiple) +
-      "x the mean of the previous " + esc(THM.baseline_weeks) +
-      " weeks. Unclaimed means no signal card stands behind it yet.</div>" +
+      "<div class='small'>עלייה חדה היא לפחות " + esc(THM.surge_min_count) +
+      " התרחשויות בשבוע ISO אחד וגם לפחות פי " + esc(THM.surge_multiple) +
+      " מהממוצע של " + esc(THM.baseline_weeks) +
+      " השבועות הקודמים. ללא אות פירושו שאף כרטיס אות עדיין לא נכתב עבורה.</div>" +
       surges.map(function (s) {
         return '<div class="evli"><a href="#/themes/' + esc(s.theme_id) + '"><b>' + esc(s.label) + "</b></a> " +
-          esc(s.count) + " in " + esc(s.week) + " against a baseline of " + esc(s.baseline) +
+          esc(s.count) + " ב" + esc(s.week) + " מול בסיס של " + esc(s.baseline) +
           (s.claimed
-            ? ' <span class="chip claimed">claimed by ' + esc((s.signal_refs || []).join(", ")) + "</span>"
-            : ' <span class="chip unclaimed">unclaimed</span>') +
+            ? ' <span class="chip claimed">יש אות: ' + esc((s.signal_refs || []).join(", ")) + "</span>"
+            : ' <span class="chip unclaimed">ללא אות</span>') +
           "</div>";
       }).join("") +
       (unclaimed.length
         ? "<div class='small' style='margin-top:10px'>" + esc(unclaimed.length) +
-          " unclaimed: volume is arriving and no signal card has been written for it. " +
-          "That is the question <span class='mono'>run radar</span> answers.</div>"
+          " ללא אות: יש נפח שמגיע ואף כרטיס אות לא נכתב בשבילו. " +
+          "זו השאלה שעליה " + "<span class='mono'>run radar</span>" + " עונה.</div>"
         : "") +
       "</div>";
   }
@@ -4777,7 +4871,7 @@
       ? '<a href="' + esc(r.u) + '" rel="noreferrer noopener" target="_blank">' + esc(r.t) + "</a>"
       : esc(r.t);
     return '<div class="occrow"><div class="occmeta">' + originChip(r.o) +
-      '<span class="mono">' + esc(r.d || "undated") + "</span>" +
+      '<span class="mono">' + esc(r.d || "ללא תאריך") + "</span>" +
       (r.s ? "<span>" + esc(r.s) + "</span>" : "") +
       (r.f ? chip(r.f) : "") + "</div>" +
       '<div class="occtitle">' + t + "</div>" +
@@ -4785,36 +4879,36 @@
   }
   function thHead() {
     var cal = thCal(), d = cal.denominators || {};
-    return "<div class='pagehead'><h1>Occurrence log</h1>" +
-      "<div class='small'>Everything this machine has seen, including the small things, " +
-      "clustered into themes. Every row is snapshotted when it is first seen: the feed store " +
-      "prunes at 500 items over 14 days and its ids are content hashes, so without this log " +
-      "anything the radar did not promote is gone within a fortnight.</div>" +
+    return "<div class='pagehead'><h1>יומן ההתרחשויות</h1>" +
+      "<div class='small'>כל מה שהמכונה הזאת ראתה, כולל הדברים הקטנים, " +
+      "מקובץ לפי נושאים. כל שורה נשמרת בתמונת מצב ברגע שהיא נראית לראשונה: מאגר הפיד " +
+      "מוחק פריטים מעל 500 תוך 14 יום והמזהים שלו הם גיבוב תוכן, כך שבלי היומן הזה " +
+      "כל מה שהרדאר לא קידם נעלם תוך שבועיים.</div>" +
       "<div class='small' style='margin-top:8px'><span class='mono'>" +
-      esc(num(d.occurrences_logged)) + " logged · " + esc(num(d.assigned)) + " assigned · " +
-      esc(num(d.unassigned)) + " unassigned · " + esc(num(d.themes)) + " themes</span> " +
-      "over " + esc(num(d.feed_items_on_disk)) + " feed items, " + esc(num(d.candidates_on_disk)) +
-      " candidates, " + esc(num(d.signals_on_disk)) + " signal cards and " +
-      esc(num(d.calendar_on_disk)) + " calendar entries currently on disk." +
+      esc(num(d.occurrences_logged)) + " נרשמו · " + esc(num(d.assigned)) + " שויכו · " +
+      esc(num(d.unassigned)) + " ללא נושא · " + esc(num(d.themes)) + " נושאים</span> " +
+      "מתוך " + esc(num(d.feed_items_on_disk)) + " פריטי פיד, " + esc(num(d.candidates_on_disk)) +
+      " מועמדים, " + esc(num(d.signals_on_disk)) + " כרטיסי אות ו" +
+      esc(num(d.calendar_on_disk)) + " רשומות יומן אירועים שנמצאות כרגע בדיסק." +
       "</div></div>";
   }
   function themesView(themeId) {
     if (!TH) {
       return topbar("themes") + "<main>" +
-        "<div class='pagehead'><h1>Occurrence log</h1></div>" +
-        "<div class='emptystate'>No occurrence log yet. <span class='mono'>run themes</span> " +
-        "ingests every occurrence on disk and clusters it." +
+        "<div class='pagehead'><h1>יומן ההתרחשויות</h1></div>" +
+        "<div class='emptystate'>עדיין אין יומן התרחשויות. " + "<span class='mono'>run themes</span>" +
+        " קולט כל התרחשות שיש בדיסק ומקבץ אותה." +
         "<div class='runwrap'>" + runButton("run themes") + "</div></div>" +
         footer() + "</main>";
     }
     if (themeId) return themeView(themeId);
     return topbar("themes") + "<main>" + thHead() +
-      seclabel("Run the clustering") +
+      seclabel("הרץ את הקיבוץ") +
       "<div class='card runstrip'>" +
-      runButton("run themes", "ingests every occurrence on disk, applies each theme's match rule, recomputes the weeks") +
+      runButton("run themes", "קולט כל התרחשות שיש בדיסק, מפעיל את כלל ההתאמה של כל נושא, מחשב מחדש את השבועות") +
       "</div>" +
-      seclabel("Surges in " + ((thCal().current_week) || "this week")) + thSurges() +
-      seclabel("Occurrences by theme and ISO week") + thGrid() +
+      seclabel(thCal().current_week ? "עליות חדות בשבוע " + thCal().current_week : "עליות חדות השבוע") + thSurges() +
+      seclabel("התרחשויות לפי נושא ושבוע") + thGrid() +
       "<div class='small'>" + esc((thCal().note) || "") + "</div>" +
       footer() + "</main>";
   }
@@ -4826,46 +4920,46 @@
     var rows = thRows(themeId);
     var m = (t && t.match) || {};
     return topbar("themes") + "<main>" +
-      "<div class='crumbs'><a href='#/themes'>Occurrence log</a><span class='sep'>/</span>" +
-      "<span class='here'>" + esc(unassigned ? "Unassigned" : t.label) + "</span></div>" +
-      "<div class='pagehead'><h1>" + esc(unassigned ? "Unassigned" : t.label) + "</h1>" +
+      "<div class='crumbs'><a href='#/themes'>יומן ההתרחשויות</a><span class='sep'>/</span>" +
+      "<span class='here'>" + esc(unassigned ? "ללא נושא" : t.label) + "</span></div>" +
+      "<div class='pagehead'><h1>" + esc(unassigned ? "ללא נושא" : t.label) + "</h1>" +
       "<div class='small'>" + esc(unassigned
-        ? "Occurrences no theme's rule claims. A large number here is not a defect: most of what a wire feed carries has no investable chain behind it, and filing it under a theme anyway would be the invention this log exists to avoid."
+        ? "התרחשויות שאף כלל של נושא לא תובע. מספר גדול כאן הוא לא פגם: רוב מה שפיד חדשות מביא אין מאחוריו שרשרת שאפשר להשקיע בה, ולשייך את זה לנושא בכל זאת יהיה בדיוק ההמצאה שהיומן הזה נועד למנוע."
         : t.definition) + "</div></div>" +
       (v
-        ? "<div class='statgrid'><div class='card'><h3>This week</h3><div class='scrow'>" +
-          mapStat(num(v.current_week), "in " + esc(thCal().current_week || "?")) +
-          mapStat(num(v.baseline), "weekly baseline") +
-          mapStat(num(v.total), "logged all-time") +
+        ? "<div class='statgrid'><div class='card'><h3>השבוע</h3><div class='scrow'>" +
+          mapStat(num(v.current_week), "ב" + esc(thCal().current_week || "?")) +
+          mapStat(num(v.baseline), "בסיס שבועי") +
+          mapStat(num(v.total), "נרשמו מאז ומתמיד") +
           "</div><div class='small'>" +
-          (v.surging ? "Surging" : "Not surging") + " · " +
-          (v.claimed ? "claimed by " + esc((v.signal_refs || []).join(", ")) : "no signal card stands behind it") +
-          " · baseline computed over " + esc(num(v.baseline_weeks)) + " prior week(s)</div></div>" +
-          "<div class='card'><h3>Where it came from</h3><div class='scrow'>" +
+          (v.surging ? "בעלייה" : "לא בעלייה") + " · " +
+          (v.claimed ? "יש אות: " + esc((v.signal_refs || []).join(", ")) : "אין כרטיס אות מאחוריו") +
+          " · הבסיס חושב על " + esc(num(v.baseline_weeks)) + " שבועות קודמים</div></div>" +
+          "<div class='card'><h3>מאיפה זה הגיע</h3><div class='scrow'>" +
           Object.keys(v.origins || {}).map(function (o) {
             return mapStat(v.origins[o], ORIGIN_LABEL[o] || o);
           }).join("") + "</div></div></div>"
         : "") +
       (t
-        ? "<div class='card'><h3>Match rule</h3><div class='small'>An occurrence joins this " +
-          "theme when its own snapshotted title or source carries one of these terms as a " +
-          "whole word. The rule is written here so an assignment can be re-run and " +
-          "disagreed with, rather than being an impression nobody can check.</div>" +
+        ? "<div class='card'><h3>כלל ההתאמה</h3><div class='small'>התרחשות מצטרפת לנושא " +
+          "הזה כשאחד מהמונחים האלה מופיע כמילה שלמה בכותרת שלה או במקור שלה, בתמונת " +
+          "המצב שנשמרה. הכלל כתוב כאן כדי שאפשר יהיה להריץ שיוך מחדש ו" +
+          "לחלוק עליו, במקום שיהיה רושם שאף אחד לא יכול לבדוק.</div>" +
           "<div class='cmdrow' style='margin-top:8px'>" +
-          ((m.any || []).map(function (x) { return "<code>" + esc(x) + "</code>"; }).join(" ") || "<span class='muted'>none</span>") +
+          ((m.any || []).map(function (x) { return "<code>" + esc(x) + "</code>"; }).join(" ") || "<span class='muted'>אין</span>") +
           "</div>" +
           ((m.not || []).length
-            ? "<div class='small' style='margin-top:6px'>excluded when it also carries: " +
+            ? "<div class='small' style='margin-top:6px'>לא נכלל כשיש בו גם: " +
               (m.not || []).map(function (x) { return "<code>" + esc(x) + "</code>"; }).join(" ") + "</div>"
             : "") +
           (t.limitation ? "<div class='small' style='margin-top:8px'>" + esc(t.limitation) + "</div>" : "") +
           "</div>"
         : "") +
-      seclabel(rows.length + " occurrence" + (rows.length === 1 ? "" : "s") +
-        (TH.total > (TH.rows || []).length ? " on this page" : "")) +
+      seclabel((rows.length === 1 ? "התרחשות אחת" : rows.length + " התרחשויות") +
+        (TH.total > (TH.rows || []).length ? " בעמוד הזה" : "")) +
       (rows.length
         ? "<div class='occlist'>" + rows.map(thOccRow).join("") + "</div>"
-        : "<div class='emptystate'>Nothing logged under this theme yet.</div>") +
+        : "<div class='emptystate'>עדיין לא נרשם דבר תחת הנושא הזה.</div>") +
       footer() + "</main>";
   }
 
@@ -4881,8 +4975,8 @@
   function agentCommandList(a, opts) {
     opts = opts || {};
     if (!a.commands.length) {
-      return "<div class='small'>No row in the command table names " + esc(a.name) +
-        ". Nothing routes work here, which is the state <span class='mono'>check_machine</span> calls silent.</div>";
+      return "<div class='small'>אף שורה בטבלת הפקודות לא מזכירה את " + esc(a.name) +
+        ". שום דבר לא מנתב עבודה לכאן, וזה המצב ש-<span class='mono'>check_machine</span> מכנה שקט.</div>";
     }
     return a.commands.map(function (c) {
       if (c.runnable) return "<div class='cmdrow'>" + runButton(c.cmd, null, { compact: opts.compact }) +
@@ -4892,8 +4986,8 @@
          acts on can supply, while `check health` takes none and is simply not one of the
          shapes tools/queue_allowlist.py lets a web page queue. */
       var why = /[<\[]/.test(c.cmd)
-        ? "takes an argument; run it from the object it acts on"
-        : "not a queueable shape; run it in a Claude session on this repo";
+        ? "דורשת פרמטר; הרץ אותה מהעצם שהיא פועלת עליו"
+        : "לא ניתן להכניס לתור; הרץ אותה בסשן Claude על המאגר הזה";
       return "<div class='cmdrow'><code>" + esc(c.cmd.replace(/\\\|/g, "|")) + "</code>" +
         "<span class='muted'>" + esc(why) + "</span></div>";
     }).join("");
@@ -4901,9 +4995,9 @@
   function agentsView() {
     var list = AX.agents || [];
     return topbar("agents") + "<main>" +
-      "<div class='pagehead'><h1>Agents</h1><div class='small'>Who runs what, and what each one was told. " +
-      "Every contract here is the file on disk in <span class='mono'>.claude/agents/</span>, shipped into this page by the build, " +
-      "so a page whose instructions have drifted from the repo fails CI rather than misleading you.</div></div>" +
+      "<div class='pagehead'><h1>סוכנים</h1><div class='small'>מי מריץ מה, ומה נאמר לכל אחד מהם. " +
+      "כל חוזה כאן הוא הקובץ בדיסק בתוך <span class='mono'>.claude/agents/</span>, שמובא לדף הזה על ידי הבנייה, " +
+      "כך שדף שההוראות שלו סטו מהריפו נכשל ב-CI במקום להטעות אותך.</div></div>" +
       (list.length ? "<div class='agentgrid'>" + list.map(function (a) {
         var led = agentLedgerLine(a.name);
         return "<div class='card agentcard' data-nav='#/agent/" + esc(a.slug) + "' tabindex='0' role='link'>" +
@@ -4912,14 +5006,14 @@
           "<div class='small'>" + esc(a.role) + "</div>" +
           "<div class='agentcmds'><span data-stop>" + agentCommandList(a, { compact: true }) + "</span></div>" +
           "<div class='muted' style='margin-top:10px'>" +
-          (led ? "last seen in the ledger " + esc(led.slice(0, 10)) : "no ledger line names " + esc(a.name)) +
+          (led ? "נראה לאחרונה ביומן הרשמי " + esc(led.slice(0, 10)) : "אין שורה ביומן הרשמי שמזכירה את " + esc(a.name)) +
           "</div></div>";
       }).join("") + "</div>"
-        : "<div class='emptystate'>No agent contracts reached this build.</div>") +
+        : "<div class='emptystate'>שום חוזה סוכן לא הגיע לבנייה הזאת.</div>") +
       ((AX.unowned || []).length
-        ? seclabel("Commands with no agent") +
-          "<div class='card'><div class='small'>These rows in the command table name no owner, so no contract stands behind their buttons. " +
-          "It is the same backlog <span class='mono'>tools/check_machine.py</span> reports.</div>" +
+        ? seclabel("פקודות בלי סוכן") +
+          "<div class='card'><div class='small'>השורות האלה בטבלת הפקודות לא נוקבות בבעלים, כך שאין חוזה שעומד מאחורי הכפתורים שלהן. " +
+          "זה בדיוק מה שגם <span class='mono'>tools/check_machine.py</span> מדווח.</div>" +
           (AX.unowned || []).map(function (c) {
             return "<div class='cmdrow'><code>" + esc(String(c).replace(/\\\|/g, "|")) + "</code></div>";
           }).join("") + "</div>"
@@ -4936,32 +5030,32 @@
     var editing = EDITING === a.slug;
     var body = editing
       ? "<div class='editwrap'>" +
-        "<div class='small'>Editing the whole file, frontmatter included. Saving publishes the new text to this page; " +
-        "the next Claude session on this repo writes it to <span class='mono'>.claude/agents/" + esc(a.slug) + ".md</span> verbatim, " +
-        "commits it, and rebuilds. The commit is the undo.</div>" +
-        "<textarea id='agentEdit' class='contractedit' spellcheck='false' aria-label='agent instructions'>" +
+        "<div class='small'>עריכת הקובץ כולו, כולל ה-frontmatter. שמירה מפרסמת את הטקסט החדש לדף הזה; " +
+        "סשן Claude הבא על המאגר הזה יכתוב אותו אל <span class='mono'>.claude/agents/" + esc(a.slug) + ".md</span> מילה במילה, " +
+        "יבצע commit ויבנה מחדש. ה-commit הוא הביטול.</div>" +
+        "<textarea id='agentEdit' class='contractedit' spellcheck='false' aria-label='הוראות הסוכן'>" +
         esc(a.body) + "</textarea>" +
         "<div class='row' style='gap:8px;margin-top:10px'>" +
-        "<button class='btn-run' id='agentSave' data-slug='" + esc(a.slug) + "'>Save to repo</button>" +
-        "<button class='btn-ghost' id='agentCancel'>Cancel</button></div></div>"
+        "<button class='btn-run' id='agentSave' data-slug='" + esc(a.slug) + "'>שמור למאגר</button>" +
+        "<button class='btn-ghost' id='agentCancel'>בטל</button></div></div>"
       : "<div class='card contract'>" + md(contractBody(a.body)) + "</div>";
     return topbar("agents") + "<main>" +
-      "<div class='crumbs'><a href='#/agents'>Agents</a><span class='sep'>/</span><span class='here'>" + esc(a.name) + "</span></div>" +
+      "<div class='crumbs'><a href='#/agents'>סוכנים</a><span class='sep'>/</span><span class='here'>" + esc(a.name) + "</span></div>" +
       "<div class='pagehead'><h1>" + esc(a.name) + "</h1>" +
-      "<div class='small'>" + esc(a.role) + " · <span class='mono'>.claude/agents/" + esc(a.slug) + ".md</span> · " +
-      esc(a.bytes) + " bytes</div></div>" +
+      "<div class='small'>" + esc(a.role) + " · " + "<span class='mono'>" + ".claude/agents/" + esc(a.slug) + ".md" + "</span>" + " · " +
+      esc(a.bytes) + " בייטים</div></div>" +
       (pend
-        ? "<div class='sysline'><span class='healthdot' style='background:var(--warn)'></span>An edit saved " +
-          esc(String(pend.ts).slice(0, 16).replace("T", " ")) + "Z is waiting for a Claude session to write it to the repo. " +
-          "What you see below is still the version on disk.</div>"
+        ? "<div class='sysline'><span class='healthdot' style='background:var(--warn)'></span>עריכה שנשמרה " +
+          esc(String(pend.ts).slice(0, 16).replace("T", " ")) + "Z ממתינה לסשן Claude שיכתוב אותה למאגר. " +
+          "מה שאתה רואה למטה הוא עדיין הגרסה שבדיסק.</div>"
         : "") +
-      seclabel("What " + a.name + " owns") +
+      seclabel("על מה " + a.name + " אחראי") +
       "<div class='card'>" + agentCommandList(a, {}) + "</div>" +
-      seclabel("Instructions") +
+      seclabel("הוראות") +
       "<div class='row' style='gap:8px;margin-bottom:10px'>" +
-      (editing ? "" : "<button class='btn-run' id='agentEditBtn' data-slug='" + esc(a.slug) + "'>Edit instructions</button>") +
+      (editing ? "" : "<button class='btn-run' id='agentEditBtn' data-slug='" + esc(a.slug) + "'>ערוך הוראות</button>") +
       "<span data-stop>" + runButton("run devil .claude/agents/" + a.slug + ".md",
-        "a fresh-context adversary reads this file and the diff behind it", { compact: true }) + "</span>" +
+        "סוכן יריב בהקשר טרי קורא את הקובץ הזה ואת השינוי שמאחוריו", { compact: true }) + "</span>" +
       "</div>" +
       body +
       (led ? "<div class='sysline'><span class='mono'>" + esc(led) + "</span></div>" : "") +
@@ -4975,12 +5069,12 @@
      costs nothing on the other views. */
   function guideView() {
     var t = document.getElementById("upstream-guide");
-    var body = t ? t.innerHTML : "<div class='emptystate'>The guide did not reach this build: app/templates/guide.html is missing.</div>";
+    var body = t ? t.innerHTML : "<div class='emptystate'>המדריך לא הגיע לבנייה הזאת: app/templates/guide.html חסר.</div>";
     return topbar("guide") + "<main>" + body + footer() + "</main>";
   }
 
   function notFound(what) {
-    return topbar() + "<main><div class='emptystate' style='margin-top:40px'>Not found: " + esc(what) + '<br><br><a href="#/radar">back to radar</a></div>' + footer() + "</main>";
+    return topbar() + "<main><div class='emptystate' style='margin-top:40px'>לא נמצא: " + esc(what) + '<br><br><a href="#/radar">חזרה לרדאר</a></div>' + footer() + "</main>";
   }
 
   /* ---------------- router & events ---------------- */
@@ -5021,7 +5115,7 @@
       b.addEventListener("click", function (e) {
         e.preventDefault(); e.stopPropagation();
         var txt = b.getAttribute("data-copy");
-        function done() { b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400); }
+        function done() { b.textContent = "הועתק"; setTimeout(function () { b.textContent = "העתק"; }, 1400); }
         try { navigator.clipboard.writeText(txt).then(done, function () { fallbackCopy(txt); done(); }); }
         catch (err) { fallbackCopy(txt); done(); }
       });
@@ -5040,8 +5134,8 @@
         e.preventDefault(); e.stopPropagation();
         var cmd = b.getAttribute("data-copyrun");
         try { navigator.clipboard.writeText(cmd); } catch (err) { fallbackCopy(cmd); }
-        b.textContent = "Copied ✓ — paste into a Claude session";
-        setTimeout(function () { b.textContent = runLabel(cmd) + " — copy"; }, 2600);
+        b.textContent = "הועתק ✓ · הדבק בסשן Claude";
+        setTimeout(function () { b.textContent = runLabel(cmd) + " · העתק"; }, 2600);
       });
     });
     app.querySelectorAll("[data-stop]").forEach(function (n) {
@@ -5098,7 +5192,7 @@
       var slug = aSave.getAttribute("data-slug");
       var a = agentBySlug(slug);
       if (!ta || !a) return;
-      if (ta.value === a.body) { toast("Nothing changed — the text is identical to the file on disk."); return; }
+      if (ta.value === a.body) { toast("שום דבר לא השתנה. הטקסט זהה לקובץ בדיסק."); return; }
       publishEdit(slug, ta.value, a.body, aSave);
     });
     var cxUB = document.getElementById("cxUIBtn");
@@ -5211,12 +5305,12 @@
     var jq = sessionStorage.getItem("upstream.justQueued");
     if (jq) {
       sessionStorage.removeItem("upstream.justQueued");
-      toast("Queued: " + jq + " — a live Claude session runs it and this page refreshes with the result.");
+      toast("נכנס לתור: " + jq + ". סשן Claude פעיל יריץ אותו והעמוד יתעדכן עם התוצאה.");
     }
     var js = sessionStorage.getItem("upstream.justSaved");
     if (js) {
       sessionStorage.removeItem("upstream.justSaved");
-      toast("Saved: " + js + " — the next Claude session on this repo writes it to .claude/agents/ and rebuilds.");
+      toast("נשמר: " + js + ". סשן Claude הבא על המאגר הזה יכתוב אותו אל .claude/agents/ ויבנה מחדש.");
     }
   } catch (e) {}
   setTimeout(stampVisit, 4000);

@@ -545,16 +545,31 @@ def _spaced(word):
     return str(word).replace("_", " ") if word else "UNRATED"
 
 
+# Hebrew renderings for the two small closed vocabularies `_stage_line` reads off a
+# dive: the stock verdict and the clock. An unknown token (there should never be one)
+# falls back to `_spaced`, the same machine-token fallback used everywhere else here.
+_VERDICT_HE = {"INVESTABLE": "ראוי להשקעה", "WATCH": "במעקב", "TOO_LATE": "מאוחר מדי"}
+_CLOCK_HE = {"COMPOUNDER": "צובר לאורך שנים", "EVENT": "אירוע מתוארך"}
+
+
+def _verdict_word(token):
+    return _VERDICT_HE.get(token) or _spaced(token)
+
+
+def _clock_word(token):
+    return _CLOCK_HE.get(token) or _spaced(token)
+
+
 def _why_line(row):
     impact_s = fmt_num(row.get("impact"))
     capture_s = fmt_num(row.get("capture"))
     crowd_s = fmt_num(row.get("crowdedness"))
     if row["expression"] == "INSTRUMENT":
         issuer_crowd_s = fmt_num(row.get("issuer_crowdedness"))
-        return (f"Moves hard ({impact_s} of 100), keeps the profit ({capture_s} of 100), "
-                f"few have noticed the fund ({crowd_s} of 100; the stocks score {issuer_crowd_s}).")
-    return (f"Moves hard ({impact_s} of 100), keeps the profit ({capture_s} of 100), "
-            f"few have noticed ({crowd_s} of 100).")
+        return (f"מזיז הרבה ({impact_s} מתוך 100), שומר על הרווח ({capture_s} מתוך 100), "
+                f"מעטים שמו לב לקרן ({crowd_s} מתוך 100; המניות מקבלות {issuer_crowd_s}).")
+    return (f"מזיז הרבה ({impact_s} מתוך 100), שומר על הרווח ({capture_s} מתוך 100), "
+            f"מעטים שמו לב ({crowd_s} מתוך 100).")
 
 
 def _stage_line(row):
@@ -564,64 +579,66 @@ def _stage_line(row):
 
     if stage == "VERDICT":
         verdict = best.get("verdict")
+        verdict_s = _verdict_word(verdict)
         clock = best.get("clock")
-        clock_s = f" ({clock})" if clock else ""
+        clock_s = f" ({_clock_word(clock)})" if clock else ""
         if verdict == "TOO_LATE":
-            return "Verdict TOO_LATE; in the shadow book."
+            return "הכרעה: מאוחר מדי. בספר הצל."
         zone = best.get("zone")
         if not zone:
             if verdict == "WATCH":
-                return f"Verdict WATCH{clock_s}; no buy zone drawn yet."
-            return f"Verdict {verdict}{clock_s}; no zone drawn yet."
+                return f"הכרעה: {verdict_s}{clock_s}. עדיין לא סומן טווח קנייה."
+            return f"הכרעה: {verdict_s}{clock_s}. עדיין לא סומן טווח."
         low_s, high_s = fmt_money(zone.get("low")), fmt_money(zone.get("high"))
-        zone_word = "Entry zone" if zone.get("kind") == "entry" else "Would buy at"
+        zone_word = "טווח כניסה" if zone.get("kind") == "entry" else "היינו קונים ב"
         price = best.get("price")
-        lead = f"Verdict {verdict}{clock_s}. {zone_word} {low_s} to {high_s}"
+        lead = f"הכרעה: {verdict_s}{clock_s}. {zone_word} {low_s} עד {high_s}"
         if not price or price.get("value") is None:
             return lead + "."
         price_s, date_s = fmt_money(price["value"]), price.get("as_of") or ""
-        lead = f"{lead}; last close {price_s} on {date_s}"
+        lead = f"{lead}; סגירה אחרונה {price_s} בתאריך {date_s}"
         state = best.get("zone_state")
         if state == "IN_ZONE":
-            return lead + (": in the zone now." if verdict == "WATCH" else ": in the zone.")
+            return lead + (": בתוך הטווח עכשיו." if verdict == "WATCH" else ": בתוך הטווח.")
         if state == "ABOVE":
             pct_s = fmt_num(best.get("pct_above_zone_high"))
-            return lead + f": above the zone by {pct_s}%."
-        return lead + (": not there yet." if verdict == "WATCH" else ": below the zone.")
+            return lead + f": מעל הטווח ב {pct_s}%."
+        return lead + (": עוד לא שם." if verdict == "WATCH" else ": מתחת לטווח.")
 
     if stage == "DIVE_DRAFT":
-        return f"Dive drafted on {ticker}, no red team yet."
+        return f"נכתבה טיוטת צלילה על {ticker}, עוד אין צוות אדום."
 
     if stage == "O1_QUEUED":
-        return f"{ticker} is selected and waiting for a dive."
+        return f"{ticker} נבחרה ומחכה לצלילה."
 
     if stage == "SCREENED":
         cagr = best.get("implied_fcf_cagr")
         if cagr is None:
-            detail = "no valuation solve on file"
+            detail = "אין חישוב שווי בקובץ"
         else:
-            detail = f"today's price needs {fmt_num(round(cagr * 100, 1))}% yearly cash-flow growth"
-        return f"Not dived yet. Best name on the screen: {ticker} ({detail})."
+            detail = f"המחיר של היום דורש צמיחה של {fmt_num(round(cagr * 100, 1))}% בשנה בתזרים"
+        return f"עוד לא נחקרה לעומק. השם הטוב ביותר בסריקה: {ticker} ({detail})."
 
     if stage == "FUND":
         instruments = row.get("instruments") or []
         holds = _clip_words(instruments[0].get("holds") if instruments else None)
         issuer_word = _spaced(row.get("issuer_verdict"))
-        lead = (f"A fund holds this price directly: {ticker} ({holds}). "
-                f"Stocks on the link are rated {issuer_word}")
+        lead = (f"קרן מחזיקה את המחיר הזה ישירות: {ticker} ({holds}). "
+                f"המניות בחוליה מדורגות {issuer_word}")
         if best.get("rated"):
-            return f"{lead}; the fund is rated {_spaced(best.get('verdict'))}."
-        return f"{lead}; the fund is not rated yet."
+            return f"{lead}; הקרן מדורגת {_spaced(best.get('verdict'))}."
+        return f"{lead}; הקרן עדיין לא דורגה."
 
     if stage == "MAPPED":
         count_s = fmt_num(best.get("mapped_count"))
-        noun = "listed name" if count_s == "1" else "listed names"
-        return f"Census done, nothing screened yet. {count_s} {noun} mapped; first: {ticker}."
+        noun_phrase = ("חברה נסחרת אחת ממופה" if count_s == "1"
+                       else f"{count_s} חברות נסחרות ממופות")
+        return f"המפקד הסתיים, עדיין לא נסרק דבר. {noun_phrase}; הראשונה: {ticker}."
 
     if stage == "LEAD":
         if not best.get("ticker"):
-            return "No listed name on this link yet."
-        return f"No census yet. Example name: {ticker}."
+            return "עדיין אין חברה נסחרת בחוליה הזאת."
+        return f"עדיין אין מפקד. שם לדוגמה: {ticker}."
 
     return ""
 
@@ -633,7 +650,7 @@ def _next(row, inputs):
     ticker = best.get("ticker")
 
     if stage == "VERDICT":
-        return "Open the verdict", None
+        return "פתח את ההכרעה", None
     if stage == "DIVE_DRAFT":
         cmd = f"run redteam {ticker} {chain_id}"
         return cmd, cmd
@@ -727,7 +744,7 @@ def _build_row(chain, link, expr, inputs) -> dict:
         "best": best, "also": also, "instruments": instruments,
     }
     next_text, next_command = _next(row, inputs)
-    row["lines"] = {"headline": row["link_name"] or "This link", "why": _why_line(row),
+    row["lines"] = {"headline": row["link_name"] or "החוליה הזאת", "why": _why_line(row),
                      "stage": _stage_line(row), "next": next_text}
     row["next_command"] = next_command
     row["href"] = _href(row)

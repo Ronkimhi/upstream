@@ -28,7 +28,7 @@ class GuideFragment(unittest.TestCase):
         page = build.assemble_guide_html()
         fragment = build.read_guide_fragment()
         self.assertIn(fragment, page)
-        self.assertIn("<title>Upstream Guide</title>", page)
+        self.assertIn("<title>Upstream · מדריך</title>", page)
         self.assertNotIn("{{", page, "an unsubstituted placeholder reached the page")
 
     def test_committed_guide_matches_template(self):
