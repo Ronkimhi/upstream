@@ -5,9 +5,9 @@
  "clock": "COMPOUNDER",
  "status": "BUILT",
  "created_at": "2026-09-13",
- "updated_at": "2026-09-13T20:00:00Z",
+ "updated_at": "2026-09-14T02:00:00Z",
  "heat_as_of": "2026-09-14",
- "scenarios_as_of": null,
+ "scenarios_as_of": "2026-09-14",
  "map_limitation": "Five blind spots specific to this map. (1) The three uninvestable Russian nodes, transit control, Russian Arctic shipbuilding, and the Arctic LNG export operator, are sanctioned or unlisted state entities that publish no bill of materials, so every figure describing them on this map is a third party estimate and their tickers are empty by design, not by a failed search. (2) The two headline claims about total Northern Sea Route cargo volume in 2026 disagree: Rosatom's own count points to a record above 40 million tonnes while a separately reported count shows overall NSR cargo volumes falling for a second straight year, most plausibly because they measure different things, total tonnage dominated by sanctions hit hydrocarbon flows against the much smaller but fast growing container segment, and this map carries both claims rather than resolving them into one number it cannot support. (3) The allied icebreaker buildout looks like three separate national programs but two of the shipyards most cited in reporting, plus a subcontractor, resolve to one private Canadian ownership group, so the apparent diversification across allied-polar-icebreaker-buildout is thinner than the program names suggest. (4) This map cannot see who actually builds the small, privately held Chinese and Korean vessels that the newer container and multipurpose operators on nsr-container-and-multipurpose-shipping run; neither the Russian nor the allied shipbuilding link accounts for that fleet. (5) The insurance link's Arctic specific premium economics rest on one 2026 trade article and one older structural source; no cited source discloses what share of any single underwriter's book this risk actually represents, so the money corner call on polar-marine-hull-and-war-risk-insurance is directional rather than measured.",
  "links": [
   {
@@ -1558,7 +1558,326 @@
    }
   }
  ],
- "scenarios": [],
+ "scenarios": [
+  {
+   "id": "S1",
+   "title": "The permit regime stays stable and NSR traffic keeps scaling",
+   "narrative": "Rosatom's transit and escort regime keeps operating the way it has through 2026: permits issued, escort scheduled, cargo volumes tracking toward the record above 40 million tonnes this map's own transit-control link already cites. Under that stability, the two links already scored UNDISCOVERED on this map keep compounding: ice-class propulsion demand stays tight enough that Kongsberg's Steerprop deal is followed by further consolidation or capacity commitments among the same small supplier set, and Arctic hull and war-risk insurance keeps collecting its 5-10x premium multiple across a growing transit count. The allied icebreaker buildout and the container operators (Sea Legend, Panstar) continue at the pace already documented rather than accelerating or stalling. This is the map's continuation case, distinguished from S3 and S4 by nothing structural changing: no new sanctions shock, no casualty event, no breakout into mainstream investor coverage, just the same regime and the same names doing more of what they are already doing.",
+   "probability_pct": 30,
+   "clock": "COMPOUNDER",
+   "links_moved": [
+    {
+     "link_id": "ice-class-propulsion-systems",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "Sustained NSR transit growth keeps ordering pressure on the same small qualified-supplier set that just answered tight demand with M&A (Kongsberg-Steerprop) rather than new capacity; continuation means more orders into the same choke point."
+    },
+    {
+     "link_id": "polar-marine-hull-and-war-risk-insurance",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "More transits under a stable permit regime means more voyages that each need the 5-10x premium cover this link already charges, growing the thin field's collected volume even without a change in the multiple itself."
+    },
+    {
+     "link_id": "allied-polar-icebreaker-buildout",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "The trilateral ICE Pact program continues at its documented pace (Bollinger, Davie/Helsinki, Sata construction underway), a steady rather than accelerating response to continued Russian dominance."
+    },
+    {
+     "link_id": "russian-arctic-lng-export",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "Continuity in the permit regime keeps Novatek's cargo moving and Europe paying, extending the H1 2026 EUR 5.96 billion pace this link already documents without a structural change to who holds the equity."
+    },
+    {
+     "link_id": "nsr-container-and-multipurpose-shipping",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "Sea Legend's branded weekly service and Panstar's trial continue building toward the 2026 season already described, growing the transit count without yet drawing in a top-tier carrier."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "Kongsberg Gruppen (propulsion, the clearest listed proxy on the tightest link) prints a new 52-week high, the deepest unambiguous read on the market pricing continued Arctic propulsion order strength into a name that just made an acquisition rather than organic capacity.",
+     "where_to_watch": "data/market/KOG-OL.json daily close vs its own 52-week high",
+     "check": {
+      "type": "price",
+      "ticker": "KOG-OL",
+      "op": ">",
+      "level": 423.5
+     },
+     "armed": true,
+     "check_basis": "Armed. data/market/KOG-OL.json carries a 549-row series whose 52-week high is 423.50; the close on 2026-09-11 was 303.00. The level is that 52-week high read off the series on disk, not remembered, deliberately deep so an ordinary rally does not read as this scenario.",
+     "tripped_at": null
+    },
+    {
+     "signal": "Wartsila, the other listed ice-class propulsion supplier this map cites for the Canadian Polar Icebreaker order, prints a new 52-week high alongside continued order intake tied to Arctic programs.",
+     "where_to_watch": "data/market/WRT1V-HE.json daily close vs its own 52-week high",
+     "check": {
+      "type": "price",
+      "ticker": "WRT1V-HE",
+      "op": ">",
+      "level": 39.63
+     },
+     "armed": true,
+     "check_basis": "Armed. data/market/WRT1V-HE.json carries a 548-row series whose 52-week high is 39.63; the close on 2026-09-11 was 28.90. The level is that 52-week high read off the series on disk, deliberately deep so ordinary sector noise does not trip it.",
+     "tripped_at": null
+    },
+    {
+     "signal": "Rosatom or an independent tracker (Kyiv-School-of-Economics-style monthly counts, High North News) confirms full-year 2026 NSR cargo volume actually clears the 40 million tonne mark this link's own evidence already forecasts, rather than the figure being walked back.",
+     "where_to_watch": "Rosatom year-end NSR traffic statements; High North News and The Loadstar coverage",
+     "check": null,
+     "armed": false,
+     "check_basis": "Unarmed by the venue rule: no market file prices a cargo-volume statistic directly, and this map's own map_limitation already flags that the 40-million-tonne figure and a separately reported falling-volume figure disagree, so this indicator watches which claim the year-end data actually confirms rather than assuming the more optimistic one.",
+     "tripped_at": null
+    }
+   ],
+   "invalidation_signs": [
+    "The Northern Sea Route Administration measurably tightens or disrupts escort scheduling (a convoy delay pattern, a public dispute over icebreaker availability) rather than continuing routine operation.",
+    "Year-end NSR cargo volume prints below both the 40 million tonne figure and the prior year's total, confirming the map's own noted decline read rather than the record read."
+   ],
+   "status": "OPEN"
+  },
+  {
+   "id": "S2",
+   "title": "A new sanctions package tightens the gate on Russian Arctic LNG and its financing",
+   "narrative": "Rather than the status quo continuing, a new EU or US sanctions package explicitly targets Russian Arctic LNG shipping, insurance, or the remaining Western financial links to it, following the same pattern that already forced TotalEnergies' full August 2026 exit from Arctic LNG 2 and left its 20% Yamal LNG stake frozen and unsellable. Novatek's cargo owner link takes the direct hit; russian-arctic-shipbuilding, already CROWDED on saturated sanctions-and-labor-shortage coverage, tightens further as remaining equipment and financing channels close. The distinguishing feature against S1 is a discrete external policy event, not organic continuation, and the scenario is deliberately conservative about what moves on any Western-listed name: TotalEnergies' own capture score on this map is already scored low precisely because its remaining exposure is frozen rather than growing, so this scenario treats a TotalEnergies share-price move as a symbolic sector-sentiment read rather than a direct read on Arctic sanctions economics.",
+   "probability_pct": 20,
+   "clock": "EVENT",
+   "links_moved": [
+    {
+     "link_id": "russian-arctic-lng-export",
+     "direction": "DOWN",
+     "magnitude": "LARGE",
+     "why": "A new sanctions package aimed at the cargo owner link directly threatens the EUR 5.96 billion in H1 2026 European purchases this link already documents, the largest single number on the map that a policy shock can actually move."
+    },
+    {
+     "link_id": "russian-arctic-shipbuilding",
+     "direction": "DOWN",
+     "magnitude": "MEDIUM",
+     "why": "This link is already CROWDED on sanctions-and-labor-shortage coverage; a new package closing remaining equipment or financing channels intensifies the same acknowledged skilled-labor and sanctions squeeze rather than introducing a new mechanism."
+    },
+    {
+     "link_id": "polar-marine-hull-and-war-risk-insurance",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "A tighter sanctions regime narrows the already-thin field willing to write Arctic risk at all, real pricing power for the underwriters that remain even as overall transit volume tied to the sanctioned cargo falls."
+    },
+    {
+     "link_id": "nsr-container-and-multipurpose-shipping",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "Chinese and Korean operators (Sea Legend, Panstar) currently accept political and operational risk that a package targeting the corridor's financial plumbing would raise further, plausibly slowing the buildout this link's own evidence describes as small and new."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "A named EU or US sanctions announcement explicitly lists Arctic LNG shipping, insurance, or NSR-linked financial services as a target, rather than continuing to sanction only individual vessels or entities already covered.",
+     "where_to_watch": "EU Council sanctions packages; OFAC designations; Moscow Times, High North News wire coverage",
+     "check": null,
+     "armed": false,
+     "check_basis": "Unarmed by the venue rule: sanctions designations are not a price series and no market file prices the sanctions-decision event itself. This indicator is read directly from official sanctions text and wire coverage.",
+     "tripped_at": null
+    },
+    {
+     "signal": "TotalEnergies prints a new 52-week low, the deepest and least ambiguous listed read available on the map, even though the company's own frozen Yamal stake and prior press already treat this exposure as capped rather than growing, so this indicator is read as confirming sector sentiment rather than a direct Arctic-sanctions mechanism.",
+     "where_to_watch": "data/market/TTE-PA.json daily close vs its own 52-week low",
+     "check": {
+      "type": "price",
+      "ticker": "TTE-PA",
+      "op": "<",
+      "level": 49.845
+     },
+     "armed": true,
+     "check_basis": "Armed. data/market/TTE-PA.json carries a 559-row series whose 52-week low is 49.845; the close on 2026-09-11 was 78.77, well above that floor. The level is that 52-week low read off the series on disk, deliberately deep given TotalEnergies is a diversified major where an Arctic-specific sanctions event alone would not ordinarily move the stock this far; a genuine print through this level signals broad market stress, not a clean isolated read.",
+     "tripped_at": null
+    }
+   ],
+   "invalidation_signs": [
+    "Sanctions negotiations move toward relaxation instead: a ceasefire framework or a phased reopening of Western financing or insurance access for Russian Arctic projects.",
+    "TotalEnergies or another Western-linked name discloses a mechanism to realize value from the frozen Yamal stake despite the current sanctions regime, showing the freeze is not permanent."
+   ],
+   "status": "OPEN"
+  },
+  {
+   "id": "S3",
+   "title": "Ice-class propulsion capacity stays tight enough to force more consolidation",
+   "narrative": "The Kongsberg-Steerprop deal announced 7 September 2026 was this link's evidence that the qualified-supplier set answers tight demand with M&A rather than organic capacity growth. This scenario is that pattern repeating: a second qualified propulsion or heavy ice-class engine supplier is acquired or announces a capacity commitment within the next several quarters, the allied icebreaker program's own stated shipyard-and-workforce constraint (the reason three governments pooled capacity rather than building in parallel) becomes a visible schedule constraint rather than a background risk, and polar-grade steel plate's qualification-cycle bottleneck starts to bind as more yards compete for the same short supplier list. The distinguishing feature against S1 is that this is a structural tightening of value capture on the propulsion link specifically, not a volume story: the scored capture (74) rises further because the market is telling the qualified suppliers they can charge for scarcity rather than just fill more orders at existing terms.",
+   "probability_pct": 15,
+   "clock": "COMPOUNDER",
+   "links_moved": [
+    {
+     "link_id": "ice-class-propulsion-systems",
+     "direction": "UP",
+     "magnitude": "LARGE",
+     "why": "A second consolidation event in the same small qualified-supplier set would confirm the scored capture (74) as understating rather than overstating pricing power, converting a one-off deal into a demonstrated pattern."
+    },
+    {
+     "link_id": "allied-polar-icebreaker-buildout",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "The trilateral program's own stated reason for pooling capacity (shipyard and workforce scarcity) becomes a binding schedule constraint rather than the background risk it is today, slipping delivery dates the way Russia's own program has already slipped."
+    },
+    {
+     "link_id": "polar-grade-steel-plate",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "More yards competing for a still-short list of qualified ice-grade steel suppliers turns the qualification-cycle constraint this link's own evidence names into a real capacity bind rather than a mostly-theoretical one."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "ABB, whose podded propulsion systems this map already cites among the qualified suppliers, prints a new 52-week high, a signal the market is pricing continued scarcity into the propulsion supply chain beyond the single Kongsberg-Steerprop deal.",
+     "where_to_watch": "data/market/ABBN-SW.json daily close vs its own 52-week high",
+     "check": {
+      "type": "price",
+      "ticker": "ABBN-SW",
+      "op": ">",
+      "level": 88.56
+     },
+     "armed": true,
+     "check_basis": "Armed. data/market/ABBN-SW.json carries a 548-row series whose 52-week high is 88.56; the close on 2026-09-11 was 78.66. The level is that 52-week high read off the series on disk, deliberately deep so an ordinary broad-industrials rally does not read as this scenario.",
+     "tripped_at": null
+    },
+    {
+     "signal": "A second named acquisition or capacity-expansion announcement among ice-class propulsion or heavy ice-class engine suppliers, distinct from the Kongsberg-Steerprop deal this chain already documents.",
+     "where_to_watch": "Splash247, Waterways Journal, Marinelink and other specialist shipping trade press that covered the first deal",
+     "check": null,
+     "armed": false,
+     "check_basis": "Unarmed by the venue rule: an M&A announcement is not itself a price level, and no single ticker would cleanly represent a second, as-yet-unnamed acquisition target.",
+     "tripped_at": null
+    }
+   ],
+   "invalidation_signs": [
+    "The Kongsberg-Steerprop deal is blocked or unwound on regulatory review, or a new qualified entrant emerges quickly, showing the propulsion bottleneck is looser than this link's scored capture (74) implies.",
+    "The allied icebreaker program's construction milestones (Bollinger, Davie/Helsinki, Sata) continue on the schedule already reported with no new slippage disclosed across two consecutive quarters."
+   ],
+   "status": "OPEN"
+  },
+  {
+   "id": "S4",
+   "title": "Container shipping on the route scales past niche and draws real investor attention",
+   "narrative": "This link's own heat scoring already found the operator segment real and growing (record 23 Arctic container transits in 2025, Sea Legend's branded weekly Ice Silk Road service, a Korea Shipowners' Association prize backing Panstar's trial) but still small next to the corridor's dominant hydrocarbon tonnage, and still confined to specialist maritime trade press rather than mainstream financial coverage. This scenario is that threshold being crossed: a carrier beyond the two currently named enters scheduled service, or the existing operators' volumes scale enough that general financial media (not just High North News and Seatrade Maritime) starts covering the corridor as an investable Suez alternative the way CNN, WEF and AGBI already cover the geopolitical story. Satellite ice-monitoring demand rises with it, since every additional scheduled operator needs the routing intelligence this link already supplies operationally to insurers and operators.",
+   "probability_pct": 15,
+   "clock": "COMPOUNDER",
+   "links_moved": [
+    {
+     "link_id": "nsr-container-and-multipurpose-shipping",
+     "direction": "UP",
+     "magnitude": "MEDIUM",
+     "why": "A carrier beyond Sea Legend and Panstar entering scheduled service, or a material scale-up of the existing two, would move this link past the small-and-new stage its heat scoring (crowdedness 40, capture 28) already characterizes."
+    },
+    {
+     "link_id": "arctic-satellite-ice-monitoring",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "Every additional scheduled operator is a new customer for the routing intelligence ICEYE and Spire already supply operationally; more operators means more demand for the same service without a change in who supplies it."
+    },
+    {
+     "link_id": "asia-europe-arctic-trade-demand",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "A broader operator base widens the buyer base for the transit-time saving this link's demand anchor ultimately pays for, extending the France-Belgium-Spain pattern this link already documents rather than concentrating it."
+    },
+    {
+     "link_id": "polar-marine-hull-and-war-risk-insurance",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "More scheduled container transits are more voyages each requiring the specialist prior-permission cover this link already charges a 5-10x multiple for."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "Spire Global, the listed satellite operator this map already cites for Arctic-wide ice mapping, prints a new 52-week high, the deepest available unambiguous read on the market pricing scaled-up Arctic routing-data demand into a name whose current PCS read this chain's own heat scoring already flagged as DARK on attention.",
+     "where_to_watch": "data/market/SPIR.json daily close vs its own 52-week high",
+     "check": {
+      "type": "price",
+      "ticker": "SPIR",
+      "op": ">",
+      "level": 25.48
+     },
+     "armed": true,
+     "check_basis": "Armed. data/market/SPIR.json carries a 551-row series whose 52-week high is 25.48; the close on 2026-09-11 was 11.42, less than half that level. The level is that 52-week high read off the series on disk, deliberately deep so ordinary small-cap-satellite volatility does not read as this scenario.",
+     "tripped_at": null
+    },
+    {
+     "signal": "A top-20 global container carrier (not Sea Legend or Panstar) announces a scheduled or trial Northern Sea Route service.",
+     "where_to_watch": "Lloyd's List, Seatrade Maritime, Maritime Executive carrier announcements",
+     "check": null,
+     "armed": false,
+     "check_basis": "Unarmed by the venue rule: a named carrier's service announcement is not a price level, and the carrier most likely to make this move (the largest Chinese liner this link's evidence says has publicly stayed out) is not on any market file on this chain.",
+     "tripped_at": null
+    }
+   ],
+   "invalidation_signs": [
+    "The 2026 container season closes with transit counts flat or down against the record 23 in 2025, confirming the niche-scale read stands.",
+    "The largest Chinese carrier reaffirms it is staying out of the route, the specific holdout this link's own evidence already names."
+   ],
+   "status": "OPEN"
+  },
+  {
+   "id": "S5",
+   "title": "A casualty or near-miss sharply reprices Arctic hull and war-risk cover",
+   "narrative": "Standard hull and machinery cover already excludes NSR voyages outright and requires prior underwriter permission before any policy applies; this scenario is a discrete triggering event, an uninsured or under-covered vessel incident, a documented near-miss under ice conditions, or an underwriter loss event, that forces the already-thin field of willing underwriters to reprice sharply rather than continuing the steady 5-10x multiple this link's evidence already documents. Ice-class classification and notation tightens alongside it as insurers and flag states demand stricter proof of Polar Class compliance following the event. The distinguishing feature against S1 is a discrete shock with a clear before-and-after in pricing, not gradual volume growth, and it is the one scenario where the operators actually running scheduled service (Sea Legend, Panstar) plausibly pull back rather than scale up, since they are the newest entrants accepting the operational risk this scenario crystallizes.",
+   "probability_pct": 20,
+   "clock": "EVENT",
+   "links_moved": [
+    {
+     "link_id": "polar-marine-hull-and-war-risk-insurance",
+     "direction": "UP",
+     "magnitude": "LARGE",
+     "why": "A casualty or near-miss event is exactly the kind of shock that turns a documented 5-10x steady multiple into a sharp repricing, real pricing power exercised rather than just held, for the short list of underwriters still willing to write this risk at all."
+    },
+    {
+     "link_id": "ice-class-classification-and-notation",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "A casualty event raises scrutiny on Polar Class compliance directly, pushing more design review and re-certification work through the same class societies this link already describes as running a lengthy, un-shortenable review."
+    },
+    {
+     "link_id": "nsr-container-and-multipurpose-shipping",
+     "direction": "DOWN",
+     "magnitude": "SMALL",
+     "why": "Sea Legend and Panstar are the newest entrants explicitly described as accepting political and operational risk; a crystallizing casualty event is the scenario most likely to make that risk look less acceptable to exactly these two names."
+    },
+    {
+     "link_id": "arctic-satellite-ice-monitoring",
+     "direction": "UP",
+     "magnitude": "SMALL",
+     "why": "A casualty event raises the value of the routing intelligence this link already supplies operationally to insurers and operators pricing and planning transits, without changing who supplies it."
+    }
+   ],
+   "leading_indicators": [
+    {
+     "signal": "Lancashire Holdings, one of the two specialist listed underwriters this map already cites in the thin field writing Arctic risk, prints a new 52-week high, the deepest available unambiguous read on the market pricing a sharp repricing event into a name whose current close sits well below that level.",
+     "where_to_watch": "data/market/LRE-L.json daily close vs its own 52-week high",
+     "check": {
+      "type": "price",
+      "ticker": "LRE-L",
+      "op": ">",
+      "level": 694.0
+     },
+     "armed": true,
+     "check_basis": "Armed. data/market/LRE-L.json carries a 556-row series whose 52-week high is 694.00; the close on 2026-09-11 was 620.50. The level is that 52-week high read off the series on disk, a real but not extreme breakout given the close already sits within about 11% of it, chosen because a genuine repricing shock in a thin specialist underwriting field should be visible at the top of this name's own range.",
+     "tripped_at": null
+    },
+    {
+     "signal": "A named marine casualty, near-miss, or major insurer loss statement tied specifically to a Northern Sea Route or Arctic polar-class transit is reported.",
+     "where_to_watch": "Lloyd's List Intelligence casualty reporting, IMO incident reports, Lloyd's and Skuld insurer commentary",
+     "check": null,
+     "armed": false,
+     "check_basis": "Unarmed by the venue rule: a casualty report is a discrete event, not a price level, and no market file prices the event itself.",
+     "tripped_at": null
+    }
+   ],
+   "invalidation_signs": [
+    "A full Arctic shipping season passes with no material casualty or insurer loss event reported, and the premium multiple this link documents stays at its current steady 5-10x level rather than repricing.",
+    "Underwriting capacity in the specialist field actually widens (a new entrant begins writing this risk) rather than tightening after any incident, the opposite of the scarcity mechanism this scenario depends on."
+   ],
+   "status": "OPEN"
+  }
+ ],
  "notes": [
   {
    "ts": "2026-09-13T20:00:00Z",
@@ -1586,6 +1905,13 @@
    "kind": "HEAT",
    "change": "run heat: all 12 links examined and scored (0 pending, 0 errors). Two money_corner links found on fresh dated evidence: ice-class-propulsion-systems (crowdedness stayed in specialist shipping trade press even after Kongsberg's Steerprop acquisition moved its own stock, while supply is concentrated enough that the response was M&A rather than capacity growth) and polar-marine-hull-and-war-risk-insurance (5-10x premium multiple charged by a thin field of underwriters requiring prior permission, covered only in specialist insurance trade press). This corroborates Atlas's own build note naming insurance the likely money corner and adds propulsion as a second, unflagged candidate. russian-arctic-shipbuilding scored CROWDED (62) on saturated sanctions/labor-shortage coverage across five independent outlets; repricing_check finds only one of four legs met (no instrument exists to reprice regardless, so no CROWDED-BUT-UNREPRICED flag). No link scored OVER_CROWDED, so no shadow rows are due this run. Chains created 2026-09-13 stay inside the price-instrument warn window (method section 3, 2026-09-14 cutoff); scarce_price/price_instruments remain Atlas's to add on refresh, not written here.",
    "prior": null
+  },
+  {
+   "ts": "2026-09-14T02:00:00Z",
+   "by": "ember-scenario-analyst",
+   "kind": "SCENARIOS",
+   "change": "run scenarios: 5 scenarios written (S1-S5), probability total 100 (90-110 band), all real links moved with direction/magnitude/why grounded in this chain's own heat evidence (Kongsberg-Steerprop propulsion consolidation, TotalEnergies' Arctic LNG 2 exit, the documented 5-10x Arctic insurance premium multiple, Sea Legend/Panstar container operators, the trilateral ICE Pact shipyard constraint). Armed price checks only where data/market/ already holds a fetched series behind the ticker: KOG-OL, WRT1V-HE, ABBN-SW (propulsion), TTE-PA (LNG export sector-sentiment proxy), SPIR (satellite ice monitoring), LRE-L (insurance). polar-grade-steel-plate (VOE.VI), ice-class-classification-and-notation (BVI.PA), and arctic-satellite-ice-monitoring's second name (IRDM) have no market file yet, so their scenario touches stay unarmed with a written venue-rule basis rather than a remembered level. scenario_health reconciles to 5 examined, 5 scored, 0 pending, 0 errors.",
+   "prior": null
   }
  ],
  "heat_health": {
@@ -1594,7 +1920,12 @@
   "pending": 0,
   "errors": 0
  },
- "scenario_health": null,
+ "scenario_health": {
+  "examined": 5,
+  "scored": 5,
+  "pending": 0,
+  "errors": 0
+ },
  "explainer": {
   "lang": "he",
   "shape": "זו לא שרשרת ישרה אלא מבנה שמתחיל בכמה שורשים נפרדים בו זמנית: השער המדיני הרוסי מצד אחד, וספקי ציוד וחומרים גלובליים מצד שני. שני הענפים האלה מתמזגים לתוך שתי דרכי בנייה נפרדות, רוסית ומערבית, שמזינות יחד את שכבת הביטוח וההפעלה, ומסתיימות בקונה אחד בקצה שמשלם על הכל.",
