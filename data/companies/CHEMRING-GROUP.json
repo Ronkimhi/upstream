@@ -1,9 +1,9 @@
 {
  "issuer_id": "CHEMRING-GROUP",
  "issuer_name": "Chemring Group plc",
- "as_of": "2026-09-13",
+ "as_of": "2026-09-14",
  "created_at": "2026-09-13T20:00:00Z",
- "updated_at": "2026-09-13T20:00:00Z",
+ "updated_at": "2026-09-14T02:25:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T3",
@@ -238,6 +238,30 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for CHEMRING-GROUP from data/mappings/munitions-replenishment.json (status ACTIVE, current audit status FAIL, audited 2026-08-31T20:58:00Z) and data/market/CHG-L.json (yfinance-statements, T3). 5 of 11 numeric canonical fields filled with sourced numbers, 6 honestly NULL on named data gaps; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 1 of 1 (munitions-replenishment unprofiled-issuer fan-out)."
+  },
+  {
+   "ts": "2026-09-14T02:25:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (munitions-replenishment scope): examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['quality.piotroski', 'quality.beneish_state', 'valuation.market_cap', 'valuation.price_to_sales', 'reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "command": "run selection CAMP-20260901-01 (munitions-replenishment)",
+  "reviewed_by": "sieve-profiler",
+  "outcome": "RETAINED_O2",
+  "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+  "null_canonical_fields": [
+   "quality.piotroski",
+   "quality.beneish_state",
+   "valuation.market_cap",
+   "valuation.price_to_sales",
+   "reverse_dcf.implied_fcf_cagr",
+   "reverse_dcf.horizon_spread"
+  ],
+  "reason": "Examined against the O1 bar on its energetic-materials row, the one row on this screen admitted only via a current PASS placement_audits[] entry (2026-09-14T00:38:00Z) rather than all-VERIFIED evidence, since its own placement evidence is INFERRED-only. Six of eleven canonical fields read NULL: quality.piotroski and quality.beneish_state (insufficient companyfacts-equivalent inputs from the vendor block), and valuation plus reverse_dcf (blocked on a GBP-statements/GBp-listing currency mismatch with no FX source on disk, per method section 6A's currency-mismatch NULL rule). Method section 6A forbids any NULL canonical field on an O1 profile. Separately, T3 with official_source false on revenue.latest_fy and cash-conversion (yfinance-statements vendor block) would independently fail the O1 official-source cross-check even if every field were filled; not attempted this run since the NULL-field bar disposes of promotion first.",
+  "revisit": "Revisit once the currency-mismatch and quality-input gaps are resolved (an FX rate on disk, or an official GBP-denominated filing figure) and an official-source cross-check is completed on revenue and cash conversion, and the theme still has O1 room under targets.o1_per_theme_max."
+ }
 }

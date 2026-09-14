@@ -1,9 +1,9 @@
 {
  "issuer_id": "BOEING",
  "issuer_name": "The Boeing Company",
- "as_of": "2026-09-13",
+ "as_of": "2026-09-14",
  "created_at": "2026-09-13T20:00:00Z",
- "updated_at": "2026-09-13T20:00:00Z",
+ "updated_at": "2026-09-14T02:25:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -231,6 +231,26 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for BOEING from data/mappings/munitions-replenishment.json (status ACTIVE, current audit status FAIL, audited 2026-08-31T20:58:00Z) and data/market/BA.json (sec-companyfacts, T1). 9 of 11 numeric canonical fields filled with sourced numbers, 2 honestly NULL on named data gaps; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 1 of 1 (munitions-replenishment unprofiled-issuer fan-out)."
+  },
+  {
+   "ts": "2026-09-14T02:25:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (munitions-replenishment scope): examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['reverse_dcf.implied_fcf_cagr', 'reverse_dcf.horizon_spread']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "command": "run selection CAMP-20260901-01 (munitions-replenishment)",
+  "reviewed_by": "sieve-profiler",
+  "outcome": "RETAINED_O2",
+  "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+  "null_canonical_fields": [
+   "reverse_dcf.implied_fcf_cagr",
+   "reverse_dcf.horizon_spread"
+  ],
+  "reason": "Examined against the O1 bar on its seekers-and-terminal-guidance row (evidence VERIFIED, link EMERGING, CHOKE_POINT). Both reverse_dcf fields read NULL in data/market/BA.json: base free cash flow is negative, so the bisection solve for an implied FCF CAGR has no valid root and is honestly left NULL rather than forced. Boeing is in fact one of the two chokepoint suppliers the link's own bottleneck note names by name (the PAC-3 MSE radar seeker plant in Huntsville), the strongest direct-exposure case on this link of any candidate examined this run, but method section 6A forbids any NULL canonical field on an O1 profile regardless of exposure strength. O1 official-source cross-check not attempted: moot, the NULL-field bar disposes of promotion first.",
+  "revisit": "Revisit if Boeing's free cash flow turns positive on a later fiscal year fetch, allowing the reverse-DCF solve to resolve, and the theme still has O1 room under targets.o1_per_theme_max. Until then this is a real ceiling on the reverse_dcf method, not a data gap a re-fetch alone fixes."
+ }
 }

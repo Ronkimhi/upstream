@@ -1,9 +1,9 @@
 {
  "issuer_id": "RHEINMETALL",
  "issuer_name": "Rheinmetall AG",
- "as_of": "2026-09-13",
+ "as_of": "2026-09-14",
  "created_at": "2026-09-13T20:00:00Z",
- "updated_at": "2026-09-13T20:00:00Z",
+ "updated_at": "2026-09-14T02:25:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T3",
@@ -302,6 +302,23 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for RHEINMETALL from data/mappings/munitions-replenishment.json (status ACTIVE, current audit status FAIL, audited 2026-08-31T20:58:00Z) and data/market/RHM-DE.json (yfinance-statements, T3). 11 of 11 numeric canonical fields filled with sourced numbers, 0 honestly NULL on named data gaps; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 1 of 1 (munitions-replenishment unprofiled-issuer fan-out)."
+  },
+  {
+   "ts": "2026-09-14T02:25:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (munitions-replenishment scope): examined and retained at O2 (O1_BARRED_BY_MISSING_OFFICIAL_SOURCE_CROSSCHECK). NULL canonical fields: []. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "command": "run selection CAMP-20260901-01 (munitions-replenishment)",
+  "reviewed_by": "sieve-profiler",
+  "outcome": "RETAINED_O2",
+  "reason_code": "O1_BARRED_BY_MISSING_OFFICIAL_SOURCE_CROSSCHECK",
+  "null_canonical_fields": [],
+  "reason": "Examined against the O1 bar on its energetic-materials row (evidence VERIFIED, link EMERGING, CHOKE_POINT). All 11 canonical fields are filled with zero NULL, the cleanest non-NULL read of any T3 candidate examined this run, and RHEINMETALL is arguably the strongest direct-exposure name on the whole screen (Europe's largest 155mm shell producer, artillery-and-bulk-munitions and allied-rearmament-demand placements too). It is barred from O1 purely on the method 6A official-source cross-check: revenue.latest_fy and both cash_conversion fields are tag INFERRED, official_source false, sourced from the yfinance-statements vendor block, not an official filing or IR figure. This run attempted the cross-check directly: RHEINMETALL has no SEC CIK (T3, no 20-F), so the check needs an official German filing or investor-relations report. A live WebFetch of rheinmetall.com's investor-relations overview page returned a headline FY2025 sales figure (~EUR 16.5bn) that is not obviously reconcilable with the vendor block's stored revenue.latest_fy (EUR 9.935bn) -- a real discrepancy worth flagging, not resolving from an unverifiable AI-summarized page read (no data/web/ store entry to cite a verbatim source_excerpt against, per method section 1's evidence-excerpt rule). Rather than writing an unverifiable number into the profile, a web_doc request (REQ-20260914-527) was queued for the official investor-relations page so a future run can complete this cross-check against a stored, citable document.",
+  "revisit": "Revisit once REQ-20260914-527 is FULFILLED (data/web/<id>.json exists) and a session reads the official investor-relations financial-reports page, reconciles the sales-figure discrepancy against the vendor block, and re-derives revenue.latest_fy and cash-conversion with official_source true, and the theme still has O1 room under targets.o1_per_theme_max."
+ }
 }

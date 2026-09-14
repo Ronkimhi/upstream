@@ -1,9 +1,9 @@
 {
  "issuer_id": "NORTHROP-GRUMMAN",
  "issuer_name": "Northrop Grumman Corporation",
- "as_of": "2026-09-13",
+ "as_of": "2026-09-14",
  "created_at": "2026-09-13T20:00:00Z",
- "updated_at": "2026-09-13T20:00:00Z",
+ "updated_at": "2026-09-14T02:25:00Z",
  "generated_by": "sieve-profiler",
  "status": "COMPLETE",
  "data_tier": "T1",
@@ -313,6 +313,26 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created COMPLETE profile for NORTHROP-GRUMMAN from data/mappings/munitions-replenishment.json (status ACTIVE, current audit status FAIL, audited 2026-08-31T20:58:00Z) and data/market/NOC.json (sec-companyfacts, T1). 9 of 11 numeric canonical fields filled with sourced numbers, 2 honestly NULL on named data gaps; status COMPLETE, opportunity_tier O2. run profile --campaign CAMP-20260901-01, batch 1 of 1 (munitions-replenishment unprofiled-issuer fan-out)."
+  },
+  {
+   "ts": "2026-09-14T02:25:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run selection CAMP-20260901-01 (munitions-replenishment scope): examined and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). NULL canonical fields: ['quality.piotroski', 'quality.beneish_state']. Status COMPLETE, data tier and every listing, placement and metric unchanged; reason and revisit condition recorded in selection_review."
   }
- ]
+ ],
+ "selection_review": {
+  "as_of": "2026-09-14",
+  "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+  "command": "run selection CAMP-20260901-01 (munitions-replenishment)",
+  "reviewed_by": "sieve-profiler",
+  "outcome": "RETAINED_O2",
+  "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+  "null_canonical_fields": [
+   "quality.piotroski",
+   "quality.beneish_state"
+  ],
+  "reason": "Examined against the O1 bar on its energetic-materials row (screen bucket picks_and_shovels, evidence VERIFIED, link EMERGING, impact 85/crowdedness 55/capture 65). Method section 6A is explicit: O1 profiles may not retain NULL or unknown-state placeholders on any canonical field. quality.piotroski and quality.beneish_state both read NULL in data/market/NOC.json's quality block (SEC companyfacts inputs incomplete), so this profile is barred from O1 regardless of its otherwise strong direct exposure (five ACTIVE placements on this chain) and clean revenue/cash-conversion fields. O1 official-source cross-check not attempted: moot, the NULL-field bar disposes of promotion first.",
+  "revisit": "Revisit once a fetch fills quality.piotroski and quality.beneish_state on data/market/NOC.json (re-run run profile NOC to pick it up) and the theme still has O1 room under targets.o1_per_theme_max."
+ }
 }
