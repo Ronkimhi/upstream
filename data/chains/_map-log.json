@@ -165,7 +165,7 @@
    "origin": "METHOD",
    "status": "HARDENED",
    "first_seen": "2026-09-13",
-   "occurrences": 1,
+   "occurrences": 2,
    "hardened_at": "2026-09-13",
    "taste_ref": "ARCH-008",
    "evidence": [
@@ -173,9 +173,14 @@
      "object_id": "hormuz-maritime/crude-tanker-tonnage",
      "ts": "2026-09-13",
      "quote": "90% TD3C (VLCCs) 10% TD20 (Suezmax)"
+    },
+    {
+     "object_id": "methanol-bunkering/eu-maritime-decarbonization-mandates",
+     "ts": "2026-09-14",
+     "quote": "European Union Allowance (EUA) 2026 Note 57.98%"
     }
    ],
-   "note": "first application: of the 8 required links on hormuz-maritime, one FOUND a listed wrapper (BWET on crude-tanker-tonnage); lng-shipping-and-qatari-supply has exchange futures on its price and no wrapper; marine-war-risk-underwriting and crew-and-warlike-area-manning name a price that nothing listed holds; the toll, reinsurance, escort and bypass links set no published price. METHOD origin, so it hardens on first application with cited evidence. Backfill of the other 11 chains is pending."
+   "note": "first application: of the 8 required links on hormuz-maritime, one FOUND a listed wrapper (BWET on crude-tanker-tonnage); lng-shipping-and-qatari-supply has exchange futures on its price and no wrapper; marine-war-risk-underwriting and crew-and-warlike-area-manning name a price that nothing listed holds; the toll, reinsurance, escort and bypass links set no published price. METHOD origin, so it hardens on first application with cited evidence. Backfill of the other 11 chains is pending. Second occurrence 2026-09-14: methanol-bunkering/eu-maritime-decarbonization-mandates prices as the EU ETS EUA and FOUND KRBN (NYSE), a carbon-allowance futures fund with EUA futures and notes its largest single holding (~62% of NAV combined); methanol-ready-shipyard-capacity names a published index (Clarksons Newbuilding Price Index) with NONE_FOUND for a listed wrapper holding it directly, matching the pattern where the underlying futures/index exists but no tradable wrapper does; the other 7 required links on this chain set no published price at all. Two occurrences from two different chains now on record."
   }
  ],
  "spot_tests": [
@@ -1128,12 +1133,33 @@
    "kind": "AMEND",
    "change": "recomputed calibration from data/ (amend)",
    "prior": "2026-09-14T18:41:04Z"
+  },
+  {
+   "ts": "2026-09-14T18:37:23Z",
+   "by": "map_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-14T18:22:08Z"
+  },
+  {
+   "ts": "2026-09-14T18:38:44Z",
+   "by": "map_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-14T18:37:23Z"
+  },
+  {
+   "ts": "2026-09-14T18:44:41Z",
+   "by": "map_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed calibration from data/ (amend)",
+   "prior": "2026-09-14T18:38:44Z"
   }
  ],
  "as_of": "2026-09-14",
- "updated_at": "2026-09-14T18:43:58Z",
+ "updated_at": "2026-09-14T18:44:41Z",
  "calibration": {
-  "generated_at": "2026-09-14T18:43:58Z",
+  "generated_at": "2026-09-14T18:44:41Z",
   "link_yield": {
    "links_total": 215,
    "yielded_a_name": 145,
@@ -1504,7 +1530,8 @@
     "changelog_kinds": {
      "BUILD": 1,
      "HEAT": 2,
-     "SCENARIO": 2
+     "SCENARIO": 2,
+     "AMEND": 1
     },
     "structure": {
      "links": 12,
@@ -1980,8 +2007,8 @@
    }
   },
   "amendment_history": {
-   "entries_typed": 56,
-   "entries_total": 62,
+   "entries_typed": 55,
+   "entries_total": 61,
    "amendments": [
     {
      "chain": "ai-infrastructure",
@@ -2176,6 +2203,12 @@
      "change": [
       "The price test (method section 4, amended 2026-09-13), ordered by Ron. scarce_price, instrument_search and price_instruments added to all 7 HIGH or CHOKE_POINT links; the 4 MEDIUM or LOW links (spent-battery-feedstock, displaced-non-us-buyers, defense-and-industrial-tungsten-demand, ev-and-grid-battery-material-demand) were left without them. Two links name a published price, both sourced fresh this run: tungsten-ore-and-scrap-feedstock prices as the Fastmarkets tungsten concentrate spot price, basis 50-70% WO3, cif global (NONE_FOUND for a listed instrument: no exchange lists tungsten futures and REMX's Almonty stake is mining equity, not a price claim); us-tungsten-processing-and-carbide-production prices as ammonium paratungstate (APT) 88.5% WO3 min, cif Rotterdam and Baltimore, duty-free, corroborated by a second independent publisher, CTIA (NONE_FOUND, same reasoning). Five links set no published price and read null with a basis: recycling-and-refining-capacity-buildout (process technology and capacity, not a traded commodity; only unsourced aggregator cost ranges found), black-mass-production (Fastmarkets and S&P Global Commodity Insights both run black mass payable indicators, but both sit behind a paywall this run could not quote a current figure from, the same gap map_limitation point 2 already names), us-critical-minerals-domestic-allocation-rule (the rule itself, a legal allocation mandate with no market price, the same ARCH-shape as russian-refining-attrition), us-black-mass-refining (its refined output clears at freely-set global battery-metal prices unrelated to this rule's own scarcity, which is priced, or left null, one link upstream), and national-defense-stockpile-and-title-iii-funding (a single discretionary federal buyer and funder, not a market). No existing field on any link was changed: ids, positions, edges, roles, bottlenecks, capture_inputs, example tickers, prior evidence, heat blocks, explainers, scenarios and confidence_audit are as they were; confidence_audit is left unreconciled against the newly added scarce_price evidence tags, a pre-existing gap (already 40 actual VERIFIED tags against a claimed 14 before this run) out of this run's scope and captured to backlog rather than fixed here. map_limitation is unchanged: point (2), that the rule's crude-versus-refined spread cannot be sized with any figure found this run, is the same finding this run's black mass searches reconfirmed."
      ]
+    },
+    {
+     "chain": "methanol-bunkering",
+     "ts": "2026-09-14T19:30:00Z",
+     "kind": "AMEND",
+     "change": "The price test (method section 4, amended 2026-09-13), first application on this chain, ordered by Ron. scarce_price, instrument_search and price_instruments added to all 9 HIGH or CHOKE_POINT links; "
     }
    ],
    "note": "A link added on a later pass is a link the first map missed. Untyped changelog entries cannot be classified, so they are reported, not assumed clean."
