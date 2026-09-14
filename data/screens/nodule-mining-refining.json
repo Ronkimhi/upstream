@@ -7,99 +7,665 @@
  "identity_schema": "campaign-v1",
  "campaign_ref": null,
  "mapping_ref": "data/mappings/nodule-mining-refining.json",
- "universe_note": "First-ever screen for nodule-mining-refining (chain-level, scenario_id null; no prior data/screens/nodule-mining-refining.json existed). This chain was built and mapped outside the campaign slate per Ron's instruction (data/mappings/nodule-mining-refining.json's own notes[]), so campaign_ref is null; identity_schema is still campaign-v1 because the mapping is normalized and dated today, the same boundary check_screen._campaign_strict applies to any post-cutoff screen over a normalized map regardless of campaign membership. Universe built per LINK across all 11 links, priority order money-corner then CHOKE_POINT then the rest by impact: refining-tech (pos 9, the chain's sole money_corner:true link, also CHOKE_POINT, impact 85) worked first, then the 3 other CHOKE_POINT links (us-seabed-minerals-policy pos 1, seabed-permit-review pos 3, port-siting-epc pos 8), then the remaining 7 by impact score.\n\nZERO ROWS SEATED THIS RUN. The mapping (status ACTIVE, no top-level census audit block, 6 placement_audits[] entries landed 2026-09-14: 5 PASS, 1 FAIL) admits 5 of its 6 placements on the placement-scope gate (all-VERIFIED evidence, or a current PASS placement_audits[] entry per check_screen._placement_admissible): TMC/refining-tech (evidence VERIFIED), METALS-ROYALTY/ccz-nodule-resource (evidence VERIFIED), DEEP-SEA-MINERALS/permit-race (evidence VERIFIED), TMC/ccz-nodule-resource (evidence INFERRED, admitted via its PASS placement audit), ODYSSEY-MARINE/ccz-nodule-resource (evidence INFERRED, admitted via its PASS placement audit). The 6th, TECHNIPFMC/collector-tech, clears neither basis: its evidence is INFERRED-only and its placement_audits[] entry (audited_at 2026-09-14T01:31:00Z) is status FAIL on source_date_ok (the cited JPT/SPE article is dated 2021-08-16, not the 2026-01-01 recorded), so it is refused on the placement gate itself, independent of profile status.\n\nBut every one of the 5 placement-admissible names sits on an issuer whose company profile is BLOCKED/O3, not COMPLETE: data/companies/{TMC,ODYSSEY-MARINE,METALS-ROYALTY,DEEP-SEA-MINERALS,TECHNIPFMC}.json all read status BLOCKED, opportunity_tier O3, every canonical metric NULL, because no data/market/<T>.json exists on disk for any of this mapping's 5 tickers (TMC, FTI, OMEX, TMCR, SEAS.CN) yet. check_screen.check_campaign_identity requires a COMPLETE O1 or O2 profile as an independent gate on top of placement admissibility; O3/BLOCKED profiles are refused regardless of how strong the placement evidence is. So this run's finding is entirely a data-availability finding, not an evidence or identity finding: every placement-admissible name is profile-blocked, and the one placement that is not placement-admissible (TECHNIPFMC/collector-tech) is also profile-blocked, so no combination of gates seats anything yet.\n\nRequest rows already cover all 5 tickers' prices, fundamentals, quality and edgar_doc (TMC: REQ-20260914-464/465/466/467 and a duplicate batch 501-504; FTI: 468-471 and 505-508; OMEX: 472-475 and 509-512; TMCR: 476-479 and 513-516; SEAS.CN: 480-482, 517-519, and 627-629), all still PENDING as of this run. This run adds no new request rows: the existing PENDING rows already cover every field every one of these profiles needs to move to COMPLETE. Re-run `run profile <TICKER>` for each of the 5 once the fetch settles, then re-run this screen.\n\nPer-link disposition, all 11 links:\n1. us-seabed-minerals-policy [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible by design; mapping closes this link EXHAUSTED at 0 issuers (a presidential executive order has no commercial issuer), a genuine finding, not a gap.\n2. ccz-nodule-resource [MEDIUM, verdict CROWDED, mapping OPEN]: no row. 3 placements are placement-gate admissible (TMC, ODYSSEY-MARINE, METALS-ROYALTY) but all 3 issuers are BLOCKED/O3, data pending.\n3. seabed-permit-review [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible by design; mapping closes this link EXHAUSTED at 0 issuers (a federal agency review has no commercial issuer).\n4. permit-race [MEDIUM, verdict QUIET, mapping OPEN]: no row. DEEP-SEA-MINERALS is placement-gate admissible but BLOCKED/O3, data pending.\n5. collector-tech [HIGH, verdict UNDISCOVERED, mapping OPEN]: no row. TECHNIPFMC fails the placement gate itself (INFERRED evidence, FAIL placement audit on source_date_ok) and is also BLOCKED/O3; doubly refused. Atlas's own mapping notes name two better-sourced but not-yet-placed leads for this link (DEME Group/GSR, Kongsberg Gruppen) for a future universe run.\n6. env-monitoring-compliance [MEDIUM, verdict QUIET, mapping OPEN]: no row; zero placements exist in the mapping for this link (example tickers TDY, KOG.OL are query seeds, not placed issuers). Backlogged to Atlas's own run universe.\n7. marine-transport [LOW, verdict QUIET, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas.\n8. port-siting-epc [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible; mapping closes this link EXHAUSTED at 0 issuers (Mariana Minerals, the named developer, is a private LLC; no EPC/permitting firm confirmed on this specific project despite a rigorous SEC EDGAR full-text and Fluor-newsroom search).\n9. refining-tech [CHOKE_POINT, MONEY_CORNER true, verdict UNDISCOVERED, impact 85]: no row. TMC's placement here is placement-gate admissible (evidence VERIFIED) but TMC's profile is BLOCKED/O3, data pending. This is the chain's money-corner link and it is named here explicitly per check_screen.check_run_day: searched and attributable-once-data-lands, not silently empty.\n10. china-international-response [MEDIUM, verdict n/a, mapping OPEN]: no row; zero placements in the mapping (example tickers are Chinese incumbent refiners, a competitive-response angle, not placed). Backlogged to Atlas.\n11. refined-metal-demand [n/a, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas.\n\nDISTINCT ISSUER TALLY across the mapping's 5 issuers: 0 seat a row this run. 4 (TMC, ODYSSEY-MARINE, METALS-ROYALTY, DEEP-SEA-MINERALS) hold at least one placement-gate-admissible placement but are BLOCKED/O3 on the separate profile-completeness gate. 1 (TECHNIPFMC) fails the placement gate itself and is also BLOCKED/O3. 0 issuers have no profile file at all; all 5 have a same-day (2026-09-14) BLOCKED profile already on disk from a prior fan-out run this same day, each carrying request rows that already cover the missing data.\n\nNo PENDING_DATA screen rows are written this run: a PENDING_DATA row represents an admitted candidate whose per-field data is incomplete, and check_screen.check_pending_backed requires a request row behind every such row; here, nothing clears the campaign-identity gate (COMPLETE O1/O2 profile) at all, so there is no row to mark PENDING_DATA, only an empty universe with the reason recorded per link above. No EDGAR full-text search was run against data/edgar/fts/ or data/edgar/docs/ this run: no company on this chain has an edgar_doc fetched yet (all 5 edgar_doc requests are PENDING), so no earnings nugget could be sourced regardless.\n\nBacklogged to Sieve's own run profile (not this command): once the fetch workflow settles the already-queued prices/fundamentals/quality/edgar_doc requests for TMC, FTI, OMEX, TMCR and SEAS.CN, re-run `run profile <TICKER>` for each of the 5 to move them off BLOCKED, then re-run this screen; refining-tech (money corner) and ccz-nodule-resource (3 admissible placements) are the highest-value re-runs. Backlogged to Atlas's own run universe (data/mappings/ is Atlas-owned): place a second name on collector-tech (DEME Group/GSR or Kongsberg Gruppen, both leads recorded in the mapping's own notes[] but not yet placed for lack of compliant identity evidence), and research the 4 zero-placement links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand). Backlogged to a future universe-audit or repair: TECHNIPFMC/collector-tech's evidence[0].source_date (recorded 2026-01-01) should be corrected to 2021-08-16 per its own FAIL placement audit finding, which would not by itself make the placement all-VERIFIED (the evidence tag is INFERRED) but would let a corrected re-audit potentially PASS.",
+ "universe_note": "Second run screen nodule-mining-refining (chain-level, scenario_id null; amends the first-ever screen from earlier today). Same per-link universe and priority order as the first run: refining-tech (pos 9, the chain's sole money_corner:true link, also CHOKE_POINT, impact 85) first, then the 3 other CHOKE_POINT links (us-seabed-minerals-policy pos 1, seabed-permit-review pos 3, port-siting-epc pos 8), then the remaining 7 by impact score.\n\n5 ROWS SEATED THIS RUN, across 4 distinct issuers on 3 links. What changed since the first run: the mapping itself is unchanged (still ACTIVE, no top-level census audit, same 6 placement_audits[] entries, 5 PASS / 1 FAIL), so placement admissibility is identical (5 of 6 placements admissible: TMC/refining-tech and METALS-ROYALTY/ccz-nodule-resource and DEEP-SEA-MINERALS/permit-race on all-VERIFIED evidence tags alone, TMC/ccz-nodule-resource and ODYSSEY-MARINE/ccz-nodule-resource on a current PASS placement_audits[] entry; TECHNIPFMC/collector-tech inadmissible on both bases). What moved is the second, independent gate: all 5 issuer profiles that hold an admissible placement (TMC, ODYSSEY-MARINE, METALS-ROYALTY, DEEP-SEA-MINERALS) landed real market data this run (data/market/{TMC,OMEX,TMCR,SEAS-CN}.json all fetched_at 2026-09-14T18:09:24Z) and moved from BLOCKED/O3 to COMPLETE/O2, clearing check_campaign_identity's independent COMPLETE O1/O2 profile requirement. Every placement-admissible name now seats a row. TECHNIPFMC also moved to COMPLETE/O2 this run (its own market data for FTI landed too), but its row still does not seat: it fails the placement gate itself (INFERRED-only evidence, FAIL placement audit on source_date_ok), independent of profile status, exactly as in the first run.\n\nPer-link disposition, all 11 links:\n1. us-seabed-minerals-policy [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible by design; mapping closes this link EXHAUSTED at 0 issuers (a presidential executive order has no commercial issuer), unchanged.\n2. ccz-nodule-resource [MEDIUM, verdict CROWDED, mapping OPEN]: 3 rows seated this run (TMC, METALS-ROYALTY, ODYSSEY-MARINE), all 3 placement-gate-admissible issuers whose profiles are now COMPLETE/O2.\n3. seabed-permit-review [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible by design; mapping closes this link EXHAUSTED at 0 issuers, unchanged.\n4. permit-race [MEDIUM, verdict QUIET, mapping OPEN]: 1 row seated this run (DEEP-SEA-MINERALS), the link's sole placement-gate-admissible issuer, now COMPLETE/O2.\n5. collector-tech [HIGH, verdict UNDISCOVERED, mapping OPEN]: no row. TECHNIPFMC's profile is now COMPLETE/O2, but its placement still fails the placement gate itself (INFERRED evidence, FAIL audit on source_date_ok), doubly unlike the other 4 issuers. Atlas's own mapping notes name two better-sourced but not-yet-placed leads for this link (DEME Group/GSR, Kongsberg Gruppen) for a future universe run.\n6. env-monitoring-compliance [MEDIUM, verdict QUIET, mapping OPEN]: no row; zero placements exist in the mapping for this link. Backlogged to Atlas's own run universe, unchanged.\n7. marine-transport [LOW, verdict QUIET, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas, unchanged.\n8. port-siting-epc [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible; mapping closes this link EXHAUSTED at 0 issuers, unchanged.\n9. refining-tech [CHOKE_POINT, MONEY_CORNER true, verdict UNDISCOVERED, impact 85]: 1 row seated this run (TMC), the chain's sole money-corner link, now attributed with an earnings-nugget-backed row per check_screen.check_run_day.\n10. china-international-response [MEDIUM, verdict n/a, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas, unchanged.\n11. refined-metal-demand [n/a, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas, unchanged.\n\nDISTINCT ISSUER TALLY across the mapping's 5 issuers: 4 seat at least one row this run (TMC seats 2, on refining-tech and ccz-nodule-resource, with secondary_link_basis on the second row). 1 (TECHNIPFMC) still seats nothing: its placement fails the placement gate itself, independent of its now-COMPLETE profile. 0 issuers have no profile file at all; all 5 profiles are COMPLETE/O2 as of this run.\n\nNo PENDING_DATA screen rows are written this run: every seated row's fundamentals and market data are already on disk (no field needed marking PENDING_DATA), and the sole unseated placement (TECHNIPFMC/collector-tech) is excluded on the placement-evidence gate, not a data gap, so it produces no row of any kind rather than a PENDING_DATA placeholder. 3 earnings nuggets are sourced and verbatim-verified this run: 2 from TMC's fetched 8-K business-update exhibit (the Mariana Minerals Master Services Agreement for refining-tech, and the 619 Mt wet-nodule USA-A resource figure for ccz-nodule-resource) and 1 from Odyssey's fetched Q2 2026 10-Q (the CIC Limited Option Agreement for ccz-nodule-resource). METALS-ROYALTY's fetched 6-K (an August 2026 convertible-notes-offering report) does not mention NORI or Nauru, so its row rests on its mapping placement's own VERIFIED Form 424B3 citation alone; no edgar_doc exists yet for DEEP-SEA-MINERALS (SEAS.CN), so its row rests on its mapping placement's own VERIFIED Form 6-K exhibit citation alone. Both are legitimate zero-nugget rows, not gaps: earnings_nuggets is optional and the underlying placement evidence is independently VERIFIED.\n\nBacklogged to Atlas's own run universe (data/mappings/ is Atlas-owned): place a second name on collector-tech (DEME Group/GSR or Kongsberg Gruppen, both leads recorded in the mapping's own notes[] but not yet placed for lack of compliant identity evidence), and research the 4 zero-placement links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand). Backlogged to a future universe-audit or repair: TECHNIPFMC/collector-tech's evidence[0].source_date (recorded 2026-01-01) should be corrected to 2021-08-16 per its own FAIL placement audit finding, which would not by itself make the placement all-VERIFIED (the evidence tag itself is INFERRED) but would let a corrected re-audit potentially PASS.",
  "queries_run": [
   {
-   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/nodule-mining-refining.json (6 placements across 5 issuers), status and evidence tags, cross-checked against placement_audits[] (6 entries, 5 PASS / 1 FAIL, all landed 2026-09-14)",
+   "query": "Re-check mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/nodule-mining-refining.json (6 placements across 5 issuers), status and evidence tags, cross-checked against placement_audits[] (6 entries, 5 PASS / 1 FAIL, unchanged since this morning's landing); mapping content itself unchanged this run.",
    "forms": null,
    "hits_examined": 6,
    "names_extracted": 5
   },
   {
-   "query": "check_screen._placement_admissible re-run by hand against each of the 6 placements: all-VERIFIED evidence, or placement_audit_for(mapping, chain_id, link_id, issuer_id) is not None",
+   "query": "check_screen._placement_admissible re-run by hand against each of the 6 placements: all-VERIFIED evidence, or a current PASS placement_audits[] entry. Unchanged from the prior run: 5 admissible (3 on all-VERIFIED evidence tags, 2 on a current PASS placement audit), TECHNIPFMC/collector-tech inadmissible on both bases (INFERRED evidence, FAIL audit on source_date_ok).",
    "forms": null,
    "hits_examined": 6,
    "names_extracted": 5
   },
   {
-   "query": "COMPLETE O1/O2 profile lookup under data/companies/ for all 5 issuers named in the mapping, via data/companies/_profile-log.json calibration.per_profile and direct read of each profile file",
+   "query": "COMPLETE O1/O2 profile re-check under data/companies/ for all 5 issuers named in the mapping: TMC, ODYSSEY-MARINE, METALS-ROYALTY, DEEP-SEA-MINERALS and TECHNIPFMC, direct read of each profile file after today's fetch landed.",
    "forms": null,
    "hits_examined": 5,
+   "names_extracted": 5
+  },
+  {
+   "query": "data/market/<T>.json existence and content check for TMC, FTI, OMEX, TMCR, SEAS-CN (dashed vendor-file convention per tools/market_paths.py): all 5 now on disk with fetched_at 2026-09-14T18:09:24Z.",
+   "forms": null,
+   "hits_examined": 5,
+   "names_extracted": 5
+  },
+  {
+   "query": "data/edgar/docs/<T>.json existence check for TMC, FTI, OMEX, TMCR: all 4 now on disk; no edgar_doc exists yet for SEAS/SEAS.CN (Deep Sea Minerals Corp).",
+   "forms": null,
+   "hits_examined": 4,
+   "names_extracted": 4
+  },
+  {
+   "query": "data/edgar/docs/TMC.json full-text search for refining-tech and ccz-nodule-resource money-corner nuggets: Mariana Minerals Master Services Agreement (Port of Brownsville) and the USA-A 619 Mt wet-nodule resource figure, both found verbatim in the fetched 8-K business-update exhibit.",
+   "forms": [
+    "8-K"
+   ],
+   "hits_examined": 1,
+   "names_extracted": 1
+  },
+  {
+   "query": "data/edgar/docs/OMEX.json full-text search for a ccz-nodule-resource nugget corroborating the Cook Islands CIC/OML equity exposure: found the CIC Limited Option Agreement disclosure verbatim in the fetched Q2 2026 10-Q.",
+   "forms": [
+    "10-Q"
+   ],
+   "hits_examined": 1,
+   "names_extracted": 1
+  },
+  {
+   "query": "data/edgar/docs/TMCR.json full-text search for a NORI-royalty-specific nugget: the fetched 6-K (an August 2026 convertible-notes-offering report) mentions only an unrelated Mesabi royalty interest, not NORI or Nauru; no nugget sourced from this document, the mapping placement's own Form 424B3 citation stands alone.",
+   "forms": [
+    "6-K"
+   ],
+   "hits_examined": 1,
    "names_extracted": 0
   },
   {
-   "query": "data/market/<T>.json existence check for TMC, FTI, OMEX, TMCR, SEAS-CN (dashed vendor-file convention per tools/market_paths.py)",
-   "forms": null,
-   "hits_examined": 5,
-   "names_extracted": 0
-  },
-  {
-   "query": "data/requests.json PENDING row lookup for all 5 tickers (prices, fundamentals, quality, edgar_doc kinds) to confirm existing coverage before deciding whether to queue new rows",
+   "query": "data/requests.json PENDING/FULFILLED row check for all 5 tickers (prices, fundamentals, quality, edgar_doc kinds): all 41 rows now FULFILLED (8 each for TMC/FTI/OMEX/TMCR, 9 for SEAS.CN); no PENDING_DATA rows and no new requests queued this run.",
    "forms": null,
    "hits_examined": 41,
    "names_extracted": 5
   },
   {
-   "query": "chain heat block for all 11 links of data/chains/nodule-mining-refining.json: impact/crowdedness/capture scores, verdict, money_corner, bottleneck criticality (heat_as_of 2026-09-14, unchanged this run)",
+   "query": "chain heat block for all 11 links of data/chains/nodule-mining-refining.json: impact/crowdedness/capture scores, verdict, money_corner, bottleneck criticality (heat_as_of 2026-09-14, unchanged this run).",
    "forms": null,
    "hits_examined": 11,
    "names_extracted": 0
   }
  ],
  "data_gaps": [
-  "No data/market/<T>.json exists on disk for any of this mapping's 5 tickers (TMC, FTI, OMEX, TMCR, SEAS.CN); every one of the mapping's 5 issuer profiles is status BLOCKED, opportunity_tier O3, with all 12 canonical metric fields NULL, as of this run. This is the sole reason zero rows seat this run; the placement and identity gates are otherwise substantially clear (5 of 6 placements are placement-gate admissible).",
-  "TECHNIPFMC/collector-tech additionally fails the placement gate itself: its sole evidence item is tagged INFERRED and its placement_audits[] entry (audited_at 2026-09-14T01:31:00Z) is status FAIL, source_date_ok false (the cited article is dated 2021-08-16, recorded as 2026-01-01, an error of over four years). Correcting the source_date would not by itself flip this row admissible (the evidence tag itself stays INFERRED); a future run universe repair plus a fresh placement re-audit would be needed.",
-  "41 request rows already PENDING cover prices, fundamentals, quality and edgar_doc for all 5 tickers (TMC, FTI, OMEX, TMCR, SEAS.CN), some duplicated across 2-3 prior queuing runs; this screen adds no new rows. `run profile <TICKER>` should be re-run for each of the 5 once the fetch workflow settles them.",
-  "4 links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand) carry zero placements in the mapping at all; their example_tickers are Atlas's own query seeds, never placed issuers. Backlogged to Atlas's run universe.",
-  "3 links (us-seabed-minerals-policy, seabed-permit-review, port-siting-epc) are EXHAUSTED at 0 issuers by the mapping's own rigorous multi-source, same-plane-controlled search: genuinely uninvestable by design (a federal executive order, a federal agency review, and a private unlisted site developer with no confirmed public EPC contractor), not a data gap.",
-  "collector-tech (HIGH bottleneck) has two better-sourced but not-yet-placed leads recorded in the mapping's own notes[] (DEME Group NV / GSR's parent, and Kongsberg Gruppen ASA), both blocked on unusable exchange-page fetches (Euronext 404/503, Kongsberg IR 404) rather than a missing role; backlogged to Atlas.",
-  "No EDGAR full-text search was run against data/edgar/fts/ or data/edgar/docs/ this run: no edgar_doc is fetched yet for any of the 5 tickers (all 5 edgar_doc requests are PENDING), so no earnings_nuggets could be sourced regardless of link priority."
+  "TECHNIPFMC/collector-tech (HIGH bottleneck, the chain's remaining un-EXHAUSTED, non-money-corner OPEN link) still fails the placement gate itself: its sole evidence item is tagged INFERRED and its placement_audits[] entry (audited_at 2026-09-14T01:31:00Z) is status FAIL, source_date_ok false (the cited JPT/SPE article is dated 2021-08-16, recorded as 2026-01-01). TECHNIPFMC's own company profile is now COMPLETE/O2 (data landed this run), so this link's row count is entirely a placement-evidence finding, not a data-availability one: correcting the source_date would not by itself flip this row admissible (the evidence tag itself stays INFERRED); a future run universe repair plus a fresh placement re-audit would be needed.",
+  "4 links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand) carry zero placements in the mapping at all; their example_tickers are Atlas's own query seeds, never placed issuers. Backlogged to Atlas's run universe, unchanged this run.",
+  "3 links (us-seabed-minerals-policy, seabed-permit-review, port-siting-epc) are EXHAUSTED at 0 issuers by the mapping's own rigorous multi-source, same-plane-controlled search: genuinely uninvestable by design (a federal executive order, a federal agency review, and a private unlisted site developer with no confirmed public EPC contractor), not a data gap, unchanged this run.",
+  "collector-tech (HIGH bottleneck) has two better-sourced but not-yet-placed leads recorded in the mapping's own notes[] (DEME Group/GSR, and Kongsberg Gruppen), both blocked on unusable exchange-page fetches (Euronext 404/503, Kongsberg IR 404) rather than a missing role; backlogged to Atlas.",
+  "No NORI/Nauru-specific nugget was found in TMCR's fetched 6-K (it covers an August 2026 convertible-notes offering and mentions only an unrelated Mesabi royalty interest); the METALS-ROYALTY row rests on its mapping placement's own VERIFIED Form 424B3 citation without an additional earnings_nuggets entry.",
+  "No edgar_doc exists yet for SEAS/SEAS.CN (Deep Sea Minerals Corp); its row rests on the mapping placement's own VERIFIED Form 6-K exhibit citation without an additional earnings_nuggets entry."
  ],
  "buckets": {
-  "pure_play": [],
+  "pure_play": [
+   {
+    "issuer_id": "TMC",
+    "listing_id": "NASDAQ-TMC",
+    "ticker": "TMC",
+    "market_ticker": "TMC",
+    "chain_id": "nodule-mining-refining",
+    "link_id": "refining-tech",
+    "mapping_ref": "data/mappings/nodule-mining-refining.json",
+    "profile_ref": "data/companies/TMC.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence is all-VERIFIED (single VERIFIED item, TMC's own Form 10-K for fiscal year 2025), admissible on the tag rule alone (Ron, 2026-09-01) without needing a placement_audits[] entry; independently corroborated by a current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T01:30:00Z, evidence_index 0) for (nodule-mining-refining, refining-tech, TMC).",
+    "name": "TMC the metals Co Inc.",
+    "exchange": "Nasdaq",
+    "tier": "T1",
+    "cik": 1798562,
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Pre-revenue seabed-minerals pure play and the chain's sole money-corner name: TMC holds the exclusive CCZ nodule resource and directly funds both proven downstream processing routes, the PAMCO calcine retrofit in Japan and, since a July 2026 Master Services Agreement, new hydrometallurgical processing and refining capacity with Mariana Minerals at the Port of Brownsville; the refining-tech link itself scores UNDISCOVERED, and TMC's own capital and offtake rights are what actually flow through it.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "TMC is pre-revenue; no revenue exposure percentage is disclosed or applicable to this chain, matching the sourced profile's exposure_summary.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "latest_fy revenue is NULL: SEC companyfacts revenue_fy is an empty list for TMC (only small revenue_q quarterly entries in 2023-2024, no annual Revenues concept filed); TMC is a pre-revenue exploration-stage issuer."
+     },
+     "revenue_cagr_3y": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "revenue_cagr_3y is NULL: no annual revenue series exists to compute a 3-year revenue CAGR."
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_margin is NULL: no revenue exists to divide operating income (-140,054,000 for FY2025) against; a margin ratio is undefined with no revenue denominator."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 0.134,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMC.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+      "basis": "Operating cash flow -42,851,000 divided by net income -319,844,000, both for the fiscal year ended 2025-12-31, from companyfacts; both figures negative so the ratio does not invert sign. The FY2025 net loss is roughly 7.5x the operating cash outflow, consistent with large non-cash items (e.g. impairment or warrant/derivative revaluation) inflating the reported net loss beyond cash burn."
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "net_debt_to_ebitda is NULL: fundamentals.total_debt is null on data/market/TMC.json (no long-term or short-term debt figure reported), so net debt cannot be computed."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "piotroski is NULL: data/market/TMC.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy, revenue_fy and cost_of_revenue_fy (6 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state is NULL: data/market/TMC.json quality.beneish state is PENDING_DATA, missing receivables_fy, revenue_fy, cost_of_revenue_fy, depreciation_fy and long_term_debt_fy (7 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 1489985821.25,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "Upstream market store data/market/TMC.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+      "basis": "Market capitalization 1,489,985,821.25 computed in data/market/TMC.json quality.derived.market_cap from price 3.875 (2026-09-14, yfinance) times SEC companyfacts share count 384,512,470 (as of 2025-12-31)."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "price to sales is NULL: TMC reports no annual revenue (pre-revenue exploration company), so a price-to-sales ratio is undefined."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr is NULL: data/market/TMC.json quality.reverse_dcf state is PENDING_DATA, missing enterprise_value (total_debt unavailable to compute EV)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/TMC.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/TMC.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a listing with no pcs block on disk)."
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "On July 21, 2026, TMC USA entered into a Master Services Agreement with Mariana Minerals for a phased program to advance a proposed polymetallic nodule processing and refining industry park at the Port of Brownsville, Texas, beginning with mobilization, concept development and technical design work to establish plant feasibility and design basis",
+      "accession": "0001104659-26-095883",
+      "url": "https://www.sec.gov/Archives/edgar/data/1798562/000110465926095883/tm2623094d1_ex99-1.htm",
+      "form": "8-K",
+      "filed": "2026-08-13",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/TMC.json (SEC EDGAR 8-K exhibit, fetched 2026-08-13 filing)",
+      "basis": "Business-update 8-K exhibit, fetched via a September 2026 prices/fundamentals/quality/edgar_doc request batch for TMC. Directly evidences the refining-tech placement's money-corner mechanism: the Master Services Agreement with Mariana Minerals for the Port of Brownsville processing park, dated after and consistent with the March 2026 Strategic Partnership Agreement the mapping placement itself cites."
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "TMC",
+    "listing_id": "NASDAQ-TMC",
+    "ticker": "TMC",
+    "market_ticker": "TMC",
+    "chain_id": "nodule-mining-refining",
+    "link_id": "ccz-nodule-resource",
+    "mapping_ref": "data/mappings/nodule-mining-refining.json",
+    "profile_ref": "data/companies/TMC.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence carries one INFERRED item (a TMC investor-relations release, not a filing), so admission rests on the current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T01:32:00Z, evidence_index 0) for (nodule-mining-refining, ccz-nodule-resource, TMC), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "name": "TMC the metals Co Inc.",
+    "exchange": "Nasdaq",
+    "tier": "T1",
+    "cik": 1798562,
+    "money_corner": false,
+    "link_heat_verdict": "CROWDED",
+    "secondary_link_basis": "Second placement for the same issuer on a distinct link (resource rights vs. downstream processing, already seated above); TMC is both the resource holder and the funding counterparty for refining capacity.",
+    "thesis_1line": "Same issuer's second, separately evidenced placement: TMC USA's newly filed USA-A consolidated application covers a ~65,000 km2 Clarion-Clipperton Zone exploration and commercial recovery area with an estimated resource of 619 Mt of wet nodules, the raw physical and legal input every downstream link on this chain depends on; the resource-rights link itself scores CROWDED even where the processing link above does not.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "TMC is pre-revenue; no revenue exposure percentage is disclosed or applicable to this chain, matching the sourced profile's exposure_summary.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "latest_fy revenue is NULL: SEC companyfacts revenue_fy is an empty list for TMC (only small revenue_q quarterly entries in 2023-2024, no annual Revenues concept filed); TMC is a pre-revenue exploration-stage issuer."
+     },
+     "revenue_cagr_3y": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "revenue_cagr_3y is NULL: no annual revenue series exists to compute a 3-year revenue CAGR."
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_margin is NULL: no revenue exists to divide operating income (-140,054,000 for FY2025) against; a margin ratio is undefined with no revenue denominator."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 0.134,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMC.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+      "basis": "Operating cash flow -42,851,000 divided by net income -319,844,000, both for the fiscal year ended 2025-12-31, from companyfacts; both figures negative so the ratio does not invert sign. The FY2025 net loss is roughly 7.5x the operating cash outflow, consistent with large non-cash items (e.g. impairment or warrant/derivative revaluation) inflating the reported net loss beyond cash burn."
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "net_debt_to_ebitda is NULL: fundamentals.total_debt is null on data/market/TMC.json (no long-term or short-term debt figure reported), so net debt cannot be computed."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "piotroski is NULL: data/market/TMC.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy, revenue_fy and cost_of_revenue_fy (6 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state is NULL: data/market/TMC.json quality.beneish state is PENDING_DATA, missing receivables_fy, revenue_fy, cost_of_revenue_fy, depreciation_fy and long_term_debt_fy (7 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 1489985821.25,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "Upstream market store data/market/TMC.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+      "basis": "Market capitalization 1,489,985,821.25 computed in data/market/TMC.json quality.derived.market_cap from price 3.875 (2026-09-14, yfinance) times SEC companyfacts share count 384,512,470 (as of 2025-12-31)."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "price to sales is NULL: TMC reports no annual revenue (pre-revenue exploration company), so a price-to-sales ratio is undefined."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr is NULL: data/market/TMC.json quality.reverse_dcf state is PENDING_DATA, missing enterprise_value (total_debt unavailable to compute EV)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/TMC.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/TMC.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a listing with no pcs block on disk)."
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "The Company's USA-A area covers approximately 65,000 km2 with an estimated 619 million tonnes of wet nodules and potential exploration upside of an additional 200 million tonnes",
+      "accession": "0001104659-26-095883",
+      "url": "https://www.sec.gov/Archives/edgar/data/1798562/000110465926095883/tm2623094d1_ex99-1.htm",
+      "form": "8-K",
+      "filed": "2026-08-13",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/TMC.json (SEC EDGAR 8-K exhibit, fetched 2026-08-13 filing)",
+      "basis": "Same business-update 8-K exhibit as the refining-tech row above. Restates and corroborates the ccz-nodule-resource placement's own cited resource figure (619 Mt wet nodules, ~65,000 km2) directly from TMC's own filed exhibit."
+     }
+    ],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "METALS-ROYALTY",
+    "listing_id": "NASDAQ-TMCR",
+    "ticker": "TMCR",
+    "market_ticker": "TMCR",
+    "chain_id": "nodule-mining-refining",
+    "link_id": "ccz-nodule-resource",
+    "mapping_ref": "data/mappings/nodule-mining-refining.json",
+    "profile_ref": "data/companies/METALS-ROYALTY.json",
+    "data_tier": "T2",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence is all-VERIFIED (single VERIFIED item, Metals Royalty's own Form 424B3), admissible on the tag rule alone (Ron, 2026-09-01) without needing a placement_audits[] entry; independently corroborated by a current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T01:34:00Z, evidence_index 0) for (nodule-mining-refining, ccz-nodule-resource, METALS-ROYALTY).",
+    "name": "Metals Royalty Co Inc.",
+    "exchange": "Nasdaq",
+    "tier": "T2",
+    "cik": 2087398,
+    "money_corner": false,
+    "link_heat_verdict": "CROWDED",
+    "thesis_1line": "Pure-play royalty vehicle whose entire disclosed business is a 2.00% gross overriding royalty (the NORI Royalty) on TMC subsidiary Nauru Ocean Resources, Inc.'s CCZ nodule production, a direct revenue claim layered on top of TMC's own equity exposure to the same resource-rights link, subject to TMC repurchase options on up to 75% of the royalty; pre-production, so the royalty has generated no revenue yet.",
+    "theme_revenue_exposure": {
+     "pct": 0.02,
+     "basis": "2.00% gross overriding royalty (the NORI Royalty) on Nauru Ocean Resources, Inc.'s CCZ nodule production, from Metals Royalty's own Form 424B3, the entire disclosed exposure to this link.",
+     "quote": "a 2.00% gross overriding royalty (the \"NORI Royalty\") from Nauru Ocean Resources, Inc. (\"NORI\"), a wholly owned subsidiary of The Metals Company Inc. (\"TMC\").",
+     "accession": null,
+     "url": "https://www.sec.gov/Archives/edgar/data/0002087398/000110465926102414/tm2624208d2_424b3.htm",
+     "tag": "VERIFIED"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 0.0,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/TMCR/financials",
+      "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31 is 0.0: Metals Royalty is a pre-production royalty vehicle and NORI has not yet produced (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+     },
+     "revenue_cagr_3y": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "revenue_cagr_3y is NULL: vendor-statements revenue is 0.0 in every reported period (2023-2025); a compound annual growth rate is undefined for a zero base."
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_margin is NULL: vendor-statements revenue is 0.0 for FY2025, so a margin ratio against operating income (-5,086,035) is undefined with no revenue denominator."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_cash_flow_to_net_income is NULL: FY2025 operating cash flow (-3,233,596) and net income (+1,115,351) carry opposite signs, so the ratio would invert sign and mislead rather than inform (net income is positive from a likely one-off item while cash flow from operations is negative)."
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "net_debt_to_ebitda is NULL: vendor-statements total_debt is not reported for Metals Royalty, so net debt cannot be computed."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "piotroski is NULL: data/market/TMCR.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state is NULL: data/market/TMCR.json quality.beneish state is PENDING_DATA, missing cost_of_revenue_fy and long_term_debt_fy (10 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 296779399.07,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-info",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/TMCR/financials",
+      "basis": "Market capitalization 296,779,399.07 computed in data/market/TMCR.json quality.derived.market_cap from vendor price 5.39 (2026-09-14) times vendor share count 55,061,113.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "price to sales is NULL: Metals Royalty reports 0.0 revenue for FY2025 (pre-production royalty vehicle), so a price-to-sales ratio is undefined."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr is NULL: data/market/TMCR.json quality.reverse_dcf state is PENDING_DATA, missing enterprise_value (total_debt unavailable to compute EV)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/TMCR.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/TMCR.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a listing with no pcs block on disk)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "DEEP-SEA-MINERALS",
+    "listing_id": "CSE-SEAS",
+    "ticker": "SEAS",
+    "market_ticker": "SEAS.CN",
+    "chain_id": "nodule-mining-refining",
+    "link_id": "permit-race",
+    "mapping_ref": "data/mappings/nodule-mining-refining.json",
+    "profile_ref": "data/companies/DEEP-SEA-MINERALS.json",
+    "data_tier": "T2",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence is all-VERIFIED (single VERIFIED item, Deep Sea Minerals' own Form 6-K exhibit), admissible on the tag rule alone (Ron, 2026-09-01) without needing a placement_audits[] entry; independently corroborated by a current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T01:35:00Z, evidence_index 0) for (nodule-mining-refining, permit-race, DEEP-SEA-MINERALS).",
+    "name": "Deep Sea Minerals Corp.",
+    "exchange": "CSE",
+    "tier": "T2",
+    "cik": 2115923,
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "thesis_1line": "The first and, per the chain's own build, only publicly listed entrant in the US seabed-mineral permit race besides TMC: Deep Sea Minerals Corp's US subsidiary filed its own Clarion-Clipperton Zone exploration-license application under the Deep Seabed Hard Mineral Resources Act, which NOAA found in substantial compliance on June 1, 2026, with an amended application submitted July 17, 2026; every other named entrant on this link (Impossible Metals, American Metal Resources/SeaX) is privately held.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Deep Sea Minerals is pre-revenue and pre-permit; no revenue exposure percentage is disclosed or applicable to this chain, matching the sourced profile's exposure_summary.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 0.0,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/SEAS.CN/financials",
+      "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31 is 0.0: Deep Sea Minerals is a pre-production seabed-mineral exploration-license applicant with no reported commercial revenue (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
+     },
+     "revenue_cagr_3y": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "revenue_cagr_3y is NULL: vendor-statements revenue is 0.0 in every reported period (2023-2025); a compound annual growth rate is undefined for a zero base."
+     },
+     "operating_margin": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_margin is NULL: vendor-statements revenue is 0.0 for FY2025, so a margin ratio against operating income (-215,127) is undefined with no revenue denominator."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "operating_cash_flow_to_net_income is NULL: vendor-statements FY2025 operating cash flow (-177,705) and net income (-314,169) are both negative, but capex is not reported and the underlying vendor series is too thin (three fiscal years, no explicit revenue) to treat the resulting ratio as more than noise for a company this early-stage; recorded NULL rather than a ratio that overstates precision."
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "net_debt_to_ebitda is NULL: vendor-statements total_debt is not reported for Deep Sea Minerals, so net debt cannot be computed."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "piotroski is NULL: data/market/SEAS-CN.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state is NULL: data/market/SEAS-CN.json quality.beneish state is PENDING_DATA, missing cost_of_revenue_fy, depreciation_fy and long_term_debt_fy (9 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 28309844.0,
+      "tag": "INFERRED",
+      "official_source": false,
+      "source_name": "yfinance-info",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/SEAS.CN/financials",
+      "basis": "Market capitalization 28,309,844.0 computed in data/market/SEAS-CN.json quality.derived.market_cap from vendor price 1.06 (2026-09-14) times vendor share count 26,707,400.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "price to sales is NULL: Deep Sea Minerals reports 0.0 revenue for FY2025 (pre-production exploration-stage applicant), so a price-to-sales ratio is undefined."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr is NULL: data/market/SEAS-CN.json quality.reverse_dcf state is PENDING_DATA, missing fcf and enterprise_value (capex and total_debt unreported)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/SEAS-CN.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/SEAS-CN.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a listing with no pcs block on disk)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
   "picks_and_shovels": [],
-  "second_order": [],
+  "second_order": [
+   {
+    "issuer_id": "ODYSSEY-MARINE",
+    "listing_id": "NASDAQ-OMEX",
+    "ticker": "OMEX",
+    "market_ticker": "OMEX",
+    "chain_id": "nodule-mining-refining",
+    "link_id": "ccz-nodule-resource",
+    "mapping_ref": "data/mappings/nodule-mining-refining.json",
+    "profile_ref": "data/companies/ODYSSEY-MARINE.json",
+    "data_tier": "T1",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Placement evidence carries one INFERRED item (an Odyssey investor-relations release, not a filing), so admission rests on the current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T01:33:00Z, evidence_index 0) for (nodule-mining-refining, ccz-nodule-resource, ODYSSEY-MARINE), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "name": "ODYSSEY MARINE EXPLORATION INC",
+    "exchange": "Nasdaq",
+    "tier": "T1",
+    "cik": 798528,
+    "money_corner": false,
+    "link_heat_verdict": "CROWDED",
+    "thesis_1line": "Second-order, indirect exposure to the same CCZ resource-rights link: Odyssey holds an option to purchase equity in two Cook Islands seabed-mineral exploration license holders, CIC and OML (whose subsidiary Moana Minerals holds the license), adjacent to but a step removed from TMC's own direct CCZ resource claim, inside a much smaller, declining-revenue, financially distressed diversified deep-ocean exploration business (Altman state DISTRESS on data/market/OMEX.json quality).",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No Cook-Islands- or CIC/OML-specific revenue percentage is disclosed or sourced; Odyssey's stakes are minority equity investments and an option, not a reported operating segment, matching the sourced profile's exposure_summary.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 353719,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/OMEX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000798528.json",
+      "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
+     },
+     "revenue_cagr_3y": {
+      "value": -0.3577,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/OMEX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000798528.json",
+      "basis": "Three-year compound annual revenue growth computed as (353,719 / 1,334,702) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31: revenue declined sharply over the window."
+     },
+     "operating_margin": {
+      "value": -37.9712,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/OMEX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000798528.json",
+      "basis": "Operating income -13,431,152 divided by revenue 353,719, both for the fiscal year ended 2025-12-31, from companyfacts. The extreme negative ratio reflects a near-zero revenue denominator, not a normal operating-margin scale; read alongside the absolute figures."
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 0.2054,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/OMEX.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000798528.json",
+      "basis": "Operating cash flow -8,849,335 divided by net income -43,085,185, both for the fiscal year ended 2025-12-31, from companyfacts; both figures negative so the ratio does not invert sign."
+     },
+     "net_debt_to_ebitda": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "net_debt_to_ebitda is NULL: the only fundamentals.total_debt reading on file for Odyssey is dated 2017-12-31 (3,000,000), roughly nine years stale relative to the 2026-06-30 cash reading it would be netted against; not paired reliably enough to compute a current net debt figure."
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "piotroski is NULL: data/market/OMEX.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "beneish_state is NULL: data/market/OMEX.json quality.beneish state is PENDING_DATA, missing cost_of_revenue_fy and long_term_debt_fy (10 of 12 inputs found)."
+     },
+     "market_cap": {
+      "value": 40055387.9166,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "Upstream market store data/market/OMEX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000798528.json",
+      "basis": "Market capitalization 40,055,387.9166 computed in data/market/OMEX.json quality.derived.market_cap from price 0.7182 (2026-09-14, yfinance) times SEC companyfacts share count 55,771,913 (as of 2025-12-31)."
+     },
+     "price_to_sales": {
+      "value": 113.2407,
+      "tag": "INFERRED",
+      "official_source": true,
+      "source_name": "Upstream market store data/market/OMEX.json quality, computed over SEC EDGAR companyfacts",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000798528.json",
+      "basis": "Market capitalization 40,055,387.9166 divided by fiscal year 2025-12-31 revenue 353,719. The extreme multiple is a direct consequence of near-zero reported revenue, not evidence of a normal valuation ratio; read alongside the absolute revenue figure."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "implied_fcf_cagr is NULL: data/market/OMEX.json quality.reverse_dcf state is NOT_APPLICABLE (base-year free cash flow -8,865,433 is not positive; a growth rate solved on a negative base is meaningless)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": null,
+     "state": "COVERAGE-THIN",
+     "source": "data/market/OMEX.json",
+     "as_of": "2026-09-14",
+     "tag": "NULL",
+     "basis": "data/market/OMEX.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; applied here to a listing with no pcs block on disk)."
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "Odyssey has the right, but not the obligation, to purchase from each CIC Option Stockholder all or a portion of the CIC Shares held by such CIC Option Stockholder",
+      "accession": "0001193125-26-344788",
+      "url": "https://www.sec.gov/Archives/edgar/data/798528/000119312526344788/omex-20260630.htm",
+      "form": "10-Q",
+      "filed": "2026-08-11",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/OMEX.json (SEC EDGAR 10-Q, fetched 2026-08-11 filing)",
+      "basis": "Q2 2026 10-Q, fetched via a September 2026 prices/fundamentals/quality/edgar_doc request batch for OMEX. Directly evidences Odyssey's ccz-nodule-resource placement: the CIC Limited Option Agreement is the disclosed mechanism behind the mapping placement's claim of an equity investment in CIC Limited, one of the two named Cook Islands license holders."
+     }
+    ],
+    "status": "CANDIDATE"
+   }
+  ],
   "hedge": []
  },
  "taste_filtered": [],
  "health": {
   "tickers_examined": 5,
-  "rows_written": 0,
-  "fully_scored": 0,
+  "rows_written": 5,
+  "fully_scored": 5,
   "pending": 0,
   "errors": 0,
   "rows_superseded": 0,
-  "rows_with_quality_gaps": 0,
+  "rows_with_quality_gaps": 5,
   "links_worked": 11,
   "links_total": 11,
-  "target_links_covered": 0,
+  "target_links_covered": 3,
   "money_corner_links_total": 1,
-  "money_corner_links_covered": 0,
+  "money_corner_links_covered": 1,
   "choke_point_links_total": 4,
-  "choke_point_links_covered": 0,
-  "quotes_verified": 0,
-  "distinct_issuers": 0,
-  "profiles_available_repo_wide": 313,
+  "choke_point_links_covered": 1,
+  "quotes_verified": 3,
+  "distinct_issuers": 4,
+  "profiles_available_repo_wide": 318,
+  "mapping_placements_total": 6,
   "admissible_placements_all_verified_evidence": 3,
-  "placements_examined": 6,
-  "placements_inferred_only_evidence": 3,
-  "distinct_issuers_in_mapping": 5,
-  "issuers_complete_profile": 0,
-  "issuers_blocked_o3": 5,
-  "issuers_with_no_profile": 0,
-  "placement_audits_examined": 6,
-  "placement_audits_pass": 5,
-  "placement_audits_fail": 1,
-  "issuers_complete_seated_this_run": 0,
-  "issuers_complete_excluded_on_audit_finding": 0,
-  "issuers_admissible_evidence_no_profile": 4,
+  "admissible_placements_via_placement_audit": 2,
+  "admissible_but_unprofiled_issuers": 0,
+  "profiled_but_blocked_on_evidence_tier": 1,
+  "blocked_on_both_evidence_tier_and_profile": 0,
+  "placements_with_zero_mapped_issuers_links": 4,
+  "issuers_complete_seated_this_run": 4,
+  "issuers_complete_excluded_on_audit_finding": 1,
   "mapping_audit_status": "NONE",
   "mapping_status": "ACTIVE"
  },
  "notes": [],
  "confidence_audit": {
-  "verified": 0,
-  "inferred": 0,
+  "verified": 3,
+  "inferred": 2,
   "speculative": 0,
   "null": 0
  },
@@ -109,6 +675,12 @@
    "by": "sieve-profiler",
    "change": "First run screen nodule-mining-refining (chain-level, scenario_id null). Built the per-link universe across all 11 links, money-corner then CHOKE_POINT then impact order. Mapping is ACTIVE with no top-level census audit and 6 placement_audits[] entries (5 PASS, 1 FAIL), all landed earlier today. 5 of 6 placements clear check_screen._placement_admissible (3 on all-VERIFIED evidence tags, 2 on a current PASS placement audit); TECHNIPFMC/collector-tech clears neither (INFERRED evidence, FAIL audit on source_date_ok). Zero rows seated regardless: every one of the mapping's 5 issuer profiles (TMC, ODYSSEY-MARINE, METALS-ROYALTY, DEEP-SEA-MINERALS, TECHNIPFMC) is status BLOCKED, opportunity_tier O3, because no data/market/<T>.json exists yet for any of the 5 tickers; check_campaign_identity requires a COMPLETE O1/O2 profile as a gate independent of placement admissibility. 41 PENDING request rows across the 5 tickers (prices, fundamentals, quality, edgar_doc) already cover this gap; none re-queued. refining-tech, the chain's sole money-corner link, is named in universe_note with its reason per check_screen.check_run_day. 4 links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand) hold zero placements in the mapping and are backlogged to Atlas's run universe; 3 links (us-seabed-minerals-policy, seabed-permit-review, port-siting-epc) are genuinely EXHAUSTED at 0 issuers by design. Backlogged to Sieve's own run profile: re-run for all 5 tickers once the fetch settles.",
    "prior": null
+  },
+  {
+   "ts": "2026-09-14T20:00:00Z",
+   "by": "sieve-profiler",
+   "change": "Second run screen nodule-mining-refining (chain-level, scenario_id null): amends the first-ever screen in place, same 11-link universe and priority order. Mapping content and placement_audits[] are unchanged since this morning (ACTIVE, no top-level census audit, 5 PASS / 1 FAIL); the 5 placement-admissible placements are identical to the first run. What changed is the profile gate: TMC, ODYSSEY-MARINE, METALS-ROYALTY and DEEP-SEA-MINERALS all landed real market data this run (data/market/{TMC,OMEX,TMCR,SEAS-CN}.json, fetched_at 2026-09-14T18:09:24Z) and moved BLOCKED/O3 to COMPLETE/O2, so all 5 of their placement-admissible rows now seat: TMC/refining-tech (the chain's sole money-corner link) and TMC/ccz-nodule-resource (secondary_link_basis stated), METALS-ROYALTY/ccz-nodule-resource, DEEP-SEA-MINERALS/permit-race, and ODYSSEY-MARINE/ccz-nodule-resource. 3 earnings nuggets verbatim-verified against data/edgar/docs/{TMC,OMEX}.json (2 from TMC's 8-K, 1 from Odyssey's 10-Q); METALS-ROYALTY and DEEP-SEA-MINERALS rows carry no nuggets (no NORI-specific text in TMCR's fetched 6-K; no edgar_doc yet for SEAS.CN) but rest on their mapping placements' own VERIFIED filing citations. TECHNIPFMC also reached COMPLETE/O2 this run but still seats nothing: its collector-tech placement fails the placement gate itself (INFERRED evidence, FAIL audit on source_date_ok), a placement-evidence finding independent of profile status. No new PENDING_DATA rows, no new request rows queued: all 41 prior requests for the mapping's 5 tickers are FULFILLED. Health: 5 rows written, 4 distinct issuers, 3 links attributed (refining-tech money-corner, ccz-nodule-resource, permit-race), 3 quotes verified.",
+   "prior": "2026-09-14T00:00:00Z"
   }
  ]
 }
