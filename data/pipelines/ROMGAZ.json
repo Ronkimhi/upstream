@@ -1,0 +1,47 @@
+{
+  "issuer_id": "ROMGAZ",
+  "ticker": "SNG.RO",
+  "as_of": "2026-09-14",
+  "generated_by": "sieve-profiler",
+  "status": "PARTIAL",
+  "items": [
+    {
+      "type": "PROJECT",
+      "name": "Neptun Deep offshore gas project (joint with OMV Petrom)",
+      "claim": "OMV Petrom and ROMGAZ completed installation of the offshore production platform for the Neptun Deep project, a milestone in Romania's largest natural gas project; production remains on schedule to start in 2027.",
+      "date": "2026-07-20",
+      "source_kind": "web_doc",
+      "value": null,
+      "currency": null,
+      "source_url": "https://www.omv.com/en/media/press-releases/2026/progress-on-the-neptun-deep-project-the-offshore-production-platform-has-been-installed-in-the-black-sea",
+      "source_ref": "data/web/049fa67e524856f8.json",
+      "source_excerpt": "OMV Petrom, the largest integrated energy producer in Southeast Europe, and SNGN ROMGAZ SA, the largest producer and main supplier of natural gas in Romania, have completed the installation of the offshore production platform for Neptun Deep, marking one of the most important milestones in the development of Romania's largest natural gas project. The project is on schedule for the start of production in 2027"
+    }
+  ],
+  "searched": [
+    {
+      "query_or_url": "https://www.romgaz.ro/en/investor-relations",
+      "result": "web_doc request REQ-20260914-496 FAILED at fetch: HTTPSConnectionPool(host='www.romgaz.ro', port=443) connect timeout, romgaz.ro unreachable from the fetcher"
+    },
+    {
+      "query_or_url": "https://www.romgaz.ro/en/press-releases",
+      "result": "web_doc request REQ-20260914-497 FAILED at fetch: same romgaz.ro connect timeout"
+    },
+    {
+      "query_or_url": "https://www.romgaz.ro/sites/default/files/2026-03/Annual%20Report%202025_1.pdf",
+      "result": "web_doc request REQ-20260914-716 FAILED at fetch: same romgaz.ro connect timeout (second fire, retried the domain directly for the annual report PDF)"
+    },
+    {
+      "query_or_url": "https://www.romgaz.ro/en/about-neptun-deep-project",
+      "result": "web_doc request REQ-20260914-717 FAILED at fetch: same romgaz.ro connect timeout"
+    }
+  ],
+  "notes": "ROMGAZ's own investor-relations domain (romgaz.ro) is unreachable from the fetcher on every attempt across both fires (4/4 web_doc requests FAILED with a connect timeout, not a 403/404), so no ROMGAZ-issued backlog, RPO, or named-contract disclosure could be cited. No SEC/EDGAR filings exist for ROMGAZ (Bucharest Stock Exchange issuer, not a US filer) and data/market/SNG-RO.json fundamentals carries no remaining_performance_obligations field, so no xbrl item is available either. The one PROJECT item cites a stored, HTTP 200 OMV Petrom (joint operator) press release that names ROMGAZ directly and discloses Neptun Deep's status and 2027 production-start schedule; a duplicate copy of the same release is also stored at data/web/83b04a145006fb42.json. Status is PARTIAL rather than NONE_FOUND: real disclosure exists via the joint-venture partner even though ROMGAZ's own sources could not be fetched.",
+  "changelog": [
+    {
+      "ts": "2026-09-14T00:00:00Z",
+      "by": "sieve-profiler",
+      "change": "run pipeline ROMGAZ (offshore-counter-drone). Created PARTIAL pipeline with 1 PROJECT item (Neptun Deep, cited from a stored OMV Petrom press release) after all 4 web_doc requests to romgaz.ro FAILED at fetch across two fires (connect timeout); no EDGAR filings and no RPO field in data/market/SNG-RO.json fundamentals."
+    }
+  ]
+}
