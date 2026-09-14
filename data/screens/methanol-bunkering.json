@@ -1,0 +1,547 @@
+{
+ "id": "methanol-bunkering",
+ "chain_id": "methanol-bunkering",
+ "scenario_id": null,
+ "created_at": "2026-09-14",
+ "as_of": "2026-09-14",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": null,
+ "mapping_ref": "data/mappings/methanol-bunkering.json",
+ "universe_note": "Chain-level campaign-v1 screen (identity_schema campaign-v1, scenario_id null), first run for this chain. Universe built per LINK across all 12 links, worked in priority order: the one money-corner link first (green-methanol-production), then the remaining 4 CHOKE_POINT links (imo-netzero-framework, port-bunkering-licensing-regime, methanol-dual-fuel-engines, methanol-ready-shipyard-capacity), then the rest by chain position.\n\nThe mapping (data/mappings/methanol-bunkering.json, 7 issuers, 8 placements across 6 of the chain's 12 links) is status ACTIVE with audit: null (no whole-census fresh-context audit has ever run), so every row on this chain must rest on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted when the consumed placement's evidence is entirely VERIFIED, or, since 2026-09-04, when the placement carries a current PASS placement_audits[] entry for that exact (chain_id, link_id, issuer_id) triple. All 8 placements in this mapping carry evidence tagged INFERRED only (zero VERIFIED anywhere), so the tag-alone route admits nothing here; every seated row this run rests on the placement_audits[] route. Atlas ran 6 fresh-context placement audits today (2026-09-14T04:10:00Z): 3 PASS (METHANEX/green-methanol-production, METHANEX/conventional-methanol-production, VOLKSWAGEN/methanol-dual-fuel-engines) and 3 FAIL (KONINKLIJKE-VOPAK/methanol-storage-terminals: role evidence's recorded source_date 2023-07-27 does not match the source's actual 2021-05-11 dateline; WORLD-KINECT/bunker-fuel-physical-supply: role evidence's recorded source_date 2026-04-01 does not match the source's actual 2026-04-05 byline, and the sibling listing identity_evidence date is off by 4 days too; PETROCHINA/bunker-fuel-physical-supply: role evidence's source_excerpt is not a genuine contiguous verbatim span of the cited article, it splices phrases from three separate sentences). 2 further placements (CHEVRON/bunker-fuel-physical-supply, COSCO-SHIPPING-HOLDINGS/shipowner-fleet-commitments) carry no placement_audits[] entry at all and their own evidence is INFERRED, so they are refused on the same PLACEMENT-scope rule with no audit basis to fall back on. This run seats 3 rows (2 issuers, 2 links attributed) and refuses 5 placements across 3 links, documented once per link below rather than repeated.\n\ngreen-methanol-production [MONEY CORNER, CHOKE_POINT, verdict UNDISCOVERED, impact 88 / crowdedness 20 / capture 88]: SEATED. 1 placement (METHANEX), placement_audits[] PASS (evidence_index 0, 2026-09-14T04:10:00Z). METHANEX carries a COMPLETE O2, T1 profile with the matching placement. Written as the pure_play bucket row under audit_scope PLACEMENT.\n\nconventional-methanol-production [bottleneck MEDIUM, verdict QUIET]: SEATED, as METHANEX's second row on this chain (secondary_link_basis stated, primary row is green-methanol-production). 1 placement (METHANEX), placement_audits[] PASS (evidence_index 0, same audit run). Carries the one earnings nugget verified this run (METHANEX's own world's-largest-supplier self-description, fetched 2026-09-14 from an unrelated 6-K about New Zealand operations, data/edgar/docs/MEOH.json).\n\nmethanol-dual-fuel-engines [CHOKE_POINT, verdict UNDISCOVERED, closing-window duopoly]: SEATED. 1 placement (VOLKSWAGEN), placement_audits[] PASS (evidence_index 1, same audit run). VOLKSWAGEN carries a COMPLETE O2, T2 profile with the matching placement. Written as the picks_and_shovels bucket row. No EDGAR document exists for VOW3.DE (Volkswagen AG is a German filer with no SEC registration under this ticker), so earnings_nuggets is empty; the row rests on the placement's own role evidence and the placement audit.\n\nbunker-fuel-physical-supply [bottleneck MEDIUM, verdict QUIET]: searched and refused. 3 placements (WORLD-KINECT, PETROCHINA, CHEVRON), all INFERRED-only evidence. WORLD-KINECT and PETROCHINA each carry a placement_audits[] entry dated today, both FAIL (see above); CHEVRON carries no placement_audits[] entry at all. All three issuers hold COMPLETE O2 profiles on disk (T1, T2, T1 respectively) and would seat immediately once their placement evidence or audit clears; none of their WKC/PCCYF/CVX profile placements array even names this chain's placement yet (each profile's placements[] currently lists only a hormuz-maritime bunker-and-voyage-services entry), a separate profile-sync gap Sieve does not fix by writing a screen row. This is a mapping-quality and placement-audit finding, not a screen-authoring choice.\n\nmethanol-storage-terminals [bottleneck HIGH, verdict QUIET]: searched and refused. 1 placement (KONINKLIJKE-VOPAK, T3, COMPLETE O2 profile on disk), placement_audits[] FAIL today (source_date defect on the role evidence, role text itself genuine and verbatim). Refused until the mapping's recorded source_date is corrected and the placement re-audits PASS.\n\nshipowner-fleet-commitments [bottleneck HIGH, verdict EMERGING]: searched and refused. 1 placement (COSCO-SHIPPING-HOLDINGS, T3, COMPLETE O2 profile on disk), INFERRED-only evidence, no placement_audits[] entry exists for this (chain_id, link_id, issuer_id) triple. Refused for want of either an all-VERIFIED evidence item or a current PASS placement audit.\n\nimo-netzero-framework [CHOKE_POINT, no heat scores by construction]: searched and empty by chain design. Zero placements in the mapping and zero tickers on the link itself: the link's own bottleneck.note states 'nobody can buy or sell it', the IMO is not an issuer. Not a mapping defect.\n\neu-maritime-decarbonization-mandates [bottleneck HIGH, no heat scores by construction]: searched and empty by chain design. Zero placements; the link is a regulator's own rule (FuelEU Maritime, EU ETS), not a company. KRBN (EU carbon-allowance ETF) is the link's sole named instrument and carries its own separate NULL heat.instrument block pending market data, not an issuer placement this screen can seat.\n\nport-bunkering-licensing-regime [CHOKE_POINT, no heat scores by construction]: searched and empty by chain design. Zero placements; Singapore's MPA is a statutory board per the link's own bottleneck.note, not a listed entity. Not a mapping defect.\n\nclassification-and-safety-standards [bottleneck HIGH, verdict QUIET]: searched and empty. Zero placements in the mapping despite one example ticker (BVI.PA, Bureau Veritas) on the chain itself; Bureau Veritas was never added to this mapping's issuers[]/placements[] (marine and offshore work is only ~8.6% of its diversified testing-and-certification revenue per the chain's own bottleneck.note, which may be why Atlas did not place it). Building this placement is universe work (`run universe`), not a screen action.\n\nmethanol-ready-shipyard-capacity [CHOKE_POINT, verdict CROWDED]: searched and empty. Zero placements despite four example tickers (Korean and Chinese shipyards, Singapore yard) on the chain; none of the four has been added to this mapping. Universe work, not a screen action.\n\ncargo-owner-green-shipping-demand [bottleneck LOW, verdict QUIET]: searched and empty by chain design. Zero placements; the chain's own bottleneck.note states plainly that ocean shipping is an immaterial fraction of each example ticker's (AMZN, ULVR.L, ML.PA, ITX.MC, DD) own business, so none is buyable as a clean bet on this theme even though each is individually large and liquid. Not a mapping defect.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/methanol-bunkering.json carrying ACTIVE status, joined to its role-evidence tags and its placement_audits[] status",
+   "forms": null,
+   "hits_examined": 8,
+   "names_extracted": 7
+  },
+  {
+   "query": "COMPLETE O1/O2 profiles under data/companies/ whose issuer_id matches a methanol-bunkering placement, and whether each profile's own placements[] names the matching (chain_id, link_id)",
+   "forms": null,
+   "hits_examined": 7,
+   "names_extracted": 7
+  },
+  {
+   "query": "evidence-tag and placement-audit admissibility: placements whose role evidence is all VERIFIED (audit_scope PLACEMENT eligible on the tag alone) versus INFERRED needing a current PASS placement_audits[] entry versus neither",
+   "forms": null,
+   "hits_examined": 8,
+   "names_extracted": 3
+  },
+  {
+   "query": "data/edgar/docs/ and data/market/ coverage for the 3 admissible-placement tickers (MEOH, VOW3.DE): fundamentals, PCS, and any EDGAR document to draw a verbatim earnings nugget from",
+   "forms": null,
+   "hits_examined": 2,
+   "names_extracted": 1
+  }
+ ],
+ "buckets": {
+  "pure_play": [
+   {
+    "issuer_id": "METHANEX",
+    "listing_id": "NASDAQ-MEOH",
+    "ticker": "MEOH",
+    "market_ticker": "MEOH",
+    "chain_id": "methanol-bunkering",
+    "link_id": "green-methanol-production",
+    "mapping_ref": "data/mappings/methanol-bunkering.json",
+    "profile_ref": "data/companies/METHANEX.json",
+    "data_tier": "T1",
+    "cik": 886977,
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with audit block null (no whole-census fresh-context audit has ever run on this mapping), so admission rests on Ron's 2026-09-01 PLACEMENT-scope rule. The (methanol-bunkering, green-methanol-production, METHANEX) placement's own role evidence carries a single item tagged INFERRED (not all-VERIFIED), so the tag route alone does not clear the bar; admission instead rests on the current PASS fresh-context placement_audits[] entry for this exact (chain_id, link_id, issuer_id) triple (atlas-fresh-context, audited_at 2026-09-14T04:10:00Z, evidence_index 0, identity_ok true, role_ok true, source_date_ok true, record_digest 60759330c81716386763be4581ccbfe2afb008d1f33b443adb1556f8c60ccf32), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "name": "Methanex Corporation",
+    "exchange": "Nasdaq Global Select Market",
+    "tier": "T1",
+    "money_corner": true,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "The chain's one money-corner link (impact 88, crowdedness 20, capture 88 on the chain's own heat block): through the 27 June 2025 OCI Global acquisition Methanex directly acquired a low-carbon methanol production and marketing business (OCI HyFuels), giving the world's largest methanol producer a controlling position in certified green/low-carbon methanol supply, the layer this chain's own map_limitation calls scarce and logistics-constrained (only ~48 ports worldwide can bunker methanol against 112-plus methanol-capable ships and ~300 more on order). METHANEX also holds a second ACTIVE, placement-audit-PASSED placement on this same chain, conventional-methanol-production (link position 4, verdict QUIET), seated as its own row below with a stated secondary_link_basis rather than folded into this thesis, because the two links score differently (money-corner vs QUIET) and each carries its own link yield. Genuine caveat: Methanex's 2026-09-01 6-K discloses it is idling its four-decade-old New Zealand production facilities from Q1 2027 on declining domestic gas supply, a real capacity headwind on the conventional side that this run found no evidence changes the OCI-derived green/HyFuels position specifically.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No methanol-bunkering-specific or green-methanol-specific revenue percentage is disclosed or sourced for Methanex; the company reports methanol production and marketing as a single segment and neither the OCI acquisition 6-K nor the 2026-09-01 New Zealand 6-K breaks out a green/bunker-qualified revenue share. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 3589224000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 886977.",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.059264,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Three-year compound annual revenue growth computed as (3589224000 / 4311188000) ** (1/3) - 1 from the companyfacts Revenues series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.120099,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Operating income 431062000 divided by revenue 3589224000 for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 7.013827,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Operating cash flow 1015560000 divided by net income 144794000, both for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.255366,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Free cash flow margin: operating cash flow 1015560000 less capex 98993000, divided by revenue 3589224000, all for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 2.653792,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Net debt 2327569000 (total debt 2752900000 less cash 425331000, both as of 2025-12-31) divided by an EBITDA proxy 877073000 (operating income 431062000 plus depreciation 446011000 for the period ended 2025-12-31).",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/MEOH.json, missing ['shares_fy'] (8 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": -3.169,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json quality.beneish (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Beneish M-score -3.169 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/MEOH.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Market capitalization: quality.derived.market_cap is null in data/market/MEOH.json because quality.shares_used.value is null (companyfacts shares_fy series missing)."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Price to sales: cannot be computed because the market-cap numerator (quality.derived.market_cap) is null in data/market/MEOH.json for the same missing shares_fy reason."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR: quality.reverse_dcf.state is PENDING_DATA in data/market/MEOH.json, missing ['enterprise_value'], which itself depends on the same missing shares_fy series."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Horizon spread: no quality.reverse_dcf.implied_by_horizon block exists in data/market/MEOH.json because the reverse-DCF solve never ran (enterprise_value unavailable, missing shares_fy)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": {
+      "score": 100.0,
+      "state": "DARK",
+      "non_null_fields": 3,
+      "sub_scores": {
+       "trends": 30,
+       "wsb": 25,
+       "stocktwits": 13,
+       "media": null
+      }
+     },
+     "pcs_axis_b": {
+      "band": "SATURATED",
+      "analyst_count": 10,
+      "held_pct_institutions": 0.85019
+     },
+     "state": "DARK",
+     "source": "data/market/MEOH.json",
+     "as_of": "2026-09-14",
+     "tag": "INFERRED",
+     "basis": "PCS Axis A (Google Trends/WSB/Stocktwits attention proxy on MEOH itself) reads DARK, score 100 under NULL renormalization (media sub-score null, 3 of 4 fields fetched): method section 3's 'attempted-but-empty attention reads score their full quiet points' rule. Axis B (institutional presence, context only, never a blocker per method section 3) is SATURATED: 10 analysts, 85.0% held by institutions. This reads the parent-ticker attention level, not a green-methanol-specific narrative; no search this run found any coverage framing MEOH as a green/certified-methanol-bunkering story distinct from its ordinary large-cap chemicals coverage, consistent with the DARK Axis A read. PCS prints ADVISORY (no armed positive-control gate in this repo)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   },
+   {
+    "issuer_id": "METHANEX",
+    "listing_id": "NASDAQ-MEOH",
+    "ticker": "MEOH",
+    "market_ticker": "MEOH",
+    "chain_id": "methanol-bunkering",
+    "link_id": "conventional-methanol-production",
+    "mapping_ref": "data/mappings/methanol-bunkering.json",
+    "profile_ref": "data/companies/METHANEX.json",
+    "data_tier": "T1",
+    "cik": 886977,
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with audit block null; the (methanol-bunkering, conventional-methanol-production, METHANEX) placement's own role evidence carries a single item tagged INFERRED, so admission rests on the current PASS fresh-context placement_audits[] entry for this exact (chain_id, link_id, issuer_id) triple (atlas-fresh-context, audited_at 2026-09-14T04:10:00Z, evidence_index 0, identity_ok true, role_ok true, source_date_ok true, record_digest 1e325c863e5390b252eaf450cdf10028a7e5c710d17d08d1d9c87ce8acea6c3c), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "name": "Methanex Corporation",
+    "exchange": "Nasdaq Global Select Market",
+    "tier": "T1",
+    "money_corner": false,
+    "link_heat_verdict": "QUIET",
+    "secondary_link_basis": "Methanex's primary row on this chain is green-methanol-production (link position 5, the chain's money-corner link); this is the issuer's second, separately evidenced ACTIVE placement, on conventional-methanol-production (link position 4, bottleneck MEDIUM, verdict QUIET), with its own role_evidence and its own current-PASS placement_audits[] entry in data/mappings/methanol-bunkering.json.",
+    "thesis_1line": "World's largest methanol producer and supplier (1.2bn dollar cash-plus-shares OCI Global acquisition closed 27 June 2025, consolidating a large share of ex-China conventional methanol production and marketing capacity including two world-scale Beaumont, Texas facilities), the volume base that actually fuels ships today; scored QUIET (impact below 60, crowdedness 20 on the chain's own heat block) rather than a money corner because global grey/blue methanol commodity economics are only MEDIUM-criticality, with China alone producing over 90 million tonnes in 2024. Genuine 2026-09-01 6-K discloses Methanex is idling its four-decade-old New Zealand production facilities from Q1 2027 on declining domestic natural gas supply, a real, named capacity headwind on this specific link.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "No conventional-methanol-specific revenue percentage is separately disclosed; Methanex reports methanol production and marketing as a single segment. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 3589224000,
+      "tag": "VERIFIED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 886977.",
+      "official_source": true
+     },
+     "revenue_cagr_3y": {
+      "value": -0.059264,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Three-year compound annual revenue growth computed as (3589224000 / 4311188000) ** (1/3) - 1 from the companyfacts Revenues series, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_margin": {
+      "value": 0.120099,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Operating income 431062000 divided by revenue 3589224000 for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 7.013827,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Operating cash flow 1015560000 divided by net income 144794000, both for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "fcf_margin": {
+      "value": 0.255366,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Free cash flow margin: operating cash flow 1015560000 less capex 98993000, divided by revenue 3589224000, all for the period ended 2025-12-31.",
+      "official_source": true
+     },
+     "net_debt_to_ebitda": {
+      "value": 2.653792,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json fundamentals (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Net debt 2327569000 (total debt 2752900000 less cash 425331000, both as of 2025-12-31) divided by an EBITDA proxy 877073000 (operating income 431062000 plus depreciation 446011000 for the period ended 2025-12-31).",
+      "official_source": true
+     },
+     "piotroski": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/MEOH.json, missing ['shares_fy'] (8 of 9 inputs found)."
+     },
+     "beneish_state": {
+      "value": -3.169,
+      "tag": "INFERRED",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MEOH.json quality.beneish (source sec-companyfacts)",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000886977.json",
+      "basis": "Beneish M-score -3.169 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/MEOH.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": true
+     },
+     "market_cap": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Market capitalization: quality.derived.market_cap is null in data/market/MEOH.json because quality.shares_used.value is null (companyfacts shares_fy series missing)."
+     },
+     "price_to_sales": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Price to sales: cannot be computed because the market-cap numerator (quality.derived.market_cap) is null in data/market/MEOH.json for the same missing shares_fy reason."
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR: quality.reverse_dcf.state is PENDING_DATA in data/market/MEOH.json, missing ['enterprise_value'], which itself depends on the same missing shares_fy series."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Horizon spread: no quality.reverse_dcf.implied_by_horizon block exists in data/market/MEOH.json because the reverse-DCF solve never ran (enterprise_value unavailable, missing shares_fy)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": {
+      "score": 100.0,
+      "state": "DARK",
+      "non_null_fields": 3,
+      "sub_scores": {
+       "trends": 30,
+       "wsb": 25,
+       "stocktwits": 13,
+       "media": null
+      }
+     },
+     "pcs_axis_b": {
+      "band": "SATURATED",
+      "analyst_count": 10,
+      "held_pct_institutions": 0.85019
+     },
+     "state": "DARK",
+     "source": "data/market/MEOH.json",
+     "as_of": "2026-09-14",
+     "tag": "INFERRED",
+     "basis": "PCS Axis A (Google Trends/WSB/Stocktwits attention proxy on MEOH itself) reads DARK, score 100 under NULL renormalization (media sub-score null, 3 of 4 fields fetched): method section 3's 'attempted-but-empty attention reads score their full quiet points' rule. Axis B (institutional presence, context only, never a blocker per method section 3) is SATURATED: 10 analysts, 85.0% held by institutions. This reads the parent-ticker attention level, not a green-methanol-specific narrative; no search this run found any coverage framing MEOH as a green/certified-methanol-bunkering story distinct from its ordinary large-cap chemicals coverage, consistent with the DARK Axis A read. PCS prints ADVISORY (no armed positive-control gate in this repo)."
+    },
+    "earnings_nuggets": [
+     {
+      "quote": "Methanex is a Vancouver-based, publicly traded company and is the world’s largest supplier of methanol globally.",
+      "accession": "0001628280-26-059919",
+      "url": "https://www.sec.gov/Archives/edgar/data/886977/000162828026059919/nzupdate2026.htm",
+      "form": "6-K",
+      "filed": "2026-09-01",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/MEOH.json (SEC EDGAR 6-K, New Zealand operations update, fetched 2026-09-14)",
+      "basis": "Methanex's own '6-K' 'ABOUT METHANEX' boilerplate, fetched this run (data/edgar/docs/MEOH.json), directly evidences the conventional-methanol-production placement's role claim that Methanex is the world's largest methanol producer and supplier. The filing itself is about idling New Zealand production (declining domestic gas supply forces an indefinite Q1-2027 idle of NZ facilities), not about the OCI/green-methanol acquisition; it is cited here only for the verbatim company self-description, not for the NZ news, which is noted separately in this row's thesis as a capacity risk."
+     }
+    ],
+    "status": "CANDIDATE"
+   }
+  ],
+  "picks_and_shovels": [
+   {
+    "issuer_id": "VOLKSWAGEN",
+    "listing_id": "XETRA-VOW3",
+    "ticker": "VOW3",
+    "market_ticker": "VOW3.DE",
+    "chain_id": "methanol-bunkering",
+    "link_id": "methanol-dual-fuel-engines",
+    "mapping_ref": "data/mappings/methanol-bunkering.json",
+    "profile_ref": "data/companies/VOLKSWAGEN.json",
+    "audit_scope": "PLACEMENT",
+    "audit_scope_basis": "Mapping status ACTIVE with audit block null; the (methanol-bunkering, methanol-dual-fuel-engines, VOLKSWAGEN) placement's own role evidence carries two items both tagged INFERRED (not all-VERIFIED), so admission rests on the current PASS fresh-context placement_audits[] entry for this exact (chain_id, link_id, issuer_id) triple (atlas-fresh-context, audited_at 2026-09-14T04:10:00Z, evidence_index 1, identity_ok true, role_ok true, source_date_ok true, record_digest 1c89633c50015ea64e68cbd90cc6be59710ebe4f7d44ac44e9a2d459d6d6252c), verified current against check_map.placement_audit_for and check_screen._placement_admissible before writing this row.",
+    "data_tier": "T2",
+    "name": "Volkswagen AG",
+    "exchange": "Xetra",
+    "tier": "T2",
+    "money_corner": false,
+    "link_heat_verdict": "UNDISCOVERED",
+    "thesis_1line": "Volkswagen holds Everllence (renamed from MAN Energy Solutions 4 June 2025), one of exactly two firms designing the two-stroke marine engines every methanol newbuild needs: 210-plus ME-LGIM dual-fuel engines on order or in service and 95 cumulative orders for the methanol-specific G95ME-C10.5-LGIM variant since 2021. The underlying engineering economics are a genuine duopoly (capture would score 60-plus on that basis alone), but the chain's own heat block scores capture down to 45 because Volkswagen agreed 24 June 2026 to sell 51% of Everllence to Bain Capital (targeted close year-end 2026, proceeds ~EUR7.4bn, book value ~EUR3.4bn as of 31 May 2026), moving design-licensing income mostly out of public markets on a live, closing-window basis, while the other duopolist WinGD (wholly owned by China State Shipbuilding Corporation) carries no listed proxy at all. VOW3.DE is a large, liquid, heavily covered stock, but every 2026 headline is about Volkswagen's own group-level crisis, not this angle (crowdedness 20 on the chain's heat block), which is why this specific thesis reads UNDISCOVERED even though the parent ticker is anything but undiscovered.",
+    "theme_revenue_exposure": {
+     "pct": null,
+     "basis": "Everllence's contribution to Volkswagen Group revenue, and its methanol-engine-specific revenue within Everllence, are not broken out in any filing or press release found this run; the EUR3.4bn book-value figure is a balance-sheet carrying value, not a revenue disclosure. not disclosed.",
+     "quote": null,
+     "accession": null,
+     "url": null,
+     "tag": "NULL"
+    },
+    "fundamentals": {
+     "revenue_latest_fy": {
+      "value": 321913000000.0,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Revenue for the fiscal year ended 2025-12-31, vendor normalisation over Volkswagen AG's IFRS statements read from data/market/VOW3-DE.json fundamentals.revenue_fy.",
+      "official_source": false
+     },
+     "revenue_cagr_3y": {
+      "value": 0.048783,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Three-year compound annual revenue growth computed as (321913000000 / 279050000000) ** (1/3) - 1 from data/market/VOW3-DE.json fundamentals.revenue_fy, period ended 2022-12-31 to period ended 2025-12-31.",
+      "official_source": false
+     },
+     "operating_margin": {
+      "value": 0.033531,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Operating income 10794000000 divided by revenue 321913000000 for the period ended 2025-12-31, from data/market/VOW3-DE.json fundamentals.",
+      "official_source": false
+     },
+     "operating_cash_flow_to_net_income": {
+      "value": 2.04957,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Operating cash flow 15009000000 divided by net income 7323000000, both for the period ended 2025-12-31, from data/market/VOW3-DE.json fundamentals.",
+      "official_source": false
+     },
+     "fcf_margin": {
+      "value": -0.029005,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Free cash flow margin: operating cash flow 15009000000 less capex 24346000000, divided by revenue 321913000000, all for the period ended 2025-12-31, from data/market/VOW3-DE.json fundamentals.",
+      "official_source": false
+     },
+     "net_debt_to_ebitda": {
+      "value": 3.266899,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Net debt 157556000000 (total debt 196357000000 less cash 38801000000, both as of 2025-12-31) divided by an EBITDA proxy 48228000000 (operating income 10794000000 plus depreciation 37434000000 for the period ended 2025-12-31), from data/market/VOW3-DE.json fundamentals.",
+      "official_source": false
+     },
+     "piotroski": {
+      "value": 5,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Piotroski F-score 5, state MIDDLING, computed over yfinance-statements statements in data/market/VOW3-DE.json quality.piotroski, 9 of 9 inputs found.",
+      "official_source": false
+     },
+     "beneish_state": {
+      "value": -2.496,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Beneish M-score -2.496 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/VOW3-DE.json quality.beneish, 12 of 12 inputs found.",
+      "official_source": false
+     },
+     "market_cap": {
+      "value": 40835512123.98,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Market capitalization 40835512123.98 EUR computed in data/market/VOW3-DE.json quality.derived.market_cap from yfinance-statements shares outstanding and the repo's own tracked price.",
+      "official_source": false
+     },
+     "ev_to_ebitda": {
+      "value": 4.113617,
+      "tag": "INFERRED",
+      "source_name": "yfinance-statements",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/VOW3.DE/financials",
+      "basis": "Enterprise value 198391512123.98 (data/market/VOW3-DE.json quality.derived.enterprise_value) divided by the EBITDA proxy 48228000000 (operating income 10794000000 plus depreciation 37434000000, period ended 2025-12-31).",
+      "official_source": false
+     },
+     "implied_fcf_cagr": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Implied FCF CAGR: quality.reverse_dcf.state is NOT_APPLICABLE in data/market/VOW3-DE.json ('base-year free cash flow is not positive; a growth rate on a negative base is meaningless'), base FCF -9337000000."
+     },
+     "horizon_spread": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Horizon spread: no quality.reverse_dcf.implied_by_horizon block exists in data/market/VOW3-DE.json because the reverse-DCF solve never ran (base FCF negative, same reason as implied_fcf_cagr)."
+     }
+    },
+    "crowdedness": {
+     "pcs_axis_a": {
+      "score": 100.0,
+      "state": "COVERAGE-THIN",
+      "non_null_fields": 3,
+      "sub_scores": {
+       "trends": 30,
+       "wsb": 25,
+       "stocktwits": 13,
+       "media": null
+      }
+     },
+     "pcs_axis_b": {
+      "band": "SATURATED",
+      "analyst_count": 21,
+      "held_pct_institutions": 0.30211002
+     },
+     "state": "COVERAGE-THIN",
+     "source": "data/market/VOW3-DE.json",
+     "as_of": "2026-09-14",
+     "tag": "INFERRED",
+     "basis": "PCS Axis A (attention proxy on VOW3.DE itself) reads COVERAGE-THIN, score 100 under NULL renormalization (media sub-score null, 3 of 4 fields fetched, machine_admissible false). Axis B is SATURATED: 21 analysts, 30.2% held by institutions. VOW3.DE is a heavily covered large-cap stock, but every 2026 headline this chain's own heat block found is about Volkswagen's group-level crisis (EV competition, cost cuts, job losses): even the Bain Capital/Everllence stake-sale, a EUR7.4bn transaction, produced only a brief 2-day stock reaction before shares fell to a fresh 52-week low on unrelated news. No coverage frames VOW3.DE as a methanol-engine-duopoly investment thesis; that angle is invisible inside the much larger Volkswagen story (chain heat.crowdedness score 20, methanol-dual-fuel-engines link). PCS prints ADVISORY (no armed positive-control gate in this repo)."
+    },
+    "earnings_nuggets": [],
+    "status": "CANDIDATE"
+   }
+  ],
+  "second_order": [],
+  "hedge": []
+ },
+ "data_gaps": [
+  "METHANEX and VOLKSWAGEN both carry real fundamentals and PCS on disk (all requests FULFILLED); no new request rows queued this run. METHANEX's own canonical fields carry 4 field-level NULLs (piotroski, market_cap, price_to_sales, both reverse_dcf fields) because quality.shares_used is null in data/market/MEOH.json (companyfacts shares_fy series missing), each with its own field-specific basis already on the profile; not requested again here since the profile itself already queues that gap. VOLKSWAGEN's reverse_dcf pair is NULL because base FCF is negative (not a missing-data gap, a stated NOT_APPLICABLE state).",
+  "5 mapped placements across 3 links (bunker-fuel-physical-supply x3, methanol-storage-terminals, shipowner-fleet-commitments) are blocked on placement-audit grounds (3 FAIL, 2 no-audit-with-INFERRED-evidence) rather than missing market/EDGAR data; fixing them is Atlas's mapping-quality and re-audit work, not a Sieve request row.",
+  "3 links carrying real example tickers on the chain (classification-and-safety-standards / BVI.PA, methanol-ready-shipyard-capacity / 4 shipyard tickers, and none for cargo-owner-green-shipping-demand by design) have zero mapping placements at all; routed back to `run universe methanol-bunkering`, not a data gap this screen can request."
+ ],
+ "taste_filtered": [],
+ "health": {
+  "tickers_examined": 7,
+  "rows_written": 3,
+  "fully_scored": 3,
+  "pending": 0,
+  "errors": 0,
+  "rows_superseded": 0,
+  "rows_with_quality_gaps": 3,
+  "links_worked": 12,
+  "links_total": 12,
+  "target_links_covered": 3,
+  "money_corner_links_total": 1,
+  "money_corner_links_covered": 1,
+  "choke_point_links_total": 5,
+  "choke_point_links_covered": 2,
+  "quotes_verified": 1,
+  "distinct_issuers": 2,
+  "profiles_available_repo_wide": 345,
+  "mapping_placements_total": 8,
+  "admissible_placements_all_verified_evidence": 0,
+  "admissible_placements_via_placement_audit": 3,
+  "admissible_but_unprofiled_issuers": 0,
+  "profiled_but_blocked_on_evidence_tier": 5,
+  "blocked_on_both_evidence_tier_and_profile": 0,
+  "placements_with_zero_mapped_issuers_links": 6,
+  "issuers_complete_seated_this_run": 2,
+  "issuers_complete_excluded_on_audit_finding": 5,
+  "mapping_audit_status": "NONE",
+  "mapping_status": "ACTIVE"
+ },
+ "notes": [],
+ "confidence_audit": {
+  "NULL": 15,
+  "VERIFIED": 3,
+  "INFERRED": 25
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-14T21:30:00Z",
+   "by": "sieve-profiler",
+   "kind": "RUN",
+   "change": "First run screen methanol-bunkering (chain-level, scenario_id null). Built the per-link universe across all 12 links under audit_scope PLACEMENT (mapping ACTIVE, audit block null, no whole-census audit has ever run). Seated 3 rows on 2 links: METHANEX on green-methanol-production (the chain's sole money-corner link) and on conventional-methanol-production (secondary_link_basis), VOLKSWAGEN on methanol-dual-fuel-engines, each admitted on a current PASS fresh-context placement_audits[] entry (Atlas, 2026-09-14T04:10:00Z) since every placement in this mapping carries INFERRED-only role evidence and the tag-alone route admits nothing here. 5 further mapped placements across 3 links (bunker-fuel-physical-supply x3, methanol-storage-terminals, shipowner-fleet-commitments) refused: 3 failed their placement audit today (source-date and verbatim-quote defects, roles themselves genuine) and 2 carry no placement audit at all over INFERRED evidence. 3 further links (classification-and-safety-standards, methanol-ready-shipyard-capacity, cargo-owner-green-shipping-demand) carry real example tickers on the chain but zero mapping placements, routed back to `run universe`. 3 links (imo-netzero-framework, eu-maritime-decarbonization-mandates, port-bunkering-licensing-regime) are empty by chain design, zero tickers, not a mapping defect. 1 verbatim earnings nugget verified against data/edgar/docs/MEOH.json; no EDGAR document exists for VOW3.DE (German filer, no SEC registration), so that row carries none. No new PENDING_DATA rows and no new request rows queued: both seated tickers' prior requests are FULFILLED."
+  }
+ ]
+}
