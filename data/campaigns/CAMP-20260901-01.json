@@ -2158,6 +2158,13 @@
    "theme_id": "offshore-counter-drone",
    "finding": "run selection 2026-09-06 (fourth run) examined the 2 rows newly seated on data/screens/offshore-counter-drone.json: HENSOLDT and THALES on the money-corner link c2-and-sensor-fusion, the chain's one CHOKE_POINT. Neither is promoted to O1 this run, for two distinct reasons rather than a shared data gap. THALES: the mapping (data/mappings/offshore-counter-drone.json) carries an ACTIVE placement for THALES on this exact chain/link with a current PASS placement_audits[] entry (2026-09-04T19:20:44Z), but data/companies/THALES.json's own placements array does not include it: the profile still carries only its tibet-mega-dam/riparian-risk-monitoring placement from an earlier run. Selection cannot write a screen_handoff resting on a placement the profile's own business_summary and exposure_summary never describe; next needed stage is `run profile THALES` to add the offshore-counter-drone exposure, owned by sieve-profiler, after which a future selection run could promote it (the placement audit is already current). HENSOLDT: the profile clears the NULL-completeness test (zero NULL canonical fields, T3 vendor-block sourced from data/market/HAG-DE.json), but its revenue.latest_fy, cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin are all tagged INFERRED with official_source false, triggering the O1 official-source cross-check requirement (method section 6A). WebSearch and WebFetch of HENSOLDT's own FY2025 results press release (hensoldt.net) confirm revenue closely (EUR 2,455m official versus the profile's EUR 2,454m, effectively matching) but do NOT cleanly reconcile cash conversion: the official release cites 'adjusted free cash flow' of EUR 347m, while the profile's vendor-derived fcf_margin (9.94%) implies roughly EUR 244m on FY2025 revenue, a gap plausibly explained by 'adjusted' non-GAAP add-backs the vendor computation does not make, but not confirmed; precise IFRS net income and operating cash flow figures were not found in the search to independently verify operating_cash_flow_to_net_income either. Forcing official_source true onto an unreconciled number would be worse than leaving it O2: HENSOLDT is held at O2 pending a proper reconciliation against HENSOLDT's full annual report (annualreport.hensoldt.net), next needed stage `run profile HENSOLDT`. This is a data-verification blocker, not a researched absence: no no_candidate_finding is written. DEPTH's 1-3 O1 per theme remains unmet at 0 for this theme.",
    "owner": "sieve-profiler"
+  },
+  {
+   "id": "BLK-14",
+   "severity": "INFO",
+   "theme_id": "data-center-moratoria",
+   "finding": "run selection 2026-09-14 (data-center-moratoria scope, fan-out re-run) re-examined all 8 rows in data/screens/data-center-moratoria.json (pure_play bucket) against their profiles. AECOM, JACOBS-SOLUTIONS and WSP-GLOBAL remain O1 (DEPTH's 3-per-theme maximum for this theme, unchanged); zero new promotions this run. TETRA-TECH and STANTEC unchanged from their 2026-09-06 selection_review (CAP_REACHED, both also carry genuine NULL canonical fields). AMERICAN-ELECTRIC-POWER, newly COMPLETE/O2 since 2026-09-13T14:53Z (not previously examined), was reviewed and held O2 on two independent grounds: theme is at its O1 cap, and its placement's link heat is CROWDED (money_corner false), the same OUT_OF_DEPTH_SCOPE_LINK_HEAT reason_code DIGITAL-REALTY and EQUINIX already carry; it also has one NULL canonical field (quality.beneish_state). No O1 official-source cross-check was attempted for AEP: moot given the disposing findings, and no request row was queued. Separately, a genuine new gap surfaced while re-verifying DIGITAL-REALTY and EQUINIX: data/mappings/data-center-moratoria.json now carries fresh PASS placement_audits[] entries for both issuers on entitled-powered-land, audited_at 2026-09-13T15:19:21Z (part of this fan-out run's universe-audit work), but neither data/companies/DIGITAL-REALTY.json nor data/companies/EQUINIX.json has been re-run since 2026-09-02: both profiles' placements arrays still carry only their old ai-infrastructure/hyperscale-datacenters placement, not the new data-center-moratoria one. This is the same class of gap BLK-13 named for THALES: selection cannot write a screen_handoff resting on a placement the profile itself never describes. Their existing 2026-09-02 selection_review (reason_code OUT_OF_DEPTH_SCOPE_LINK_HEAT, describing only the old ai-infrastructure link) is now incomplete rather than wrong, and is not rewritten here since amending it is `run profile`'s job, a different command. Does not change this run's outcome (theme is at cap regardless), but matters if the theme's cap ever reopens: next needed stage before either could be considered on this theme is `run profile DIGITAL-REALTY` and `run profile EQUINIX` to add the entitled-powered-land placement, owned by sieve-profiler. DEPTH's 1-3 O1 per theme remains satisfied at 3 (2 of 3 FINAL: AECOM and JACOBS-SOLUTIONS; WSP-GLOBAL DRAFT, red team not yet run).",
+   "owner": "sieve-profiler"
   }
  ],
  "confidence_audit": {
@@ -5089,6 +5096,26 @@
   },
   {
    "ts": "2026-09-14T00:54:51Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 297
+  },
+  {
+   "ts": "2026-09-14T01:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01, scoped to data-center-moratoria (fan-out re-run). Examined all 8 rows in data/screens/data-center-moratoria.json against their profiles. Promoted zero new O1: theme is already at DEPTH's 3-per-theme O1 maximum (AECOM, JACOBS-SOLUTIONS, WSP-GLOBAL, unchanged), so no further promotion is permitted regardless of individual candidate quality. AMERICAN-ELECTRIC-POWER, the one COMPLETE profile on this screen not previously examined (profiled 2026-09-13T14:53Z), was reviewed and held O2 on two independent grounds beyond the cap: link heat CROWDED (money_corner false, out of DEPTH census scope, same reason_code as DIGITAL-REALTY/EQUINIX) and one NULL canonical field (quality.beneish_state). No O1 official-source cross-check performed and no request rows queued: no candidate reached that stage. Added BLK-14, naming a newly-discovered gap (unrelated to this run's outcome): DIGITAL-REALTY and EQUINIX carry fresh PASS placement_audits[] for data-center-moratoria/entitled-powered-land (2026-09-13T15:19:21Z) that neither profile's placements array yet reflects (both profiles last updated 2026-09-02, still only carrying their old ai-infrastructure/hyperscale-datacenters placement); next needed stage before either could ever be considered on this theme is `run profile DIGITAL-REALTY` / `run profile EQUINIX`. No profile's opportunity_tier changed this run."
+  },
+  {
+   "ts": "2026-09-14T00:54:17Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 297
+  },
+  {
+   "ts": "2026-09-14T00:56:08Z",
    "by": "campaign_calibrate",
    "kind": "AMEND",
    "change": "recomputed campaign completion and advanced proven stages",
