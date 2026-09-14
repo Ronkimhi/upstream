@@ -3,13 +3,8 @@
   "issuer_name": "Deep Sea Minerals Corp.",
   "as_of": "2026-09-14",
   "created_at": "2026-09-14T01:30:00Z",
-  "updated_at": "2026-09-14T01:30:00Z",
+  "updated_at": "2026-09-14T19:05:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
-  "data_tier": "T2",
-  "data_tier_basis": "CSE-listed (CSE:SEAS, market_ticker SEAS.CN), a foreign issuer whose US subsidiary files 6-K exhibits with the SEC under CIK 2115923 (evidenced by the Form 6-K exhibit 99.2 cited in the mapping placement evidence, https://www.sec.gov/Archives/edgar/data/0002115923/000121390026089437/ea030187501ex99-2.htm). Asserted per the pull-data skill's ADR cik override: a dotted/foreign ticker never resolves to a CIK on its own, so the cik is set explicitly on the queued request rows with this evidence. No data/market/SEAS-CN.json exists yet this run.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the campaign completion target.",
   "listing_refs": [
     "CSE-SEAS"
   ],
@@ -46,6 +41,11 @@
       ]
     }
   ],
+  "status": "COMPLETE",
+  "data_tier": "T2",
+  "data_tier_basis": "Deep Sea Minerals Corp. is CSE-listed (Canadian Securities Exchange, ticker SEAS) with a US SEC CIK (2115923) asserted via the ADR override, evidenced by its Form 6-K filings. data/market/SEAS-CN.json fundamentals and quality rest entirely on the fetch plane's vendor-statements block (source yfinance-statements, official_source false): no primary SEC companyfacts or local-filing figures were available for this foreign private issuer on this fetch. T2 per method section 6A vendor-aggregate fundamentals.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring; run selection has not examined this campaign batch. Not O1: this command (run profile --campaign) never assigns opportunity tier beyond COMPLETE -> O2; only run selection may promote to O1.",
   "sources": {
     "mapping": "data/mappings/nodule-mining-refining.json",
     "mapping_audit": {
@@ -54,108 +54,141 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/nodule-mining-refining.json",
-    "market": "data/market/SEAS-CN.json"
+    "market": "data/market/SEAS-CN.json",
+    "market_fetched_at": "2026-09-14"
   },
-  "business_summary": "Deep Sea Minerals Corp. (CSE: SEAS) sits on the nodule-mining-refining/permit-race link (verdict QUIET) as a second publicly listed US seabed-mineral permit applicant. Fundamentals cannot be sourced this run: no data/market/SEAS-CN.json exists on disk.",
+  "business_summary": "Deep Sea Minerals Corp. (CSE: SEAS) sits on the nodule-mining-refining/permit-race link (QUIET) as the first publicly listed US seabed-mineral permit applicant found besides TMC: its US subsidiary's Clarion-Clipperton Zone exploration-license application, which NOAA determined to be in substantial compliance on June 1, 2026, with an amended application submitted July 17, 2026. Deep Sea Minerals is pre-revenue on vendor-statements data: zero revenue in every reported fiscal year (2023-2025), consistent with an exploration-stage permit applicant with no production.",
   "exposure_summary": {
-    "narrative": "DEEP-SEA-MINERALS has 1 placement on nodule-mining-refining (permit-race, QUIET, money_corner False). Every canonical metric is NULL: no market data is available for SEAS.CN this run."
+    "narrative": "DEEP-SEA-MINERALS has 1 placement on nodule-mining-refining (permit-race, QUIET, money_corner False), its own direct NOAA permit application, not a third-party revenue-share exposure; no separate disclosed revenue-exposure percentage applies.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "Deep Sea Minerals is pre-revenue and pre-permit; no revenue exposure percentage is disclosed or applicable to this chain."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 0.0,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-14",
+        "url": "https://finance.yahoo.com/quote/SEAS.CN/financials",
+        "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31 is 0.0: Deep Sea Minerals is a pre-production seabed-mineral exploration-license applicant with no reported commercial revenue (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
         "value": null,
         "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "basis": "revenue_cagr_3y is NULL: vendor-statements revenue is 0.0 in every reported period (2023-2025); a compound annual growth rate is undefined for a zero base."
       }
     },
     "margins": {
       "operating_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "basis": "operating_margin is NULL: vendor-statements revenue is 0.0 for FY2025, so a margin ratio against operating income (-215,127) is undefined with no revenue denominator."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
-      },
-      "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "basis": "operating_cash_flow_to_net_income is NULL: vendor-statements FY2025 operating cash flow (-177,705) and net income (-314,169) are both negative, but capex is not reported and the underlying vendor series is too thin (three fiscal years, no explicit revenue) to treat the resulting ratio as more than noise for a company this early-stage; recorded NULL rather than a ratio that overstates precision."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "basis": "net_debt_to_ebitda is NULL: vendor-statements total_debt is not reported for Deep Sea Minerals, so net debt cannot be computed."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "basis": "piotroski is NULL: data/market/SEAS-CN.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 inputs found)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state is NULL: data/market/SEAS-CN.json quality.beneish state is PENDING_DATA, missing cost_of_revenue_fy, depreciation_fy and long_term_debt_fy (9 of 12 inputs found)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 28309844.0,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-info",
+        "source_date": "2026-09-14",
+        "url": "https://finance.yahoo.com/quote/SEAS.CN/financials",
+        "basis": "Market capitalization 28,309,844.0 computed in data/market/SEAS-CN.json quality.derived.market_cap from vendor price 1.06 (2026-09-14) times vendor share count 26,707,400.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
       },
       "price_to_sales": {
         "value": null,
         "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "basis": "price to sales is NULL: Deep Sea Minerals reports 0.0 revenue for FY2025 (pre-production exploration-stage applicant), so a price-to-sales ratio is undefined."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "basis": "implied_fcf_cagr is NULL: data/market/SEAS-CN.json quality.reverse_dcf state is PENDING_DATA, missing fcf and enterprise_value (capex and total_debt unreported)."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "basis": "horizon_spread is NULL: the reverse-DCF base solve for Deep Sea Minerals did not run (state PENDING_DATA, missing fcf and enterprise_value), so no implied_by_horizon spread exists."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "permit-race link scored QUIET per data/chains/nodule-mining-refining.json heat: Deep Sea Minerals is the first and, per the chain's own build, only publicly listed entrant in a permit race whose other named applicants (Impossible Metals, American Metal Resources/SeaX) are privately held, so there is no peer public-market comparison to corroborate or contradict the QUIET score.",
+    "data/market/SEAS-CN.json carries no pcs (positioning/crowdedness-signal) block and rests entirely on vendor-normalized data (no primary local-filing cross-check performed this run), so this profile cannot independently corroborate crowdedness with issuer-level analyst-coverage or institutional-ownership figures, or verify the vendor numbers against Deep Sea Minerals' own 6-K/20-F filings."
+  ],
+  "catalysts": [
+    {
+      "claim": "the NOAA had determined that application submitted under the DSHMRA is in substantial compliance with applicable U.S. regulatory requirements ... seeks an exploration license for polymetallic nodules in a defined area of the Clarion-Clipperton Zone in the Pacific Ocean",
+      "source_name": "Deep Sea Minerals Corp., Form 6-K exhibit 99.2 (NOAA substantial-compliance determination update)",
+      "source_date": "2026-06-01",
+      "url": "https://www.sec.gov/Archives/edgar/data/0002115923/000121390026089437/ea030187501ex99-2.htm",
+      "tag": "VERIFIED",
+      "basis": "Carried from the permit-race mapping placement's role_evidence; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Deep Sea Minerals reports zero revenue in every fiscal year on the vendor-statements block (2023-2025) and widening operating losses (-344,092 in 2023 to -215,127 in 2025, non-monotonic); its sole disclosed value driver, the NOAA permit application, remains under regulatory review with no guaranteed outcome or timeline, and this profile's fundamentals rest entirely on a vendor normalization with no primary-filing cross-check performed this run.",
+      "source_name": "yfinance-statements vendor block, read from data/market/SEAS-CN.json fundamentals",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/SEAS.CN/financials",
+      "tag": "INFERRED",
+      "official_source": false,
+      "basis": "revenue_fy and operating_income_fy series in data/market/SEAS-CN.json fundamentals; NOAA review status from the mapping placement's role text."
+    }
+  ],
   "data_gaps": [
-    "Queued this run: prices (REQ-20260914-627), fundamentals (REQ-20260914-628), quality (REQ-20260914-629), against market_ticker SEAS.CN with cik 2115923 asserted per the ADR override (evidenced by the Form 6-K filing at that CIK). Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "No primary SEC companyfacts or local-filing fundamentals exist for Deep Sea Minerals on this fetch: revenue, market_cap and every quality input rest on the vendor-statements block alone (T2, official_source false).",
+    "Piotroski, Beneish and reverse-DCF are all NULL/PENDING_DATA: the vendor series is missing long_term_debt_fy, cost_of_revenue_fy, depreciation_fy, capex and enterprise_value.",
+    "No further PENDING request queued this run: prices, fundamentals and quality are all already on disk for SEAS.CN."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-14",
-    "basis": "No market data on disk for SEAS.CN this run. Queued prices (REQ-20260914-627), fundamentals (REQ-20260914-628), quality (REQ-20260914-629). Status BLOCKED, data tier T2, opportunity tier O3."
+    "basis": "COMPLETE T2 profile: revenue (0.0, pre-production) and market_cap populated from the vendor statements block; 8 of 10 canonical fields NULL on genuine data-availability grounds (zero revenue base, missing statement fields, no reported debt or capex). Deep Sea Minerals is the sole public comparable found for TMC USA's permit race, but its own value depends entirely on an unresolved NOAA review. Retained for monitoring pending campaign selection, which is a separate command."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
+    "INFERRED": 2,
     "SPECULATIVE": 0,
-    "NULL": 12,
-    "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no market data fetched for SEAS.CN yet."
+    "NULL": 8,
+    "canonical_fields_written": 10,
+    "basis": "Counts cover the canonical metric fields only (cash_conversion field present but NULL). INFERRED covers revenue.latest_fy (0.0, vendor-backed) and market_cap (vendor price x vendor shares), both T2 vendor-aggregate per method section 6A, never a filing quote. NULL covers growth, margins, cash_conversion, leverage, quality x2, price_to_sales and reverse_dcf x2, each traced to a stated data-availability reason (zero revenue base, missing statement fields, unreported debt/capex)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -167,6 +200,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for DEEP-SEA-MINERALS from data/mappings/nodule-mining-refining.json (ACTIVE), 1 placement (permit-race). No market data on disk for SEAS.CN. Queued prices/fundamentals/quality (REQ-20260914-627/569/570) with cik 2115923 asserted (evidenced Form 6-K filer). Status BLOCKED, opportunity_tier O3. run profile, nodule-mining-refining batch 1."
+    },
+    {
+      "ts": "2026-09-14T19:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Amended BLOCKED to COMPLETE: data/market/SEAS-CN.json landed, REQ-20260914-627/628/629 all FULFILLED (ADR-override CIK 2115923, market_ticker SEAS.CN). No primary companyfacts data exists for this foreign private issuer; fundamentals and quality rest on the vendor-statements block (yfinance-statements), consistent with the T2 data_tier already assigned. Populated revenue.latest_fy (0.0, pre-production) and valuation.market_cap (28,309,844.0); 8 of 10 canonical fields NULL on genuine data-availability grounds. Status COMPLETE, data_tier T2, opportunity_tier O2. run profile --campaign, nodule-mining-refining batch 1."
     }
   ]
 }

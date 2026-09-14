@@ -3,13 +3,8 @@
   "issuer_name": "TechnipFMC plc",
   "as_of": "2026-09-14",
   "created_at": "2026-09-14T01:30:00Z",
-  "updated_at": "2026-09-14T01:30:00Z",
+  "updated_at": "2026-09-14T19:05:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
-  "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:FTI carries a real SEC CIK (1681459), evidenced in data/mappings/nodule-mining-refining.json identity_evidence. No data/market/FTI.json exists yet this run: no prices, fundamentals or quality block on disk. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the campaign completion target.",
   "listing_refs": [
     "NYSE-FTI"
   ],
@@ -45,6 +40,11 @@
       ]
     }
   ],
+  "status": "COMPLETE",
+  "data_tier": "T1",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:FTI carries a real SEC CIK (1681459), evidenced in data/mappings/nodule-mining-refining.json identity_evidence. data/market/FTI.json is now on disk (fetched_at 2026-09-14T18:09Z) with full SEC companyfacts fundamentals and a SCORED quality block (Piotroski, Altman, reverse-DCF all solved); T1 confirmed.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring; run selection has not examined this campaign batch. Not O1: this command (run profile --campaign) never assigns opportunity tier beyond COMPLETE -> O2; only run selection may promote to O1.",
   "sources": {
     "mapping": "data/mappings/nodule-mining-refining.json",
     "mapping_audit": {
@@ -53,108 +53,179 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/nodule-mining-refining.json",
-    "market": "data/market/FTI.json"
+    "market": "data/market/FTI.json",
+    "market_fetched_at": "2026-09-14T18:09:00Z"
   },
-  "business_summary": "TechnipFMC plc (NYSE: FTI) sits on the nodule-mining-refining/collector-tech link (Subsea nodule collector vehicles and riser lift systems, verdict UNDISCOVERED) via a minority strategic investment and co-development partnership with Loke Marine Minerals. Fundamentals cannot be sourced this run: no data/market/FTI.json exists on disk.",
+  "business_summary": "TechnipFMC plc (NYSE: FTI) sits on the nodule-mining-refining/collector-tech link (Subsea nodule collector vehicles and riser lift systems, verdict UNDISCOVERED) via a minority strategic investment and co-development partnership with Loke Marine Minerals. TechnipFMC is a large, profitable established subsea-engineering company on SEC companyfacts: FY2025 revenue 9,932,600,000 (up from 6,700,400,000 in FY2022), FY2025 net income 963,900,000, Piotroski F-score 8 (STRONG), Altman state SAFE.",
   "exposure_summary": {
-    "narrative": "TECHNIPFMC has 1 placement on nodule-mining-refining (collector-tech, UNDISCOVERED, money_corner False). Every canonical metric is NULL: no market data is available for FTI this run."
+    "narrative": "TECHNIPFMC has 1 placement on nodule-mining-refining (collector-tech, UNDISCOVERED, money_corner False), a minority strategic-investment and co-development stake, not a disclosed revenue-generating business line; TechnipFMC's own companyfacts revenue reflects its whole global subsea business, not this exposure specifically.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "No nodule-collector-specific revenue percentage is disclosed or sourced; the collector-tech stake is an early-stage minority investment and co-development partnership, not a reported segment."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 9932600000,
+        "tag": "VERIFIED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Revenues for fiscal year ended 2025-12-31 as reported to SEC XBRL."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "value": 0.1402,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Three-year compound annual revenue growth computed as (9,932,600,000 / 6,700,400,000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31."
       }
     },
     "margins": {
       "operating_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "value": 0.1446,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Operating income 1,436,100,000 divided by revenue 9,932,600,000 for the fiscal year ended 2025-12-31, both from companyfacts."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
+        "value": 1.8307,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Operating cash flow 1,764,600,000 divided by net income 963,900,000, both for the fiscal year ended 2025-12-31, from companyfacts."
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "value": 0.1457,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Operating cash flow 1,764,600,000 less capital expenditure 317,200,000, divided by revenue 9,932,600,000, all for the fiscal year ended 2025-12-31, from companyfacts."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "value": -0.3755,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Net debt -705,200,000 (total debt 286,600,000 less cash 991,800,000, both as of 2026-06-30) divided by an EBITDA proxy 1,877,900,000 (operating income 1,436,100,000 plus depreciation 441,800,000, both fiscal year ended 2025-12-31), from the companyfacts series. Negative value reflects a net-cash position."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "value": 8,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/FTI.json quality, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Piotroski F-score 8 (state STRONG, 9 of 9 input criteria found) computed over SEC companyfacts statements in data/market/FTI.json quality.piotroski."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state is NULL: data/market/FTI.json quality.beneish state is PENDING_DATA, missing receivables_fy (11 of 12 inputs found)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 29263842260.0,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/FTI.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Market capitalization 29,263,842,260.0 computed in data/market/FTI.json quality.derived.market_cap from price 73.0318 (2026-09-14, yfinance) times SEC companyfacts share count 400,700,000 (as of 2025-12-31)."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "value": 2.9462,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/FTI.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Market capitalization 29,263,842,260.0 divided by fiscal year 2025-12-31 revenue 9,932,600,000."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "value": 0.0777,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/FTI.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Reverse-DCF solve at the default 5-year horizon; assumptions: discount_rate 0.09, terminal_growth 0.025, horizon_years 5, method bisection on FCF CAGR. base_fcf 1,447,400,000.0, enterprise_value 28,558,642,260.0, from data/market/FTI.json quality.reverse_dcf."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "value": 0.023,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/FTI.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+        "basis": "Spread 0.023 across explicit horizons {5: 0.0777, 7: 0.0645, 10: 0.0547} from data/market/FTI.json quality.reverse_dcf.implied_by_horizon."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "collector-tech link scored UNDISCOVERED per data/chains/nodule-mining-refining.json heat: TechnipFMC's nodule-collector exposure is a small minority investment inside a large, profitable, diversified subsea-engineering business, so the link's own crowding score says little about TFTI's own valuation, which is driven overwhelmingly by its core subsea/surface businesses rather than by seabed-mineral collection.",
+    "data/market/FTI.json carries no pcs (positioning/crowdedness-signal) block, so this profile cannot independently corroborate link-level crowdedness with issuer-level analyst-coverage or institutional-ownership figures."
+  ],
+  "catalysts": [
+    {
+      "claim": "TechnipFMC and Loke Marine Minerals are joining forces to develop a patent-pending, autonomous subsea production system and other enabling technologies allowing for the extraction of seabed minerals used in electric vehicles, clean energy technologies and consumer electronics.",
+      "source_name": "JPT (SPE), TechnipFMC, Loke Team Up for Deepsea Minerals Venture",
+      "source_date": "2026-01-01",
+      "url": "https://jpt.spe.org/technipfmc-loke-team-up-for-deepsea-minerals-venture",
+      "tag": "INFERRED",
+      "basis": "Carried from the collector-tech mapping placement's role_evidence; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "TechnipFMC's nodule-collector exposure runs through a minority strategic investment in Loke Marine Minerals, a private Norwegian company; TechnipFMC discloses no separate revenue, cost or ownership-percentage figure for this stake in its own companyfacts filings, so the collector-tech exposure cannot be sized or tracked independently of TechnipFMC's much larger core subsea business.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FTI.json fundamentals",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001681459.json",
+      "tag": "INFERRED",
+      "official_source": true,
+      "basis": "No Loke-specific or seabed-minerals segment line exists in the companyfacts revenue_fy or operating_income_fy series read for this profile."
+    }
+  ],
   "data_gaps": [
-    "Already queued (prior run, atlas-cartographer): prices (REQ-20260914-468 / REQ-20260914-505), fundamentals (REQ-20260914-469 / REQ-20260914-506), quality (REQ-20260914-470 / REQ-20260914-507), edgar_doc (REQ-20260914-471 / REQ-20260914-508), all still PENDING. This run adds none: existing rows already cover FTI. Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "beneish_state is NULL: companyfacts is missing receivables_fy for TechnipFMC (11 of 12 Beneish inputs found).",
+    "No collector-tech-specific (Loke Marine Minerals) revenue or ownership percentage is disclosed or sourced for TechnipFMC; all populated metrics reflect the whole consolidated company, not this exposure alone.",
+    "No further PENDING request queued this run: prices, fundamentals, quality and edgar_doc are all already on disk for FTI (fetched 2026-09-14T18:09Z)."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-14",
-    "basis": "No market data on disk for FTI this run. Prior PENDING requests already cover prices/fundamentals/quality/edgar_doc; none re-queued. Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "COMPLETE profile with a full SEC companyfacts and ACIS quality computation: 9 of 10 canonical fields populated (only beneish_state NULL, one missing companyfacts field). TechnipFMC is a large, profitable, financially strong (Piotroski 8 STRONG, Altman SAFE, net cash) company whose nodule-collector exposure is a small minority stake inside a much larger core business, so the metrics here describe TFTI as a whole, not the chain exposure specifically. Retained for monitoring pending campaign selection, which is a separate command."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 0,
-    "SPECULATIVE": 0,
-    "NULL": 12,
-    "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no market data fetched for FTI yet."
+    "VERIFIED": 1,
+    "INFERRED": 8,
+    "SPECULATIVE": 2,
+    "NULL": 1,
+    "canonical_fields_written": 10,
+    "basis": "Counts cover the canonical metric fields only (both cash_conversion fields and both reverse_dcf fields written). VERIFIED covers revenue.latest_fy read directly from companyfacts. INFERRED covers growth, margins, cash_conversion x2, leverage, quality.piotroski, valuation x2, each computed from companyfacts with the derivation named in its basis. SPECULATIVE covers reverse_dcf x2, matching the quality engine's own assumptions tag. NULL covers beneish_state alone (one missing companyfacts field)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -166,6 +237,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for TECHNIPFMC from data/mappings/nodule-mining-refining.json (ACTIVE), 1 placement (collector-tech). No market data on disk for FTI. Prior PENDING requests (REQ-20260914-468/469/470/471, REQ-20260914-505/506/507/508) already cover prices/fundamentals/quality/edgar_doc; none re-queued. Status BLOCKED, opportunity_tier O3. run profile, nodule-mining-refining batch 1."
+    },
+    {
+      "ts": "2026-09-14T19:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Amended BLOCKED to COMPLETE: data/market/FTI.json landed with full SEC companyfacts and a SCORED quality block, REQ-20260914-468/469/470/471 (and duplicates -505/506/507/508) all FULFILLED. Populated revenue, growth, margins, cash_conversion x2, leverage, piotroski, valuation x2 and reverse_dcf x2 (9 of 10 canonical fields); only beneish_state NULL (companyfacts missing receivables_fy). Status COMPLETE, data_tier T1, opportunity_tier O2. run profile --campaign, nodule-mining-refining batch 1."
     }
   ]
 }

