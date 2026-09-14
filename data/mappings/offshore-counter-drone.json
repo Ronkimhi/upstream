@@ -1187,6 +1187,12 @@
       "by": "atlas-fresh-context",
       "kind": "AMEND",
       "change": "Correction: on starting this run, placement_audits[] was found to still contain three stale pre-existing entries for HENSOLDT, THALES and KONGSBERG-GRUPPEN (all status PASS, audited_at 2026-09-04T18:52:55Z) whose record_digest no longer matched current placement content (the mapping had been amended since those entries were written, e.g. RFHIC and other placements evidence/tags changed), contrary to this run brief stated premise that only the TELEDYNE-TECHNOLOGIES FAIL entry remained. Removed those three stale entries (kept TELEDYNE-TECHNOLOGIES untouched) and replaced them with the three fresh entries appended in the prior changelog entry above, each carrying a record_digest current as of this audit. This is a mechanical, directly-observable correction (digest mismatch against current placement content), not a judgment about mapping rationale, which this fresh-context run never read."
+    },
+    {
+      "ts": "2026-09-14T00:39:45Z",
+      "by": "atlas-fresh-context",
+      "kind": "AMEND",
+      "change": "Six per-placement fresh-context audits (run universe-audit offshore-counter-drone --placement), selected as placements with no current PASS entry, ordered money-corner link first (c2-and-sensor-fusion had no eligible candidate left: its only non-PASS placement, TELEDYNE-TECHNOLOGIES, is unchanged since its 2026-09-04 FAIL, matching record_digest, so re-auditing it would add no new information and that slot was spent on a new placement instead), then by chain position, restricted to issuers whose data/companies/<issuer_id>.json status is COMPLETE (KONGSBERG-GRUPPEN is BLOCKED and was excluded from selection on subsea-and-underwater-sensing). Results: RFHIC/rf-and-radar-front-end-components FAIL (role honestly supported by two real spans on the same page per method.md's sanctioned composite pattern, but source_date_ok false: cited 2026-09-04 against the page's own 2024-06-03 dateline). HENSOLDT/maritime-detection-radar FAIL (role_ok false: the cited 'stable under high sea-clutter conditions' language does not exist anywhere on the page; this fresh sample confirms the placement's own prior not-promoted note). LEONARDO/maritime-detection-radar FAIL (role_ok false: the claim's missile/manoeuvring-craft clause is absent from the cited page entirely; source_date_ok false: cited 2026-09-04 against the article's own 2021-11-10 byline; confirms the placement's own prior not-promoted note). LEONARDO-DRS/maritime-detection-radar FAIL (role unverifiable: cited leonardodrs.com URL 403's a third time; two independent live mirrors of the identical press release do not contain the cited phrase; source_date_ok false: cited 2026-09-04 against the release's actual 2026-04-20 date). HENSOLDT/electro-optical-and-acoustic-sensing PASS (verbatim match, identity independently reconfirmed via live.deutsche-boerse.com). TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing FAIL (role unverifiable: cited hydro-international.com URL 403's a third time across two sessions; two independent write-ups of the same event corroborate the facts in substance but not the placement's exact wording). Net: 1 PASS, 5 FAIL of 6 sampled. No placement, listing, or prior audit entry was altered or deleted; every change is an appended placement_audits entry. Mapping status and every other field left untouched; the author corrects the five FAILed placements' role text, evidence, and source_date fields in a later run universe. Fresh-context provenance and independence limitation as stated in each entry; this run never read data/chains/_map-log.json, _archetypes.md, company profiles beyond their bare status field, screens, data/ledger.md, or git log/show for authoring rationale."
     }
   ],
   "audit": null,
@@ -1271,6 +1277,132 @@
       "identity_check": "Live-fetched sec.gov/files/company_tickers_exchange.json on 2026-09-04 and located the KBGGY row directly: cik 1535759, name Kongsberg Gruppen ASA/ADR, ticker KBGGY, exchange OTC, exactly matching the mapping listing OTC-KBGGY identity_evidence.",
       "defects": [],
       "record_digest": "a80d4bc34399977e705624108bf66f54859e3b1f615576c014575c67d63049fd"
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "rf-and-radar-front-end-components",
+      "issuer_id": "RFHIC",
+      "audited_at": "2026-09-14T00:39:45Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context-2026-09-14-offshore-counter-drone-placement-audits (RFHIC/rf-and-radar-front-end-components, HENSOLDT/maritime-detection-radar, LEONARDO/maritime-detection-radar, LEONARDO-DRS/maritime-detection-radar, HENSOLDT/electro-optical-and-acoustic-sensing, TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This run started in a declared fresh context: it read only the mapping file, its chain file, docs/method.md section 6A, and tools/check_map.py (placement_claim_digest and placement_audit_failures), plus each sampled placement's own cited live source URL and its listing's identity source. It never read data/chains/_map-log.json, _archetypes.md, any company profile, any screen, data/ledger.md, or git log/show for authoring rationale, and has no memory of how this mapping came to be amended.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "source_url": "https://rfhic.com/product-demo/technology-gan-wideband-amplifiers-for-counter-drone-applications/",
+      "source_date": "2026-09-04",
+      "source_excerpt": "RFHIC has introduced a comprehensive range of GaN wideband amplifiers, tailored for integration into counter unmanned aircraft systems (C-UAS). ... RFHIC offers an extensive portfolio of wideband amplifiers designed for Counter-UAS applications, with operation capabilities up to 6 GHz. (live-fetched 2026-09-14: both spans are real and appear on the page, in this order, several paragraphs apart, which is why the placement's own evidence item legitimately stores them as a two-item source_excerpt list per method.md section 1's 'a list of spans when a claim honestly rests on two sentences of one page')",
+      "identity_check": "Live-fetched rfhic.com/investors/ on 2026-09-14: confirms 'Ticker: 218410 KOSDAQ', matching the mapping listing KOSDAQ-218410 identity_evidence exactly.",
+      "defects": [
+        "source_date_ok is false: the placement's evidence cites source_date 2026-09-04, but the live page itself carries an explicit dateline for this press-release content, '2024-06-03' at the top of the article and 'South Korea, Gwacheon - June 3rd, 2024' in the body dateline. 2026-09-04 is this map's original access date, not the date of the cited source, and the two are two years apart. Role text and the claim itself are honestly supported (both halves of the composite claim are real, verbatim, on the same page, consistent with method.md's sanctioned two-span pattern), so this is a dating defect only, not a fabrication."
+      ],
+      "record_digest": "8e528d2475c1cb496431e6b7bea9b79fdaf8bf9be10755162de8736da9d69677"
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "maritime-detection-radar",
+      "issuer_id": "HENSOLDT",
+      "audited_at": "2026-09-14T00:39:45Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context-2026-09-14-offshore-counter-drone-placement-audits (RFHIC/rf-and-radar-front-end-components, HENSOLDT/maritime-detection-radar, LEONARDO/maritime-detection-radar, LEONARDO-DRS/maritime-detection-radar, HENSOLDT/electro-optical-and-acoustic-sensing, TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This run started in a declared fresh context: it read only the mapping file, its chain file, docs/method.md section 6A, and tools/check_map.py (placement_claim_digest and placement_audit_failures), plus each sampled placement's own cited live source URL and its listing's identity source. It never read data/chains/_map-log.json, _archetypes.md, any company profile, any screen, data/ledger.md, or git log/show for authoring rationale, and has no memory of how this mapping came to be amended.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "source_url": "https://www.hensoldt.net/products/spexer-2000-3d-mkiii-naval-surveillance-and-self-defence-against-surface-air-and-ground-targets",
+      "source_date": "2026-09-04",
+      "source_excerpt": "Harsh weather, limited visibility and the need to distinguish between potential threats and harmless objects against a background of severe land and sea clutter exacerbate these difficulties. (live-fetched 2026-09-14: this is the only sentence on the page containing 'sea clutter', and it names a difficulty the radar addresses, not a stable-performance claim)",
+      "identity_check": "Live-fetched live.deutsche-boerse.com/equity/hensoldt-ag on 2026-09-14: confirms legal issuer HENSOLDT AG, ticker HAG, ISIN DE000HAG0005, exchange Xetra Frankfurt, matching the mapping listing XETRA-HAG identity_evidence exactly.",
+      "defects": [
+        "role_ok is false: the placement's cited claim and source_excerpt read 'Spexer 2000 3D MKIII is optimized for naval and coastal operations to detect asymmetric threats such as small, fast-moving vessels, and the radar's performance remains stable under high sea-clutter conditions and during adverse weather', presented as a single unbroken quote. This run's own live fetch of the cited URL confirms the word 'stable' does not appear anywhere on the page at all; 'sea clutter' appears only in a sentence about harsh weather and clutter making detection harder, not a stability claim; and 'asymmetric threats' appears in an unrelated sentence about classification, not paired with 'small, fast-moving vessels' or 'coastal operations'. No contiguous span on the page states what the placement quotes; this is fabricated composite text presented as verbatim, which is the placement's own prior note already flagged ('not promoted; claim needs rewording') and this fresh-context sample confirms that finding stands."
+      ],
+      "record_digest": "c73bdced5522de0148a982f9814ea17731b188da0ab381de914e50d41ffe918e"
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "maritime-detection-radar",
+      "issuer_id": "LEONARDO",
+      "audited_at": "2026-09-14T00:39:45Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context-2026-09-14-offshore-counter-drone-placement-audits (RFHIC/rf-and-radar-front-end-components, HENSOLDT/maritime-detection-radar, LEONARDO/maritime-detection-radar, LEONARDO-DRS/maritime-detection-radar, HENSOLDT/electro-optical-and-acoustic-sensing, TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This run started in a declared fresh context: it read only the mapping file, its chain file, docs/method.md section 6A, and tools/check_map.py (placement_claim_digest and placement_audit_failures), plus each sampled placement's own cited live source URL and its listing's identity source. It never read data/chains/_map-log.json, _archetypes.md, any company profile, any screen, data/ledger.md, or git log/show for authoring rationale, and has no memory of how this mapping came to be amended.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "source_url": "https://www.armyrecognition.com/focus-analysis-conflicts/navy/naval-technology/overview-of-leonardo-s-kronos-family-radars",
+      "source_date": "2026-09-04",
+      "source_excerpt": "The KRONOS radars, designed for the land and naval domain available in fixed and mobile versions, are equipped with multi-function and multi-mission capabilities. (live-fetched 2026-09-14: the article's byline reads '10 Nov, 2021 - 10:36', and the article contains no mention of 'supersonic', 'diving', 'sea-skimming', 'manoeuvring craft', or 'submarines' anywhere)",
+      "identity_check": "Live-fetched borsaitaliana.it security record for ISIN IT0003856405 on 2026-09-14: confirms company name Leonardo, ticker LDO, exchange Euronext Milan, matching the mapping listing MIL-LDO identity_evidence exactly.",
+      "defects": [
+        "role_ok is false: the placement's claim's second clause, 'in naval configuration are able to counter supersonic, diving and sea-skimming missiles, as well as novel threats like small manoeuvring crafts', does not appear anywhere on the cited page in any form; this run's live fetch searched the full page text for each of those terms and found none. Only the claim's first clause (land and naval domain, fixed and mobile versions) is verbatim-supported. This confirms the placement's own prior note ('the article does not state the claim's second clause ... verbatim; not promoted').",
+        "source_date_ok is false: the placement cites source_date 2026-09-04, but the article's own byline is '10 Nov, 2021 - 10:36', nearly five years earlier."
+      ],
+      "record_digest": "a106a8ad15a6aa18cdaace8bb9af681d6c82c0ceaaee46bb96102af9f7ceb840"
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "maritime-detection-radar",
+      "issuer_id": "LEONARDO-DRS",
+      "audited_at": "2026-09-14T00:39:45Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context-2026-09-14-offshore-counter-drone-placement-audits (RFHIC/rf-and-radar-front-end-components, HENSOLDT/maritime-detection-radar, LEONARDO/maritime-detection-radar, LEONARDO-DRS/maritime-detection-radar, HENSOLDT/electro-optical-and-acoustic-sensing, TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This run started in a declared fresh context: it read only the mapping file, its chain file, docs/method.md section 6A, and tools/check_map.py (placement_claim_digest and placement_audit_failures), plus each sampled placement's own cited live source URL and its listing's identity source. It never read data/chains/_map-log.json, _archetypes.md, any company profile, any screen, data/ledger.md, or git log/show for authoring rationale, and has no memory of how this mapping came to be amended.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "source_url": "https://www.leonardodrs.com/news/press-releases/leonardo-drs-launches-new-maritime-counter-uas-capability-to-defeat-aerial-unmanned-threats-at-sea/",
+      "source_date": "2026-09-04",
+      "source_excerpt": "The M-MEP combines maritime radar and EO-IR sensors with integrated networking, the SAGEcore(TM) software platform for AI-enabled sensor fusion and command and control, and a platform integration kit that accelerates installation across multiple vessel types. (this exact sentence, from two independently live-fetched syndicated mirrors of the identical April 20 2026 wire release, microwavejournal.com and navalnews.com, is the closest verifiable description of the M-MEP sensor suite; the primary leonardodrs.com URL returned HTTP 403 on this run's fetch, its third recorded 403 across two audit sessions)",
+      "identity_check": "Live-fetched data.sec.gov/submissions/CIK0001833756.json on 2026-09-14: confirms name 'Leonardo DRS, Inc.', tickers ['DRS'], exchanges ['Nasdaq'], matching the mapping listing NASDAQ-DRS identity_evidence exactly.",
+      "defects": [
+        "role_ok is false / unverifiable: the primary cited URL (leonardodrs.com) returns HTTP 403 on every attempt across two separate audit sessions, so this claim's exact wording cannot be opened at its cited source. Two independently live-fetched syndicated mirrors of the identical April 20, 2026 wire release (microwavejournal.com, navalnews.com) both describe the M-MEP sensor suite in different, more specific wording (naming SAGEcore software and a platform integration kit) and neither contains the placement's cited phrase 'providing the detection and identification coverage needed to separate genuine drone threats from the cluttered maritime environment' anywhere. An unverifiable claim is not evidence.",
+        "source_date_ok is false: the placement cites source_date 2026-09-04, but the press release this claim describes is dated April 20, 2026, confirmed independently via the two syndicated mirrors above and a web search of the release's own announcement date."
+      ],
+      "record_digest": "41d1b0e1ee813ef90b2940831c01bffa67df4f70ce579696a9d9b841eac3067c"
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "electro-optical-and-acoustic-sensing",
+      "issuer_id": "HENSOLDT",
+      "audited_at": "2026-09-14T00:39:45Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context-2026-09-14-offshore-counter-drone-placement-audits (RFHIC/rf-and-radar-front-end-components, HENSOLDT/maritime-detection-radar, LEONARDO/maritime-detection-radar, LEONARDO-DRS/maritime-detection-radar, HENSOLDT/electro-optical-and-acoustic-sensing, TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This run started in a declared fresh context: it read only the mapping file, its chain file, docs/method.md section 6A, and tools/check_map.py (placement_claim_digest and placement_audit_failures), plus each sampled placement's own cited live source URL and its listing's identity source. It never read data/chains/_map-log.json, _archetypes.md, any company profile, any screen, data/ledger.md, or git log/show for authoring rationale, and has no memory of how this mapping came to be amended.",
+      "status": "PASS",
+      "evidence_index": 0,
+      "source_url": "https://www.hensoldt.net/domains/sea/protection/protection-of-critical-infrastructure",
+      "source_date": "2026-09-04",
+      "source_excerpt": "Based on the Elysion drone defence system, HENSOLDT integrates additional sensors in a standardised manner, for example sonar sensors for the creation of an underwater situational overview and has the option of also integrating unmanned systems and their additional capabilities. (live-fetched 2026-09-14, verbatim match to the cited claim/excerpt; page carries no publish date or dateline of its own, footer only shows a copyright year, so the 2026-09-04 access date is a reasonable citation convention, consistent with this exact sentence's prior PASS on link c2-and-sensor-fusion)",
+      "identity_check": "Live-fetched live.deutsche-boerse.com/equity/hensoldt-ag on 2026-09-14: confirms legal issuer HENSOLDT AG, ticker HAG, ISIN DE000HAG0005, exchange Xetra Frankfurt, matching the mapping listing XETRA-HAG identity_evidence exactly.",
+      "defects": [],
+      "record_digest": "aa2771f07db4c9d332c8ad27fea7ea6b574b435a4953a225f29713b564d75aea"
+    },
+    {
+      "chain_id": "offshore-counter-drone",
+      "link_id": "electro-optical-and-acoustic-sensing",
+      "issuer_id": "TELEDYNE-TECHNOLOGIES",
+      "audited_at": "2026-09-14T00:39:45Z",
+      "reviewed_by": "atlas-fresh-context",
+      "agent_id": "atlas-fresh-context",
+      "transcript_ref": "atlas-fresh-context-2026-09-14-offshore-counter-drone-placement-audits (RFHIC/rf-and-radar-front-end-components, HENSOLDT/maritime-detection-radar, LEONARDO/maritime-detection-radar, LEONARDO-DRS/maritime-detection-radar, HENSOLDT/electro-optical-and-acoustic-sensing, TELEDYNE-TECHNOLOGIES/electro-optical-and-acoustic-sensing)",
+      "review_mode": "FRESH_CONTEXT",
+      "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This run started in a declared fresh context: it read only the mapping file, its chain file, docs/method.md section 6A, and tools/check_map.py (placement_claim_digest and placement_audit_failures), plus each sampled placement's own cited live source URL and its listing's identity source. It never read data/chains/_map-log.json, _archetypes.md, any company profile, any screen, data/ledger.md, or git log/show for authoring rationale, and has no memory of how this mapping came to be amended.",
+      "status": "FAIL",
+      "evidence_index": 0,
+      "source_url": "https://www.hydro-international.com/content/news/teledyne-deploys-integrated-sensing-portfolio-at-2026-seasec-challenge-week",
+      "source_date": "2026-04-20",
+      "source_excerpt": "The SeaSEC Challenge Weeks 2026 DATA2SEA takes place from 13 - 24 April, conducted in the Baltic Sea. (this is teledynemarine.com's own live-fetched wording for the same event on 2026-09-14; the cited hydro-international.com URL itself returned HTTP 403 on this run's fetch, its third recorded 403 across two audit sessions, so the placement's exact cited sentence could not be opened at its source)",
+      "identity_check": "Live-fetched defense.flir.com's Cerberus XL unveiling page on 2026-09-14: confirms 'Teledyne FLIR Defense, part of Teledyne Technologies Incorporated (NYSE:TDY)', matching the mapping listing NYSE-TDY identity_evidence exactly.",
+      "defects": [
+        "role_ok is unverifiable / treated as false: the cited hydro-international.com URL returns HTTP 403 on every attempt across two separate audit sessions (2026-09-04 and this run), so the placement's exact cited sentence cannot be opened at its source. Two independently live-fetched alternate write-ups of the identical 2026 SeaSEC Challenge Weeks DATA2SEA event (teledynemarine.com, Teledyne's own event page, and oceannews.com) corroborate the same dates, location and general focus, but in different wording ('conducted in the Baltic Sea' vs 'in the Baltic Sea, the exercise'; 'collaborate in realistic maritime test environments' vs 'in realistic operational conditions'), and neither reproduces the placement's cited sentence verbatim. An unverifiable exact quote is not evidence, even when the underlying facts are independently corroborated in substance."
+      ],
+      "record_digest": "a620d6d01ce1854fda98cb47dce8bb63e4e67425d1100a4b41002889f3085f7d"
     }
   ]
 }
