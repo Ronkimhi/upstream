@@ -2461,7 +2461,7 @@
           "source_date": "2026-06-19",
           "url": "https://www.lloyds.com/insights/media-centre/press-releases/press-release-19062026",
           "tag": "INFERRED",
-          "source_excerpt": "Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates and specialist market partners. It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity."
+          "source_excerpt": "Today, Lloyd’s welcomed the launch of a new Lloyd’s market consortium designed to provide additional marine war risk insurance capacity for vessels and cargo transiting the Strait of Hormuz. Chubb will serve as lead underwriter, supported by participating Lloyd’s syndicates and specialist market partners. The consortium brings together leading underwriting expertise with additional Lloyd’s market capacity to support brokers and clients operating in a complex and fast-moving environment. The new marine war risk consortium will issue primary policies for vessels and cargo. It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity."
         }
       ],
       "status": "ACTIVE"
@@ -5129,6 +5129,13 @@
       "by": "atlas-fresh-context",
       "kind": "NOTE",
       "change": "run universe-audit hormuz-maritime --placement OKEANIS-ECO-TANKERS (link crude-tanker-tonnage): fresh-context placement audit PASS. Identity confirmed live against data.sec.gov/submissions for the listing's CIK, matching the listing's identity_evidence exactly. Role confirmed live against the placement's own cited source, refetched fresh and matched verbatim to the stored source_excerpt; the source's own dateline matches the placement's cited source_date. No defects found. Mapping status and the whole-census EXHAUSTED/TARGET_MET coverage for this link are untouched; this PASS admits the issuer to run deepdive on this placement without the whole census being COMPLETE."
+    },
+    {
+      "ts": "2026-09-14T19:21:14Z",
+      "by": "atlas-cartographer",
+      "kind": "AMEND",
+      "change": "refresh data/mappings/hormuz-maritime.json: re-cited placements[10] CHUBB/marine-war-risk-underwriting evidence[0].source_excerpt, which origin's validate.py refused with 'source_excerpt is not in the stored text of 53afba4abdd7b78f.json (data/web)'. The recorded excerpt was not a contiguous span of the stored source: it spliced 'Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates and specialist market partners.' to 'It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity.', two sentences separated in the actual press release by two intervening sentences, joined into one string with no excerpt_form: composite-tabular marking, which method section 1 reserves for tabular sources, not running prose. The already-stored Lloyd's press release (data/web/53afba4abdd7b78f.json, fetched 2026-09-14T18:09:24Z, http_status 200) fully supports the same role claim as one genuine contiguous verbatim span, so no new web_doc request was needed: re-cited to the full paragraph running from 'Today, Lloyd's welcomed the launch...' through '...dedicated cargo capacity.', which names Chubb as lead underwriter, the Strait of Hormuz routing, and the $200 million hull/P&I and cargo capacity figures in one unbroken run of the source's own text. Verified programmatically against evidence_store.excerpt_in_doc (check_screen.quote_in_text) before writing, the same function check_map.py's corpus_web_findings uses to gate this file. claim, source_name, source_date, url and tag are unchanged; only source_excerpt was corrected. Nothing else on the mapping was touched: audit and placement_audits are left exactly as they were, so this amendment will make audit.mapping_fingerprint stale and audit.audited_at read earlier than this entry. Both are expected and left for a fresh run universe-audit to re-close; this session does not run one.",
+      "prior": "evidence[0].source_excerpt was: \"Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates and specialist market partners. It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity.\" (not a contiguous span of the stored source; superseded above)."
     }
   ],
   "audit": {
