@@ -1,0 +1,1793 @@
+{
+  "id": "h5n1-panzootic",
+  "chain_id": "h5n1-panzootic",
+  "scenario_id": null,
+  "created_at": "2026-09-14",
+  "as_of": "2026-09-14",
+  "identity_schema": "campaign-v1",
+  "campaign_ref": null,
+  "mapping_ref": "data/mappings/h5n1-panzootic.json",
+  "universe_note": "First chain-level screen for h5n1-panzootic (identity_schema campaign-v1, scenario_id null), built per LINK across all 10 links in method section 6 priority order: money-corner links first (poultry-genetics impact 90, spf-eggs-countermeasures impact 80), then the remaining CHOKE_POINT link (wild-bird-reservoir impact 95), then the rest by impact (layer-egg-production 85, animal-health-vaccines 70, depopulation-disposal 65, egg-processing 60, avian-diagnostics 55, broiler-turkey-production 40, farm-biosecurity 30). data/mappings/h5n1-panzootic.json is ACTIVE with no census audit, so every row declares audit_scope PLACEMENT. All 8 ACTIVE placements (8 issuers on 4 links) clear check_screen._placement_admissible because every evidence item on each is tagged VERIFIED, and 2 (TYSON-FOODS, DARLING) also carry a current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z). All 8 issuers hold COMPLETE O2 T1 profiles, so 8 rows are seated.\n\nThe four animal-health-vaccines placements (ZOETIS, ELANCO, PHIBRO, MERCK) are FAIL on their placement audits from the same batch: role_ok false, because each placement's sole evidence item cites the EDGAR full-text-search endpoint with an entity name or ticker as its excerpt. Every one of those audits confirmed identity and the source date and confirmed the underlying 10-K disclosure live, so the defect is the citation's form, not a reversed claim. Seated on the VERIFIED basis under the reasoning applied to SOLVAY (rare-earth-separation) and ATI-INC (munitions-replenishment) on 2026-09-14, and unlike ALBEMARLE (russian-diesel-ban), whose audit found the role itself reversed. What each audit confirmed differs, and the rows say so: only Zoetis's confirmed sentence is a vaccine role (the H5N2 conditional licence); Elanco's, Phibro's and Merck's are risk-factor disclosures of avian influenza, so selection should read those three as thin role evidence. None of the four, nor POST or CALMAINE, can reach run deepdive until a placement audit passes.\n\nEvery link, named: poultry-genetics (MONEY CORNER, CHOKE_POINT) seated TYSON-FOODS, the census's only listed route, through Cobb-Vantress. spf-eggs-countermeasures (MONEY CORNER, CHOKE_POINT) produced no row: the census closed it EXHAUSTED at zero qualifying public issuers (both SPF producers private; Charles River disqualified on role by its own 10-Q recording the 2022 sale of Avian Vaccine Services), a money corner searched and found empty, not one left unsearched. wild-bird-reservoir (CHOKE_POINT, UNINVESTABLE) has no commercial counterparty and stays OPEN by design. animal-health-vaccines seated ZOETIS, ELANCO, PHIBRO and MERCK; depopulation-disposal seated DARLING; egg-processing seated POST and CALMAINE. avian-diagnostics closed EXHAUSTED at zero: the stored full-text search (data/edgar/fts/avian-influenza.json, \"avian influenza\" in 10-K filings, 69 hits) returns no filing from IDEXX, Neogen, Thermo Fisher or Danaher. layer-egg-production, broiler-turkey-production and farm-biosecurity are OPEN and were not censused under the DEPTH shape, so their chain example_tickers (CALM, VITL, POST; TSN, PPC, HRL; ECL, NEOG) are not placements and seat nothing here. No name was taste-filtered: TASTE-001 (rare-earth miners), TASTE-002 (Taiwan chip concentration) and TASTE-003 (radar cards) reach no issuer on this chain. No campaign manifest names this chain, so campaign_ref is null.",
+  "queries_run": [
+    {
+      "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/h5n1-panzootic.json with status ACTIVE, joined to its official listing and evaluated with check_screen._placement_admissible",
+      "forms": null,
+      "hits_examined": 8,
+      "names_extracted": 8
+    },
+    {
+      "query": "placement_audits[] newest entry per placement and currency via check_map.placement_audit_for (record_digest against placement_claim_digest over current placement content)",
+      "forms": null,
+      "hits_examined": 6,
+      "names_extracted": 2
+    },
+    {
+      "query": "COMPLETE O1/O2 profile read for the 8 mapping issuers (status, data_tier, opportunity_tier, canonical metrics)",
+      "forms": null,
+      "hits_examined": 8,
+      "names_extracted": 8
+    },
+    {
+      "query": "data/edgar/fts/avian-influenza.json (\"avian influenza\", 10-K, window 2025-09-11 to 2026-09-11): each placed issuer's CIK present as a filer; IDEXX, Neogen, Thermo Fisher and Danaher absent",
+      "forms": [
+        "10-K"
+      ],
+      "hits_examined": 69,
+      "names_extracted": 8
+    },
+    {
+      "query": "data/edgar/docs/<T>.json verbatim nugget extraction for TSN, ZTS, ELAN, PAHC, MRK, DAR, POST, CALM (latest stored 8-K earnings exhibits), each verified with check_screen.quote_in_text",
+      "forms": [
+        "8-K"
+      ],
+      "hits_examined": 8,
+      "names_extracted": 8
+    },
+    {
+      "query": "data/market/<T>.json fundamentals, quality, pcs, series and week52 for the 8 tickers",
+      "forms": null,
+      "hits_examined": 8,
+      "names_extracted": 8
+    },
+    {
+      "query": "data/taste.md rule check (TASTE-001, TASTE-002, TASTE-003) against the 8 mapping issuers",
+      "forms": null,
+      "hits_examined": 3,
+      "names_extracted": 0
+    }
+  ],
+  "data_gaps": [
+    "data/mappings/h5n1-panzootic.json carries no census audit; every row rests on the narrower audit_scope PLACEMENT basis, and only TYSON-FOODS and DARLING hold a current PASS placement audit.",
+    "Citation-form defect on 6 of 8 placements: ZOETIS, ELANCO, PHIBRO and MERCK (sole evidence) and CALMAINE (sole evidence), plus DARLING evidence[0] and POST evidence[0], cite the EDGAR full-text-search endpoint with an entity name or ticker as source_excerpt. The four vaccine placements are FAIL on it, each with amendments_required naming its own 10-K sentence; CALMAINE and POST are unaudited. Re-citation is Atlas's: run universe h5n1-panzootic, then run universe-audit h5n1-panzootic --placement <issuer>. Captured to tasks/backlog.md.",
+    "No row carries a disclosed theme revenue share: every issuer reports by segment or protein and none breaks out H5N1, H5 vaccine, breeding-genetics, emergency-disposal or egg-products revenue, so theme_revenue_exposure.pct is NULL on all 8.",
+    "The stored filings for these 8 names are their latest earnings 8-K exhibits (filed 2026-07-22 to 2026-08-26), not the 10-Ks the placements rest on, so nuggets quote those exhibits only. None names H5N1 or the H5N2 licence; the avian-influenza language on disk is TSN's and DAR's risk lists, POST's pricing lap and CALM's flock-impact statement.",
+    "Fundamentals NULLs carried from the profiles: operating_margin and net_debt_to_ebitda for ZOETIS, ELANCO and MERCK (companyfacts carries no operating_income_fy); beneish_state for DARLING (receivables_fy missing); net_debt_to_ebitda, piotroski and beneish_state for CALMAINE (debt series stale since 2019 or absent). No request rows queued: these are companyfacts coverage gaps a refetch would not fill.",
+    "PCS for all 8 is as of 2026-09-10 with gate ADVISORY on every file, so row crowdedness is context only; the chain's heat crowdedness scores remain the link-level read."
+  ],
+  "taste_filtered": [],
+  "buckets": {
+    "pure_play": [],
+    "picks_and_shovels": [
+      {
+        "issuer_id": "ELANCO",
+        "listing_id": "NYSE-ELAN",
+        "ticker": "ELAN",
+        "market_ticker": "ELAN",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "animal-health-vaccines",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/ELANCO.json",
+        "data_tier": "T1",
+        "cik": 1739104,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. The placement's sole evidence item is tagged VERIFIED, which satisfies check_screen._placement_admissible on its own. It also carries a FAIL placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z): identity_ok and source_date_ok true, role_ok false, because the evidence cites the EDGAR full-text-search endpoint with the entity name \"Elanco Animal Health Inc\" as its source_excerpt instead of a sentence of the disclosure. The audit confirmed the underlying 10-K disclosure live (Form 10-K for fiscal 2025, accession 0001739104-26-000012, filed 2026-02-24, a risk-factor sentence): \"In the past, outbreaks of various diseases such as African Swine Fever, avian influenza, foot-and-mouth disease, bovine spongiform encephalopathy (also known as BSE or “mad cow” disease) and porcine epidemic diarrhea virus (PEDV) have negatively impacted sales of our animal health products\". Seated on the VERIFIED basis under the reasoning applied to SOLVAY (rare-earth-separation) and ATI-INC (munitions-replenishment) on 2026-09-14: a citation-form FAIL whose own audit confirms the claim does not revoke the VERIFIED basis. It is not a current PASS, so this row cannot reach run deepdive until run universe re-cites the 10-K sentence named in amendments_required and a fresh placement audit passes.",
+        "placement_audit": {
+          "status": "FAIL",
+          "audited_at": "2026-09-14T00:44:50Z",
+          "evidence_index": 0,
+          "identity_ok": true,
+          "role_ok": false,
+          "current_pass": false,
+          "amendments_required": 1,
+          "evidence_tags": [
+            "VERIFIED"
+          ]
+        },
+        "name": "Elanco Animal Health Incorporated",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "link_criticality": "HIGH",
+        "link_impact": 70,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S1",
+            "direction": "UP",
+            "magnitude": "LARGE"
+          },
+          {
+            "scenario_id": "S4",
+            "direction": "UP",
+            "magnitude": "MEDIUM"
+          }
+        ],
+        "thesis_1line": "Farm-animal health maker placed on the H5 vaccine link. The census role also names its Medgene agreement for an HPAI dairy-cattle vaccine, but the fresh-context audit confirmed only a risk-factor sentence (avian influenza outbreaks have hurt sales of its animal health products), not a vaccine programme, so selection should treat the role evidence under this row as thin. Poultry revenue was $223m of $1,368m total in Q2 2026 per its release and no H5 line is disclosed; ELAN closed at 22.86 on 2026-09-10 against an 18.33 to 26.84 52-week range (data/market/ELAN.json).",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Elanco breaks out Poultry revenue inside Farm Animal ($223m in Q2 2026, see nuggets) but no H5 or HPAI vaccine line and no revenue from the Medgene agreement.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 4715000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1739104 (Elanco Animal Health Incorporated, NYSE: ELAN)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.022464,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Three-year compound annual revenue growth computed as (4715000000 / 4411000000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "operating margin cannot be computed for ELANCO: companyfacts data/market/ELAN.json fundamentals carries no operating_income_fy series at all for CIK 1739104 (coverage.missing = ['operating_income'])."
+          },
+          "fcf_margin": {
+            "value": 0.060233,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Free cash flow margin: operating cash flow 560000000 less capital expenditure 276000000, divided by revenue 4715000000, all for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": -2.413793,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Operating cash flow 560000000 divided by net income -232000000, both for the fiscal year ended 2025-12-31, from companyfacts. Negative because FY2025 net income was a loss while operating cash flow was positive; a real reported figure, not a data error.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "net_debt_to_ebitda cannot be computed for ELANCO: no operating_income_fy series exists in companyfacts for CIK 1739104 to build an EBITDA proxy (depreciation alone is not a substitute)."
+          },
+          "piotroski": {
+            "value": 6,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Piotroski F-score 6 (state MIDDLING), computed over companyfacts statements in data/market/ELAN.json quality.piotroski, 9 of 9 inputs found.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": -2.57,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Beneish M-score -2.57 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/ELAN.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": true
+          },
+          "market_cap": {
+            "value": 11360852020.44,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Market capitalization 11360852020.44 computed in data/market/ELAN.json quality.derived.market_cap from SEC companyfacts share count 496975154 (as of 2025-12-31) times the repo's own market-plane close of 22.86 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 2.409513,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ELAN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Market capitalization 11360852020.44 divided by fiscal year 2025-12-31 revenue 4715000000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.3242,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/ELAN.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 14493852020.44 implies over a 5-year explicit period on base FCF 284000000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.1434,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/ELAN.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001739104.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.3242, '7': 0.2401, '10': 0.1808}); a wide spread, so the headline 32.42% is materially a horizon convention as much as a price statement."
+          }
+        },
+        "price_context": {
+          "close": 22.86,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 18.33,
+            "high": 26.84
+          },
+          "price_status": "AGREED",
+          "source": "data/market/ELAN.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 14,
+          "held_pct_institutions": 1.15431,
+          "short_pct_float": 0.0945,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 34,
+          "source": "data/market/ELAN.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 14 analysts and 115.4% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 34/100 for animal-health-vaccines."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "Total Revenue $1,368 $1,241 10 % 8 %",
+            "accession": "0001739104-26-000040",
+            "url": "https://www.sec.gov/Archives/edgar/data/1739104/000173910426000040/elanco-20260630exhibit991.htm",
+            "form": "8-K",
+            "source_date": "2026-08-05"
+          },
+          {
+            "quote": "Poultry $223 $215 4 % 2 %",
+            "accession": "0001739104-26-000040",
+            "url": "https://www.sec.gov/Archives/edgar/data/1739104/000173910426000040/elanco-20260630exhibit991.htm",
+            "form": "8-K",
+            "source_date": "2026-08-05"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "PHIBRO",
+        "listing_id": "NASDAQ-PAHC",
+        "ticker": "PAHC",
+        "market_ticker": "PAHC",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "animal-health-vaccines",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/PHIBRO.json",
+        "data_tier": "T1",
+        "cik": 1069899,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. The placement's sole evidence item is tagged VERIFIED, which satisfies check_screen._placement_admissible on its own. It also carries a FAIL placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z): identity_ok and source_date_ok true, role_ok false, because the evidence cites the EDGAR full-text-search endpoint with the entity name \"PHIBRO ANIMAL HEALTH CORP\" as its source_excerpt instead of a sentence of the disclosure. The audit confirmed the underlying 10-K disclosure live (Form 10-K for the fiscal year ended 2026-06-30, accession 0001104659-26-101493, filed 2026-08-26, a risk-factor sentence): \"H5N1, known as Highly Pathogenic Avian Influenza, in the human population, birds and, most recently, dairy cattle\". Seated on the VERIFIED basis under the reasoning applied to SOLVAY (rare-earth-separation) and ATI-INC (munitions-replenishment) on 2026-09-14: a citation-form FAIL whose own audit confirms the claim does not revoke the VERIFIED basis. It is not a current PASS, so this row cannot reach run deepdive until run universe re-cites the 10-K sentence named in amendments_required and a fresh placement audit passes.",
+        "placement_audit": {
+          "status": "FAIL",
+          "audited_at": "2026-09-14T00:44:50Z",
+          "evidence_index": 0,
+          "identity_ok": true,
+          "role_ok": false,
+          "current_pass": false,
+          "amendments_required": 1,
+          "evidence_tags": [
+            "VERIFIED"
+          ]
+        },
+        "name": "Phibro Animal Health Corporation",
+        "exchange": "Nasdaq",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "link_criticality": "HIGH",
+        "link_impact": 70,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S1",
+            "direction": "UP",
+            "magnitude": "LARGE"
+          },
+          {
+            "scenario_id": "S4",
+            "direction": "UP",
+            "magnitude": "MEDIUM"
+          }
+        ],
+        "thesis_1line": "Animal health, mineral nutrition and performance products company with a poultry vaccine franchise: its Q4 FY2026 release says vaccine net sales rose on poultry products in Latin America and demand in Israel. Placed on the H5 vaccine link, but the fresh-context audit confirmed only that its FY2026 10-K names H5N1 in birds and dairy cattle as a risk, not an H5 vaccine programme, so selection should treat the role evidence as thin. FY2026 net sales were $1,518.1m, up 17%; PAHC closed at 36.58 on 2026-09-10 against a 28.52 to 59.58 52-week range (data/market/PAHC.json).",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Phibro reports Animal Health, Mineral Nutrition and Performance Products; vaccine net sales are discussed in dollars of change, but no HPAI or poultry-vaccine revenue share is given.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 1518093000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Revenues for the fiscal year ended 2026-06-30 as reported to SEC XBRL companyfacts for CIK 1069899 (Phibro Animal Health Corporation, Nasdaq: PAHC)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.157896,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Three-year compound annual revenue growth computed as (1518093000 / 977889000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2023-06-30 to fiscal year ended 2026-06-30.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.128053,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Operating income 194396000 divided by revenue 1518093000, both for the fiscal year ended 2026-06-30, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.006499,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Free cash flow margin: operating cash flow 68954000 less capital expenditure 59088000, divided by revenue 1518093000, all for the fiscal year ended 2026-06-30, from companyfacts. A thin 0.65% margin: FCF of only 9866000 on 1518093000 of revenue.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 0.691476,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Operating cash flow 68954000 divided by net income 99720000, both for the fiscal year ended 2026-06-30, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": 2.180741,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Net debt to EBITDA: total debt 597685000 (as of 2026-03-31, the most recent companyfacts point) less cash 61419000 (as of 2026-06-30) = net debt 536266000, divided by an EBITDA proxy 245910000 (operating income 194396000 plus depreciation 51514000, both for the fiscal year ended 2026-06-30), from companyfacts. Total debt and cash are one fiscal quarter apart; both are the most recent available companyfacts points for their respective series.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": 6,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Piotroski F-score 6 (state MIDDLING), computed over companyfacts statements in data/market/PAHC.json quality.piotroski, 9 of 9 inputs found.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": -2.387,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Beneish M-score -2.387 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/PAHC.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": true
+          },
+          "market_cap": {
+            "value": 1498463120.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Market capitalization 1498463120.0 computed in data/market/PAHC.json quality.derived.market_cap from SEC companyfacts share count 40964000 (as of 2026-06-30) times the repo's own market-plane close of 36.58 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 0.987069,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PAHC.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Market capitalization 1498463120.0 divided by fiscal year 2026-06-30 revenue 1518093000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.7725,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/PAHC.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 2034729120.0 implies over a 5-year explicit period on base FCF 9866000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure; the thin FCF base makes this solve unusually sensitive."
+          },
+          "horizon_spread": {
+            "value": 0.3968,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/PAHC.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001069899.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.7725, '7': 0.5334, '10': 0.3757}); the widest spread in this batch, meaning the headline figure is largely a horizon convention rather than a price statement."
+          }
+        },
+        "price_context": {
+          "close": 36.58,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 28.52,
+            "high": 59.58
+          },
+          "price_status": "AGREED",
+          "source": "data/market/PAHC.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 5,
+          "held_pct_institutions": 1.04136,
+          "short_pct_float": 0.0696,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 34,
+          "source": "data/market/PAHC.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 5 analysts and 104.1% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 34/100 for animal-health-vaccines."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "Net sales of vaccines increased $1.5 million, or 4%, primarily due to continued growth of poultry products in Latin America and higher international demand, particularly in Israel.",
+            "accession": "0001104659-26-101531",
+            "url": "https://www.sec.gov/Archives/edgar/data/1069899/000110465926101531/pahc-20260826xex99d1.htm",
+            "form": "8-K",
+            "source_date": "2026-08-26"
+          },
+          {
+            "quote": "Net sales of $1,518.1 million, an increase of $221.9 million, or 17%",
+            "accession": "0001104659-26-101531",
+            "url": "https://www.sec.gov/Archives/edgar/data/1069899/000110465926101531/pahc-20260826xex99d1.htm",
+            "form": "8-K",
+            "source_date": "2026-08-26"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "ZOETIS",
+        "listing_id": "NYSE-ZTS",
+        "ticker": "ZTS",
+        "market_ticker": "ZTS",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "animal-health-vaccines",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/ZOETIS.json",
+        "data_tier": "T1",
+        "cik": 1555280,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. The placement's sole evidence item is tagged VERIFIED, which satisfies check_screen._placement_admissible on its own. It also carries a FAIL placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z): identity_ok and source_date_ok true, role_ok false, because the evidence cites the EDGAR full-text-search endpoint with the entity name \"Zoetis Inc.\" as its source_excerpt instead of a sentence of the disclosure. The audit confirmed the underlying 10-K disclosure live (Form 10-K for fiscal 2025, accession 0001555280-26-000011, filed 2026-02-12): \"a conditional license for our Avian Influenza, H5N2, Subtype 2 vaccine for use in chickens\". Seated on the VERIFIED basis under the reasoning applied to SOLVAY (rare-earth-separation) and ATI-INC (munitions-replenishment) on 2026-09-14: a citation-form FAIL whose own audit confirms the claim does not revoke the VERIFIED basis. It is not a current PASS, so this row cannot reach run deepdive until run universe re-cites the 10-K sentence named in amendments_required and a fresh placement audit passes.",
+        "placement_audit": {
+          "status": "FAIL",
+          "audited_at": "2026-09-14T00:44:50Z",
+          "evidence_index": 0,
+          "identity_ok": true,
+          "role_ok": false,
+          "current_pass": false,
+          "amendments_required": 1,
+          "evidence_tags": [
+            "VERIFIED"
+          ]
+        },
+        "name": "Zoetis Inc",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "link_criticality": "HIGH",
+        "link_impact": 70,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S1",
+            "direction": "UP",
+            "magnitude": "LARGE"
+          },
+          {
+            "scenario_id": "S4",
+            "direction": "UP",
+            "magnitude": "MEDIUM"
+          }
+        ],
+        "thesis_1line": "Holds the only USDA conditional licence for an H5N2 killed-virus poultry vaccine, in the words of its own FY2025 10-K as the fresh-context audit quoted it, but US field use waits on a USDA authorisation tied to export trade terms (S1 moves this link UP LARGE), so this is an option rather than a revenue line. Its Q2 2026 release says poultry vaccine sales already rose with disease outbreak activity while full-year 2026 revenue guidance was cut to $9.120bn to $9.320bn, and ZTS closed at 72.86 on 2026-09-10 against a 71.86 to 150.61 52-week range (data/market/ZTS.json), near the low, which the chain's heat reading takes as the option not being priced.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Zoetis reports U.S. and International segments; no value, volume or timeline is disclosed for the H5N2 conditional licence, which cannot be sold into the US field before a USDA authorisation.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 9467000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1555280 (Zoetis Inc, NYSE: ZTS)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.054226,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Three-year compound annual revenue growth computed as (9467000000 / 8080000000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "operating margin cannot be computed for ZOETIS: companyfacts data/market/ZTS.json fundamentals carries no operating_income_fy series at all for CIK 1555280 (coverage.missing = ['operating_income', 'gross_profit'])."
+          },
+          "fcf_margin": {
+            "value": 0.241153,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Free cash flow margin: operating cash flow 2904000000 less capital expenditure 621000000, divided by revenue 9467000000, all for the fiscal year ended 2025-12-31, from companyfacts. The strongest FCF margin of the four animal-health-vaccines names.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 1.08642,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Operating cash flow 2904000000 divided by net income 2673000000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "net_debt_to_ebitda cannot be computed for ZOETIS: no operating_income_fy series exists in companyfacts for CIK 1555280 to build an EBITDA proxy, even though net debt itself (total debt 9048000000 less cash 1476000000, both as of 2026-06-30) is available."
+          },
+          "piotroski": {
+            "value": 7,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Piotroski F-score 7 (state STRONG), computed over companyfacts statements in data/market/ZTS.json quality.piotroski, 9 of 9 inputs found. The strongest Piotroski score in this batch.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": -2.448,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Beneish M-score -2.448 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/ZTS.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": true
+          },
+          "market_cap": {
+            "value": 30960220200.1,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Market capitalization 30960220200.1 computed in data/market/ZTS.json quality.derived.market_cap from SEC companyfacts share count 424927535 (as of 2025-12-31) times the repo's own market-plane close of 72.86 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 3.270331,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ZTS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Market capitalization 30960220200.1 divided by fiscal year 2025-12-31 revenue 9467000000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.0408,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/ZTS.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 38532220200.1 implies over a 5-year explicit period on base FCF 2283000000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.0068,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/ZTS.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001555280.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0408, '7': 0.0369, '10': 0.034}); the tightest spread in this batch, so the solve is close to horizon-invariant."
+          }
+        },
+        "price_context": {
+          "close": 72.86,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 71.86,
+            "high": 150.61
+          },
+          "price_status": "AGREED",
+          "source": "data/market/ZTS.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 15,
+          "held_pct_institutions": 1.00298,
+          "short_pct_float": 0.046,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 34,
+          "source": "data/market/ZTS.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 15 analysts and 100.3% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 34/100 for animal-health-vaccines."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "Poultry performance benefited from increased vaccine sales tied to disease outbreak activity.",
+            "accession": "0001555280-26-000038",
+            "url": "https://www.sec.gov/Archives/edgar/data/1555280/000155528026000038/exhibit99q22026.htm",
+            "form": "8-K",
+            "source_date": "2026-08-06"
+          },
+          {
+            "quote": "Revises Full Year 2026 Revenue Guidance to $9.120 - $9.320 Billion to Organic Operational Revenue Growth of (3)% to (1)%",
+            "accession": "0001555280-26-000038",
+            "url": "https://www.sec.gov/Archives/edgar/data/1555280/000155528026000038/exhibit99q22026.htm",
+            "form": "8-K",
+            "source_date": "2026-08-06"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "DARLING",
+        "listing_id": "NYSE-DAR",
+        "ticker": "DAR",
+        "market_ticker": "DAR",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "depopulation-disposal",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/DARLING.json",
+        "data_tier": "T1",
+        "cik": 916540,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. Both admission bases hold: both evidence items on the depopulation-disposal placement are tagged VERIFIED, and the placement carries a current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z) that sampled evidence_index 1, the darlingii.com business description, confirmed verbatim live. That audit records that evidence_index 0 (an EDGAR full-text-search citation with the entity name as its excerpt) was not sampled and carries the citation-form defect the four vaccine audits failed; the row does not rest on that item alone.",
+        "placement_audit": {
+          "status": "PASS",
+          "audited_at": "2026-09-14T00:44:50Z",
+          "evidence_index": 1,
+          "identity_ok": true,
+          "role_ok": true,
+          "current_pass": true,
+          "amendments_required": 0,
+          "evidence_tags": [
+            "VERIFIED",
+            "VERIFIED"
+          ]
+        },
+        "name": "Darling Ingredients Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "EMERGING",
+        "link_criticality": "MEDIUM",
+        "link_impact": 65,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S1",
+            "direction": "DOWN",
+            "magnitude": "MEDIUM"
+          },
+          {
+            "scenario_id": "S2",
+            "direction": "UP",
+            "magnitude": "MEDIUM"
+          },
+          {
+            "scenario_id": "S3",
+            "direction": "DOWN",
+            "magnitude": "SMALL"
+          }
+        ],
+        "thesis_1line": "The only listed renderer in the census's 69-filing disclosing population and the plane that absorbs culled flocks, admitted on VERIFIED evidence and a current PASS placement audit. Emergency disposal is a small, undisclosed share of routine rendering volume, and the Q2 2026 release is led by Diamond Green Diesel ($280.0m of cash distributions received), which fits the chain's reading that DAR's climb to 66.37 against a 29.91 to 68.34 52-week range (data/market/DAR.json, 2026-09-10) is renewable-diesel economics, not avian influenza. The exact inverse of the vaccine link: S2 moves it UP MEDIUM, S1 DOWN MEDIUM.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Rendering revenue is not broken out by feedstock cause, so emergency carcass disposal from culls cannot be separated from routine slaughter byproduct.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 6135877000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Revenues for the fiscal year ended 2026-01-03 as reported to SEC XBRL companyfacts for CIK 916540 (Darling Ingredients Inc., NYSE: DAR)."
+          },
+          "revenue_cagr_3y": {
+            "value": -0.020648,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Three-year compound annual revenue growth computed as (6135877000 / 6532204000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2026-01-03. Negative: revenue declined over this window.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.044564,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Operating income 273440000 divided by revenue 6135877000, both for the fiscal year ended 2026-01-03, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.1107,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Free cash flow margin: operating cash flow 1059719000 less capital expenditure 380477000, divided by revenue 6135877000, all for the fiscal year ended 2026-01-03, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 16.873432,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Operating cash flow 1059719000 divided by net income 62804000, both for the fiscal year ended 2026-01-03, from companyfacts. An unusually high ratio driven by net income compressing far more than operating cash flow in the latest fiscal year; a real reported figure.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": 4.719291,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Net debt to EBITDA: total debt 3850963000 less cash 160742000 = net debt 3690221000, both as of 2026-07-04, divided by an EBITDA proxy 781944000 (operating income 273440000 plus depreciation 508504000, both for the fiscal year ended 2026-01-03), from companyfacts.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": 6,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Piotroski F-score 6 (state MIDDLING), computed over companyfacts statements in data/market/DAR.json quality.piotroski, 9 of 9 inputs found.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "beneish_state cannot be scored for DARLING: data/market/DAR.json quality.beneish.state is PENDING_DATA (missing receivables_fy; 11 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": 11657450666.01,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Market capitalization 11657450666.01 computed in data/market/DAR.json quality.derived.market_cap from SEC companyfacts share count 175643373 (as of 2026-01-03) times the repo's own market-plane close of 66.37 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 1.899883,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DAR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Market capitalization 11657450666.01 divided by fiscal year 2026-01-03 revenue 6135877000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.1105,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/DAR.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 15347671666.01 implies over a 5-year explicit period on base FCF 679242000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.0379,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/DAR.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000916540.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1105, '7': 0.0886, '10': 0.0726})."
+          }
+        },
+        "price_context": {
+          "close": 66.37,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 29.91,
+            "high": 68.34
+          },
+          "price_status": "AGREED",
+          "source": "data/market/DAR.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 12,
+          "held_pct_institutions": 1.0823101,
+          "short_pct_float": 0.0396,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 52,
+          "source": "data/market/DAR.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 12 analysts and 108.2% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 52/100 for depopulation-disposal."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "The company also reported total net sales of $1.7 billion for the second quarter of 2026, compared with total net sales of $1.5 billion for the same period a year ago.",
+            "accession": "0000916540-26-000019",
+            "url": "https://www.sec.gov/Archives/edgar/data/916540/000091654026000019/exh991-pressreleaseq22026.htm",
+            "form": "8-K",
+            "source_date": "2026-07-30"
+          },
+          {
+            "quote": "Received $280.0 million in cash distributions from Diamond Green Diesel",
+            "accession": "0000916540-26-000019",
+            "url": "https://www.sec.gov/Archives/edgar/data/916540/000091654026000019/exh991-pressreleaseq22026.htm",
+            "form": "8-K",
+            "source_date": "2026-07-30"
+          }
+        ],
+        "status": "CANDIDATE"
+      }
+    ],
+    "second_order": [
+      {
+        "issuer_id": "TYSON-FOODS",
+        "listing_id": "NYSE-TSN",
+        "ticker": "TSN",
+        "market_ticker": "TSN",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "poultry-genetics",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/TYSON-FOODS.json",
+        "data_tier": "T1",
+        "cik": 100493,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. Both admission bases hold: all 3 evidence items on the poultry-genetics placement are tagged VERIFIED (Tyson Form 10-K Exhibit 21, the SEC company record for Cobb-Vantress, Inc., and the SEC filing index naming Tyson as filer), and the placement carries a current PASS placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z, evidence_index 0, record_digest current per check_map.placement_audit_for), which also admits it to run deepdive.",
+        "placement_audit": {
+          "status": "PASS",
+          "audited_at": "2026-09-14T00:44:50Z",
+          "evidence_index": 0,
+          "identity_ok": true,
+          "role_ok": true,
+          "current_pass": true,
+          "amendments_required": 0,
+          "evidence_tags": [
+            "VERIFIED",
+            "VERIFIED",
+            "VERIFIED"
+          ]
+        },
+        "name": "Tyson Foods, Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": true,
+        "link_heat_verdict": "UNDISCOVERED",
+        "link_criticality": "CHOKE_POINT",
+        "link_impact": 90,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S5",
+            "direction": "UP",
+            "magnitude": "LARGE"
+          }
+        ],
+        "thesis_1line": "The only listed route the census found into this chain's top money corner: Tyson owns Cobb-Vantress, Inc., one of the three primary broiler-genetics companies, named in its own Form 10-K Exhibit 21 and confirmed live by a fresh-context PASS placement audit. The exposure is deeply diluted, an undisclosed subsidiary inside a $54.4bn protein processor (FY ended 2025-09-27, companyfacts) whose latest release credits Chicken and Prepared Foods rather than breeding stock, and the layer and turkey pyramids stay private, so this row buys the choke point only at a heavy discount to its purity. S5 (HPAI reaches the breeding pyramid) moves this link UP LARGE. TSN is also an example ticker on broiler-turkey-production, which is OPEN with no placement, so there is no second row.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Tyson reports by protein segment (Beef, Pork, Chicken, Prepared Foods, International); Cobb-Vantress genetics revenue is not broken out anywhere on disk.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 54441000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Revenues for the fiscal year ended 2025-09-27 as reported to SEC XBRL companyfacts for CIK 100493 (Tyson Foods, Inc., NYSE: TSN)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.0072,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Three-year compound annual revenue growth computed as (54441000000 / 53282000000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-10-01 to fiscal year ended 2025-09-27.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.020169,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Operating income 1098000000 divided by revenue 54441000000, both for the fiscal year ended 2025-09-27, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.02162,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Free cash flow margin: operating cash flow 2155000000 less capital expenditure 978000000, divided by revenue 54441000000, all for the fiscal year ended 2025-09-27, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 4.546414,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Operating cash flow 2155000000 divided by net income 474000000, both for the fiscal year ended 2025-09-27, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": 2.385212,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Net debt to EBITDA: total debt 6579000000 less cash 740000000 = net debt 5839000000, both as of 2026-06-27, divided by an EBITDA proxy 2448000000 (operating income 1098000000 plus depreciation 1350000000, both for the fiscal year ended 2025-09-27), from companyfacts.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": 5,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Piotroski F-score 5 (state MIDDLING), computed over companyfacts statements in data/market/TSN.json quality.piotroski, 9 of 9 inputs found.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": -2.622,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Beneish M-score -2.622 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/TSN.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": true
+          },
+          "market_cap": {
+            "value": 18728220000.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Market capitalization 18728220000.0 computed in data/market/TSN.json quality.derived.market_cap from SEC companyfacts share count 357000000 (as of 2025-09-27) times the repo's own market-plane close of 52.46 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 0.344009,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/TSN.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Market capitalization 18728220000.0 divided by fiscal year 2025-09-27 revenue 54441000000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.0912,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/TSN.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 24567220000.0 implies over a 5-year explicit period on base FCF 1177000000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.029,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/TSN.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000100493.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0912, '7': 0.0745, '10': 0.0622})."
+          }
+        },
+        "price_context": {
+          "close": 52.46,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 50.72,
+            "high": 68.75
+          },
+          "price_status": "AGREED",
+          "source": "data/market/TSN.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 12,
+          "held_pct_institutions": 0.94107,
+          "short_pct_float": 0.026700001,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 8,
+          "source": "data/market/TSN.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 12 analysts and 94.1% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 8/100 for poultry-genetics."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "We delivered strong third quarter results, fueled by continued strength in our Chicken and Prepared Foods segments, with seven consecutive quarters of growth in Chicken and continued market share gains by our iconic brands",
+            "accession": "0000100493-26-000057",
+            "url": "https://www.sec.gov/Archives/edgar/data/100493/000010049326000057/tsn2026q3exh-991.htm",
+            "form": "8-K",
+            "source_date": "2026-08-03"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "MERCK",
+        "listing_id": "NYSE-MRK",
+        "ticker": "MRK",
+        "market_ticker": "MRK",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "animal-health-vaccines",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/MERCK.json",
+        "data_tier": "T1",
+        "cik": 310158,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. The placement's sole evidence item is tagged VERIFIED, which satisfies check_screen._placement_admissible on its own. It also carries a FAIL placement_audits[] entry (atlas-fresh-context, 2026-09-14T00:44:50Z): identity_ok and source_date_ok true, role_ok false, because the evidence cites the EDGAR full-text-search endpoint with the bare ticker \"MRK\" as its source_excerpt instead of a sentence of the disclosure. The audit confirmed the underlying 10-K disclosure live (Form 10-K for fiscal 2025, accession 0000310158-26-000063, filed 2026-02-24, a risk-factor sentence): \"the outbreak of disease carried by animals, such as Avian Influenza or African Swine Fever, could lead to their widespread death and precautionary destruction\". Seated on the VERIFIED basis under the reasoning applied to SOLVAY (rare-earth-separation) and ATI-INC (munitions-replenishment) on 2026-09-14: a citation-form FAIL whose own audit confirms the claim does not revoke the VERIFIED basis. It is not a current PASS, so this row cannot reach run deepdive until run universe re-cites the 10-K sentence named in amendments_required and a fresh placement audit passes.",
+        "placement_audit": {
+          "status": "FAIL",
+          "audited_at": "2026-09-14T00:44:50Z",
+          "evidence_index": 0,
+          "identity_ok": true,
+          "role_ok": false,
+          "current_pass": false,
+          "amendments_required": 1,
+          "evidence_tags": [
+            "VERIFIED"
+          ]
+        },
+        "name": "Merck & Co., Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "UNDISCOVERED",
+        "link_criticality": "HIGH",
+        "link_impact": 70,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S1",
+            "direction": "UP",
+            "magnitude": "LARGE"
+          },
+          {
+            "scenario_id": "S4",
+            "direction": "UP",
+            "magnitude": "MEDIUM"
+          }
+        ],
+        "thesis_1line": "Merck Animal Health sells into poultry (Q2 2026 Livestock growth driven by ruminant and poultry demand, and the TARGAN acquisition broadened its commercial poultry portfolio), but Animal Health was $1.8bn of a $16.6bn quarter, so any H5 effect is diluted past visibility in MRK. The fresh-context audit confirmed only a risk-factor sentence on avian influenza in Merck's FY2025 10-K, not an H5 vaccine programme, so selection should treat the role evidence as thin. MRK is also an example ticker on spf-eggs-countermeasures, where the census found no qualifying issuer, so there is no second row.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Merck reports Animal Health ($1.8bn in Q2 2026) split into Livestock and Companion Animal inside a $16.6bn quarter; no poultry or H5 vaccine line.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 65011000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 310158 (Merck & Co., Inc., NYSE: MRK)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.031222,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Three-year compound annual revenue growth computed as (65011000000 / 59283000000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "operating margin cannot be computed for MERCK: companyfacts data/market/MRK.json fundamentals carries no operating_income_fy series at all for CIK 310158 (coverage.missing = ['operating_income', 'gross_profit'])."
+          },
+          "fcf_margin": {
+            "value": 0.190122,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Free cash flow margin: operating cash flow 16472000000 less capital expenditure 4112000000, divided by revenue 65011000000, all for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 0.902378,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Operating cash flow 16472000000 divided by net income 18254000000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "net_debt_to_ebitda cannot be computed for MERCK: no operating_income_fy series exists in companyfacts for CIK 310158 to build an EBITDA proxy, even though net debt itself (total debt 51081000000 less cash 6849000000, both as of 2026-06-30) is available."
+          },
+          "piotroski": {
+            "value": 4,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Piotroski F-score 4 (state MIDDLING), computed over companyfacts statements in data/market/MRK.json quality.piotroski, 9 of 9 inputs found.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": -2.281,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Beneish M-score -2.281 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/MRK.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": true
+          },
+          "market_cap": {
+            "value": 517642650668.62,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Market capitalization 517642650668.62 computed in data/market/MRK.json quality.derived.market_cap from SEC companyfacts share count 3577103522 (as of 2025-12-31) times the repo's own market-plane close of 144.71 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 7.962386,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/MRK.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Market capitalization 517642650668.62 divided by fiscal year 2025-12-31 revenue 65011000000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.292,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/MRK.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 561874650668.62 implies over a 5-year explicit period on base FCF 12360000000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.1267,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/MRK.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000310158.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.292, '7': 0.2179, '10': 0.1653})."
+          }
+        },
+        "price_context": {
+          "close": 144.71,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 77.6,
+            "high": 156.45
+          },
+          "price_status": "AGREED",
+          "source": "data/market/MRK.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 88.2,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 5,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 26,
+          "held_pct_institutions": 0.83195,
+          "short_pct_float": 0.0099,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 34,
+          "source": "data/market/MRK.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 26 analysts and 83.2% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 34/100 for animal-health-vaccines."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "Total Worldwide Sales Were $16.6 Billion (5% Growth; 4% Growth ex-FX)",
+            "accession": "0001104659-26-090045",
+            "url": "https://www.sec.gov/Archives/edgar/data/310158/000110465926090045/tm2621496d1_ex99-1.htm",
+            "form": "8-K",
+            "source_date": "2026-08-04"
+          },
+          {
+            "quote": "Animal Health Sales Were $1.8 Billion (8% Growth; 5% Growth ex-FX)",
+            "accession": "0001104659-26-090045",
+            "url": "https://www.sec.gov/Archives/edgar/data/310158/000110465926090045/tm2621496d1_ex99-1.htm",
+            "form": "8-K",
+            "source_date": "2026-08-04"
+          },
+          {
+            "quote": "Livestock 1,041 961 8 % 6 % Growth primarily driven by higher demand for ruminant and poultry products.",
+            "accession": "0001104659-26-090045",
+            "url": "https://www.sec.gov/Archives/edgar/data/310158/000110465926090045/tm2621496d1_ex99-1.htm",
+            "form": "8-K",
+            "source_date": "2026-08-04"
+          },
+          {
+            "quote": "The Company’s Animal Health Business Completed Acquisition of TARGAN, Broadening Its Commercial Poultry Portfolio Through TARGAN’s Innovative High-Speed Biodevice Technology",
+            "accession": "0001104659-26-090045",
+            "url": "https://www.sec.gov/Archives/edgar/data/310158/000110465926090045/tm2621496d1_ex99-1.htm",
+            "form": "8-K",
+            "source_date": "2026-08-04"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "CALMAINE",
+        "listing_id": "NASDAQ-CALM",
+        "ticker": "CALM",
+        "market_ticker": "CALM",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "egg-processing",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/CALMAINE.json",
+        "data_tier": "T1",
+        "cik": 16160,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. The egg-processing placement's sole evidence item is tagged VERIFIED, which satisfies check_screen._placement_admissible, but it is an EDGAR full-text-search citation with the entity name \"CAL-MAINE FOODS INC\" as its excerpt, the citation form the four vaccine placement audits failed, and no placement audit exists for it. Admitted on the tag, with two corroborations on disk rather than on the placement: the stored full-text-search result (data/edgar/fts/avian-influenza.json) lists a Cal-Maine Foods 10-K, accession 0001562762-26-000080, and the stored 2026-07-22 earnings exhibit names egg products among its operations. Not admitted to run deepdive without a re-cited placement and a passing placement audit.",
+        "placement_audit": {
+          "status": null,
+          "audited_at": null,
+          "evidence_index": null,
+          "identity_ok": null,
+          "role_ok": null,
+          "current_pass": false,
+          "amendments_required": 0,
+          "evidence_tags": [
+            "VERIFIED"
+          ]
+        },
+        "name": "Cal-Maine Foods, Inc.",
+        "exchange": "Nasdaq",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "EMERGING",
+        "link_criticality": "MEDIUM",
+        "link_impact": 60,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S3",
+            "direction": "DOWN",
+            "magnitude": "SMALL"
+          }
+        ],
+        "thesis_1line": "The largest US shell egg producer, placed here for its egg-products operations, which its own release puts in remaining operations that are not a reportable segment, so this link's exposure cannot be sized. HPAI hit its flocks again in March 2026, and fiscal 2026 net sales fell 31.7% to $2,911.6m as the shortage premium unwound; CALM closed at 73.71 on 2026-09-10 against a 72.44 to 111.01 52-week range with 13% of float short (data/market/CALM.json). Its production role belongs on layer-egg-production, which is OPEN with no placement, and its only placement evidence is an unaudited full-text-search citation of the form the vaccine audits failed.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Egg products sit inside remaining operations that are not a reportable segment (see nuggets), so the processing exposure this placement rests on cannot be sized.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 2911632000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Revenues for the fiscal year ended 2026-05-30 as reported to SEC XBRL companyfacts for CIK 16160 (Cal-Maine Foods, Inc., Nasdaq: CALM)."
+          },
+          "revenue_cagr_3y": {
+            "value": -0.025498,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Three-year compound annual revenue growth computed as (2911632000 / 3146217000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2023-06-03 to fiscal year ended 2026-05-30. Negative purely because the endpoints catch a HPAI-driven egg-price spike (fiscal year ended 2025-05-31: 4261885000) followed by a partial reversion, not a secular decline; see business_summary.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.120271,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Operating income 350186000 divided by revenue 2911632000, both for the fiscal year ended 2026-05-30, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.112835,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Free cash flow margin: operating cash flow 479753000 less capital expenditure 151220000, divided by revenue 2911632000, all for the fiscal year ended 2026-05-30, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 1.514936,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Operating cash flow 479753000 divided by net income 316682000, both for the fiscal year ended 2026-05-30, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "net_debt_to_ebitda cannot be computed for CALMAINE: companyfacts total_debt for CIK 16160 carries exactly one point, dated 2019-06-01 (641000), over 7 years stale against the latest cash figure (2026-05-30, 107217000), so a debt-based leverage read would rest on a non-representative snapshot; long_term_debt_fy has no series at all."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "piotroski cannot be scored for CALMAINE: data/market/CALM.json quality.piotroski.state is PENDING_DATA (missing long_term_debt_fy; 8 of 9 inputs found)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "beneish_state cannot be scored for CALMAINE: data/market/CALM.json quality.beneish.state is PENDING_DATA (missing long_term_debt_fy; 11 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": 3521937509.9999995,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Market capitalization 3521937509.9999995 computed in data/market/CALM.json quality.derived.market_cap from SEC companyfacts share count 47781000 (as of 2026-05-30) times the repo's own market-plane close of 73.71 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 1.209609,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/CALM.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Market capitalization 3521937509.9999995 divided by fiscal year 2026-05-30 revenue 2911632000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": -0.0683,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/CALM.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 3415361509.9999995 implies over a 5-year explicit period on base FCF 328533000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Negative: the market is pricing in a FCF decline off the current base. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.0372,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/CALM.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000016160.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': -0.0683, '7': -0.047, '10': -0.0311})."
+          }
+        },
+        "price_context": {
+          "close": 73.71,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 72.44,
+            "high": 111.01
+          },
+          "price_status": "AGREED",
+          "source": "data/market/CALM.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 3,
+          "held_pct_institutions": 0.97991997,
+          "short_pct_float": 0.13,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 42,
+          "source": "data/market/CALM.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 3 analysts and 98.0% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 42/100 for egg-processing."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "the current outbreak of HPAI affecting poultry in the U.S., Canada and other countries that was first detected in commercial flocks in the U.S. in February 2022 and that impacted our flocks in the third and fourth quarters of fiscal 2024 and again in March 2026",
+            "accession": "0001562762-26-000078",
+            "url": "https://www.sec.gov/Archives/edgar/data/16160/000156276226000078/exhibit991.htm",
+            "form": "8-K",
+            "source_date": "2026-07-22"
+          },
+          {
+            "quote": "Cal-Maine Foods’ remaining operations, which include co-pack shell eggs, egg products, hard-cooked eggs and other business activities, are not reportable segments",
+            "accession": "0001562762-26-000078",
+            "url": "https://www.sec.gov/Archives/edgar/data/16160/000156276226000078/exhibit991.htm",
+            "form": "8-K",
+            "source_date": "2026-07-22"
+          },
+          {
+            "quote": "Net sales $ 552,581 $ 1,103,658 $ (551,077) (49.9) % $ 2,911,632 $ 4,261,885 $ (1,350,253) (31.7) %",
+            "accession": "0001562762-26-000078",
+            "url": "https://www.sec.gov/Archives/edgar/data/16160/000156276226000078/exhibit991.htm",
+            "form": "8-K",
+            "source_date": "2026-07-22"
+          }
+        ],
+        "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "POST",
+        "listing_id": "NYSE-POST",
+        "ticker": "POST",
+        "market_ticker": "POST",
+        "chain_id": "h5n1-panzootic",
+        "link_id": "egg-processing",
+        "mapping_ref": "data/mappings/h5n1-panzootic.json",
+        "profile_ref": "data/companies/POST.json",
+        "data_tier": "T1",
+        "cik": 1530950,
+        "audit_scope": "PLACEMENT",
+        "audit_scope_basis": "Mapping h5n1-panzootic is ACTIVE with no census audit, so this row declares audit_scope PLACEMENT. Both evidence items on the egg-processing placement are tagged VERIFIED, which satisfies check_screen._placement_admissible; no placement audit exists for it. evidence[0] is an EDGAR full-text-search citation with the entity name as its excerpt, the form the four vaccine audits failed. evidence[1] is a verbatim sentence from Post's own Form 10-K on Michael Foods Group egg products, dated 2017-11-17: old, and unreversed by anything on disk, since the 2026-08-06 earnings release still reports Foodservice as primarily egg and potato products. The stored full-text-search result on disk (data/edgar/fts/avian-influenza.json) lists a Post Holdings 10-K, accession 0001530950-25-000260. Not admitted to run deepdive without a placement audit.",
+        "placement_audit": {
+          "status": null,
+          "audited_at": null,
+          "evidence_index": null,
+          "identity_ok": null,
+          "role_ok": null,
+          "current_pass": false,
+          "amendments_required": 0,
+          "evidence_tags": [
+            "VERIFIED",
+            "VERIFIED"
+          ]
+        },
+        "name": "Post Holdings, Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "EMERGING",
+        "link_criticality": "MEDIUM",
+        "link_impact": 60,
+        "scenarios_moving_link": [
+          {
+            "scenario_id": "S3",
+            "direction": "DOWN",
+            "magnitude": "SMALL"
+          }
+        ],
+        "thesis_1line": "Michael Foods Group's egg products are the large branded foodservice position on this link (placement evidence quotes Post's own 10-K), and avian influenza is visible in its numbers: Q3 FY2026 Foodservice, primarily egg and potato products, saw net sales fall 6.5% to $652.9m, with the decline attributed to lapping avian influenza pricing. Egg products are not separated from potatoes inside Foodservice, and POST closed at 80.28 on 2026-09-10 against a 76.23 to 114.61 52-week range with 16.66% of float short (data/market/POST.json).",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "Not disclosed. Foodservice is reported as primarily egg and potato products together; egg-products revenue is not separated, and no dollar figure is given for supply lost at contracted laying facilities.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 8158100000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Revenues for the fiscal year ended 2025-09-30 as reported to SEC XBRL companyfacts for CIK 1530950 (Post Holdings, Inc., NYSE: POST)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.117158,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Three-year compound annual revenue growth computed as (8158100000 / 5851200000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-09-30 to fiscal year ended 2025-09-30.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.097976,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Operating income 799300000 divided by revenue 8158100000, both for the fiscal year ended 2025-09-30, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.05983,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Free cash flow margin: operating cash flow 998300000 less capital expenditure 510200000, divided by revenue 8158100000, all for the fiscal year ended 2025-09-30, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 2.973786,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Operating cash flow 998300000 divided by net income 335700000, both for the fiscal year ended 2025-09-30, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": 5.564899,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Net debt to EBITDA: total debt 7631300000 less cash 265600000 = net debt 7365700000, both as of 2026-06-30, divided by an EBITDA proxy 1323600000 (operating income 799300000 plus depreciation 524300000, both for the fiscal year ended 2025-09-30), from companyfacts. The highest leverage in this batch.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": 4,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Piotroski F-score 4 (state MIDDLING), computed over companyfacts statements in data/market/POST.json quality.piotroski, 9 of 9 inputs found. The weakest Piotroski score in this batch.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": -2.47,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Beneish M-score -2.47 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/POST.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": true
+          },
+          "market_cap": {
+            "value": 5049612000.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Market capitalization 5049612000.0 computed in data/market/POST.json quality.derived.market_cap from SEC companyfacts share count 62900000 (as of 2025-09-30) times the repo's own market-plane close of 80.28 (2026-09-10). The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "price_to_sales": {
+            "value": 0.618969,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/POST.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Market capitalization 5049612000.0 divided by fiscal year 2025-09-30 revenue 8158100000.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.1397,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/POST.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Free-cash-flow CAGR the current enterprise value 12415312000.0 implies over a 5-year explicit period on base FCF 488100000.0, solved by bisection on FCF CAGR at a 0.09 discount rate and 0.025 terminal growth over companyfacts statements. Assumption-dependent expectation reading, not a reported figure."
+          },
+          "horizon_spread": {
+            "value": 0.0514,
+            "tag": "SPECULATIVE",
+            "source_name": "Upstream market store data/market/POST.json quality.reverse_dcf",
+            "source_date": "2026-09-10",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001530950.json",
+            "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1397, '7': 0.11, '10': 0.0883})."
+          }
+        },
+        "price_context": {
+          "close": 80.28,
+          "date": "2026-09-10",
+          "week52": {
+            "low": 76.23,
+            "high": 114.61
+          },
+          "price_status": "AGREED",
+          "source": "data/market/POST.json series"
+        },
+        "crowdedness": {
+          "pcs_axis_a": 100.0,
+          "state": "DARK",
+          "machine_admissible": true,
+          "sub_scores": {
+            "trends": 30,
+            "wsb": 25,
+            "stocktwits": 13,
+            "media": null
+          },
+          "pcs_axis_b_band": "SATURATED",
+          "analyst_count": 6,
+          "held_pct_institutions": 1.05129,
+          "short_pct_float": 0.1666,
+          "gate_state": "ADVISORY",
+          "link_crowdedness_score": 42,
+          "source": "data/market/POST.json pcs",
+          "as_of": "2026-09-10",
+          "tag": "INFERRED",
+          "caveat": "PCS is advisory here (gate ADVISORY: positive-control fixtures unreadable on the runner). A DARK retail read on a name with 6 analysts and 105.1% institutional ownership (axis B SATURATED) means thin retail chatter, not an attention gap. The link-level read is the chain's heat crowdedness score, 42/100 for egg-processing."
+        },
+        "earnings_nuggets": [
+          {
+            "quote": "Foodservice Primarily egg and potato products. For the third quarter, net sales were $652.9 million, a decrease of 6.5%, or $45.6 million, compared to the prior year period.",
+            "accession": "0001530950-26-000076",
+            "url": "https://www.sec.gov/Archives/edgar/data/1530950/000153095026000076/ex99-1q32026er.htm",
+            "form": "8-K",
+            "source_date": "2026-08-06"
+          },
+          {
+            "quote": "Declines in net sales, segment profit and segment Adjusted EBITDA reflect the lapping of avian influenza pricing in the prior year period.",
+            "accession": "0001530950-26-000076",
+            "url": "https://www.sec.gov/Archives/edgar/data/1530950/000153095026000076/ex99-1q32026er.htm",
+            "form": "8-K",
+            "source_date": "2026-08-06"
+          }
+        ],
+        "status": "CANDIDATE"
+      }
+    ],
+    "hedge": []
+  },
+  "health": {
+    "tickers_examined": 8,
+    "rows_written": 8,
+    "fully_scored": 3,
+    "pending": 0,
+    "errors": 0,
+    "rows_superseded": 0,
+    "rows_with_quality_gaps": 5,
+    "links_worked": 10,
+    "links_total": 10,
+    "links_with_rows": 4,
+    "links_exhausted_zero": 2,
+    "links_open_uncensused": 4,
+    "money_corner_links_total": 2,
+    "money_corner_links_covered": 1,
+    "choke_point_links_total": 3,
+    "choke_point_links_covered": 1,
+    "quotes_verified": 18,
+    "quotes_dropped": 0,
+    "distinct_issuers": 8,
+    "placements_examined": 8,
+    "placements_admissible": 8,
+    "placements_current_pass_audit": 2,
+    "placements_fail_audit_seated_on_verified_tags": 4,
+    "placements_unaudited_seated_on_verified_tags": 2,
+    "issuers_complete_profile": 8,
+    "issuers_taste_filtered": 0,
+    "requests_queued": 0,
+    "mapping_status": "ACTIVE",
+    "mapping_audit_status": null,
+    "census_audit_current": false
+  },
+  "notes": [],
+  "confidence_audit": {
+    "VERIFIED": 8,
+    "INFERRED": 70,
+    "SPECULATIVE": 16,
+    "NULL": 18
+  },
+  "changelog": [
+    {
+      "ts": "2026-09-14T23:20:50Z",
+      "by": "sieve-profiler",
+      "kind": "BUILD",
+      "change": "Created the chain-level campaign-v1 screen for h5n1-panzootic: 10 of 10 links worked in money-corner, CHOKE_POINT, impact order; 8 ACTIVE placements examined, all admissible under audit_scope PLACEMENT; 8 rows seated on 4 links (poultry-genetics TYSON-FOODS; animal-health-vaccines ZOETIS, ELANCO, PHIBRO, MERCK; depopulation-disposal DARLING; egg-processing POST, CALMAINE). 2 rows rest on current PASS placement audits, 4 on VERIFIED tags beside citation-form FAIL audits that confirmed the claim, 2 on unaudited VERIFIED tags. spf-eggs-countermeasures (money corner) and avian-diagnostics are EXHAUSTED at zero; 4 links OPEN. 18 of 18 nuggets verified verbatim; 0 taste-filtered; 0 requests."
+    }
+  ]
+}
