@@ -2,8 +2,8 @@
  "id": "MAP-prediction-market-plumbing",
  "chain_id": "prediction-market-plumbing",
  "created_at": "2026-09-01T01:20:00Z",
- "updated_at": "2026-09-04T21:30:00Z",
- "as_of": "2026-09-04",
+ "updated_at": "2026-09-14T23:15:40Z",
+ "as_of": "2026-09-14",
  "status": "ACTIVE",
  "target_issuers_per_link": 5,
  "issuers": [
@@ -761,12 +761,12 @@
    "status": "ACTIVE",
    "evidence": [
     {
-     "claim": "Polymarket will transition to native USDC in the coming months, with native USDC issued by Circle's regulated affiliates and redeemable 1:1 for US dollars, supporting a consistent dollar-denominated settlement standard that enhances market integrity.",
+     "claim": "Polymarket will transition to native USDC in the coming months, with native USDC issued by Circle's regulated affiliates and redeemable 1:1 for US dollars, providing a more capital efficient, scalable and institutionally aligned settlement standard as Polymarket's platform continues to grow.",
      "source_name": "Circle, Circle and Polymarket Partner to Strengthen Onchain Financial Markets",
      "source_date": "2026-02-05",
      "url": "https://www.circle.com/pressroom/circle-and-polymarket-partner-to-strengthen-onchain-financial-markets",
      "tag": "VERIFIED",
-     "source_excerpt": "Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle's regulated affiliates and is redeemable 1:1 for US dollars. Using USDC supports a consistent, dollar-denominated settlement standard that enhances market integrity."
+     "source_excerpt": "As part of this partnership, Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle’s regulated affiliates and is redeemable 1:1 for US dollars, providing a more capital efficient, scalable, and institutionally aligned settlement standard as Polymarket’s platform continues to grow."
     }
    ]
   },
@@ -1478,6 +1478,13 @@
    "kind": "NOTE",
    "change": "run universe-audit prediction-market-plumbing --placement COINBASE: fresh-context placement audit PASS on (funding-and-settlement-rails, COINBASE). Opened Coinbase Global, Inc.'s FY2025 Form 10-K live on SEC EDGAR and confirmed the cover-page Section 12(b) table verbatim: legal issuer Coinbase Global, Inc., Class A common stock, ticker COIN, The Nasdaq Stock Market LLC, matching listing NASDAQ-COIN exactly. Opened the placement's role-evidence source live (news.kalshi.com, dated 2025-11-13) and, after an initial fetch mis-summarized the passage, requested the full article body verbatim and confirmed the opening paragraph reproduces the cited claim word for word: 'Kalshi's mission is to bring trading on real-world events into the financial mainstream, placing event contracts on equal footing with traditional assets like stocks and bonds. Our new partnership with Coinbase Custody brings us one step closer to our goal by safeguarding all USDC held on Kalshi with one of the most trusted names in digital asset custody.' identity_ok true, role_ok true, source_date_ok true. No defects found. Wrote one placement_audits[] entry (evidence_index 0, status PASS, record_digest b836c575f5aa6c37e6c793a6037f5e0b0da706f27a46cfafb7c91f8115c7ca5e); mapping status stays ACTIVE and no other content changed.",
    "prior": "2026-09-04T21:30:00Z"
+  },
+  {
+   "ts": "2026-09-14T23:15:40Z",
+   "by": "atlas",
+   "kind": "AMEND",
+   "change": "refresh: origin's validate.py refused placements[15] (funding-and-settlement-rails, CIRCLE) evidence[0] because its source_excerpt was not a real contiguous span of the stored data/web/d3fe83ead918feb2.json (the circle.com pressroom release): the excerpt stitched 'Native USDC is issued by Circle's regulated affiliates and is redeemable 1:1 for US dollars.' from the article's second paragraph directly onto 'Using USDC supports a consistent, dollar-denominated settlement standard that enhances market integrity', a separate sentence from Shayne Coplan's quote three paragraphs later, with the sentence in between silently dropped. The 2026-09-14T00:44:48Z placement audit above sampled this same evidence and documented the same fact in its own notes ('from the article's separate settlement-standard sentence') while still marking the span 'verbatim and contiguous', so the audit's PASS rested on the same defect. Re-checked data/web/d3fe83ead918feb2.json (fetched_at 2026-09-14T20:48:17Z, http_status 200): the source does support the placement's role ('Issues native USDC as Polymarket's stablecoin settlement currency, redeemable 1:1 for US dollars, issued by Circle's regulated affiliates') as one real contiguous span, so no new web_doc fetch was needed. Replaced evidence[0].source_excerpt with that single contiguous span, 'As part of this partnership, Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle’s regulated affiliates and is redeemable 1:1 for US dollars, providing a more capital efficient, scalable, and institutionally aligned settlement standard as Polymarket’s platform continues to grow.', verified with tools/evidence_store.py:excerpt_in_doc against the stored text (MATCH), and trimmed evidence[0].claim to match what that span actually says, dropping the 'enhances market integrity' clause the old claim borrowed from the non-contiguous sentence (the role itself never asserted that clause). source_name, source_date and url are unchanged: the same Circle press release remains the right source, only the quoted span was wrong. Nothing else in the mapping changed. This amendment stales the whole-map audit above (already FAIL, unrelated reason) and the CIRCLE placement_audits[9] entry's record_digest; both are left for a fresh-context re-audit rather than corrected here, per the universe-audit fresh-context boundary.",
+   "prior": "2026-09-14T00:45:33Z"
   }
  ],
  "audit": {
