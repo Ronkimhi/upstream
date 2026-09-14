@@ -1,9 +1,9 @@
 {
  "issuer_id": "GDS-HOLDINGS",
  "issuer_name": "GDS Holdings Limited",
- "as_of": "2026-09-13",
+ "as_of": "2026-09-14",
  "created_at": "2026-09-13T00:00:00Z",
- "updated_at": "2026-09-13T00:00:00Z",
+ "updated_at": "2026-09-14T21:00:00Z",
  "generated_by": "sieve-profiler",
  "status": "BLOCKED",
  "data_tier": "T1",
@@ -63,12 +63,33 @@
      "tag": "INFERRED"
     }
    ]
+  },
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "sea-colocation-landlords",
+   "link_name": "Southeast Asian data center colocation landlords",
+   "link_position": 6,
+   "role": "Holds a minority equity stake in DayOne, a Singapore-headquartered data center platform with Southeast Asian colocation capacity, the same landlord layer as the Bridge Data Centers/Megaspeed episode this link maps.",
+   "placement_status": "ACTIVE",
+   "money_corner": false,
+   "link_heat": "EMERGING",
+   "mapping_ref": "data/mappings/neocloud-export-compliance.json",
+   "role_evidence": [
+    {
+     "claim": "GDS Holdings' own 20-F discloses it derives shareholder value from DayOne, a Singapore-headquartered data center platform, in which it holds a minority equity interest.",
+     "source_name": "GDS Holdings Limited, Form 20-F (SEC EDGAR)",
+     "source_date": "2026-04-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1526125/000110465926051006/gds-20251231x20f.htm",
+     "tag": "VERIFIED",
+     "source_excerpt": "In addition, aside from our direct operations through our consolidated subsidiaries and consolidated VIEs, we also derive shareholder value from DayOne, a Singapore-headquartered data center platform, in which we hold a minority equity interest."
+    }
+   ]
   }
  ],
  "sources": {
   "chain": "data/chains/ai-infrastructure.json",
   "market": "data/market/GDS.json",
-  "market_fetched_at": "2026-09-13T14:37:38.997629+00:00",
+  "market_fetched_at": "2026-09-14T19:14:08.435420+00:00",
   "mappings": [
    {
     "path": "data/mappings/ai-infrastructure.json",
@@ -81,10 +102,16 @@
     "status": null,
     "audited_at": null,
     "mapping_status": "ACTIVE"
+   },
+   {
+    "path": "data/mappings/neocloud-export-compliance.json",
+    "status": null,
+    "audited_at": null,
+    "mapping_status": "ACTIVE"
    }
   ]
  },
- "business_summary": "GDS Holdings Limited is a China-domiciled developer and operator of high-performance data centers serving hyperscale cloud and large internet customers, cross-listed on NASDAQ, and is expanding internationally through its DayOne platform into Southeast Asia (Malaysia, Indonesia and beyond). It sits on the hyperscale-datacenters link (ai-infrastructure) and the offshore-and-periphery-capacity link (data-center-moratoria).",
+ "business_summary": "GDS Holdings Limited is a China-domiciled developer and operator of high-performance data centers serving hyperscale cloud and large internet customers, cross-listed on NASDAQ, and is expanding internationally through its DayOne platform into Southeast Asia (Malaysia, Indonesia and beyond). It sits on the hyperscale-datacenters link (ai-infrastructure), the offshore-and-periphery-capacity link (data-center-moratoria), and the sea-colocation-landlords link (neocloud-export-compliance), the same DayOne Southeast Asian colocation stake evidencing all three.",
  "exposure_summary": {
   "narrative": "GDS's own fourth-quarter and full-year 2025 results state directly that it develops and operates high-performance data centers for hyperscale cloud and large internet customers, and third-party industry coverage describes its DayOne platform's Southeast Asia expansion including a sought US$3.4bn Malaysia financing; neither source discloses a revenue split between domestic China and international DayOne operations.",
   "disclosed_revenue_exposure": {
@@ -191,13 +218,14 @@
  ],
  "data_gaps": [
   "data/market/GDS.json fundamentals coverage is 1 of 20 annual fields found (shares_fy only), verified_zero note 'no revenue concepts found' with control probe 'edgar-AAPL-companyfacts-ok' passing: this is the known failure mode for an IFRS 20-F filer whose SEC companyfacts XBRL tagging does not map cleanly onto the us-gaap-oriented revenue_fy/net_income_fy/etc. concept list (concept_hints shows candidate concepts such as RevenueFromContractWithCustomerExcludingAssessedTax exist in the raw XBRL but were not picked up by the generic mapper). Per the pull-data skill's known-failure-modes table, this is a real gap with a passing probe, not something a repeat 'fundamentals' request would fix, so none is queued.",
-  "An edgar_doc request is queued instead (kind: edgar_doc, ticker: GDS) to fetch GDS's actual 20-F filing text onto disk, a different data source than the failed XBRL concept-mapping pull; a future run could then read verbatim revenue and income figures from the filing text itself and cite them as VERIFIED filing quotes rather than relying on XBRL tags.",
-  "Per method section 6A, a T1 filer may not use the yfinance-statements vendor bridge that unblocks T2/T3 profiles in this exact situation; GDS has a CIK (1526125), so that bridge does not apply here even though the practical effect (an empty XBRL pull) looks similar to a T2/T3 vendor gap."
+  "An edgar_doc request (REQ-20260913-1013) was fulfilled 2026-09-13, but the document the fetcher's own 8-K/10-Q/6-K priority picker selected was a 2026-09-04 Form 6-K index/cover only (1,960 characters, no financial content) rather than the actual 20-F annual report; the picker prefers any in-window 6-K over the 20-F fallback tier, so it never reached the annual report. A new web_doc request (REQ-20260914-719) is queued instead, targeting the specific 20-F URL already cited in this profile's role_evidence (https://www.sec.gov/Archives/edgar/data/1526125/000110465926051006/gds-20251231x20f.htm), which bypasses the picker and should land the actual annual-report text a future run can extract verbatim revenue and income figures from.",
+  "Per method section 6A, a T1 filer may not use the yfinance-statements vendor bridge that unblocks T2/T3 profiles in this exact situation; GDS has a CIK (1526125), so that bridge does not apply here even though the practical effect (an empty XBRL pull) looks similar to a T2/T3 vendor gap.",
+  "Newly added sea-colocation-landlords placement (neocloud-export-compliance) rests on the same DayOne role evidence already verified for the offshore-and-periphery-capacity placement; it does not add a new financial-data gap beyond what this profile already carries."
  ],
  "disposition": {
   "state": "BLOCKED",
-  "as_of": "2026-09-13",
-  "basis": "Real, evidence-backed placements on both ai-infrastructure (hyperscale-datacenters) and data-center-moratoria (offshore-and-periphery-capacity). Every canonical metric field is NULL except valuation.market_cap (the one figure SEC companyfacts did return, from shares_fy plus the market price), because sec-companyfacts XBRL for this 20-F foreign private issuer contains no usable revenue, income, cash-flow or balance-sheet concepts (1 of 20 annual fields found), a known IFRS-filer coverage gap rather than a fetch failure. Not re-queuing 'fundamentals' per the pull-data skill's known-failure-modes guidance; an edgar_doc request for the actual 20-F filing text is queued as the productive alternate path. Status stays BLOCKED, data tier T1, opportunity tier O3."
+  "as_of": "2026-09-14",
+  "basis": "Real, evidence-backed placements on ai-infrastructure (hyperscale-datacenters), data-center-moratoria (offshore-and-periphery-capacity), and now neocloud-export-compliance (sea-colocation-landlords), all three resting on the same DayOne Southeast Asia colocation evidence. Every canonical metric field remains NULL except valuation.market_cap (the one figure SEC companyfacts returns, from shares_fy plus the market price): sec-companyfacts XBRL for this 20-F foreign private issuer still contains no usable revenue, income, cash-flow or balance-sheet concepts (1 of 20 annual fields found on the 2026-09-14 refetch), a known IFRS-filer coverage gap rather than a fetch failure. The edgar_doc request queued last run landed a thin 6-K index stub, not the 20-F; a targeted web_doc request for the exact 20-F URL is queued as the corrected alternate path. Status stays BLOCKED, data tier T1, opportunity tier O3; the new placement adds research value (a third chain's link coverage closed) without changing the financial-data blocker."
  },
  "confidence_audit": {
   "VERIFIED": 0,
@@ -213,6 +241,12 @@
    "by": "sieve-profiler",
    "kind": "BUILD",
    "change": "Created BLOCKED profile for GDS-HOLDINGS from the COMPLETE PASS-audited ai-infrastructure mapping (hyperscale-datacenters) and the ACTIVE data-center-moratoria mapping (offshore-and-periphery-capacity). data/market/GDS.json fundamentals coverage is 1 of 20 annual fields found (shares_fy only); every canonical field is NULL except valuation.market_cap. Status BLOCKED, data tier T1, opportunity tier O3. Queued REQ for kind edgar_doc, ticker GDS, to fetch the actual 20-F filing text as an alternate route around the SEC XBRL concept-mapping gap. run profile GDS, ai-infrastructure batch 2 of 3."
+  },
+  {
+   "ts": "2026-09-14T21:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "run profile GDS, neocloud-export-compliance batch 1: added the sea-colocation-landlords placement (link position 6, verdict EMERGING) resting on the same DayOne Southeast Asia role evidence already on file for offshore-and-periphery-capacity. Refetched data/market/GDS.json (2026-09-14): fundamentals coverage is still 1 of 20 annual fields found; every canonical metric field remains unchanged and NULL except valuation.market_cap. The prior edgar_doc request (REQ-20260913-1013) fulfilled against a thin 6-K index stub rather than the 20-F; queued a targeted web_doc request (REQ-20260914-719) for the exact 20-F URL instead. Status stays BLOCKED, data tier T1, opportunity tier O3; listing_refs, placements and prior tiers preserved."
   }
  ]
 }
