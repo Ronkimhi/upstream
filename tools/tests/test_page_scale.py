@@ -195,21 +195,39 @@ class TestEveryStoreIsCarriedWhole(ScaleFixtureCase):
         # Since 2026-09-13 the stock page draws fiscal-year fundamentals, so a dived
         # ticker carries its block whole; every other ticker's block still reaches no
         # template and stays in data/market.
+        #
+        # Since 2026-09-14 a dived ticker also keeps its full daily series (sampling
+        # COMPLETE); every other ticker is thinned to one point per ISO week (sampling
+        # WEEKLY, build._weekly_downsample) to hold the real page under the platform
+        # cap. `expected` below runs the SAME function app/build.py used, so this proves
+        # the round trip against the real trim, not a second copy of its logic.
         dived = set()
         for stock in self.payload["stocks"]:
             t = str(stock.get("ticker") or "")
             dived.add(t)
             dived.add(t.replace(".", "-"))
         carried = 0
+        weekly_seen = 0
         for ticker, doc in self.payload["market"].items():
             series = doc.get("series")
             self.assertIsNotNone(series, f"{ticker} lost its series")
-            self.assertEqual(series["sampling"], "COMPLETE")
-            self.assertEqual(series["inlined_rows"], series["row_count"])
             on_disk = json.loads((self.data / "market" / f"{ticker}.json").read_text())
             rows = (on_disk.get("series") or {}).get("rows") or []
-            self.assertEqual(_decode_series(series), rows,
-                             f"{ticker}: the compact series does not decode to the file")
+            self.assertEqual(series["row_count"], len(rows), f"{ticker}: row_count must "
+                             "still name the real daily count on disk even when thinned")
+            if ticker in dived:
+                self.assertEqual(series["sampling"], "COMPLETE")
+                self.assertEqual(series["inlined_rows"], series["row_count"])
+                expected = rows
+            else:
+                self.assertEqual(series["sampling"], "WEEKLY")
+                expected = build._weekly_downsample(rows)
+                self.assertEqual(series["inlined_rows"], len(expected))
+                if len(rows) > len(expected):
+                    weekly_seen += 1
+            self.assertEqual(_decode_series(series), expected,
+                             f"{ticker}: the compact series does not decode to the "
+                             f"{'file' if ticker in dived else 'expected weekly thinning'}")
             self.assertIn("quality", doc)
             for gone in ("insider", "prints", "legs"):
                 self.assertNotIn(gone, doc, f"{gone} reaches no template")
@@ -223,6 +241,9 @@ class TestEveryStoreIsCarriedWhole(ScaleFixtureCase):
                                  f"this ticker has no dive")
         self.assertGreater(carried, 0, "the fixture dives no ticker, so the rule that "
                                        "dived tickers carry fundamentals was not exercised")
+        self.assertGreater(weekly_seen, 0, "no non-dived ticker's fixture series had more "
+                           "than one row in some ISO week, so weekly thinning was never "
+                           "actually exercised by this fixture")
 
     def test_impact_carries_legs_and_excerpts(self):
         for appraisal in self.payload["impact"]:
@@ -243,8 +264,22 @@ class TestEveryStoreIsCarriedWhole(ScaleFixtureCase):
 
     def test_side_stores_are_whole(self):
         req = self.payload["requests"]
-        self.assertEqual(len(req["requests"]), req["total"])
+        # 2026-09-13: requests is the one declared exception to "all the data" in this
+        # class's docstring. The FULFILLED rows (1,809 of 1,865 on the real store that
+        # day) are cut to make room for the same run's new companies/placements/
+        # pipelines projections; `total` and `by_kind_status` still describe the WHOLE
+        # store, and `settled` is still the denominator the cut is measured against — a
+        # truthful cut, not a silent one, which is what this class actually enforces.
+        # The fixture writes "FULFILLED" for 19 of every 20 rows, so exactly 1/20 of
+        # SCALE["requests"] should survive as non-FULFILLED.
+        self.assertTrue(all(r.get("status") != "FULFILLED" for r in req["requests"]))
+        self.assertEqual(len(req["requests"]), SCALE["requests"] // 20)
         self.assertEqual(req["total"], SCALE["requests"])
+        self.assertEqual(req["settled"], req["total"] - len(req["requests"]))
+        self.assertIn("by_kind_status", req)
+        self.assertEqual(req["by_kind_status"].get("prices", {}).get("FULFILLED"),
+                         SCALE["requests"] - SCALE["requests"] // 20)
+        self.assertIn("latest_by_ticker", req)
         cands = self.payload["candidates"]
         self.assertEqual(len(cands["candidates"]), cands["total"])
         self.assertEqual(cands["total"], SCALE["candidates"])

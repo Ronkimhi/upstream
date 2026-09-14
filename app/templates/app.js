@@ -46,6 +46,11 @@
      here. The fallbacks keep an older page rendering, and they are the only copy left. */
   var METHOD = D.method || {};
   var MC = METHOD.money_corner || { impact_min: 60, crowd_max: 40, capture_min: 60 };
+  /* One standalone long-form report exists so far, hand-authored beside the app rather
+     than generated from data/chains/, and nothing on the chain page pointed to it. A
+     small explicit map, not a glob: an unreviewed file must never earn a link on its
+     own by landing in app/reports/. */
+  var CHAIN_REPORTS = { "h5n1-panzootic": "app/reports/h5n1-panzootic.html" };
 
   /* ---------------- helpers ---------------- */
   function esc(s) {
@@ -186,7 +191,11 @@
     // quality-score states (Piotroski F / Beneish M / Altman Z, tools/acis/quality.py)
     STRONG: "חזק", WEAK: "חלש", MIDDLING: "בינוני", CLEAN: "נקי", REVIEW: "לבדיקה", SAFE: "בטוח", GREY: "אפור", DISTRESS: "מצוקה",
     // cortex tiers by how unmapped a signal is
-    MAJOR: "גדול", "LONG TAIL": "זנב ארוך"
+    MAJOR: "גדול", "LONG TAIL": "זנב ארוך",
+    // data request kinds (the pull-data skill; pcs/edgar_doc/edgar_fts/cik stay Latin,
+    // the same acronym-and-proper-noun convention as DCF and EDGAR)
+    prices: "מחירים", fundamentals: "יסודות", insider: "בעלי עניין", quality: "איכות",
+    web_doc: "דף אינטרנט"
   };
   /* The Hebrew word for a machine token, or the token itself with its underscores spaced
      when no gloss exists (so a new status added tomorrow still reads, in Latin, rather
@@ -199,6 +208,137 @@
     var u = k.toUpperCase().replace(/[\s\-]+/g, "_");
     if (HE.hasOwnProperty(u)) return HE[u];
     return k.replace(/_/g, " ");
+  }
+  /* ---------------- cross-store indices (2026-09-13) ----------------
+     app/build.py's compact `companies`, `placements`, `pipelines` and `book`
+     projections exist so every object is reachable, from use case to value chain to
+     stocks to pipelines. These are the joins every view below shares, so no two views
+     invent a slightly different lookup that can silently disagree. */
+  /* byId() matches `.id` — companies and pipelines are keyed by `.issuer_id` instead, so
+     this is deliberately its own lookup rather than a byId() call that would silently
+     match nothing and read as "no profile" for every company, everywhere. */
+  function companyByIssuer(issuerId) {
+    if (!issuerId) return null;
+    for (var i = 0; i < (D.companies || []).length; i++) if (D.companies[i].issuer_id === issuerId) return D.companies[i];
+    return null;
+  }
+  /* Matches EITHER the listing's own ticker ("2330") or its resolved market file
+     ("2330-TW") — a bi-listed issuer (TSMC: NYSE ADR "TSM" AND TWSE "2330") needs both,
+     because the fetcher's filename is the form most links on this page actually carry.
+     Returns the specific listing that matched, not just the company: resolveCompany
+     uses it so a visit to the TWSE listing shows the TWSE chart, not the ADR's. */
+  function companyByTicker(ticker) {
+    var up = String(ticker || "").toUpperCase();
+    if (!up) return null;
+    for (var i = 0; i < (D.companies || []).length; i++) {
+      var ls = D.companies[i].listings || [];
+      for (var j = 0; j < ls.length; j++) {
+        if ((ls[j].ticker || "").toUpperCase() === up || (ls[j].market_file || "").toUpperCase() === up)
+          return { company: D.companies[i], listing: ls[j] };
+      }
+    }
+    return null;
+  }
+  /* The listing this company is shown under when only one can be picked: the first
+     listing whose market file was actually fetched, else the first listing at all. */
+  function primaryListing(co) {
+    var ls = (co && co.listings) || [];
+    for (var i = 0; i < ls.length; i++) if (ls[i].market_file) return ls[i];
+    return ls[0] || null;
+  }
+  function placementsForIssuer(issuerId) {
+    return (D.placements || []).filter(function (p) { return p.issuer_id === issuerId; });
+  }
+  function placementsForLink(chainId, linkId) {
+    return (D.placements || []).filter(function (p) { return p.chain_id === chainId && p.link_id === linkId; });
+  }
+  function screensForChainAll(chainId) {
+    return (D.screens || []).filter(function (s) { return s.chain_id === chainId; });
+  }
+  /* Every screen row naming this link, chain-wide AND every scenario screen — chainScreen()
+     (below, unchanged) still answers "the one chain-wide screen" for the pieces of the UI
+     that only ever meant that; this is the wider join the link modal needs so a scenario
+     screen's rows are not invisible on the very link they were written about. */
+  function screenRowsForLink(chainId, linkId) {
+    var out = [];
+    screensForChainAll(chainId).forEach(function (s) {
+      Object.keys(s.buckets || {}).forEach(function (k) {
+        (s.buckets[k] || []).forEach(function (r) {
+          if (r.link_id === linkId) out.push({ r: r, bucket: k, scenario_id: s.scenario_id || null });
+        });
+      });
+    });
+    return out;
+  }
+  function bookRowsForTicker(ticker) {
+    var up = String(ticker || "").toUpperCase();
+    return (((D.book || {}).rows) || []).filter(function (r) { return (r.ticker || "").toUpperCase() === up; });
+  }
+  function pipelineForIssuer(issuerId) {
+    if (!issuerId) return null;
+    for (var i = 0; i < (D.pipelines || []).length; i++) if (D.pipelines[i].issuer_id === issuerId) return D.pipelines[i];
+    return null;
+  }
+  function divesForIssuer(issuerId, ticker) {
+    var up = String(ticker || "").toUpperCase();
+    return (D.stocks || []).filter(function (s) {
+      return (issuerId && s.issuer_id === issuerId) || (up && (s.ticker || "").toUpperCase() === up);
+    });
+  }
+  /* The identity behind #/company/<key>: a profiled issuer, or — since every mapping
+     placement and every pipeline names an issuer whether or not it has been profiled —
+     whatever the placements or pipeline stores already know about it. `key` may be an
+     issuer_id or a ticker; this is the one place that tells the two apart so stockView's
+     fallthrough, linkModal's placement rows and every other caller agree on one company. */
+  function resolveCompany(key) {
+    if (!key) return null;
+    var byIssuer = companyByIssuer(key);
+    if (byIssuer) {
+      var primary = primaryListing(byIssuer);
+      return { issuerId: byIssuer.issuer_id, ticker: primary ? primary.ticker : null,
+               marketFile: primary ? primary.market_file : null, company: byIssuer };
+    }
+    var hit = companyByTicker(key);
+    if (hit) {
+      return { issuerId: hit.company.issuer_id, ticker: hit.listing.ticker,
+               marketFile: hit.listing.market_file, company: hit.company };
+    }
+    var up = String(key).toUpperCase();
+    var pl = null;
+    (D.placements || []).some(function (p) {
+      if (p.issuer_id === key || (p.ticker && p.ticker.toUpperCase() === up) ||
+          (p.market_file && p.market_file.toUpperCase() === up)) { pl = p; return true; }
+      return false;
+    });
+    if (pl) return { issuerId: pl.issuer_id, ticker: pl.ticker, marketFile: pl.market_file, company: null };
+    var pipe = pipelineForIssuer(key);
+    if (pipe) return { issuerId: pipe.issuer_id, ticker: pipe.ticker,
+                       marketFile: marketFor(pipe.ticker) ? String(pipe.ticker).replace(/\./g, "-") : null,
+                       company: null };
+    // Last resort: a bare ticker that resolves against the market store directly (a
+    // plain US-style symbol; a foreign one needing an exchange suffix and named nowhere
+    // else on the page has no safe resolution here and is left unfound).
+    if (marketFor(key)) return { issuerId: null, ticker: key,
+                                 marketFile: String(key).replace(/\./g, "-"), company: null };
+    return null;
+  }
+  /* One canonical metric leaf, {v,t} (app/build.py's `_trim_metric_leaf`; d/s/u/o —
+     source date, name, url, official flag — dropped 2026-09-14 to hold the companies
+     store under its page-diet budget, so this leaf shows value and tag only, and a
+     reader after the full citation follows the "Full evidence..." link the company page
+     prints to data/companies/<issuer_id>.json). Renders the honest NULL state exactly
+     like every other score-shaped value on this page: `!= null`, never a fallback
+     standing in for it. */
+  function companyMetric(leaf, fmt) {
+    if (!leaf || leaf.v == null) {
+      var why = leaf && (leaf.t === "NULL" || leaf.t === "PENDING_DATA") ? (leaf.s || leaf.t) : null;
+      return "<span class='muted'>" + (why ? esc(why) : "אין נתון בתיק") + "</span>";
+    }
+    var val = fmt ? fmt(leaf.v) : esc(leaf.v);
+    return "<span class='num'>" + val + "</span>" + (leaf.t ? " " + chip(leaf.t) : "") +
+      (leaf.s ? " <span class='muted small'>[" +
+        (leaf.u ? "<a href='" + esc(leaf.u) + "' target='_blank' rel='noopener'>" + esc(leaf.s) + "</a>" : esc(leaf.s)) +
+        (leaf.d ? ", " + esc(leaf.d) : "") + (leaf.o === false ? ", לא רשמי" : "") + "]</span>" : "");
   }
 
   /* ---------------- agents ----------------
@@ -559,6 +699,7 @@
       na("#/radar", "רדאר", "radar") +
       na(navHrefChains(), (D.chains || []).length === 1 ? "שרשרת" : "שרשראות", "chain") +
       na("#/campaign", "קמפיין", "campaign") +
+      na("#/pipeline", "צנרת", "pipeline") +
       na("#/themes", "יומן", "themes") +
       na("#/agents", "סוכנים", "agents") +
       na("#/book", "עסקאות", "book") +
@@ -624,11 +765,17 @@
     (D.chains || []).forEach(function (c) { nScen += (c.scenarios || []).length; });
     var nVer = (D.stocks || []).length;
     var one = (D.chains || [])[0];
+    // A chain-wide screen's scenario_id is null, and the old link appended it anyway —
+    // "#/screen/ai-infrastructure/null" — which screenView reads as a scenario id string
+    // "null" that matches nothing. Only append a scenario segment when the first screen
+    // actually has one.
+    var scr0 = (D.screens || [])[0];
+    var scrHref = scr0 ? ("#/screen/" + scr0.chain_id + (scr0.scenario_id ? "/" + scr0.scenario_id : "")) : "#/radar";
     var stages = [
       { n: nSig, l: "אותות", href: "#/radar" },
       { n: nCh, l: nCh === 1 ? "שרשרת" : "שרשראות", href: navHrefChains() },
       { n: nScen, l: "תרחישים", href: one ? "#/chain/" + one.id + "/scen" : "#/radar" },
-      { n: nScr, l: "סריקות", href: nScr && one ? "#/screen/" + D.screens[0].chain_id + "/" + D.screens[0].scenario_id : "#/radar" },
+      { n: nScr, l: "סריקות", href: nScr ? scrHref : "#/radar" },
       { n: nVer, l: "הכרעות", href: nVer ? "#/stock/" + D.stocks[0].ticker + "/" + D.stocks[0].chain_id : "#/radar" },
     ];
     var W = 520, H = 132, n = stages.length, gap = 14, segW = (W - gap * (n - 1)) / n;
@@ -877,26 +1024,29 @@
      the chain is, and a page that showed only one of the two would quietly restate the
      hunt. An occurrence with no appraisal says so and offers the command, rather than
      rendering a blank where a score would go. */
-  function impactCard(s) {
-    var a = impactFor(s.id);
+  /* One occurrence's appraisal, every state (app/build.py carries appraisals whole since
+     2026-09-04): unappraised, UNRANKED, or the four legs with rationale and every cited
+     source's verbatim excerpt. Shared by signalView (impactCard, below) and by
+     candidateView — a candidate is appraisable under the exact same `run impact
+     <CAND-id>` contract a signal is, and until 2026-09-13 its legs rendered nowhere but
+     a chip in the cortex drawer. `extraChips` lets a caller add its own header chip
+     (impactCard's "unmapped N" has no equivalent on a candidate) without forking this. */
+  function impactBlock(a, occId, extraChips) {
+    extraChips = extraChips || "";
     if (!a) {
-      return seclabel("השפעה כספית") +
-        "<div class='card'><div class='small muted'>עדיין לא הוערך. הציון של כמה זה לא ממופה אומר " +
+      return "<div class='card'><div class='small muted'>עדיין לא הוערך. הציון של כמה זה לא ממופה אומר " +
         "כמה השרשרת הזאת לא ממופה. שום דבר כאן לא אומר כמה כסף בר-השקעה עומד מאחוריה.</div>" +
-        "<div style='margin-top:10px'>" + runButton("run impact " + s.id,
+        "<div style='margin-top:10px'>" + runButton("run impact " + occId,
           "מודד את הכסף שעל הפרק, כמה ממנו מגיע לחברות נסחרות, האם הוא נשמר " +
           "כרווח, ואם זה קורה בתוך אופק הזמן") + "</div></div>";
     }
     if (a.impact_band === "UNRANKED") {
-      return seclabel("השפעה כספית") +
-        "<div class='card'><div class='row'>" + impactChip(a) + staleChip(a.as_of) + "</div>" +
+      return "<div class='card'><div class='row'>" + impactChip(a) + extraChips + staleChip(a.as_of) + "</div>" +
         "<div class='small' style='margin-top:8px'>" + esc(a.unranked_reason ||
           "לא ניתן היה למצוא מקור לאחת הרגליים.") + "</div>" +
         "<div class='small muted' style='margin-top:6px'>לא נמצא אומדן כספי מפורסם. זה " +
         "ממצא על כמה מוקדם ההתרחשות הזאת, לא פער בכתיבה.</div></div>";
     }
-    /* The four legs, each with its rationale and every cited source's verbatim excerpt
-       (app/build.py carries appraisals whole since 2026-09-04). */
     var file = a.id ? "data/impact/" + a.id + ".json" : "data/impact/";
     var legs = [
       ["הכסף שעל הפרק", (a.money_at_stake || {}).band, a.money_at_stake],
@@ -915,15 +1065,19 @@
       ? "<div class='small muted' style='margin-top:10px'><b>ביקורת מהימנות:</b> " +
         Object.keys(ca).map(function (k) { return esc(k) + " " + esc(typeof ca[k] === "object" ? JSON.stringify(ca[k]) : ca[k]); }).join(" · ") + "</div>"
       : "";
-    return seclabel("השפעה כספית") +
-      "<div class='card'><div class='row'>" + impactChip(a) +
-      chip("לא ממופה " + num((s.unmappedness || {}).score)) + staleChip(a.as_of) +
+    return "<div class='card'><div class='row'>" + impactChip(a) + extraChips +
+      staleChip(a.as_of) +
       (a.review_by ? "<span class='muted'>לבדיקה עד <span class='num'>" + esc(a.review_by) + "</span></span>" : "") + "</div>" +
       "<div class='small' style='margin-top:8px'>" + esc(impactTitle(a)) + "</div>" +
       "<div style='margin-top:10px'>" + legs + "</div>" + audit +
       ((a.ticker_refs || []).length ? "<div class='small muted' style='margin-top:6px'>טיקרים שאוזכרו: " + esc((a.ticker_refs || []).map(function (t) { return typeof t === "string" ? t : (t.ticker || JSON.stringify(t)); }).join(", ")) + "</div>" : "") +
       "<div class='small muted' style='margin-top:8px'>הקובץ הקנוני: <span class='mono'>" + esc(file) + "</span></div>" +
       notesBlock(a) + changelogBlock(a) + "</div>";
+  }
+  function impactCard(s) {
+    var a = impactFor(s.id);
+    return seclabel("השפעה כספית") +
+      impactBlock(a, s.id, chip("לא ממופה " + num((s.unmappedness || {}).score)));
   }
 
   function signalView(id) {
@@ -948,6 +1102,47 @@
       notesBlock(s) + changelogBlock(s) + footer() + "</main>";
   }
 
+  /* ---------------- candidate & calendar event ----------------
+     Until 2026-09-13 these existed only as a node on the cortex canvas: click through to
+     cortexDrawer() and see a title, a why, and — for a candidate — an impact CHIP with no
+     legs behind it (impactCard rendered legs only inside signalView, so 30-odd appraisals
+     of candidates never showed their reasoning anywhere). Real, addressable pages: a
+     candidate's `run impact <CAND-id>` legs render in full, and both link to whatever
+     they were promoted to. cortexDrawer() below still exists as the quick canvas preview
+     and now points here for the rest. */
+  function candidateView(id) {
+    var c = byId((D.candidates || {}).candidates || [], id);
+    if (!c) return notFound("candidate " + id);
+    return topbar("cortex") + crumbs([{ label: "קורטקס", href: "#/cortex" }, { label: c.title || id }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip(c.family) + chip(c.date, "neutral") +
+      chip(c.status, c.status === "PROMOTED" ? "accent" : "neutral") + impactChip(impactFor(c.id)) + "</div>" +
+      "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(c.why || "") + "</p></div>" +
+      "<div class='small muted'>[" + esc(c.source_name || "") +
+      (c.source_date ? ", " + esc(c.source_date) : "") + "]" +
+      (c.first_feed_ts ? " · נצפה לראשונה " + esc(c.first_feed_ts) +
+        (c.feed_source ? " (" + esc(c.feed_source) + ")" : "") : "") + "</div>" +
+      (c.promoted_signal_id
+        ? "<div style='margin-top:14px'><a class='chip accent' href='#/signal/" + esc(c.promoted_signal_id) + "'>פתח את האות שקודם →</a></div>"
+        : "<div style='margin-top:14px'>" + runButton("run radar", "הרצת הרדאר מחליטה אם המועמד הזה מקבל כרטיס אות מלא (method §0.1)") + "</div>") +
+      seclabel("השפעה כספית") + impactBlock(impactFor(c.id), c.id) +
+      changelogBlock(c) + footer() + "</main>";
+  }
+  function eventView(id) {
+    var e = byId(((D.calendar || {}).events || []), id);
+    if (!e) return notFound("אירוע " + id);
+    return topbar("cortex") + crumbs([{ label: "קורטקס", href: "#/cortex" }, { label: e.title || id }]) + "<main>" +
+      '<div class="pagehead"><div class="row">' + chip(e.kind) + chip(e.date, "neutral") +
+      chip(e.status, e.status === "PROMOTED" ? "accent" : "neutral") + "</div>" +
+      "<h1>" + esc(e.title) + "</h1><p class='sub'>" + esc(e.why_it_matters || "") + "</p></div>" +
+      "<div class='small muted'>[" + (e.url
+        ? "<a href='" + esc(e.url) + "' target='_blank' rel='noopener'>" + esc(e.source_name || "מקור") + "</a>"
+        : esc(e.source_name || "")) + (e.source_date ? ", " + esc(e.source_date) : "") + "]</div>" +
+      (e.promoted_signal_id
+        ? "<div style='margin-top:14px'><a class='chip accent' href='#/signal/" + esc(e.promoted_signal_id) + "'>פתח את האות שקודם →</a></div>"
+        : "<div style='margin-top:14px'><span class='muted'>במעקב, עדיין לא קודם לכרטיס אות.</span></div>") +
+      changelogBlock(e) + footer() + "</main>";
+  }
+
   /* ---------------- chain ----------------
      A finished chain is ~200 KB on disk and ~140 KB projected, and ten of them is 70% of
      the whole file's budget, so app/build.py made chains elastic the way dives already
@@ -959,7 +1154,7 @@
      same rule seriesNote() follows. */
   function chainPath(c) { return "data/chains/" + ((c && c.id) || "") + ".json"; }
   var chainTab = "flow";
-  function chainView(id, tab) {
+  function chainView(id, tab, openLinkId) {
     var c = byId(D.chains, id);
     if (!c) return notFound("chain " + id);
     chainTab = (tab === "heat" || tab === "scen" || tab === "flow" || tab === "graph") ? tab : "flow";
@@ -967,6 +1162,13 @@
     var scored = links.filter(isPlottable);
     var money = links.filter(function (l) { return l.heat && l.heat.money_corner; });
     var body = chainTab === "heat" ? heatTab(c, links, scored) : chainTab === "scen" ? scenTab(c) : chainTab === "graph" ? graphTab(c, links) : flowTab(c, links);
+    // A 4th hash segment (#/chain/<id>/<tab>/<linkId>) opens that link's modal on load —
+    // "every placement links to that chain with the link opened" (company page) needs a
+    // real target, not just the chain. A SEPARATE host from the click-driven #drawerHost
+    // below: this one is wired once in wire() and never collides with the flow/graph
+    // tabs' own empty #drawerHost placeholder.
+    var openLink = openLinkId ? byId(c.links, openLinkId) : null;
+    var deepModal = openLink ? "<div id='deepLinkDrawerHost'>" + linkModal(c, openLink) + "</div>" : "";
     var subtitle = scored.length
       ? (money.length ? "פינת הכסף: " + money.map(function (l) { return l.name; }).join(", ") + ". " : "עדיין אין חוליה שעוברת את שלושת הספים. ") +
         scored.length + " מתוך " + links.length + " חוליות נוקדו, נכון ל " + (c.heat_as_of || "לא ידוע") + "."
@@ -974,13 +1176,15 @@
     return topbar("chain") + crumbs([{ label: sigTitle(c.signal_id), href: "#/signal/" + c.signal_id }, { label: c.title }]) + "<main>" +
       '<div class="pagehead"><div class="row">' + chip(c.clock) + (money.length ? '<span class="chip UNDISCOVERED">★ ' + esc(money.map(function (l) { return l.name; }).join(" · ")) + "</span>" : "") + staleChip(c.heat_as_of) +
       (c.chain_fidelity && c.chain_fidelity !== "FULL" ? chip("נאמנות מופחתת", "CROWDED") : "") + "</div>" +
-      "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p></div>" +
+      "<h1>" + esc(c.title) + "</h1><p class='sub'>" + esc(subtitle) + "</p>" +
+      (CHAIN_REPORTS[c.id] ? "<a class='chip accent' href='" + esc(CHAIN_REPORTS[c.id]) +
+        "' target='_blank' rel='noopener'>קרא את הדוח המלא →</a>" : "") + "</div>" +
        chainScreenAction(c) + mapCard(c.id) +
       '<div class="seg">' +
       [["flow", "זרימה"], ["graph", "גרף"], ["heat", "מפת חום"], ["scen", "תרחישים"]].map(function (k) {
         return '<button class="' + (chainTab === k[0] ? "on" : "") + '" data-tab="' + k[0] + '" data-chain="' + esc(c.id) + '">' + k[1] + "</button>";
       }).join("") + "</div>" + body +
-      notesBlock(c) + changelogBlock(c) + footer() + "</main>";
+      notesBlock(c) + changelogBlock(c) + footer() + "</main>" + deepModal;
   }
   function sigTitle(id) { var s = byId(D.signals, id); return s ? s.title : id; }
   function triad(h) {
@@ -1064,27 +1268,65 @@
       ((l.evidence || []).length ? "<h3>מקורות המפה</h3><div class='small muted'>" + (l.evidence.length === 1 ? "מקור מתוארך אחד מאחורי החוליה הזאת" : l.evidence.length + " מקורות מתוארכים מאחורי החוליה הזאת") + "</div>" + evList(l.evidence) : "<h3>מקורות המפה</h3><div class='small muted'>לא נרשם מקור מתוארך לחוליה הזאת</div>") +
       (h.verdict ? "" : "<div style='margin-top:16px'>" + runButton("run heat " + c.id, "מדרג כל חוליה שלא נוקדה, עם ראיות שנמשכו", { compact: true }) + "</div>");
 
-    var sc = chainScreen(c.id);
-    var rows = [];
-    if (sc) Object.keys(sc.buckets || {}).forEach(function (k) { (sc.buckets[k] || []).forEach(function (r) { if (r.link_id === l.id) rows.push({ r: r, bucket: k }); }); });
+    // Every mapping placement on this link, whether or not it has ever been screened —
+    // 108 of 148 links show no stocks from the screen alone, and a placement is real
+    // evidence of a listed issuer on this link even before a screen or a dive exists.
+    var placements = placementsForLink(c.id, l.id);
+    var placementsHTML = "";
+    if (placements.length) {
+      placementsHTML = "<div class='stocks-h'>חברות ממופות על החוליה <span class='num'>" + placements.length + "</span></div>" +
+        placements.map(function (p) {
+          var co = companyByIssuer(p.issuer_id);
+          var name = (co && co.issuer_name) || p.issuer_name || p.ticker || p.issuer_id;
+          return "<div class='evli'><a href='#/company/" + esc(p.issuer_id) + "'>" + esc(name) + "</a>" +
+            (p.ticker ? " <span class='muted'>" + esc(p.ticker) + "</span>" : "") + " " +
+            tierChip(co ? co.data_tier : null) +
+            (co ? chip(co.status, co.status === "COMPLETE" ? "accent" : "neutral") : chip("אין פרופיל", "stale")) +
+            chip(p.market_file ? "יש נתוני שוק" : "עדיין אין נתוני שוק", p.market_file ? "accent" : "stale") +
+            (p.status && p.status !== "ACTIVE" ? chip(p.status) : "") +
+            (p.role ? "<div class='small muted' style='margin-top:3px'>" + esc(p.role) + "</div>" : "") +
+            "</div>";
+        }).join("");
+    }
+
+    // Screen rows from EVERY screen naming this link — the chain-wide screen and every
+    // scenario screen, which chainScreen() alone used to leave out entirely.
+    var rows = screenRowsForLink(c.id, l.id);
     var seen = {};
     rows.forEach(function (x) { seen[x.r.ticker] = 1; });
     var stocks;
     if (rows.length) {
-      stocks = rows.map(function (x) { return stockCard(c, x.r, x.bucket); }).join("");
-      var others = (l.example_tickers || []).filter(function (t) { return !seen[t]; });
-      if (others.length) stocks += "<div class='stk-more'><h4>שמות נוספים בחוליה</h4><div class='row'>" + others.map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small' style='margin-top:6px'>עדיין לא נסרקו, לא נמשכו נתונים</div></div>";
+      stocks = rows.map(function (x) { return stockCard(c, x.r, x.bucket, x.scenario_id); }).join("");
     } else {
       stocks = "<div class='stk-empty'>עדיין לא נסרקו מניות לחוליה הזאת." +
-        ((l.example_tickers || []).length ? "<div class='row' style='margin:10px 0'>" + (l.example_tickers || []).map(function (t) { return chip(t, "neutral"); }).join("") + "</div><div class='muted small'>רק שמות לדוגמה, הרץ סריקה כדי להעריך אותן ולמשוך נתונים</div>" : "") +
-        "<div style='margin-top:12px'>" + runButton("run screen " + c.id, "סורק כל חוליה בשרשרת הזאת לחיפוש חברות נסחרות", { compact: true }) + "</div></div>";
+        (placements.length ? "" : "<div style='margin-top:12px'>" + runButton("run screen " + c.id, "סורק כל חוליה בשרשרת הזאת לחיפוש חברות נסחרות", { compact: true }) + "</div>") +
+        "</div>";
+    }
+    // "עדיין לא נסרק, לא נמשכו נתונים" הודפס גם כשקובץ שוק כבר היה קיים לשם. כל טיקר
+    // לדוגמה מקושר עכשיו לעמוד החברה שלו, ואם data/book.json או data/market כבר הביטו
+    // בו, הטקסט אומר מה שבאמת ידוע במקום האזהרה הגורפת.
+    var others = (l.example_tickers || []).filter(function (t) { return !seen[t]; });
+    if (others.length) {
+      stocks += "<div class='stk-more'><h4>שמות נוספים בחוליה</h4>" +
+        others.map(function (t) {
+          var mk = marketFor(t);
+          var br = bookRowsForTicker(t).filter(function (b) { return b.chain_id === c.id; })[0];
+          var bits = [];
+          if (br && br.price != null) bits.push(fmtMoney(br.price));
+          if (br && br.piotroski != null) bits.push("ציון Piotroski " + br.piotroski + "/9");
+          var status = bits.length ? bits.join(" · ")
+            : mk ? "יש נתוני שוק בתיק, עדיין לא נסרק"
+            : "עדיין לא נמשכו נתוני שוק";
+          return "<div class='evli'><a href='#/company/" + esc(t) + "'>" + esc(t) + "</a> <span class='muted small'>" + esc(status) + "</span></div>";
+        }).join("") + "</div>";
     }
 
     return '<div class="scrim" data-closedrawer></div><div class="modal-card" role="dialog" aria-label="' + esc(l.name) + '"><button class="x" data-closedrawer>✕</button>' +
       '<div class="modal-head">' + chips + "<h2>" + esc(l.name) + "</h2><p class='small'>" + esc(l.role) + "</p></div>" +
       '<div class="modal-body">' +
         '<div class="modal-pane modal-analysis">' + analysis + "</div>" +
-        '<div class="modal-pane modal-stocks"><div class="stocks-h">מניות בחוליה הזאת' + (rows.length ? " <span class='num'>" + rows.length + "</span>" : "") + "</div>" + stocks + "</div>" +
+        '<div class="modal-pane modal-stocks">' + placementsHTML +
+        '<div class="stocks-h">מניות בחוליה הזאת' + (rows.length ? " <span class='num'>" + rows.length + "</span>" : "") + "</div>" + stocks + "</div>" +
       "</div></div>";
   }
 
@@ -1092,7 +1334,7 @@
   // (curated, VERIFIED-tagged); cap/price/52w from row.valuation. Every figure renders
   // only when it is really present: absent is a muted "n/a", never an invented number,
   // and a legitimate 0 (a low Piotroski) renders as 0. See tools/check_render.py.
-  function stockCard(c, r, bucket) {
+  function stockCard(c, r, bucket, scenId) {
     var f = (r.fundamentals && typeof r.fundamentals === "object") ? r.fundamentals : null;
     var v = (r.valuation && typeof r.valuation === "object") ? r.valuation : null;
     // screen buckets (pure_play, picks_and_shovels, second_order, hedge) render via he(bucket)
@@ -1126,7 +1368,7 @@
       (r.status ? chip(r.status) : "");
 
     return "<div class='stockcard'>" +
-      "<div class='sc-head'><div class='sc-id'><span class='sc-tk'>" + esc(r.ticker) + "</span>" + (r.money_corner ? "<span class='star' title='פינת הכסף'>★</span>" : "") + tierChip(r.tier) + "<span class='sc-bkt'>" + esc(he(bucket)) + "</span></div><div class='sc-co'>" + esc(r.name || "") + (r.exchange ? " · " + esc(r.exchange) : "") + "</div></div>" +
+      "<div class='sc-head'><div class='sc-id'><a class='sc-tk' href='#/company/" + esc(r.ticker) + "'>" + esc(r.ticker) + "</a>" + (r.money_corner ? "<span class='star' title='פינת הכסף'>★</span>" : "") + tierChip(r.tier) + "<span class='sc-bkt'>" + esc(he(bucket)) + "</span>" + (scenId ? chip(scenId) : "") + "</div><div class='sc-co'>" + esc(r.name || "") + (r.exchange ? " · " + esc(r.exchange) : "") + "</div></div>" +
       (r.thesis_1line ? "<div class='sc-thesis'>" + esc(r.thesis_1line) + "</div>" : "") +
       "<div class='sc-grid'>" +
         stat("שווי שוק", cap) + stat("מחיר", px) + stat("טווח 52 שבועות", w52) +
@@ -1669,9 +1911,14 @@
        nobody could read it. Same defect as price_source_note: gate-required, invisible. */
     var linkc = "";
     if (st.link_id || str_or_empty(st.link_id_basis)) {
+      // A span read as a name with nowhere to go; the link's own modal (opened straight
+      // to it via chainView's 4th hash segment) is always the real destination once c and
+      // st.link_id agree.
       linkc = "<div class='card'><h3>החוליה בשרשרת</h3><div class='row' style='gap:6px;flex-wrap:wrap'>" +
-        (st.link_id ? chip(c ? linkName(c, st.link_id) : st.link_id, "accent")
-                    : chip("לא שויך", "stale")) +
+        (st.link_id
+          ? (c ? "<a class='chip accent' href='#/chain/" + esc(c.id) + "/flow/" + esc(st.link_id) + "'>" + esc(linkName(c, st.link_id)) + "</a>"
+               : chip(st.link_id, "accent"))
+          : chip("לא שויך", "stale")) +
         "</div>" +
         (str_or_empty(st.link_id_basis)
           ? "<div class='small' style='margin-top:8px'>" + esc(st.link_id_basis) + "</div>" : "") +
@@ -1814,13 +2061,16 @@
     return s + "</div>";
   }
   /* What this page is holding of a price series, in the page's own words. Since
-     2026-09-04 app/build.py carries every ticker's full daily series, so this states
-     the count against the file and can only disagree with it if the build broke. */
+     2026-09-14 a ticker with a dive carries every daily point (sampling COMPLETE); every
+     other ticker is thinned to one point per ISO week (sampling WEEKLY, app/build.py's
+     _weekly_downsample) to hold the real build under the platform's byte cap. Both cases
+     say so and name the full daily count on the file this page cannot draw beyond. */
   function seriesNote(mk, ticker) {
     var s = (mk || {}).series;
     if (!s || s.row_count == null) return "";
     var path = "data/market/" + String(ticker || "").replace(/\./g, "-") + ".json";
     var have = (s.rows || []).length;
+    if (s.sampling === "WEEKLY") return have + " נקודות שבועיות, אחת לכל שבוע ISO, מתוך " + s.row_count + " נקודות מחיר יומיות בדיסק (צלילה מציגה כל יום) · " + path;
     if (have < s.row_count) return have + " מתוך " + s.row_count + " נקודות מחיר בעמוד הזה (תקלת בנייה: העמוד אמור לשאת את כולן) · " + path;
     return "כל " + s.row_count + " נקודות המחיר היומיות בדיסק · " + path;
   }
@@ -2354,6 +2604,226 @@
       return v > 0 ? "<i style='flex:" + v + ";background:" + p[1] + "'></i>" : "";
     }).join("") + "</div>";
   }
+  /* ---------------- company ----------------
+     #/company/<issuer_id or ticker>: the one page that resolves for ANY object naming an
+     issuer. Before 2026-09-13 only a dived ticker had a page at all — 446 of 460 market
+     files, all 193 company profiles and every one of ~457 mapping placements had none.
+     resolveCompany() (near the top of this file) is the one identity join every section
+     below shares, so a ticker, an issuer_id, a mapped-but-unprofiled name and a fetched
+     market file with nothing else known about it all land on one honest page instead of
+     four different kinds of dead end. */
+  function screenRowsForTicker(ticker) {
+    var up = String(ticker || "").toUpperCase();
+    var out = [];
+    (D.screens || []).forEach(function (s) {
+      Object.keys(s.buckets || {}).forEach(function (k) {
+        (s.buckets[k] || []).forEach(function (r) {
+          if ((r.ticker || "").toUpperCase() === up)
+            out.push({ r: r, bucket: k, chain_id: s.chain_id, scenario_id: s.scenario_id || null, screen_as_of: s.as_of });
+        });
+      });
+    });
+    return out;
+  }
+  var COMPANY_METRIC_GROUP_LABEL = { revenue: "הכנסות", growth: "צמיחה", margins: "שולי רווח",
+    cash_conversion: "המרה למזומן", leverage: "מינוף", quality: "איכות",
+    valuation: "תמחור", reverse_dcf: "DCF הפוך" };
+  function companyMetricsCard(metrics) {
+    var groups = Object.keys(metrics || {});
+    if (!groups.length) return "";
+    return seclabel("מדדים") + "<div class='statgrid'>" + groups.map(function (g) {
+      var keys = Object.keys(metrics[g]);
+      return "<div class='card'><h3>" + esc(COMPANY_METRIC_GROUP_LABEL[g] || g) + "</h3><div class='kv'>" +
+        keys.map(function (k) {
+          return "<dt>" + esc(k.replace(/_/g, " ")) + "</dt><dd>" + companyMetric(metrics[g][k]) + "</dd>";
+        }).join("") + "</div></div>";
+    }).join("") + "</div>";
+  }
+  /* app/build.py's `_trim_claims`: {c,d,u} short keys (2026-09-14), the same move
+     `_trim_metric_leaf` already makes for the same page-budget reason. */
+  function companyClaimList(items, total) {
+    if (!items.length) return "<div class='small muted'>לא נרשם כלום בתיק.</div>";
+    return "<div class='small muted' style='margin-bottom:6px'>" +
+      (total > items.length ? "מוצגים " + items.length + " מתוך " + total : items.length) + "</div>" +
+      items.map(function (i) {
+        return "<div class='evli'>" + esc(i.c) +
+          (i.d || i.u ? " <span class='muted'>[" +
+            (i.u ? "<a href='" + esc(i.u) + "' target='_blank' rel='noopener'>" + esc(i.d || "מקור") + "</a>" : esc(i.d)) +
+            "]</span>" : "") + "</div>";
+      }).join("");
+  }
+  function companyListingRow(l) {
+    return "<div class='evli'>" + esc(l.ticker || "?") +
+      (l.exchange ? " <span class='muted'>" + esc(l.exchange) + "</span>" : "") + " " +
+      chip(l.market_file ? "יש נתוני שוק" : "לא נמשך עדיין", l.market_file ? "accent" : "stale") +
+      "</div>";
+  }
+  function companyView(key) {
+    var res = resolveCompany(key);
+    if (!res) return notFound("company " + key);
+    var co = res.company;
+    var mk = res.marketFile ? marketFor(res.marketFile) : null;
+    var placements = res.issuerId ? placementsForIssuer(res.issuerId) : [];
+    var screenRows = res.ticker ? screenRowsForTicker(res.ticker) : [];
+    var dives = divesForIssuer(res.issuerId, res.ticker);
+    var pipeline = res.issuerId ? pipelineForIssuer(res.issuerId) : null;
+    var reqLatest = res.ticker ? ((((D.requests || {}).latest_by_ticker) || {})[String(res.ticker).toUpperCase()]) : null;
+    // priceChart/qualityCard read a dive's zone/grade fields, all optional; a company
+    // page draws no dive-specific interpretation of its own, only the raw chart and
+    // whatever quality block the market file itself carries.
+    // priceChart/seriesNote build data/market/<T>.json from st.ticker by a plain dot
+    // dash swap; that is right for a ticker that already IS the fetched form and wrong
+    // for a bare local code like TSMC's "2330" (fetched as 2330-TW.json). marketFile,
+    // when this listing resolved to one, already IS that fetched form.
+    var stub = { ticker: res.marketFile || res.ticker, events: [] };
+
+    var title = (co && co.issuer_name) || (placements[0] && placements[0].issuer_name) || res.ticker || res.issuerId || key;
+    var head = '<div class="pagehead"><div class="row">' +
+      (co ? chip(co.status, co.status === "COMPLETE" ? "accent" : co.status === "BLOCKED" ? "verystale" : "neutral")
+          : chip("עדיין אין פרופיל", "stale")) +
+      (co && co.data_tier ? tierChip(co.data_tier) : "") +
+      (co && co.opportunity_tier ? opportunityChip(co.opportunity_tier) : "") +
+      (co ? staleChip(co.as_of) : "") + "</div>" +
+      "<h1>" + esc(title) + (res.ticker && title !== res.ticker
+        ? ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(res.ticker) + "</span>" : "") + "</h1></div>";
+
+    var listings = (co && (co.listings || []).length) ? co.listings :
+      (res.ticker ? [{ ticker: res.ticker, exchange: null, market_file: res.marketFile }] : []);
+    var idCard = "<div class='card'><h3>זהות ורישומים</h3>" +
+      (res.issuerId ? "<div class='small muted'>" + esc(res.issuerId) + "</div>" : "") +
+      (listings.length ? listings.map(companyListingRow).join("")
+        : "<div class='small muted'>אין רישום בתיק לחברה הזאת.</div>") + "</div>";
+
+    var priceSection = mk ? seclabel("מחיר") + "<div class='card'>" + priceChart(mk, stub) + "</div>"
+      : seclabel("מחיר") + "<div class='emptystate'>עדיין לא נמשך קובץ שוק לטיקר הזה." +
+        (res.ticker ? "<div class='runwrap'>" + runButton("request data " + res.ticker, "מחירים + יסודות + איכות, כ-5 דקות") + "</div>" : "") + "</div>";
+    var qualc = mk ? qualityCard(mk, stub) : "";
+
+    var fh = mk && mk.fundamentals_headline;
+    var fundCard = "";
+    if (fh) {
+      fundCard = "<div class='card'><h3>תמצית יסודות</h3>" +
+        "<div class='small muted'>" + esc(fh.source || "") + (fh.as_of ? ", נכון ל " + esc(fh.as_of) : "") +
+        (fh.official_source === false ? " — צבירה של ספק חיצוני, לא דיווח רשמי" : fh.official_source ? " — דיווח רשמי" : "") +
+        "</div><div class='kv' style='margin-top:8px'>" +
+        Object.keys(fh.fields).map(function (k) {
+          var v = fh.fields[k];
+          return "<dt>" + esc(k.replace(/_fy$/, "").replace(/_/g, " ")) + "</dt><dd class='num'>" +
+            (typeof v.value === "number" ? fmtMoney(v.value) : esc(v.value)) +
+            " <span class='muted'>[" + esc(v.date) + "]</span></dd>";
+        }).join("") + "</div></div>";
+    }
+
+    var profileHTML;
+    var coFile = co ? "data/companies/" + co.issuer_id + ".json" : "";
+    if (co) {
+      profileHTML = seclabel("פרופיל") +
+        (co.business_summary ? "<div class='card'><h3>העסק</h3><div class='small'>" + esc(co.business_summary) + "</div></div>" : "") +
+        (co.exposure_summary && (co.exposure_summary.narrative || co.exposure_summary.disclosed_revenue_exposure)
+          ? "<div class='card' style='margin-top:12px'><h3>חשיפה</h3>" +
+            (co.exposure_summary.narrative ? "<div class='small'>" + esc(co.exposure_summary.narrative) + "</div>" : "") +
+            (co.exposure_summary.disclosed_revenue_exposure ? "<div class='small muted' style='margin-top:8px'>חשיפת הכנסות שדווחה: " +
+              (co.exposure_summary.disclosed_revenue_exposure.pct != null ? esc(co.exposure_summary.disclosed_revenue_exposure.pct) + "%" : chip(co.exposure_summary.disclosed_revenue_exposure.tag || "NULL")) +
+              " — " + esc(co.exposure_summary.disclosed_revenue_exposure.basis || "") + "</div>" : "") + "</div>" : "") +
+        companyMetricsCard(co.metrics) +
+        "<div class='statgrid' style='margin-top:12px'>" +
+        "<div class='card'><h3>קטליזטורים</h3>" + companyClaimList(co.catalysts, co.catalysts_total) + "</div>" +
+        "<div class='card'><h3>סיכונים</h3>" + companyClaimList(co.risks, co.risks_total) + "</div>" +
+        "</div>" +
+        (co.data_gaps_total ? "<div class='card' style='margin-top:12px'><h3>פערי נתונים</h3>" +
+          (co.data_gaps.length ? "<ul class='bullets'>" +
+            co.data_gaps.map(function (g) { return "<li>" + esc(g) + "</li>"; }).join("") + "</ul>" : "") +
+          (co.data_gaps_total > co.data_gaps.length
+            ? "<div class='small muted'" + (co.data_gaps.length ? " style='margin-top:6px'" : "") + ">" +
+              (co.data_gaps.length ? "עוד " + (co.data_gaps_total - co.data_gaps.length) : esc(co.data_gaps_total) + " נרשמו") +
+              ", לא מצוטטים כאן — ראו " + esc(coFile) + "</div>" : "") +
+          "</div>" : "") +
+        "<div class='muted small' style='margin-top:10px'>כל הראיות, ביקורת המהימנות והיומן: " +
+        "<span class='mono'>" + esc(coFile) + "</span></div>";
+    } else {
+      profileHTML = seclabel("פרופיל") + "<div class='emptystate'>עדיין לא נכתב פרופיל לחברה הזאת." +
+        (res.ticker ? "<div class='runwrap'>" + runButton("run profile " + res.ticker, "קורא כל מיקום במיפוי ואת מאגרי השוק ו-EDGAR לחברה הזאת") + "</div>" : "") +
+        "</div>";
+    }
+
+    var placementsHTML;
+    if (placements.length) {
+      placementsHTML = seclabel("מיקומים בשרשראות") + "<div class='card'>" +
+        placements.map(function (p) {
+          var chainObj = byId(D.chains, p.chain_id);
+          var linkNm = chainObj ? linkName(chainObj, p.link_id) : p.link_id;
+          var href = "#/chain/" + esc(p.chain_id) + "/flow/" + esc(p.link_id);
+          return "<div class='evli'>" +
+            "<a href='" + href + "'>" + esc(chainObj ? chainObj.title : p.chain_id) + " — " + esc(linkNm) + "</a> " +
+            chip(p.status) +
+            chip(p.placement_audit_status === "PASS" ? "ביקורת עברה" : p.placement_audit_status === "FAIL" ? "ביקורת נכשלה" : "לא בוקר",
+                 p.placement_audit_status === "PASS" ? "accent" : p.placement_audit_status === "FAIL" ? "verystale" : "neutral") +
+            "</div>";
+        }).join("") + "</div>";
+    } else {
+      placementsHTML = seclabel("מיקומים בשרשראות") + "<div class='emptystate'>עדיין לא מופתה על אף שרשרת ערך.</div>";
+    }
+
+    var screenHTML = "";
+    if (screenRows.length) {
+      screenHTML = seclabel("שורות סריקה") + "<div class='tablewrap'><table><thead><tr><th>שרשרת</th><th>תרחיש</th><th>רמה</th><th>מצב</th><th>נכון ל</th></tr></thead><tbody>" +
+        screenRows.map(function (x) {
+          var chainObj = byId(D.chains, x.chain_id);
+          return "<tr><td><a href='#/screen/" + esc(x.chain_id) + (x.scenario_id ? "/" + esc(x.scenario_id) : "") + "'>" +
+            esc(chainObj ? chainObj.title : x.chain_id) + "</a></td>" +
+            "<td>" + (x.scenario_id ? esc(x.scenario_id) : "<span class='muted'>כל השרשרת</span>") + "</td>" +
+            "<td>" + tierChip(x.r.tier) + "</td><td>" + chip(x.r.status) + "</td>" +
+            "<td class='num'>" + esc(x.screen_as_of) + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    var divesHTML = "";
+    if (dives.length) {
+      divesHTML = seclabel("הכרעות צלילה") + "<div class='row'>" +
+        dives.map(function (s) {
+          return "<a class='chip accent' href='#/stock/" + esc(s.ticker) + "/" + esc(s.chain_id) + "'>" +
+            esc(s.chain_id) + " — " + esc(he(s.verdict || s.status || "")) + "</a>";
+        }).join(" ") + "</div>";
+    }
+
+    var reqHTML = "";
+    if (reqLatest) {
+      var kinds = Object.keys(reqLatest);
+      var openReq = kinds.filter(function (k) { return reqLatest[k].status !== "FULFILLED"; });
+      if (openReq.length) {
+        reqHTML = seclabel("בקשות נתונים") + "<div class='card'>" +
+          openReq.map(function (k) {
+            var row = reqLatest[k];
+            return "<div class='evli'>" + chip(k) + " " + chip(row.status, row.status === "FAILED" ? "verystale" : "stale") +
+              (row.note ? "<div class='small muted' style='margin-top:3px'>" + esc(row.note) + "</div>" : "") +
+              "<div class='muted small'>" + esc(row.id) + " · התבקש " + esc(row.requested_at) + "</div></div>";
+          }).join("") + "</div>";
+      }
+    }
+
+    var pipelineHTML = "";
+    if (pipeline && (pipeline.items || []).length) {
+      pipelineHTML = seclabel("צנרת החברה" + (pipeline.status ? " — " + he(pipeline.status) : "")) +
+        "<div class='tablewrap'><table><thead><tr><th>סוג</th><th>שם</th><th>שלב</th><th>שווי</th><th>תאריך</th><th>מקור</th></tr></thead><tbody>" +
+        pipeline.items.map(function (it) {
+          return "<tr><td>" + chip(it.type) + "</td><td>" + esc(it.name || "") + "</td><td>" + esc(it.stage || "") + "</td>" +
+            "<td class='num'>" + (it.value != null ? fmtMoney(it.value) + (it.currency ? " " + esc(it.currency) : "") : "<span class='muted'>אין</span>") + "</td>" +
+            "<td class='num'>" + esc(it.date || "") + "</td>" +
+            "<td>" + (it.source_url ? "<a href='" + esc(it.source_url) + "' target='_blank' rel='noopener'>" + esc(it.source_kind || "מקור") + "</a>" : esc(it.source_kind || "")) + "</td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        (pipeline.items.some(function (it) { return it.source_excerpt; })
+          ? "<details style='margin-top:8px'><summary class='muted small'>ציטוטים מילה במילה</summary>" +
+            pipeline.items.filter(function (it) { return it.source_excerpt; }).map(function (it) {
+              return "<blockquote class='small'>" + esc(it.source_excerpt) + "</blockquote>";
+            }).join("") + "</details>" : "");
+    }
+
+    return topbar("board") + crumbs([{ label: title }]) + "<main>" + head + idCard +
+      priceSection + (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
+      (fundCard ? "<div style='margin-top:14px'>" + fundCard + "</div>" : "") +
+      profileHTML + placementsHTML + screenHTML + divesHTML + reqHTML + pipelineHTML +
+      footer() + "</main>";
+  }
 
   /* ---------------- book & shadow ---------------- */
   function bookView() {
@@ -2397,7 +2867,7 @@
     }).join("");
     var body = rows.map(function (r) {
       var x = res[r.id];
-      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'>" + esc(r.ticker) + "</td><td>" + chip(he(r.origin)) +
+      return "<tr><td class='num'>" + esc(r.verdict_date) + "</td><td class='tk-name'><a href='#/company/" + encodeURIComponent(r.ticker) + "'>" + esc(r.ticker) + "</a></td><td>" + chip(he(r.origin)) +
         (r.link_id ? " <span class='muted'>" + esc(r.chain_id) + " · " + esc(r.link_id) + "</span>" : "") + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
         "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% מול SPY</span> " + chip(x.call, x.call) : chip("מחכה ל 90 יום")) + "</td></tr>";
     }).join("");
@@ -2406,6 +2876,66 @@
       (linkRows ? seclabel("חוליות שהמכונה נמנעה מהן") + '<div class="tablewrap"><table><thead><tr><th>שרשרת · חוליה</th><th>תאריך חום</th><th>נוקדו</th><th>שמות, חציון</th><th>הקרן</th></tr></thead><tbody>' + linkRows + "</tbody></table></div>" : "") +
       (rows.length ? seclabel("כל השורות") + '<div class="tablewrap"><table><thead><tr><th>תאריך ההכרעה</th><th>טיקר</th><th>מקור</th><th>מחיר ספוט</th><th>תמחור מחדש ב</th><th>תוצאה</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
         '<div class="emptystate">ריק. מתמלא מהכרעות ' + he("TOO_LATE") + ", אותות שנדחו וקריאות חוליה " + he("OVER_CROWDED") + '.</div>') +
+      footer() + "</main>";
+  }
+
+  /* ---------------- pipeline ----------------
+     Request rows, fetch runs and feed health lived only in data/requests.json and
+     data/health/actions.json — real, and reachable by nobody. app/build.py's
+     project_requests keeps every row that is not FULFILLED (1,809 of 1,865 rows were,
+     on 2026-09-13) plus counts by kind and status, so this reads a store two orders of
+     magnitude smaller than the one on disk and still shows every open or failed row. */
+  function pipelineTicketCell(r) {
+    if (r.ticker) return "<a href='#/company/" + encodeURIComponent(r.ticker) + "'>" + esc(r.ticker) + "</a>";
+    if (r.url) return "<a href='" + esc(r.url) + "' target='_blank' rel='noopener'>" + esc(r.url.length > 64 ? r.url.slice(0, 63) + "…" : r.url) + "</a>";
+    return "<span class='muted'>—</span>";
+  }
+  function pipelineRequestRow(r) {
+    return "<tr><td>" + pipelineTicketCell(r) + "</td><td>" + chip(r.kind) + "</td>" +
+      "<td>" + chip(r.status, r.status === "FAILED" ? "verystale" : "stale") + "</td>" +
+      "<td class='small'>" + esc(r.note || "") + "</td>" +
+      "<td class='muted small'>" + esc(r.id) + " · " + esc(r.requested_at) + "</td></tr>";
+  }
+  function pipelineRequestTable(rows) {
+    if (!rows.length) return "<div class='emptystate'>אין.</div>";
+    return "<div class='tablewrap'><table><thead><tr><th>טיקר / קישור</th><th>סוג</th><th>מצב</th><th>הערה</th><th>בקשה</th></tr></thead><tbody>" +
+      rows.map(pipelineRequestRow).join("") + "</tbody></table></div>";
+  }
+  function pipelineView() {
+    var req = D.requests || {};
+    var byKS = req.by_kind_status || {};
+    var kinds = Object.keys(byKS).sort();
+    var open = req.requests || [];
+    var failed = open.filter(function (r) { return r.status === "FAILED"; });
+    var pending = open.filter(function (r) { return r.status === "PENDING"; });
+    var actions = (D.health || {}).actions || {};
+    var feeds = actions.feeds || {};
+    var fetchH = actions.fetch || {};
+    var runs = fetchH.runs || [];
+    var lastRun = runs.length ? runs[runs.length - 1] : null;
+    var STATUSES = ["FULFILLED", "PENDING", "FAILED"];
+    var kindTable = kinds.length ? "<div class='tablewrap'><table><thead><tr><th>סוג</th>" +
+      STATUSES.map(function (s) { return "<th>" + esc(he(s)) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      kinds.map(function (k) {
+        var s = byKS[k] || {};
+        return "<tr><td>" + esc(he(k)) + "</td>" +
+          STATUSES.map(function (st) { return "<td class='num'>" + num(s[st], "0") + "</td>"; }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div>" : "<div class='emptystate'>אין שורת בקשה בתיק.</div>";
+    return topbar("pipeline") + "<main><div class='pagehead'><h1>הצנרת</h1>" +
+      "<p class='sub'>כל בקשת נתונים שהריפו הזה הוציא, לפי סוג ומצב, מה תקוע, והאם לולאות המשיכה והפיד עדיין רצות. סשנים כותבים שורות ממתינות; GitHub Actions הוא היחיד שמזיז מצב.</p></div>" +
+      seclabel("בקשות לפי סוג — סה\"כ " + num(req.total, "0") + ", הוסדרו " + num(req.settled, "0")) + kindTable +
+      seclabel("נכשלו — " + failed.length) + pipelineRequestTable(failed) +
+      seclabel("ממתינות — " + pending.length) + pipelineRequestTable(pending) +
+      seclabel("תקינות המשיכה והפיד") + "<div class='statgrid'>" +
+      "<div class='card'><h3>פידים</h3><div class='small'>ריצה אחרונה <span class='num'>" + esc(feeds.last_run || "מעולם לא") + "</span></div>" +
+      (feeds.summary ? "<div class='small muted' style='margin-top:6px'>" + esc(feeds.summary.sources_ok) + " מקורות תקינים, " +
+        ((feeds.summary.sources_failed || []).length) + " נכשלו, " + esc(feeds.summary.new_items) + " פריטים חדשים, " + esc(feeds.summary.held) + " הוחזקו</div>" +
+        ((feeds.summary.sources_failed || []).length ? "<div class='small' style='margin-top:6px'><b>מקורות שנכשלו:</b> " + esc(feeds.summary.sources_failed.join(", ")) + "</div>" : "") : "") +
+      "</div>" +
+      "<div class='card'><h3>משיכה</h3><div class='small'>ריצה אחרונה <span class='num'>" + esc(fetchH.last_run || "מעולם לא") + "</span></div>" +
+      (lastRun ? "<div class='small muted' style='margin-top:6px'>" + esc(lastRun.event) + " · טופלו " + esc(lastRun.processed) +
+        ", הושלמו " + esc(lastRun.fulfilled) + ", נכשלו " + esc(lastRun.failed) + "</div>" : "<div class='small muted' style='margin-top:6px'>לא נרשמה אף ריצת משיכה.</div>") +
+      "</div></div>" +
       footer() + "</main>";
   }
 
@@ -2486,6 +3016,14 @@
   }
   function boardRowAttrs(href) { return href ? " class='rowlink' data-nav='" + esc(href) + "' tabindex='0'" : ""; }
   function boardName(label, href) { return href ? "<a href='" + esc(href) + "'>" + esc(label) + "</a>" : esc(label); }
+  /* The O1/O2/Blocked rows are profiles, not dives — boardStockHref's dive route is
+     wrong for them. Every row carries `issuer_id` (build_board projects it straight off
+     data/companies), so this is always the company page, the one page that resolves for
+     a profiled issuer whether or not it has ever been screened, mapped twice, or dived. */
+  function boardCompanyCell(r) {
+    var label = "<span class='tk-name'>" + esc(r.ticker || r.issuer_id) + "</span> <span class='muted'>" + esc(r.name || "") + "</span>";
+    return r.issuer_id ? "<a href='#/company/" + esc(r.issuer_id) + "'>" + label + "</a>" : label;
+  }
   function boardView() {
     var b = D.board || { verdicts: [], o1_queue: [], o2: [], blocked: [], themes: [], counts: {} };
     var c = b.counts || {};
@@ -2499,22 +3037,19 @@
         "<td class='num'>" + esc(num(r.review_by, "–")) + "</td></tr>";
     }).join("");
     var o1Rows = (b.o1_queue || []).map(function (r) {
-      var href = boardRowHref(r);
-      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      return "<tr><td>" + boardCompanyCell(r) + "</td>" +
         "<td>" + (r.dive_status ? chip(r.dive_status, r.dive_status === "FINAL" ? "accent" : "stale") : chip("לא נחקרה", "neutral")) + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
         "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>רמה לא נקבעה</span>") + "</td></tr>";
     }).join("");
     var o2Rows = (b.o2 || []).map(function (r) {
-      var href = boardRowHref(r);
-      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      return "<tr><td>" + boardCompanyCell(r) + "</td>" +
         "<td>" + (r.heat_verdict ? chip(r.heat_verdict, r.heat_verdict) : chip("חוליה לא מנוקדת", "neutral")) + (r.money_corner ? " " + chip("פינת הכסף", "accent") : "") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + (r.link_name ? " · " + esc(r.link_name) : "") + "</td>" +
         "<td>" + (r.data_tier ? esc(r.data_tier) : "<span class='muted'>רמה לא נקבעה</span>") + "</td></tr>";
     }).join("");
     var blockedRows = (b.blocked || []).map(function (r) {
-      var href = boardRowHref(r);
-      return "<tr" + boardRowAttrs(href) + "><td class='tk-name'>" + boardName(r.ticker || r.issuer_id, href) + " <span class='muted'>" + esc(r.name || "") + "</span></td>" +
+      return "<tr><td>" + boardCompanyCell(r) + "</td>" +
         "<td>" + chip(r.status || "BLOCKED", "verystale") + "</td>" +
         "<td class='muted'>" + esc(r.chain_id || "") + "</td>" +
         "<td>" + esc(r.on || "לא נרשם פער נתונים בפרופיל") + "</td></tr>";
@@ -2601,7 +3136,7 @@
         action = '<span class="muted">אין העברה מהסריקה</span>';
       }
       return "<tr><td class='num'>" + esc(num(row.rank)) + "</td>" +
-        "<td><div class='tk-name'>" + esc(ticker || row.issuer_id) + "</div><div class='tk-co'>" + esc(row.name) + "</div></td>" +
+        "<td><a href='#/company/" + encodeURIComponent(row.issuer_id) + "'><div class='tk-name'>" + esc(ticker || row.issuer_id) + "</div><div class='tk-co'>" + esc(row.name) + "</div></a></td>" +
         "<td><span class='tier-plane'><span class='plane-label'>נתונים</span>" + tierChip(row.data_tier) + "</span></td>" +
         "<td><span class='tier-plane'><span class='plane-label'>עבודה</span>" + opportunityChip(row.opportunity_tier) + "</span></td>" +
         "<td>" + (row.handoff_present
@@ -2712,7 +3247,7 @@
     var c = theme.counts || {};
     var rows = (theme.links || []).map(function (link) {
       return "<tr><td class='num'>" + esc(num(link.position)) + "</td>" +
-        "<td><div class='tk-name'>" + esc(link.name) + "</div><div class='tk-co mono'>" + esc(link.id) + "</div></td>" +
+        "<td><a href='#/chain/" + encodeURIComponent(theme.id) + "/flow/" + encodeURIComponent(link.id) + "'><div class='tk-name'>" + esc(link.name) + "</div></a><div class='tk-co mono'>" + esc(link.id) + "</div></td>" +
         "<td>" + (theme.mapping_present ? campaignStatusChip(link.status) : '<span class="muted">אין מיפוי זמין</span>') + "</td>" +
         "<td>" + (theme.mapping_present ? campaignMetric(link.mapped, link.target) : '<span class="muted">אין מיפוי זמין</span>') + "</td>" +
         "<td class='num'>" + esc(num(link.profiled)) + "</td>" +
@@ -4736,14 +5271,17 @@
     if (!obj) return "";
     /* An appraisal of a candidate had no reader before 2026-08-30: impactFor was only ever
        called with a signal id, so 30 of 36 appraisals were inlined and rendered nowhere.
-       The chip fields are what the page keeps for them, so the page shows them here. */
+       The chip here is still the quick canvas preview; candidateView (linked below) is
+       where the legs behind that chip actually render, since 2026-09-13. */
     return '<div class="scrim" data-closedrawer></div><div class="drawer" role="dialog" aria-label="' + esc(obj.title) + '"><button class="x" data-closedrawer>✕</button>' +
       '<div class="row">' + chip(he(isEvt ? obj.kind : obj.family)) + chip(obj.date, "neutral") + chip(he(obj.status)) +
       (isEvt ? "" : impactChip(impactFor(obj.id))) + "</div>" +
       "<h2>" + esc(obj.title) + "</h2>" +
       "<p class='small'>" + esc(isEvt ? obj.why_it_matters : obj.why) + "</p>" +
       "<div class='muted small'>[" + esc(obj.source_name) + (obj.source_date ? ", " + esc(obj.source_date) : "") + "]" + (obj.window ? " · " + esc(obj.window) : "") + "</div>" +
-      "<div style='margin-top:16px'>" + runButton("run radar", "הרצת הרדאר מחליטה על קידום לכרטיס אות מלא (method §0.1)") + "</div>" +
+      '<div class="row" style="margin-top:14px"><a class="chip accent" href="#/' + (isEvt ? "event" : "candidate") + "/" + esc(obj.id) + '">פתח עמוד מלא →</a>' +
+      (obj.promoted_signal_id ? ' <a class="chip accent" href="#/signal/' + esc(obj.promoted_signal_id) + '">פתח את האות שקודם →</a>' : "") + "</div>" +
+      (obj.promoted_signal_id ? "" : "<div style='margin-top:14px'>" + runButton("run radar", "הרצת הרדאר מחליטה על קידום לכרטיס אות מלא (method §0.1)") + "</div>") +
       "</div>";
   }
 
@@ -4855,7 +5393,10 @@
         return '<div class="evli"><a href="#/themes/' + esc(s.theme_id) + '"><b>' + esc(s.label) + "</b></a> " +
           esc(s.count) + " ב" + esc(s.week) + " מול בסיס של " + esc(s.baseline) +
           (s.claimed
-            ? ' <span class="chip claimed">יש אות: ' + esc((s.signal_refs || []).join(", ")) + "</span>"
+            ? ' <span class="chip claimed">יש אות: ' +
+              (s.signal_refs || []).map(function (sigId) {
+                return "<a href='#/signal/" + esc(sigId) + "'>" + esc(sigId) + "</a>";
+              }).join(", ") + "</span>"
             : ' <span class="chip unclaimed">ללא אות</span>') +
           "</div>";
       }).join("") +
@@ -4866,10 +5407,27 @@
         : "") +
       "</div>";
   }
+  /* origin_ref names the row within its own origin store (a candidate id, a signal id, a
+     calendar event id) — carried on the payload since 2026-09-01 but never read until
+     2026-09-13, so every occurrence linked outward to its source article and nowhere
+     inward to what this machine did with it. A feed row has no addressable page of its
+     own (the feed store prunes at 500 items/14 days); the other three origins do. */
+  function occInternalHref(o, ref) {
+    if (!ref) return null;
+    if (o === "signal" && byId(D.signals, ref)) return "#/signal/" + ref;
+    if (o === "candidate" && byId((D.candidates || {}).candidates || [], ref)) return "#/candidate/" + ref;
+    if (o === "calendar" && byId((D.calendar || {}).events || [], ref)) return "#/event/" + ref;
+    return null;
+  }
   function thOccRow(r) {
-    var t = r.u
+    // Two SEPARATE links, never nested: the title stays the external source (when one
+    // was recorded) and the internal destination rides beside it as its own small chip.
+    var titleHTML = r.u
       ? '<a href="' + esc(r.u) + '" rel="noreferrer noopener" target="_blank">' + esc(r.t) + "</a>"
       : esc(r.t);
+    var internal = occInternalHref(r.o, r.r);
+    var openWord = r.o === "signal" ? "פתח אות" : r.o === "candidate" ? "פתח מועמד" : "פתח אירוע";
+    var t = titleHTML + (internal ? " <a class='chip accent' href='" + internal + "'>" + esc(openWord) + " →</a>" : "");
     return '<div class="occrow"><div class="occmeta">' + originChip(r.o) +
       '<span class="mono">' + esc(r.d || "ללא תאריך") + "</span>" +
       (r.s ? "<span>" + esc(r.s) + "</span>" : "") +
@@ -4933,7 +5491,9 @@
           mapStat(num(v.total), "נרשמו מאז ומתמיד") +
           "</div><div class='small'>" +
           (v.surging ? "בעלייה" : "לא בעלייה") + " · " +
-          (v.claimed ? "יש אות: " + esc((v.signal_refs || []).join(", ")) : "אין כרטיס אות מאחוריו") +
+          (v.claimed ? "יש אות: " + (v.signal_refs || []).map(function (sigId) {
+            return "<a href='#/signal/" + esc(sigId) + "'>" + esc(sigId) + "</a>";
+          }).join(", ") : "אין כרטיס אות מאחוריו") +
           " · הבסיס חושב על " + esc(num(v.baseline_weeks)) + " שבועות קודמים</div></div>" +
           "<div class='card'><h3>מאיפה זה הגיע</h3><div class='scrow'>" +
           Object.keys(v.origins || {}).map(function (o) {
@@ -5087,9 +5647,17 @@
     else if (p[0] === "radar") html = homeView();
     else if (p[0] === "signal") html = signalView(p[1]);
     else if (p[0] === "chains") html = chainsView();
-    else if (p[0] === "chain") html = chainView(p[1], p[2]);
+    else if (p[0] === "chain") html = chainView(p[1], p[2], p[3]);
     else if (p[0] === "screen") html = screenView(p[1], p[2]);
-    else if (p[0] === "stock") html = stockView(p[1], p[2]);
+    // #/stock/<T>/<chain> is a dive, addressed exactly; #/stock/<T> alone (no chain
+    // segment) has never been a dive route, so it falls through to the company page —
+    // the only page that resolves for the 446 of 460 market files, all 193 company
+    // profiles, and every one of ~457 mapping placements that have no dive at all.
+    else if (p[0] === "stock") html = p[2] ? stockView(p[1], p[2]) : companyView(p[1]);
+    else if (p[0] === "company") html = companyView(p[1]);
+    else if (p[0] === "candidate") html = candidateView(p[1]);
+    else if (p[0] === "event") html = eventView(p[1]);
+    else if (p[0] === "pipeline") html = pipelineView();
     else if (p[0] === "themes") html = themesView(p[1]);
     else if (p[0] === "agents") html = agentsView();
     else if (p[0] === "agent") html = agentView(p[1]);
@@ -5167,6 +5735,18 @@
       n.addEventListener("click", open);
       n.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
     });
+    // The #/chain/<id>/<tab>/<linkId> deep link (chainView's deepModal): a second,
+    // independent host from #drawerHost above, wired once here rather than by a click.
+    var dlHost = document.getElementById("deepLinkDrawerHost");
+    if (dlHost) {
+      dlHost.querySelectorAll("[data-closedrawer]").forEach(function (x) {
+        x.addEventListener("click", function () { dlHost.innerHTML = ""; });
+      });
+      bindCopy(dlHost);
+      dlHost.querySelectorAll("[data-run]").forEach(function (b) {
+        b.addEventListener("click", function (e) { e.preventDefault(); enqueue(b.getAttribute("data-run"), b); });
+      });
+    }
     app.querySelectorAll(".gnode").forEach(function (n) {
       var id = n.getAttribute("data-drawer"), svg = n.closest("svg");
       function lit(on) {

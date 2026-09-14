@@ -44,6 +44,8 @@ from check_campaign import (  # noqa: E402
     canonical_mapped_placements,
     validated_public_listings,
 )
+from check_map import placement_audit_for  # noqa: E402
+import market_paths  # noqa: E402
 # Vendored UMD modules, inlined in this exact order (each attaches to window.d3;
 # d3-force resolves the other three off that object at define time). Vetting record
 # and licence: app/templates/vendor/README.md and LICENSE-d3.txt.
@@ -65,10 +67,19 @@ def read_json_dir(folder: Path) -> list:
 
 
 def _compact_text(value, limit=None):
-    """One-line display text: whitespace collapsed, never truncated (2026-09-04)."""
+    """One-line display text: whitespace collapsed, never truncated (2026-09-04) UNLESS
+    the caller passes `limit` — the one exception, added 2026-09-14 for the compact
+    companies projection below, whose per-issuer prose (catalysts, risks, business and
+    exposure summaries) has to fit 328 real profiles inside the page's own byte budget.
+    A cut string is still the true text's own prefix, never invented; the caller is the
+    one that keeps a `_total`/count beside it so the cut is never silent."""
     if not isinstance(value, str):
         return None
     text = " ".join(value.split())
+    if not text:
+        return None
+    if limit and len(text) > limit:
+        text = text[:limit].rstrip()
     return text or None
 
 
@@ -300,11 +311,18 @@ def build_board(data_dir=DATA, chains=None, stocks=None, campaign_ix=None) -> di
                         "money_corner": link.get("money_corner", False)})
             o2.append(row)
         elif profile.get("status") in ("BLOCKED", "DRAFT"):
+            # `gaps` (the full data_gaps list, verbatim) used to ride on this row too.
+            # Removed 2026-09-14: it duplicated companies[i].data_gaps in full for every
+            # BLOCKED/DRAFT issuer (20 KB+ across the board store, all of it also present,
+            # word for word, under the "companies" key) and existed only because no
+            # company page existed to send a reader to. #/company/<issuer_id> now does;
+            # `on` (the first gap, one line) plus the link stays, `gaps_total` says how
+            # many more the company page's own Data gaps card names.
             gaps = [g for g in profile.get("data_gaps") or [] if isinstance(g, str)]
             row.pop("link_name", None)
             row.update({"status": profile.get("status"),
                         "on": _compact_text(gaps[0]) if gaps else None,
-                        "gaps": gaps})
+                        "gaps_total": len(gaps)})
             blocked.append(row)
     o2.sort(key=lambda r: (0 if r["money_corner"] else 1,
                            BOARD_HEAT_ORDER.get(r["heat_verdict"], 9), r["issuer_id"]))
@@ -925,6 +943,38 @@ def _history(doc: dict) -> dict:
 MARKET_UNRENDERED = ("fundamentals", "insider", "prints", "legs")
 
 
+def _trim_quality(quality):
+    """`quality` (tools/acis/quality.py's scored output) carried whole except the specific
+    sub-fields no template renders, confirmed 2026-09-14 by an exhaustive search of
+    app/templates/app.js: piotroski/beneish/altman's inputs_found/inputs_needed/
+    common_periods (the score and state they support stay; the input-count bookkeeping
+    behind them never reaches the page), piotroski.proxies (a methodology footnote),
+    reverse_dcf's base_fcf/enterprise_value/horizon_spread, and reverse_dcf.horizon_note —
+    which is not a per-ticker fact at all: byte-identical across every one of the 279
+    tickers that carried it, a fixed sentence about how to read implied_by_horizon
+    (itself kept, and rendered) repeated instead of written once. Also the top-level
+    `derived` block (fcf/market_cap/enterprise_value): project_screens' own valuation
+    card reads market_cap from the raw market dict project_market receives, before this
+    trim runs, so nothing downstream loses it by this function cutting it from the
+    output. Same principle MARKET_UNRENDERED already applies one level up, reaching
+    quality's own internals now that quality (511 tickers, ~0.85 MB before this trim) is
+    most of what is left of market's weight after the daily/weekly split above."""
+    if not isinstance(quality, dict):
+        return quality
+    out = {k: v for k, v in quality.items() if k != "derived"}
+    for group in ("piotroski", "beneish", "altman"):
+        blk = out.get(group)
+        if isinstance(blk, dict):
+            out[group] = {k: v for k, v in blk.items()
+                          if k not in ("proxies", "inputs_found", "inputs_needed", "common_periods")}
+    rd = out.get("reverse_dcf")
+    if isinstance(rd, dict):
+        out["reverse_dcf"] = {k: v for k, v in rd.items()
+                              if k not in ("base_fcf", "enterprise_value", "horizon_spread",
+                                           "horizon_note")}
+    return out
+
+
 def encode_series_rows(rows: list) -> dict:
     """Compact, lossless form of a [date, close, ...] series.
 
@@ -954,11 +1004,54 @@ def encode_series_rows(rows: list) -> dict:
     return out
 
 
+def _weekly_downsample(rows: list) -> list:
+    """One row per ISO week — the last trading day seen in it — preserving chronological
+    order. A row whose date does not parse is kept verbatim (never dropped, never
+    counted into a week) so encode_series_rows still carries it under `raw`.
+
+    Never applied to a dived ticker's series: the stock page's chart and its 52-week
+    range bar both read daily closes. Introduced 2026-09-14 when six new chains, ~111
+    new profiles and the same-day price/quality-chart and companies/placements/pipelines
+    landings together pushed the real build past build.page_byte_limit() — `series` was
+    2.9 MB of the page's 4.2 MB `market` store, nearly all of it for the ~490 tickers no
+    dive has ever opened a chart for. Weekly cuts that to roughly a fifth with no loss a
+    reader could not already get from the daily file at data/market/<T>.json, which the
+    page still names."""
+    from datetime import date as _date
+    out = []
+    last_key = None
+    for row in rows:
+        try:
+            d = _date.fromisoformat(str(row[0]))
+        except (ValueError, TypeError, IndexError):
+            out.append(row)
+            last_key = None
+            continue
+        key = d.isocalendar()[:2]
+        if key != last_key:
+            out.append(row)
+            last_key = key
+        else:
+            out[-1] = row
+    return out
+
+
 def project_market(market: dict, fundamentals_for=()) -> dict:
     """Every market file whole except the blocks no template renders (MARKET_UNRENDERED),
-    with the full daily series for EVERY ticker, compactly encoded (encode_series_rows).
-    `row_count`, `inlined_rows` and `sampling` stay on the series header because app.js
-    prints them; since 2026-09-04 they always read equal and COMPLETE.
+    the series compactly encoded (encode_series_rows). `row_count`, `inlined_rows` and
+    `sampling` stay on the series header because app.js prints them.
+
+    Since 2026-09-14 the daily series is carried whole (`sampling: "COMPLETE"`, row_count
+    == inlined_rows) only for the tickers in `fundamentals_for` — the same dived set that
+    gets fundamentals, the only names with a page that draws a daily chart. Every other
+    ticker is downsampled to one point per ISO week (`sampling: "WEEKLY"`,
+    _weekly_downsample), truthfully: row_count still names the real daily count on disk,
+    inlined_rows names what this build actually carries, and app.js's seriesNote() says
+    which in the page's own words. Before this date every ticker carried its full daily
+    series (2026-09-04's "I just want all the data"); the campaign's own growth made that
+    promise and the platform's byte cap mutually exclusive, and Ron's instruction when
+    that happens (see the HINT this build's ledger line quotes) is to shrink what a
+    non-dived ticker's chart needs, never to raise the cap or loosen the page-size test.
 
     Since 2026-09-13 the stock page draws fiscal-year fundamentals, so `fundamentals` is
     carried whole for the tickers in `fundamentals_for` (the dived ones, the only names
@@ -977,15 +1070,27 @@ def project_market(market: dict, fundamentals_for=()) -> dict:
         if key in keep:
             skip.discard("fundamentals")
         row = {k: v for k, v in doc.items() if k not in skip}
+        if isinstance(row.get("quality"), dict):
+            row["quality"] = _trim_quality(row["quality"])
         series = doc.get("series")
         if isinstance(series, dict):
             rows = series.get("rows") if isinstance(series.get("rows"), list) else []
             head = {k: v for k, v in series.items() if k != "rows"}
             head["row_count"] = len(rows)
-            head["inlined_rows"] = len(rows)
-            head["sampling"] = "COMPLETE"
-            head["rows_c"] = encode_series_rows(rows)
+            if key in keep:
+                inlined = rows
+                head["sampling"] = "COMPLETE"
+            else:
+                inlined = _weekly_downsample(rows)
+                head["sampling"] = "WEEKLY"
+            head["inlined_rows"] = len(inlined)
+            head["rows_c"] = encode_series_rows(inlined)
             row["series"] = head
+        # `fundamentals` itself stays out (MARKET_UNRENDERED, 1.43 MB across the store);
+        # this is the compact headline the company page and the link modal both read.
+        headline = fundamentals_headline(doc.get("fundamentals"))
+        if headline is not None:
+            row["fundamentals_headline"] = headline
         out[key] = row
     return out
 
@@ -1010,6 +1115,339 @@ def project_impact(appraisals: list) -> list:
                 leg["evidence_count"] = len(evidence) if isinstance(evidence, list) else 0
                 row[name] = leg
         out.append(row)
+    return out
+
+
+# --- companies, placements, fundamentals headline, pipelines -----------------------
+#
+# Unlike the "carry every store whole" rule above, these four are deliberately COMPACT
+# projections: data/companies (193 profiles, 3.2 MB raw) and data/mappings (12 files,
+# 1.7 MB raw) never reached the page before 2026-09-13, and the campaign is landing ~180
+# more profiles and several new chains in the same run that adds these. The page trims
+# hard here so the room stays there: prose fields are whitespace-collapsed
+# (_compact_text) but never invented or silently cut without a stated count.
+
+# 2026-09-14, the engineering brief's page-diet pass: 328 real profiles on disk (up from
+# the 193 these projections were first sized against) push the companies store past its
+# 0.7 MB budget at the prior 5/5-uncapped shape. Tightened to 3/3 and the claim text
+# itself capped (COMPANY_CLAIM_CHAR_LIMIT) rather than only the item count, with the true
+# counts still riding beside the lists (`catalysts_total`, `risks_total`) so the cut is
+# never silent.
+COMPANY_MAX_CATALYSTS = 3
+COMPANY_MAX_RISKS = 3
+COMPANY_CLAIM_CHAR_LIMIT = 200
+# business_summary, exposure_summary's narrative/basis, and data_gaps' first item, cut
+# the same honest way: short keys and per-item counts elsewhere in this file are not
+# enough on their own at 328 real profiles carrying full v/t metrics, listings and 3/200
+# catalysts and risks, so these last proseiest fields carry the rest of the cut needed to
+# clear 0.7 MB with a real margin. 55 characters is roughly the opening clause of a
+# sentence — a name and what it is — never the whole field, which is why the full text
+# stays on the profile file this projection points readers at.
+COMPANY_SUMMARY_CHAR_LIMIT = 55
+
+
+def resolve_listing_market_key(ticker, exchange, market_ticker, market: dict):
+    """The one ticker resolver every projection below shares: `tools/market_paths.py`'s
+    `resolve_market_stem`, checked against the market store this build already read into
+    memory. Returns the `data/market/<key>.json` stem, or None when no fetch backs this
+    listing — never a guess. See market_paths.EXCHANGE_SUFFIX for the bare-local-code
+    case (TWSE "2330", TSX "WSP") that `market_ticker` alone does not cover."""
+    return market_paths.resolve_market_stem(
+        ticker=ticker, exchange=exchange, market_ticker=market_ticker, available=market)
+
+
+def _trim_metric_leaf(leaf):
+    """One canonical metric value (method §6A): value and tag alone — never the
+    paragraph-length `basis` a derivation or a NULL rests on, and since 2026-09-14 not the
+    citation trail (source_date/source_name/url/official_source) either.
+
+    Short keys (v/t), the same move project_market's feed and theme rows already make for
+    a high-cardinality shape: a COMPLETE profile carries ~12 of these (8 method groups,
+    several with more than one canonical key), so the key NAMES are real weight at 328
+    profiles today. companyMetric() in app.js is the one place that reads this shape, and
+    already renders leaf.s/.d/.u/.o as optional (a metric with only v/t still shows its
+    value and tag, just without the inline citation); the full source_date, source_name,
+    url and official_source for every metric stay on data/companies/<issuer_id>.json,
+    which the company page names for exactly this. Dropping them here is what took the
+    companies store from 1.69 MB to inside its 0.7 MB budget at today's real profile
+    count — v/t alone still could not fit it (see COMPANY_SUMMARY_CHAR_LIMIT)."""
+    if not isinstance(leaf, dict):
+        return None
+    return {"v": leaf.get("value"), "t": leaf.get("tag")}
+
+
+def _trim_metrics(metrics) -> dict:
+    """Every group and every canonical key metrics carries, each leaf trimmed by
+    `_trim_metric_leaf`. Walked generically rather than naming method §6A's eight groups
+    by hand, so a T2/T3 `official_source_equivalent` leaf or a new canonical key survives
+    without an edit here."""
+    out = {}
+    if not isinstance(metrics, dict):
+        return out
+    for group, fields in metrics.items():
+        if not isinstance(fields, dict):
+            continue
+        g = {}
+        for key, leaf in fields.items():
+            trimmed = _trim_metric_leaf(leaf)
+            if trimmed is not None:
+                g[key] = trimmed
+        if g:
+            out[group] = g
+    return out
+
+
+def _trim_exposure_summary(exposure):
+    """Narrative and the disclosed-revenue basis, both cut to COMPANY_SUMMARY_CHAR_LIMIT
+    (2026-09-14, same page-budget reason as business_summary below) — `pct`/`tag` are
+    already scalar and need no trim."""
+    if not isinstance(exposure, dict):
+        return None
+    out = {}
+    narrative = _compact_text(exposure.get("narrative"), COMPANY_SUMMARY_CHAR_LIMIT)
+    if narrative:
+        out["narrative"] = narrative
+    dre = exposure.get("disclosed_revenue_exposure")
+    if isinstance(dre, dict):
+        out["disclosed_revenue_exposure"] = {
+            "pct": dre.get("pct"), "tag": dre.get("tag"),
+            "basis": _compact_text(dre.get("basis"), COMPANY_SUMMARY_CHAR_LIMIT),
+        }
+    return out or None
+
+
+def _trim_claims(items, limit: int, char_limit: int = COMPANY_CLAIM_CHAR_LIMIT) -> list:
+    """Up to `limit` catalysts/risks, each cut to claim (itself cut to `char_limit`
+    characters, 2026-09-14) + date + url. The count still on disk rides beside this list
+    under `<field>_total`, so a cut is never silent.
+
+    Short keys (c/d/u), 2026-09-14, the same move _trim_metric_leaf's v/t already makes:
+    at up to 3 items x 2 fields (catalysts, risks) x 328 companies, the key names
+    themselves were real weight. companyClaimList() in app.js is the one place that reads
+    this shape."""
+    out = []
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        claim = _compact_text(item.get("claim"), char_limit)
+        if not claim:
+            continue
+        out.append({"c": claim, "d": item.get("source_date"), "u": item.get("url")})
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _trim_listings(listings, market: dict) -> list:
+    """`listing_id` and `market_ticker` are inputs to the market-file resolver, not page
+    content — companyListingRow() (app.js) reads only ticker/exchange/market_file, so
+    neither survives into the output (2026-09-14, confirmed by search of app.js)."""
+    out = []
+    for listing in listings or []:
+        if not isinstance(listing, dict):
+            continue
+        out.append({
+            "ticker": listing.get("ticker"),
+            "exchange": listing.get("exchange"),
+            "market_file": resolve_listing_market_key(
+                listing.get("ticker"), listing.get("exchange"),
+                listing.get("market_ticker"), market),
+        })
+    return out
+
+
+def project_companies(companies: list, market: dict) -> list:
+    """Issuer profiles, compact: identity, tiers, prose fields whitespace-collapsed and
+    (2026-09-14) length-capped, the closed metric groups trimmed to value/tag alone, at
+    most 3 catalysts and 3 risks (the full counts riding beside them), and every listing
+    resolved to its market file. Evidence, confidence audits, changelogs, selection
+    reviews and the rest of data_gaps stay in data/companies/<issuer_id>.json — the
+    company page names that file for the rest, and prints `data_gaps_total` so a reader
+    knows how many more gaps were found beyond the one quoted here.
+
+    `data_gaps` keeps only its first item (the profile's own order, not re-ranked) rather
+    than the full list catalysts/risks get at 3: at 328 real profiles even one
+    200-character item per company was still 130+ KB, and this store's 0.7 MB budget had
+    no room left for a second (see the engineering brief this date's ledger line cites)."""
+    out = []
+    for doc in companies:
+        if not isinstance(doc, dict):
+            continue
+        issuer_id = _identity(doc.get("issuer_id"))
+        if not issuer_id:
+            continue
+        catalysts = doc.get("catalysts") or []
+        risks = doc.get("risks") or []
+        gaps = [g for g in (doc.get("data_gaps") or []) if isinstance(g, str) and _compact_text(g)]
+        out.append({
+            "issuer_id": issuer_id,
+            "issuer_name": doc.get("issuer_name"),
+            "status": doc.get("status"),
+            "data_tier": doc.get("data_tier"),
+            "opportunity_tier": _opportunity(doc).get("tier"),
+            "as_of": doc.get("as_of"),
+            "business_summary": _compact_text(doc.get("business_summary"), COMPANY_SUMMARY_CHAR_LIMIT),
+            "exposure_summary": _trim_exposure_summary(doc.get("exposure_summary")),
+            "metrics": _trim_metrics(doc.get("metrics")),
+            "catalysts": _trim_claims(catalysts, COMPANY_MAX_CATALYSTS),
+            "catalysts_total": len(catalysts),
+            "risks": _trim_claims(risks, COMPANY_MAX_RISKS),
+            "risks_total": len(risks),
+            "data_gaps": [_compact_text(g, COMPANY_SUMMARY_CHAR_LIMIT) for g in gaps[:1]],
+            "data_gaps_total": len(gaps),
+            "listings": _trim_listings(doc.get("listings"), market),
+        })
+    out.sort(key=lambda r: r["issuer_id"])
+    return out
+
+
+def _placement_audit_status(mapping_doc: dict, chain_id, link_id, issuer_id) -> str:
+    """PASS, FAIL, or NONE for one placement — never the mapping's whole-census state
+    alone, because Ron's 2026-09-01 decision lets a single current placement audit admit
+    its own placement to a dive without the census being COMPLETE. PASS when either the
+    whole-census audit is COMPLETE+PASS (every placement inherits it) or
+    `check_map.placement_audit_for` finds a CURRENT PASS entry for this exact placement
+    (the same currency test `run deepdive`'s gate applies: the entry's digest must match
+    the placement as it stands now). FAIL only when the census failed and no placement
+    override exists; otherwise NONE — audited neither way."""
+    audit = mapping_doc.get("audit") if isinstance(mapping_doc.get("audit"), dict) else {}
+    if mapping_doc.get("status") == "COMPLETE" and audit.get("status") == "PASS":
+        return "PASS"
+    try:
+        if placement_audit_for(mapping_doc, chain_id, link_id, issuer_id) is not None:
+            return "PASS"
+    except Exception:  # noqa: BLE001 — a malformed mapping must not break the whole build
+        pass
+    return "FAIL" if audit.get("status") == "FAIL" else "NONE"
+
+
+def project_placements(mappings: list, market: dict) -> list:
+    """Every placement on every mapping, structure only: never mapping evidence, search
+    logs, or the placement's own role_evidence rows (data/mappings/<slug>.json names
+    those). This is what makes every link's stocks reachable even for an issuer with no
+    company profile yet — linkModal reads this, not just the chain-wide screen."""
+    out = []
+    for doc in mappings:
+        if not isinstance(doc, dict):
+            continue
+        chain_id = _identity(doc.get("chain_id")) or _identity(doc.get("id"))
+        issuer_names = {
+            _identity(i.get("issuer_id")): i.get("name")
+            for i in doc.get("issuers") or [] if isinstance(i, dict)
+            if _identity(i.get("issuer_id"))
+        }
+        listings_by_issuer = {}
+        for listing in validated_public_listings(doc).values():
+            iid = _identity(listing.get("issuer_id"))
+            if iid:
+                listings_by_issuer.setdefault(iid, listing)
+        for placement in doc.get("placements") or []:
+            if not isinstance(placement, dict):
+                continue
+            issuer_id = _identity(placement.get("issuer_id"))
+            link_id = _identity(placement.get("link_id"))
+            p_chain = _identity(placement.get("chain_id")) or chain_id
+            if not issuer_id or not link_id or not p_chain:
+                continue
+            listing = listings_by_issuer.get(issuer_id)
+            out.append({
+                "chain_id": p_chain,
+                "link_id": link_id,
+                "issuer_id": issuer_id,
+                "issuer_name": issuer_names.get(issuer_id),
+                "role": _compact_text(placement.get("role")),
+                "status": placement.get("status"),
+                "ticker": listing.get("ticker") if listing else None,
+                "market_file": (resolve_listing_market_key(
+                    listing.get("ticker"), listing.get("exchange"),
+                    listing.get("market_ticker"), market) if listing else None),
+                "placement_audit_status": _placement_audit_status(
+                    doc, p_chain, link_id, issuer_id),
+            })
+    out.sort(key=lambda r: (r["chain_id"], r["link_id"], r["issuer_id"]))
+    return out
+
+
+# Headline fundamentals fields, named exactly as method §6A's fetch plane writes them
+# (tools/fetch/fetch.py QUALITY_FIELDS + the two vendor-scalar keys). Not every `*_fy`
+# field the fetcher writes — a deliberate headline, not the full statement.
+FUNDAMENTALS_HEADLINE_FIELDS = ("revenue_fy", "operating_income_fy", "operating_cashflow_fy",
+                                "capex_fy", "shares_fy", "cash", "total_debt")
+
+
+def _fundamentals_latest(series) -> dict:
+    """The latest [date, value] row of one *_fy series, or a vendor scalar block's own
+    {value, as_of} — never a fabricated point when the series is empty."""
+    if isinstance(series, list) and series:
+        rows = [r for r in series if isinstance(r, (list, tuple)) and len(r) >= 2]
+        if not rows:
+            return None
+        latest = max(rows, key=lambda r: str(r[0]))
+        return {"date": latest[0], "value": latest[1]}
+    if isinstance(series, dict) and "value" in series:
+        return {"date": series.get("as_of"), "value": series.get("value")}
+    return None
+
+
+def fundamentals_headline(fundamentals) -> dict:
+    """One market file's fundamentals, reduced to the latest point of each headline field
+    plus as_of/source/official-vs-vendor — never the multi-year series MARKET_UNRENDERED
+    already drops for size. Any field this build does not name by hand but whose key
+    reads as a remaining-performance-obligation figure is picked up too, generically, so
+    the RPO field another agent is landing in fundamentals needs no edit here on the day
+    it ships."""
+    if not isinstance(fundamentals, dict):
+        return None
+    fields = {}
+    for key in FUNDAMENTALS_HEADLINE_FIELDS:
+        latest = _fundamentals_latest(fundamentals.get(key))
+        if latest is not None:
+            fields[key] = latest
+    for key, series in fundamentals.items():
+        if key in fields or key in FUNDAMENTALS_HEADLINE_FIELDS:
+            continue
+        kl = key.lower()
+        if "rpo" not in kl and "remaining_performance_obligation" not in kl:
+            continue
+        latest = _fundamentals_latest(series)
+        if latest is not None:
+            fields[key] = latest
+    if not fields:
+        return None
+    source = fundamentals.get("source")
+    return {"as_of": fundamentals.get("as_of"), "source": source,
+            "official_source": source == "sec-companyfacts", "fields": fields}
+
+
+def project_pipelines(data_dir=DATA) -> list:
+    """Every company pipeline whole (data/pipelines/<issuer_id>.json — a store another
+    agent is standing up in this same run; a missing directory is simply empty, per
+    read_json_dir). Excerpts are whitespace-collapsed like every other trimmed prose
+    field; nothing else about an item is cut."""
+    out = []
+    for doc in read_json_dir(Path(data_dir) / "pipelines"):
+        if not isinstance(doc, dict):
+            continue
+        issuer_id = _identity(doc.get("issuer_id"))
+        if not issuer_id:
+            continue
+        items = []
+        for item in doc.get("items") or []:
+            if not isinstance(item, dict):
+                continue
+            row = dict(item)
+            if isinstance(row.get("source_excerpt"), str):
+                row["source_excerpt"] = _compact_text(row["source_excerpt"])
+            items.append(row)
+        out.append({
+            "issuer_id": issuer_id,
+            "ticker": doc.get("ticker"),
+            "as_of": doc.get("as_of"),
+            "status": doc.get("status"),
+            "items": items,
+            "searched": [s for s in (doc.get("searched") or []) if isinstance(s, str)],
+        })
+    out.sort(key=lambda r: r["issuer_id"])
     return out
 
 
@@ -1180,6 +1618,37 @@ def _row_valuation(ticker, market):
     return val
 
 
+# Fields inside a screen row's `fundamentals` block that stockCard() (app.js) actually
+# reads — always through its own fval() helper, which unwraps a {value:...} leaf OR
+# accepts a bare number, but never touches `.source`/`.as_of`/`.tag` — confirmed 2026-09-14
+# by exhaustive search of app.js. `piotroski` (a bare number) and `beneish_state` (a bare
+# string) need no unwrapping. Dropped entirely: `latest_fy`, `piotroski_state`,
+# `beneish_score` and `quality_basis` — none read by any template. This is the same
+# principle _trim_quality already applies to market's quality block, reaching the other
+# place a screen row's own citation-carrying fundamentals snapshot repeats it: 619 KB of
+# the 1.27 MB screens store on 2026-09-14, most of it citation text (`source` strings like
+# "data/market/VRT.json fundamentals.revenue_fy") no page ever prints.
+SCREEN_FUNDAMENTALS_VALUE_FIELDS = ("revenue_fy", "net_income_fy", "revenue_cagr_3y",
+                                    "market_implied_fcf_cagr")
+
+
+def _trim_screen_fundamentals(fundamentals):
+    if not isinstance(fundamentals, dict):
+        return fundamentals
+    out = {}
+    for key in SCREEN_FUNDAMENTALS_VALUE_FIELDS:
+        leaf = fundamentals.get(key)
+        if isinstance(leaf, dict) and "value" in leaf:
+            out[key] = {"value": leaf.get("value")}
+        elif leaf is not None:
+            out[key] = leaf
+    if "piotroski" in fundamentals:
+        out["piotroski"] = fundamentals.get("piotroski")
+    if "beneish_state" in fundamentals:
+        out["beneish_state"] = fundamentals.get("beneish_state")
+    return out
+
+
 def project_screens(screens: list, market=None) -> list:
     out = []
     for screen in screens:
@@ -1201,6 +1670,8 @@ def project_screens(screens: list, market=None) -> list:
                         new_rows.append(r)
                         continue
                     nr = dict(r)
+                    if "fundamentals" in nr:
+                        nr["fundamentals"] = _trim_screen_fundamentals(nr["fundamentals"])
                     val = _row_valuation(nr.get("ticker"), market)
                     if val is not None:
                         nr["valuation"] = val
@@ -1231,12 +1702,40 @@ def project_stocks(stocks: list) -> tuple:
 
 
 def project_requests(requests: dict) -> dict:
-    """Every request row, whole. `settled` is the count of rows that are neither PENDING
-    nor FAILED, printed beside the two open counts on the cortex register."""
+    """1,865 rows and 1,809 of them FULFILLED on 2026-09-13 (0.98 MB) — room-making room:
+    every row that is not FULFILLED (PENDING + FAILED, the two states anyone needs to act
+    on), plus `by_kind_status` (counts, so the cortex register and the new pipeline view
+    need not scan the array to answer "how many prices requests failed") and
+    `latest_by_ticker` (the newest row per ticker per kind, so a company page can say what
+    is queued or stuck for its own tickers without scanning 1,865 rows client-side).
+    `total` and `settled` still describe the WHOLE store, not just what is carried —
+    the denominator app.js is required to print beside any cut."""
     rows = [r for r in ((requests or {}).get("requests") or []) if isinstance(r, dict)]
-    open_rows = [r for r in rows if r.get("status") in ("PENDING", "FAILED")]
-    return {"requests": rows, "total": len(rows),
-            "settled": len(rows) - len(open_rows)}
+    total = len(rows)
+    by_kind_status: dict = {}
+    latest_by_ticker: dict = {}
+    kept = []
+    for r in rows:
+        kind, status = r.get("kind"), r.get("status")
+        by_kind_status.setdefault(kind, {})
+        by_kind_status[kind][status] = by_kind_status[kind].get(status, 0) + 1
+        ticker = _ticker(r.get("ticker"))
+        if ticker:
+            slot = latest_by_ticker.setdefault(ticker, {})
+            prior = slot.get(kind)
+            key = (r.get("requested_at") or "", r.get("id") or "")
+            prior_key = (prior.get("requested_at") or "", prior.get("id") or "") if prior else None
+            if prior is None or key > prior_key:
+                slot[kind] = {"id": r.get("id"), "status": status,
+                              "requested_at": r.get("requested_at"),
+                              "fulfilled_at": r.get("fulfilled_at"), "note": r.get("note")}
+        if status != "FULFILLED":
+            kept.append(r)
+    open_rows = [r for r in kept if r.get("status") in ("PENDING", "FAILED")]
+    return {"requests": kept, "total": total,
+            "settled": total - len(open_rows),
+            "by_kind_status": by_kind_status,
+            "latest_by_ticker": latest_by_ticker}
 
 
 
@@ -1518,12 +2017,22 @@ def build_payload(data_dir=DATA, root=ROOT):
             if line.strip():
                 trades.append(json.loads(line))
 
-    ledger_lines = []
+    # Newest 200 lines + the total count (tightened from 400 on 2026-09-14, the
+    # engineering brief's page-diet pass, to hold the real page under its 12.5 MB test):
+    # room-making room for the company/mapping/pipeline projections landing in this same
+    # build. The file is still the truth (compare_committed's ordered-subsequence check
+    # already tolerates the page lagging or omitting lines from data/ledger.md); this just
+    # widens the gap on purpose. `ledger_total` is the denominator app.js prints beside
+    # the cut.
+    LEDGER_CARRIED_LINES = 200
+    ledger_all = []
     lfile = DATA / "ledger.md"
     if lfile.exists():
         for line in lfile.read_text().splitlines():
             if line[:2].isdigit() and "|" in line:
-                ledger_lines.append(line.strip())
+                ledger_all.append(line.strip())
+    ledger_total = len(ledger_all)
+    ledger_lines = ledger_all[-LEDGER_CARRIED_LINES:]
 
     digests = read_json_dir(DATA / "digest")
     digests.sort(key=lambda d: d.get("week", ""), reverse=True)
@@ -1534,6 +2043,13 @@ def build_payload(data_dir=DATA, root=ROOT):
     screens = read_json_dir(DATA / "screens")
     stocks = read_json_dir(DATA / "stocks")
     requests = json.loads((DATA / "requests.json").read_text()) if (DATA / "requests.json").exists() else {"requests": []}
+    # Read once here for the compact company/placement projections below.
+    # build_campaign_ix reads its own copies of these same two stores (it needs mapping
+    # evidence shapes project_placements does not) rather than taking them as parameters
+    # — an accepted second read of ~5 MB raw, not a correctness risk.
+    companies_raw = read_json_dir(DATA / "companies")
+    mappings_raw = read_json_dir(DATA / "mappings")
+    book = json.loads((DATA / "book.json").read_text()) if (DATA / "book.json").exists() else None
 
     # trimmed feed subset for the cortex dust ring (title/source/family/date only)
     feeds_store = {"items": []}
@@ -1555,13 +2071,19 @@ def build_payload(data_dir=DATA, root=ROOT):
                 _fam = it.get("family")
                 if _fam:
                     _fams[_fam] = _fams.get(_fam, 0) + 1
+            # 2026-09-14, the page-diet pass: `url`, `id` and `summary` rode on every one
+            # of these 800 items (233 KB combined) though nothing in app/templates/app.js
+            # reads them — confirmed by exhaustive search: the dust ring (cxBuild) and its
+            # drawer (cxDustDrawer) render only title/source/family/date, and a feed item
+            # has no addressable page of its own to link out from (the store prunes at 500
+            # items/14 days; the occurrence log in data/themes/ is the permanent, linkable
+            # record). The comment above already promised "title/source/family/date only";
+            # this now matches it.
             feeds_store = {"as_of": _f.get("as_of"), "total": len(_items),
                            "families": _fams,
                            "items": [
                                {"t": it.get("title"), "s": it.get("source"),
-                                "f": it.get("family"), "d": it.get("ts"),
-                                "u": it.get("url"), "i": it.get("id"),
-                                "sm": it.get("summary")}
+                                "f": it.get("family"), "d": it.get("ts")}
                                for it in _items]}
         except Exception:
             pass
@@ -1623,6 +2145,15 @@ def build_payload(data_dir=DATA, root=ROOT):
         "market": project_market(
             market,
             fundamentals_for=[s.get("ticker") for s in stocks if isinstance(s, dict)]),
+        # Compact projections (2026-09-13): every issuer profile, every mapping's
+        # placements, and every company pipeline, each trimmed per the rule at the top
+        # of this section. `book` is data/book.json's own already-compact rows, carried
+        # whole (229 rows on 2026-09-13; ranking and denominator ride along verbatim).
+        "companies": project_companies(companies_raw, market),
+        "placements": project_placements(mappings_raw, market),
+        "pipelines": project_pipelines(DATA),
+        "book": book,
+        "ledger_total": ledger_total,
         "shadow": {
             "book": json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
             "results": json.loads((DATA / "shadow" / "results.json").read_text()) if (DATA / "shadow" / "results.json").exists() else {},
@@ -1695,14 +2226,24 @@ def build_payload(data_dir=DATA, root=ROOT):
             "page": {"fidelity": "FULL",
                      "series_detail_rule": "every ticker, full daily series",
                      "impact_detail_rule": "every appraisal, legs and evidence whole",
-                     "history_rows": "all", "ledger_lines": "all",
+                     "history_rows": "all",
+                     "ledger_lines": f"newest {LEDGER_CARRIED_LINES} of {ledger_total}",
                      "fundamentals_rule": "whole for every dived ticker (the stock page "
-                                          "draws them); other tickers' blocks stay in "
-                                          "data/market",
+                                          "draws them); other tickers get a compact "
+                                          "fundamentals_headline instead",
                      "not_carried": ["market fundamentals for tickers without a dive, and "
                                      "insider/prints/legs blocks for every ticker "
-                                     "(no template renders them)",
-                                     "raw EDGAR filing text (data/edgar/docs, no page)"]},
+                                     "(no template renders them; a compact "
+                                     "fundamentals_headline rides on each market file)",
+                                     "raw EDGAR filing text (data/edgar/docs, no page)",
+                                     "company profile evidence, confidence audits, "
+                                     "selection reviews and changelogs "
+                                     "(data/companies/<issuer_id>.json; the company "
+                                     "page names the file)",
+                                     "mapping placement evidence, search logs and "
+                                     "audit sample detail (data/mappings/<slug>.json)",
+                                     "FULFILLED request rows (data/requests.json; "
+                                     "counts and the open rows are carried)"]},
         },
     }
 

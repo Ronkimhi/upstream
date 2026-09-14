@@ -44,5 +44,74 @@ class TestMarketPaths(unittest.TestCase):
             self.assertEqual(market_paths.market_path(ROOT / "data", dotted).name, f.name)
 
 
+class TestResolveMarketStem(unittest.TestCase):
+    """app/build.py's shared resolver for a mapping listing that carries a bare local
+    code and no `market_ticker` (168 of 370 listings on 2026-09-13): the fetcher still
+    wrote the file under an exchange-suffixed name, and the resolver must recover it from
+    `exchange` alone. Fixtures are the two real cases named in the engineering brief."""
+
+    def test_bare_taiwan_code_resolves_through_exchange_suffix(self):
+        available = {"2330-TW", "AAPL"}
+        self.assertEqual(
+            market_paths.resolve_market_stem(ticker="2330", exchange="TWSE",
+                                              available=available),
+            "2330-TW")
+
+    def test_bare_toronto_code_resolves_through_exchange_suffix(self):
+        available = {"WSP-TO"}
+        self.assertEqual(
+            market_paths.resolve_market_stem(ticker="WSP", exchange="TSX",
+                                              available=available),
+            "WSP-TO")
+
+    def test_market_ticker_wins_over_a_derived_suffix(self):
+        # The mapping's own fetched-form record is stronger evidence than a derived guess.
+        available = {"2330-TWO"}
+        self.assertEqual(
+            market_paths.resolve_market_stem(ticker="2330", exchange="TWSE",
+                                              market_ticker="2330.TWO",
+                                              available=available),
+            "2330-TWO")
+
+    def test_already_dotted_ticker_needs_no_suffix(self):
+        available = {"2899-HK"}
+        self.assertEqual(
+            market_paths.resolve_market_stem(ticker="2899.HK", exchange="HKEX",
+                                              available=available),
+            "2899-HK")
+
+    def test_plain_us_ticker_resolves_bare(self):
+        available = {"POWL"}
+        self.assertEqual(
+            market_paths.resolve_market_stem(ticker="POWL", exchange="NASDAQ",
+                                              available=available),
+            "POWL")
+
+    def test_unfetched_listing_resolves_to_none_never_fabricated(self):
+        self.assertIsNone(
+            market_paths.resolve_market_stem(ticker="2330", exchange="TWSE",
+                                              available={"AAPL"}))
+        self.assertIsNone(
+            market_paths.resolve_market_stem(ticker="ZZZZ", exchange="UNKNOWN EXCHANGE",
+                                              available={"AAPL"}))
+
+    def test_unknown_exchange_never_invents_a_suffix(self):
+        self.assertIsNone(
+            market_paths.resolve_market_stem(ticker="1234", exchange="SOME MADE UP VENUE",
+                                              available={"1234-XX"}))
+
+    def test_available_as_directory_checks_disk(self):
+        folder = ROOT / "data" / "market"
+        if not folder.is_dir():
+            self.skipTest("no data/market on this tree")
+        any_file = next(folder.glob("*.json"), None)
+        if any_file is None:
+            self.skipTest("data/market is empty on this tree")
+        stem = any_file.stem
+        dotted = stem.replace("-", ".", 1) if "-" in stem else stem
+        self.assertEqual(
+            market_paths.resolve_market_stem(ticker=dotted, available=folder), stem)
+
+
 if __name__ == "__main__":
     unittest.main()
