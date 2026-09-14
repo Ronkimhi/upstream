@@ -1,0 +1,114 @@
+{
+ "id": "nodule-mining-refining",
+ "chain_id": "nodule-mining-refining",
+ "scenario_id": null,
+ "created_at": "2026-09-14",
+ "as_of": "2026-09-14",
+ "identity_schema": "campaign-v1",
+ "campaign_ref": null,
+ "mapping_ref": "data/mappings/nodule-mining-refining.json",
+ "universe_note": "First-ever screen for nodule-mining-refining (chain-level, scenario_id null; no prior data/screens/nodule-mining-refining.json existed). This chain was built and mapped outside the campaign slate per Ron's instruction (data/mappings/nodule-mining-refining.json's own notes[]), so campaign_ref is null; identity_schema is still campaign-v1 because the mapping is normalized and dated today, the same boundary check_screen._campaign_strict applies to any post-cutoff screen over a normalized map regardless of campaign membership. Universe built per LINK across all 11 links, priority order money-corner then CHOKE_POINT then the rest by impact: refining-tech (pos 9, the chain's sole money_corner:true link, also CHOKE_POINT, impact 85) worked first, then the 3 other CHOKE_POINT links (us-seabed-minerals-policy pos 1, seabed-permit-review pos 3, port-siting-epc pos 8), then the remaining 7 by impact score.\n\nZERO ROWS SEATED THIS RUN. The mapping (status ACTIVE, no top-level census audit block, 6 placement_audits[] entries landed 2026-09-14: 5 PASS, 1 FAIL) admits 5 of its 6 placements on the placement-scope gate (all-VERIFIED evidence, or a current PASS placement_audits[] entry per check_screen._placement_admissible): TMC/refining-tech (evidence VERIFIED), METALS-ROYALTY/ccz-nodule-resource (evidence VERIFIED), DEEP-SEA-MINERALS/permit-race (evidence VERIFIED), TMC/ccz-nodule-resource (evidence INFERRED, admitted via its PASS placement audit), ODYSSEY-MARINE/ccz-nodule-resource (evidence INFERRED, admitted via its PASS placement audit). The 6th, TECHNIPFMC/collector-tech, clears neither basis: its evidence is INFERRED-only and its placement_audits[] entry (audited_at 2026-09-14T01:31:00Z) is status FAIL on source_date_ok (the cited JPT/SPE article is dated 2021-08-16, not the 2026-01-01 recorded), so it is refused on the placement gate itself, independent of profile status.\n\nBut every one of the 5 placement-admissible names sits on an issuer whose company profile is BLOCKED/O3, not COMPLETE: data/companies/{TMC,ODYSSEY-MARINE,METALS-ROYALTY,DEEP-SEA-MINERALS,TECHNIPFMC}.json all read status BLOCKED, opportunity_tier O3, every canonical metric NULL, because no data/market/<T>.json exists on disk for any of this mapping's 5 tickers (TMC, FTI, OMEX, TMCR, SEAS.CN) yet. check_screen.check_campaign_identity requires a COMPLETE O1 or O2 profile as an independent gate on top of placement admissibility; O3/BLOCKED profiles are refused regardless of how strong the placement evidence is. So this run's finding is entirely a data-availability finding, not an evidence or identity finding: every placement-admissible name is profile-blocked, and the one placement that is not placement-admissible (TECHNIPFMC/collector-tech) is also profile-blocked, so no combination of gates seats anything yet.\n\nRequest rows already cover all 5 tickers' prices, fundamentals, quality and edgar_doc (TMC: REQ-20260914-464/465/466/467 and a duplicate batch 501-504; FTI: 468-471 and 505-508; OMEX: 472-475 and 509-512; TMCR: 476-479 and 513-516; SEAS.CN: 480-482, 517-519, and 627-629), all still PENDING as of this run. This run adds no new request rows: the existing PENDING rows already cover every field every one of these profiles needs to move to COMPLETE. Re-run `run profile <TICKER>` for each of the 5 once the fetch settles, then re-run this screen.\n\nPer-link disposition, all 11 links:\n1. us-seabed-minerals-policy [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible by design; mapping closes this link EXHAUSTED at 0 issuers (a presidential executive order has no commercial issuer), a genuine finding, not a gap.\n2. ccz-nodule-resource [MEDIUM, verdict CROWDED, mapping OPEN]: no row. 3 placements are placement-gate admissible (TMC, ODYSSEY-MARINE, METALS-ROYALTY) but all 3 issuers are BLOCKED/O3, data pending.\n3. seabed-permit-review [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible by design; mapping closes this link EXHAUSTED at 0 issuers (a federal agency review has no commercial issuer).\n4. permit-race [MEDIUM, verdict QUIET, mapping OPEN]: no row. DEEP-SEA-MINERALS is placement-gate admissible but BLOCKED/O3, data pending.\n5. collector-tech [HIGH, verdict UNDISCOVERED, mapping OPEN]: no row. TECHNIPFMC fails the placement gate itself (INFERRED evidence, FAIL placement audit on source_date_ok) and is also BLOCKED/O3; doubly refused. Atlas's own mapping notes name two better-sourced but not-yet-placed leads for this link (DEME Group/GSR, Kongsberg Gruppen) for a future universe run.\n6. env-monitoring-compliance [MEDIUM, verdict QUIET, mapping OPEN]: no row; zero placements exist in the mapping for this link (example tickers TDY, KOG.OL are query seeds, not placed issuers). Backlogged to Atlas's own run universe.\n7. marine-transport [LOW, verdict QUIET, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas.\n8. port-siting-epc [CHOKE_POINT, money_corner false, verdict UNDISCOVERED]: no row possible; mapping closes this link EXHAUSTED at 0 issuers (Mariana Minerals, the named developer, is a private LLC; no EPC/permitting firm confirmed on this specific project despite a rigorous SEC EDGAR full-text and Fluor-newsroom search).\n9. refining-tech [CHOKE_POINT, MONEY_CORNER true, verdict UNDISCOVERED, impact 85]: no row. TMC's placement here is placement-gate admissible (evidence VERIFIED) but TMC's profile is BLOCKED/O3, data pending. This is the chain's money-corner link and it is named here explicitly per check_screen.check_run_day: searched and attributable-once-data-lands, not silently empty.\n10. china-international-response [MEDIUM, verdict n/a, mapping OPEN]: no row; zero placements in the mapping (example tickers are Chinese incumbent refiners, a competitive-response angle, not placed). Backlogged to Atlas.\n11. refined-metal-demand [n/a, mapping OPEN]: no row; zero placements in the mapping. Backlogged to Atlas.\n\nDISTINCT ISSUER TALLY across the mapping's 5 issuers: 0 seat a row this run. 4 (TMC, ODYSSEY-MARINE, METALS-ROYALTY, DEEP-SEA-MINERALS) hold at least one placement-gate-admissible placement but are BLOCKED/O3 on the separate profile-completeness gate. 1 (TECHNIPFMC) fails the placement gate itself and is also BLOCKED/O3. 0 issuers have no profile file at all; all 5 have a same-day (2026-09-14) BLOCKED profile already on disk from a prior fan-out run this same day, each carrying request rows that already cover the missing data.\n\nNo PENDING_DATA screen rows are written this run: a PENDING_DATA row represents an admitted candidate whose per-field data is incomplete, and check_screen.check_pending_backed requires a request row behind every such row; here, nothing clears the campaign-identity gate (COMPLETE O1/O2 profile) at all, so there is no row to mark PENDING_DATA, only an empty universe with the reason recorded per link above. No EDGAR full-text search was run against data/edgar/fts/ or data/edgar/docs/ this run: no company on this chain has an edgar_doc fetched yet (all 5 edgar_doc requests are PENDING), so no earnings nugget could be sourced regardless.\n\nBacklogged to Sieve's own run profile (not this command): once the fetch workflow settles the already-queued prices/fundamentals/quality/edgar_doc requests for TMC, FTI, OMEX, TMCR and SEAS.CN, re-run `run profile <TICKER>` for each of the 5 to move them off BLOCKED, then re-run this screen; refining-tech (money corner) and ccz-nodule-resource (3 admissible placements) are the highest-value re-runs. Backlogged to Atlas's own run universe (data/mappings/ is Atlas-owned): place a second name on collector-tech (DEME Group/GSR or Kongsberg Gruppen, both leads recorded in the mapping's own notes[] but not yet placed for lack of compliant identity evidence), and research the 4 zero-placement links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand). Backlogged to a future universe-audit or repair: TECHNIPFMC/collector-tech's evidence[0].source_date (recorded 2026-01-01) should be corrected to 2021-08-16 per its own FAIL placement audit finding, which would not by itself make the placement all-VERIFIED (the evidence tag is INFERRED) but would let a corrected re-audit potentially PASS.",
+ "queries_run": [
+  {
+   "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/nodule-mining-refining.json (6 placements across 5 issuers), status and evidence tags, cross-checked against placement_audits[] (6 entries, 5 PASS / 1 FAIL, all landed 2026-09-14)",
+   "forms": null,
+   "hits_examined": 6,
+   "names_extracted": 5
+  },
+  {
+   "query": "check_screen._placement_admissible re-run by hand against each of the 6 placements: all-VERIFIED evidence, or placement_audit_for(mapping, chain_id, link_id, issuer_id) is not None",
+   "forms": null,
+   "hits_examined": 6,
+   "names_extracted": 5
+  },
+  {
+   "query": "COMPLETE O1/O2 profile lookup under data/companies/ for all 5 issuers named in the mapping, via data/companies/_profile-log.json calibration.per_profile and direct read of each profile file",
+   "forms": null,
+   "hits_examined": 5,
+   "names_extracted": 0
+  },
+  {
+   "query": "data/market/<T>.json existence check for TMC, FTI, OMEX, TMCR, SEAS-CN (dashed vendor-file convention per tools/market_paths.py)",
+   "forms": null,
+   "hits_examined": 5,
+   "names_extracted": 0
+  },
+  {
+   "query": "data/requests.json PENDING row lookup for all 5 tickers (prices, fundamentals, quality, edgar_doc kinds) to confirm existing coverage before deciding whether to queue new rows",
+   "forms": null,
+   "hits_examined": 41,
+   "names_extracted": 5
+  },
+  {
+   "query": "chain heat block for all 11 links of data/chains/nodule-mining-refining.json: impact/crowdedness/capture scores, verdict, money_corner, bottleneck criticality (heat_as_of 2026-09-14, unchanged this run)",
+   "forms": null,
+   "hits_examined": 11,
+   "names_extracted": 0
+  }
+ ],
+ "data_gaps": [
+  "No data/market/<T>.json exists on disk for any of this mapping's 5 tickers (TMC, FTI, OMEX, TMCR, SEAS.CN); every one of the mapping's 5 issuer profiles is status BLOCKED, opportunity_tier O3, with all 12 canonical metric fields NULL, as of this run. This is the sole reason zero rows seat this run; the placement and identity gates are otherwise substantially clear (5 of 6 placements are placement-gate admissible).",
+  "TECHNIPFMC/collector-tech additionally fails the placement gate itself: its sole evidence item is tagged INFERRED and its placement_audits[] entry (audited_at 2026-09-14T01:31:00Z) is status FAIL, source_date_ok false (the cited article is dated 2021-08-16, recorded as 2026-01-01, an error of over four years). Correcting the source_date would not by itself flip this row admissible (the evidence tag itself stays INFERRED); a future run universe repair plus a fresh placement re-audit would be needed.",
+  "41 request rows already PENDING cover prices, fundamentals, quality and edgar_doc for all 5 tickers (TMC, FTI, OMEX, TMCR, SEAS.CN), some duplicated across 2-3 prior queuing runs; this screen adds no new rows. `run profile <TICKER>` should be re-run for each of the 5 once the fetch workflow settles them.",
+  "4 links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand) carry zero placements in the mapping at all; their example_tickers are Atlas's own query seeds, never placed issuers. Backlogged to Atlas's run universe.",
+  "3 links (us-seabed-minerals-policy, seabed-permit-review, port-siting-epc) are EXHAUSTED at 0 issuers by the mapping's own rigorous multi-source, same-plane-controlled search: genuinely uninvestable by design (a federal executive order, a federal agency review, and a private unlisted site developer with no confirmed public EPC contractor), not a data gap.",
+  "collector-tech (HIGH bottleneck) has two better-sourced but not-yet-placed leads recorded in the mapping's own notes[] (DEME Group NV / GSR's parent, and Kongsberg Gruppen ASA), both blocked on unusable exchange-page fetches (Euronext 404/503, Kongsberg IR 404) rather than a missing role; backlogged to Atlas.",
+  "No EDGAR full-text search was run against data/edgar/fts/ or data/edgar/docs/ this run: no edgar_doc is fetched yet for any of the 5 tickers (all 5 edgar_doc requests are PENDING), so no earnings_nuggets could be sourced regardless of link priority."
+ ],
+ "buckets": {
+  "pure_play": [],
+  "picks_and_shovels": [],
+  "second_order": [],
+  "hedge": []
+ },
+ "taste_filtered": [],
+ "health": {
+  "tickers_examined": 5,
+  "rows_written": 0,
+  "fully_scored": 0,
+  "pending": 0,
+  "errors": 0,
+  "rows_superseded": 0,
+  "rows_with_quality_gaps": 0,
+  "links_worked": 11,
+  "links_total": 11,
+  "target_links_covered": 0,
+  "money_corner_links_total": 1,
+  "money_corner_links_covered": 0,
+  "choke_point_links_total": 4,
+  "choke_point_links_covered": 0,
+  "quotes_verified": 0,
+  "distinct_issuers": 0,
+  "profiles_available_repo_wide": 313,
+  "admissible_placements_all_verified_evidence": 3,
+  "placements_examined": 6,
+  "placements_inferred_only_evidence": 3,
+  "distinct_issuers_in_mapping": 5,
+  "issuers_complete_profile": 0,
+  "issuers_blocked_o3": 5,
+  "issuers_with_no_profile": 0,
+  "placement_audits_examined": 6,
+  "placement_audits_pass": 5,
+  "placement_audits_fail": 1,
+  "issuers_complete_seated_this_run": 0,
+  "issuers_complete_excluded_on_audit_finding": 0,
+  "issuers_admissible_evidence_no_profile": 4,
+  "mapping_audit_status": "NONE",
+  "mapping_status": "ACTIVE"
+ },
+ "notes": [],
+ "confidence_audit": {
+  "verified": 0,
+  "inferred": 0,
+  "speculative": 0,
+  "null": 0
+ },
+ "changelog": [
+  {
+   "ts": "2026-09-14T00:00:00Z",
+   "by": "sieve-profiler",
+   "change": "First run screen nodule-mining-refining (chain-level, scenario_id null). Built the per-link universe across all 11 links, money-corner then CHOKE_POINT then impact order. Mapping is ACTIVE with no top-level census audit and 6 placement_audits[] entries (5 PASS, 1 FAIL), all landed earlier today. 5 of 6 placements clear check_screen._placement_admissible (3 on all-VERIFIED evidence tags, 2 on a current PASS placement audit); TECHNIPFMC/collector-tech clears neither (INFERRED evidence, FAIL audit on source_date_ok). Zero rows seated regardless: every one of the mapping's 5 issuer profiles (TMC, ODYSSEY-MARINE, METALS-ROYALTY, DEEP-SEA-MINERALS, TECHNIPFMC) is status BLOCKED, opportunity_tier O3, because no data/market/<T>.json exists yet for any of the 5 tickers; check_campaign_identity requires a COMPLETE O1/O2 profile as a gate independent of placement admissibility. 41 PENDING request rows across the 5 tickers (prices, fundamentals, quality, edgar_doc) already cover this gap; none re-queued. refining-tech, the chain's sole money-corner link, is named in universe_note with its reason per check_screen.check_run_day. 4 links (env-monitoring-compliance, marine-transport, china-international-response, refined-metal-demand) hold zero placements in the mapping and are backlogged to Atlas's run universe; 3 links (us-seabed-minerals-policy, seabed-permit-review, port-siting-epc) are genuinely EXHAUSTED at 0 issuers by design. Backlogged to Sieve's own run profile: re-run for all 5 tickers once the fetch settles.",
+   "prior": null
+  }
+ ]
+}
