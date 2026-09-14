@@ -1875,131 +1875,30 @@
    "by": "ron",
    "kind": "AMEND",
    "change": "refresh data/mappings/munitions-replenishment.json: re-cited the HENSOLDT placement at allied-rearmament-demand (placements[41], evidence[0]) within the same stored HENSOLDT news release (data/web/5b6dfa49148d7004.json, Financial year 2025 record order intake release, url unchanged). The prior source_excerpt spliced the group-level order-intake bullet (EUR 4,710 million previous year EUR 2,904 million) to a truncated sentence from the separate Sensors-segment section later in the page as if one contiguous quote; origin's validate.py refused it as source_excerpt not in the stored text (MISMATCH). The excerpt is now one genuinely contiguous verbatim span copied directly from the stored page's Sensors-segment paragraph: 'Sensors: Strong order momentum strengthens revenue growth In the Sensors segment, orders for air defence radars, the Eurofighter programme, PEGASUS and P8 Poseidon were the main drivers of order intake, which amounted to EUR 3,143 million.' The claim is reworded to state exactly what that span supports (Sensors-segment order intake of EUR 3,143 million driven by air defence radar and allied platform programmes); role, issuer_id, link_id, status, source_name, source_date and url are unchanged, and no other placement was touched. This is a citation-contiguity fix only: the separate 2026-08-31 role-evidence flag on this same placement, carried in audit.surviving_limitation, is untouched and remains open for a later run universe and re-audit."
+  },
+  {
+   "ts": "2026-09-14T19:55:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit munitions-replenishment: fresh-context re-audit after the 2026-09-14T19:18:41Z HENSOLDT re-citation amendment. Result: FAIL, mapping stays ACTIVE. Fingerprint ac7f465ff0f94304bbd03477e3adb72f242f27e25d7c22bdaf05804a13534c20. Examined 13 of 13 links (9 OPEN, 1 TARGET_MET, 3 EXHAUSTED), 22 of 22 sampled placements, 10 of 10 EXHAUSTED search records. HENSOLDT's re-cited excerpt (placements[41]) was checked against the stored data/web/5b6dfa49148d7004.json with evidence_store.verify: MATCH, genuinely contiguous, closing the splice defect. But the role itself, sensor and radar order intake, was never the fact this link requires (nitrocellulose, propellant, or solid-rocket-motor demand); the author's own changelog entry disclosed this was a citation-only fix, and this run reconfirms the role_conflict independently. Blocking defect, unchanged since 2026-08-31: nine link_coverage rows remain OPEN, so the map cannot be COMPLETE regardless of any other finding. This run samples all twelve allied-rearmament-demand placements, not just the TARGET_MET minimum of two: RHEINMETALL and AVIO hold on both citation and role; the other ten (HENSOLDT, BAE-SYSTEMS, LEONARDO, BABCOCK-INTERNATIONAL-GROUP, AIRBUS, ROLLS-ROYCE-HOLDINGS, COHORT, CHEMRING-GROUP, ELBIT-SYSTEMS, MS-INTERNATIONAL) are role conflicts. Five of those (AIRBUS, ROLLS-ROYCE-HOLDINGS, COHORT, MS-INTERNATIONAL, and HENSOLDT's role separate from its citation) were flagged 2026-08-31 and never re-sampled by any sitting since; this run independently reconfirms all five. BAE-SYSTEMS is a newly caught sixth role_conflict. Reading six LSE tearsheet PDFs, the CSIS report, and the Lockheed Martin annual report from their own saved PDF text layer (not a summarizing fetch) found three further non-contiguous excerpt splices not previously flagged on their placements: BAE-SYSTEMS and ROLLS-ROYCE-HOLDINGS on allied-rearmament-demand, and LOCKHEED-MARTIN on missile-final-assembly (this OPEN link's sample; its underlying claim holds once read in full, so role_ok stands and the splice is an amendment only). The perchlorate-oxidizer/NORTHROP-GRUMMAN splice and role overstatement first found 2026-09-14T02:10 is reconfirmed with certainty this run via the same direct-PDF method, including that the source's own text reserves weapons-programme AP supply to AMPAC and never names NewMarket. AVIO and LEONARDO show likely further splices, verified only through WebFetch's rendered text rather than a stored byte-level copy, so carried at lower confidence. All five GENERAL-DYNAMICS OPEN-link placements and the one nitration-feedstocks RHEINMETALL placement were re-checked against stored documents (data/web/1da5155fa09a5a77.json) or a live fetch and confirmed clean. All ten EXHAUSTED search records (nitration-feedstocks, nondestructive-inspection, dod-munitions-procurement) were independently re-verified live and confirmed accurate, including that VisiConsult's separate inspection-service division does not change its disqualifying fact (privately held). ELBIT-SYSTEMS' citation could not be independently verified against its 2MB 20-F this run; its role_conflict rests on the claim and excerpt as recorded. Nothing corrected here; 15 amendments recorded for the author's next run universe.",
+   "prior": "audit.status FAIL, mapping_fingerprint b7c6f1e77b1641017356ed148e6c9c197983aca4dbf0867726aeef3debae769d, audited_at 2026-09-14T02:10:00Z, 4 role_conflicts (CHEMRING-GROUP, LEONARDO, BABCOCK-INTERNATIONAL-GROUP, NORTHROP-GRUMMAN/perchlorate-oxidizer), 7 amendments_required, 9 OPEN links"
   }
  ],
  "audit": {
-  "audited_at": "2026-09-14T02:10:00Z",
+  "audited_at": "2026-09-14T19:55:00Z",
   "reviewed_by": "atlas-fresh-context",
   "agent_id": "atlas-fresh-context",
-  "transcript_ref": "atlas-fresh-context/run-universe-audit-munitions-replenishment/fan-out-worktree-fix-gd-audit-2026-09-14T0210Z",
+  "transcript_ref": "atlas-fresh-context/run-universe-audit-munitions-replenishment/worktree-audit-munitions-2026-09-14T1955Z",
   "review_mode": "FRESH_CONTEXT",
-  "independence_limitation": "This audit ran in a detached git worktree (fix-gd-audit, local commit 618961d on top of origin/main) created fresh for this fan-out run, reading only data/mappings/munitions-replenishment.json, data/chains/munitions-replenishment.json, docs/method.md section 6A, CLAUDE.md's run universe-audit and run universe-audit --placement clauses, .claude/agents/atlas-cartographer.md, the tools/check_map.py gate contract (mapping_fingerprint, audit_failures, placement_claim_digest, search_record_digest, placement_audit_for, placement_audit_failures) and .claude/hooks/universe-gate.py. It never read data/chains/_map-log.json, the archetype library, company profiles, screens, the author's transcript, or ledger rationale beyond this mapping's own prior audit and changelog blocks. This same sitting also performed the run universe-audit --placement GENERAL-DYNAMICS audit recorded below in placement_audits: the two are independent of the authoring session but not of each other. Sources opened live this run: the stored data/web/1da5155fa09a5a77.json (SEC EDGAR HTML copy of General Dynamics' FY2025 10-K, used to verify all five re-cited GENERAL-DYNAMICS placements against its text), the live SEC EDGAR submissions API for CIK 0000040533, and fourteen further live fetches (Rheinmetall, SGL Carbon, Boeing, CSIS, Deutsche Boerse Frankfurt, the London Stock Exchange, Leonardo, the Warsaw Stock Exchange, MISTRAS, VisiConsult and Defense News) plus three cached PDF fetches (the Northrop Grumman 2021 annual report and two London Stock Exchange tearsheet PDFs) extracted locally with pdftotext after WebFetch's own reader could not decode their text layer, each named individually in the sampled_checks rows above. Repository state cannot cryptographically prove fresh context or reviewer independence; what is checkable is content-bound, through mapping_fingerprint and each row's record_digest.",
+  "independence_limitation": "This audit ran in the prepared detached worktree audit-munitions (local commit b871a2f, on top of origin/main), reading only data/mappings/munitions-replenishment.json, data/chains/munitions-replenishment.json, docs/method.md section 6A, CLAUDE.md's run universe-audit clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py gate contract (mapping_fingerprint, audit_failures, placement_claim_digest, search_record_digest), and .claude/hooks/universe-gate.py. It never read data/chains/_map-log.json, the archetype library, company profiles, screens, the author's transcript, or ledger rationale beyond this mapping's own prior audit and changelog blocks, which method section 6A names as legitimate audit input. This session is local, so WebFetch is not egress-blocked (the cloud/routine restriction in CLAUDE.md's venue rule); 31 live WebFetch or WebSearch fetches and reads of eleven saved PDF files (via the Read tool's own PDF text layer, not a summarizing model, for the six LSE tearsheet PDFs, the CSIS report, and the Lockheed Martin annual report) were run this sitting, all named individually in the sampled_checks rows above. The stored data/web/1da5155fa09a5a77.json (SEC EDGAR HTML copy of General Dynamics' FY2025 10-K) and data/web/5b6dfa49148d7004.json (HENSOLDT's FY2025 release) were checked with the repo's own evidence_store.verify rather than by eye. Repository state cannot cryptographically prove fresh context or reviewer independence; what is checkable is content-bound, through mapping_fingerprint and each row's record_digest.",
   "status": "FAIL",
-  "mapping_fingerprint": "b7c6f1e77b1641017356ed148e6c9c197983aca4dbf0867726aeef3debae769d",
+  "mapping_fingerprint": "ac7f465ff0f94304bbd03477e3adb72f242f27e25d7c22bdaf05804a13534c20",
   "links_examined": 13,
-  "placements_examined": 14,
+  "placements_examined": 22,
   "searches_examined": 10,
   "target_met_links_examined": 1,
   "exhausted_links_examined": 3,
   "sampled_checks": [
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "energetic-materials",
-    "issuer_id": "GENERAL-DYNAMICS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_excerpt": "We deliver world-class propellants for both direct- and indirect-fire munitions, and as the global leader in extruded propellant manufacturing and the world’s largest producer of the trusted Ball Powder propellant, we power a wide array of U.S. and allied military platforms.",
-    "record_digest": "62ba6a77cd192d7559f77d1fc068b162ac06ec44db0c56a9983133db2bd4e5a7"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "perchlorate-oxidizer",
-    "issuer_id": "NORTHROP-GRUMMAN",
-    "identity_ok": true,
-    "role_ok": false,
-    "source_date_ok": true,
-    "source_url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
-    "source_date": "2026-06-12",
-    "source_excerpt": "Re-fetched the cited CSIS report live (cached copy extracted with pdftotext after WebFetch's own reader could not decode the PDF text layer). The document prints, as one genuinely contiguous span, \"Although AMPAC remains the leading supplier of AP for weapons programs, Northrop Grumman has become an alternative source for space launch applications following approval in 2021.\" The placement's own evidence[0].source_excerpt omits the opening clause reserving weapons programs to AMPAC and never quotes it, which is itself a non-contiguous citation (see amendments_required); read in full or in the placement's own truncated form, the source never names NewMarket and qualifies Northrop's alternative-source status to space launch, so the role's claim of a general second producer alongside AMPAC/NewMarket on this munitions chain is not supported.",
-    "record_digest": "e23ff5a5b8a5f453aeff033f8d0f72938346cee8bbab98cee8da645f12617105"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "nozzle-ablatives",
-    "issuer_id": "SGL-CARBON",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sglcarbon.com/en/markets-solutions/applications/rockets-and-missiles/",
-    "source_date": "2026-08-30",
-    "source_excerpt": "Carbon rayon fabric characterized by its extreme temperature resistance and high-quality is used to produce carbon cloth polymer composites like phenolic resin-based materials. ablative or sacrificial materials",
-    "record_digest": "a00a4629176b0b27aae6afe6d62683b698efc5cee60eff70063c5eee31eae104"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "metal-parts-and-forgings",
-    "issuer_id": "GENERAL-DYNAMICS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_excerpt": "As an artillery systems integrator, OTS produces mission-critical components, including projectiles, artillery propelling charges, and next-generation artillery. We deliver world-class propellants for both direct- and indirect-fire munitions, and as the global leader in extruded propellant manufacturing and the world’s largest producer of the trusted Ball Powder propellant, we power a wide array of U.S. and allied military platforms. As a major component supplier for both tactical and strategic missile platforms, OTS offers concept-to-hardware capability to enhance precision lethality. We design, develop, and manufacture advanced subsystems including control actuators, high-performance warheads, rocket motor cases, solid rocket motors, and launch pod containers, ensuring superior performance across missile platforms.",
-    "record_digest": "72121378f7dc329282919b01a05c94907fe3157d7cfcd1b71a936ce6d34f3d47"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "seekers-and-terminal-guidance",
-    "issuer_id": "BOEING",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://boeing.mediaroom.com/news-releases-statements?item=131654",
-    "source_date": "2026-04-01",
-    "source_excerpt": "Boeing and the U.S. Department of War (DOW) have agreed to a seven-year framework to triple production of PAC-3 seekers to meet global demand for air and missile defense. Boeing has invested more than $200 million since 2024 to expand PAC-3 seeker production capacity in Huntsville, Alabama, including a 35,000-square-foot facility expansion.",
-    "record_digest": "7f0a2fc5bbb51ddf62d796798ac39d4d3ed60ec133fa4ba6c9a107766d7d4c5a"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "solid-rocket-motors",
-    "issuer_id": "GENERAL-DYNAMICS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_excerpt": "As a major component supplier for both tactical and strategic missile platforms, OTS offers concept-to-hardware capability to enhance precision lethality. We design, develop, and manufacture advanced subsystems including control actuators, high-performance warheads, rocket motor cases, solid rocket motors, and launch pod containers, ensuring superior performance across missile platforms.",
-    "record_digest": "455f02847d5b3fb762944aa73db45422dee7b00e191bb21ad5c714c287c99fe1"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "load-assemble-pack",
-    "issuer_id": "GENERAL-DYNAMICS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_excerpt": "To meet growing demand, OTS across multiple locations is expanding production capacity and capabilities, including artillery-projectile and propelling-charge load, assemble and pack lines",
-    "record_digest": "e5b96af2043e61be590bf1dc71c3d35d38a319ec173ed29122f611e98b920f03"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "missile-final-assembly",
-    "issuer_id": "NORTHROP-GRUMMAN",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://cdn.northropgrumman.com/-/media/wp-content/uploads/2021-Annual-Report-Northrop-Grumman-1.pdf",
-    "source_date": "2021-12-31",
-    "source_excerpt": "Competencies include large strategic missile design, integration, production and sustainment. Missile defense systems, interceptors, targets, mission processing and boosters for the Missile Defense Agency's (MDA) Next-Generation Interceptor (NGI), Ground-based Midcourse Defense (GMD) system and Ground Based Interceptor (GBI);",
-    "record_digest": "83566a58ba84018eb196306fde7337cc917da4c5697f0f2f43f7af5ba4a82b26"
-   },
-   {
-    "chain_id": "munitions-replenishment",
-    "link_id": "artillery-and-bulk-munitions",
-    "issuer_id": "GENERAL-DYNAMICS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_excerpt": "We hold a global leadership position in large-caliber tank ammunition, medium-caliber ammunition, and high-speed Gatling guns, providing combat-proven performance and precision firepower. As an artillery systems integrator, OTS produces mission-critical components, including projectiles, artillery propelling charges, and next-generation artillery.",
-    "record_digest": "1fbfd3d2120762145c92c1c259dfea40d39bbd240a0ea83575d40c5e02fbe04a"
-   },
    {
     "chain_id": "munitions-replenishment",
     "link_id": "allied-rearmament-demand",
@@ -2009,20 +1908,44 @@
     "source_date_ok": true,
     "source_url": "https://www.rheinmetall.com/en/media/news-watch/news/2026/07/2026-07-14-artillery-ammunition-from-unterluess-for-ukraine",
     "source_date": "2026-07-14",
-    "source_excerpt": "This first delivery from Unterlüß to Ukraine comprises a low five-figure number of projectiles, in addition to propellant charges from other sites. More than half of the order has already been delivered. The remaining projectiles and propellant charges are due to follow by the end of 2026.",
+    "source_excerpt": "Re-fetched the cited Rheinmetall release live. It prints, as one contiguous span, \"This first delivery from Unterlüß to Ukraine comprises a low five-figure number of projectiles, in addition to propellant charges from other sites. More than half of the order has already been delivered. The remaining projectiles and propellant charges are due to follow by the end of 2026.\" This is a genuine allied order competing for propellant and projectile capacity, matching the link's own definition. Citation and role both hold.",
     "record_digest": "49fc64f6cb7d78dea20307bd3778efc32911ce92674235db44f61070dd0f67b9"
    },
    {
     "chain_id": "munitions-replenishment",
     "link_id": "allied-rearmament-demand",
-    "issuer_id": "CHEMRING-GROUP",
+    "issuer_id": "AVIO",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.avio.com/press-release/fy-2025-results-record-high-order-backlog-and-revenues-growth-path-continue-2026",
+    "source_date": "2026-03-12",
+    "source_excerpt": "Re-fetched the cited Avio release live. The full paragraph reads: development of the US defense business advanced, paving the way for a solid rocket motor manufacturing facility in Virginia; a supplemental agreement for manufacturing, assembly, integration and testing of tactical-missile solid rocket motors; continued collaboration with Raytheon including a purchase order for the Mk 104 dual-thrust rocket motor; and a memorandum of understanding to support Avio in establishing its US facility, granting two of the most prominent global players in the defense sector preferred access to part of the future facility's production capacity. This is a genuine solid-rocket-motor capacity claim competing between US and allied programmes, matching the link's definition, so role_ok holds. But the mapping's own source_excerpt strings four fragments as one run-on quote (a headline, an order figure, the MOU clause, and the preferred-access clause) that the source's actual paragraph order does not present as adjacent text: the MOU clause in the live page is preceded by the Mk 104 and Raytheon material, not by the order figure the mapping's excerpt places immediately before it. Flagged as a probable non-contiguous splice in amendments_required; verified via WebFetch's rendered text rather than a byte-level stored copy, so this finding carries that residual uncertainty.",
+    "record_digest": "dcedf836d94b86035dd8af2677b891c7a5ab0207cd710a9f9e95fa099f54c01d"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "HENSOLDT",
     "identity_ok": true,
     "role_ok": false,
     "source_date_ok": true,
-    "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/CHKC/tearsheet",
+    "source_url": "https://www.hensoldt.net/news/financial-year-2025-hensoldt-achieves-record-order-intake-and-confirms-structural-growth-path",
+    "source_date": "2026-02-26",
+    "source_excerpt": "Checked against the stored data/web/5b6dfa49148d7004.json (fetched 2026-09-14T18:09Z) with the repo's own evidence_store.verify: MATCH. The excerpt 'Sensors: Strong order momentum strengthens revenue growth In the Sensors segment, orders for air defence radars, the Eurofighter programme, PEGASUS and P8 Poseidon were the main drivers of order intake, which amounted to EUR 3,143 million.' is now a genuinely contiguous span at byte offset 4086 of the stored text, closing the splice the author's 2026-09-14T19:18:41Z amendment set out to fix. But the underlying fact is sensor and radar order intake, not a claim on nitrocellulose, propellant, or solid-rocket-motor capacity, which is what this link is defined to carry (chain role: 'compete with the US for nitrocellulose, propellant and solid rocket motors'). The citation fix did not touch the 2026-08-31 role flag on this same placement, which the author's own changelog entry discloses explicitly. role_ok false.",
+    "record_digest": "a52ca385461e811d1dd9a10bdb4d54623fefe564e563bb3bb4a6979c717c255f"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "BAE-SYSTEMS",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/BABAE/tearsheet",
     "source_date": "2026-08-28",
-    "source_excerpt": "Re-fetched the cited LSE CHKC tearsheet PDF live and extracted it with pdftotext. It prints the identical sentence already carried as Chemring's energetic-materials role evidence: \"Its Countermeasures & Energetics segment is engaged in the development and manufacture of expendable countermeasures for air and sea platforms, cartridge/propellant actuated devices, pyrotechnic devices for satellite launch and deployment, missile components, propellants, separation sub-systems, actuators and energetic materials.\" This describes Chemring as a maker of propellants and energetics, the same supply-side fact behind its energetic-materials placement, and establishes no demand-side fact (an order, programme or budget) that competes for nitrocellulose, propellant or solid rocket motor capacity, which is what allied-rearmament-demand is defined to carry.",
-    "record_digest": "252dd7033e3deb80028ca4d3fb9dd74296d82e36fb59639cc3595a858d9357b0"
+    "source_excerpt": "Read the cited LSE tearsheet PDF directly (saved by WebFetch, extracted with the Read tool's own PDF text layer, not a summarizing model). The real business description reads: '...Complex warships, Submarines, Embedding environmental considerations, Intelligence and cyber security, Naval ship repair and support, and Uncrewed and future air system capabilities. Its Electronic Systems segment comprises the United States and United Kingdom-based electronics activities, including electronic warfare systems, navigation systems, and others. Its Platforms & Services segment...' The placement's own excerpt silently drops that entire middle passage, joining 'Complex warships, Submarines.' directly to 'Its Platforms & Services segment', a non-contiguous splice not previously flagged on this placement. Independent of the splice, the role text is a generic company descriptor (space, aircraft, weapon systems and munitions, warships, submarines) naming no allied order, programme, or budget pulling on nitrocellulose, propellant, or solid-rocket-motor capacity specifically, so role_ok is false on substance as well.",
+    "record_digest": "e6e16b2a9e73cef7af0b2b3d96586b37d5471606b390615088ce44ecb9004490"
    },
    {
     "chain_id": "munitions-replenishment",
@@ -2033,7 +1956,7 @@
     "source_date_ok": true,
     "source_url": "https://www.leonardo.com/en/press-release-detail/-/detail/12-03-2026-leonardo-board-of-directors-approves-fy2025-results-and-2026-guidance",
     "source_date": "2026-03-12",
-    "source_excerpt": "Re-fetched the cited Leonardo press release live. It prints \"New Orders increased to 23.8 billion euro (+15% vs 2024)\", \"Revenues increased to 19.5 billion euro (+11% vs 2024)\" and, in a passage about Kuwait Eurofighter logistics support, \"demand for security remains high\". Both figures are accurate and the phrase is genuine, but neither establishes demand for nitrocellulose, propellant or solid rocket motors specifically, which is the capacity this link is defined as competing for. Unchanged since the 2026-08-31 audit.",
+    "source_excerpt": "Re-fetched the cited Leonardo release live. It prints the order figure, the revenue figure, and the 'demand for security remains high' phrase as genuine content of the release, but none of the three establishes demand specific to nitrocellulose, propellant, or solid rocket motor capacity, which is the fact this link is defined to require, reconfirming the 2026-08-31 finding independently. The mapping's excerpt also strings the three fragments into one quote using 'billion euro' where the live page's own currency notation is the euro sign prefixed to the figure; possible further non-contiguity is noted in amendments_required with the same residual uncertainty as AVIO above. role_ok false on the role-fit ground alone, independent of that citation question.",
     "record_digest": "1566dee5036002f9ed191e9743b321a63b376719ec95c8415f262e8f4c4436f9"
    },
    {
@@ -2045,8 +1968,80 @@
     "source_date_ok": true,
     "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/BAAJS/tearsheet",
     "source_date": "2026-08-28",
-    "source_excerpt": "Re-fetched the cited LSE BAAJS tearsheet PDF live and extracted it with pdftotext. It prints \"It operates in four segments: Marine, Nuclear, Land, and Aviation\" and describes naval ships and marine infrastructure, submarines and decommissioning, vehicle fleet management, and aviation engineering services. No munitions, ammunition, propellant or energetics product appears anywhere in the extracted text, so it does not support a place on a link defined as competing demand for nitrocellulose, propellant and solid rocket motors. Unchanged since the 2026-08-31 audit.",
+    "source_excerpt": "Read the cited LSE tearsheet PDF directly (Read tool's own PDF text layer). The real text: 'Babcock International Group PLC is a United Kingdom-based international defense, aerospace and security company... It operates in four segments: Marine, Nuclear, Land, and Aviation.' matches the placement's own excerpt exactly, genuinely contiguous, no splice. But none of the four named segments is a munitions, ammunition, propellant, or energetics business, so the placement establishes no fact pulling on nitrocellulose, propellant, or solid-rocket-motor capacity. Reconfirms the 2026-08-31 and 2026-09-14T02:10 findings independently. role_ok false.",
     "record_digest": "1227cbf68b72e503eef21c293197de57dc1c9edd2e04b0036aa201c93a26370e"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "AIRBUS",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://www.airbus.com/en/newsroom/press-releases/2026-02-airbus-reports-full-year-fy-2025-results",
+    "source_date": "2026-02-19",
+    "source_excerpt": "Re-fetched the cited Airbus release live. It prints, as one plain sentence, 'Order intake by value at Airbus Defence and Space increased to a record €17.7 billion (2024: €16.7 billion), corresponding to a book-to-bill of around 1.3.' No splice evident: the figure reads as a single sentence in the fetched text. But Airbus Defence and Space's order intake is not itself a claim about nitrocellulose, propellant, or solid-rocket-motor demand; the segment spans satellites, space systems, and military aircraft, and the cited text names no munitions or propellant programme. Reconfirms the 2026-08-31 flag, never re-sampled since. role_ok false.",
+    "record_digest": "5730a3381d37d09fe29122fc0e96bd10868adc335812124fe0f3ea643cd237dc"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "ROLLS-ROYCE-HOLDINGS",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/RORR./tearsheet",
+    "source_date": "2026-08-28",
+    "source_excerpt": "Read the cited LSE tearsheet PDF directly (Read tool's own PDF text layer). The real text: '...develops and delivers power and propulsion solutions for safety-critical applications in the air, at sea and on land. The Company's segments include Civil Aerospace, Defense, Power Systems. The Civil Aerospace segment is engaged in the development, manufacture, marketing and sales of commercial aero engines and aftermarket services. The Defense segment is engaged in the development, manufacture, marketing and sales of military aero engines, naval engines, submarine nuclear power plants...' The placement's own excerpt drops the intervening 'segments include Civil Aerospace... commercial aero engines and aftermarket services' sentence, joining 'on land.' directly to 'The Defense segment', a non-contiguous splice not previously flagged. Independent of the splice, military aero engines, naval engines and submarine nuclear power plants are propulsion for aircraft, ships and submarines, not munitions, propellant, or solid rocket motors, so role_ok is false on substance too. Reconfirms the 2026-08-31 flag and adds a new splice finding.",
+    "record_digest": "e5cdc7570dbcfe3ee02cf8d8e14d5a3b7a603b426b31d1d5e808c41fa3bef44a"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "COHORT",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/COCHRT/tearsheet",
+    "source_date": "2026-08-28",
+    "source_excerpt": "Read the cited LSE tearsheet PDF directly (Read tool's own PDF text layer). The real opening sentence: 'Cohort plc is the parent company of seven businesses based in the United Kingdom, Australia, Germany and Portugal, providing a range of services and products for domestic and export customers in defense and related markets.' matches the placement's own excerpt exactly, genuinely contiguous, no splice. But the sentence names no munitions, propellant, or energetics product or programme; Cohort's own segment breakdown (communications/intelligence, sensors/effectors) confirms none of its seven businesses sits in this link's commodity. Reconfirms the 2026-08-31 flag. role_ok false.",
+    "record_digest": "49cb47c36ebd1b3eaf7a1584ce458a5ce9e714789288605e940730d319e6b3a1"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "CHEMRING-GROUP",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/CHKC/tearsheet",
+    "source_date": "2026-08-28",
+    "source_excerpt": "Read the cited LSE tearsheet PDF directly (Read tool's own PDF text layer). The real text matches the placement's excerpt exactly, genuinely contiguous, no splice. But the cited sentence is the identical supply-side capability description already carried as Chemring's own energetic-materials placement evidence (what Chemring manufactures), and establishes no allied order, programme, or budget competing for nitrocellulose, propellant, or solid-rocket-motor capacity. Reconfirms the 2026-09-14T02:10 finding independently, from the text alone. role_ok false.",
+    "record_digest": "252dd7033e3deb80028ca4d3fb9dd74296d82e36fb59639cc3595a858d9357b0"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "ELBIT-SYSTEMS",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://www.elbitsystems.com/sites/default/files/2026-03/eslt_12.31.2025_20-f_doc_with_exhibits_accessible_17.3.2026.pdf",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Could not extract the cited Elbit 20-F PDF's text (2MB PDF; both WebFetch's reader and a direct PDF read of the saved file failed to yield the relevant page in the time available this run), so citation contiguity is NOT independently confirmed here and is named in surviving_limitation. Judged on the claim and excerpt as recorded in the mapping itself: 'provides artillery and mortar systems, rocket artillery systems... precision guided munitions and ammunition' describes what Elbit Systems Land manufactures, the same supply-side pattern as the confirmed CHEMRING-GROUP defect on this same link, and states no allied order or programme pulling on nitrocellulose, propellant, or solid-rocket-motor capacity. role_ok false on that basis regardless of the unresolved citation question.",
+    "record_digest": "5ec1a9537dcf065b4bab6a11c30f8c63fd0a48ab91fe3995a2aa5237d74b0cc9"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "allied-rearmament-demand",
+    "issuer_id": "MS-INTERNATIONAL",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://api.londonstockexchange.com/api/gw/lse/download/MSFE/tearsheet",
+    "source_date": "2026-08-28",
+    "source_excerpt": "Read the cited LSE tearsheet PDF directly (Read tool's own PDF text layer). The real text matches the placement's excerpt exactly, genuinely contiguous, no splice. But the cited passage (four divisions: Defense and Security, Forgings, Petrol Station Superstructures, Corporate Branding) names no munitions, propellant, or energetics product; MS International's genuine tie to this chain is its steel forgings division, already carried on metal-parts-and-forgings. Reconfirms the 2026-08-31 flag. role_ok false.",
+    "record_digest": "6fa13955e077633e1887b548a23f7a3376535caa16d117b78a80f152033ba702"
    },
    {
     "chain_id": "munitions-replenishment",
@@ -2057,7 +2052,7 @@
     "source_date_ok": true,
     "source_url": "https://www.defensenews.com/global/europe/2025/04/07/rheinmetall-secures-nitrocellulose-supply-amid-european-ammo-scramble/",
     "source_date": "2025-04-07",
-    "source_excerpt": "Rheinmetall agreed to buy Hagedorn-NC, a German maker of industrial nitrocellulose, to expand its supply of raw material for artillery propellant. The acquisition helps us to overcome a strategic bottleneck in propellant production",
+    "source_excerpt": "Re-fetched the cited Defense News article live. It prints, as the article's own text, 'Rheinmetall agreed to buy Hagedorn-NC, a German maker of industrial nitrocellulose, to expand its supply of raw material for artillery propellant' and, quoted with attribution, 'The acquisition helps us to overcome a strategic bottleneck in propellant production,' said Rheinmetall CEO Armin Papperger. No content is missing between the two clauses beyond the placement's excerpt silently dropping the quotation marks and attribution, which is not a contiguity defect. Genuine feedstock-ownership fact, matches the link's definition. Citation and role both hold.",
     "record_digest": "42d09a32cd97f6332252b63ef24364a1db7bb1bf66ff9a2b3654208d16ffd984"
    },
    {
@@ -2069,7 +2064,7 @@
     "source_date_ok": true,
     "source_url": "https://www.epc.eu/publication/running-on-empty-the-chemical-shortage-undermining-european-defence/",
     "source_date": "2025-06-18",
-    "source_excerpt": "Re-fetched the cited European Policy Centre report live. It names \"France's Eurenco\" as having \"restarted its Bergerac production line\", \"Norway's Nammo\" as \"dependent on foreign nitrocellulose suppliers\", and \"Nitrochemie's Wimmis facility, which supports Rheinmetall's expanding propellant production\", consistent with the search's one accepted issuer, Rheinmetall, and its rejected private and state-held producers.",
+    "source_excerpt": "Re-fetched the cited European Policy Centre report live. It names, verbatim, \"France's Eurenco has restarted its Bergerac production line.\", \"Even major shell producers like Norway's Nammo remain dependent on foreign nitrocellulose suppliers...\", and \"Switzerland also contributes to Europe's nitrocellulose supply through Nitrochemie's Wimmis facility, which supports Rheinmetall's expanding propellant production.\", matching the search record's accepted issuer (Rheinmetall) and rejected private/state-held names exactly.",
     "record_digest": "2c46a1f3b6d6253e6a49c286eedcf536911839b8e494f48c70272ebf89a3ac4e"
    },
    {
@@ -2081,7 +2076,7 @@
     "source_date_ok": true,
     "source_url": "https://www.defensenews.com/global/europe/2025/04/07/rheinmetall-secures-nitrocellulose-supply-amid-european-ammo-scramble/",
     "source_date": "2025-04-07",
-    "source_excerpt": "Re-fetched the cited Defense News article live. It prints \"Rheinmetall agreed to buy Hagedorn-NC, a German maker of industrial nitrocellulose, to expand its supply of raw material for artillery propellant\" and quotes CEO Armin Papperger that the acquisition helps overcome a strategic bottleneck in propellant production, and separately names Eurenco, Nammo and Czechoslovak Group as the remaining named capacity, consistent with the search record.",
+    "source_excerpt": "Re-fetched the cited Defense News article live (same page as the placement above). It separately names Czechoslovak Group's acquisition of the Walsrode nitrocellulose business, Eurenco restarting Bergerac production, and Nammo's selection to restart a Danish ammunition plant, none of them a listed issuer, consistent with the search's rejections and its one accepted name, Rheinmetall.",
     "record_digest": "973a248b6b1345e463f4c8a8ade8d6ccb1fb1d98ea13bef4f4a751d6cbfb95fd"
    },
    {
@@ -2093,7 +2088,7 @@
     "source_date_ok": true,
     "source_url": "https://live.deutsche-boerse.com/equity/rheinmetall-ag",
     "source_date": "2026-08-30",
-    "source_excerpt": "Re-fetched the cited Deutsche Boerse instrument record live: Company Name Rheinmetall AG, Ticker Symbol RHM, ISIN DE0007030009, Exchange Xetra Frankfurt, confirming the one accepted issuer's public listing identity and adding no further qualifying name.",
+    "source_excerpt": "Re-fetched the cited Deutsche Boerse instrument record live: Company Name Rheinmetall AG, Ticker Symbol RHM, ISIN DE0007030009, Exchange Xetra Frankfurt, exactly matching the search record and the mapping's own XETRA-RHM listing identity evidence.",
     "record_digest": "faf3845be35f1311ce50e4f7a9e203325540989a3f844bf64f7e58ef0858f082"
    },
    {
@@ -2105,7 +2100,7 @@
     "source_date_ok": true,
     "source_url": "https://www.gpw.pl/spolka?isin=PLZATRM00012",
     "source_date": "2026-08-30",
-    "source_excerpt": "Re-fetched the cited Warsaw Stock Exchange issuer record live. The official issuer name is Zaklady Azotowe w Tarnowie Moscicach Spolka Akcyjna (GRUPAAZOTY, PLZATRM00012); the page describes melamine, caprolactam, polyamide and OXO alcohol production for the fertilizer and chemical industry, with no mention of nitrocellulose or military-grade chemical production, consistent with the search's rejection.",
+    "source_excerpt": "Re-fetched the cited Warsaw Stock Exchange (GPW) issuer page live for ISIN PLZATRM00012. The official issuer name is Zaklady Azotowe w Tarnowie-Moscicach Spolka Akcyjna (GRUPAAZOTY); the page describes nitrogen fertiliser, melamine, caprolactam, polyamide, OXO alcohol and ammonia/nitric acid production, with no mention of nitrocellulose or military-grade chemical production anywhere, exactly matching the search's rejection reasoning.",
     "record_digest": "440b46ebbfc07a51d48bc84179937c0ee96d5f0f34e95277472f081ba42024f0"
    },
    {
@@ -2117,7 +2112,7 @@
     "source_date_ok": true,
     "source_url": "https://www.mistrasgroup.com/industries/aerospace-defense/",
     "source_date": "2026-08-30",
-    "source_excerpt": "Re-fetched the cited MISTRAS aerospace and defense page live. It describes testing and inspection for aircraft structures, engines and components, defense components, and space qualified materials in broad categories, with no itemized mention of solid rocket motors or loaded energetic assemblies, consistent with the search's finding that MISTRAS's own disclosed scope does not cover this link.",
+    "source_excerpt": "Re-fetched the cited MISTRAS aerospace and defense page live. Its described scope (aircraft structures, engines and components, defense platform integrity, materials qualified for extreme environments) names no solid rocket motor or loaded energetic assembly inspection anywhere, exactly matching the search's rejection reasoning.",
     "record_digest": "cd30662ff91b9447b37d979ab37a54e7566ca908cbbe100fed3426842f214749"
    },
    {
@@ -2129,7 +2124,7 @@
     "source_date_ok": true,
     "source_url": "https://vc-xray.com/markets/defense/",
     "source_date": "2026-08-30",
-    "source_excerpt": "Re-fetched the cited VisiConsult defense market page live. It states X-ray and CT technology can detect blowholes, cracks and delamination in solid rocket motors without destructive testing, and organizes the offering by customer volume tier (low, medium and high-volume series testing) rather than as a purchasable inspection service VisiConsult performs itself, consistent with the search's conclusion that this is equipment sold to customers who operate it.",
+    "source_excerpt": "Re-fetched the cited VisiConsult defense market page live. It documents X-ray and CT detection of blowholes, cracks, and delamination specifically in solid rocket motors, confirming the technical scope, and confirms VisiConsult is a privately held equipment manufacturer (also offering inspection services through a separate division), so its disqualifying fact for this link, being unlisted, stands regardless of the equipment-versus-service framing in the search's own conclusion text.",
     "record_digest": "09f8c1dcebd506018e3f9832db49124143b7d8e3f598898cc53cf1f38ef68b3a"
    },
    {
@@ -2141,7 +2136,7 @@
     "source_date_ok": true,
     "source_url": "https://api.londonstockexchange.com/api/gw/lse/instruments/alldata/QQ.",
     "source_date": "2026-08-28",
-    "source_excerpt": "Re-fetched the cited London Stock Exchange instrument record live: Issuer Name QINETIQ GROUP PLC, TIDM QQ., ISIN GB00B0WMWD03, market segment STMM, confirming the official listing identity of the closest test and evaluation candidate without establishing the third-party solid rocket motor inspection scope this link requires.",
+    "source_excerpt": "Re-fetched the cited London Stock Exchange instrument record live: Issuer Name QINETIQ GROUP PLC, TIDM QQ., ISIN GB00B0WMWD03, market segment STMM, exactly matching the search record's official listing identity.",
     "record_digest": "f062d41f1f3ff367367c520d7efa8300defd389f95719b9631435a185742f378"
    },
    {
@@ -2153,7 +2148,7 @@
     "source_date_ok": true,
     "source_url": "https://boeing.mediaroom.com/news-releases-statements?item=131654",
     "source_date": "2026-04-01",
-    "source_excerpt": "Re-fetched the cited Boeing release live. It prints \"Boeing and the U.S. Department of War (DOW) have agreed to a seven-year framework to triple production of PAC-3 seekers\": Boeing is the contracting supplier and the Department of War is the named buying authority, confirming the search's conclusion that the procurement authority in this transaction is a government department, not a listed issuer.",
+    "source_excerpt": "Re-fetched the cited Boeing release live. It prints 'Boeing and the U.S. Department of War (DOW) have agreed to a seven-year framework to triple production of PAC-3 seekers...' confirming Boeing as the contracting supplier and the Department of War as the buying authority, exactly matching the search's conclusion that the procurement authority is a government department no listed equity can represent.",
     "record_digest": "f8663f4edfb47bf9357201bee09eb373b50178a94c640a73987970bd8b7d80ca"
    },
    {
@@ -2165,7 +2160,7 @@
     "source_date_ok": true,
     "source_url": "https://api.londonstockexchange.com/api/gw/lse/instruments/alldata/BA.",
     "source_date": "2026-08-28",
-    "source_excerpt": "Re-fetched the cited London Stock Exchange instrument record live: Issuer Name BAE SYSTEMS PLC, TIDM BA., ISIN GB0002634946, market segment SET1, confirming the official listing identity of a contractor into munitions procurement rather than a holder of procurement authority.",
+    "source_excerpt": "Re-fetched the cited London Stock Exchange instrument record live: Issuer Name BAE SYSTEMS PLC, TIDM BA., ISIN GB0002634946, market segment SET1, exactly matching the search record; BAE remains a contractor into procurement, not the procuring authority.",
     "record_digest": "07fb458d3284b78aefaa1bb5c80b3aacf7ce079d35c8513e79bab25dca10f437"
    },
    {
@@ -2177,28 +2172,151 @@
     "source_date_ok": true,
     "source_url": "https://live.deutsche-boerse.com/equity/rheinmetall-ag",
     "source_date": "2026-08-30",
-    "source_excerpt": "Re-fetched the cited Deutsche Boerse instrument record live: Company Name Rheinmetall AG, Ticker Symbol RHM, ISIN DE0007030009, Exchange Xetra Frankfurt, confirming the official listing identity of a second contractor supplying allied procurement authorities rather than a holder of United States munitions procurement authority.",
+    "source_excerpt": "Re-fetched the cited Deutsche Boerse instrument record live: Company Name Rheinmetall AG, Ticker Symbol RHM, ISIN DE0007030009, Exchange Xetra Frankfurt, exactly matching the search record; Rheinmetall remains a supplier into allied procurement, not a holder of US munitions procurement authority.",
     "record_digest": "4ad9b975092f100bfd272398e4ae21df556ff6af7f1ee3d74d0a6efbafc80791"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "energetic-materials",
+    "issuer_id": "GENERAL-DYNAMICS",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Checked against the stored data/web/1da5155fa09a5a77.json (SEC EDGAR HTML copy of General Dynamics' FY2025 10-K) with evidence_store.verify: MATCH, genuinely contiguous. Supports the propellant-manufacturing role claim.",
+    "record_digest": "62ba6a77cd192d7559f77d1fc068b162ac06ec44db0c56a9983133db2bd4e5a7"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "perchlorate-oxidizer",
+    "issuer_id": "NORTHROP-GRUMMAN",
+    "identity_ok": true,
+    "role_ok": false,
+    "source_date_ok": true,
+    "source_url": "https://csis-website-prod.s3.amazonaws.com/s3fs-public/2026-06/260612_Rumbaugh_Rocket_Motors.pdf?VersionId=DQ5CAkMhqraRf2j83bm0Xuvhf8Pm27wB",
+    "source_date": "2026-06-12",
+    "source_excerpt": "Read the cited CSIS report PDF directly (Read tool's own PDF text layer, page showing footer '26'). The real text: 'In 2016, rising prices following a transition in AMPAC's ownership drove Northrop Grumman to begin the process of establishing an internal production line. Although AMPAC remains the leading supplier of AP for weapons programs, Northrop Grumman has become an alternative source for space launch applications following approval in 2021.' The placement's own excerpt drops the clause 'Although AMPAC remains the leading supplier of AP for weapons programs, ', a non-contiguous splice, reconfirming the 2026-09-14T02:10 finding with certainty (byte-level PDF text, not a summarizing fetch). Independent of the splice, the role's claim that Northrop is 'a second producer alongside AMPAC/NewMarket' is not supported: the cited source explicitly reserves weapons programs to AMPAC and scopes Northrop's alternative-source status to space launch only; NewMarket, AMPAC's own parent per the chain's separate NewMarket-sourced evidence, is never named in this CSIS source at all. role_ok false.",
+    "record_digest": "e23ff5a5b8a5f453aeff033f8d0f72938346cee8bbab98cee8da645f12617105"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "nozzle-ablatives",
+    "issuer_id": "SGL-CARBON",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.sglcarbon.com/en/markets-solutions/applications/rockets-and-missiles/",
+    "source_date": "2026-08-30",
+    "source_excerpt": "Re-fetched the cited SGL Carbon page live. The real text: 'Carbon rayon fabric... is used to produce carbon cloth polymer composites like phenolic resin-based materials. The composites are key for protecting structural components of rockets, space shuttles, and satellites from heat – functioning as ablative or sacrificial materials.' The placement's own excerpt drops the middle clause about protecting rockets, space shuttles and satellites from heat, joining 'phenolic resin-based materials.' directly to 'ablative or sacrificial materials', reconfirming the 2026-09-14T02:10 splice finding independently. The underlying claim (SGL Carbon supplies nozzle ablative material) is genuinely supported once the full sentence is read, so role_ok holds; the splice is carried in amendments_required.",
+    "record_digest": "a00a4629176b0b27aae6afe6d62683b698efc5cee60eff70063c5eee31eae104"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "metal-parts-and-forgings",
+    "issuer_id": "GENERAL-DYNAMICS",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Checked against the stored data/web/1da5155fa09a5a77.json with evidence_store.verify: MATCH, genuinely contiguous. Supports the projectile, propelling-charge and rocket-motor-case metal-parts claim.",
+    "record_digest": "72121378f7dc329282919b01a05c94907fe3157d7cfcd1b71a936ce6d34f3d47"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "seekers-and-terminal-guidance",
+    "issuer_id": "BOEING",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://boeing.mediaroom.com/news-releases-statements?item=131654",
+    "source_date": "2026-04-01",
+    "source_excerpt": "Re-fetched the cited Boeing release live. It prints, as one contiguous statement, 'Boeing and the U.S. Department of War (DOW) have agreed to a seven-year framework to triple production of PAC-3 seekers to meet global demand...' and separately 'Boeing has invested more than $200 million since 2024 to expand PAC-3 seeker production capacity in Huntsville, Alabama...'. No dropped content evident between the placement's own excerpt and the live page. Citation and role both hold.",
+    "record_digest": "7f0a2fc5bbb51ddf62d796798ac39d4d3ed60ec133fa4ba6c9a107766d7d4c5a"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "solid-rocket-motors",
+    "issuer_id": "GENERAL-DYNAMICS",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Checked against the stored data/web/1da5155fa09a5a77.json with evidence_store.verify: MATCH, genuinely contiguous. Supports the solid-rocket-motor and rocket-motor-case claim.",
+    "record_digest": "455f02847d5b3fb762944aa73db45422dee7b00e191bb21ad5c714c287c99fe1"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "load-assemble-pack",
+    "issuer_id": "GENERAL-DYNAMICS",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Checked against the stored data/web/1da5155fa09a5a77.json with evidence_store.verify: MATCH, genuinely contiguous. Supports the load-assemble-pack capacity-expansion claim.",
+    "record_digest": "e5b96af2043e61be590bf1dc71c3d35d38a319ec173ed29122f611e98b920f03"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "missile-final-assembly",
+    "issuer_id": "LOCKHEED-MARTIN",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.lockheedmartin.com/content/dam/lockheed-martin/eo/documents/annual-reports/lockheed-martin-annual-report-2025.pdf",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Read the cited Lockheed Martin 2025 Annual Report PDF directly (Read tool's own PDF text layer, 10-K page 4). The real text: 'MFC provides air and missile defense systems; tactical missiles and precision strike weapon systems; logistics; fire control systems; and mission operations support, readiness, engineering support and integration services. MFC also has contracts with the U.S. Government for various classified programs. MFC's major programs include: [PAC-3/THAAD bullet] The Multiple Launch Rocket System (MLRS), Precision Strike Missile (PrSM)...' The placement's own excerpt drops the entire intervening PAC-3/THAAD bullet and the logistics/fire-control clause, joining '...precision strike weapon systems.' directly to 'The Multiple Launch Rocket System...', a non-contiguous splice, newly found and not previously flagged on this placement. The underlying claim (Lockheed produces the named tactical and strike missile programs, including HIMARS) is genuinely supported by the full text once read in context, so role_ok holds; the splice is carried in amendments_required.",
+    "record_digest": "7cc54a70228ebf5a39b8f7886bd4029f2c27f488e949f302017492b5a39b23d6"
+   },
+   {
+    "chain_id": "munitions-replenishment",
+    "link_id": "artillery-and-bulk-munitions",
+    "issuer_id": "GENERAL-DYNAMICS",
+    "identity_ok": true,
+    "role_ok": true,
+    "source_date_ok": true,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000006/gd-20251231.htm",
+    "source_date": "2025-12-31",
+    "source_excerpt": "Checked against the stored data/web/1da5155fa09a5a77.json with evidence_store.verify: MATCH, genuinely contiguous. Supports the tank/medium-caliber ammunition and artillery-systems-integrator claim.",
+    "record_digest": "1fbfd3d2120762145c92c1c259dfea40d39bbd240a0ea83575d40c5e02fbe04a"
    }
   ],
   "identity_conflicts": [],
   "role_conflicts": [
-   "allied-rearmament-demand/CHEMRING-GROUP: role and evidence reuse the issuer's energetic-materials supply evidence verbatim and establish no demand-side fact competing for nitrocellulose, propellant or solid rocket motor capacity.",
-   "allied-rearmament-demand/LEONARDO: cited order and revenue growth plus a generic demand for security phrase do not establish demand for nitrocellulose, propellant or solid rocket motors. Unchanged since 2026-08-31.",
-   "allied-rearmament-demand/BABCOCK-INTERNATIONAL-GROUP: the cited tearsheet's four segments, Marine, Nuclear, Land and Aviation, name no munitions, ammunition, propellant or energetics product. Unchanged since 2026-08-31.",
-   "perchlorate-oxidizer/NORTHROP-GRUMMAN: the cited CSIS report reserves weapons programs to AMPAC and restricts Northrop's alternative source status to space launch applications; it never names NewMarket. The role's second producer alongside AMPAC/NewMarket claim overstates the source. Unchanged since 2026-08-31."
+   "allied-rearmament-demand/HENSOLDT: the excerpt is now genuinely contiguous (verified against the stored data/web/5b6dfa49148d7004.json), but the underlying fact is Sensors-segment radar and platform order intake, which establishes no claim on nitrocellulose, propellant, or solid-rocket-motor capacity. The 2026-09-14T19:18:41Z amendment fixed the citation splice only; the 2026-08-31 role flag on this same placement was never addressed and is reconfirmed here.",
+   "allied-rearmament-demand/BAE-SYSTEMS: a generic company descriptor (space, aircraft, weapon systems and munitions, warships, submarines) naming no allied order, programme, or budget competing for nitrocellulose, propellant, or solid-rocket-motor capacity; also a non-contiguous excerpt splice, newly found (see amendments_required).",
+   "allied-rearmament-demand/LEONARDO: cited order and revenue growth plus a generic demand-for-security phrase establish no fact specific to nitrocellulose, propellant, or solid-rocket-motor demand. Unchanged and reconfirmed since 2026-08-31; never re-sampled between then and this run.",
+   "allied-rearmament-demand/BABCOCK-INTERNATIONAL-GROUP: the cited tearsheet's four segments (Marine, Nuclear, Land, Aviation) name no munitions, ammunition, propellant, or energetics product. Unchanged and reconfirmed since 2026-08-31.",
+   "allied-rearmament-demand/AIRBUS: record Defence and Space order intake by value is not itself a claim on nitrocellulose, propellant, or solid-rocket-motor demand; the cited text names no munitions or propellant programme. Flagged 2026-08-31, never re-sampled until this run.",
+   "allied-rearmament-demand/ROLLS-ROYCE-HOLDINGS: military aero engines, naval engines, and submarine nuclear power plants are propulsion for aircraft, ships, and submarines, not munitions, propellant, or solid rocket motors; also a non-contiguous excerpt splice, newly found. Flagged 2026-08-31, never re-sampled until this run.",
+   "allied-rearmament-demand/COHORT: 'parent company of seven businesses... for domestic and export customers in defense and related markets' names no munitions, propellant, or energetics product; Cohort's own segment breakdown (communications/intelligence, sensors/effectors) confirms none sits in this link's commodity. Flagged 2026-08-31, never re-sampled until this run.",
+   "allied-rearmament-demand/CHEMRING-GROUP: role and evidence reuse the issuer's own energetic-materials supply-side evidence verbatim and establish no demand-side fact competing for nitrocellulose, propellant, or solid-rocket-motor capacity. Reconfirmed since 2026-09-14T02:10.",
+   "allied-rearmament-demand/ELBIT-SYSTEMS: 'provides artillery and mortar systems, rocket artillery systems... precision guided munitions and ammunition' describes Elbit's own manufacturing capability, the same supply-side pattern as the confirmed CHEMRING-GROUP defect on this link, and names no allied order or programme. Citation contiguity could not be independently verified this run (see surviving_limitation); the role defect stands on the text as recorded regardless.",
+   "allied-rearmament-demand/MS-INTERNATIONAL: the cited tearsheet's four divisions (Defense and Security, Forgings, Petrol Station Superstructures, Corporate Branding) name no munitions, propellant, or energetics product; the issuer's genuine tie to this chain is its forgings division, already carried on metal-parts-and-forgings. Flagged 2026-08-31, never re-sampled until this run.",
+   "perchlorate-oxidizer/NORTHROP-GRUMMAN: the cited CSIS report explicitly reserves weapons-programme supply to AMPAC ('Although AMPAC remains the leading supplier of AP for weapons programs...') and scopes Northrop's alternative-source status to space-launch applications only; NewMarket, named in the chain's own separate NewMarket-sourced evidence as AMPAC's parent, is never named in this CSIS source. The role's 'second producer alongside AMPAC/NewMarket' claim overstates what the cited source supports. Also a non-contiguous excerpt splice (drops the 'Although AMPAC remains the leading supplier for weapons programs' clause), reconfirmed with certainty via direct PDF text this run. Unchanged since 2026-08-31."
   ],
   "source_date_conflicts": [],
   "amendments_required": [
-   "Close the nine OPEN link_coverage rows (energetic-materials, perchlorate-oxidizer, nozzle-ablatives, metal-parts-and-forgings, seekers-and-terminal-guidance, solid-rocket-motors, load-assemble-pack, missile-final-assembly, artillery-and-bulk-munitions) to TARGET_MET or a proved EXHAUSTED record before this mapping can be COMPLETE. Method section 6A: a COMPLETE map has no OPEN links.",
-   "allied-rearmament-demand/CHEMRING-GROUP: re-evidence with a demand-side fact (an order, programme or budget pulling on nitrocellulose, propellant or solid rocket motor capacity) or remove the placement; see role_conflicts.",
-   "allied-rearmament-demand/LEONARDO: re-evidence with a fact specific to nitrocellulose, propellant or solid rocket motor demand, or remove the placement; see role_conflicts.",
+   "Close the nine OPEN link_coverage rows (energetic-materials, perchlorate-oxidizer, nozzle-ablatives, metal-parts-and-forgings, seekers-and-terminal-guidance, solid-rocket-motors, load-assemble-pack, missile-final-assembly, artillery-and-bulk-munitions) to TARGET_MET or a proved EXHAUSTED record before this mapping can be COMPLETE. Method section 6A: a COMPLETE map has no OPEN links. Unchanged since 2026-08-31.",
+   "allied-rearmament-demand/HENSOLDT: the citation splice is fixed, but the role remains unsupported; re-evidence with a fact specific to allied nitrocellulose, propellant, or solid-rocket-motor demand, or remove the placement. See role_conflicts.",
+   "allied-rearmament-demand/BAE-SYSTEMS: re-cite evidence[0].source_excerpt as a genuinely contiguous span (it currently omits the source's own sentence on Electronic Systems between 'Submarines.' and 'Its Platforms & Services segment') and re-evidence the role with a fact specific to this link's commodity, or remove the placement. See role_conflicts.",
+   "allied-rearmament-demand/LEONARDO: re-evidence with a fact specific to nitrocellulose, propellant, or solid-rocket-motor demand, or remove the placement; also check the three-fragment excerpt for contiguity against a stored copy of the source (this run verified only via a live rendered fetch, not a byte-level stored page). See role_conflicts.",
    "allied-rearmament-demand/BABCOCK-INTERNATIONAL-GROUP: re-evidence or remove the placement; see role_conflicts.",
-   "perchlorate-oxidizer/NORTHROP-GRUMMAN: re-cite evidence[0].source_excerpt as a genuinely contiguous span (it currently omits the source's own clause reserving weapons programs to AMPAC) and narrow the role to what the source actually supports, dropping the unsupported NewMarket comparison; see role_conflicts.",
-   "nozzle-ablatives/SGL-CARBON: evidence[0].source_excerpt is not a contiguous span of the cited SGL Carbon page. Verified by fetching the live page and checking with the repo's own whitespace-normalized quote comparison: the recorded excerpt joins the end of one sentence directly to a fragment of the following sentence, silently dropping the intervening clause about protecting structural components of rockets, space shuttles and satellites from heat. The underlying claim is true and the clean first sentence alone supports the role; re-cite as that contiguous span or as an explicit list of spans per method section 1.",
-   "missile-final-assembly/NORTHROP-GRUMMAN: evidence[0].source_excerpt is not a contiguous span of the cited 2021 annual report. Verified by fetching the cited PDF and extracting its text locally: the recorded excerpt silently changes the source's own comma after sustainment to a period, then jumps from one paragraph to a separate, later bullet point, dropping the intervening description of medium and large class rocket propulsion systems and one further bullet naming the Ground Based Strategic Deterrent program. The same class of defect the 2026-09-13 placement audit found and the author has so far fixed only for GENERAL-DYNAMICS. The underlying claim is true and each half is independently a genuine contiguous quotation; re-cite as one clean span or an explicit list of spans."
+   "allied-rearmament-demand/AIRBUS: re-evidence with a fact specific to this link's commodity, or remove the placement; see role_conflicts.",
+   "allied-rearmament-demand/ROLLS-ROYCE-HOLDINGS: re-cite evidence[0].source_excerpt as a genuinely contiguous span (it currently omits the source's own Civil Aerospace sentence between 'on land.' and 'The Defense segment') and re-evidence the role, or remove the placement. See role_conflicts.",
+   "allied-rearmament-demand/COHORT: re-evidence or remove the placement; see role_conflicts.",
+   "allied-rearmament-demand/CHEMRING-GROUP: re-evidence with a demand-side fact, or remove the placement; see role_conflicts.",
+   "allied-rearmament-demand/ELBIT-SYSTEMS: re-evidence with a demand-side fact, or remove the placement; independently verify evidence[0].source_excerpt's contiguity against the cited 20-F, which this run could not extract. See role_conflicts.",
+   "allied-rearmament-demand/MS-INTERNATIONAL: re-evidence or remove the placement; see role_conflicts.",
+   "perchlorate-oxidizer/NORTHROP-GRUMMAN: re-cite evidence[0].source_excerpt as a genuinely contiguous span (it omits the source's own clause reserving weapons programs to AMPAC, now confirmed with certainty against the PDF's own text layer) and narrow the role to what the source actually supports, dropping the unsupported 'alongside AMPAC/NewMarket' comparison. See role_conflicts.",
+   "allied-rearmament-demand/AVIO: check evidence[0].source_excerpt for contiguity against a byte-level stored copy of the Avio release; this run's live fetch shows the memorandum-of-understanding clause preceded in the source by Mk 104 and Raytheon material, not by the order-figure sentence the mapping's excerpt places immediately before it, suggesting a splice across four fragments. The underlying capacity claim is genuinely supported once read in full, so this is a citation-form finding, not a role_conflict.",
+   "nozzle-ablatives/SGL-CARBON: evidence[0].source_excerpt is not a contiguous span of the cited SGL Carbon page (confirmed again this run by a fresh live fetch): it drops the clause about protecting rockets, space shuttles and satellites from heat between 'phenolic resin-based materials.' and 'ablative or sacrificial materials'. The underlying claim holds; re-cite as one contiguous span or an explicit list of spans per method section 1. Unchanged since 2026-09-14T02:10.",
+   "missile-final-assembly/LOCKHEED-MARTIN: evidence[0].source_excerpt is not a contiguous span of the cited 2025 Annual Report (confirmed this run by reading the saved PDF's own text layer): it drops the entire PAC-3/THAAD programme bullet and the logistics/fire-control clause between 'precision strike weapon systems.' and 'The Multiple Launch Rocket System'. The underlying claim holds once read in context; re-cite as one contiguous span or an explicit list of spans. Newly found this run; not previously flagged on this placement (the prior 2026-09-14T02:10 audit's missile-final-assembly splice finding was on the separate NORTHROP-GRUMMAN placement on this same link)."
   ],
-  "surviving_limitation": "Nine of thirteen links remain OPEN; one representative placement per OPEN link was opened only to satisfy audit coverage, not to attempt closing the link, and the author's own map_limitation prose about blocked fetches stands as recorded. The 2026-08-31 whole-census audit flagged seven allied-rearmament-demand role mismatches (LEONARDO, BABCOCK-INTERNATIONAL-GROUP, AIRBUS, ROLLS-ROYCE-HOLDINGS, COHORT, HENSOLDT, MS-INTERNATIONAL) plus one at perchlorate-oxidizer (NORTHROP-GRUMMAN). This run independently re-opened and reconfirmed three of those eight (LEONARDO, BABCOCK-INTERNATIONAL-GROUP, NORTHROP-GRUMMAN) and caught one the prior audit's own sample had marked clean (CHEMRING-GROUP), but did not re-sample AIRBUS, ROLLS-ROYCE-HOLDINGS, COHORT, HENSOLDT or MS-INTERNATIONAL, since the TARGET_MET minimum of two distinct placements was already met and exceeded by the four sampled here; those five remain neither freshly confirmed nor cleared. Two trading-name-versus-legal-issuer-name findings and two stale citation set findings from the 2026-08-31 audit were likewise not re-sampled: listing-identity rows are not required by tools/check_map.py for a FAIL outcome and were out of this run's scope, so they are carried forward as unresolved rather than re-verified. The splice defect found this run at nozzle-ablatives/SGL-CARBON and missile-final-assembly/NORTHROP-GRUMMAN was caught only because this run happened to fetch those two pages directly; the other fifteen non-GENERAL-DYNAMICS placements and all ten EXHAUSTED search records were checked for role support and identity but not independently re-checked for excerpt contiguity against a byte-level source copy, so further undetected splices of the same kind are possible outside this sample. The stored data/web/1da5155fa09a5a77.json text is truncated at 200000 characters; all five sampled GENERAL-DYNAMICS excerpts fell inside the retrieved span, but a claim resting on the filing beyond that truncation point could not be checked from the stored copy. Repository state cannot cryptographically prove fresh context or reviewer independence."
+  "surviving_limitation": "Nine of thirteen links remain OPEN; the nine OPEN-link samples in this audit were opened only to satisfy checked_links coverage against one representative ACTIVE placement each, not to attempt closing the links, and the other placements sitting on multi-placement OPEN links (six more on energetic-materials, three more each on seekers-and-terminal-guidance and missile-final-assembly, four more on artillery-and-bulk-munitions, four more on metal-parts-and-forgings, three more on solid-rocket-motors) were not independently re-sampled this run. allied-rearmament-demand's 2026-08-31 role flags on AIRBUS, ROLLS-ROYCE-HOLDINGS, COHORT, HENSOLDT, and MS-INTERNATIONAL had never been re-sampled by any audit sitting since (the 2026-09-14T02:10 audit's four samples met the TARGET_MET minimum without touching them); this run samples all twelve allied-rearmament-demand placements and independently reconfirms all five plus finds a sixth new role_conflict (BAE-SYSTEMS) and a new splice on a seventh (ROLLS-ROYCE-HOLDINGS) that the citation-only text of its excerpt shares with BAE-SYSTEMS. ELBIT-SYSTEMS' evidence[0].source_excerpt could not be checked against its cited 20-F: the 2MB PDF's relevant page was not located within this run's effort, both through WebFetch's own reader and through a direct PDF text-layer read of a truncated page range; the role_conflict finding on that placement rests on the claim and excerpt text as recorded in the mapping, not on an independently reopened source. AVIO and LEONARDO's citations were checked through WebFetch's rendered text rather than a byte-level stored copy (unlike the five GENERAL-DYNAMICS and one HENSOLDT placement, which were checked against actual stored data/web/ documents with the repo's own evidence_store.verify, and the six LSE tearsheet PDFs and the Lockheed and CSIS PDFs, which were read from their own saved PDF text layer): the probable splices reported on them therefore carry more residual uncertainty than the splices confirmed by direct PDF or stored-document reads. Listing-level identity_evidence was not independently re-verified this run beyond the four official exchange records sampled as EXHAUSTED-link searches (QinetiQ, BAE, Rheinmetall twice), since FAIL status does not require the listings_examined sampling this gate reserves for PASS. Repository state cannot cryptographically prove fresh context or reviewer independence; what is checkable is content-bound, through mapping_fingerprint and each row's record_digest."
  },
  "placement_audits": [
   {
