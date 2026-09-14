@@ -3,11 +3,11 @@
   "chain_id": "hormuz-maritime",
   "scenario_id": null,
   "created_at": "2026-09-04",
-  "as_of": "2026-09-06",
+  "as_of": "2026-09-14",
   "identity_schema": "campaign-v1",
   "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
   "mapping_ref": "data/mappings/hormuz-maritime.json",
-  "universe_note": "AMENDED 2026-09-06 (`run screen hormuz-maritime` re-run, parallel batch authorized by Ron): this run resolved against 11 new `placement_audits[]` entries landed in the hour before this run (10 dated 2026-09-06T15:39-15:48Z plus the standing ELBIT-SYSTEMS entry from 2026-09-04), which is the mapping's per-placement fresh-context audit route (method section 6A; the whole-census audit is still FAIL, 2026-09-04T03:53:11Z, 20 amendments_required, mapping still ACTIVE). Of the two links this unlocked, the money corner opened for the first time since this chain's census closed: specialty-marine-broking's 4 ACTIVE placements all carry INFERRED role evidence and were fully blocked at the mechanical VERIFIED-tag bar every prior run, but AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN and WILLIS-TOWERS-WATSON now each carry a current PASS placement_audits[] entry (`check_map.placement_audit_for`, digest-bound to the placement's present content) and are all COMPLETE O2 profiled referencing this exact chain/link, so all 4 seat. On bunker-and-voyage-services, 3 of the link's 6 placements (BP, CHEVRON, PETROCHINA) cleared the same route and seat; the other 3 (WORLD-KINECT, SINOPEC-CORP, CBL-INTERNATIONAL) drew a FAIL placement audit in the same batch and stay inadmissible on identical evidence-quality grounds as before. The 10 rows already seated on crude-tanker-tonnage and naval-escort-and-mine-clearance are unchanged; this run did not re-touch those two links. Per-link account for the 5 links worked this run, in priority order:\n\nspecialty-marine-broking [MONEY CORNER]: 4 ROWS WRITTEN (AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN, WILLIS-TOWERS-WATSON), bucketed picks_and_shovels (insurance brokerage is the enabling service around the transit, not the cargo or the hull itself). All 4 of the link's ACTIVE placements now seat: each carries INFERRED role evidence in the mapping (so the mechanical VERIFIED-tag bar alone would still refuse them) but each now also carries a current PASS placement_audits[] entry dated 2026-09-06 whose record_digest matches the placement's present content, which is the stronger of the two admission bases per Ron's 2026-09-01 decision and the 2026-09-04 fix that lets a screen honour the same entry the dive does. All 4 are COMPLETE O2 profiled referencing hormuz-maritime/specialty-marine-broking. This is the chain's first row on its only money-corner link since the census closed.\n\nbunker-and-voyage-services: 3 ROWS WRITTEN (BP, CHEVRON, PETROCHINA), bucketed picks_and_shovels. Same placement-audit route: BP, CHEVRON and PETROCHINA each drew a PASS placement audit in the 2026-09-06T15:43-15:45Z batch and are COMPLETE O2 profiled (T1, T1, T2 respectively) referencing this exact link. The other 3 mapped placements on this link (WORLD-KINECT, SINOPEC-CORP, CBL-INTERNATIONAL) drew a FAIL placement audit in the same batch and remain inadmissible; WORLD-KINECT's FAIL is consistent with the whole-census audit's original finding against it (4-day source_date mismatch, excerpt confirms identity only). This link is now half-seated (3 of 6 placements) rather than the fully-blocked state of every prior run.\n\nmaritime-risk-and-protection: searched and empty, unchanged. The link's only placement (SPIRE-GLOBAL) is status REJECTED, not ACTIVE, so it is not a qualified placement regardless of its own COMPLETE O2 profile elsewhere in the repo, and carries no placement_audits entry either (an audit cannot rescue a non-ACTIVE placement). This remains the chain's own documented finding: one honest ticker, and it does not qualify.\n\nhormuz-bypass-pipelines: searched and empty, unchanged. Both mapped placements (KONINKLIJKE-VOPAK, SINOPEC-KANTONS-HOLDINGS) remain INFERRED with no placement_audits entry for either in this run's batch (the 11 entries on the mapping cover only specialty-marine-broking, bunker-and-voyage-services and the standing naval-escort one); both profiles are also BLOCKED/O3 regardless. Needs either a placement audit or re-evidencing, plus profile completion.\n\ncrew-and-warlike-area-manning [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements: the census closed this link EXHAUSTED, named ship managers and manning agencies are private.\n\nNet effect: 17 rows written across 4 of 14 links (crude-tanker-tonnage 7, naval-escort-and-mine-clearance 3 unchanged from the prior run; specialty-marine-broking 4 and bunker-and-voyage-services 3 newly seated this run). The money corner is covered for the first time. Highest-value next steps, in order: (1) Atlas runs `run universe-audit hormuz-maritime --placement` against WORLD-KINECT, SINOPEC-CORP and CBL-INTERNATIONAL's specific evidence defects, since a corrected placement (not a re-profile) is what would seat them; (2) the same route for hormuz-bypass-pipelines' two placements and maritime-risk-and-protection's rejected one, alongside completing their BLOCKED profiles; (3) `run profile --campaign` next prioritizes non-gulf-energy-substitution (7 admissible VERIFIED names, zero profiled) and the remaining naval-escort-and-mine-clearance names (TEXTRON, LEONARDO-DRS, RTX), unchanged from the prior run's finding.\n\n--- prior run's note (2026-09-04, preserved for history) ---\nAMENDED 2026-09-04 (second run, `run screen hormuz-maritime` re-run authorized by Ron): the first run this same day wrote zero rows because the one placement that cleared both the mechanical VERIFIED-evidence bar and profile completeness (WORLD-KINECT/bunker-and-voyage-services) was also the exact placement the concurrent fresh-context census audit (atlas-fresh-context, 2026-09-04T03:53:11Z, status FAIL, 20 amendments_required, mapping still ACTIVE) flagged as evidentially unsound. Since then, profile batches 4 and 5 closed 13 more issuers to COMPLETE O2: INTERNATIONAL-SEAWAYS, OKEANIS-ECO-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION, CMB-TECH, DHT-HOLDINGS, FRONTLINE, NORDIC-AMERICAN-TANKERS, TEEKAY-TANKERS, PERFORMANCE-SHIPPING (crude-tanker-tonnage) and HUNTINGTON-INGALLS, ELBIT-SYSTEMS, EXAIL-TECHNOLOGIES (naval-escort-and-mine-clearance). This run also picked up the screen gate's foreign-listing fix (commit 73814c4): market_ticker now compares against the mapped listing's market_ticker rather than its bare ticker, which matters for EXAIL-TECHNOLOGIES (EPA-EXA, market_ticker EXA.PA). Every row still rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED (never INFERRED) AND the placement is not among the audit's 20 named amendments_required, even where the JSON tag still literally reads VERIFIED (an audit writes only audit/status/changelog, never placement content, per method section 6A, so a flagged placement's tag is not retroactively corrected). Per-link account, worked money-corner first, then the three CHOKE_POINT links, then the rest by chain position:\n\nspecialty-marine-broking [MONEY CORNER]: searched and empty, unchanged. 4 ACTIVE placements (AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN, WILLIS-TOWERS-WATSON) all carry INFERRED role evidence; WILLIS-TOWERS-WATSON is additionally audit-flagged for citing one named individual broker as if the whole organization prices the Gulf war-risk market. All 4 issuers now carry COMPLETE O2 profiles -- profiling did not unblock this link, because the mapping's evidence tagging is the actual gap. Needs re-evidenced VERIFIED-tag role claims (Atlas) or a passing census audit, not more profile work.\n\nhormuz-transit-control [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements: the census closed this link EXHAUSTED, no qualifying public issuer (named authorities are sanctioned or state per the chain's own bottleneck note).\n\ncrew-and-warlike-area-manning [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements: EXHAUSTED, named ship managers and manning agencies are private.\n\ncrude-tanker-tonnage [CHOKE_POINT]: 7 ROWS WRITTEN (FRONTLINE, DHT-HOLDINGS, INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS, NORDIC-AMERICAN-TANKERS, TSAKOS-ENERGY-NAVIGATION, SFL-CORP), all bucketed pure_play. Of the 10 mapped placements, these 7 carry all-VERIFIED role evidence, are not audit-flagged, and now have COMPLETE O2 profiles referencing this exact chain/link. The other 3 (OKEANIS-ECO-TANKERS, CMB-TECH, PERFORMANCE-SHIPPING) are also COMPLETE O2 profiled but their mapping placement role evidence is INFERRED, not VERIFIED, so the mechanical PLACEMENT-scope bar still refuses them -- re-evidencing those 3 placements, not more profiling, is what would seat them next.\n\nwar-risk-reinsurance-capacity: searched and empty, unchanged. 10 ACTIVE placements, all INFERRED role evidence; none profiled.\n\nmarine-war-risk-underwriting: searched and empty. 3 placements admissible on VERIFIED evidence (AXIS-CAPITAL, W-R-BERKLEY, LANCASHIRE-HOLDINGS), none profiled yet -- admissible-but-unprofiled.\n\nmaritime-risk-and-protection: searched and empty, unchanged. The link's only placement (SPIRE-GLOBAL) is status REJECTED, not ACTIVE, so it is not a qualified placement regardless of its own COMPLETE O2 profile elsewhere in the repo. This is the chain's own documented finding: one honest ticker, and it does not qualify.\n\nnaval-escort-and-mine-clearance: 3 ROWS WRITTEN (HUNTINGTON-INGALLS, ELBIT-SYSTEMS, EXAIL-TECHNOLOGIES), bucketed second_order (government-procurement counter-response, not the direct shipping/energy value chain). Of 10 mapped placements, 8 clear the VERIFIED-evidence bar (HUNTINGTON-INGALLS, TEXTRON, ELBIT-SYSTEMS, LEONARDO-DRS, RTX, KONGSBERG-GRUPPEN, BAE-SYSTEMS, EXAIL-TECHNOLOGIES). GENERAL-DYNAMICS carries INFERRED evidence and is separately audit-flagged for overstating actual Knifefish deployment ('could potentially be employed' in the source vs. 'being used' in the mapping's role text) -- it stays excluded even though it now has a COMPLETE O2 profile. Of the 8 admissible, 3 (HUNTINGTON-INGALLS, ELBIT-SYSTEMS, EXAIL-TECHNOLOGIES) are COMPLETE O2 and referenced -> rows written. TEXTRON, LEONARDO-DRS, RTX are admissible-but-unprofiled, the deepest remaining pool on this link. KONGSBERG-GRUPPEN and BAE-SYSTEMS are admissible but their own profiles are BLOCKED/O3 -- their own data gaps, not this link's.\n\nbunker-and-voyage-services: searched and empty, but the picture changed: all 6 mapped placements (WORLD-KINECT, BP, CHEVRON, SINOPEC-CORP, PETROCHINA, CBL-INTERNATIONAL) are now COMPLETE O2 profiled, and still zero are admissible. WORLD-KINECT carries VERIFIED evidence but is the audit's named defect (4-day source_date mismatch, excerpt confirms identity only, not the marine-bunker role claim). SINOPEC-CORP, PETROCHINA and CBL-INTERNATIONAL are INFERRED and separately audit-flagged (overstated or date-mismatched claims). BP and CHEVRON are simply INFERRED, never flagged, just under the mechanical bar. This link is now fully profiled and fully blocked on evidence quality alone -- further profiling here would not help; re-evidencing would.\n\nlng-shipping-and-qatari-supply: searched and empty. 3 placements admissible on VERIFIED evidence (FLEX-LNG, GOLAR-LNG, EXCELERATE-ENERGY), none profiled -- admissible-but-unprofiled.\n\ncontainer-liner-diversion: searched and empty. 3 placements (EVERGREEN-MARINE, YANG-MING, WAN-HAI-LINES) carry VERIFIED evidence but all 3 are audit-flagged (generic, undated TWSE company-profile pages with zero mention of Hormuz, diversion or surcharges); the remaining 4 (ZIM-INTEGRATED-SHIPPING, COSCO-SHIPPING-HOLDINGS, ORIENT-OVERSEAS-INTERNATIONAL, HAPAG-LLOYD) are INFERRED. Zero admissible, none profiled.\n\nhormuz-bypass-pipelines: searched and empty, unchanged. 2 placements (KONINKLIJKE-VOPAK, SINOPEC-KANTONS-HOLDINGS), both INFERRED and both audit-flagged (cited source never names either company). Both carry BLOCKED/O3 profiles regardless.\n\nnon-gulf-energy-substitution: searched and empty. 7 placements admissible on VERIFIED evidence (VENTURE-GLOBAL, CHENIERE-ENERGY, NEXTDECADE, EXXONMOBIL, PETROBRAS, EQUINOR, WOODSIDE-ENERGY), none profiled -- the single deepest untouched admissible pool on this chain. CHEVRON now carries a COMPLETE O2 profile but its placement evidence here is INFERRED, so it stays inadmissible.\n\ncargo-owners-and-energy-importers: searched and empty. FORMOSA-PETROCHEMICAL carries VERIFIED evidence but is audit-flagged (TWSE live snapshot page has no fixed publish date, so the recorded source_date cannot be trusted). PBF-ENERGY is VERIFIED and not flagged -- admissible-but-unprofiled, the one open name on this link. SINOPEC-CORP now carries a COMPLETE O2 profile but its evidence here is INFERRED.\n\nNet effect: 10 rows written across 2 of 14 links (crude-tanker-tonnage, naval-escort-and-mine-clearance), both now producing their full admissible-and-profiled set. The money corner and the other two CHOKE_POINT links remain exactly as documented: thin or empty of listed expression by mapping design (hormuz-transit-control, crew-and-warlike-area-manning), or blocked purely on evidence quality rather than profiling coverage (specialty-marine-broking, now fully profiled and fully inadmissible). Highest-value next steps, in order: (1) Atlas re-evidences the 3 crude-tanker-tonnage INFERRED placements (OKEANIS-ECO-TANKERS, CMB-TECH, PERFORMANCE-SHIPPING) and the specialty-marine-broking money-corner placements, both already fully profiled and blocked only on tagging; (2) `run profile --campaign` next prioritizes non-gulf-energy-substitution (7 admissible VERIFIED names, zero profiled) and the remaining naval-escort-and-mine-clearance names (TEXTRON, LEONARDO-DRS, RTX).",
+  "universe_note": "AMENDED 2026-09-14 (`run screen hormuz-maritime` re-run, parallel fan-out authorized by Ron): since the 2026-09-06 run, 6 more issuers closed to COMPLETE O2 with placements naming this chain (LEONARDO-DRS, OKEANIS-ECO-TANKERS, AXIS-CAPITAL, W-R-BERKLEY, LANCASHIRE-HOLDINGS were already profiled by 2026-09-06 but their links were unprofiled-pool notes; VENTURE-GLOBAL, NEXTDECADE, PETROBRAS, EQUINOR, WOODSIDE-ENERGY, PBF-ENERGY, FLEX-LNG, GOLAR-LNG, EXCELERATE-ENERGY are newly COMPLETE O2 this run), and Atlas landed 6 fresh `--placement` audits on crude-tanker-tonnage (2026-09-14T00:35:28Z): PASS on FRONTLINE, DHT-HOLDINGS, INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS, OKEANIS-ECO-TANKERS, FAIL on NORDIC-AMERICAN-TANKERS. Per-link account for the 8 links touched this run, in priority order:\n\ncrude-tanker-tonnage [CHOKE_POINT]: NORDIC-AMERICAN-TANKERS REMOVED, OKEANIS-ECO-TANKERS ADDED, net still 7 rows. The fresh placement audit on NORDIC-AMERICAN-TANKERS found role_ok false: its sole cited evidence item (refetched live, excerpt confirmed verbatim) supports only that NAT acquired two Suezmax vessels in H1 2025, not the placement's broader claim that NAT's fleet is a Suezmax fleet earning the time-charter-equivalent rate; the source's own TCE and fleet-composition sentences sit elsewhere on the same page, uncited. This is the same role-claim-exceeding-cited-source pattern the whole-census audit and the WORLD-KINECT/SINOPEC-CORP placement audits already found on this mapping, and this screen follows the same precedent it already set for WORLD-KINECT: a targeted fresh-context FAIL is stronger evidence than a mechanical VERIFIED tag written before that audit existed, so the row is pulled even though check_screen.py's mechanical bar alone would still admit it. OKEANIS-ECO-TANKERS was INFERRED-tagged (blocked on the mechanical bar) but now carries a current PASS placement_audits[] entry dated 2026-09-14 and a COMPLETE O2 profile referencing this exact chain/link, so it seats on the audit route. TSAKOS-ENERGY-NAVIGATION and SFL-CORP remain seated on their pre-existing VERIFIED tags, untouched by this batch. CMB-TECH and PERFORMANCE-SHIPPING remain profiled but INFERRED with no placement audit; still not admissible.\n\nmarine-war-risk-underwriting: 3 ROWS WRITTEN (AXIS-CAPITAL, W-R-BERKLEY, LANCASHIRE-HOLDINGS), bucketed picks_and_shovels (these underwriters price and carry the primary war book but are the service/capital layer around the transit, the same bucket logic as specialty-marine-broking). All 3 carry VERIFIED role evidence naming this exact link and are now COMPLETE O2 profiled (T1, T1, T2). This is this link's first seated row: on the 2026-09-06 run all 3 were VERIFIED-and-admissible but unprofiled, the deepest untouched admissible pool named in that run's own next-steps. CHUBB, AIG, TRAVELERS, BERKSHIRE-HATHAWAY, MARKEL-GROUP, HARTFORD-INSURANCE-GROUP, AMERICAN-FINANCIAL-GROUP remain INFERRED with no placement audit; still not admissible.\n\nnaval-escort-and-mine-clearance: LEONARDO-DRS ADDED, net 4 rows (was 3: HUNTINGTON-INGALLS, ELBIT-SYSTEMS[DIVED], EXAIL-TECHNOLOGIES), bucketed second_order. LEONARDO-DRS carries VERIFIED role evidence and is now COMPLETE O2 profiled. TEXTRON and RTX (also VERIFIED-admissible) remain BLOCKED/O3 profiles, their own data gap. KONGSBERG-GRUPPEN and BAE-SYSTEMS (VERIFIED-admissible) also remain BLOCKED/O3. GENERAL-DYNAMICS and THALES remain INFERRED, unchanged.\n\nnon-gulf-energy-substitution: 5 ROWS WRITTEN (VENTURE-GLOBAL, NEXTDECADE, PETROBRAS, EQUINOR, WOODSIDE-ENERGY), bucketed hedge (ARCH-006's investable form: non-Gulf supply that backfills what the strait no longer passes, the mirror position to a long-tanker or long-insurer book on this chain, not itself directly exposed to the choke point). All 5 carry VERIFIED role evidence and are now COMPLETE O2 profiled. This is this link's first seated row: it was the single deepest untouched admissible-and-unprofiled pool named in both prior runs' next-steps (7 VERIFIED names, zero profiled). CHENIERE-ENERGY and EXXONMOBIL (also VERIFIED-admissible) remain BLOCKED/O3, their own data gap. SHELL, CONOCOPHILLIPS, CHEVRON remain INFERRED, unchanged.\n\nlng-shipping-and-qatari-supply: 3 ROWS WRITTEN (FLEX-LNG, GOLAR-LNG, EXCELERATE-ENERGY), bucketed pure_play (same logic as crude-tanker-tonnage: direct ton-mile capture on cargoes that still move, no pipeline alternative). All 3 carry VERIFIED role evidence and are now COMPLETE O2 profiled. First seated row on this link. AWILCO-LNG, MISC-BERHAD, COSCO-SHIPPING-ENERGY-TRANSPORTATION, NIPPON-YUSEN, KAWASAKI-KISEN-KAISHA, CAPITAL-CLEAN-ENERGY-CARRIERS, DYNAGAS-LNG-PARTNERS remain INFERRED, unchanged.\n\ncargo-owners-and-energy-importers: 1 ROW WRITTEN (PBF-ENERGY), bucketed hedge (the demand anchor: absorbs the war premium and Cape-routing freight cost that lands here, the cost-side mirror of a long-tanker/long-insurer book rather than an enabling service or a pure-play capture of the shock). PBF-ENERGY carries VERIFIED role evidence and is now COMPLETE O2 profiled. First seated row on this link, which the chain's own note frames as included so the chain terminates honestly rather than as an opportunity; seated anyway because it is a legitimate admissible, profiled candidate and Sieve's job is the shortlist, not the investability call, which is Stocky's. FORMOSA-PETROCHEMICAL remains VERIFIED but audit-flagged (TWSE live-snapshot page has no fixed publish date); VALERO-ENERGY, MARATHON-PETROLEUM, PHILLIPS-66, HF-SINCLAIR, CVR-ENERGY, DELEK-US, PAR-PACIFIC-HOLDINGS, SINOPEC-CORP remain INFERRED, unchanged.\n\nspecialty-marine-broking [MONEY CORNER]: unchanged, 4 rows (AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN, WILLIS-TOWERS-WATSON), not re-touched this run.\n\nbunker-and-voyage-services: unchanged, 3 rows (BP, CHEVRON, PETROCHINA); WORLD-KINECT, SINOPEC-CORP, CBL-INTERNATIONAL remain excluded on the same FAIL placement-audit and census-flag basis as the 2026-09-06 run, not re-touched this run.\n\nwar-risk-reinsurance-capacity: searched and empty, unchanged. 10 ACTIVE placements, all INFERRED, no placement audits landed this batch.\n\nmaritime-risk-and-protection: searched and empty, unchanged. SPIRE-GLOBAL remains REJECTED, not ACTIVE.\n\nhormuz-bypass-pipelines: searched and empty, unchanged. Both mapped placements remain INFERRED with no placement audit.\n\ncontainer-liner-diversion: searched and empty, unchanged. EVERGREEN-MARINE, YANG-MING, WAN-HAI-LINES remain VERIFIED but census-flagged (generic undated TWSE pages, no Hormuz mention); no dedicated placement audit landed for any of the three this batch.\n\nhormuz-transit-control [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements, EXHAUSTED.\n\ncrew-and-warlike-area-manning [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements, EXHAUSTED.\n\nNet effect: 30 rows now written across 8 of 14 links (was 17 rows across 4 links before this run). Newly seated this run: marine-war-risk-underwriting (3), non-gulf-energy-substitution (5), lng-shipping-and-qatari-supply (3), cargo-owners-and-energy-importers (1), naval-escort-and-mine-clearance (+1 LEONARDO-DRS), crude-tanker-tonnage (net unchanged count, -1 NORDIC-AMERICAN-TANKERS on a fresh FAIL placement audit, +1 OKEANIS-ECO-TANKERS on a fresh PASS placement audit). Money corner (specialty-marine-broking) and the two CHOKE_POINT links with zero mapped placements (hormuz-transit-control, crew-and-warlike-area-manning) are unchanged from the prior run. Highest-value next steps, in order: (1) Atlas re-evidences war-risk-reinsurance-capacity's 10 INFERRED placements and container-liner-diversion's 3 census-flagged VERIFIED ones, the two largest remaining blocked-on-evidence pools; (2) `run profile --campaign` closes the remaining BLOCKED/O3 names on naval-escort-and-mine-clearance (TEXTRON, RTX, KONGSBERG-GRUPPEN, BAE-SYSTEMS) and non-gulf-energy-substitution (CHENIERE-ENERGY, EXXONMOBIL), all VERIFIED-admissible and blocked only on their own profile completeness; (3) a placement audit on FORMOSA-PETROCHEMICAL's source-date defect would open a second cargo-owners-and-energy-importers name.\n\nAMENDED 2026-09-06 (`run screen hormuz-maritime` re-run, parallel batch authorized by Ron): this run resolved against 11 new `placement_audits[]` entries landed in the hour before this run (10 dated 2026-09-06T15:39-15:48Z plus the standing ELBIT-SYSTEMS entry from 2026-09-04), which is the mapping's per-placement fresh-context audit route (method section 6A; the whole-census audit is still FAIL, 2026-09-04T03:53:11Z, 20 amendments_required, mapping still ACTIVE). Of the two links this unlocked, the money corner opened for the first time since this chain's census closed: specialty-marine-broking's 4 ACTIVE placements all carry INFERRED role evidence and were fully blocked at the mechanical VERIFIED-tag bar every prior run, but AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN and WILLIS-TOWERS-WATSON now each carry a current PASS placement_audits[] entry (`check_map.placement_audit_for`, digest-bound to the placement's present content) and are all COMPLETE O2 profiled referencing this exact chain/link, so all 4 seat. On bunker-and-voyage-services, 3 of the link's 6 placements (BP, CHEVRON, PETROCHINA) cleared the same route and seat; the other 3 (WORLD-KINECT, SINOPEC-CORP, CBL-INTERNATIONAL) drew a FAIL placement audit in the same batch and stay inadmissible on identical evidence-quality grounds as before. The 10 rows already seated on crude-tanker-tonnage and naval-escort-and-mine-clearance are unchanged; this run did not re-touch those two links. Per-link account for the 5 links worked this run, in priority order:\n\nspecialty-marine-broking [MONEY CORNER]: 4 ROWS WRITTEN (AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN, WILLIS-TOWERS-WATSON), bucketed picks_and_shovels (insurance brokerage is the enabling service around the transit, not the cargo or the hull itself). All 4 of the link's ACTIVE placements now seat: each carries INFERRED role evidence in the mapping (so the mechanical VERIFIED-tag bar alone would still refuse them) but each now also carries a current PASS placement_audits[] entry dated 2026-09-06 whose record_digest matches the placement's present content, which is the stronger of the two admission bases per Ron's 2026-09-01 decision and the 2026-09-04 fix that lets a screen honour the same entry the dive does. All 4 are COMPLETE O2 profiled referencing hormuz-maritime/specialty-marine-broking. This is the chain's first row on its only money-corner link since the census closed.\n\nbunker-and-voyage-services: 3 ROWS WRITTEN (BP, CHEVRON, PETROCHINA), bucketed picks_and_shovels. Same placement-audit route: BP, CHEVRON and PETROCHINA each drew a PASS placement audit in the 2026-09-06T15:43-15:45Z batch and are COMPLETE O2 profiled (T1, T1, T2 respectively) referencing this exact link. The other 3 mapped placements on this link (WORLD-KINECT, SINOPEC-CORP, CBL-INTERNATIONAL) drew a FAIL placement audit in the same batch and remain inadmissible; WORLD-KINECT's FAIL is consistent with the whole-census audit's original finding against it (4-day source_date mismatch, excerpt confirms identity only). This link is now half-seated (3 of 6 placements) rather than the fully-blocked state of every prior run.\n\nmaritime-risk-and-protection: searched and empty, unchanged. The link's only placement (SPIRE-GLOBAL) is status REJECTED, not ACTIVE, so it is not a qualified placement regardless of its own COMPLETE O2 profile elsewhere in the repo, and carries no placement_audits entry either (an audit cannot rescue a non-ACTIVE placement). This remains the chain's own documented finding: one honest ticker, and it does not qualify.\n\nhormuz-bypass-pipelines: searched and empty, unchanged. Both mapped placements (KONINKLIJKE-VOPAK, SINOPEC-KANTONS-HOLDINGS) remain INFERRED with no placement_audits entry for either in this run's batch (the 11 entries on the mapping cover only specialty-marine-broking, bunker-and-voyage-services and the standing naval-escort one); both profiles are also BLOCKED/O3 regardless. Needs either a placement audit or re-evidencing, plus profile completion.\n\ncrew-and-warlike-area-manning [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements: the census closed this link EXHAUSTED, named ship managers and manning agencies are private.\n\nNet effect: 17 rows written across 4 of 14 links (crude-tanker-tonnage 7, naval-escort-and-mine-clearance 3 unchanged from the prior run; specialty-marine-broking 4 and bunker-and-voyage-services 3 newly seated this run). The money corner is covered for the first time. Highest-value next steps, in order: (1) Atlas runs `run universe-audit hormuz-maritime --placement` against WORLD-KINECT, SINOPEC-CORP and CBL-INTERNATIONAL's specific evidence defects, since a corrected placement (not a re-profile) is what would seat them; (2) the same route for hormuz-bypass-pipelines' two placements and maritime-risk-and-protection's rejected one, alongside completing their BLOCKED profiles; (3) `run profile --campaign` next prioritizes non-gulf-energy-substitution (7 admissible VERIFIED names, zero profiled) and the remaining naval-escort-and-mine-clearance names (TEXTRON, LEONARDO-DRS, RTX), unchanged from the prior run's finding.\n\n--- prior run's note (2026-09-04, preserved for history) ---\nAMENDED 2026-09-04 (second run, `run screen hormuz-maritime` re-run authorized by Ron): the first run this same day wrote zero rows because the one placement that cleared both the mechanical VERIFIED-evidence bar and profile completeness (WORLD-KINECT/bunker-and-voyage-services) was also the exact placement the concurrent fresh-context census audit (atlas-fresh-context, 2026-09-04T03:53:11Z, status FAIL, 20 amendments_required, mapping still ACTIVE) flagged as evidentially unsound. Since then, profile batches 4 and 5 closed 13 more issuers to COMPLETE O2: INTERNATIONAL-SEAWAYS, OKEANIS-ECO-TANKERS, SFL-CORP, TSAKOS-ENERGY-NAVIGATION, CMB-TECH, DHT-HOLDINGS, FRONTLINE, NORDIC-AMERICAN-TANKERS, TEEKAY-TANKERS, PERFORMANCE-SHIPPING (crude-tanker-tonnage) and HUNTINGTON-INGALLS, ELBIT-SYSTEMS, EXAIL-TECHNOLOGIES (naval-escort-and-mine-clearance). This run also picked up the screen gate's foreign-listing fix (commit 73814c4): market_ticker now compares against the mapped listing's market_ticker rather than its bare ticker, which matters for EXAIL-TECHNOLOGIES (EPA-EXA, market_ticker EXA.PA). Every row still rests on Ron's 2026-09-01 PLACEMENT-scope rule: audit_scope 'PLACEMENT' declared on the row, admitted only when the consumed placement's role evidence is entirely VERIFIED (never INFERRED) AND the placement is not among the audit's 20 named amendments_required, even where the JSON tag still literally reads VERIFIED (an audit writes only audit/status/changelog, never placement content, per method section 6A, so a flagged placement's tag is not retroactively corrected). Per-link account, worked money-corner first, then the three CHOKE_POINT links, then the rest by chain position:\n\nspecialty-marine-broking [MONEY CORNER]: searched and empty, unchanged. 4 ACTIVE placements (AON, ARTHUR-J-GALLAGHER, MARSH-MCLENNAN, WILLIS-TOWERS-WATSON) all carry INFERRED role evidence; WILLIS-TOWERS-WATSON is additionally audit-flagged for citing one named individual broker as if the whole organization prices the Gulf war-risk market. All 4 issuers now carry COMPLETE O2 profiles -- profiling did not unblock this link, because the mapping's evidence tagging is the actual gap. Needs re-evidenced VERIFIED-tag role claims (Atlas) or a passing census audit, not more profile work.\n\nhormuz-transit-control [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements: the census closed this link EXHAUSTED, no qualifying public issuer (named authorities are sanctioned or state per the chain's own bottleneck note).\n\ncrew-and-warlike-area-manning [CHOKE_POINT]: searched and empty, unchanged. Zero mapped placements: EXHAUSTED, named ship managers and manning agencies are private.\n\ncrude-tanker-tonnage [CHOKE_POINT]: 7 ROWS WRITTEN (FRONTLINE, DHT-HOLDINGS, INTERNATIONAL-SEAWAYS, TEEKAY-TANKERS, NORDIC-AMERICAN-TANKERS, TSAKOS-ENERGY-NAVIGATION, SFL-CORP), all bucketed pure_play. Of the 10 mapped placements, these 7 carry all-VERIFIED role evidence, are not audit-flagged, and now have COMPLETE O2 profiles referencing this exact chain/link. The other 3 (OKEANIS-ECO-TANKERS, CMB-TECH, PERFORMANCE-SHIPPING) are also COMPLETE O2 profiled but their mapping placement role evidence is INFERRED, not VERIFIED, so the mechanical PLACEMENT-scope bar still refuses them -- re-evidencing those 3 placements, not more profiling, is what would seat them next.\n\nwar-risk-reinsurance-capacity: searched and empty, unchanged. 10 ACTIVE placements, all INFERRED role evidence; none profiled.\n\nmarine-war-risk-underwriting: searched and empty. 3 placements admissible on VERIFIED evidence (AXIS-CAPITAL, W-R-BERKLEY, LANCASHIRE-HOLDINGS), none profiled yet -- admissible-but-unprofiled.\n\nmaritime-risk-and-protection: searched and empty, unchanged. The link's only placement (SPIRE-GLOBAL) is status REJECTED, not ACTIVE, so it is not a qualified placement regardless of its own COMPLETE O2 profile elsewhere in the repo. This is the chain's own documented finding: one honest ticker, and it does not qualify.\n\nnaval-escort-and-mine-clearance: 3 ROWS WRITTEN (HUNTINGTON-INGALLS, ELBIT-SYSTEMS, EXAIL-TECHNOLOGIES), bucketed second_order (government-procurement counter-response, not the direct shipping/energy value chain). Of 10 mapped placements, 8 clear the VERIFIED-evidence bar (HUNTINGTON-INGALLS, TEXTRON, ELBIT-SYSTEMS, LEONARDO-DRS, RTX, KONGSBERG-GRUPPEN, BAE-SYSTEMS, EXAIL-TECHNOLOGIES). GENERAL-DYNAMICS carries INFERRED evidence and is separately audit-flagged for overstating actual Knifefish deployment ('could potentially be employed' in the source vs. 'being used' in the mapping's role text) -- it stays excluded even though it now has a COMPLETE O2 profile. Of the 8 admissible, 3 (HUNTINGTON-INGALLS, ELBIT-SYSTEMS, EXAIL-TECHNOLOGIES) are COMPLETE O2 and referenced -> rows written. TEXTRON, LEONARDO-DRS, RTX are admissible-but-unprofiled, the deepest remaining pool on this link. KONGSBERG-GRUPPEN and BAE-SYSTEMS are admissible but their own profiles are BLOCKED/O3 -- their own data gaps, not this link's.\n\nbunker-and-voyage-services: searched and empty, but the picture changed: all 6 mapped placements (WORLD-KINECT, BP, CHEVRON, SINOPEC-CORP, PETROCHINA, CBL-INTERNATIONAL) are now COMPLETE O2 profiled, and still zero are admissible. WORLD-KINECT carries VERIFIED evidence but is the audit's named defect (4-day source_date mismatch, excerpt confirms identity only, not the marine-bunker role claim). SINOPEC-CORP, PETROCHINA and CBL-INTERNATIONAL are INFERRED and separately audit-flagged (overstated or date-mismatched claims). BP and CHEVRON are simply INFERRED, never flagged, just under the mechanical bar. This link is now fully profiled and fully blocked on evidence quality alone -- further profiling here would not help; re-evidencing would.\n\nlng-shipping-and-qatari-supply: searched and empty. 3 placements admissible on VERIFIED evidence (FLEX-LNG, GOLAR-LNG, EXCELERATE-ENERGY), none profiled -- admissible-but-unprofiled.\n\ncontainer-liner-diversion: searched and empty. 3 placements (EVERGREEN-MARINE, YANG-MING, WAN-HAI-LINES) carry VERIFIED evidence but all 3 are audit-flagged (generic, undated TWSE company-profile pages with zero mention of Hormuz, diversion or surcharges); the remaining 4 (ZIM-INTEGRATED-SHIPPING, COSCO-SHIPPING-HOLDINGS, ORIENT-OVERSEAS-INTERNATIONAL, HAPAG-LLOYD) are INFERRED. Zero admissible, none profiled.\n\nhormuz-bypass-pipelines: searched and empty, unchanged. 2 placements (KONINKLIJKE-VOPAK, SINOPEC-KANTONS-HOLDINGS), both INFERRED and both audit-flagged (cited source never names either company). Both carry BLOCKED/O3 profiles regardless.\n\nnon-gulf-energy-substitution: searched and empty. 7 placements admissible on VERIFIED evidence (VENTURE-GLOBAL, CHENIERE-ENERGY, NEXTDECADE, EXXONMOBIL, PETROBRAS, EQUINOR, WOODSIDE-ENERGY), none profiled -- the single deepest untouched admissible pool on this chain. CHEVRON now carries a COMPLETE O2 profile but its placement evidence here is INFERRED, so it stays inadmissible.\n\ncargo-owners-and-energy-importers: searched and empty. FORMOSA-PETROCHEMICAL carries VERIFIED evidence but is audit-flagged (TWSE live snapshot page has no fixed publish date, so the recorded source_date cannot be trusted). PBF-ENERGY is VERIFIED and not flagged -- admissible-but-unprofiled, the one open name on this link. SINOPEC-CORP now carries a COMPLETE O2 profile but its evidence here is INFERRED.\n\nNet effect: 10 rows written across 2 of 14 links (crude-tanker-tonnage, naval-escort-and-mine-clearance), both now producing their full admissible-and-profiled set. The money corner and the other two CHOKE_POINT links remain exactly as documented: thin or empty of listed expression by mapping design (hormuz-transit-control, crew-and-warlike-area-manning), or blocked purely on evidence quality rather than profiling coverage (specialty-marine-broking, now fully profiled and fully inadmissible). Highest-value next steps, in order: (1) Atlas re-evidences the 3 crude-tanker-tonnage INFERRED placements (OKEANIS-ECO-TANKERS, CMB-TECH, PERFORMANCE-SHIPPING) and the specialty-marine-broking money-corner placements, both already fully profiled and blocked only on tagging; (2) `run profile --campaign` next prioritizes non-gulf-energy-substitution (7 admissible VERIFIED names, zero profiled) and the remaining naval-escort-and-mine-clearance names (TEXTRON, LEONARDO-DRS, RTX).",
   "queries_run": [
     {
       "query": "mapping placement resolution: every (chain_id, link_id, issuer_id) in data/mappings/hormuz-maritime.json carrying an ACTIVE status and role evidence, joined to its official listing",
@@ -50,6 +50,12 @@
       "forms": null,
       "hits_examined": 14,
       "names_extracted": 7
+    },
+    {
+      "query": "Fourth run: re-resolve all 90 (chain_id, link_id, issuer_id) placements against the current data/companies/ store (many new COMPLETE O2 profiles since 2026-09-06) and the mapping's placement_audits[] (6 new crude-tanker-tonnage entries dated 2026-09-14), to find every admissible-and-profiled candidate across all 14 links.",
+      "forms": null,
+      "hits_examined": 90,
+      "names_extracted": 14
     }
   ],
   "buckets": {
@@ -541,136 +547,6 @@
         "status": "CANDIDATE"
       },
       {
-        "issuer_id": "NORDIC-AMERICAN-TANKERS",
-        "listing_id": "NYSE-NAT",
-        "ticker": "NAT",
-        "market_ticker": "NAT",
-        "chain_id": "hormuz-maritime",
-        "link_id": "crude-tanker-tonnage",
-        "mapping_ref": "data/mappings/hormuz-maritime.json",
-        "profile_ref": "data/companies/NORDIC-AMERICAN-TANKERS.json",
-        "data_tier": "T1",
-        "audit_scope": "PLACEMENT",
-        "name": "Nordic American Tankers Ltd",
-        "exchange": "NYSE",
-        "tier": "T1",
-        "cik": 1000177,
-        "money_corner": false,
-        "link_heat_verdict": "OVER_CROWDED",
-        "thesis_1line": "Suezmax crude tanker owner whose fleet earns the spot time-charter-equivalent rate the reroute has repriced.",
-        "theme_revenue_exposure": {
-          "pct": null,
-          "basis": "No Hormuz-specific or Gulf-transit-specific revenue percentage is disclosed by Nordic American Tankers Ltd; the profile's exposure_summary carries the fleet/product-level narrative but no filed revenue split by route or region.",
-          "quote": null,
-          "accession": null,
-          "url": null,
-          "tag": "NULL"
-        },
-        "fundamentals": {
-          "revenue_latest_fy": {
-            "value": 291690000,
-            "tag": "VERIFIED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1000177 (Nordic American Tankers Ltd, NAT)."
-          },
-          "revenue_cagr_3y": {
-            "value": -0.04918615930549275,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Three-year compound annual revenue growth computed as (291690000 / 339340000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
-            "official_source": true
-          },
-          "operating_margin": {
-            "value": 0.15888443210257466,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Operating income 46345000 divided by revenue 291690000, both for the fiscal year ended 2025-12-31, from companyfacts.",
-            "official_source": true
-          },
-          "operating_cash_flow_to_net_income": {
-            "value": 1.6155162578436966,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Operating cash flow 19824000 divided by net income 12271000, both for the fiscal year ended 2025-12-31, from companyfacts.",
-            "official_source": true
-          },
-          "fcf_margin": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "Free cash flow margin: no fiscal year with operating cash flow, capex and revenue all present in the same period."
-          },
-          "net_debt_to_ebitda": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "Net debt to EBITDA: cash and/or total_debt fields are null or missing in fundamentals for this filer."
-          },
-          "piotroski": {
-            "value": 5,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Piotroski F-score 5 (state MIDDLING), computed over companyfacts statements in data/market/NAT.json quality.piotroski, 9 of 9 inputs found.",
-            "official_source": true
-          },
-          "beneish_state": {
-            "value": -3.366,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Beneish M-score -3.366 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over companyfacts statements in data/market/NAT.json quality.beneish, 12 of 12 inputs found.",
-            "official_source": true
-          },
-          "market_cap": {
-            "value": 1446257028.29,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Market capitalization 1446257028.29 computed in data/market/NAT.json quality.derived.market_cap from share count 211750663 (as of 2025-12-31) times the close 6.83 of 2026-08-31.",
-            "official_source": true
-          },
-          "price_to_sales": {
-            "value": 4.958198869656142,
-            "tag": "INFERRED",
-            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NAT.json fundamentals (source sec-companyfacts)",
-            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001000177.json",
-            "source_date": "2026-09-04",
-            "basis": "Market capitalization 1446257028.29 divided by fiscal year 2025-12-31 revenue 291690000.",
-            "official_source": true
-          },
-          "implied_fcf_cagr": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "implied_fcf_cagr not solved: data/market/NAT.json quality.reverse_dcf.state is PENDING_DATA."
-          },
-          "horizon_spread": {
-            "value": null,
-            "tag": "NULL",
-            "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA, so no implied_by_horizon spread was computed."
-          }
-        },
-        "crowdedness": {
-          "pcs_axis_a": null,
-          "state": "COVERAGE-THIN",
-          "source": "data/market/NAT.json",
-          "as_of": "2026-09-04",
-          "tag": "NULL",
-          "basis": "data/market/NAT.json pcs is null; no PCS attention read for this T1 listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this T1/T3 name has no PCS block fetched either)."
-        },
-        "earnings_nuggets": [],
-        "status": "CANDIDATE"
-      },
-      {
         "issuer_id": "TSAKOS-ENERGY-NAVIGATION",
         "listing_id": "NYSE-TEN",
         "ticker": "TEN",
@@ -913,6 +789,510 @@
         },
         "earnings_nuggets": [],
         "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "OKEANIS-ECO-TANKERS",
+        "listing_id": "NYSE-ECO",
+        "ticker": "ECO",
+        "market_ticker": "ECO",
+        "chain_id": "hormuz-maritime",
+        "link_id": "crude-tanker-tonnage",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/OKEANIS-ECO-TANKERS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Okeanis Eco Tankers Corp.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "OVER_CROWDED",
+        "thesis_1line": "Owner-operator of a modern, scrubber-fitted VLCC and Suezmax crude tanker fleet with direct spot-market exposure to the Cape-routed rate spike.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz-specific revenue percentage is broken out; the company's own transcript names Hormuz as one of three simultaneous route pressures without allocating revenue among them.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 391548819,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-02",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1964954 (Okeanis Eco Tankers Corp., NYSE: ECO), IFRS taxonomy, statement currency USD."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.13054,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-02",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Three-year compound annual revenue growth computed as (391548819 / 270972421) ** (1/3) - 1 from the companyfacts Revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.4151,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-02",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Operating income 162530692 divided by revenue 391548819 for the fiscal year ended 2025-12-31, both from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 0.90525,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-02",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Operating cash flow 111301518 divided by net income 122951543, both for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "capex is listed in data/market/ECO.json fundamentals.coverage.missing; no capex_fy series exists in this filer's IFRS companyfacts block, so free cash flow margin cannot be computed."
+          },
+          "net_debt_to_ebitda": {
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Net debt to EBITDA: total debt 605099897 less cash 116636741 = net debt 488463156, divided by EBITDA (operating income 162530692 plus depreciation 41440551 = 203971243), all for the fiscal year ended 2025-12-31, from companyfacts. Corrected 2026-09-04 (fetcher commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins): cash and total_debt, both previously null for this IFRS filer, now resolve.",
+            "value": 2.394765
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "data/market/ECO.json quality.piotroski state PENDING_DATA: 8 of 9 inputs found, missing cost_of_revenue_fy."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "data/market/ECO.json quality.beneish state PENDING_DATA: 9 of 12 inputs found, missing cost_of_revenue_fy, ppe_net_fy and sga_fy."
+          },
+          "market_cap": {
+            "value": 2187911579.68,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-02",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Market capitalization 2187911579.68 computed in data/market/ECO.json quality.derived.market_cap from SEC companyfacts share count 32194108 (as of 2023-12-31, the last shares_fy entry) times the close 67.96 of 2026-09-01.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr (implied FCF CAGR) not solved: data/market/ECO.json quality.reverse_dcf state is still PENDING_DATA, missing fcf. Corrected 2026-09-04 (fetcher commit 54cbeaa): enterprise_value now resolves (2676374735.68, cash and total_debt no longer null), so fcf is the sole remaining blocker, itself unsolvable without a capex figure (see cash_conversion.fcf_margin)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not available: it depends on implied_fcf_cagr, which is NULL for the same reason (quality.reverse_dcf state PENDING_DATA, missing fcf), so no horizon spread was solved."
+          },
+          "price_to_sales": {
+            "value": 5.58784,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/ECO.json fundamentals (source sec-companyfacts, taxonomy ifrs-full)",
+            "source_date": "2026-09-02",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001964954.json",
+            "basis": "Market capitalization 2187911579.68 divided by fiscal year 2025-12-31 revenue 391548819.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/ECO.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/ECO.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1964954
+      },
+      {
+        "issuer_id": "FLEX-LNG",
+        "listing_id": "NYSE-FLNG",
+        "ticker": "FLNG",
+        "market_ticker": "FLNG",
+        "chain_id": "hormuz-maritime",
+        "link_id": "lng-shipping-and-qatari-supply",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/FLEX-LNG.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "FLEX LNG Ltd.",
+        "exchange": "New York Stock Exchange",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "LNG carrier owner capturing the ton-mile stretch on Qatari cargoes that still move, with no pipeline alternative to soften the adjustment.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz-specific or Gulf-transit-specific revenue percentage is disclosed by FLEX LNG Ltd.; the profile's exposure_summary carries the fleet/product-level narrative but no filed revenue split by route or region.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 347637000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31, as reported to SEC XBRL companyfacts for CIK 1772253 (FLEX LNG Ltd., NYSE: FLNG)."
+          },
+          "revenue_cagr_3y": {
+            "value": -0.000268,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Three-year compound annual revenue growth computed as (347637000 / 347917000) ** (1/3) - 1 from the companyfacts revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31; essentially flat revenue over the period."
+          },
+          "operating_margin": {
+            "value": 0.505711,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Operating income 175804000 divided by revenue 347637000, both for the fiscal year ended 2025-12-31, from companyfacts."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 1.88112,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Operating cash flow 140736000 divided by net income 74815000, both for the fiscal year ended 2025-12-31, from companyfacts."
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "fcf_margin cannot be computed for FLEX-LNG: capex_fy is entirely absent from this filer's companyfacts, so free cash flow has no capex leg."
+          },
+          "net_debt_to_ebitda": {
+            "value": 5.092507,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Net debt to EBITDA: total debt 1682848000 less cash 397382000 = net debt 1285466000 (both 2026-06-30, the latest balance-sheet point), divided by EBITDA (operating income 175804000 plus depreciation 76619000 = 252423000, both fiscal year ended 2025-12-31, the latest income-statement point). The balance-sheet date (2026-06-30) is later than the income-statement date (2025-12-31); both are named here rather than silently blended. Corrected 2026-09-04 (fetcher commit 54cbeaa): cash and total_debt, previously unavailable, now resolve."
+          },
+          "piotroski": {
+            "value": 5,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality.piotroski (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Piotroski F-score 5 of 9, state MIDDLING, computed over sec-companyfacts statements in data/market/FLNG.json quality.piotroski, 9 of 9 inputs found."
+          },
+          "beneish_state": {
+            "value": -3.471,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality.beneish (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Beneish M-score -3.471 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over sec-companyfacts statements in data/market/FLNG.json quality.beneish, 12 of 12 inputs found."
+          },
+          "market_cap": {
+            "value": 1726113489.5,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json quality.derived.market_cap (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Market capitalization 1726113489.5 = SEC companyfacts share count 54520325 (as of 2025-12-31) multiplied by the close 31.66 of 2026-08-31. The share count is the official SEC figure; the close is the repo's own market plane (data/market/FLNG.json, price_status AGREED), not an issuer document."
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved for FLEX-LNG: data/market/FLNG.json quality.reverse_dcf.state is PENDING_DATA, missing fcf (capex_fy is entirely absent from companyfacts, so free cash flow cannot be derived, even though enterprise_value itself now resolves under the corrected fetcher)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not available for FLEX-LNG: quality.reverse_dcf.state is PENDING_DATA (missing fcf), so no implied_by_horizon spread was computed."
+          },
+          "price_to_sales": {
+            "value": 4.965276,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/FLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001772253.json",
+            "basis": "Market capitalization 1726113489.5 divided by fiscal year 2025-12-31 revenue 347637000."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/FLNG.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/FLNG.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1772253
+      },
+      {
+        "issuer_id": "GOLAR-LNG",
+        "listing_id": "NASDAQ-GLNG",
+        "ticker": "GLNG",
+        "market_ticker": "GLNG",
+        "chain_id": "hormuz-maritime",
+        "link_id": "lng-shipping-and-qatari-supply",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/GOLAR-LNG.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Golar LNG Ltd",
+        "exchange": "Nasdaq",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Independent floating-LNG (FLNG) infrastructure provider that monetizes non-Gulf gas while Qatari loadings are constrained by the closure.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "no revenue percentage tied to the hormuz-maritime exposure is sourced for this issuer this run; see data_gaps.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 393522000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001207179.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1207179 (Golar LNG Ltd, GLNG)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.136978,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001207179.json",
+            "basis": "Three-year compound annual revenue growth computed as (393,522,000 / 267,740,000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.253409,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001207179.json",
+            "basis": "Operating income 99,722,000 divided by revenue 393,522,000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Operating cash flow to net income: operating_cashflow_fy is entirely absent from companyfacts for this filer (coverage.missing names 'operating_cashflow')."
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Free cash flow margin: operating_cashflow_fy and capex_fy are both entirely absent from companyfacts for this filer (coverage.missing names 'operating_cashflow' and 'capex'), so free cash flow cannot be computed."
+          },
+          "net_debt_to_ebitda": {
+            "value": 10.492641,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001207179.json",
+            "basis": "Net debt 1,553,446,000 (total debt 2,423,920,000 less cash 870,474,000, both as of 2026-06-30) divided by an EBITDA proxy 148,051,000 (operating income 99,722,000 plus depreciation 48,329,000, both for the fiscal year ended 2025-12-31), from companyfacts.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Piotroski F-score: data/market/GLNG.json quality.piotroski.state is PENDING_DATA (7 of 9 inputs found, missing operating_cashflow_fy, cost_of_revenue_fy)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Beneish M-score: data/market/GLNG.json quality.beneish.state is PENDING_DATA (9 of 12 inputs found, missing receivables_fy, cost_of_revenue_fy, operating_cashflow_fy)."
+          },
+          "market_cap": {
+            "value": 5095354637.6,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001207179.json",
+            "basis": "Market capitalization 5,095,354,637.60 computed in data/market/GLNG.json quality.derived.market_cap from companyfacts shares outstanding and the repo's own tracked price.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "reverse-DCF implied FCF CAGR: data/market/GLNG.json quality.reverse_dcf.state is PENDING_DATA, missing fcf (operating_cashflow_fy entirely absent from companyfacts for this filer)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "reverse-DCF horizon spread: not available for GOLAR-LNG for the same PENDING_DATA reason as implied_fcf_cagr (missing fcf)."
+          },
+          "price_to_sales": {
+            "value": 12.948081,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/GLNG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001207179.json",
+            "basis": "Market capitalization 5,095,354,637.60 divided by revenue 393,522,000 for the fiscal year ended 2025-12-31.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/GLNG.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/GLNG.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1207179
+      },
+      {
+        "issuer_id": "EXCELERATE-ENERGY",
+        "listing_id": "NYSE-EE",
+        "ticker": "EE",
+        "market_ticker": "EE",
+        "chain_id": "hormuz-maritime",
+        "link_id": "lng-shipping-and-qatari-supply",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/EXCELERATE-ENERGY.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Excelerate Energy, Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Owner-operator of the industry's largest FSRU fleet, the import-side infrastructure absorbing the rerouted and delayed LNG cargo flow.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz- or Qatar-specific cargo revenue percentage is disclosed or sourced for Excelerate this run, though FSRU regasification is close to its whole business.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 1228263000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/EE.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001888447.json",
+            "basis": "Revenues for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1888447 (Excelerate Energy, Inc., NYSE: EE)."
+          },
+          "revenue_cagr_3y": {
+            "value": -0.208063,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/EE.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001888447.json",
+            "basis": "Three-year compound annual revenue growth computed as (1228263000 / 2472973000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.217127,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/EE.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001888447.json",
+            "basis": "Operating income 266689000 divided by revenue 1228263000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "operating_cash_flow_to_net_income cannot be computed for EXCELERATE-ENERGY: companyfacts data/market/EE.json fundamentals.net_income_fy is an empty series for CIK 1888447, a real companyfacts coverage gap (net income is reported under a tag this filer's XBRL does not carry through the standard net_income_fy path)."
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "fcf_margin cannot be computed for EXCELERATE-ENERGY: companyfacts carries no capex_fy series for CIK 1888447, and quality.derived.fcf in data/market/EE.json is PENDING_DATA for the same reason (missing fcf input)."
+          },
+          "net_debt_to_ebitda": {
+            "value": 1.48065,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/EE.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001888447.json",
+            "basis": "Net debt 559702000 (total debt 902151000 less cash 342449000, both as of 2026-06-30) divided by an EBITDA proxy 378011000 (operating income 266689000 plus depreciation 111322000, both for the fiscal year ended 2025-12-31), from companyfacts.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for EXCELERATE-ENERGY: data/market/EE.json quality.piotroski.state is PENDING_DATA (missing net_income_fy, cost_of_revenue_fy; 7 of 9 inputs found)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for EXCELERATE-ENERGY: data/market/EE.json quality.beneish.state is PENDING_DATA (missing cost_of_revenue_fy, net_income_fy; 10 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": 1194614815.97,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/EE.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001888447.json",
+            "basis": "Market capitalization 1194614815.97 computed in data/market/EE.json quality.derived.market_cap from SEC companyfacts share count 30623297 (as of 2025-12-31) times the repo's own market-plane close. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not usable for EXCELERATE-ENERGY: data/market/EE.json quality.reverse_dcf.state is PENDING_DATA, missing fcf (companyfacts carries no capex_fy or complete net_income_fy series for this filer)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not usable for EXCELERATE-ENERGY for the same reason as implied_fcf_cagr: quality.reverse_dcf.state is PENDING_DATA, missing fcf."
+          },
+          "price_to_sales": {
+            "value": 0.972605,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/EE.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001888447.json",
+            "basis": "Market capitalization 1194614815.97 divided by fiscal year 2025-12-31 revenue 1228263000.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/EE.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/EE.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1888447
       }
     ],
     "picks_and_shovels": [
@@ -1791,6 +2171,357 @@
         },
         "earnings_nuggets": [],
         "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "AXIS-CAPITAL",
+        "listing_id": "NYSE-AXS",
+        "ticker": "AXS",
+        "market_ticker": "AXS",
+        "chain_id": "hormuz-maritime",
+        "link_id": "marine-war-risk-underwriting",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/AXIS-CAPITAL.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Axis Capital Holdings Ltd",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Bermuda-domiciled specialty insurer writing hull, cargo and war risk through AXIS Syndicate 1686 at Lloyd's, part of the primary marine war-risk book this occurrence repriced.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No marine- or war-risk-specific premium percentage is sourced for AXIS this run; it is a slice of AXIS's total specialty and reinsurance book.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "revenue.latest_fy cannot be sourced for AXIS-CAPITAL: companyfacts data/market/AXS.json fundamentals.revenue_fy carries a single point at 2018-12-31 (32,000,000 USD), eight years stale and two orders of magnitude below this insurer's own net income series; a companyfacts 'Revenues' tag mismatch for a specialty insurer, not a current filed revenue statement."
+          },
+          "revenue_cagr_3y": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "revenue_cagr_3y not usable for AXIS-CAPITAL: only one revenue_fy point exists in companyfacts (2018-12-31), so no 3-year compound growth can be computed; see metrics.revenue.latest_fy basis for the same coverage gap."
+          },
+          "operating_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "operating_margin cannot be computed for AXIS-CAPITAL: companyfacts data/market/AXS.json fundamentals carries no operating_income_fy series at all for CIK 1214816, an insurer coverage gap (underwriting income is not tagged as GAAP operating income in this filer's XBRL)."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": -0.040571,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AXS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001214816.json",
+            "basis": "Operating cash flow -40932000 divided by net income 1008898000, both for the fiscal year ended 2025-12-31, from companyfacts. Negative because AXIS's FY2025 operating cash flow was itself negative (-40,932,000), a real underwriting-cash-timing result, not a data gap.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "fcf_margin cannot be computed for AXIS-CAPITAL: no revenue_fy figure exists for the current period (see metrics.revenue.latest_fy basis), so a cash-flow-to-revenue margin has no denominator."
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "net_debt_to_ebitda cannot be computed for AXIS-CAPITAL: companyfacts data/market/AXS.json fundamentals carries no total_debt or long_term_debt_fy series at all for CIK 1214816, and no operating_income_fy exists to build an EBITDA proxy either."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for AXIS-CAPITAL: data/market/AXS.json quality.piotroski.state is PENDING_DATA (missing long_term_debt_fy, current_assets_fy, current_liabilities_fy, cost_of_revenue_fy; 5 of 9 inputs found)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for AXIS-CAPITAL: data/market/AXS.json quality.beneish.state is PENDING_DATA (missing receivables_fy, cost_of_revenue_fy, current_assets_fy, ppe_net_fy, depreciation_fy, current_liabilities_fy, long_term_debt_fy; 5 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": 7398673000.0,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AXS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001214816.json",
+            "basis": "Market capitalization 7398673000.0 computed in data/market/AXS.json quality.derived.market_cap from SEC companyfacts share count 74135000 (as of 2025-12-31) times the repo's own market-plane close price. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not usable for AXIS-CAPITAL: data/market/AXS.json quality.reverse_dcf.state is PENDING_DATA, missing fcf and enterprise_value (companyfacts has no total_debt series for this filer to build an enterprise value)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not usable for AXIS-CAPITAL for the same reason as implied_fcf_cagr: quality.reverse_dcf.state is PENDING_DATA, missing fcf and enterprise_value."
+          },
+          "price_to_book": {
+            "value": 1.163966,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AXS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001214816.json",
+            "basis": "Market capitalization 7398673000.0 divided by shareholders' equity 6356435000 for the fiscal year ended 2025-12-31. Price to sales is not usable (see metrics.revenue.latest_fy basis), so price to book is the available canonical ratio.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/AXS.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/AXS.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1214816
+      },
+      {
+        "issuer_id": "W-R-BERKLEY",
+        "listing_id": "NYSE-WRB",
+        "ticker": "WRB",
+        "market_ticker": "WRB",
+        "chain_id": "hormuz-maritime",
+        "link_id": "marine-war-risk-underwriting",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/W-R-BERKLEY.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Berkley W R Corp",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "US commercial-lines insurer whose Berkley Offshore unit is a specialist underwriter of energy, marine and liability risks including marine hull and liability war coverage.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "no revenue percentage tied to the hormuz-maritime exposure is sourced for this issuer this run; see data_gaps.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 14707856000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WRB.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000011544.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 11544 (Berkley W R Corp, WRB)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.096169,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WRB.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000011544.json",
+            "basis": "Three-year compound annual revenue growth computed as (14,707,856,000 / 11,166,499,000) ** (1/3) - 1 from the companyfacts Revenues series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Operating margin: operating_income_fy is entirely absent from companyfacts for this filer (coverage.missing names 'operating_income')."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 2.013381,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WRB.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000011544.json",
+            "basis": "Operating cash flow 3,582,616,000 divided by net income 1,779,403,000, both for the fiscal year ended 2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Free cash flow margin: capex_fy is entirely absent from companyfacts for this filer (coverage.missing names 'capex'), so free cash flow cannot be computed even though operating cash flow is known."
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Net debt to EBITDA: operating_income_fy and total_debt are both entirely absent from companyfacts for this filer (coverage.missing names 'operating_income' and 'long_term_debt'; only cash is populated), so neither the EBITDA proxy nor net debt can be computed."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Piotroski F-score: data/market/WRB.json quality.piotroski.state is PENDING_DATA (5 of 9 inputs found, missing long_term_debt_fy, current_assets_fy, current_liabilities_fy, cost_of_revenue_fy)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Beneish M-score: data/market/WRB.json quality.beneish.state is PENDING_DATA (6 of 12 inputs found, missing receivables_fy, cost_of_revenue_fy, current_assets_fy, sga_fy, current_liabilities_fy, long_term_debt_fy)."
+          },
+          "market_cap": {
+            "value": 25540990708.28,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WRB.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000011544.json",
+            "basis": "Market capitalization 25,540,990,708.28 computed in data/market/WRB.json quality.derived.market_cap from companyfacts shares outstanding and the repo's own tracked price.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "reverse-DCF implied FCF CAGR: data/market/WRB.json quality.reverse_dcf.state is PENDING_DATA, missing fcf and enterprise_value (capex_fy absent from companyfacts blocks the free-cash-flow base)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "reverse-DCF horizon spread: not available for W-R-BERKLEY for the same PENDING_DATA reason as implied_fcf_cagr (missing fcf and enterprise_value)."
+          },
+          "price_to_sales": {
+            "value": 1.736554,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WRB.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000011544.json",
+            "basis": "Market capitalization 25,540,990,708.28 divided by revenue 14,707,856,000 for the fiscal year ended 2025-12-31.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/WRB.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/WRB.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 11544
+      },
+      {
+        "issuer_id": "LANCASHIRE-HOLDINGS",
+        "listing_id": "LSE-LRE",
+        "ticker": "LRE",
+        "market_ticker": "LRE.L",
+        "chain_id": "hormuz-maritime",
+        "link_id": "marine-war-risk-underwriting",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/LANCASHIRE-HOLDINGS.json",
+        "data_tier": "T2",
+        "audit_scope": "PLACEMENT",
+        "name": "Lancashire Holdings Limited",
+        "exchange": "LSE",
+        "tier": "T2",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Bermuda-domiciled, Lloyd's-linked specialty insurer and reinsurer writing marine war risk directly into the same repriced book.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No marine- or war-risk-specific premium percentage is sourced for LANCASHIRE-HOLDINGS this run; it is a slice of a much larger group book.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "tag": "INFERRED",
+            "official_source": false,
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-13",
+            "url": "https://finance.yahoo.com/quote/LRE.L/financials",
+            "basis": "Fiscal-year revenue for the period ended 2025-12-31: 1,883,400,000 USD from the yfinance-statements vendor series in LRE-L.json.",
+            "value": 1883400000.0
+          },
+          "revenue_cagr_3y": {
+            "tag": "INFERRED",
+            "official_source": false,
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-13",
+            "url": "https://finance.yahoo.com/quote/LRE.L/financials",
+            "basis": "Compound annual revenue growth computed as (1,883,400,000/783,900,000)**(1/3.0007)-1 from the yfinance-statements revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+            "value": 0.33926038414110615
+          },
+          "operating_margin": {
+            "tag": "INFERRED",
+            "official_source": false,
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-13",
+            "url": "https://finance.yahoo.com/quote/LRE.L/financials",
+            "basis": "Operating income 332,100,000 USD divided by revenue 1,883,400,000 USD, both for the period ended 2025-12-31, from the yfinance-statements series.",
+            "value": 0.1763300414144632
+          },
+          "operating_cash_flow_to_net_income": {
+            "tag": "INFERRED",
+            "official_source": false,
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-13",
+            "url": "https://finance.yahoo.com/quote/LRE.L/financials",
+            "basis": "Operating cash flow 322,300,000 USD divided by net income 293,400,000 USD, both for the fiscal year ended 2025-12-31, from yfinance-statements.",
+            "value": 1.0985003408316292
+          },
+          "fcf_margin": {
+            "tag": "INFERRED",
+            "official_source": false,
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-13",
+            "url": "https://finance.yahoo.com/quote/LRE.L/financials",
+            "basis": "Free cash flow margin: operating cash flow 322,300,000 USD less capex 3,600,000 USD, divided by revenue 1,883,400,000 USD, all for the period ended 2025-12-31, from yfinance-statements.",
+            "value": 0.16921524901773388
+          },
+          "net_debt_to_ebitda": {
+            "tag": "INFERRED",
+            "official_source": false,
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-13",
+            "url": "https://finance.yahoo.com/quote/LRE.L/financials",
+            "basis": "Net debt -84,200,000 USD (total_debt 477,200,000 less cash 561,400,000, as of 2025-12-31) divided by an EBITDA proxy 342,400,000 USD (operating income 332,100,000 plus depreciation 10,300,000 for the period ended 2025-12-31), from yfinance-statements.",
+            "value": -0.24591121495327103
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for LANCASHIRE-HOLDINGS: data/market/LRE-L.json quality.piotroski.state is PENDING_DATA (missing current_assets_fy, current_liabilities_fy, cost_of_revenue_fy; 6 of 9 inputs found)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for LANCASHIRE-HOLDINGS: data/market/LRE-L.json quality.beneish.state is PENDING_DATA (missing cost_of_revenue_fy, current_assets_fy, sga_fy, current_liabilities_fy; 8 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "quality.derived.market_cap is null for LANCASHIRE-HOLDINGS in data/market/LRE-L.json: statements reported in USD, listing trades in GBp; no FX source on disk, so market cap and enterprise value are NULL rather than mixed-currency arithmetic (method section 1 dual-source price plane known-gap note on vendor statement currency versus trading currency)."
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not usable for LANCASHIRE-HOLDINGS: data/market/LRE-L.json quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not usable for LANCASHIRE-HOLDINGS for the same reason as implied_fcf_cagr: quality.reverse_dcf.state is PENDING_DATA, missing enterprise_value."
+          },
+          "price_to_book": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "price to book cannot be computed for LANCASHIRE-HOLDINGS because valuation.market_cap is unavailable this run due to the statement-versus-trading currency mismatch (see metrics.valuation.market_cap basis); no market capitalization figure exists to divide by book equity."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/LRE.L.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/LRE-L.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE"
       }
     ],
     "second_order": [
@@ -2199,9 +2930,908 @@
         },
         "earnings_nuggets": [],
         "status": "CANDIDATE"
+      },
+      {
+        "issuer_id": "LEONARDO-DRS",
+        "listing_id": "NASDAQ-DRS",
+        "ticker": "DRS",
+        "market_ticker": "DRS",
+        "chain_id": "hormuz-maritime",
+        "link_id": "naval-escort-and-mine-clearance",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/LEONARDO-DRS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Leonardo DRS, Inc.",
+        "exchange": "Nasdaq",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "US defense-electronics and naval-power supplier whose systems support the naval presence around the mine-clearance and escort effort that gates reopening.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No chain-specific revenue percentage is sourced for LEONARDO-DRS this run beyond what is quoted in placements role_evidence; see data_gaps.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 3648000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1833756 (Leonardo DRS, Inc., us-gaap taxonomy)."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.10647,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Three-year compound annual revenue growth computed as (3648000000 / 2693000000) ** (1/3) - 1 from the companyfacts Revenue series, FY2022-12-31 to FY2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": 0.095395,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Operating income 348000000 divided by revenue 3648000000 for FY2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 1.316547,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Operating cash flow 366000000 divided by net income 278000000, both FY2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": 0.062226,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Free cash flow margin: operating cash flow 366000000 less capex 139000000, divided by revenue 3648000000, FY2025-12-31, from companyfacts.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": 0.176871,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Net debt 78000000 (total_debt 348000000 at 2025-12-31 less cash 270000000 at the quarter ended 2026-06-30, companyfacts) divided by EBITDA 441000000 (operating income 348000000 plus depreciation 93000000, FY2025-12-31). Debt and cash are roughly two quarters apart, the most current companyfacts carries for each.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": 7,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json quality (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "data/market/DRS.json quality.piotroski score 7 of 9, state STRONG, computed over sec-companyfacts statements.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "data/market/DRS.json quality.beneish state is PENDING_DATA. (canonical field beneish_state: beneish not available.)"
+          },
+          "market_cap": {
+            "value": 10021504630.8,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json quality (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Market capitalization 10021504630.8 = companyfacts diluted share count 265822404 (FY2025-12-31) multiplied by the close 37.70 of 2026-09-01 (data/market/DRS.json quality.price_used, repo market plane).",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": 0.286,
+            "tag": "SPECULATIVE",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json quality (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "data/market/DRS.json quality.reverse_dcf: implied FCF CAGR 0.286 at the 5-year default horizon (base FCF 227000000, enterprise value 10099504630.8, discount rate 9%, terminal growth 2.5%, bisection solve), state SOLVED; horizon_spread 0.1236. Discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
+          },
+          "horizon_spread": {
+            "value": 0.1236,
+            "tag": "SPECULATIVE",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json quality (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "data/market/DRS.json quality.reverse_dcf: implied FCF CAGR 0.286 at the 5-year default horizon (base FCF 227000000, enterprise value 10099504630.8, discount rate 9%, terminal growth 2.5%, bisection solve), state SOLVED; horizon_spread 0.1236. Discount rate and terminal growth are repo-standard assumptions, not filed facts, hence SPECULATIVE."
+          },
+          "price_to_sales": {
+            "value": 2.747123,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/DRS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-04",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001833756.json",
+            "basis": "Market capitalization 10021504630.8 divided by FY2025-12-31 revenue 3648000000, both USD.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/DRS.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/DRS.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1833756
       }
     ],
-    "hedge": []
+    "hedge": [
+      {
+        "issuer_id": "VENTURE-GLOBAL",
+        "listing_id": "NYSE-VG",
+        "ticker": "VG",
+        "market_ticker": "VG",
+        "chain_id": "hormuz-maritime",
+        "link_id": "non-gulf-energy-substitution",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/VENTURE-GLOBAL.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Venture Global, Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "One of the largest US LNG exporters, positioned to backfill non-Gulf LNG demand the strait's closure has stranded.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz-specific or Gulf-transit-specific revenue percentage is disclosed by Venture Global, Inc.; the profile's exposure_summary carries the fleet/product-level narrative but no filed revenue split by route or region.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 13769000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 2007855 (Venture Global, Inc., NYSE: VG)."
+          },
+          "revenue_cagr_3y": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "revenue_cagr_3y cannot be computed for VENTURE-GLOBAL: companyfacts data/market/VG.json fundamentals carries only 3 fiscal years of Revenue (2023-12-31 through 2025-12-31) for CIK 2007855; a 3-year CAGR needs a fourth year (2022-12-31) that predates this recently IPO'd filer's SEC reporting history."
+          },
+          "operating_margin": {
+            "value": 0.374464,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Operating income 5156000000 divided by revenue 13769000000, both for the fiscal year ended 2025-12-31, from companyfacts."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 2.402488,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Operating cash flow 6566000000 divided by net income 2733000000, both for the fiscal year ended 2025-12-31, from companyfacts."
+          },
+          "fcf_margin": {
+            "value": -0.49379,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Free cash flow -6799000000 (operating cash flow 6566000000 less capex 13365000000, both fiscal year ended 2025-12-31) divided by revenue 13769000000, from companyfacts. Heavy negative free cash flow reflects the active multi-train Plaquemines/CP2 construction program."
+          },
+          "net_debt_to_ebitda": {
+            "value": 6.058225,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Net debt 36937000000 (total debt 41527000000 less cash 4590000000, both as of 2026-06-30) divided by an EBITDA proxy 6097000000 (operating income 5156000000 plus depreciation 941000000, fiscal year ended 2025-12-31), from companyfacts. The balance-sheet date (2026-06-30) is later than the income-statement date (2025-12-31); both are named here rather than silently blended. Elevated leverage for a project-financed LNG developer mid-construction."
+          },
+          "piotroski": {
+            "value": 3,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Piotroski F-score 3 of 9, state WEAK, computed over sec-companyfacts statements in data/market/VG.json quality.piotroski, 9 of 9 inputs found."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for VENTURE-GLOBAL: data/market/VG.json quality.beneish.state is PENDING_DATA, missing ppe_net_fy (11 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": 37364300000.0,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Market capitalization 37364300000.0 = SEC companyfacts share count 2635000000 (as of 2025-12-31) multiplied by the close 14.18 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane (data/market/VG.json, price_status AGREED), not an issuer document."
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved for VENTURE-GLOBAL: data/market/VG.json quality.reverse_dcf.state is NOT_APPLICABLE. Base-year free cash flow is -6799000000, negative, and a growth rate on a negative base is meaningless."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not available for VENTURE-GLOBAL: quality.reverse_dcf.state is NOT_APPLICABLE (base-year free cash flow -6799000000 is negative), so no implied_by_horizon spread was computed."
+          },
+          "price_to_sales": {
+            "value": 2.713654,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/VG.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002007855.json",
+            "basis": "Market capitalization 37364300000.0 divided by fiscal year 2025-12-31 revenue 13769000000."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/VG.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/VG.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 2007855
+      },
+      {
+        "issuer_id": "NEXTDECADE",
+        "listing_id": "NASDAQ-NEXT",
+        "ticker": "NEXT",
+        "market_ticker": "NEXT",
+        "chain_id": "hormuz-maritime",
+        "link_id": "non-gulf-energy-substitution",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/NEXTDECADE.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "NextDecade Corp",
+        "exchange": "Nasdaq",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Developer of the pre-operational Rio Grande LNG export facility, a future non-Gulf supply source for the cargoes Qatar cannot ship through the strait.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz-specific or Gulf-transit-specific revenue percentage is disclosed by NextDecade Corp; the profile's exposure_summary carries the fleet/product-level narrative but no filed revenue split by route or region.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 0,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NEXT.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001612720.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 1612720 (NextDecade Corp, Nasdaq: NEXT). NextDecade is a pre-operational LNG developer: Revenue is $0 in every fiscal year on file (2018 through 2025); Rio Grande LNG has not yet produced first commercial cargo."
+          },
+          "revenue_cagr_3y": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "revenue_cagr_3y cannot be computed for NEXTDECADE: revenue is $0 in every fiscal year on file in companyfacts (2018 through 2025, pre-operational LNG developer), so a growth rate cannot be computed from a zero base."
+          },
+          "operating_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "operating_margin cannot be computed for NEXTDECADE: fiscal year 2025-12-31 revenue is $0 in companyfacts (pre-operational LNG developer), so operating income cannot be expressed as a margin of revenue."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 0.394279,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NEXT.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001612720.json",
+            "basis": "Operating cash flow -169397000 divided by net income -429637000, both for the fiscal year ended 2025-12-31, from companyfacts. Both figures are negative for this pre-revenue developer; the positive ratio reflects two losses of different size, not cash conversion in the usual sense."
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "fcf_margin cannot be computed for NEXTDECADE: fiscal year 2025-12-31 revenue is $0 in companyfacts, so free cash flow (-5016204000, operating cash flow -169397000 less capex 4846807000) cannot be expressed as a margin of revenue."
+          },
+          "net_debt_to_ebitda": {
+            "value": -46.099101,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NEXT.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001612720.json",
+            "basis": "Net debt 10332929000 (total debt 10416607000 less cash 83678000, both as of 2026-06-30) divided by a negative EBITDA proxy -224146000 (operating income -225931000 plus depreciation 1785000, fiscal year ended 2025-12-31), from companyfacts. CAUTION: EBITDA is negative, so this ratio is not a conventional leverage read; a large negative multiple here signals construction-phase operating losses against project debt of 10.4B, not deleveraging. The balance-sheet date (2026-06-30) is later than the income-statement date (2025-12-31); both are named here rather than silently blended."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for NEXTDECADE: data/market/NEXT.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for NEXTDECADE: data/market/NEXT.json quality.beneish.state is PENDING_DATA, missing receivables_fy and cost_of_revenue_fy (10 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": 1912470000.0,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NEXT.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001612720.json",
+            "basis": "Market capitalization 1912470000.0 = SEC companyfacts share count 260200000 (as of 2024-12-31, the freshest shares_fy point on file) multiplied by the close 7.35 of 2026-08-28. The share count is the official SEC figure; the close is the repo's own market plane (data/market/NEXT.json, price_status AGREED), not an issuer document."
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved for NEXTDECADE: data/market/NEXT.json quality.reverse_dcf.state is NOT_APPLICABLE. Base-year free cash flow is -5016204000.0, negative, and a growth rate on a negative base is meaningless."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not available for NEXTDECADE: quality.reverse_dcf.state is NOT_APPLICABLE (base-year free cash flow -5016204000.0 is negative), so no implied_by_horizon spread was computed."
+          },
+          "price_to_sales": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "price to sales cannot be computed for NEXTDECADE: fiscal year 2025-12-31 revenue is $0 in companyfacts (pre-operational LNG developer), so market capitalization cannot be expressed as a multiple of revenue."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/NEXT.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/NEXT.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1612720
+      },
+      {
+        "issuer_id": "PETROBRAS",
+        "listing_id": "NYSE-PBR",
+        "ticker": "PBR",
+        "market_ticker": "PBR",
+        "chain_id": "hormuz-maritime",
+        "link_id": "non-gulf-energy-substitution",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/PETROBRAS.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Petrobras - Petroleo Brasileiro SA",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Brazil's state-controlled integrated oil major and operator of the pre-salt Buzios field, a non-Gulf crude source that gains as Hormuz-transiting barrels are stranded.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz-specific or Gulf-transit-specific revenue percentage is disclosed by Petrobras - Petroleo Brasileiro SA; the profile's exposure_summary carries the fleet/product-level narrative but no filed revenue split by route or region.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 91416000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001119639.json",
+            "basis": "Revenue for the fiscal year ended 2024-12-31 as reported to SEC XBRL companyfacts for CIK 1119639 (Petrobras - Petroleo Brasileiro SA, NYSE: PBR). FY2025 is not yet in companyfacts for this foreign private issuer as of 2026-09-13 (20-F filings typically land several months after fiscal year end); 2024-12-31 is the freshest fiscal year on file."
+          },
+          "revenue_cagr_3y": {
+            "value": 0.028741,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001119639.json",
+            "basis": "Three-year compound annual revenue growth computed as (91416000000 / 83966000000) ** (1/3) - 1 from the companyfacts Revenue series, fiscal year ended 2021-12-31 to fiscal year ended 2024-12-31 (the freshest 4-year span on file)."
+          },
+          "operating_margin": {
+            "value": 0.293997,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001119639.json",
+            "basis": "Operating income 26876000000 divided by revenue 91416000000, both for the fiscal year ended 2024-12-31, from companyfacts."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 4.994609,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001119639.json",
+            "basis": "Operating cash flow 37984000000 divided by net income 7605000000, both for the fiscal year ended 2024-12-31, from companyfacts. Net income is unusually small relative to operating cash flow this fiscal year; both figures are as reported, not adjusted."
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "fcf_margin cannot be computed for PETROBRAS: companyfacts data/market/PBR.json fundamentals carries no capex_fy series at all for CIK 1119639, despite Petrobras being one of the world's largest capital spenders; a real companyfacts XBRL-tagging gap for this filer, not a zero-capex company."
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "net_debt_to_ebitda cannot be computed for PETROBRAS: companyfacts data/market/PBR.json fundamentals carries no depreciation_fy series at all for CIK 1119639, so no EBITDA proxy (operating income plus depreciation) can be built."
+          },
+          "piotroski": {
+            "value": 5,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBR.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001119639.json",
+            "basis": "Piotroski F-score 5 of 9, state MIDDLING, computed over sec-companyfacts statements in data/market/PBR.json quality.piotroski, 9 of 9 inputs found."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for PETROBRAS: data/market/PBR.json quality.beneish.state is PENDING_DATA, missing depreciation_fy and sga_fy (10 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "market capitalization cannot be computed for PETROBRAS: companyfacts shares_fy for CIK 1119639 reads 0.1146 as of 2024-12-31 (also 0.5314 in 2022 and 0.227 in 2023), an implausible share count for an issuer of Petrobras's size that the fetcher's own quality.derived.market_cap computation propagates to a nonsensical 2.123538. This looks like a unit- or tag-scaling defect in the companyfacts shares_fy series for this filer, not a real share count; declining to use it rather than present a broken figure as market capitalization."
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved for PETROBRAS: data/market/PBR.json quality.reverse_dcf.state is PENDING_DATA, missing fcf (capex_fy is entirely absent from companyfacts, so free cash flow cannot be derived)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not available for PETROBRAS: quality.reverse_dcf.state is PENDING_DATA (missing fcf), so no implied_by_horizon spread was computed."
+          },
+          "price_to_sales": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "price to sales cannot be computed for PETROBRAS without a market capitalization; see valuation.market_cap basis (the companyfacts shares_fy series for this CIK is an implausible fraction, not a real share count)."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/PBR.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/PBR.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1119639
+      },
+      {
+        "issuer_id": "EQUINOR",
+        "listing_id": "NYSE-EQNR",
+        "ticker": "EQNR",
+        "market_ticker": "EQNR",
+        "chain_id": "hormuz-maritime",
+        "link_id": "non-gulf-energy-substitution",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/EQUINOR.json",
+        "data_tier": "T2",
+        "audit_scope": "PLACEMENT",
+        "name": "Equinor ASA",
+        "exchange": "NYSE",
+        "tier": "T2",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Norwegian state-majority energy major bringing on the offshore Bacalhau field, a non-Gulf crude source substituting for stranded Hormuz-transiting barrels.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Bacalhau- or NCS-specific revenue percentage is sourced for Equinor this run; it is a small slice of an integrated energy major's total revenue.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 105828000000.0,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Vendor-normalized fiscal-year revenue (USD) for the period ended 2025-12-31, yfinance-statements aggregation of Equinor ASA's IFRS financial statements (method section 6A vendor-aggregate fundamentals; INFERRED, official_source false, not a filing quote). SEC companyfacts carries no XBRL data for CIK 1140625 (Norwegian 20-F filer without full US GAAP tagging), so the fetch fell to the vendor leg.",
+            "official_source": false
+          },
+          "revenue_cagr_3y": {
+            "value": -0.107789,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Three-year compound annual revenue growth computed as (105828000000.0 / 149004000000.0) ** (1/3) - 1 from the yfinance-statements USD revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+            "official_source": false
+          },
+          "operating_margin": {
+            "value": 0.233681,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Operating income 24730000000.0 divided by revenue 105828000000.0, both USD for the period ended 2025-12-31, from the yfinance-statements series.",
+            "official_source": false
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 3.960143,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Operating cash flow 19971000000.0 divided by net income 5043000000.0, both USD for the period ended 2025-12-31, from the yfinance-statements series.",
+            "official_source": false
+          },
+          "fcf_margin": {
+            "value": 0.056478,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Free cash flow margin: operating cash flow 19971000000.0 less capex 13994000000.0, divided by revenue 105828000000.0, all USD for the period ended 2025-12-31, from the yfinance-statements series.",
+            "official_source": false
+          },
+          "net_debt_to_ebitda": {
+            "value": 0.703814,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Net debt 26184000000.0 (total debt 31220000000.0 less cash 5036000000.0, both as of 2025-12-31) divided by an EBITDA proxy 37203000000.0 (operating income 24730000000.0 plus depreciation 12473000000.0 for the period ended 2025-12-31), from the yfinance-statements series.",
+            "official_source": false
+          },
+          "piotroski": {
+            "value": 5,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Piotroski F-score 5 (state MIDDLING) computed over yfinance-statements statements in data/market/EQNR.json quality.piotroski, 9 of 9 inputs found.",
+            "official_source": false
+          },
+          "beneish_state": {
+            "value": -2.935,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Beneish M-score -2.935 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/EQNR.json quality.beneish, 12 of 12 inputs found.",
+            "official_source": false
+          },
+          "market_cap": {
+            "value": 110586987656.9,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Market capitalization 110586987656.9 USD computed in data/market/EQNR.json quality.derived.market_cap from vendor share count and price (method section 6A vendor-aggregate fundamentals).",
+            "official_source": false
+          },
+          "implied_fcf_cagr": {
+            "value": 0.1136,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Reverse-DCF solve from data/market/EQNR.json quality.reverse_dcf: base FCF 5977000000.0, enterprise value 136770987656.9 (both current, total_debt and cash both dated 2025-12-31), 5-year horizon, discount rate 9%, terminal growth 2.5% (SPECULATIVE assumptions, method's standard reverse-DCF).",
+            "official_source": false
+          },
+          "horizon_spread": {
+            "value": 0.0393,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Spread between the 5-year (0.1136) and 10-year (0.0743) implied FCF CAGR solves from the same data/market/EQNR.json quality.reverse_dcf block as implied_fcf_cagr.",
+            "official_source": false
+          },
+          "price_to_sales": {
+            "value": 1.044969,
+            "tag": "INFERRED",
+            "source_name": "yfinance-statements",
+            "source_date": "2026-09-02",
+            "url": "https://finance.yahoo.com/quote/EQNR/financials",
+            "basis": "Market capitalization 110586987656.9 divided by revenue 105828000000.0, both USD, for the period ended 2025-12-31.",
+            "official_source": false
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/EQNR.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/EQNR.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1140625
+      },
+      {
+        "issuer_id": "WOODSIDE-ENERGY",
+        "listing_id": "NYSE-WDS",
+        "ticker": "WDS",
+        "market_ticker": "WDS",
+        "chain_id": "hormuz-maritime",
+        "link_id": "non-gulf-energy-substitution",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/WOODSIDE-ENERGY.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "Woodside Energy Group Ltd",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "Australian LNG and oil major and operator of the Scarborough/Pluto Train 2 project, a non-Gulf LNG source substituting for Qatari cargoes the closure strands.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "No Hormuz-specific or Gulf-transit-specific revenue percentage is disclosed by Woodside Energy Group Ltd; the profile's exposure_summary carries the fleet/product-level narrative but no filed revenue split by route or region.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 12984000000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WDS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000844551.json",
+            "basis": "Revenue for the fiscal year ended 2025-12-31 as reported to SEC XBRL companyfacts for CIK 844551 (Woodside Energy Group Ltd, NYSE: WDS)."
+          },
+          "revenue_cagr_3y": {
+            "value": -0.082611,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WDS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000844551.json",
+            "basis": "Three-year compound annual revenue growth computed as (12984000000 / 16817000000) ** (1/3) - 1 from the companyfacts Revenue series, fiscal year ended 2022-12-31 to fiscal year ended 2025-12-31; 2022 was an energy-price spike year, so the negative CAGR is partly normalization off that base."
+          },
+          "operating_margin": {
+            "value": 0.299522,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WDS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000844551.json",
+            "basis": "Operating income 3889000000 divided by revenue 12984000000, both for the fiscal year ended 2025-12-31, from companyfacts."
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 2.627695,
+            "tag": "INFERRED",
+            "official_source": true,
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WDS.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000844551.json",
+            "basis": "Operating cash flow 7192000000 divided by net income 2737000000, both for the fiscal year ended 2025-12-31, from companyfacts."
+          },
+          "fcf_margin": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "fcf_margin cannot be computed for WOODSIDE-ENERGY: companyfacts data/market/WDS.json fundamentals carries no capex_fy series at all for CIK 844551, a real companyfacts coverage gap for this Australian filer despite Woodside being a large capital spender on Scarborough/Pluto Train 2."
+          },
+          "net_debt_to_ebitda": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "net_debt_to_ebitda cannot be computed for WOODSIDE-ENERGY: companyfacts data/market/WDS.json fundamentals carries no depreciation_fy series at all for CIK 844551, so no EBITDA proxy (operating income plus depreciation) can be built."
+          },
+          "piotroski": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "piotroski cannot be scored for WOODSIDE-ENERGY: data/market/WDS.json quality.piotroski.state is PENDING_DATA, missing shares_fy (8 of 9 inputs found)."
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "beneish_state cannot be scored for WOODSIDE-ENERGY: data/market/WDS.json quality.beneish.state is PENDING_DATA, missing depreciation_fy and sga_fy (10 of 12 inputs found)."
+          },
+          "market_cap": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "market capitalization cannot be computed for WOODSIDE-ENERGY: companyfacts data/market/WDS.json fundamentals carries no shares_fy series at all for CIK 844551, so no official share count exists to multiply against the repo's own price."
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "implied_fcf_cagr not solved for WOODSIDE-ENERGY: data/market/WDS.json quality.reverse_dcf.state is PENDING_DATA, missing both fcf and enterprise_value (no capex_fy for fcf; no shares_fy for the market-cap leg of enterprise value)."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "horizon_spread not available for WOODSIDE-ENERGY: quality.reverse_dcf.state is PENDING_DATA (missing fcf and enterprise_value), so no implied_by_horizon spread was computed."
+          },
+          "price_to_sales": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "price to sales cannot be computed for WOODSIDE-ENERGY without a market capitalization; see valuation.market_cap basis (no shares_fy in companyfacts)."
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/WDS.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/WDS.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 844551
+      },
+      {
+        "issuer_id": "PBF-ENERGY",
+        "listing_id": "NYSE-PBF",
+        "ticker": "PBF",
+        "market_ticker": "PBF",
+        "chain_id": "hormuz-maritime",
+        "link_id": "cargo-owners-and-energy-importers",
+        "mapping_ref": "data/mappings/hormuz-maritime.json",
+        "profile_ref": "data/companies/PBF-ENERGY.json",
+        "data_tier": "T1",
+        "audit_scope": "PLACEMENT",
+        "name": "PBF Energy Inc.",
+        "exchange": "NYSE",
+        "tier": "T1",
+        "money_corner": false,
+        "link_heat_verdict": "CROWDED",
+        "thesis_1line": "US independent petroleum refiner that must still land crude and absorb the war premium and Cape-routing freight cost landing at the demand anchor of this chain.",
+        "theme_revenue_exposure": {
+          "pct": null,
+          "basis": "no chain- or link-specific revenue percentage is disclosed or sourced for PBF Energy this run; only company-wide fundamentals were fetched.",
+          "quote": null,
+          "accession": null,
+          "url": null,
+          "tag": "NULL"
+        },
+        "fundamentals": {
+          "revenue_latest_fy": {
+            "value": 29332300000,
+            "tag": "VERIFIED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Fiscal-year revenue for the period ended 2025-12-31, from SEC XBRL companyfacts for PBF Energy (PBF).",
+            "official_source": true
+          },
+          "revenue_cagr_3y": {
+            "value": -0.14439550126798595,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Three-year compound annual revenue growth computed as (29332300000/46830300000)**(1/3)-1 from the companyfacts revenue series, period ended 2022-12-31 to period ended 2025-12-31.",
+            "official_source": true
+          },
+          "operating_margin": {
+            "value": -0.0018512015764191694,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Operating income -54300000 divided by revenue 29332300000, both for the period ended 2025-12-31, from the companyfacts series.",
+            "official_source": true
+          },
+          "operating_cash_flow_to_net_income": {
+            "value": 0.4921135646687697,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Operating cash flow -78000000 divided by net income -158500000, both for the period ended 2025-12-31, from the companyfacts series; both figures are negative, so the positive ratio reflects a smaller cash outflow than the reported net loss.",
+            "official_source": true
+          },
+          "fcf_margin": {
+            "value": -0.026700940601316638,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Free cash flow margin: operating cash flow -78000000 less capital expenditure 705200000, divided by revenue 29332300000, all for the period ended 2025-12-31, from the companyfacts series.",
+            "official_source": true
+          },
+          "net_debt_to_ebitda": {
+            "value": 2.694610778443114,
+            "tag": "INFERRED",
+            "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/PBF.json fundamentals (source sec-companyfacts)",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Net debt 855000000 (total debt 1749100000 as of 2026-06-30 less cash 894100000 as of 2026-06-30) divided by an EBITDA proxy 317300000 (operating income -54300000 plus depreciation 371600000, both for the period ended 2025-12-31), from the companyfacts series.",
+            "official_source": true
+          },
+          "piotroski": {
+            "value": 3,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/PBF.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Piotroski F-score 3 (state WEAK) computed over SEC companyfacts statements in data/market/PBF.json quality.piotroski; 9 of 9 inputs found.",
+            "official_source": true
+          },
+          "beneish_state": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Beneish M-score reads PENDING_DATA for PBF Energy: data/market/PBF.json quality.beneish is missing receivables_fy (11 of 12 inputs found), so no M-score was computed this fetch."
+          },
+          "market_cap": {
+            "value": 8191177766.64,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/PBF.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Market capitalization 8191177766.64 computed in data/market/PBF.json quality.derived.market_cap from the SEC companyfacts share count times the repo's own market-plane close.",
+            "official_source": true
+          },
+          "implied_fcf_cagr": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "Implied FCF CAGR is not solvable for PBF Energy: quality.reverse_dcf reads NOT_APPLICABLE because base-year free cash flow is negative (operating cash flow -78000000 less capex 705200000 for the period ended 2025-12-31), and a growth rate on a negative base is not meaningful per the tool's own guard."
+          },
+          "horizon_spread": {
+            "value": null,
+            "tag": "NULL",
+            "basis": "The horizon spread is likewise undefined for PBF Energy: with the base-year free cash flow negative, the reverse-DCF bisection solve never runs at any of the 5, 7 or 10-year horizons, so quality.reverse_dcf.implied_by_horizon carries no figures to spread."
+          },
+          "price_to_sales": {
+            "value": 0.2792545339656283,
+            "tag": "INFERRED",
+            "source_name": "Upstream market store data/market/PBF.json quality, computed over SEC EDGAR companyfacts",
+            "source_date": "2026-09-13",
+            "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001534504.json",
+            "basis": "Market capitalization 8191177766.64 divided by fiscal year 2025-12-31 revenue 29332300000.",
+            "official_source": true
+          }
+        },
+        "crowdedness": {
+          "pcs_axis_a": null,
+          "state": "COVERAGE-THIN",
+          "source": "data/market/PBF.json",
+          "as_of": "2026-09-14",
+          "tag": "NULL",
+          "basis": "data/market/PBF.json pcs is null; no PCS attention read for this listing this run (method section 6: T2/T3 PCS is COVERAGE-THIN, never a blocker and never estimated; this name has no PCS block fetched either)."
+        },
+        "earnings_nuggets": [],
+        "status": "CANDIDATE",
+        "cik": 1534504
+      }
+    ]
   },
   "superseded_rows": [],
   "data_gaps": [
