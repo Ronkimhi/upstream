@@ -1,15 +1,15 @@
 {
  "issuer_id": "KONINKLIJKE-VOPAK",
  "issuer_name": "Koninklijke Vopak N.V.",
- "as_of": "2026-09-02",
+ "as_of": "2026-09-14",
  "created_at": "2026-09-02T15:00:00Z",
- "updated_at": "2026-09-02T15:10:00Z",
+ "updated_at": "2026-09-14T12:00:00Z",
  "generated_by": "sieve-profiler",
- "status": "BLOCKED",
+ "status": "COMPLETE",
  "data_tier": "T3",
- "data_tier_basis": "Local-only listing (method section 6): T3, Euronext Amsterdam VPK. data/market/VPK-AS.json exists (fetched) but its fundamentals block is verified_zero: the yfinance-statements income/balance/cash frames all returned empty for this ticker while the fetcher's control probe against a known-good ticker succeeded, so the empty is proven rather than a fetch failure.",
- "opportunity_tier": "O3",
- "opportunity_tier_basis": "BLOCKED profiles are O3 per method section 6A; O3 cannot be COMPLETE and does not count toward the 200-profile completion target.",
+ "data_tier_basis": "Local-only listing (method section 6): T3, Euronext Amsterdam VPK. data/market/VPK-AS.json was re-fetched 2026-09-13 and its fundamentals leg now returns a full yfinance-statements vendor aggregate (19/20 statement fields, EUR statement and price currency, no currency mismatch), superseding the 2026-09-02/09-04 verified_zero record; admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals').",
+ "opportunity_tier": "O2",
+ "opportunity_tier_basis": "COMPLETE medium profile per method section 6A; run selection has not been run for this batch, so opportunity_tier defaults to O2 (retained for monitoring, not yet examined for O1 promotion). Was O3/BLOCKED; unblocked 2026-09-14 once data/market/VPK-AS.json fundamentals landed non-empty.",
  "listing_refs": [
   "EURONEXT-AMSTERDAM-VPK"
  ],
@@ -50,108 +50,203 @@
      "tag": "INFERRED"
     }
    ]
+  },
+  {
+   "chain_id": "methanol-bunkering",
+   "link_id": "methanol-storage-terminals",
+   "link_name": "Methanol storage and bunkering terminals",
+   "link_position": 7,
+   "role": "Operates methanol-bunkering-enabled storage terminal infrastructure: ran the world's first barge-to-ship methanol bunkering operation at its Vopak Terminal Botlek (Port of Rotterdam), and opened an ISCC EU-certified green-methanol import corridor from its Tianjin Lingang terminal in China to its Penjuru terminal in Singapore.",
+   "placement_status": "ACTIVE",
+   "money_corner": false,
+   "link_heat": "QUIET",
+   "mapping_ref": "data/mappings/methanol-bunkering.json",
+   "role_evidence": [
+    {
+     "claim": "Waterfront Shipping, a wholly-owned subsidiary of Methanex, demonstrated the launch of the world's first barge-to-ship methanol bunkering operation at the Vopak Terminal Botlek of Royal Vopak, at the Port of Rotterdam.",
+     "source_name": "Royal Vopak, NEWS: first barge-to-ship methanol bunkering operation in the world",
+     "source_date": "2023-07-27",
+     "url": "https://www.vopak.com/newsroom/news/news-first-barge-ship-methanol-bunkering-operation-world",
+     "tag": "INFERRED"
+    },
+    {
+     "claim": "ISCC EU-certified green methanol is loaded at Vopak's Tianjin Lingang terminal in China and received at the Vopak Penjuru terminal in Singapore, where it is stored ready for bunkering.",
+     "source_name": "Bunker Market, Vopak and Global Energy Forge Green Methanol Corridor: Tianjin to Singapore",
+     "source_date": "2026-01-27",
+     "url": "https://bunkermarket.com/vopak-and-global-energy-forge-green-methanol-corridor-tianjin-to-singapore/",
+     "tag": "INFERRED"
+    }
+   ]
   }
  ],
- "business_summary": "Koninklijke Vopak N.V. (Royal Vopak) is a Netherlands-domiciled, Euronext Amsterdam-listed independent tank storage company. It holds a disclosed 33.33% interest in Vopak Horizon Fujairah Ltd., a storage terminal at the Gulf of Oman discharge point of the Abu Dhabi Crude Oil Pipeline bypass, but the vendor fundamentals leg for this listing returned no statements.",
+ "business_summary": "Koninklijke Vopak N.V. (Royal Vopak) is a Netherlands-domiciled, Euronext Amsterdam-listed independent tank storage company. It holds a disclosed 33.33% interest in Vopak Horizon Fujairah Ltd. on hormuz-maritime, and on methanol-bunkering it ran the world's first barge-to-ship methanol bunkering operation at Vopak Terminal Botlek (Rotterdam) and opened an ISCC EU-certified green-methanol corridor from Tianjin to Singapore. The vendor fundamentals leg for this listing, empty from 2026-09-02 to 2026-09-04, returned a full statement set on the 2026-09-13 re-fetch.",
  "exposure_summary": {
-  "narrative": "KONINKLIJKE-VOPAK has 1 placement on hormuz-maritime (hormuz-bypass-pipelines, UNDISCOVERED, not the money corner). Every canonical metric is NULL: verified_zero vendor fundamentals."
+  "narrative": "KONINKLIJKE-VOPAK has 2 placements: hormuz-bypass-pipelines on hormuz-maritime (UNDISCOVERED, not the money corner) and methanol-storage-terminals on methanol-bunkering (QUIET, not the money corner). 10 of 12 canonical metrics now carry a sourced number from the 2026-09-13 vendor-aggregate re-fetch."
  },
  "crowdedness_caveats": [
-  "No pcs (positioning/attention) block exists locally for data/market/VPK-AS.json: crowdedness cannot be corroborated with quantitative attention data, only the chain's own UNDISCOVERED heat verdict for this link."
+  "No pcs (positioning/attention) block exists locally for data/market/VPK-AS.json: crowdedness cannot be corroborated with quantitative attention data, only each chain's own heat verdict for its link (UNDISCOVERED on hormuz-maritime, QUIET on methanol-bunkering)."
  ],
- "catalysts": [],
- "risks": [],
+ "catalysts": [
+  {
+   "claim": "FY2025 companyfacts-equivalent operating cash flow of 900,100,000 EUR against capex of 362,000,000 EUR yields a free cash flow of 538,100,000 EUR (41.4% of revenue), and Beneish M-score -2.666 against the -1.78 threshold scores CLEAN (12 of 12 inputs found); reverse DCF SOLVED with implied FCF CAGR 1.37%.",
+   "source_name": "Upstream market store data/market/VPK-AS.json quality, computed over yfinance-statements",
+   "source_date": "2026-09-14",
+   "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+   "tag": "INFERRED"
+  }
+ ],
+ "risks": [
+  {
+   "claim": "FY2025 revenue (1,298,900,000 EUR) is below FY2022 (1,367,000,000 EUR) and FY2023's peak (1,425,600,000 EUR); Altman Z-score 1.97 scores GREY, and net_debt_to_ebitda of roughly 3.95x is high for a terminal operator, a leverage picture a dive must weigh against the reverse-DCF's positive read.",
+   "source_name": "Upstream market store data/market/VPK-AS.json quality, computed over yfinance-statements",
+   "source_date": "2026-09-14",
+   "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+   "tag": "INFERRED"
+  }
+ ],
  "data_gaps": [
   "Filled 2026-09-02 from data/market/VPK-AS.json: 0 of 11 canonical fields carry a sourced number; the rest stay NULL with a field-specific basis.",
   "data/market/VPK-AS.json fundamentals carries a verified_zero record ({'note': 'no revenue rows in yfinance statements', 'probe': 'yfinance-MSFT-income-stmt-ok'}): the vendor income/balance/cash frames all returned empty (0 of 20 annual fields found) while the fetcher's own control probe against a known-good ticker answered, confirming the empty is real rather than a failed request. No canonical field can be computed. Not re-queued this run: the fetch plane has already proved the empty with a passing control probe, so a repeat request would fulfil with nothing and pend the profile forever; an official Vopak annual-report figure (IR, not vendor) is the only path to unblock this, and needs a WebFetch-capable local session.",
   "Re-examined 2026-09-02T15:10:00Z (run profile --campaign CAMP-20260901-01, batch 4): market file unchanged since the prior fire, vendor fundamentals still a verified_zero (empty frame, control probe passed). Status stays BLOCKED, no metric field touched, no re-queue (a repeat vendor fetch would fulfil with nothing).",
-  "Re-examined 2026-09-04 (run profile --campaign CAMP-20260901-01): data/market/VPK-AS.json is FULFILLED (fetched_at 2026-08-31T23:36:26.932295+00:00) but genuinely empty (coverage 0/20 annual fields, quality piotroski/beneish state PENDING_DATA). Every request row already queued for this ticker (prices/fundamentals/quality) already shows status FULFILLED against this same empty result, so a new request would fulfil with nothing and pend the profile forever (pull-data skill, 'row would fulfill empty forever'); none is queued this run. The mapping's market_ticker field literally reads 'VPK-AS' (dash), not the Yahoo-format 'VPK.AS' (dot); this may itself be why the vendor leg returns an empty frame rather than a genuine no-coverage result, but this profile stage does not own data/mappings/ and cannot correct it. Status stays BLOCKED, data tier T3, opportunity tier O3."
+  "Re-examined 2026-09-04 (run profile --campaign CAMP-20260901-01): data/market/VPK-AS.json is FULFILLED (fetched_at 2026-08-31T23:36:26.932295+00:00) but genuinely empty (coverage 0/20 annual fields, quality piotroski/beneish state PENDING_DATA). Every request row already queued for this ticker (prices/fundamentals/quality) already shows status FULFILLED against this same empty result, so a new request would fulfil with nothing and pend the profile forever (pull-data skill, 'row would fulfill empty forever'); none is queued this run. The mapping's market_ticker field literally reads 'VPK-AS' (dash), not the Yahoo-format 'VPK.AS' (dot); this may itself be why the vendor leg returns an empty frame rather than a genuine no-coverage result, but this profile stage does not own data/mappings/ and cannot correct it. Status stays BLOCKED, data tier T3, opportunity tier O3.",
+  "Re-examined 2026-09-14 (run profile, methanol-bunkering batch 1): data/market/VPK-AS.json was re-fetched 2026-09-13T17:47:52Z and its fundamentals leg is no longer empty (19/20 statement fields, quality.state SCORED). Every canonical field recomputed from this fetch; unblocked to COMPLETE/O2. Second placement (methanol-bunkering/methanol-storage-terminals) added; the hormuz-maritime placement is preserved unchanged."
  ],
  "metrics": {
   "revenue": {
    "latest_fy": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Latest fiscal-year revenue: no revenue_fy series in fundamentals for this listing (verified_zero / no statements returned)."
+    "value": 1298900000.0,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Revenue for the fiscal year ended 2025-12-31, vendor normalisation over Koninklijke Vopak N.V.'s IFRS statements read from data/market/VPK-AS.json fundamentals.revenue_fy.",
+    "official_source": false
    }
   },
   "growth": {
    "revenue_cagr_3y": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "3-year revenue CAGR: fewer than 4 annual revenue points available to span a 3-year period."
+    "value": -0.016889,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Three-year compound annual revenue growth computed as (1298900000 / 1367000000) ** (1/3) - 1 from data/market/VPK-AS.json fundamentals.revenue_fy, period ended 2022-12-31 to period ended 2025-12-31.",
+    "official_source": false
    }
   },
   "margins": {
    "operating_margin": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Operating margin: operating_income_fy series missing or period misaligned with the latest revenue period."
+    "value": 0.283625,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Operating income 368400000 divided by revenue 1298900000 for the period ended 2025-12-31, from data/market/VPK-AS.json fundamentals.",
+    "official_source": false
    }
   },
   "cash_conversion": {
    "operating_cash_flow_to_net_income": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Operating cash flow to net income: operating_cashflow_fy or net_income_fy missing or period-misaligned."
+    "value": 1.490232,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Operating cash flow 900100000 divided by net income 604000000, both for the period ended 2025-12-31, from data/market/VPK-AS.json fundamentals.",
+    "official_source": false
+   },
+   "fcf_margin": {
+    "value": 0.414274,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Free cash flow margin: operating cash flow 900100000 less capex 362000000, divided by revenue 1298900000, all for the period ended 2025-12-31, from data/market/VPK-AS.json fundamentals.",
+    "official_source": false
    }
   },
   "leverage": {
    "net_debt_to_ebitda": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Net debt to EBITDA: missing series cash, total_debt, operating_income_fy, depreciation_fy."
+    "value": 3.949532,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Net debt 2699900000 (total debt 2799400000 less cash 99500000, both as of 2025-12-31) divided by an EBITDA proxy 683600000 (operating income 368400000 plus depreciation 315200000 for the period ended 2025-12-31), from data/market/VPK-AS.json fundamentals.",
+    "official_source": false
    }
   },
   "quality": {
    "piotroski": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Piotroski F-score: quality.piotroski.state is PENDING_DATA in data/market/VPK-AS.json, missing ['net_income_fy', 'operating_cashflow_fy', 'total_assets_fy', 'long_term_debt_fy', 'current_assets_fy', 'current_liabilities_fy', 'shares_fy', 'revenue_fy', 'cost_of_revenue_fy']."
+    "value": 6,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Piotroski F-score 6, state MIDDLING, computed over yfinance-statements statements in data/market/VPK-AS.json quality.piotroski, 9 of 9 inputs found.",
+    "official_source": false
    },
    "beneish_state": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Beneish M-score: quality.beneish.state is PENDING_DATA in data/market/VPK-AS.json, missing ['receivables_fy', 'revenue_fy', 'cost_of_revenue_fy', 'current_assets_fy', 'ppe_net_fy', 'total_assets_fy', 'depreciation_fy', 'sga_fy', 'current_liabilities_fy', 'long_term_debt_fy', 'net_income_fy', 'operating_cashflow_fy']."
+    "value": -2.666,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Beneish M-score -2.666 against the -1.78 threshold, earnings-manipulation state CLEAN, computed over yfinance-statements statements in data/market/VPK-AS.json quality.beneish, 12 of 12 inputs found.",
+    "official_source": false
    }
   },
   "valuation": {
    "market_cap": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Market capitalization: quality.derived.market_cap is null in data/market/VPK-AS.json (no vendor share count or price available)."
+    "value": 5379710691.72,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Market capitalization 5379710691.72 EUR computed in data/market/VPK-AS.json quality.derived.market_cap from yfinance-statements shares outstanding (114608238 as of 2025-12-31) and the repo's own tracked price.",
+    "official_source": false
    },
-   "price_to_sales": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "Price to sales cannot be computed for VPK-AS without a market capitalization."
+   "ev_to_ebitda": {
+    "value": 11.819208,
+    "tag": "INFERRED",
+    "source_name": "yfinance-statements",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Enterprise value 8079610691.72 (data/market/VPK-AS.json quality.derived.enterprise_value) divided by the EBITDA proxy 683600000 (operating income 368400000 plus depreciation 315200000, period ended 2025-12-31).",
+    "official_source": false
    }
   },
   "reverse_dcf": {
    "implied_fcf_cagr": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "implied_fcf_cagr not solved: data/market/VPK-AS.json quality.reverse_dcf.state is PENDING_DATA (['fcf', 'enterprise_value'])."
+    "value": 0.0137,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/VPK-AS.json quality.reverse_dcf",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Free-cash-flow CAGR the current enterprise value 8079610691.72 implies over a 5-year explicit period on base FCF 538100000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth over yfinance-statements statements. Assumption-dependent expectation reading, not a reported figure."
    },
    "horizon_spread": {
-    "value": null,
-    "tag": "NULL",
-    "basis": "horizon_spread not available: quality.reverse_dcf.state is PENDING_DATA (['fcf', 'enterprise_value']), so no implied_by_horizon spread was computed."
+    "value": 0.0048,
+    "tag": "SPECULATIVE",
+    "source_name": "Upstream market store data/market/VPK-AS.json quality.reverse_dcf",
+    "source_date": "2026-09-14",
+    "url": "https://finance.yahoo.com/quote/VPK.AS/financials",
+    "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.0137, '7': 0.0164, '10': 0.0185}). Measures how much of the expectation reading is a horizon convention rather than a price statement."
    }
   }
  },
  "disposition": {
-  "state": "BLOCKED",
-  "as_of": "2026-09-04",
-  "basis": "Re-examined 2026-09-04 (run profile --campaign CAMP-20260901-01): data/market/VPK-AS.json is FULFILLED (fetched_at 2026-08-31T23:36:26.932295+00:00) but genuinely empty (coverage 0/20 annual fields, quality piotroski/beneish state PENDING_DATA). Every request row already queued for this ticker (prices/fundamentals/quality) already shows status FULFILLED against this same empty result, so a new request would fulfil with nothing and pend the profile forever (pull-data skill, 'row would fulfill empty forever'); none is queued this run. The mapping's market_ticker field literally reads 'VPK-AS' (dash), not the Yahoo-format 'VPK.AS' (dot); this may itself be why the vendor leg returns an empty frame rather than a genuine no-coverage result, but this profile stage does not own data/mappings/ and cannot correct it. Status stays BLOCKED, data tier T3, opportunity tier O3."
+  "state": "RETAIN",
+  "as_of": "2026-09-14",
+  "basis": "Re-examined 2026-09-14 (run profile, methanol-bunkering batch 1): data/market/VPK-AS.json was re-fetched 2026-09-13 and its yfinance-statements fundamentals leg is no longer empty (19/20 statement fields). RETAIN rather than ADVANCE because run selection has not been run this batch; 10 of 12 canonical fields now carry a sourced number, the rest honest NULL was eliminated by this fetch. Status moves BLOCKED to COMPLETE, opportunity_tier O3 to O2, per method section 6A. Second placement (methanol-bunkering/methanol-storage-terminals) added; the prior hormuz-maritime placement is unchanged."
  },
  "confidence_audit": {
   "VERIFIED": 0,
-  "INFERRED": 0,
-  "SPECULATIVE": 0,
-  "NULL": 11,
-  "canonical_fields_written": 11,
-  "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts; INFERRED with official_source false rests on the yfinance-statements/yfinance-info vendor-aggregate block, admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'), never a filing quote. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in the fetched market file and not found or not computable, with the specific reason on the field itself, never estimated."
+  "INFERRED": 10,
+  "SPECULATIVE": 2,
+  "NULL": 0,
+  "canonical_fields_written": 12,
+  "basis": "Counts cover the canonical metric fields only. All 10 non-speculative fields are INFERRED with official_source false, resting on the yfinance-statements vendor-aggregate block (data/market/VPK-AS.json), admitted into T2/T3 canonical metrics by Ron's 2026-09-01 decision (method section 6A 'Vendor-aggregate fundamentals'); no primary filing has been read, so nothing here is VERIFIED and this profile cannot be promoted to O1 without an official-source cross-check on revenue and cash conversion. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed."
  },
  "changelog": [
   {
@@ -171,16 +266,30 @@
    "by": "sieve-profiler",
    "kind": "AMEND",
    "change": "Re-examined 2026-09-04 (run profile --campaign CAMP-20260901-01): data/market/VPK-AS.json is FULFILLED (fetched_at 2026-08-31T23:36:26.932295+00:00) but genuinely empty (coverage 0/20 annual fields, quality piotroski/beneish state PENDING_DATA). Every request row already queued for this ticker (prices/fundamentals/quality) already shows status FULFILLED against this same empty result, so a new request would fulfil with nothing and pend the profile forever (pull-data skill, 'row would fulfill empty forever'); none is queued this run. The mapping's market_ticker field literally reads 'VPK-AS' (dash), not the Yahoo-format 'VPK.AS' (dot); this may itself be why the vendor leg returns an empty frame rather than a genuine no-coverage result, but this profile stage does not own data/mappings/ and cannot correct it. Status stays BLOCKED, data tier T3, opportunity tier O3. Deferred to tasks/backlog.md rather than re-queuing a doomed fetch."
+  },
+  {
+   "ts": "2026-09-14T12:00:00Z",
+   "by": "sieve-profiler",
+   "kind": "AMEND",
+   "change": "Re-examined 2026-09-14 (run profile, methanol-bunkering batch 1): data/market/VPK-AS.json was re-fetched 2026-09-13T17:47:52Z and its yfinance-statements fundamentals leg is no longer empty (19/20 statement fields, quality.state SCORED). All 12 canonical fields now carry a value: 10 INFERRED, 2 SPECULATIVE (reverse DCF), 0 NULL. Status moved BLOCKED to COMPLETE, opportunity_tier O3 to O2. Added second placement methanol-bunkering/methanol-storage-terminals (link position 7, QUIET, not money corner) with role evidence already on file in data/mappings/methanol-bunkering.json; the prior hormuz-maritime/hormuz-bypass-pipelines placement is preserved unchanged. run profile, methanol-bunkering batch 1."
   }
  ],
  "sources": {
   "mapping": "data/mappings/hormuz-maritime.json",
+  "mappings": [
+   "data/mappings/hormuz-maritime.json",
+   "data/mappings/methanol-bunkering.json"
+  ],
   "mapping_audit": {
    "status": null,
    "audited_at": null,
    "mapping_status": "ACTIVE"
   },
   "chain": "data/chains/hormuz-maritime.json",
+  "chains": [
+   "data/chains/hormuz-maritime.json",
+   "data/chains/methanol-bunkering.json"
+  ],
   "market": "data/market/VPK-AS.json"
  }
 }
