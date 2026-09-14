@@ -2165,6 +2165,13 @@
    "theme_id": "data-center-moratoria",
    "finding": "run selection 2026-09-14 (data-center-moratoria scope, fan-out re-run) re-examined all 8 rows in data/screens/data-center-moratoria.json (pure_play bucket) against their profiles. AECOM, JACOBS-SOLUTIONS and WSP-GLOBAL remain O1 (DEPTH's 3-per-theme maximum for this theme, unchanged); zero new promotions this run. TETRA-TECH and STANTEC unchanged from their 2026-09-06 selection_review (CAP_REACHED, both also carry genuine NULL canonical fields). AMERICAN-ELECTRIC-POWER, newly COMPLETE/O2 since 2026-09-13T14:53Z (not previously examined), was reviewed and held O2 on two independent grounds: theme is at its O1 cap, and its placement's link heat is CROWDED (money_corner false), the same OUT_OF_DEPTH_SCOPE_LINK_HEAT reason_code DIGITAL-REALTY and EQUINIX already carry; it also has one NULL canonical field (quality.beneish_state). No O1 official-source cross-check was attempted for AEP: moot given the disposing findings, and no request row was queued. Separately, a genuine new gap surfaced while re-verifying DIGITAL-REALTY and EQUINIX: data/mappings/data-center-moratoria.json now carries fresh PASS placement_audits[] entries for both issuers on entitled-powered-land, audited_at 2026-09-13T15:19:21Z (part of this fan-out run's universe-audit work), but neither data/companies/DIGITAL-REALTY.json nor data/companies/EQUINIX.json has been re-run since 2026-09-02: both profiles' placements arrays still carry only their old ai-infrastructure/hyperscale-datacenters placement, not the new data-center-moratoria one. This is the same class of gap BLK-13 named for THALES: selection cannot write a screen_handoff resting on a placement the profile itself never describes. Their existing 2026-09-02 selection_review (reason_code OUT_OF_DEPTH_SCOPE_LINK_HEAT, describing only the old ai-infrastructure link) is now incomplete rather than wrong, and is not rewritten here since amending it is `run profile`'s job, a different command. Does not change this run's outcome (theme is at cap regardless), but matters if the theme's cap ever reopens: next needed stage before either could be considered on this theme is `run profile DIGITAL-REALTY` and `run profile EQUINIX` to add the entitled-powered-land placement, owned by sieve-profiler. DEPTH's 1-3 O1 per theme remains satisfied at 3 (2 of 3 FINAL: AECOM and JACOBS-SOLUTIONS; WSP-GLOBAL DRAFT, red team not yet run).",
    "owner": "sieve-profiler"
+  },
+  {
+   "id": "BLK-15",
+   "severity": "INFO",
+   "theme_id": "hormuz-maritime",
+   "finding": "run selection 2026-09-14 (hormuz-maritime scope, fan-out re-run) examined all 30 rows in the freshly rebuilt data/screens/hormuz-maritime.json (up from 9 at the last selection pass: NORDIC-AMERICAN-TANKERS removed on a fresh placement-audit FAIL, OKEANIS-ECO-TANKERS added, and 6 more issuers newly seated across specialty-marine-broking, bunker-and-voyage-services, marine-war-risk-underwriting, lng-shipping-and-qatari-supply and non-gulf-energy-substitution) against all seven selection_basis dimensions and the O1 official-source cross-check. All 30 rows resolve to a COMPLETE profile. ELBIT-SYSTEMS stays the theme's one O1 (naval-escort-and-mine-clearance, within DEPTH's 1-3 target, FINAL dive on disk). Zero new promotions. Of the 29 O2 profiles examined: 28 retain at least one genuine NULL canonical field that method 6A forbids on O1 (mechanically checked against tools/check_profile.py's metric_group_failures with opportunity_tier forced to O1), overwhelmingly quality.piotroski/beneish_state on missing companyfacts inputs (cost_of_revenue_fy on MARSH-MCLENNAN and most crude-tanker-tonnage names; zero common fiscal periods on HUNTINGTON-INGALLS; ppe_net_fy on LEONARDO-DRS beneish; a stale single-period total_debt three years behind cash on TEEKAY-TANKERS leverage) or reverse_dcf PENDING_DATA; none of these are requeued because the fixed FACT_MAP candidate list is deterministic against static SEC data and a same-source re-fetch would fulfill empty, the same finding BLK-05's AMEND already established for this cohort on 2026-09-04. The one exception is EQUINOR (non-gulf-energy-substitution, T2): zero NULL canonical fields, the strongest candidate on the sheet, held on the O1 official-source cross-check alone. Direct WebFetch this run against Equinor's own investor-relations key-figures table and its 2025 Form 20-F (SEC CIK 1140625, accession 0001140625-26-000013) confirmed revenue (official total revenues and other income USD 106,462m vs the profile's vendor-sourced revenue.latest_fy USD 105,828m, 0.6% apart) and net income (official USD 5,058m vs the vendor USD 5,043m used in the ratio, 0.3% apart) closely enough to support promotion, but could not resolve operating cash flow: Equinor's own headline non-GAAP 'Cash flow from operations after tax' is USD 17,980m, 11% below the vendor figure (USD 19,971m) backing cash_conversion.operating_cash_flow_to_net_income and fcf_margin, a gap in the same disqualifying range BLK-06 already found FAIL for BHARAT-PETROLEUM/INDIAN-OIL (13.9-14.1%), and WebFetch on both the 20-F body and its EX-15.4 annual-report exhibit truncated before section 4.1 Consolidated financial statements (p.175-180) where the true comparator line, IFRS 'Net cash provided by operating activities', sits. Queued REQ-20260914-500 (web_doc, the EX-15.4 exhibit) so a future run can grep the stored page text for the exact line rather than relying on WebFetch's summary; not promoting EQUINOR on an unresolved cross-check. No profile file was amended; no opportunity_tier changed; no screen or mapping touched. Campaign O1 for this theme unchanged at 1 (within DEPTH 1-3).",
+   "owner": "sieve-profiler"
   }
  ],
  "confidence_audit": {
@@ -5277,6 +5284,26 @@
   },
   {
    "ts": "2026-09-14T01:17:24Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 297
+  },
+  {
+   "ts": "2026-09-14T01:14:00Z",
+   "by": "sieve-profiler",
+   "kind": "NOTE",
+   "change": "run selection CAMP-20260901-01 (hormuz-maritime scope, fan-out re-run). Examined all 30 rows in the freshly rebuilt data/screens/hormuz-maritime.json against the seven selection_basis dimensions and the O1 official-source cross-check. Zero new promotions: 28 of 29 examined O2 profiles retain a genuine NULL canonical field method 6A forbids on O1; the one exception, EQUINOR, has zero NULL fields but is held on an unresolved cash-flow cross-check (11% gap between two official-ish figures) and queued REQ-20260914-500 for the stored source page. ELBIT-SYSTEMS remains the theme's sole O1, within DEPTH's 1-3 target. Full basis in blocker BLK-15."
+  },
+  {
+   "ts": "2026-09-14T01:16:10Z",
+   "by": "campaign_calibrate",
+   "kind": "AMEND",
+   "change": "recomputed campaign completion and advanced proven stages",
+   "prior_completed_profiles": 297
+  },
+  {
+   "ts": "2026-09-14T01:18:10Z",
    "by": "campaign_calibrate",
    "kind": "AMEND",
    "change": "recomputed campaign completion and advanced proven stages",
