@@ -1376,6 +1376,188 @@
    "kind": "BUILD",
    "change": "mapping built from run universe neocloud-export-compliance (fan-out run r-d3-universe-chip-cloud): 22 distinct issuers, 22 listings, 25 placements across 10 links; 3 links TARGET_MET (controlled-ai-accelerators, denied-party-screening-software, compliant-hyperscaler-cloud), 4 EXHAUSTED with full multi-source records (export-control-rulemaking, chip-location-attestation, export-control-legal-advisory, sovereign-veu-ai-buildouts), 3 OPEN with a documented reason (sea-colocation-landlords 2/5, neocloud-gpu-rental 4/5, china-hyperscaler-cloud-demand 1/5); mapping left ACTIVE for audit",
    "prior": null
+  },
+  {
+   "ts": "2026-09-14T16:45:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit neocloud-export-compliance --placement DESCARTES (fresh context, batch run c-paudits-chip-cloud): sampled evidence[0] on link denied-party-screening-software. identity_ok true, role_ok false, source_date_ok true; status FAIL. placement evidence[0]'s claim states that Global Trade Intelligence (sanctioned-party and denied-party screening, tariff/duty content, foreign-trade-zone tools) was 'named a growth driver' on this exact filing (SEC Exhibit 99.2 to Descartes' Form 6-K), and the placement's own role text repeats this framing verbatim ('a named growth driver on its most recent reported quarter'). A live fetch and full-text search of the fetched exhibit this run found zero occurrences of the phrase 'Global Trade Intelligence' anywhere in the document; only the revenue figure and growth percentage are actually present. This chain's own build already cites the correct source for that framing, a separate Yahoo Finance earnings-call-highlights article dated 2026-06-04, tagged INFERRED there and never brought into this placement's own evidence array. Fix in a later run universe: either re-cite this evidence item to the revenue fact alone (dropping the GTI growth-driver framing from the claim and role), or add the Yahoo Finance source as a second, INFERRED-tagged evidence item that actually supports the growth-driver claim.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-14T16:45:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit neocloud-export-compliance --placement THOMSON-REUTERS (fresh context, batch run c-paudits-chip-cloud): sampled evidence[0] on link denied-party-screening-software. identity_ok true, role_ok false, source_date_ok true; status FAIL. placement evidence[0]'s claim states Thomson Reuters 'is registered with the SEC as a foreign private issuer under SIC 2741, Miscellaneous Publishing, and trades its Common Shares on Nasdaq under symbol TRI', with a recorded source_excerpt of 'Common Shares | TRI | The Nasdaq Stock Market LLC' presented as one unbroken string. A live fetch this run confirms the SIC code 2741 is genuinely on the cover page, but as a separate field from the securities table, not adjacent to or joined with the Common Shares/TRI/Nasdaq row the way the recorded excerpt implies; the 'Miscellaneous Publishing' description and 'foreign private issuer' designation do not appear anywhere in this document's text at all (the cover page's raw extracted text shows 'Common Shares', 'TRI', and 'The Nasdaq Stock Market LLC' as three separate table cells on separate lines, joined with a ' | ' delimiter in the recorded excerpt that is not present in the source). This is a composite-tabular excerpt with no excerpt_form: composite-tabular marker (method section 1's required flag for this citation shape), and the claim additionally overstates what the cited cover page itself states. Fix in a later run universe: mark the securities-table excerpt excerpt_form: composite-tabular with fields in true reading order, cite the SIC 2741 figure separately as its own span, and drop or re-source the 'Miscellaneous Publishing' and 'foreign private issuer' language, neither of which is stated in this filing's own text.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-14T16:45:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit neocloud-export-compliance --placement MOODYS (fresh context, batch run c-paudits-chip-cloud): sampled evidence[0] on link denied-party-screening-software. identity_ok true, role_ok false, source_date_ok true; status FAIL. placement evidence[0]'s cited primary URL (businesswire.com) returned HTTP 403 to a live fetch this run, so its exact wording could not be independently confirmed against the primary source itself. A syndicated mirror carrying the same press release (centralcharts.com) was reachable and shows the actual sentence reads 'Moody's Analytics today announced that it has integrated the Grid database...' (this audit's own source_excerpt above), not 'Moody's Analytics integrated the Grid database...' as recorded in the placement's own source_excerpt: the recorded excerpt silently drops the middle clause 'today announced that it has', the same class of non-contiguous splicing found elsewhere in this repo's placement audits. The underlying claim is very likely true (the mirror corroborates the substance), but the citation as recorded cannot be confirmed as a genuine contiguous span of the actually-cited URL this run. Fix in a later run universe: queue a web_doc request to store the primary businesswire.com page server-side (or cite the accessible mirror directly), then re-cite evidence[0].source_excerpt as the genuinely unedited span.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-14T16:45:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit neocloud-export-compliance --placement SP-GLOBAL (fresh context, batch run c-paudits-chip-cloud): sampled evidence[0] on link denied-party-screening-software. identity_ok true, role_ok false, source_date_ok true; status FAIL. placement evidence[0].source_excerpt is recorded as '{\"cik\":\"0000064040\",\"name\":\"S&P Global Inc.\",\"tickers\":[\"SPGI\"],\"exchanges\":[\"NYSE\"],\"sic\":\"7320\",\"sicDescription\":\"Services-Consumer Credit Reporting, Collection Agencies\"}', presented as one unbroken JSON-shaped string, but it is not a contiguous span of the actual data.sec.gov response. A live fetch of the raw JSON this run confirms the true key order is cik, entityType, sic, sicDescription, ownerOrg, insiderTransactionForOwnerExists, insiderTransactionForIssuerExists, name, tickers, exchanges, ein... (this audit's own source_excerpt above, the genuine opening span): the recorded excerpt drops entityType/ownerOrg/insiderTransaction fields between cik and name, and moves sic/sicDescription from their true position immediately after cik to the end after exchanges, a reordering with no position in the actual document at all, and unlike a genuine composite-tabular excerpt it is not even assembled in the source's own reading order, nor marked excerpt_form: composite-tabular. Fix in a later run universe: re-cite as the genuinely contiguous opening span of the raw JSON (this audit's own source_excerpt above, cik through exchanges in true document order, already fully supports the claim) or mark it excerpt_form: composite-tabular with fields in true reading order per method section 1's tabular allowance.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-14T16:45:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit neocloud-export-compliance --placement NICE-LTD (fresh context, batch run c-paudits-chip-cloud): sampled evidence[0] on link denied-party-screening-software. identity_ok true, role_ok false, source_date_ok true; status FAIL. placement evidence[0].source_excerpt is recorded as the exact phrase 'Financial Crime and Compliance Solutions' (with ordinary word spacing), presented as if it were a verbatim span of the filing's running text describing an operating segment. A live fetch and full-text search of the filing this run found no such space-separated phrase anywhere in the document's narrative prose or headings; the only place the constituent words appear together at all is concatenated without spaces inside an XBRL element identifier, 'us-gaap:OperatingSegmentsMembernice:FinancialCrimeAndComplianceSolutionsMember' (this audit's own source_excerpt above), which is machine-readable tag metadata a reader would not encounter as prose. The underlying fact, that NICE Ltd. operates a Financial Crime and Compliance business line, is real and independently corroborated by NICE's own public product and press pages (niceactimize.com, nice.com), but those are not the cited SEC filing and were not the source recorded. Fix in a later run universe: re-cite to a source that actually contains this phrase as running text (NICE's own investor materials, an earnings-call transcript, or 20-F segment-reporting prose, re-fetched and confirmed), or accurately describe the XBRL tag as machine metadata rather than filing prose.",
+   "prior": null
+  },
+  {
+   "ts": "2026-09-14T16:45:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit neocloud-export-compliance --placement MICROSOFT (fresh context, batch run c-paudits-chip-cloud): sampled evidence[0] on link sovereign-veu-ai-buildouts. identity_ok true, role_ok false, source_date_ok true; status FAIL. the placement's role text states Microsoft 'Holds a $1.5 billion minority equity stake and a board seat in G42', and its evidence[0] claim repeats 'with a board seat'. A live fetch of the cited source (blogs.microsoft.com, 2025-11-03) and a dedicated full-page search for the word 'board' this run returned zero matches: the source states the $1.5 billion equity investment and the wider $15.2 billion UAE commitment (this audit's own source_excerpt above) but never mentions a board seat. The board-seat fact is real and independently corroborated by contemporaneous reporting (Bloomberg, and Microsoft's own news.microsoft.com newsroom post), naming Microsoft Vice Chair and President Brad Smith taking a board seat as part of an earlier, separate April 2024 announcement of the same underlying $1.5 billion G42 investment, a different article than the one actually cited on this placement. Fix in a later run universe: either re-cite the board-seat clause to the April 2024 Microsoft newsroom announcement (news.microsoft.com) that actually states it (as an explicit second span or second evidence item), or drop the board-seat language from this placement's role and claim if only the November 2025 source is to be cited.",
+   "prior": null
+  }
+ ],
+ "placement_audits": [
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "denied-party-screening-software",
+   "issuer_id": "DESCARTES",
+   "audited_at": "2026-09-14T16:45:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-neocloud-export-compliance--placement-DESCARTES/c-paudits-chip-cloud-2026-09-14T1645Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached git worktree (c-paudits-chip-cloud) created fresh for this batch of six placement audits, reading only the DESCARTES placement on link denied-party-screening-software and its listing within data/mappings/neocloud-export-compliance.json, the neocloud-export-compliance chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for/placement_audit_failures contract, and .claude/hooks/universe-gate.py; it never read the author's transcript, data/chains/_map-log.json, company profiles, screens, or ledger rationale. Identity independently reconfirmed live against the SEC EDGAR submissions API for CIK 0001050140 (name DESCARTES SYSTEMS GROUP INC, ticker DSGX, exchange Nasdaq), matching the NASDAQ-DSGX listing. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/0001050140/000092963826002122/exhibit99-2.htm",
+   "source_date": "2026-06-03",
+   "source_excerpt": "Revenues of $193.6 million, up 15% from $168.7 million in the first quarter of fiscal 2026",
+   "amendments_required": [
+    "placement evidence[0]'s claim states that Global Trade Intelligence (sanctioned-party and denied-party screening, tariff/duty content, foreign-trade-zone tools) was 'named a growth driver' on this exact filing (SEC Exhibit 99.2 to Descartes' Form 6-K), and the placement's own role text repeats this framing verbatim ('a named growth driver on its most recent reported quarter'). A live fetch and full-text search of the fetched exhibit this run found zero occurrences of the phrase 'Global Trade Intelligence' anywhere in the document; only the revenue figure and growth percentage are actually present. This chain's own build already cites the correct source for that framing, a separate Yahoo Finance earnings-call-highlights article dated 2026-06-04, tagged INFERRED there and never brought into this placement's own evidence array. Fix in a later run universe: either re-cite this evidence item to the revenue fact alone (dropping the GTI growth-driver framing from the claim and role), or add the Yahoo Finance source as a second, INFERRED-tagged evidence item that actually supports the growth-driver claim."
+   ],
+   "record_digest": "42c67829f166cbcf2e20ced630ee44ce0f90b91de5b6fcc8176dd6362653a864"
+  },
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "denied-party-screening-software",
+   "issuer_id": "THOMSON-REUTERS",
+   "audited_at": "2026-09-14T16:45:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-neocloud-export-compliance--placement-THOMSON-REUTERS/c-paudits-chip-cloud-2026-09-14T1645Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached git worktree (c-paudits-chip-cloud) created fresh for this batch of six placement audits, reading only the THOMSON-REUTERS placement on link denied-party-screening-software and its listing within data/mappings/neocloud-export-compliance.json, the neocloud-export-compliance chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for/placement_audit_failures contract, and .claude/hooks/universe-gate.py; it never read the author's transcript, data/chains/_map-log.json, company profiles, screens, or ledger rationale. Identity independently reconfirmed live against this filing's own cover page (Common Shares, ticker TRI, The Nasdaq Stock Market LLC), matching the NASDAQ-TRI listing. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1075124/000119312526094222/tri-20251231.htm",
+   "source_date": "2026-03-05",
+   "source_excerpt": "2741 (Primary Standard Industrial Classification Code Number (if applicable))",
+   "amendments_required": [
+    "placement evidence[0]'s claim states Thomson Reuters 'is registered with the SEC as a foreign private issuer under SIC 2741, Miscellaneous Publishing, and trades its Common Shares on Nasdaq under symbol TRI', with a recorded source_excerpt of 'Common Shares | TRI | The Nasdaq Stock Market LLC' presented as one unbroken string. A live fetch this run confirms the SIC code 2741 is genuinely on the cover page, but as a separate field from the securities table, not adjacent to or joined with the Common Shares/TRI/Nasdaq row the way the recorded excerpt implies; the 'Miscellaneous Publishing' description and 'foreign private issuer' designation do not appear anywhere in this document's text at all (the cover page's raw extracted text shows 'Common Shares', 'TRI', and 'The Nasdaq Stock Market LLC' as three separate table cells on separate lines, joined with a ' | ' delimiter in the recorded excerpt that is not present in the source). This is a composite-tabular excerpt with no excerpt_form: composite-tabular marker (method section 1's required flag for this citation shape), and the claim additionally overstates what the cited cover page itself states. Fix in a later run universe: mark the securities-table excerpt excerpt_form: composite-tabular with fields in true reading order, cite the SIC 2741 figure separately as its own span, and drop or re-source the 'Miscellaneous Publishing' and 'foreign private issuer' language, neither of which is stated in this filing's own text."
+   ],
+   "record_digest": "e3241d8b3782e019a78ab9db5318b2a614a67adc23c53c307d83bc78005673a7"
+  },
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "denied-party-screening-software",
+   "issuer_id": "MOODYS",
+   "audited_at": "2026-09-14T16:45:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-neocloud-export-compliance--placement-MOODYS/c-paudits-chip-cloud-2026-09-14T1645Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached git worktree (c-paudits-chip-cloud) created fresh for this batch of six placement audits, reading only the MOODYS placement on link denied-party-screening-software and its listing within data/mappings/neocloud-export-compliance.json, the neocloud-export-compliance chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for/placement_audit_failures contract, and .claude/hooks/universe-gate.py; it never read the author's transcript, data/chains/_map-log.json, company profiles, screens, or ledger rationale. Identity for this link's other listed issuers was independently reconfirmed live; MOODYS' own NYSE-MCO listing identity was reconfirmed against the SEC EDGAR submissions API for CIK 0001059556 (name MOODYS CORP /DE/, ticker MCO, exchange NYSE), matching the listing record. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.businesswire.com/news/home/20210407005432/en/Moodys-Analytics-Strengthens-Compliance-Platform-for-KYC-Screening",
+   "source_date": "2021-04-07",
+   "source_excerpt": "Moody's Analytics today announced that it has integrated the Grid database of adverse news, sanctions, and politically exposed persons (PEPs) into Bureau van Dijk's Compliance Catalyst platform.",
+   "amendments_required": [
+    "placement evidence[0]'s cited primary URL (businesswire.com) returned HTTP 403 to a live fetch this run, so its exact wording could not be independently confirmed against the primary source itself. A syndicated mirror carrying the same press release (centralcharts.com) was reachable and shows the actual sentence reads 'Moody's Analytics today announced that it has integrated the Grid database...' (this audit's own source_excerpt above), not 'Moody's Analytics integrated the Grid database...' as recorded in the placement's own source_excerpt: the recorded excerpt silently drops the middle clause 'today announced that it has', the same class of non-contiguous splicing found elsewhere in this repo's placement audits. The underlying claim is very likely true (the mirror corroborates the substance), but the citation as recorded cannot be confirmed as a genuine contiguous span of the actually-cited URL this run. Fix in a later run universe: queue a web_doc request to store the primary businesswire.com page server-side (or cite the accessible mirror directly), then re-cite evidence[0].source_excerpt as the genuinely unedited span."
+   ],
+   "record_digest": "b00c5693f5430811e60159acbd4f4846e13932895ec0077780d64d6f565544af"
+  },
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "denied-party-screening-software",
+   "issuer_id": "SP-GLOBAL",
+   "audited_at": "2026-09-14T16:45:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-neocloud-export-compliance--placement-SP-GLOBAL/c-paudits-chip-cloud-2026-09-14T1645Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached git worktree (c-paudits-chip-cloud) created fresh for this batch of six placement audits, reading only the SP-GLOBAL placement on link denied-party-screening-software and its listing within data/mappings/neocloud-export-compliance.json, the neocloud-export-compliance chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for/placement_audit_failures contract, and .claude/hooks/universe-gate.py; it never read the author's transcript, data/chains/_map-log.json, company profiles, screens, or ledger rationale. Identity independently reconfirmed live against the SEC EDGAR submissions API for CIK 0000064040 (name S&P Global Inc., ticker SPGI, exchange NYSE), matching the NYSE-SPGI listing. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://data.sec.gov/submissions/CIK0000064040.json",
+   "source_date": "2026-09-14",
+   "source_excerpt": "{\"cik\":\"0000064040\",\"entityType\":\"operating\",\"sic\":\"7320\",\"sicDescription\":\"Services-Consumer Credit Reporting, Collection Agencies\",\"ownerOrg\":\"07 Trade & Services\",\"insiderTransactionForOwnerExists\":0,\"insiderTransactionForIssuerExists\":1,\"name\":\"S&P Global Inc.\",\"tickers\":[\"SPGI\"],\"exchanges\":[\"NYSE\"],",
+   "amendments_required": [
+    "placement evidence[0].source_excerpt is recorded as '{\"cik\":\"0000064040\",\"name\":\"S&P Global Inc.\",\"tickers\":[\"SPGI\"],\"exchanges\":[\"NYSE\"],\"sic\":\"7320\",\"sicDescription\":\"Services-Consumer Credit Reporting, Collection Agencies\"}', presented as one unbroken JSON-shaped string, but it is not a contiguous span of the actual data.sec.gov response. A live fetch of the raw JSON this run confirms the true key order is cik, entityType, sic, sicDescription, ownerOrg, insiderTransactionForOwnerExists, insiderTransactionForIssuerExists, name, tickers, exchanges, ein... (this audit's own source_excerpt above, the genuine opening span): the recorded excerpt drops entityType/ownerOrg/insiderTransaction fields between cik and name, and moves sic/sicDescription from their true position immediately after cik to the end after exchanges, a reordering with no position in the actual document at all, and unlike a genuine composite-tabular excerpt it is not even assembled in the source's own reading order, nor marked excerpt_form: composite-tabular. Fix in a later run universe: re-cite as the genuinely contiguous opening span of the raw JSON (this audit's own source_excerpt above, cik through exchanges in true document order, already fully supports the claim) or mark it excerpt_form: composite-tabular with fields in true reading order per method section 1's tabular allowance."
+   ],
+   "record_digest": "7715434c1de0d74c9288749fb3d85882e668f3eecf159dfd2624fac5fbc328b8"
+  },
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "denied-party-screening-software",
+   "issuer_id": "NICE-LTD",
+   "audited_at": "2026-09-14T16:45:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-neocloud-export-compliance--placement-NICE-LTD/c-paudits-chip-cloud-2026-09-14T1645Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached git worktree (c-paudits-chip-cloud) created fresh for this batch of six placement audits, reading only the NICE-LTD placement on link denied-party-screening-software and its listing within data/mappings/neocloud-export-compliance.json, the neocloud-export-compliance chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for/placement_audit_failures contract, and .claude/hooks/universe-gate.py; it never read the author's transcript, data/chains/_map-log.json, company profiles, screens, or ledger rationale. Identity independently reconfirmed live against the SEC EDGAR submissions API for CIK 0001003935 (name NICE Ltd., tickers NICE/NCSYF, exchanges Nasdaq/OTC), matching the NASDAQ-NICE listing. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1003935/000100393526000010/nice-20251231.htm",
+   "source_date": "2026-02-26",
+   "source_excerpt": "us-gaap:OperatingSegmentsMembernice:FinancialCrimeAndComplianceSolutionsMember",
+   "amendments_required": [
+    "placement evidence[0].source_excerpt is recorded as the exact phrase 'Financial Crime and Compliance Solutions' (with ordinary word spacing), presented as if it were a verbatim span of the filing's running text describing an operating segment. A live fetch and full-text search of the filing this run found no such space-separated phrase anywhere in the document's narrative prose or headings; the only place the constituent words appear together at all is concatenated without spaces inside an XBRL element identifier, 'us-gaap:OperatingSegmentsMembernice:FinancialCrimeAndComplianceSolutionsMember' (this audit's own source_excerpt above), which is machine-readable tag metadata a reader would not encounter as prose. The underlying fact, that NICE Ltd. operates a Financial Crime and Compliance business line, is real and independently corroborated by NICE's own public product and press pages (niceactimize.com, nice.com), but those are not the cited SEC filing and were not the source recorded. Fix in a later run universe: re-cite to a source that actually contains this phrase as running text (NICE's own investor materials, an earnings-call transcript, or 20-F segment-reporting prose, re-fetched and confirmed), or accurately describe the XBRL tag as machine metadata rather than filing prose."
+   ],
+   "record_digest": "5d4be4f60eb9640a4b402b95e80b2589653e1406faab76b87e9c579313e9130e"
+  },
+  {
+   "chain_id": "neocloud-export-compliance",
+   "link_id": "sovereign-veu-ai-buildouts",
+   "issuer_id": "MICROSOFT",
+   "audited_at": "2026-09-14T16:45:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context/run-universe-audit-neocloud-export-compliance--placement-MICROSOFT/c-paudits-chip-cloud-2026-09-14T1645Z",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "This audit ran in a detached git worktree (c-paudits-chip-cloud) created fresh for this batch of six placement audits, reading only the MICROSOFT placement on link sovereign-veu-ai-buildouts and its listing within data/mappings/neocloud-export-compliance.json, the neocloud-export-compliance chain, docs/method.md section 6A, CLAUDE.md's run universe-audit --placement clause, .claude/agents/atlas-cartographer.md, the tools/check_map.py placement_claim_digest/placement_audit_for/placement_audit_failures contract, and .claude/hooks/universe-gate.py; it never read the author's transcript, data/chains/_map-log.json, company profiles, screens, or ledger rationale. Identity independently reconfirmed live against the SEC EDGAR submissions API for CIK 0000789019 (name MICROSOFT CORP, ticker MSFT, exchange Nasdaq), matching the NASDAQ-MSFT listing. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+   "status": "FAIL",
+   "evidence_index": 0,
+   "identity_ok": true,
+   "role_ok": false,
+   "source_date_ok": true,
+   "source_url": "https://blogs.microsoft.com/on-the-issues/2025/11/03/microsofts-15-2-billion-usd-investment-in-the-uae/",
+   "source_date": "2025-11-03",
+   "source_excerpt": "This includes our $1.5 billion equity investment in G42",
+   "amendments_required": [
+    "the placement's role text states Microsoft 'Holds a $1.5 billion minority equity stake and a board seat in G42', and its evidence[0] claim repeats 'with a board seat'. A live fetch of the cited source (blogs.microsoft.com, 2025-11-03) and a dedicated full-page search for the word 'board' this run returned zero matches: the source states the $1.5 billion equity investment and the wider $15.2 billion UAE commitment (this audit's own source_excerpt above) but never mentions a board seat. The board-seat fact is real and independently corroborated by contemporaneous reporting (Bloomberg, and Microsoft's own news.microsoft.com newsroom post), naming Microsoft Vice Chair and President Brad Smith taking a board seat as part of an earlier, separate April 2024 announcement of the same underlying $1.5 billion G42 investment, a different article than the one actually cited on this placement. Fix in a later run universe: either re-cite the board-seat clause to the April 2024 Microsoft newsroom announcement (news.microsoft.com) that actually states it (as an explicit second span or second evidence item), or drop the board-seat language from this placement's role and claim if only the November 2025 source is to be cited."
+   ],
+   "record_digest": "32f07d5b0b676e1d7f77c163d309e3e806b02abaceac46528d2793bf4632ff98"
   }
  ]
 }
