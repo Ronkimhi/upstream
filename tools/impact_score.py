@@ -578,7 +578,8 @@ def audit_excerpt(item: dict) -> dict:
         if _date_supported(cd, dates, values, words):
             out["matched"] += 1
         else:
-            out["unmatched"].append("%04d-%02d-%02d" % cd)
+            y, mo, d = cd
+            out["unmatched"].append("%04d-%02d-%s" % (y, mo, ("%02d" % d) if d is not None else "??"))
 
     if out["unmatched"]:
         out["findings"].append(
