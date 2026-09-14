@@ -1485,23 +1485,36 @@
    "kind": "AMEND",
    "change": "refresh: origin's validate.py refused placements[15] (funding-and-settlement-rails, CIRCLE) evidence[0] because its source_excerpt was not a real contiguous span of the stored data/web/d3fe83ead918feb2.json (the circle.com pressroom release): the excerpt stitched 'Native USDC is issued by Circle's regulated affiliates and is redeemable 1:1 for US dollars.' from the article's second paragraph directly onto 'Using USDC supports a consistent, dollar-denominated settlement standard that enhances market integrity', a separate sentence from Shayne Coplan's quote three paragraphs later, with the sentence in between silently dropped. The 2026-09-14T00:44:48Z placement audit above sampled this same evidence and documented the same fact in its own notes ('from the article's separate settlement-standard sentence') while still marking the span 'verbatim and contiguous', so the audit's PASS rested on the same defect. Re-checked data/web/d3fe83ead918feb2.json (fetched_at 2026-09-14T20:48:17Z, http_status 200): the source does support the placement's role ('Issues native USDC as Polymarket's stablecoin settlement currency, redeemable 1:1 for US dollars, issued by Circle's regulated affiliates') as one real contiguous span, so no new web_doc fetch was needed. Replaced evidence[0].source_excerpt with that single contiguous span, 'As part of this partnership, Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle’s regulated affiliates and is redeemable 1:1 for US dollars, providing a more capital efficient, scalable, and institutionally aligned settlement standard as Polymarket’s platform continues to grow.', verified with tools/evidence_store.py:excerpt_in_doc against the stored text (MATCH), and trimmed evidence[0].claim to match what that span actually says, dropping the 'enhances market integrity' clause the old claim borrowed from the non-contiguous sentence (the role itself never asserted that clause). source_name, source_date and url are unchanged: the same Circle press release remains the right source, only the quoted span was wrong. Nothing else in the mapping changed. This amendment stales the whole-map audit above (already FAIL, unrelated reason) and the CIRCLE placement_audits[9] entry's record_digest; both are left for a fresh-context re-audit rather than corrected here, per the universe-audit fresh-context boundary.",
    "prior": "2026-09-14T00:45:33Z"
+  },
+  {
+   "ts": "2026-09-14T23:40:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "AMEND",
+   "change": "run universe-audit prediction-market-plumbing: fresh-context semantic census re-audit, status FAIL. Fresh context per method.md section 6A: read only the mapping JSON, its chain, method.md section 6A, current source URLs, official identity references, the prior resolved audit block (already FAIL, unrelated reason), and the check_map.py plus universe-gate.py gate contract; never the author transcript, map log, profiles, or ledger rationale. Re-verified every finding fresh rather than carrying forward the 2026-09-04 audit's clean result: fetched all 23 placement role-evidence sources and all 11 EXHAUSTED-search sources live on 2026-09-14 (CIRCLE alone read from the stored data/web/d3fe83ead918feb2.json), plus independent WebSearch checks on four names a search record had not logged. Found three genuine defects that did not exist on 2026-09-04: (1) funding-and-settlement-rails/PAYPAL's evidence no longer supports its DraftKings-Predictions-accepts-PayPal claim on the current cbssports.com page (confirmed absent by two independent live fetches); (2) that same cbssports.com page (also cited by BLOCK) is a continuously-republished comparison guide whose own byline reads today's date with no revision history, so the recorded source_date 2026-09-03 is unverifiable for both PAYPAL and BLOCK; (3) liquidity-provision's EXHAUSTED search over the Finance Magnates Cantor Fitzgerald article recorded hits_examined: 2 but the article currently names at least six relevant firms, four uncounted (Clear Street, Talos, Greenlight Commodities, Jump Trading); independent WebSearch confirms none of the four is a currently listed issuer, so the EXHAUSTED bottom line is not substantively wrong but the record undercounts its own source. All other 20 placements and 10 remaining searches reproduced their recorded claims verbatim on live re-fetch, including CIRCLE's freshly amended excerpt, which this session independently confirmed is now one real contiguous span rather than a splice. Audit also FAILs on the pre-existing structural ground the 2026-09-04 audit named: five link_coverage rows remain OPEN (official-event-data, market-surveillance-and-integrity, prediction-market-venue, clearing-and-collateral, distribution-front-ends), which forecloses COMPLETE regardless of evidence quality. Sampled all 23/23 placements and all 11/11 EXHAUSTED searches across all 11 links (2 TARGET_MET links sampled 5/5 and 5/5 placements each, all 4 EXHAUSTED links had every placement and every search examined); did not sample the 18 listings' identity_evidence since listings_examined is not required at FAIL (named in surviving_limitation). identity_conflicts: none. role_conflicts: 2 (PAYPAL, liquidity-provision search[3]). source_date_conflicts: 2 (PAYPAL, BLOCK, same underlying source). amendments_required: 5 (OPEN links; PAYPAL re-source; PAYPAL/BLOCK dateline instability; liquidity-provision search[3] re-count; minor regulatory-gate search[0] Nevada Gaming URL gap). mapping_fingerprint current and matched. status: FAIL, mapping status stays ACTIVE.",
+   "prior": "2026-09-04T22:30:00Z"
+  },
+  {
+   "ts": "2026-09-14T23:42:00Z",
+   "by": "atlas-fresh-context",
+   "kind": "NOTE",
+   "change": "run universe-audit prediction-market-plumbing --placement CIRCLE: fresh-context placement audit PASS on (funding-and-settlement-rails, CIRCLE), re-run after the author's same-day re-citation staled the prior 2026-09-14T00:44:48Z PASS entry (placement_audits[9], now superseded history). Read the stored data/web/d3fe83ead918feb2.json directly (fetched_at 2026-09-14T20:48:17Z, http_status 200) and confirmed the amended evidence[0].source_excerpt is one real contiguous span of that stored text, appearing exactly and in order immediately before Jeremy Allaire's quote: it no longer splices the 'redeemable 1:1 for US dollars' clause onto Shayne Coplan's separate later sentence the way the prior excerpt did (the defect the 2026-09-14T23:15:40Z AMEND above fixed and this session independently re-verified rather than trusting). Also cross-checked identity live against Circle Internet Group, Inc.'s FY2025 Form 10-K cover page (crcl-20251231.htm), confirming the Section 12(b) table verbatim: legal issuer Circle Internet Group, Inc., Class A common stock, ticker CRCL, New York Stock Exchange, matching listing NYSE-CRCL exactly. identity_ok true, role_ok true, source_date_ok true (2026-02-05 dateline matches exactly). No defects found. Wrote one new placement_audits[] entry (evidence_index 0, status PASS, record_digest 1c0127a6e49e420f422e76e9ad8a2595293771e327466d7807f7f135e5502b08); mapping status stays ACTIVE and no other content changed.",
+   "prior": "2026-09-14T00:44:48Z"
   }
  ],
  "audit": {
-  "audited_at": "2026-09-04T22:30:00Z",
+  "audited_at": "2026-09-14T23:40:00Z",
   "reviewed_by": "atlas-fresh-context",
   "agent_id": "atlas-fresh-context",
-  "transcript_ref": "atlas-fresh-context-universe-audit-prediction-market-plumbing-2026-09-04",
+  "transcript_ref": "atlas-fresh-context-universe-audit-prediction-market-plumbing-2026-09-14",
   "review_mode": "FRESH_CONTEXT",
-  "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This session started from only the mapping JSON, its chain, method.md section 6A, current source URLs, official identity and listing references, the prior resolved audit block, and the check_map.py plus universe-gate.py gate contract; it never read the author transcript, map log, profiles, or ledger rationale, and it wrote no issuer, listing, placement, or coverage row. A writable reviewed_by string is declared provenance only, not cryptographic proof.",
+  "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This session started from only the mapping JSON, its chain, method.md section 6A, current source URLs, official identity and listing references, the prior resolved audit block, and the check_map.py plus universe-gate.py gate contract; it never read the author transcript, map log, profiles, or ledger rationale, and it wrote no issuer, listing, placement, or coverage row beyond this audit and placement_audits entry. A writable reviewed_by string is declared provenance only, not cryptographic proof.",
   "status": "FAIL",
-  "mapping_fingerprint": "1b134bde3c33f4a0e88a61ab1df9e7c04e037537f147fc9d5b5ccfe0ae1775f5",
+  "mapping_fingerprint": "1d01ac6430ef383eec0ab58628ec612a6862a2bffb8858ae025a64c30275010f",
   "links_examined": 11,
   "placements_examined": 23,
   "searches_examined": 11,
   "target_met_links_examined": 2,
   "exhausted_links_examined": 4,
-  "listings_examined": 18,
   "sampled_checks": [
    {
     "chain_id": "prediction-market-plumbing",
@@ -1512,7 +1525,7 @@
     "source_date_ok": true,
     "source_url": "https://sportradar.com/content-hub/news/sportradar-and-kalshi-announce-first-of-its-kind-data-and-infrastructure-global-partnership-for-prediction-markets/",
     "source_date": "2026-06-08",
-    "source_excerpt": "Official Sports Data and Live Odds: Fast, reliable, accurate official data and live odds to power pre-game and in-play markets, enhancing market efficiency while ensuring timely settlements",
+    "source_excerpt": "Live fetch 2026-09-14 of sportradar.com content-hub post (dated 2026-06-08) reproduces verbatim: 'Fast, reliable, accurate official data and live odds to power pre-game and in-play markets, enhancing market efficiency while ensuring timely settlements.' Sportradar Group AG is named as the party; role holds.",
     "record_digest": "fba9171eea599a850c91d3cd6fe686c8bba71044d7bf5abd7ea661e290a75a47"
    },
    {
@@ -1524,7 +1537,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1834489/000119312526110749/geni-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "A substantial portion of our offerings and services use sports properties acquired under rights granted by sports organizations including (inter alia) sports data and streaming rights.",
+    "source_excerpt": "Live fetch 2026-09-14 of Genius Sports Limited's FY2025 Form 10-K (geni-20251231.htm) reproduces verbatim: 'A substantial portion of our offerings and services use sports properties acquired under rights granted by sports organizations including (inter alia) sports data and streaming rights.'",
     "record_digest": "898c02440e7e5eb03c14989ad37d46cb221a591e15d051f1acc0bbd6dc46039b"
    },
    {
@@ -1536,7 +1549,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1120193/000162828026007703/ndaq-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "Our surveillance cloud-enabled and on-premises solution is designed for banks, brokers and other market participants to assist in complying with market rules, regulations and internal market surveillance policies and serves more than 170 clients. We also provide our solution to regulators and exchanges with a robust platform to manage cross-market, cross-asset and multi-venue surveillance. This offering powers surveillance for more than 50 exchanges and 22 regulators.",
+    "source_excerpt": "Live fetch 2026-09-14 of Nasdaq, Inc.'s FY2025 Form 10-K (ndaq-20251231.htm) reproduces verbatim: 'Our surveillance cloud-enabled and on-premises solution is designed for banks, brokers and other market participants...' and confirms 'powers surveillance for more than 50 exchanges and 22 regulators.'",
     "record_digest": "d9d2e0b65687f8692aacda8e76259a2fd59561e556113c7da2033ebb6b7e6a9b"
    },
    {
@@ -1548,7 +1561,7 @@
     "source_date_ok": true,
     "source_url": "https://sportradar.com/content-hub/news/sportradar-and-kalshi-announce-first-of-its-kind-data-and-infrastructure-global-partnership-for-prediction-markets/",
     "source_date": "2026-06-08",
-    "source_excerpt": "Industry-Leading Integrity Services: Robust integrity framework including Sportradar UFDS AI, which detects suspicious behavior, and Sportradar Integrity Exchange (SIE), which enables participants to share integrity threats through a secure network",
+    "source_excerpt": "Live fetch 2026-09-14 of the same sportradar.com/Kalshi post confirms the Integrity Services passage verbatim: 'Robust integrity framework including Sportradar UFDS AI, which detects suspicious behavior, and Sportradar Integrity Exchange (SIE), which enables participants to share integrity threats through a secure network.'",
     "record_digest": "32ac75b34df0937feb8c606170986911de63a7cb7c8643b31bbcccc463413ff1"
    },
    {
@@ -1560,7 +1573,7 @@
     "source_date_ok": true,
     "source_url": "https://ir.theice.com/press/news-details/2025/ICE-Announces-Strategic-Investment-in-Polymarket/default.aspx",
     "source_date": "2025-10-07",
-    "source_excerpt": "Intercontinental Exchange, Inc. (NYSE:ICE), a leading global provider of technology and data, today announced a strategic investment in Polymarket, the prediction market and information platform tracking event probabilities across markets, politics, sport and culture. Under the terms of the agreement, ICE will invest up to $2 billion in Polymarket",
+    "source_excerpt": "Live fetch 2026-09-14 of ir.theice.com press release (dated 2025-10-07 per the live page) reproduces verbatim: 'Intercontinental Exchange, Inc. (NYSE:ICE)... today announced a strategic investment in Polymarket...' and confirms the up-to-$2 billion investment figure.",
     "record_digest": "5f479b68e21882a05eae2b184db95386be332465f01fcd2fb4f0bef47ba21fe5"
    },
    {
@@ -1572,7 +1585,7 @@
     "source_date_ok": true,
     "source_url": "https://www.prnewswire.com/news-releases/cboe-introduces-innovative-prediction-markets-framework-expanding-choice-beyond-yes-or-no-outcomes-302707661.html",
     "source_date": "2026-03-09",
-    "source_excerpt": "Cboe plans to launch its first Mini-SPX prediction market contract in the second quarter of 2026. The product will use a traditional options wrapper to deliver fixed-return outcome and settle in cash, similar to standard index options. This securities-based product will be listed on Cboe Options Exchange and centrally cleared by OCC.",
+    "source_excerpt": "Live fetch 2026-09-14 of the PR Newswire Cboe release (dated 2026-03-09 per the live page) reproduces verbatim: 'Cboe plans to launch its first Mini-SPX prediction market contract in the second quarter of 2026... listed on Cboe Options Exchange and centrally cleared by OCC.'",
     "record_digest": "3a05c2b3c07df194b3a681afeeb8229ad1347fef00391fef91b6c0e112271e18"
    },
    {
@@ -1584,7 +1597,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1883685/000188368526000013/dkng-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "Prediction Markets — DraftKings Predictions launched on December 19, 2025, formally entering prediction markets under the oversight of the U.S. Commodity Futures Trading Commission (“CFTC”). On October 21, 2025, DraftKings acquired Railbird Technologies Inc. (“Railbird”) and its subsidiary, Railbird Exchange, LLC, a registered designated contract market (“DCM”) licensed by the CFTC.",
+    "source_excerpt": "Live fetch 2026-09-14 of DraftKings Inc.'s FY2025 Form 10-K (dkng-20251231.htm) reproduces verbatim: 'DraftKings Predictions launched on December 19, 2025, formally entering prediction markets under the oversight of the U.S. Commodity Futures Trading Commission (\"CFTC\").' and the October 21, 2025 Railbird Technologies/Railbird Exchange DCM acquisition.",
     "record_digest": "512b209d074f3668ba1c610bf5d9cb35628e7d3dcde620c806f14728385512a4"
    },
    {
@@ -1596,7 +1609,7 @@
     "source_date_ok": true,
     "source_url": "https://www.prnewswire.com/news-releases/cboe-introduces-innovative-prediction-markets-framework-expanding-choice-beyond-yes-or-no-outcomes-302707661.html",
     "source_date": "2026-03-09",
-    "source_excerpt": "This securities-based product will be listed on Cboe Options Exchange and centrally cleared by OCC.",
+    "source_excerpt": "Same live-fetched PR Newswire Cboe release confirms verbatim: 'This securities-based product will be listed on Cboe Options Exchange and centrally cleared by OCC.'",
     "record_digest": "155ce7c08dbb20e394519ca0a5c7bf3c0192f5077f9762308180517f6f8d7ec3"
    },
    {
@@ -1608,7 +1621,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1571949/000157194926000004/ice-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "We operate six clearing houses, each of which acts as a central counterparty, or CCP, that, for its clearing members, becomes the buyer to every seller and the seller to every buyer.",
+    "source_excerpt": "Live fetch 2026-09-14 of ICE's FY2025 Form 10-K (ice-20251231.htm, distinct filing from the Polymarket press release) reproduces verbatim: 'We operate six clearing houses, each of which acts as a central counterparty, or CCP, that, for its clearing members, becomes the buyer to every seller and the seller to every buyer.'",
     "record_digest": "f277c13a70b6110a60bfeb44cf347de48128b2c22408a0cc22b12831614d51f7"
    },
    {
@@ -1620,7 +1633,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1883685/000188368526000013/dkng-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "We distribute our online sportsbook, iGaming, DFS, digital lottery courier and prediction markets product offerings through various channels, including traditional websites, direct app downloads and global direct-to-consumer digital platforms such as the Apple App Store and the Google Play Store.",
+    "source_excerpt": "Same live-fetched DraftKings 10-K confirms distribution verbatim: 'We distribute our online sportsbook, iGaming, DFS, digital lottery courier and prediction markets product offerings through various channels, including traditional websites, direct app downloads and global direct-to-consumer digital platforms such as the Apple App Store and the Google Play Store.'",
     "record_digest": "a6bed07a8411e92e9a845ac61f9cf40cfdd1ecd1ae6be2b679553662ea67ae55"
    },
    {
@@ -1632,7 +1645,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1883685/000188368526000013/dkng-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "As of February 10, 2026, 39 U.S. states, the District of Columbia and Puerto Rico have some form of authorized sports betting. Of those 41 jurisdictions, 33 have legalized online sports betting. All 33 jurisdictions are live, and DraftKings operates in 27 of them.",
+    "source_excerpt": "Same live-fetched DraftKings 10-K confirms verbatim: 'As of February 10, 2026,... 33 have legalized online sports betting. All 33 jurisdictions are live, and DraftKings operates in 27 of them.'",
     "record_digest": "e97de6a58780087d8ff4c4e28e591512692ae198dae7a9a6eb12f1a43276d6b2"
    },
    {
@@ -1644,7 +1657,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1793659/000179365926000009/rsi-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "Integrated into our online sports betting platform is a third-party risk and trading platform currently provided by Kambi Group plc and its subsidiaries.",
+    "source_excerpt": "Live fetch 2026-09-14 of Rush Street Interactive, Inc.'s FY2025 Form 10-K (rsi-20251231.htm) reproduces verbatim: 'Integrated into our online sports betting platform is a third-party risk and trading platform currently provided by Kambi Group plc and its subsidiaries.'",
     "record_digest": "f7cce3851f46ad5497d87a34c66d440e269e742cbf3e016568a39ee2ea02701c"
    },
    {
@@ -1656,7 +1669,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1793659/000179365926000009/rsi-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "Integrated into our online sports betting platform is a third-party risk and trading platform currently provided by Kambi Group plc and its subsidiaries.",
+    "source_excerpt": "Same live-fetched Rush Street Interactive 10-K, same sentence, correctly establishes Kambi Group plc as the named third-party platform vendor integrated into RSI's own sportsbook.",
     "record_digest": "e43d9c27af9d8c71efdcdb1b505435947636a1f917b38db61db4fe61af1584a2"
    },
    {
@@ -1668,7 +1681,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1747079/000174707926000019/baly-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "We also own Bally Bet Sportsbook & Casino, a premier sports betting and iCasino platform licensed in 14 jurisdictions in North America, and a majority equity interest in Bally's Intralot S.A.",
+    "source_excerpt": "Live fetch 2026-09-14 of Bally's Corporation's FY2025 Form 10-K (baly-20251231.htm) reproduces verbatim: 'Bally Bet Sportsbook & Casino, a premier sports betting and iCasino platform licensed in 14 jurisdictions in North America.'",
     "record_digest": "a336449685020249cde9f8b55e1521ae6e8553869c8735e852714b39a91f78a4"
    },
    {
@@ -1680,7 +1693,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/Archives/edgar/data/1590895/000159089526000011/czr-20251231.htm",
     "source_date": "2025-12-31",
-    "source_excerpt": "Our Caesars Sportsbook app is powered by our Liberty platform. The Liberty platform resulted in a significant upgrade to our user interface and significant product upgrades including numerous pre-match and live markets, extensive odds and flexible limits, player props, and same-game parlays.",
+    "source_excerpt": "Live fetch 2026-09-14 of Caesars Entertainment, Inc.'s FY2025 Form 10-K (czr-20251231.htm) reproduces verbatim: 'Our Caesars Sportsbook app is powered by our Liberty platform... including numerous pre-match and live markets, extensive odds and flexible limits, player props, and same-game parlays.'",
     "record_digest": "29228c0965fa03f2df390032c27ff015d2b0b2421cd2bc8a92f4a28eee2bcc97"
    },
    {
@@ -1692,8 +1705,8 @@
     "source_date_ok": true,
     "source_url": "https://www.circle.com/pressroom/circle-and-polymarket-partner-to-strengthen-onchain-financial-markets",
     "source_date": "2026-02-05",
-    "source_excerpt": "Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle's regulated affiliates and is redeemable 1:1 for US dollars. Using USDC supports a consistent, dollar-denominated settlement standard that enhances market integrity.",
-    "record_digest": "4507e35bf9146d66851711103870d6995403ab681865561a73e3366a11e4c2da"
+    "source_excerpt": "Read data/web/d3fe83ead918feb2.json (fetched_at 2026-09-14T20:48:17Z, http_status 200) directly and independently confirmed the amended excerpt is one real contiguous span: '...Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle's regulated affiliates and is redeemable 1:1 for US dollars, providing a more capital efficient, scalable, and institutionally aligned settlement standard as Polymarket's platform continues to grow.' immediately followed in the source by Jeremy Allaire's quote, with no sentence dropped in between (unlike the prior excerpt this replaced, which spliced this passage onto a separate sentence from Shayne Coplan's quote three paragraphs later). The source also states 'Circle Internet Group, Inc. (NYSE: CRCL)', tying issuer_id CIRCLE to the acting entity. Role, identity and 2026-02-05 source_date all confirmed.",
+    "record_digest": "1c0127a6e49e420f422e76e9ad8a2595293771e327466d7807f7f135e5502b08"
    },
    {
     "chain_id": "prediction-market-plumbing",
@@ -1704,7 +1717,7 @@
     "source_date_ok": true,
     "source_url": "https://news.kalshi.com/p/kalshi-partners-coinbase-custody-usdc",
     "source_date": "2025-11-13",
-    "source_excerpt": "Kalshi's mission is to bring trading on real-world events into the financial mainstream, placing event contracts on equal footing with traditional assets like stocks and bonds. Our new partnership with Coinbase Custody brings us one step closer to our goal by safeguarding all USDC held on Kalshi with one of the most trusted names in digital asset custody.",
+    "source_excerpt": "Live fetch 2026-09-14 of news.kalshi.com (dated 2025-11-13) confirms the excerpt verbatim on a second, independent read: 'Kalshi's mission is to bring trading on real-world events into the financial mainstream, placing event contracts on equal footing with traditional assets like stocks and bonds. Our new partnership with Coinbase Custody brings us one step closer to our goal by safeguarding all USDC held on Kalshi with one of the most trusted names in digital asset custody.' Confirms the 2026-09-06 placement_audits[10] PASS finding independently rather than copying it.",
     "record_digest": "b836c575f5aa6c37e6c793a6037f5e0b0da706f27a46cfafb7c91f8115c7ca5e"
    },
    {
@@ -1712,11 +1725,11 @@
     "link_id": "funding-and-settlement-rails",
     "issuer_id": "PAYPAL",
     "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
+    "role_ok": false,
+    "source_date_ok": false,
     "source_url": "https://www.cbssports.com/prediction/news/payment-methods/",
     "source_date": "2026-09-03",
-    "source_excerpt": "Kalshi, DraftKings Predictions, and FanDuel Predicts accept deposits and withdrawals via PayPal. Kalshi charges a 2% fee from PayPal prediction market deposits, but DraftKings Predictions and FanDuel Predicts do not.",
+    "source_excerpt": "DEFECT. Live fetch 2026-09-14 of cbssports.com/prediction/news/payment-methods/ (twice, with a literal table dump and a targeted search for 'DraftKings Predictions' + 'PayPal') finds NO mention of DraftKings Predictions accepting PayPal anywhere on the page: the current PayPal row lists only Kalshi and FanDuel Predicts. The placement's role and evidence[0] excerpt assert 'Kalshi, DraftKings Predictions, and FanDuel Predicts accept deposits and withdrawals via PayPal', which the current source does not support for the DraftKings Predictions leg. Separately, the page's own byline reads 'Published Date: Sep 14, 2026' today with no visible revision history, so the recorded source_date 2026-09-03 cannot be verified against this rolling, continuously-republished comparison guide. Kalshi's own PayPal usage and the 2% fee remain supported; the three-platform claim does not.",
     "record_digest": "c13579d448783d902a3a4e4bc9e8ffd89fd3895dafeb8e22d88c3768871064b3"
    },
    {
@@ -1728,7 +1741,7 @@
     "source_date_ok": true,
     "source_url": "https://www.rotowire.com/prediction-markets/payments/apple-pay",
     "source_date": "2026-08-26",
-    "source_excerpt": "Apple Pay is folded directly into the debit card cashier. Polymarket US built Apple Pay into its fiat cashier as one of four ways to fund an account.",
+    "source_excerpt": "Live fetch 2026-09-14 of rotowire.com/prediction-markets/payments/apple-pay ('Last Updated: Aug 26, 2026', matching the recorded source_date exactly) confirms both clauses as verbatim clause-boundary quotes: 'Apple Pay is folded directly into the debit card cashier[, so...]' and 'Polymarket US built Apple Pay into its fiat cashier as one of four ways to fund an account[, sitting...]'. Per the 2026-09-13 clause-boundary amendment, a period at the cut is valid where the source has a comma.",
     "record_digest": "3527ee268ff7bcd7f5caaf6c863480246b23cbb4b39fd237ed5478c655f85ccb"
    },
    {
@@ -1737,10 +1750,10 @@
     "issuer_id": "BLOCK",
     "identity_ok": true,
     "role_ok": true,
-    "source_date_ok": true,
+    "source_date_ok": false,
     "source_url": "https://www.cbssports.com/prediction/news/payment-methods/",
     "source_date": "2026-09-03",
-    "source_excerpt": "Kalshi also allows Cash App deposits without charging a fee.",
+    "source_excerpt": "Live fetch 2026-09-14 of the same cbssports.com payment-methods page confirms the Cash App claim verbatim today: 'Kalshi also allows Cash App deposits without charging a fee.' Role holds. But the same rolling-source problem found on PAYPAL applies here: the page's own byline today reads 'Published Date: Sep 14, 2026', not 2026-09-03 as recorded, and no revision history is shown, so source_date_ok is marked false pending a citation that carries a stable dateline or a data/web/ snapshot fetched at the moment of citation.",
     "record_digest": "caf58e1067c665f29a439aa098f29790b56576d597f4d3215c7e1801f293fcdb"
    },
    {
@@ -1752,7 +1765,7 @@
     "source_date_ok": true,
     "source_url": "https://www.gurufocus.com/news/8859618/virtu-financial-virt-enters-prediction-markets-with-new-trading-contracts?mobile=true",
     "source_date": "2026-05-14",
-    "source_excerpt": "On May 14, 2026, Virtu Financial [VIRT] announced its entry into the prediction markets sector. commencing pricing and trading event contracts on platforms such as Kalshi and CME Group. led to the appointment of a dedicated trader based in New York to oversee these activities. Virtu aims to provide continuous market coverage, even during weekends.",
+    "source_excerpt": "Live fetch 2026-09-14 of the GuruFocus Virtu article (dated 2026-05-14 per the live page, matching exactly) confirms verbatim: 'On May 14, 2026, Virtu Financial [VIRT] announced its entry into the prediction markets sector... commencing pricing and trading event contracts on platforms such as Kalshi and CME Group... appointment of a dedicated trader based in New York... continuous market coverage, even during weekends.' No other listed market maker named.",
     "record_digest": "9bbc3998f80212cd8a29b91082c18573c36e204b028c5c7afe5382b220ba3b21"
    },
    {
@@ -1764,7 +1777,7 @@
     "source_date_ok": true,
     "source_url": "https://www.prnewswire.com/news-releases/forecastex-llc-launches-event-contract-market-302211466.html",
     "source_date": "2024-07-31",
-    "source_excerpt": "IBGI LLC, an Affiliated Customer of IB LLC, will operate as a liquidity provider, maintaining Bids on both the \"Yes\" and the \"No\" of various Event Markets. ForecastEx is a wholly owned subsidiary of Interactive Brokers Group, Inc (Nasdaq: IBKR).",
+    "source_excerpt": "Live fetch 2026-09-14 of the PR Newswire ForecastEx launch release confirms verbatim: 'IBGI LLC, an Affiliated Customer of IB LLC, will operate as a liquidity provider, maintaining Bids on both the \"Yes\" and the \"No\" of various Event Markets.' and 'ForecastEx is a wholly owned subsidiary of Interactive Brokers Group, Inc (Nasdaq: IBKR).' No other listed issuer named.",
     "record_digest": "5a2cd3e0ccbf168885df3dc54b42bacf9e8f73bc324490b67eb639fb19d93373"
    },
    {
@@ -1776,260 +1789,8 @@
     "source_date_ok": true,
     "source_url": "https://www.financemagnates.com/institutional-forex/marex-launches-structured-note-linked-to-prediction-market-outcome/",
     "source_date": "2026-04-03",
-    "source_excerpt": "Marex hedges its exposure by taking positions in underlying event contracts on platforms such as Kalshi. Financial services firm Marex has created and sold a structured note linked to the outcome of a prediction market.",
+    "source_excerpt": "Live fetch 2026-09-14 of the Finance Magnates Marex article confirms both excerpt sentences verbatim, including the second sentence checked word-for-word: 'Financial services firm Marex has created and sold a structured note linked to the outcome of a prediction market,' which the article repeats twice (opening paragraph and 'How the Structure Works').",
     "record_digest": "b57f76c7719b83f209d325e7065b38d3d0ed3e595e5e7c6a6341b1d6171b0257"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-SRAD",
-    "issuer_id": "SPORTRADAR",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1836470/000141057825000399/srad-20241231xex2d1.htm",
-    "source_date": "2024-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Sportradar Group AG (the “Company,” “we,” “us” and “our”) has the following class of securities registered pursuant to Section 12(b) of the Exchange Act: Title of each class Trading Symbol(s) Name of each exchange on which registered Class A ordinary shares, nominal value CHF 0.10 per share SRAD The Nasdaq Global Select Market",
-    "record_digest": "033a4661d911ed340a29af32cc1ee34728d7ff0348cc8b3bcdf531c5c20ce4f3"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-GENI",
-    "issuer_id": "GENIUS-SPORTS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1834489/000119312526110749/geni-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Genius Sports Limited (Exact name of Registrant as specified in its charter) Securities registered or to be registered pursuant to Section 12(b) of the Act: Title of each class Trading Symbol(s) Name of each exchange on which registered Ordinary shares GENI New York Stock Exchange",
-    "record_digest": "fa3b0c13a6839ee5c087237f1c68bdce406b16f03c4459bfb4a748963a42ecbe"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-ICE",
-    "issuer_id": "ICE",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1571949/000157194926000004/ice-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "INTERCONTINENTAL EXCHANGE, INC. (Exact name of registrant as specified in its charter) Securities registered pursuant to Section 12(b) of the Act: Title of Each Class Trading Symbol(s) Name of Each Exchange on Which Registered Common Stock, $0.01 par value per share ICE New York Stock Exchange",
-    "record_digest": "7117572732c8778ee46a046e1faca0f8527f20ffcbaaa440c2ca8fe0c4121272"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-NDAQ",
-    "issuer_id": "NASDAQ",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1120193/000162828026007703/ndaq-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Nasdaq, Inc. (Exact name of registrant as specified in its charter) Securities registered pursuant to Section 12(b) of the Act: Title of each class Trading Symbol(s) Name of each exchange on which registered Common Stock, $0.01 par value per share NDAQ The Nasdaq Stock Market",
-    "record_digest": "8e32bff9d817ca0f57b56473e1c02e5c546fbe0de544ca8b92e08bb8fc965f30"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-DKNG",
-    "issuer_id": "DRAFTKINGS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1883685/000188368526000013/dkng-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "DRAFTKINGS INC. (Exact name of registrant as specified in its charter) Securities Registered Pursuant to Section 12(b) of the Act: Title of each class Trading symbol Name of each exchange on which registered Class A Common Stock, $0.0001 par value DKNG The Nasdaq Stock Market LLC",
-    "record_digest": "9699d59d75e5c338a099b94780ffe691123428e0cf5f4221251a2a29dd5176ea"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "CBOEBZX-CBOE",
-    "issuer_id": "CBOE",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1374310/000162828026010013/cboe-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Cboe Global Markets, Inc. (Exact Name of Registrant as Specified in Its Charter) Securities registered pursuant to Section 12(b) of the Act: Title of Each Class Trading Symbol (s) Name of Exchange on Which Registered Common Stock, par value $0.01 per share CBOE CboeBZX",
-    "record_digest": "580929ed89282142c8b3d11e6cb9515cb823e7392aeac43e1288d6a5be8049fc"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-RSI",
-    "issuer_id": "RUSH-STREET-INTERACTIVE",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1793659/000179365926000009/rsi-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "RUSH STREET INTERACTIVE, INC. (Exact name of registrant as specified in its charter) Securities registered pursuant to Section 12(b) of the Act: Title of Each Class Trading Symbol(s) Name of Exchange on Which Registered Class A common stock, $0.0001 par value per share RSI New York Stock Exchange",
-    "record_digest": "9c4d6cf0bdb7fcf882e9c34aa7346799f833f929b626759251561ba7a9b50a05"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-BALY",
-    "issuer_id": "BALLYS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1747079/000174707926000019/baly-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "BALLY'S CORPORATION (Exact name of registrant as specified in its charter) Securities registered pursuant to Section 12(b) of the Act: Title of each class Trading Symbol Name of each exchange on which registered Common Stock, par value of $0.01 per share BALY New York Stock Exchange",
-    "record_digest": "23f45169c181a8a0528360122cb66694eeb093ebf756a3778f5afd6f384c7f9e"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-CZR",
-    "issuer_id": "CAESARS",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1590895/000159089526000011/czr-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "CAESARS ENTERTAINMENT, INC. (Exact name of registrant as specified in its charter) Securities registered pursuant to Section 12(b) of the Act: Title of each class Trading symbol Name of each exchange on which registered Common Stock, $0.00001, par value CZR NASDAQ Stock Market",
-    "record_digest": "06fb9cb59f50e29c0f0991f840238aefec15cca83c7332a1fe2844df8c582d82"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "FN-KAMBI",
-    "issuer_id": "KAMBI",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.kambi.com/press_release/kambi-group-plc-q3-2025-report/",
-    "source_date": "2025-11-05",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Kambi Group plc is listed on Nasdaq First North Growth Market under the symbol \"KAMBI\". This information is information that Kambi Group plc is obliged to make public pursuant to the EU Market Abuse Regulation.",
-    "record_digest": "246c0b9d9b657a616cd3ca4d7a622966ea482e9ed31d1cdd7dd1454f223e4df3"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-CRCL",
-    "issuer_id": "CIRCLE",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1876042/000187604226000062/crcl-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "CIRCLE INTERNET GROUP, INC. Class A common stock, par value $0.0001 per share CRCL New York Stock Exchange",
-    "record_digest": "1178aa73b360f0d6f8ca444e6ab168bb708a43d7b34d9770051813ab60524561"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-COIN",
-    "issuer_id": "COINBASE",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000015/coin-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Coinbase Global, Inc. Class A common stock, $0.00001 par value per share COIN The Nasdaq Stock Market LLC",
-    "record_digest": "91c22b1eba59df7f2f32ca68b95fc462baa95b6b9273cba71babd009dd709702"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-PYPL",
-    "issuer_id": "PAYPAL",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1633917/000163391726000024/pypl-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "PayPal Holdings, Inc. Common stock, $0.0001 par value per share PYPL Nasdaq Global Select Market",
-    "record_digest": "0599a474639add790968b5496e508bdea56ba17bd51e72580dbd32e77ba3e388"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-AAPL",
-    "issuer_id": "APPLE",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm",
-    "source_date": "2025-09-27",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Apple Inc. Common Stock, $0.00001 par value per share AAPL The Nasdaq Stock Market LLC",
-    "record_digest": "1eec5e8864369a210d497dd03981eac26953a58721db87005e17564694c6e5d8"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-XYZ",
-    "issuer_id": "BLOCK",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1512673/000162828026012254/xyz-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "BLOCK, INC. Class A Common Stock, $0.0000001 par value per share XYZ New York Stock Exchange",
-    "record_digest": "4abb9aa49cfe2baa6e030b318f0434caed2b530eea2c0d07d86a39f0fbba51ec"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NYSE-VIRT",
-    "issuer_id": "VIRTU",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1592386/000159238626000009/virt-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Virtu Financial, Inc. Class A common stock, par value $0.00001 per share VIRT New York Stock Exchange",
-    "record_digest": "a5ca8bd13fa116ee0da962f90dd9aeef215362dee14d1bc6dc0aeeb7a5b513a8"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-IBKR",
-    "issuer_id": "IBKR",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1381197/000138119726000062/ibkr-20251231.htm",
-    "source_date": "2025-12-31",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "INTERACTIVE BROKERS GROUP, INC. Common Stock, par value $.01 per share IBKR The Nasdaq Global Select Market",
-    "record_digest": "260133b2d1023264eb2de49dda7a4008049990d458665856813ea12aae7547eb"
-   },
-   {
-    "chain_id": "prediction-market-plumbing",
-    "link_id": null,
-    "listing_id": "NASDAQ-MRX",
-    "issuer_id": "MAREX",
-    "identity_ok": true,
-    "role_ok": true,
-    "source_date_ok": true,
-    "source_url": "https://www.sec.gov/Archives/edgar/data/1997464/000119312524114579/d551881d424b4.htm",
-    "source_date": "2024-04-25",
-    "source_type": "OFFICIAL_SECURITIES_FILING",
-    "source_excerpt": "Marex Group plc Ordinary Shares MRX Nasdaq Global Select Market",
-    "record_digest": "d81c9f3cdfe43bba580d9f69ff016252564fb1e2a738d78839a57d28d66eafdd"
    },
    {
     "chain_id": "prediction-market-plumbing",
@@ -2040,7 +1801,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=geocomply&type=&dateb=&owner=include&count=40",
     "source_date": "2026-09-04",
-    "source_excerpt": "No matching companies.",
+    "source_excerpt": "Live re-run 2026-09-14 of the SEC EDGAR company search for 'geocomply' returns 'No matching companies', reproducing the recorded zero-hit result exactly.",
     "record_digest": "4e783483636a32365784f5b4014e65df153a08b57e7a59b37bb7e003ffdd4cfd"
    },
    {
@@ -2052,7 +1813,7 @@
     "source_date_ok": true,
     "source_url": "https://www.geocomply.com/news/fanduel-and-geocomply-renew-strategic-partnership-with-new-multi-year-deal/",
     "source_date": "2026-08-17",
-    "source_excerpt": "The only listed name on the page is Flutter Entertainment, which fails the eligibility-vendor boundary. GeoComply itself is described without a listing.",
+    "source_excerpt": "Live fetch 2026-09-14 of the GeoComply/FanDuel renewal press release (dated August 17, 2026, matching exactly) confirms it names FanDuel Group, GeoComply, and Flutter Entertainment (NYSE: FLUT) and confirms the control probe name 'FanDuel Group' is present verbatim.",
     "record_digest": "d81ba5a781fcc9b282d2cbb99cd2dcfc84edeff1ace523ba60f8309355b94734"
    },
    {
@@ -2064,7 +1825,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=commodity+futures+trading+commission&type=&dateb=&owner=include&count=40",
     "source_date": "2026-09-04",
-    "source_excerpt": "No matching companies.",
+    "source_excerpt": "Live re-run 2026-09-14 of the SEC EDGAR company search for 'commodity futures trading commission' returns 'No matching companies', reproducing the recorded zero-hit result exactly. Minor observation (not a defect): the recorded query text also names the Nevada Gaming Control Board / Nevada Gaming Commission, but only one URL (the CFTC search) is on record; this session independently ran a live 'nevada gaming' EDGAR search too and it also returns 'No matching companies', so the conclusion holds, but the search row's own evidence should carry that second URL rather than resting on unrecorded verification.",
     "record_digest": "a79b620e6c2e906c555720f89f1b002f483370fffaf15af2d74c68bed0572423"
    },
    {
@@ -2076,7 +1837,7 @@
     "source_date_ok": true,
     "source_url": "https://www.geocomply.com/news/fanduel-and-geocomply-renew-strategic-partnership-with-new-multi-year-deal/",
     "source_date": "2026-08-17",
-    "source_excerpt": "The page names FanDuel, GeoComply and Flutter Entertainment. None is a CFTC, state gaming board or tribal regulator.",
+    "source_excerpt": "Same live-fetched GeoComply/FanDuel press release: names FanDuel, GeoComply and Flutter Entertainment; none is a CFTC, state gaming board or tribal regulator, confirming NO_QUALIFYING_NAMES.",
     "record_digest": "546187f8150725d83f2e512ead3c8a89bf3b6c9dc2ee372d4d3ae28c1b83cbe4"
    },
    {
@@ -2088,7 +1849,7 @@
     "source_date_ok": true,
     "source_url": "https://www.prnewswire.com/news-releases/forecastex-llc-launches-event-contract-market-302211466.html",
     "source_date": "2024-07-31",
-    "source_excerpt": "IBGI LLC, an Affiliated Customer of IB LLC, will operate as a liquidity provider, maintaining Bids on both the \"Yes\" and the \"No\" of various Event Markets.",
+    "source_excerpt": "Live fetch 2026-09-14 of the PR Newswire ForecastEx release confirms it names only IBGI LLC / Interactive Brokers Group, Inc. as Event Markets liquidity provider; no other listed issuer appears.",
     "record_digest": "24f07561597c77217e4cb45c103aa80ac7c8516cda9dfe84270caab89ffde063"
    },
    {
@@ -2100,7 +1861,7 @@
     "source_date_ok": true,
     "source_url": "https://www.gurufocus.com/news/8859618/virtu-financial-virt-enters-prediction-markets-with-new-trading-contracts?mobile=true",
     "source_date": "2026-05-14",
-    "source_excerpt": "On May 14, 2026, Virtu Financial [VIRT] announced its entry into the prediction markets sector, commencing pricing and trading event contracts on platforms such as Kalshi and CME Group.",
+    "source_excerpt": "Live fetch 2026-09-14 of the GuruFocus Virtu article confirms it names no other listed market maker active on Kalshi or CME Group event contracts besides Virtu Financial, Inc.",
     "record_digest": "8e747c975f023d82d34a2c8f156fef1c7523dcd739e0529ed4b366c734f12456"
    },
    {
@@ -2112,7 +1873,7 @@
     "source_date_ok": true,
     "source_url": "https://www.financemagnates.com/institutional-forex/marex-launches-structured-note-linked-to-prediction-market-outcome/",
     "source_date": "2026-04-03",
-    "source_excerpt": "Marex hedges its exposure by taking positions in underlying event contracts on platforms such as Kalshi. Financial services firm Marex has created and sold a structured note linked to the outcome of a prediction market.",
+    "source_excerpt": "Live fetch 2026-09-14 of the Finance Magnates Marex article confirms it names no other listed issuer hedging or quoting Kalshi event contracts besides Marex Group plc.",
     "record_digest": "79507f04a89aad99bd2ece6e5ed725211872c37ba97c82ed7c27f7f22cbe52dc"
    },
    {
@@ -2120,11 +1881,11 @@
     "link_id": "liquidity-provision",
     "search": "Does Finance Magnates' coverage of Cantor Fitzgerald's institutional block-trading launch on Kalshi name a listed issuer performing the introducing-broker or liquidity-provider role, as opposed to private partnerships",
     "identity_ok": true,
-    "role_ok": true,
+    "role_ok": false,
     "source_date_ok": true,
     "source_url": "https://www.financemagnates.com/institutional-forex/cantor-fitzgerald-opens-kalshis-event-contracts-to-roughly-3000-institutional-clients/",
     "source_date": "2026-08-19",
-    "source_excerpt": "Cantor will act as an Introducing Broker, arranging block trades in Kalshi's event contracts away from the exchange's central order book. Susquehanna Predictions, the dedicated prediction-markets arm of Susquehanna International Group, will price the trades and provide liquidity.",
+    "source_excerpt": "DEFECT. Live fetch 2026-09-14 of the Finance Magnates Cantor Fitzgerald article (dated August 19, 2026, matching exactly) confirms the two recorded names (Cantor Fitzgerald & Co. as introducing broker, Susquehanna Predictions as pricing/liquidity) verbatim, but the article ALSO names at least four more firms in adjacent liquidity/brokering roles on Kalshi that the record's hits_examined: 2 never logged: Clear Street (hedge-fund partnerships), Talos (connected market makers via trading infrastructure), Greenlight Commodities (brokered a custom block trade), and Jump Trading (provided liquidity for a custom block trade). Independent WebSearch verification today confirms none of the four is currently a listed public issuer (Jump Trading and Talos remain private; Clear Street filed for a Nasdaq IPO at roughly a $12B valuation but pulled/shelved it in February 2026 per contemporaneous reporting and remains private; 'Greenlight Commodities' does not resolve to any public ticker, distinct from the unrelated public 'Greenlight Metals'/'Greenlight Capital Re'), so the EXHAUSTED bottom line is not substantively wrong, but the search record undercounts what its own cited source contains and should be redone against the article's full current text with all six names logged and reasoned.",
     "record_digest": "acf833929d458b7bf5fe406e2a76eae29b98307fb09e834654bfba29fb14d351"
    },
    {
@@ -2136,7 +1897,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=susquehanna&type=&dateb=&owner=include&count=40",
     "source_date": "2026-09-04",
-    "source_excerpt": "SUSQUEHANNA ADVISORS GROUP, INC. SUSQUEHANNA ARDEN LLC SUSQUEHANNA BANCSHARES INC Susquehanna Bank SIG BROKERAGE, LP Susquehanna Capital Acquisition Co SAL EQUITY TRADING, GP Susquehanna Capital I Susquehanna Capital II Susquehanna Capital III Susquehanna Capital IV Susquehanna Capital Management, LLC SUSQUEHANNA ESWT LLC SUSQUEHANNA FINANCIAL GROUP, LLLP SUSQUEHANNA FIXED INCOME, L.P. Susquehanna Foundation SUSQUEHANNA FUNDAMENTAL INVESTMENTS, LLC Susquehanna Group Advisors, Inc. Susquehanna Growth Equity Fund III, LLLP Susquehanna Growth Equity Fund V, LLLP Susquehanna International Group Ltd. SUSQUEHANNA INTERNATIONAL GROUP, LLP Susquehanna International Securities, Ltd. SUSQUEHANNA INVESTMENT GROUP",
+    "source_excerpt": "Live re-run 2026-09-14 of the SEC EDGAR company search for 'susquehanna' returns the same 40 entries, none carrying a Section 12(b) registered class of securities (Susquehanna Bancshares Inc, an unrelated regional bank holding company, is the only one with any exchange-type SIC classification, and it is correctly not the prediction-markets Susquehanna). Confirms NO_QUALIFYING_NAMES.",
     "record_digest": "d3e4f2413697b49f67efbfa06f095a5de3c3f394b44fe6ab73a249c57f7f5289"
    },
    {
@@ -2148,7 +1909,7 @@
     "source_date_ok": true,
     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=household&type=&dateb=&owner=include&count=100",
     "source_date": "2026-09-04",
-    "source_excerpt": "70 companies with \"household\" in their names, all corporate financial entities, asset-backed trusts, or individual filers surnamed Householder.",
+    "source_excerpt": "Live re-run 2026-09-14 of the SEC EDGAR company search for 'household' returns roughly 70 entries (Household Finance Corp / HSBC Finance Corp and affiliated consumer-lending trusts, plus individual filers surnamed Householder), none a household end-user, matching the recorded conclusion.",
     "record_digest": "b64e145cef8a61ae6ed3235dbb4126e6967c30d8aa5f4e5dd41f7c82efb3c509"
    },
    {
@@ -2160,17 +1921,26 @@
     "source_date_ok": true,
     "source_url": "https://www.geocomply.com/news/fanduel-and-geocomply-renew-strategic-partnership-with-new-multi-year-deal/",
     "source_date": "2026-08-17",
-    "source_excerpt": "The page sizes FanDuel's customer base and names Flutter as the listed operator. The household remains unlisted.",
+    "source_excerpt": "Same live-fetched GeoComply/FanDuel press release: sizes FanDuel's customer base and names Flutter Entertainment as the listed operator; the household end-user remains unlisted, matching the recorded conclusion.",
     "record_digest": "b81b37c8ebc1c2bac2483c018f0880d418e60bed60c182b86716961819c5b15f"
    }
   ],
   "identity_conflicts": [],
-  "role_conflicts": [],
-  "source_date_conflicts": [],
-  "amendments_required": [
-   "Close the five OPEN link_coverage rows before any COMPLETE claim: official-event-data (2 issuers), market-surveillance-and-integrity (2), prediction-market-venue (3), clearing-and-collateral (2), distribution-front-ends (1). Method section 6A allows only TARGET_MET or EXHAUSTED as closed states, and 'a COMPLETE map has no OPEN links'; check_map.py refuses a COMPLETE map with any OPEN link_coverage row regardless of audit content. The DEPTH-mode campaign (CAMP-20260901-01) scopes only money-corner and UNDISCOVERED links to a 5-issuer-or-EXHAUSTED census, and the author's own 2026-09-04T18:00:00Z changelog entry already says these five links 'remain OPEN by DEPTH-mode design, not by omission' and 'this mapping is not claimed COMPLETE'; that campaign-level design choice does not exempt the map from method.md's own OPEN-links rule, so run universe must either close these five links or the map must stay ACTIVE indefinitely under DEPTH mode rather than ever reaching COMPLETE."
+  "role_conflicts": [
+   "funding-and-settlement-rails/PAYPAL evidence[0]: the current cbssports.com/prediction/news/payment-methods/ page does not support the claim that DraftKings Predictions accepts PayPal deposits and withdrawals; two independent live fetches on 2026-09-14 (a full table dump and a targeted 'DraftKings Predictions' + 'PayPal' search) find no such mention. Only the Kalshi and FanDuel Predicts legs of the role currently hold.",
+   "liquidity-provision link_coverage searches[3] (Finance Magnates Cantor Fitzgerald article): hits_examined: 2 undercounts the source, which currently names at least six relevant firms (Cantor Fitzgerald & Co., Susquehanna Predictions, Clear Street, Talos, Greenlight Commodities, Jump Trading) in liquidity/brokering roles on Kalshi. Independent WebSearch confirms none of the four uncounted names is a currently listed public issuer, so the EXHAUSTED bottom line is not substantively wrong, but the record does not accurately reflect what its own cited source contains."
   ],
-  "surviving_limitation": "All 34 distinct source URLs cited across placements, listings and EXHAUSTED searches were fetched live in this session and independently confirmed to still carry the claimed content, every listed identity matched its cited Section 12(b) table, and every EXHAUSTED search's result reproduced on re-run including both official-registry control probes; zero identity, role, or source-date conflicts were found among the sampled records. The sole reason this audit does not PASS is structural, not evidentiary: the map's own five OPEN links (left open by the campaign's DEPTH-mode scope, not by gap in research) block COMPLETE under method.md's OPEN-links rule regardless of how clean the closed links are. Five second-party sources (CBS Sports, RotoWire, GuruFocus, two Finance Magnates articles) remain tagged INFERRED as credible-industry reporting rather than primary-issuer disclosure, a residual limitation independent of this audit's outcome."
+  "source_date_conflicts": [
+   "funding-and-settlement-rails/PAYPAL evidence[0] and funding-and-settlement-rails/BLOCK evidence[0] both cite cbssports.com/prediction/news/payment-methods/ with source_date 2026-09-03, but the page's own byline fetched live on 2026-09-14 reads 'Published Date: Sep 14, 2026' with no visible revision history. This is a continuously-republished comparison guide, not a fixed dated article; the recorded source_date cannot be verified against it."
+  ],
+  "amendments_required": [
+   "Five link_coverage rows remain OPEN (official-event-data, market-surveillance-and-integrity, prediction-market-venue, clearing-and-collateral, distribution-front-ends). method.md section 6A: 'A COMPLETE map has no OPEN links and has passed the semantic audit below.' check_map.py's validate_mapping also refuses a COMPLETE map with any OPEN row. This alone forces FAIL regardless of evidence quality; run universe must close each OPEN link to TARGET_MET or a proved EXHAUSTED record before a PASS audit is possible. (This map is a DEPTH-mode campaign mapping, target_issuers_per_link 5, so closure may be legitimate EXHAUSTED closure rather than more issuers.)",
+   "funding-and-settlement-rails/PAYPAL evidence[0]: re-source or amend. The current cbssports.com page no longer supports the DraftKings Predictions leg of the role/claim/excerpt. Either drop DraftKings Predictions from the role and re-cite an excerpt that matches only what the current source supports (Kalshi, FanDuel Predicts), or find a dated, stable source for the three-platform claim and store it via data/web/ at the moment of citation.",
+   "funding-and-settlement-rails/PAYPAL and .../BLOCK: cbssports.com's payment-methods page is a rolling, continuously-republished guide with no stable per-version dateline (its own byline reads 'today' on every fetch). A source_date citing it should either be the actual fetch date with the page stored via data/web/ at that moment (data/requests.json kind web_doc), or the evidence should be re-sourced to a dated article that does not silently drift under the citation.",
+   "liquidity-provision link_coverage searches[3] (Finance Magnates Cantor Fitzgerald article): re-run this search against the article's full current text and log Clear Street, Talos, Greenlight Commodities, and Jump Trading in accepted_names/rejected_names with reasons, alongside the two already recorded. Independent verification found none is currently a listed issuer, so no placement is missing, but hits_examined and the rejected/accepted lists should reflect the source's actual content.",
+   "Minor, non-blocking: regulatory-gate searches[0]'s query text names both the CFTC and the Nevada Gaming Control Board / Nevada Gaming Commission, but only one URL (the CFTC EDGAR search) is on record. Add a second search row (or a second URL on this one) for the Nevada Gaming half of the query; this session's own live 'nevada gaming' EDGAR search also returned zero matches, so the conclusion is not in doubt, only the record's self-documentation."
+  ],
+  "surviving_limitation": "This audit re-fetched all 23 placement role-evidence sources and all 11 EXHAUSTED-search sources live on 2026-09-14 (CIRCLE's alone read from the stored data/web/d3fe83ead918feb2.json) and independently verified the CFTC/Nevada-Gaming and Cantor-Fitzgerald names via WebSearch, but it did not re-fetch or re-verify the 14 other listings' identity_evidence (SPORTRADAR, GENIUS-SPORTS, ICE, NASDAQ, DRAFTKINGS, CBOE, RUSH-STREET-INTERACTIVE, BALLYS, KAMBI, COINBASE, APPLE, BLOCK, VIRTU, IBKR) beyond what their role-evidence fetches incidentally confirmed, since audit.status is FAIL and listings_examined is not required at FAIL; a PASS attempt will need that census too. It could not fetch archived or historical snapshots of the two mutable, undated cbssports.com citations to establish exactly when their content changed, only that it differs from the recorded excerpt today. Repository state cannot cryptographically prove this session ran in a fresh context independent of the author; only declared provenance is offered."
  },
  "placement_audits": [
   {
@@ -2395,6 +2165,21 @@
    "source_excerpt": "Kalshi's mission is to bring trading on real-world events into the financial mainstream, placing event contracts on equal footing with traditional assets like stocks and bonds. Our new partnership with Coinbase Custody brings us one step closer to our goal by safeguarding all USDC held on Kalshi with one of the most trusted names in digital asset custody.",
    "record_digest": "b836c575f5aa6c37e6c793a6037f5e0b0da706f27a46cfafb7c91f8115c7ca5e",
    "notes": "Opened Coinbase Global, Inc.'s FY2025 Form 10-K live on SEC EDGAR and confirmed the cover-page Section 12(b) table verbatim: legal issuer Coinbase Global, Inc., Class A common stock, ticker COIN, The Nasdaq Stock Market LLC, matching listing NASDAQ-COIN exactly. Opened the placement's role-evidence source live (news.kalshi.com, dated 2025-11-13) and, after an initial fetch mis-summarized the passage, requested the full article body verbatim and confirmed the opening paragraph reproduces the cited claim word for word: 'Kalshi's mission is to bring trading on real-world events into the financial mainstream, placing event contracts on equal footing with traditional assets like stocks and bonds. Our new partnership with Coinbase Custody brings us one step closer to our goal by safeguarding all USDC held on Kalshi with one of the most trusted names in digital asset custody.' identity_ok true, role_ok true, source_date_ok true. No defects found."
+  },
+  {
+   "chain_id": "prediction-market-plumbing",
+   "link_id": "funding-and-settlement-rails",
+   "issuer_id": "CIRCLE",
+   "audited_at": "2026-09-14T23:42:00Z",
+   "reviewed_by": "atlas-fresh-context",
+   "agent_id": "atlas-fresh-context",
+   "transcript_ref": "atlas-fresh-context-universe-audit-prediction-market-plumbing-placement-circle-2026-09-14",
+   "review_mode": "FRESH_CONTEXT",
+   "independence_limitation": "Repository state cannot cryptographically prove fresh context or reviewer independence. This session started from only the mapping JSON, its chain, method.md section 6A, current source URLs, official identity and listing references, the prior resolved audit block, and the check_map.py plus universe-gate.py gate contract; it never read the author transcript, map log, profiles, or ledger rationale, and it wrote no issuer, listing, placement, or coverage row beyond this audit and placement_audits entry. A writable reviewed_by string is declared provenance only, not cryptographic proof.",
+   "status": "PASS",
+   "evidence_index": 0,
+   "source_excerpt": "Read data/web/d3fe83ead918feb2.json (Circle pressroom release, fetched_at 2026-09-14T20:48:17Z, http_status 200) directly. The amended evidence[0].source_excerpt, 'As part of this partnership, Polymarket will transition to native USDC in the coming months. Native USDC is issued by Circle’s regulated affiliates and is redeemable 1:1 for US dollars, providing a more capital efficient, scalable, and institutionally aligned settlement standard as Polymarket’s platform continues to grow.' is one real contiguous span of the stored text: it appears exactly, in that order, immediately before Jeremy Allaire's quote, with nothing dropped from the middle. This replaces the prior excerpt this session found staled, which spliced the 'redeemable 1:1 for US dollars' clause directly onto a separate sentence from Shayne Coplan's quote three paragraphs later ('Using USDC supports a consistent, dollar-denominated settlement standard that enhances market integrity'), silently dropping the real continuation. The claim was trimmed to match, dropping the 'enhances market integrity' clause the role itself never asserted. identity_ok: the source names 'Circle Internet Group, Inc. (NYSE: CRCL)' explicitly, tying issuer_id CIRCLE to the acting entity; also cross-checked live against Circle's own FY2025 Form 10-K cover page (crcl-20251231.htm), which reproduces verbatim 'CIRCLE INTERNET GROUP, INC. Class A common stock, par value $0.0001 per share CRCL New York Stock Exchange', matching listing NYSE-CRCL exactly. role_ok: the excerpt establishes 'Issues native USDC as Polymarket's stablecoin settlement currency, redeemable 1:1 for US dollars, issued by Circle's regulated affiliates,' which is exactly what the placement's role states, and squarely fits the funding-and-settlement-rails link's own definition ('stablecoin collateral that fund an account and pay a resolved contract'). source_date_ok: the article's own dateline reads 'February 5, 2026', matching the recorded source_date 2026-02-05 exactly. No defects found.",
+   "record_digest": "1c0127a6e49e420f422e76e9ad8a2595293771e327466d7807f7f135e5502b08"
   }
  ]
 }
