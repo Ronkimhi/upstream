@@ -2,7 +2,7 @@
   "id": "MAP-methanol-bunkering",
   "chain_id": "methanol-bunkering",
   "created_at": "2026-09-14T01:40:00Z",
-  "updated_at": "2026-09-14T01:40:00Z",
+  "updated_at": "2026-09-14T20:40:00Z",
   "as_of": "2026-09-14",
   "status": "ACTIVE",
   "target_issuers_per_link": 5,
@@ -231,12 +231,12 @@
       "role": "Volkswagen Group holds Everllence (formerly MAN Energy Solutions), co-designer of the two-stroke methanol dual-fuel marine engine with over 210 ME-LGIM engines on order or in service and 95 cumulative orders for its methanol-specific G95ME-C10.5-LGIM variant since 2021; Volkswagen agreed on 24 June 2026 to an exclusive arrangement to sell a 51% majority stake in Everllence to Bain Capital.",
       "evidence": [
         {
-          "claim": "More than 210 ME-LGIM dual-fuel engines are on order or in service, and the order announced brought cumulative orders for the methanol-specific G95ME-C10.5-LGIM engine to 95 at various yards in South Korea, China and Japan since its 2021 market introduction.",
+          "claim": "The order announced in this release brought the cumulative number of G95ME-C10.5-LGIM methanol engine orders to 95 at various yards in South Korea, China and Japan since the engine's market introduction in 2021, with five of those engines already in operation aboard VLCVs.",
           "source_name": "MAN Energy Solutions, Methanol Orders Advance Multi-Fuel Future",
           "source_date": "2024-10-31",
           "url": "https://www.man-es.com/company/press-releases/press-details/2024/10/31/methanol-orders-advance-multi-fuel-future",
           "tag": "INFERRED",
-          "source_excerpt": "Currently more than 210 ME-LGIM engines are on order or in service. The order brings the cumulative number of G95ME-C10.5-LGIM methanol engine orders to 95 at various yards in South Korea, China and Japan since the engine's market introduction in 2021."
+          "source_excerpt": "The order brings the cumulative number of G95ME-C10.5-LGIM methanol engine orders to 95 at various yards in South Korea, China and Japan since the engine’s market introduction in 2021, of which five have already entered operation aboard VLCVs."
         },
         {
           "claim": "The Volkswagen Group entered an exclusive arrangement with Bain Capital to sell 51 percent of its shares in Everllence, with Everllence SE carried on Volkswagen AG's balance sheet at a book value of approximately 3.4 billion euros as at 31 May 2026.",
@@ -245,6 +245,14 @@
           "url": "https://www.volkswagen-group.com/en/press-releases/key-step-towards-streamlining-investment-portfolio-volkswagen-group-enters-into-exclusive-arrangement-with-bain-capital-for-sale-of-majority-stake-in-everllence-20491",
           "tag": "INFERRED",
           "source_excerpt": "The Volkswagen Group has entered into an exclusive arrangement with Bain Capital for the sale of its majority stake in Everllence – 51 percent of the shares are to be transferred. As at May 31, 2026, the book value of Everllence SE in the balance sheet of Volkswagen AG amounted to approx. 3.4 billion euros."
+        },
+        {
+          "claim": "The same release states more than 210 ME-LGIM dual-fuel engines were on order or in service.",
+          "source_name": "MAN Energy Solutions, Methanol Orders Advance Multi-Fuel Future",
+          "source_date": "2024-10-31",
+          "url": "https://www.man-es.com/company/press-releases/press-details/2024/10/31/methanol-orders-advance-multi-fuel-future",
+          "tag": "INFERRED",
+          "source_excerpt": "Currently more than 210 ME-LGIM engines are on order or in service."
         }
       ],
       "status": "ACTIVE"
@@ -664,6 +672,13 @@
       "kind": "AMEND",
       "change": "Fresh-context placement audits on six methanol-bunkering placements, ordered money-corner links first, then UNDISCOVERED, then CHOKE_POINT, then chain position, per Ron's task 2026-09-14. PASS (3): green-methanol-production/METHANEX, methanol-dual-fuel-engines/VOLKSWAGEN, conventional-methanol-production/METHANEX. FAIL (3): methanol-storage-terminals/KONINKLIJKE-VOPAK (role evidence source_date recorded 2023-07-27 for a press release whose own dateline is 2021-05-11), bunker-fuel-physical-supply/WORLD-KINECT (role evidence source_date recorded 2026-04-01 vs. the cited article's own 2026-04-05 byline; the same placement's NYSE-WKC identity_evidence source_date is recorded 2026-02-23 vs. the cited press release's own 2026-02-19 dateline), bunker-fuel-physical-supply/PETROCHINA (role evidence source_excerpt synthesizes two separate sentences of the cited ENGINE article, plus a third naming Bunker House Petroleum, into one composite quote that is not a contiguous verbatim span of the source; the underlying claim that PetroChina International sits on the MPA's 2025 top-10 list is itself independently confirmed true). No placement was corrected: this audit only samples, judges, and records; the author corrects each FAIL in a later run universe pass. This run wrote only placement_audits and this changelog entry; mapping status and the whole-map audit block are untouched.",
       "prior": null
+    },
+    {
+      "ts": "2026-09-14T20:40:00Z",
+      "by": "atlas-cartographer",
+      "kind": "AMEND",
+      "change": "refresh data/mappings/methanol-bunkering.json: re-cited placements[2] VOLKSWAGEN/methanol-dual-fuel-engines evidence[0].source_excerpt, which origin's validate.py refused with 'source_excerpt is not in the stored text of 50b11a511e313dd8.json (data/web)'. The recorded excerpt spliced 'Currently more than 210 ME-LGIM engines are on order or in service.' (from the article's closing About section) ahead of 'The order brings the cumulative number of G95ME-C10.5-LGIM methanol engine orders to 95 at various yards in South Korea, China and Japan since the engine's market introduction in 2021.' (from the opening paragraph), two sentences separated in the actual MAN Energy Solutions press release by two executive quotes and an intervening section heading, joined into one string that is not a contiguous span of the source. The already-stored press release (data/web/50b11a511e313dd8.json, fetched 2026-09-14T19:57:31Z, http_status 200) supports each half of the claim as its own genuine contiguous verbatim span, so no new web_doc request was needed. Narrowed evidence[0] to the 95-orders sentence alone, as a true contiguous span, and appended a new evidence[2] citing the separate 210-engines sentence as its own true contiguous span from the same document. Both were verified programmatically against evidence_store.verify (which calls check_screen.quote_in_text) before writing, the same function check_map.py's corpus_web_findings uses to gate this file. evidence[1] (the Bain Capital divestment citation) is untouched and keeps array index 1, so placement_audits[1] (evidence_index 1, PASS, audited 2026-09-14T04:10:00Z) still samples the same role, chain_id, link_id, issuer_id and evidence content and its record_digest should remain current; role, source_name, source_date, url and tag on both MAN Energy Solutions items are unchanged. If check_map.py nonetheless reports that placement_audits entry's record_digest as not current, that is expected per this task's instructions and is left for a fresh run universe-audit --placement VOLKSWAGEN to re-close, which this session does not run.",
+      "prior": "evidence[0].source_excerpt was: \"Currently more than 210 ME-LGIM engines are on order or in service. The order brings the cumulative number of G95ME-C10.5-LGIM methanol engine orders to 95 at various yards in South Korea, China and Japan since the engine's market introduction in 2021.\" (not a contiguous span of the stored source; split into the new evidence[0] and evidence[2] above)."
     }
   ],
   "audit": null,
