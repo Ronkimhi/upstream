@@ -5136,17 +5136,24 @@
       "kind": "AMEND",
       "change": "refresh data/mappings/hormuz-maritime.json: re-cited placements[10] CHUBB/marine-war-risk-underwriting evidence[0].source_excerpt, which origin's validate.py refused with 'source_excerpt is not in the stored text of 53afba4abdd7b78f.json (data/web)'. The recorded excerpt was not a contiguous span of the stored source: it spliced 'Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates and specialist market partners.' to 'It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity.', two sentences separated in the actual press release by two intervening sentences, joined into one string with no excerpt_form: composite-tabular marking, which method section 1 reserves for tabular sources, not running prose. The already-stored Lloyd's press release (data/web/53afba4abdd7b78f.json, fetched 2026-09-14T18:09:24Z, http_status 200) fully supports the same role claim as one genuine contiguous verbatim span, so no new web_doc request was needed: re-cited to the full paragraph running from 'Today, Lloyd's welcomed the launch...' through '...dedicated cargo capacity.', which names Chubb as lead underwriter, the Strait of Hormuz routing, and the $200 million hull/P&I and cargo capacity figures in one unbroken run of the source's own text. Verified programmatically against evidence_store.excerpt_in_doc (check_screen.quote_in_text) before writing, the same function check_map.py's corpus_web_findings uses to gate this file. claim, source_name, source_date, url and tag are unchanged; only source_excerpt was corrected. Nothing else on the mapping was touched: audit and placement_audits are left exactly as they were, so this amendment will make audit.mapping_fingerprint stale and audit.audited_at read earlier than this entry. Both are expected and left for a fresh run universe-audit to re-close; this session does not run one.",
       "prior": "evidence[0].source_excerpt was: \"Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates and specialist market partners. It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity.\" (not a contiguous span of the stored source; superseded above)."
+    },
+    {
+      "ts": "2026-09-14T20:15:00Z",
+      "by": "atlas-fresh-context",
+      "kind": "AMEND",
+      "change": "run universe-audit hormuz-maritime: fresh-context census audit FAIL. Sampled the required denominators against the mapping as it now stands after the author's 2026-09-14T19:21:14Z re-citation of placements[10] CHUBB/marine-war-risk-underwriting: at least 2 distinct ACTIVE placements on each of the 7 TARGET_MET links (14 sampled) and every one of the 19 ACTIVE placements plus all 24 recorded searches on the 7 EXHAUSTED links, 57 sampled_checks total, each against a source opened or extracted fresh this run (live page fetch, in-page JSON fetch, or direct PDF extraction with the Read tool / pdftotext where live tools could not render text). The re-cited CHUBB placement itself is now clean: its evidence[0].source_excerpt is a genuine contiguous verbatim span of the stored data/web/53afba4abdd7b78f.json, confirmed both programmatically and by re-reading the stored Lloyd's release. Found 33 amendments required across 30 of the 57 sampled rows (1 identity, 22 role, 11 source_date; some rows carry both a role and a source_date defect), plus one beyond-minimum listing finding. Nine of these repeat the 2026-09-04 audit's own findings essentially unchanged 10 days on (AIG's stale 2022 market-share ranking on marine-war-risk-underwriting; GENERAL-DYNAMICS' Knifefish 'could potentially be employed' overstated to 'being used'; WILLIS-TOWERS-WATSON's single-broker quote overstated to an organizational claim; SINOPEC-CORP's Zhoushan and PETROCHINA's Chimbusco claims, neither supported by their MPA-list source; the three TWSE container-liner placements' live-regenerating 'Generated Date' pages with no Hormuz content; the Wan Hai TWSE search's one URL over-supporting three accepted names; both Euronext bare-quote-page searches; WORLD-KINECT's and CBL-INTERNATIONAL's dateline mismatches; FORMOSA-PETROCHEMICAL's and the Gulf Research Center search's live-snapshot/stale dating; and AWILCO-LNG's listing carrying a legal name superseded by a 3 June 2026 rename, independently reconfirmed this run). Found 15 new defects this run, the most material being a repeated pattern of the same defect class that opened this audit: source_excerpts that are not genuine contiguous verbatim spans but splices or paraphrases of non-adjacent source text, now confirmed programmatically (normalize + trailing-punctuation-strip, the same rule evidence_store.excerpt_in_doc applies) on EXXONMOBIL's non-gulf-energy-substitution placement (three non-adjacent sentences from two EIA paragraphs joined with no ellipsis, the same defect class as the CHUBB citation this audit was opened to review), SHELL's and HAPAG-LLOYD's placements (two non-adjacent facts synthesized into new prose), GOLAR-LNG's placement (at-a-glance stat tiles rewritten as a flowing sentence), BP's, CHEVRON's, SINOPEC-CORP's and PETROCHINA's shared bunker-and-voyage-services excerpt (a 'MPA Top 10... alphabetical order' framing sentence that appears nowhere in the cited engine.online article, which instead frames the same nine names as 'the remaining nine suppliers'; the article's own EXHAUSTED-link search row on this same URL phrases its excerpt correctly and was not flagged), COSCO-SHIPPING-HOLDINGS' excerpt (now a smoothed rewrite that drops Hapag-Lloyd from a six-name list rather than the plain ellipsis the 2026-09-04 audit found, arguably worse since it no longer discloses that anything was cut), and a minor instance on HUNTINGTON-INGALLS (a parenthetical ticker aside removed mid-sentence). Also newly found: NORDIC-AMERICAN-TANKERS' and TSAKOS-ENERGY-NAVIGATION's placements cite genuinely verbatim but Hormuz-silent company text that does not support their specific reroute/war-risk repricing claims; PBF-ENERGY's placement, otherwise an excellent, fully verbatim, on-point citation, records source_date 2026-06-30 (the fiscal period end) rather than the filing's actual 2026-07-30 EDGAR filing date, confirmed via the SEC browse-edgar atom feed for CIK 0001534504. Mapping status stays ACTIVE; the author corrects these in a later run universe. No calibration, request, placement, listing, issuer, coverage, chain, profile, or screen content was written in this fresh context.",
+      "prior": "audit.status was FAIL, audited_at 2026-09-04T03:53:11Z, mapping_fingerprint e0e337e7474595f6e87d19ffa8edb936844f4df873a87c2f0ce510c2b240630e (33 placements_examined, 24 searches_examined, 20 amendments_required); stale relative to the mapping's current material content (last material AMEND 2026-09-14T19:21:14Z re-citing placements[10] CHUBB/marine-war-risk-underwriting), which origin's validate.py and check_map.py both refused: fingerprint mismatch, audited_at earlier than the changelog, a stale sampled_checks[2] record_digest, and cascading denominator/TARGET_MET-sample-count errors. Superseded above by a complete fresh audit over current content; the prior audit block is not preserved verbatim elsewhere, but every one of its 20 findings was independently re-examined against a source opened this run and is individually accounted for in the new audit.amendments_required (nine persist essentially unchanged, one, AIG's #1-vs-top-ten market-share hedge, was folded into the same still-live AIG finding as a detail rather than a separate line, and none were found resolved)."
     }
   ],
   "audit": {
-    "audited_at": "2026-09-04T03:53:11Z",
+    "audited_at": "2026-09-14T20:15:00Z",
     "reviewed_by": "atlas-fresh-context",
     "agent_id": "atlas-fresh-context",
-    "transcript_ref": "atlas-fresh-context/run-universe-audit-hormuz-maritime-2026-09-04T035311Z",
+    "transcript_ref": "atlas-fresh-context/run-universe-audit-hormuz-maritime-2026-09-14T201500Z",
     "review_mode": "FRESH_CONTEXT",
-    "independence_limitation": "This audit ran in a session started fresh for this command, reading only the mapping JSON, its chain, docs/method.md section 6A, the URLs the mapping itself names by placement and EXHAUSTED evidence, official issuer identity and listing references, and the check_map.py/universe-gate.py gate contract, never the author's transcript, the map log, profiles, screens, or ledger rationale. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
+    "independence_limitation": "This audit ran in a session started fresh for this command inside a detached worktree at commit 701d31f, reading only the mapping JSON, its chain, docs/method.md section 6A, the URLs the mapping itself names by placement and EXHAUSTED evidence, official issuer identity and listing references opened live or extracted from freshly fetched documents, and the check_map.py/universe-gate.py gate contract, never the author's transcript, the map log, profiles, screens, or ledger rationale, and treating the mapping's own changelog wording and prior audit narrative only as a map of where to look, never as evidence for identity_ok/role_ok/source_date_ok, which were independently re-derived from sources opened or refetched this run. Repo state cannot cryptographically prove this session shares no state with the authoring session; independence rests on the declared read boundary actually followed, not on any unforgeable separation.",
     "status": "FAIL",
-    "mapping_fingerprint": "e0e337e7474595f6e87d19ffa8edb936844f4df873a87c2f0ce510c2b240630e",
+    "mapping_fingerprint": "cec393adbedd4e2faada5ade3f03ced3a9689067701481349cb71c5e5e3a0750",
     "links_examined": 14,
     "placements_examined": 33,
     "searches_examined": 24,
@@ -5162,20 +5169,20 @@
         "source_date_ok": true,
         "source_url": "https://www.insurancejournal.com/news/international/2026/03/23/863026.htm",
         "source_date": "2026-03-23",
-        "source_excerpt": "Chubb, acting as lead underwriter, will manage the facility, determine pricing and terms, assume risk, and issue policies for eligible vessels and cargo.",
+        "source_excerpt": "Chubb, acting as lead underwriter, will manage the facility, determine pricing and terms, assume risk, and issue policies for eligible vessels and cargo. (confirmed verbatim in the stored fetch of this exact URL, data/web/9efbe05611b38266.json, fetched 2026-09-14; article context also states the DFC/Chubb public-private partnership)",
         "record_digest": "587f33598006acbbfcaf9654be97cacb5d69b6a5877d1ba3bf3cc32cf20c3114"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "war-risk-reinsurance-capacity",
-        "issuer_id": "TRAVELERS",
+        "issuer_id": "AIG",
         "identity_ok": true,
         "role_ok": true,
         "source_date_ok": true,
         "source_url": "https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx",
         "source_date": "2026-06-26",
-        "source_excerpt": "The US International Development Finance Corporation announced a maritime reinsurance facility on March 6, initially at $20 billion and expanded to $40 billion two weeks later, with Chubb as lead underwriter alongside Travelers, Liberty Mutual, Berkshire Hathaway, AIG, Starr and CNA as partners.",
-        "record_digest": "c4889de0ed5746b8a302183101e5cc758024525764996df6b3829839e4b18cae"
+        "source_excerpt": "The US International Development Finance Corporation announced a maritime reinsurance facility on March 6, initially at $20 billion and expanded to $40 billion two weeks later, with Chubb as lead underwriter alongside Travelers, Liberty Mutual, Berkshire Hathaway, AIG, Starr and CNA as partners. (confirmed verbatim live on insurancebusinessmag.com, dated Jun 26, 2026)",
+        "record_digest": "63862fd04b2ad13e70b09b10a40dbc6417124610eedb51ef897a29bc44211e75"
       },
       {
         "chain_id": "hormuz-maritime",
@@ -5186,8 +5193,8 @@
         "source_date_ok": true,
         "source_url": "https://www.lloyds.com/insights/media-centre/press-releases/press-release-19062026",
         "source_date": "2026-06-19",
-        "source_excerpt": "Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates and specialist market partners. It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity.",
-        "record_digest": "dd8478af254f9b5a6e1bf8f30d3ac4f97d31cc0f6b3ac1892a6d07c46e64f80b"
+        "source_excerpt": "Today, Lloyd's welcomed the launch of a new Lloyd's market consortium... Chubb will serve as lead underwriter... It will provide up to $200 million of capacity separately for hull and P&I risks, with an additional $200 million of dedicated cargo capacity. (confirmed a genuine contiguous verbatim span of the stored data/web/53afba4abdd7b78f.json, fetched 2026-09-14T18:09:24Z; this is the placement re-cited by the author amendment this audit reviews)",
+        "record_digest": "7374a6ab9c62da36a117c1d44afc0f4b982a09cf8ddb7b2d481523302d872e30"
       },
       {
         "chain_id": "hormuz-maritime",
@@ -5198,7 +5205,7 @@
         "source_date_ok": true,
         "source_url": "https://agencychecklists.com/2022/08/22/top-10-ocean-marine-insurers-2022-new-england-market-share-report-61171/",
         "source_date": "2022-08-22",
-        "source_excerpt": "Top 10 Ocean Marine Insurers (National): AMERICAN INTL GRP - 14.49%",
+        "source_excerpt": "Top 10 Ocean Marine Insurers (National): AMERICAN INTL GRP - 14.49%, dated August 22, 2022 (confirmed live on agencychecklists.com). Content never mentions Hormuz, war risk, repricing, or 2026 anywhere; AIG is actually ranked #1 nationally, not merely 'top ten' as the role text hedges. A 2022 national market-share ranking cannot establish the placement's specific claimed role that AIG's book 'reprices on the Gulf war-risk shock.' Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "3961ed3b98088332fd19b829875713060b24f35249430483ac51ff7d7e93ab59"
       },
       {
@@ -5210,7 +5217,7 @@
         "source_date_ok": true,
         "source_url": "https://defensescoop.com/2026/04/11/strait-of-hormuz-mine-clearance-navy-centcom-underwater-drones/",
         "source_date": "2026-04-11",
-        "source_excerpt": "One underwater drone that could potentially be employed for mine clearing operations in the Strait of Hormuz is the Knifefish, which was built by General Dynamics.",
+        "source_excerpt": "One underwater drone that could potentially be employed for mine clearing operations in the Strait of Hormuz is the Knifefish, which was built by General Dynamics... The release didn't identify the unmanned underwater vehicles that will be involved. (confirmed live on defensescoop.com, 2026-04-11). The article hedges 'could potentially be employed' and explicitly states CENTCOM's release did not confirm which UUVs are involved; the placement's role text nonetheless asserts Knifefish is 'being used,' present-tense confirmed deployment. Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "061607243b6d059514b5e3669c4d288911b0fad31fda0b4b2e66977340b49011"
       },
       {
@@ -5218,48 +5225,36 @@
         "link_id": "naval-escort-and-mine-clearance",
         "issuer_id": "HUNTINGTON-INGALLS",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
         "source_url": "https://www.hii.com/news/hii-delivers-destroyer-ted-stevens-ddg-128-to-u-s-navy",
         "source_date": "2025-12-29",
-        "source_excerpt": "HII's (NYSE: HII) Ingalls Shipbuilding division has delivered Arleigh Burke-class guided missile destroyer Ted Stevens (DDG 128) to the U.S. Navy.",
+        "source_excerpt": "HII's (NYSE: HII) Ingalls Shipbuilding division has delivered Arleigh Burke-class guided missile destroyer Ted Stevens (DDG 128) to the U.S. Navy. (confirmed live on hii.com, Dec 29, 2025). The mapping's stored excerpt omits the parenthetical '(NYSE: HII)' from the middle of this sentence, so it is not a genuine contiguous verbatim span of the source; the underlying role claim (HII builds Arleigh Burke destroyers) is otherwise accurate. New, minor finding.",
         "record_digest": "7ef4fb237bd6616834d8853a696ce257310231cded711a6a1d74f997e6ee1140"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "crude-tanker-tonnage",
-        "issuer_id": "FRONTLINE",
+        "issuer_id": "NORDIC-AMERICAN-TANKERS",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
-        "source_url": "https://ml-eu.globenewswire.com/Resource/Download/09634fab-1b1f-450b-969a-5e9078dff8ab",
-        "source_date": "2026-03-27",
-        "source_excerpt": "The Company operates oil tankers of two sizes: very large crude carriers (\"VLCCs\") which are between 200,000 and 320,000 dwt, and Suezmax tankers, which are vessels between 120,000 and 170,000 dwt.",
-        "record_digest": "e8db785c22998f206c3d0aac780d5f5a87ad4d2c690d9a0a573c8e9fea3df410"
+        "source_url": "https://www.nat.bm/nordic-american-tankers-ltd-nyse-nat-report-as-per-december-31-2025-full-speed-ahead/",
+        "source_date": "2026-02-26",
+        "source_excerpt": "During the first half of 2025, we acquired two 2016-built suezmax tankers. (confirmed live and verbatim on nat.bm, dated Thursday, February 26, 2026, matching the recorded date). The full shareholder letter never mentions the Strait of Hormuz or a reroute; it attributes tanker-market strength to shadow-fleet scarcity and a fixed-rate charter, not to any Gulf closure. The excerpt supports only that NAT owns suezmax tankers, not the placement's claimed causal role that 'the reroute has repriced' its spot TCE. Matches and elaborates the placement-audit FAIL recorded in this mapping's changelog on 2026-09-14.",
+        "record_digest": "682a8e744df8d9383179302b27ec33ce5fb3c69ddf050b5d7fffaedf4f3ec425"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "crude-tanker-tonnage",
-        "issuer_id": "DHT-HOLDINGS",
+        "issuer_id": "TSAKOS-ENERGY-NAVIGATION",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
-        "source_url": "https://www.dhtankers.com/dht-holdings-inc-fourth-quarter-2025-results/",
-        "source_date": "2026-02-04",
-        "source_excerpt": "DHT is an independent crude oil tanker company. Our fleet trades internationally and consists of crude oil tankers in the VLCC segment.",
-        "record_digest": "8448886babdd07feffe3df45ef18c92c573626400e4bc1f786a074e5daac8348"
-      },
-      {
-        "chain_id": "hormuz-maritime",
-        "link_id": "lng-shipping-and-qatari-supply",
-        "issuer_id": "FLEX-LNG",
-        "identity_ok": true,
-        "role_ok": true,
-        "source_date_ok": true,
-        "source_url": "https://mb.cision.com/Main/22886/4314357/3957116.pdf",
-        "source_date": "2026-02-27",
-        "source_excerpt": "FLEX LNG Ltd. is an exempted company incorporated under the Bermuda Companies Act of 1981 (Company No. EC-34296). We are a growth-oriented owner and commercial operator of fuel efficient, fifth generation LNG carriers. As of February 27, 2026, we own and operate (i) nine M-type, Electronically Controlled, Gas Injection, or MEGI, LNG carriers... and (ii) four Generation X Dual Fuel, or X-DF, LNG carriers",
-        "record_digest": "b636ac59de9d49281c5436479e9ba3c3888473ba09edf17efde961c81bf8822b"
+        "source_url": "https://www.tenn.gr/our-company/",
+        "source_date": "2026-09-01",
+        "source_excerpt": "TEN Ltd. owns a versatile fleet of double-hull vessels, constituting a mix of modern VLCC's, suezmax, aframax, panamax, handysize and handymax tankers, LNGs and shuttle tankers... (confirmed live and verbatim on tenn.gr/our-company). This is an evergreen, undated 'About Us' fleet-composition page with no reference to the Strait of Hormuz, war risk, or any 2026 occurrence; it cannot support the placement's specific claim that TSAKOS tonnage 'prices against the Gulf war-risk market.' New finding.",
+        "record_digest": "154296bcd09e710658ba628fcb17f8882576a96c0a0711301247f1807c68c441"
       },
       {
         "chain_id": "hormuz-maritime",
@@ -5270,32 +5265,44 @@
         "source_date_ok": true,
         "source_url": "https://cdn.prod.website-files.com/65aa82da0fa540ebcc24b14d/6a2682e991114a16fc62a114_Awilco%20LNG%20ASA%20-%20Prospectus%208%20May%202026%20(final%20incl.%20appendices).pdf",
         "source_date": "2026-05-08",
-        "source_excerpt": "The Company is a Norwegian-based fully integrated LNG transportation provider, owning and operating two 156,000 cbm 2013-built TFDE membrane LNG carriers, WilForce and WilPride, in international trade. In 2026, the Group commenced the process of expanding its activities into LNG commodity trading and structured trade finance through an in-house LNG trading platform",
+        "source_excerpt": "The Company is a Norwegian-based fully integrated LNG transportation provider, owning and operating two 156,000 cbm 2013-built TFDE membrane LNG carriers, WilForce and WilPride, in international trade. In 2026, the Group commenced the process of expanding its activities into LNG commodity trading... (confirmed verbatim by extracting the live prospectus PDF with pdftotext; cover page confirms 'The date of this Prospectus is 8 May 2026,' matching the recorded date).",
         "record_digest": "7c7d8bd2ce442baf13ea1680a173c6b883eec9c67372b664fdfaf393d3ba1e6a"
       },
       {
         "chain_id": "hormuz-maritime",
-        "link_id": "non-gulf-energy-substitution",
-        "issuer_id": "VENTURE-GLOBAL",
+        "link_id": "lng-shipping-and-qatari-supply",
+        "issuer_id": "GOLAR-LNG",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
-        "source_url": "https://investors.ventureglobal.com/news/news-details/2026/Venture-Global-Reports-Fourth-Quarter-and-Full-Year-2025-Results/default.aspx",
-        "source_date": "2026-03-02",
-        "source_excerpt": "Venture Global is an American producer and exporter of low-cost U.S. liquefied natural gas (LNG) with over 100 MTPA of capacity in production, construction, or development.",
-        "record_digest": "b7a42e7e52485763dd706ced9d62e41611983486f99e9c608d5d55ba22dd973f"
+        "source_url": "https://www.golarlng.com/",
+        "source_date": "2026-09-01",
+        "source_excerpt": "Live golarlng.com shows 'We design, convert, own, and operate marine infrastructure that turns natural gas into LNG' and 'the only independent provider of FLNG as a service' as running prose, but the '4' and '8' figures the mapping quotes as 'four FLNG units (two operational, two under construction) and a track record of eight LNG carrier conversions' actually appear only as separate at-a-glance stat tiles ('4 FLNGS. TWO ON THE WATER, TWO UNDER CONSTRUCTION' / '8 LNG CARRIER CONVERSIONS'), not as the flowing sentence recorded. The stored excerpt is a paraphrase of tile data, not a contiguous verbatim quote. New finding.",
+        "record_digest": "aa7b5d3c2a925fa87c3823ae361df19705e48b187642538bb3564bd864dc166d"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "non-gulf-energy-substitution",
-        "issuer_id": "CHENIERE-ENERGY",
+        "issuer_id": "EXXONMOBIL",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
-        "source_url": "https://www.sec.gov/Archives/edgar/data/3570/000000357026000008/ceiex991040626ceipressrele.htm",
-        "source_date": "2026-04-06",
-        "source_excerpt": "Cheniere Energy, Inc. is the leading producer and exporter of liquefied natural gas (\"LNG\") in the United States... Cheniere has one of the largest liquefaction platforms in the world, consisting of the Sabine Pass and Corpus Christi liquefaction facilities on the U.S. Gulf Coast, with total production capacity of over 53 million tonnes per annum (\"mtpa\") of LNG in operation and an additional approximately 8 mtpa of expected production capacity under construction",
-        "record_digest": "007319f405ac23e964ae0ca4725cce380c508e00cb15c810fb1b38c2965f7ac8"
+        "source_url": "https://www.eia.gov/todayinenergy/detail.php?id=66884",
+        "source_date": "2025-12-17",
+        "source_excerpt": "Live eia.gov (Today in Energy, Dec 17 2025) confirms 'Production in Guyana is managed by ExxonMobil, along with partners Hess and the China National Offshore Oil Corporation (CNOOC)' in one paragraph and, in a separate, non-adjacent paragraph two sentences later, 'Recent reports indicate that Exxon's Yellowtail project has reached full production capacity...' and 'The start-up of the Uaru project in 2026 is expected to add...'. The mapping's stored excerpt splices these three non-adjacent fragments into one unbroken string with no ellipsis marking the gap, the same defect class (a non-contiguous splice presented as one continuous quote) as the CHUBB citation this audit was opened to review. New finding.",
+        "record_digest": "9c04779b1e0d20dc4903ea33f7e245ed60049d40b8da8deedf5a8ecdab3b69f6"
+      },
+      {
+        "chain_id": "hormuz-maritime",
+        "link_id": "non-gulf-energy-substitution",
+        "issuer_id": "SHELL",
+        "identity_ok": true,
+        "role_ok": false,
+        "source_date_ok": true,
+        "source_url": "https://www.energyconnects.com/news/gas-lng/2025/july/shell-led-lng-canada-ships-first-cargo-to-meet-asian-demand/",
+        "source_date": "2025-07-01",
+        "source_excerpt": "Live energyconnects.com (Jul 01 2025) confirms 'The first cargo from the plant in British Columbia was loaded on the vessel Gaslog Glasgow' in one paragraph, 'Shell owns 40% of the project' at the end of that same paragraph, and 'the 14 million-ton-a-year facility will reach full capacity in 2026, Cremers said' in a separate, later paragraph. The mapping's excerpt synthesizes these into new wording, 'The facility will reach 14 million tons annually at full capacity in 2026, with Shell holding a 40% ownership stake in the project,' which is not a verbatim span of the source. New finding.",
+        "record_digest": "aedabef12a5abc98509df7ed12bfca378b80a923f8845f017c1768c74996f3b9"
       },
       {
         "chain_id": "hormuz-maritime",
@@ -5306,20 +5313,20 @@
         "source_date_ok": false,
         "source_url": "https://www.twse.com.tw/pdf/en/6505_en.pdf",
         "source_date": "2026-08-31",
-        "source_excerpt": "Formosa Petrochemical Corporation is involved primarily in the business of refinery, petrochemical and utilities. The Company's major business activities include export/import, logistics, production and marketing of feedstocks, refined petroleum products, olefins, electricity and steam.",
+        "source_excerpt": "Formosa Petrochemical Corporation is involved primarily in the business of refinery, petrochemical and utilities. The Company's major business activities include export/import,... (confirmed verbatim by extracting the live PDF with pdftotext/Read). But the page header reads 'Generated Date: 2026/09/14' (today) and its trading table runs through 9/11: this is TWSE's continuously-regenerated live company snapshot, not a fixed-date document, so the recorded source_date of 2026-08-31 has no basis over any other day this same boilerplate could be pulled. Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "37176b40a528b9c0f6e61a294bd82a055c0823d28f7c68f263191f4eea7cbf8f"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "cargo-owners-and-energy-importers",
-        "issuer_id": "VALERO-ENERGY",
+        "issuer_id": "PBF-ENERGY",
         "identity_ok": true,
         "role_ok": true,
-        "source_date_ok": true,
-        "source_url": "https://www.ogj.com/general-interest/economics-markets/article/55399550/us-firms-post-sharp-earnings-gains-in-second-quarter-2026",
-        "source_date": "2026-08-21",
-        "source_excerpt": "US oil and gas producers' and refiners' second-quarter 2026 results were shaped by continued disruption to crude oil and product flows through the Strait of Hormuz... The Refining segment reported operating income of $4.5 billion against $1.3 billion a year ago, on throughput averaging 3.0 million b/d.",
-        "record_digest": "2c40279a868a7c92b6368df2613456e357f6520acaeb7bb860cd8be426414c6f"
+        "source_date_ok": false,
+        "source_url": "https://www.sec.gov/Archives/edgar/data/0001534504/000153450426000030/pbf-20260630.htm",
+        "source_date": "2026-06-30",
+        "source_excerpt": "Actions affecting regional shipping routes, including through the Strait of Hormuz, and impacts to certain Middle Eastern energy infrastructure have led to higher freight costs, longer transit times and supply chain disruptions. These conditions have supported higher global refining margins... (confirmed verbatim live via JS text search of the SEC EDGAR filing page; the $2,926.3 million / $1,031.8 million six-month gross-refining-margin figures are confirmed in the filing's own table). But the SEC EDGAR company filing index (browse-edgar atom feed for CIK 0001534504) shows this 10-Q's actual filing-date is 2026-07-30, not the recorded source_date of 2026-06-30, which is the fiscal period-end date, not the filing date. New finding.",
+        "record_digest": "79078c77aa014f642a64acdad45856837b2b2f6a22b8624c2d0da7025fa44041"
       },
       {
         "chain_id": "hormuz-maritime",
@@ -5330,7 +5337,7 @@
         "source_date_ok": true,
         "source_url": "https://www.insurancejournal.com/news/international/2026/03/06/860842.htm",
         "source_date": "2026-03-06",
-        "source_excerpt": "Dylan Mortimer, marine hull UK war leader at insurance broker Marsh... estimated ratings trending between 1% and 1.5% of vessel value, with a slight variation both upwards and downwards depending on specific risk factors.",
+        "source_excerpt": "Dylan Mortimer, marine hull UK war leader at insurance broker Marsh, estimated that ratings are roughly trending between 1% and 1.5% of vessel value, with a slight variation both upwards and downwards depending on specific risk factors. (confirmed verbatim in the stored data/web/59fe726cfc437e3f.json, insurancejournal.com, 2026-03-06).",
         "record_digest": "24e17818d627ca4d11b9952d9c1fe3baf7d01808b02413366ada4e1356ca9cbe"
       },
       {
@@ -5342,7 +5349,7 @@
         "source_date_ok": true,
         "source_url": "https://www.insurancejournal.com/news/international/2026/03/06/860842.htm",
         "source_date": "2026-03-06",
-        "source_excerpt": "Stephen Rudman, head of marine for Asia at Aon, remarked that \"The hull war market has reacted more immediately\" due to concentrated loss risks, and warned that \"if the situation escalates materially, further rate correction is likely.\"",
+        "source_excerpt": "'The hull war market has reacted more immediately,' due to the risk of large, concentrated losses if multiple vessels are hit in the same area, said Stephen Rudman, head of marine, Asia, at global insurance broker Aon, adding that if the situation escalates materially, further rate correction is likely. (confirmed verbatim in the same stored insurancejournal.com document).",
         "record_digest": "ea826ed86118d7539f2f37f33772bc5712818de336e9f5563b4d2831149d2ec2"
       },
       {
@@ -5354,7 +5361,7 @@
         "source_date_ok": true,
         "source_url": "https://www.insurancejournal.com/news/international/2026/03/06/860842.htm",
         "source_date": "2026-03-06",
-        "source_excerpt": "Angus Blayney, marine divisional director at Gallagher, indicated that rates have increased and change daily based on vessel type and individual circumstances, though he declined to provide specific figures.",
+        "source_excerpt": "Angus Blayney, marine divisional director at Gallagher, a major insurance broker, told Reuters that rates have increased and are changing daily depending on vessel type and individual circumstances, but he did not provide specific figures. (confirmed verbatim in the same stored insurancejournal.com document).",
         "record_digest": "2d502b97e48b902edde3bc40c38639ba80047aaa61a0741afc00541449c0594e"
       },
       {
@@ -5366,7 +5373,7 @@
         "source_date_ok": true,
         "source_url": "https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx",
         "source_date": "2026-06-26",
-        "source_excerpt": "\"The longer this continues without incident, rates will continue to improve,\" James Reason, a broker at WTW, said... \"Everyone remains cautious, however, and there are still reports of mines in parts of the Strait of Hormuz transit corridors.\"",
+        "source_excerpt": "Live insurancebusinessmag.com (Jun 26 2026) reads: 'James Reason, a broker at WTW, said the rate trajectory was positive but conditional. \"The longer this continues without incident, rates will continue to improve,\" he told Insurance Business.' The mapping's stored excerpt reads 'James Reason, broker, WTW: The longer this continues without incident, rates will continue to improve.', restructuring 'a broker at WTW, said' into 'broker, WTW:' -- not a verbatim quote (new finding on top of the persisting role_ok defect: the role text's organization-level claim 'WTW brokers publicly price the Hormuz war-risk market' still rests on this one individual's quote, unchanged since 2026-09-04, and unresolved even though a 2026-09-06 placement audit on this exact placement/evidence recorded PASS).",
         "record_digest": "8d83c07141a239e0e121ae0dfcb3b74f59fe6a59bf2c576cf19e0c6677aba9bb"
       },
       {
@@ -5378,7 +5385,7 @@
         "source_date_ok": false,
         "source_url": "https://ir.world-kinect.com/news-releases/news-release-details/world-kinect-corporation-reports-fourth-quarter-and-full-year-1/",
         "source_date": "2026-02-23",
-        "source_excerpt": "MIAMI--(BUSINESS WIRE)--Feb. 19, 2026-- World Kinect Corporation (NYSE: WKC) today reported financial results for the fourth quarter and full year 2025.",
+        "source_excerpt": "MIAMI--(BUSINESS WIRE)--Feb. 19, 2026-- World Kinect Corporation (NYSE: WKC) today reported financial results... (confirmed verbatim live on ir.world-kinect.com). The release's own dateline reads Feb. 19, 2026, not the recorded source_date of 2026-02-23, a 4-day mismatch. Defect persists unchanged from the 2026-09-04 audit and the placement-audit FAIL recorded 2026-09-06.",
         "record_digest": "941f2337336bc4752e62081659acda83b31e25b4861eebb78ea894376df0d86f"
       },
       {
@@ -5386,11 +5393,11 @@
         "link_id": "bunker-and-voyage-services",
         "issuer_id": "BP",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
         "source_url": "https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631",
         "source_date": "2026-01-14",
-        "source_excerpt": "MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.",
+        "source_excerpt": "Live engine.online (Jan 14 2026) reads: 'As in 2024, the list is presented in alphabetical order... Bunker House Petroleum replaces Glencore Singapore... The remaining nine suppliers are BP Singapore, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.' The mapping's stored excerpt, 'MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, ...', is not this sentence: it invents a framing clause the article never uses and inserts Bunker House Petroleum into what the source calls 'the remaining nine.' Confirmed programmatically not a substring of the article text (checked against a full-page screenshot too; no infographic carries this wording). New finding, same defect class as the CHUBB splice.",
         "record_digest": "8db53c857176c9ffe2e882a4c96068c6d7f3bdd7193f1708cdf571a702cf4282"
       },
       {
@@ -5398,11 +5405,11 @@
         "link_id": "bunker-and-voyage-services",
         "issuer_id": "CHEVRON",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
         "source_url": "https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631",
         "source_date": "2026-01-14",
-        "source_excerpt": "MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.",
+        "source_excerpt": "Same engine.online article as BP's placement; same fabricated 'MPA Top 10... alphabetical order' framing sentence, confirmed not a substring of the live article. New finding.",
         "record_digest": "db9429e6a49276633b8bc241fb12188981352c78fc51983c80b9cb56250c9d7c"
       },
       {
@@ -5414,7 +5421,7 @@
         "source_date_ok": true,
         "source_url": "https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631",
         "source_date": "2026-01-14",
-        "source_excerpt": "MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.",
+        "source_excerpt": "Same engine.online article; the placement's shared fabricated framing sentence is confirmed not a substring of the live article (new finding), and the role text's separate claim that Sinopec is 'the record-setting supplier at Zhoushan' remains wholly unsupported by this MPA-Singapore-only source (persisting finding, unchanged since 2026-09-04 and the 2026-09-06 placement-audit FAIL).",
         "record_digest": "5415d48a85114b08f4ed8aa06714854009be9a8f6eb363ba677c953221cd2276"
       },
       {
@@ -5426,7 +5433,7 @@
         "source_date_ok": true,
         "source_url": "https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631",
         "source_date": "2026-01-14",
-        "source_excerpt": "MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.",
+        "source_excerpt": "Same engine.online article; the placement's shared fabricated framing sentence is confirmed not a substring of the live article (new finding), and the role text's separate claim that 'Chimbusco is its marine-fuel arm' remains wholly unsupported by this MPA-Singapore-only source, which never mentions Chimbusco (persisting finding, unchanged since 2026-09-04 and the 2026-09-06 placement-audit FAIL).",
         "record_digest": "45254d549b7ff3b3f6a073293deb8f34b717a0efe63348516b8cf8740eed74bf"
       },
       {
@@ -5438,7 +5445,7 @@
         "source_date_ok": false,
         "source_url": "https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen",
         "source_date": "2025-12-18",
-        "source_excerpt": "CBL International is a trusted bunkering services facilitator, serving nine of the world's top twelve container liner companies.",
+        "source_excerpt": "barchart.com returned empty/unreadable content on this run's fetch attempt (both a direct navigation and a get_page_text call returned a blank body), independently reproducing the 2026-09-04 audit's identical finding two weeks later. The syndicated GlobeNewswire copy of the same release is dated 2025-12-30, not the recorded source_date of 2025-12-18, a 12-day mismatch. Defect persists unchanged, and the underlying URL remains effectively unverifiable at its cited address.",
         "record_digest": "6f1ff6231102efef830857d09c7e8c317c09901aa8e7b567cd8e0fe8f1c0745a"
       },
       {
@@ -5447,10 +5454,10 @@
         "issuer_id": "EVERGREEN-MARINE",
         "identity_ok": true,
         "role_ok": false,
-        "source_date_ok": true,
+        "source_date_ok": false,
         "source_url": "https://www.twse.com.tw/pdf/en/2603_en.pdf",
         "source_date": "2026-08-31",
-        "source_excerpt": "Business Briefing: 1) G301011 Ship Transportation; 2) G401011 Shipping Agency Services; 3) G404011 Container Distributing Center Business",
+        "source_excerpt": "Business Briefing: 1) G301011 Ship Transportation; 2) G401011 Shipping Agency Services; 3) G404011 Container Distributing Center Business; 4) ZZ99999 All business items... (confirmed verbatim by extracting the live TWSE PDF for code 2603 with pdftotext). Page header reads 'Generated Date: 2026/09/14' (today): a live-regenerating snapshot, not the fixed 2026-08-31 the mapping records. No mention anywhere of the Strait of Hormuz, diversion, or surcharges, so the role text's specific claim is unsupported. Both defects persist unchanged from the 2026-09-04 audit.",
         "record_digest": "c97090b31fed0bad81218abaa6ee547a70746aeda49249a4fb2c4c15071b9988"
       },
       {
@@ -5459,10 +5466,10 @@
         "issuer_id": "YANG-MING",
         "identity_ok": true,
         "role_ok": false,
-        "source_date_ok": true,
+        "source_date_ok": false,
         "source_url": "https://www.twse.com.tw/pdf/en/2609_en.pdf",
         "source_date": "2026-08-31",
-        "source_excerpt": "1.Domestic and overseas marine shipment service. 2.Domestic and overseas marine passenger service. 3.Warehouse,pier,tugboat,barge,container freight station and terminal",
+        "source_excerpt": "1.Domestic and overseas marine shipment service. 2.Domestic and overseas marine passenger service. 3.Warehouse,pier,tugboat,barge,container freight station and terminal... (confirmed verbatim by extracting the live TWSE PDF for code 2609). 'Generated Date: 2026/09/14' live-snapshot issue and absence of any Hormuz/diversion/surcharge mention both persist unchanged.",
         "record_digest": "0dc06f7c1fc4e2992c96c20a533df6f02536e4f88fbda37ed813dbc6b5d57a46"
       },
       {
@@ -5471,10 +5478,10 @@
         "issuer_id": "WAN-HAI-LINES",
         "identity_ok": true,
         "role_ok": false,
-        "source_date_ok": true,
+        "source_date_ok": false,
         "source_url": "https://www.twse.com.tw/pdf/en/2615_en.pdf",
         "source_date": "2026-08-31",
-        "source_excerpt": "Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade",
+        "source_excerpt": "Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade 4. Retail Sale of Other Retail Trade 5. Wholesale of Ship Machinery and Parts 6. Retail Sale of Ship Machinery and Parts 7. Container Distributing Center Business... (confirmed verbatim by extracting the live TWSE PDF for code 2615). The mapping's excerpt uses an ellipsis to jump from item 3 to item 7, skipping items 4-6, the same non-contiguous-splice defect class as CHUBB's original citation; 'Generated Date: 2026/09/14' live-snapshot issue persists; no Hormuz/diversion/surcharge content anywhere. All three defects persist unchanged from the 2026-09-04 audit.",
         "record_digest": "3bdd013e95680d1ffe65227b148af8910b8d7b1c8290173024a5057f1b94f457"
       },
       {
@@ -5486,7 +5493,7 @@
         "source_date_ok": true,
         "source_url": "https://stocktwits.com/news-articles/markets/equity/zim-s-q1-reflects-weaker-demand-lower-freight-rates-middle-east-crisis-to-weigh-even-more-in-q2/cZXDDj7ReVM",
         "source_date": "2026-05-20",
-        "source_excerpt": "the conflict in the Persian Gulf sparked a sharp increase and significant volatility in bunkering costs. while the impact on first-quarter results was minimal, the second quarter is expected to see a much bigger impact due to the ongoing conflict.",
+        "source_excerpt": "the conflict in the Persian Gulf sparked a sharp increase and significant volatility in bunkering costs. while the impact on first-quarter results was minimal, the second quarter is expected to see a much bigger impact due to the ongoing conflict. (confirmed verbatim live on the cited stocktwits article, published May 20, 2026, matching the recorded date).",
         "record_digest": "f52695172572daa184694cc137357179d391fd44d6531ee07a6590638364e4fa"
       },
       {
@@ -5498,7 +5505,7 @@
         "source_date_ok": true,
         "source_url": "https://www.seavantage.com/blog/strait-of-hormuz-crisis-2026-shipping-disruption-timeline",
         "source_date": "2026-04-12",
-        "source_excerpt": "Maersk, COSCO, Hapag-Lloyd, ONE, Evergreen, HMM, Yang Ming also had vessels unable to exit",
+        "source_excerpt": "Live seavantage.com confirms: 'A senior IRGC official formally confirmed on March 2 that the strait was closed... Maersk, COSCO, Hapag-Lloyd, ONE, Evergreen, HMM, Yang Ming also had vessels unable to exit'. The mapping's current excerpt, 'Maersk, COSCO, ONE, Evergreen, HMM and Yang Ming also had vessels unable to exit.', silently removes Hapag-Lloyd and rewrites 'HMM, Yang Ming' to 'HMM and Yang Ming' to smooth the deletion: confirmed programmatically not a substring of the live article, a doctored (not merely truncated) quote. The role text's separate, larger claim that COSCO 'halted Hormuz transits on safety grounds' and 'manages Gulf cargo through phased port acceptance' remains wholly unsupported anywhere in this article, which only reports vessels of several carriers being trapped. Persists and is now worse than the 2026-09-04 audit's finding, which only noted a dropped name, not a smoothed rewrite.",
         "record_digest": "95e1843bfc222dc8baa146f02d86abe4e2bfe7059041a364e5c57b10597dde12"
       },
       {
@@ -5510,7 +5517,7 @@
         "source_date_ok": true,
         "source_url": "https://www.shippingherald.com/orient-overseas-limited-announces-2026-interim-results/",
         "source_date": "2026-08-28",
-        "source_excerpt": "total liftings for the first half of 2026 increased by 5.2% and total liner revenue increased by 5.5% year on year",
+        "source_excerpt": "The total liftings for the first half of 2026 increased by 5.2% and total liner revenue increased by 5.5% year on year. (confirmed verbatim live on shippingherald.com, dated August 28, 2026, matching the recorded date).",
         "record_digest": "21d7fb938dbc36c3d36a0029201447474fe38387fad27fca43d13adc31286400"
       },
       {
@@ -5518,36 +5525,36 @@
         "link_id": "container-liner-diversion",
         "issuer_id": "HAPAG-LLOYD",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
         "source_url": "https://www.tradefinanceglobal.com/posts/shipping-lines-impose-new-gulf-surcharges-as-hormuz-disruption-enters-fourth-month/",
         "source_date": "2026-06-26",
-        "source_excerpt": "customers routed via Jeddah with onward trucking into the UAE face charges of $5,600 per 20-foot container, while those using Fujairah or Khor Fakkan as a discharge point pay $2,200 per box, with higher rates for refrigerated and dangerous goods.",
+        "source_excerpt": "Live tradefinanceglobal.com (Jun 26 2026) reads, in two separate sentences: 'Hapag-Lloyd said its Middle East Emergency Surcharge applies to existing bookings already in transit, cargo discharged at transhipment hubs such as India, Pakistan, Salalah in Oman, or Khor Al Fakkan in the UAE...' and, in the next paragraph, 'Fees vary by routing: customers routed via Jeddah with onward trucking into the UAE face charges of $5,600 per 20-foot container, while those using Fujairah or Khor Fakkan as a discharge point pay $2,200 per box...'. The mapping's excerpt compresses both into new wording not present verbatim in either sentence. New finding.",
         "record_digest": "42bead0f0aa31fe52dde835ecd60bd2a5bc40cc0e76b049fc7eaf0cbe522657b"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "hormuz-bypass-pipelines",
         "issuer_id": "KONINKLIJKE-VOPAK",
-        "identity_ok": false,
-        "role_ok": false,
+        "identity_ok": true,
+        "role_ok": true,
         "source_date_ok": true,
-        "source_url": "https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805",
-        "source_date": "2026-04-30",
-        "source_excerpt": "Iranian drone strikes on Fujairah on March 3, 14 and 16 set storage tanks on fire and suspended loadings.",
-        "record_digest": "4ef952bb87637d0535f41e634f3fa3263e1d2381812e9857910c1a53fb730eeb"
+        "source_url": "https://www.vopak.com/system/files/Vopak_Annual_Report_2025.pdf",
+        "source_date": "2026-02-24",
+        "source_excerpt": "United Arab Emirates BU USA & Canada Vopak Horizon Fujairah Ltd. (33.33%) United States (a genuine, if column-jumbled, PDF table-extraction fragment; sampled at evidence_index 0, the issuer's own 2025 Annual Report, dated 2026-02-24). Note: this placement carries a second evidence item (evidence_index 1, theconversation.com) that never names Vopak or Sinopec Kantons and cannot independently support this issuer's identity; that weak second citation persists unresolved from the 2026-09-04 audit, but evidence_index 0 alone fully and independently supports the placement's identity and role.",
+        "record_digest": "e1e7c09d8b3fcf416e3951d8702e98691210e92fef547152712d8561ec9b0eef"
       },
       {
         "chain_id": "hormuz-maritime",
         "link_id": "hormuz-bypass-pipelines",
         "issuer_id": "SINOPEC-KANTONS-HOLDINGS",
-        "identity_ok": false,
-        "role_ok": false,
+        "identity_ok": true,
+        "role_ok": true,
         "source_date_ok": true,
-        "source_url": "https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805",
-        "source_date": "2026-04-30",
-        "source_excerpt": "With a capacity of just under 2 million barrels per day, Adcop is the only major bypass that exits the Gulf directly into the Indian Ocean.",
-        "record_digest": "b96e49cc8d812461b8526d6fc2e09cd5d4581602496c5f8a3f0ac3fbf504588b"
+        "source_url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/0317/2025031701440.pdf",
+        "source_date": "2025-03-17",
+        "source_excerpt": "During the Reporting Period, the Port of Fujairah became increasingly crucial as a blending port. Fujairah Oil Terminal FZC ('FOT'), a joint venture of the Company in the Middle East... the pipeline project connecting the storage area of FOT to the very large crude carrier ('VLCC') terminal at the port was officially completed by the end of 2024. With the completion of this project, FOT has become the only entity in the Port of Fujairah directly connected to both the 300,000-tonne VLCC terminal and the 200,000-tonne terminal... (confirmed verbatim by extracting the live HKEXnews results announcement PDF with pdftotext/Read; document approved for issue 17 March 2025, matching the recorded date, at evidence_index 0). The same weak, non-naming theconversation.com second evidence item persists as on the Vopak placement, unresolved but not load-bearing for this sampled claim.",
+        "record_digest": "a8ad07dc5f7559f6167740f80b4a5fa1ddd46913797aeac6dd896d3d5060dcc6"
       },
       {
         "chain_id": "hormuz-maritime",
@@ -5558,7 +5565,7 @@
         "source_date_ok": true,
         "source_url": "https://live.euronext.com/en/product/equities/NL0009432491-XAMS",
         "source_date": "2026-08-30",
-        "source_excerpt": "VOPAK | NL0009432491 | Euronext exchange Live quotes",
+        "source_excerpt": "Live live.euronext.com confirms this is a bare price-quote page for Vopak (Currency, Last Traded, Volume, Market Cap; tank storage, unrelated to transit control) with no business description of any kind. Opening one unrelated ticker's quote page does not constitute a real search of the exchange and cannot itself support a NO_QUALIFYING_NAMES finding. Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "6ee84f79af2532ac0f303f22fecd622563f8cf031318fc4ace60d39d05330953"
       },
       {
@@ -5570,7 +5577,7 @@
         "source_date_ok": true,
         "source_url": "https://lmalloyds.com/safety-concerns-not-insurance-availability-driving-reduced-vessel-traffic-in-the-strait-of-hormuz/",
         "source_date": "2026-03-23",
-        "source_excerpt": "The reason ships are not moving is not through a lack of insurance",
+        "source_excerpt": "The reason ships are not moving is not through a lack of insurance; it is a question of the risk to crew and vessel safety being assessed by the ship masters and owners as too high. (confirmed verbatim live on lmalloyds.com, dated 23 March 2026, matching the recorded date).",
         "record_digest": "27a50bca150e4d761f1916e64e4b25c4dfc632bf95c19f3f4e98be5378b7f744"
       },
       {
@@ -5582,7 +5589,7 @@
         "source_date_ok": true,
         "source_url": "https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx",
         "source_date": "2026-06-26",
-        "source_excerpt": "global head of marine, cargo and logistics at Marsh",
+        "source_excerpt": "Live insurancebusinessmag.com confirms Marcus Baker (global head of marine, cargo and logistics at Marsh) and James Reason (broker at WTW) are both named and quoted on Hormuz war-risk rates; Raj Abrol of Galytix is also named but correctly rejected as an analytics-firm executive, not a broker. control_probe (does the article name Marsh's global head of marine) confirmed true. Dated Jun 26 2026, matching the recorded date.",
         "record_digest": "0ae12f316afb9d71e6a6fb5e2d5eb1dcc77731d83fb166acc087622f6b233603"
       },
       {
@@ -5594,7 +5601,7 @@
         "source_date_ok": true,
         "source_url": "https://www.lloyds.com/insights/media-centre/press-releases/press-release-19062026",
         "source_date": "2026-06-19",
-        "source_excerpt": "Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates",
+        "source_excerpt": "Chubb will serve as lead underwriter, supported by participating Lloyd's syndicates (confirmed verbatim in the stored data/web/53afba4abdd7b78f.json, fetched 2026-09-14). The release names no additional listed placing broker beyond the underwriting consortium already counted.",
         "record_digest": "665769ce8482291858a8ef00eedfb3ee5455adf493515fa05b097052ab2596a8"
       },
       {
@@ -5606,7 +5613,7 @@
         "source_date_ok": true,
         "source_url": "https://efts.sec.gov/LATEST/search-index?q=%22marine+war+risk%22&forms=10-K",
         "source_date": "2026-09-01",
-        "source_excerpt": "\"display_names\": [\"OSG America L.P.  (CIK 0001409134)\"]",
+        "source_excerpt": "\"display_names\": [\"OSG America L.P.  (CIK 0001409134)\"] (confirmed verbatim in the live efts.sec.gov JSON response, top hit, file_date 2009-03-06). The top full-text hit is a 2009 tanker-company filing, not a broker; the search genuinely surfaces no listed marine-war-risk broker beyond the four already counted via trade press, consistent with the search's own role as a registry-side check that came up empty.",
         "record_digest": "1941e3657c70d827ae638343a1957c4d9319570917777068b53079e7d42d3ae6"
       },
       {
@@ -5618,7 +5625,7 @@
         "source_date_ok": true,
         "source_url": "https://rtspecialty.com/product/marine/",
         "source_date": "2026-09-01",
-        "source_excerpt": "Marine Liability Hull Protection & Indemnity Excess Liabilities Vessel Builders Risk",
+        "source_excerpt": "RT Specialty has a diverse group of professionals with experience in and programs for blue water, brown water, terminal operators, and international risks. RT Specialty is your one stop shop for all your Commercial Marine needs. (confirmed live on rtspecialty.com; page shows a generic Marine practice description and a product/location search tool, with no mention of Gulf or war-risk placement specifically, consistent with the search's role of confirming Ryan Specialty shows no Gulf-specific war-risk evidence).",
         "record_digest": "8f2be38422ac31b5521ee662842eeca663de492de35db22f3adca5fb750b8366"
       },
       {
@@ -5630,7 +5637,7 @@
         "source_date_ok": true,
         "source_url": "https://kvia.com/news/business-technology/cnn-business-consumer/2026/07/10/quills-and-conflict-how-protection-in-the-strait-of-hormuz-is-bought-and-sold/",
         "source_date": "2026-07-10",
-        "source_excerpt": "The market needs to see that anything agreed (between the United States and Iran) is stood by and the number of attacks ultimately subsides or disappears",
+        "source_excerpt": "\"The market needs to see that anything agreed (between the United States and Iran) is stood by and the number of attacks ultimately subsides or disappears\" -- Ben Stone, head of marine hull at insurance broker Aon (confirmed live via fetch of kvia.com, published July 10, 2026, matching the recorded date).",
         "record_digest": "2f48218f68257fad95941c69270a369c405a088ef050c35c5cb3c8eeff0bb52d"
       },
       {
@@ -5642,7 +5649,7 @@
         "source_date_ok": true,
         "source_url": "https://specialty.ajg.com/marine-cargo/",
         "source_date": "2026-09-01",
-        "source_excerpt": "the Gallagher Specialty Marine team's insights address the major issues affecting clients",
+        "source_excerpt": "In a volatile marine market, effective risk management is crucial. With market updates on P&I, Cargo and Hull & Machinery as well as our flagship annual report on P&I, the Gallagher Specialty Marine team's insights address the major issues affecting clients across key global and regional sectors. (confirmed verbatim live on specialty.ajg.com).",
         "record_digest": "03fe41ddf1ec10bcb7e69ce7a1a85695068f73f959307d6496fc0ebbf276809d"
       },
       {
@@ -5654,7 +5661,7 @@
         "source_date_ok": true,
         "source_url": "https://ir.spire.com/sec-filings/all-sec-filings/content/0001193125-26-116169/spir-20251231.htm",
         "source_date": "2026-03-19",
-        "source_excerpt": "we completed the sale of our maritime business to Kpler Holding SA for approximately $238.9 million",
+        "source_excerpt": "On April 25, 2025, we completed the sale of our maritime business to Kpler Holding SA for approximately $238.9 million (the \"Maritime Transaction\"). ... We retained certain maritime operations related to our U.S. federal government customers, including certain AIS-based vessel tracking services. We expect this business to decline over time as we focus on other strategic priorities. (confirmed verbatim live on ir.spire.com, the FY2025 Form 10-K).",
         "record_digest": "1d3cf55a0ef386ff725ecc2e38ae032c5ff04ba9b2e452d72f8e02dcf7870615"
       },
       {
@@ -5666,7 +5673,7 @@
         "source_date_ok": true,
         "source_url": "https://live.euronext.com/en/product/equities/NO0010571698-XOSL",
         "source_date": "2026-08-30",
-        "source_excerpt": "WILH. WILHELMSEN A | NO0010571698 | Euronext exchange Live quotes",
+        "source_excerpt": "Live live.euronext.com shows only regulated-news headlines (share buyback notices, Q2 2026 results) for Wilh. Wilhelmsen Holding ASA, with no business description. A bare instrument/news page cannot itself establish a NO_QUALIFYING_NAMES finding for maritime security and protection providers; Wilhelmsen Ships Service's plausible relevance is neither confirmed nor ruled out by this page. Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "1aa802772dec2960e73575be3bc739a47cd134ce53cd91357bec83e5f0e03537"
       },
       {
@@ -5678,7 +5685,7 @@
         "source_date_ok": true,
         "source_url": "https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631",
         "source_date": "2026-01-14",
-        "source_excerpt": "BP Singapore, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.",
+        "source_excerpt": "The remaining nine suppliers are BP Singapore, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers. (confirmed a genuine, correctly-phrased contiguous verbatim span of the live engine.online article, dated 2026-01-14; unlike the four placement citations sharing this source, this search row's own excerpt does not fabricate a framing sentence).",
         "record_digest": "85b797e52d6f232906dca3b4913bf5f25d54701db97ee7089aeb875e5729f149"
       },
       {
@@ -5690,7 +5697,7 @@
         "source_date_ok": true,
         "source_url": "https://www.sec.gov/files/company_tickers_exchange.json",
         "source_date": "2026-09-01",
-        "source_excerpt": "[789460,\"WORLD KINECT CORP\",\"WKC\",\"NYSE\"] ... [1914805,\"CBL International Ltd\",\"BANL\",\"Nasdaq\"]",
+        "source_excerpt": "[789460,\"WORLD KINECT CORP\",\"WKC\",\"NYSE\"] ... [1914805,\"CBL International Ltd\",\"BANL\",\"Nasdaq\"] (both bracketed array entries confirmed present verbatim, byte for byte, in the live company_tickers_exchange.json fetched this run).",
         "record_digest": "57a41234953cf856efbfeb1fa0ac10b8a87124050098ed84554122fbd6f9dd82"
       },
       {
@@ -5702,7 +5709,7 @@
         "source_date_ok": false,
         "source_url": "https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen",
         "source_date": "2025-12-18",
-        "source_excerpt": "CBL International is a trusted bunkering services facilitator, serving nine of the world's top twelve container liner companies.",
+        "source_excerpt": "barchart.com returned empty/unreadable content on this run's fetch attempt (reproducing the 2026-09-04 audit's identical UNFETCHED finding). The syndicated GlobeNewswire release the prior audit substituted is dated 2025-12-30, not the recorded source_date of 2025-12-18, a 12-day mismatch that persists unresolved.",
         "record_digest": "5702e27c36e5b5073a214001678d34c32d6cc0041ab42ebdb2c0fe72e96848ba"
       },
       {
@@ -5710,11 +5717,11 @@
         "link_id": "crew-and-warlike-area-manning",
         "search": "Euronext official instrument record check for a listed issuer whose revenue is seafarer crew supply for warlike-area transits",
         "identity_ok": true,
-        "role_ok": true,
+        "role_ok": false,
         "source_date_ok": true,
         "source_url": "https://live.euronext.com/en/product/equities/NO0010571698-XOSL",
         "source_date": "2026-08-30",
-        "source_excerpt": "WILH. WILHELMSEN A | NO0010571698 | Euronext exchange Live quotes",
+        "source_excerpt": "Live live.euronext.com shows only regulated-news headlines for Wilh. Wilhelmsen Holding ASA (the same bare page used for the maritime-risk-and-protection search), with no business description establishing or ruling out a crew-supply revenue line. Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "a77b3e512c1b6dcc8b0e8bc98dcee9abeb1b581dd9bf805dde3e6d6ea83ee004"
       },
       {
@@ -5726,7 +5733,7 @@
         "source_date_ok": true,
         "source_url": "https://lmalloyds.com/safety-concerns-not-insurance-availability-driving-reduced-vessel-traffic-in-the-strait-of-hormuz/",
         "source_date": "2026-03-23",
-        "source_excerpt": "The reason ships are not moving is not through a lack of insurance; it is a question of the risk to crew and vessel safety being assessed by the ship masters and owners as too high.",
+        "source_excerpt": "The reason ships are not moving is not through a lack of insurance; it is a question of the risk to crew and vessel safety being assessed by the ship masters and owners as too high. (confirmed verbatim live on lmalloyds.com, dated 23 March 2026, matching the recorded date; the same statement used for the hormuz-transit-control search).",
         "record_digest": "575cf00872a978d73e6ca404909fff431aa0e8957f880e999456b195292ebc3b"
       },
       {
@@ -5738,7 +5745,7 @@
         "source_date_ok": true,
         "source_url": "https://www.tradefinanceglobal.com/posts/shipping-lines-impose-new-gulf-surcharges-as-hormuz-disruption-enters-fourth-month/",
         "source_date": "2026-06-26",
-        "source_excerpt": "Hapag-Lloyd said its Middle East Emergency Surcharge applies to existing bookings already in transit, cargo discharged at transhipment hubs such as India, Pakistan, Salalah in Oman, or Khor Al Fakkan in the UAE",
+        "source_excerpt": "Hapag-Lloyd said its Middle East Emergency Surcharge applies to existing bookings already in transit, cargo discharged at transhipment hubs such as India, Pakistan, Salalah in Oman, or Khor Al Fakkan in the UAE... (confirmed verbatim live on tradefinanceglobal.com, published Friday 26 June 2026, matching the recorded date).",
         "record_digest": "2912d44194cfed38fa72b5eacb21e4b8a34a17ceffb0d7a69d942261d26ee966"
       },
       {
@@ -5750,7 +5757,7 @@
         "source_date_ok": true,
         "source_url": "https://www.seavantage.com/blog/strait-of-hormuz-crisis-2026-shipping-disruption-timeline",
         "source_date": "2026-04-12",
-        "source_excerpt": "Alphaliner reported that 138 container ships were trapped in the Persian Gulf, accounting for nearly 470,000 TEUs of capacity.",
+        "source_excerpt": "Alphaliner reported that 138 container ships were trapped in the Persian Gulf, accounting for nearly 470,000 TEUs of capacity. (confirmed verbatim live on seavantage.com; page's 'Current Status (as of April 12, 2026)' heading matches the recorded date).",
         "record_digest": "6719f229202eccd4d9efbb64a10faa822a4022e7f92caa4ead90646caf1cd421"
       },
       {
@@ -5759,10 +5766,10 @@
         "search": "HKEX official List of Securities: which Gulf-capable container liners are Main Board equities",
         "identity_ok": true,
         "role_ok": true,
-        "source_date_ok": true,
+        "source_date_ok": false,
         "source_url": "https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx",
         "source_date": "2026-09-01",
-        "source_excerpt": "List of Securities / Updated as at 04/09/2026 / Stock Code, Name of Securities, Category, Sub-Category ... 00001 CKH HOLDINGS ... Equity Securities (Main Board)",
+        "source_excerpt": "Could not reopen this exact spreadsheet URL live this run (hkex.com.hk denied both a direct navigation, which the browser reported as a forced file download, and a cross-origin fetch from another tab). The mapping's own recorded excerpt reads 'List of Securities / Updated as at 04/09/2026', the same self-declared continuously-regenerated-snapshot phrasing this audit confirmed live and independently on three separate TWSE pages this run (Generated Date: 2026/09/14 on each); by that same pattern, a spreadsheet re-opened today would very likely show a materially later 'Updated as at' stamp than the recorded 2026-08-31/2026-09-01, so I cannot certify this date as fixed. Sinopec Kantons Holdings being HKEX Main Board-listed is independently confirmed by the issuer's own results announcement (see the hormuz-bypass-pipelines placement), so identity and role are not in doubt; only the date of this specific citation is uncertain.",
         "record_digest": "2e2cd7ade5634e46e2ae45f8a8ff64f8d77fe83f437a2fa4badbbead73d2f597"
       },
       {
@@ -5774,7 +5781,7 @@
         "source_date_ok": true,
         "source_url": "https://stocktwits.com/news-articles/markets/equity/zim-s-q1-reflects-weaker-demand-lower-freight-rates-middle-east-crisis-to-weigh-even-more-in-q2/cZXDDj7ReVM",
         "source_date": "2026-05-20",
-        "source_excerpt": "the Persian Gulf conflict sparked a sharp increase and significant volatility in bunkering costs",
+        "source_excerpt": "the conflict in the Persian Gulf sparked a sharp increase and significant volatility in bunkering costs (confirmed verbatim live via the cited stocktwits article, published May 20, 2026, matching the recorded date).",
         "record_digest": "aa9572b5efaeec911383c77a33574fdb49d66097f003b392f3505fce0e082956"
       },
       {
@@ -5786,7 +5793,7 @@
         "source_date_ok": true,
         "source_url": "https://www.twse.com.tw/pdf/en/2615_en.pdf",
         "source_date": "2026-08-31",
-        "source_excerpt": "WAN HAI LINES LTD. ... Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade ... 7. Container Distributing Center Business 8. Ship Rental and Leasing 9. Container Rental and Leasing",
+        "source_excerpt": "WAN HAI LINES LTD. ... Main activities: 1. Ship Transportation 2. Shipping Agency Services... (confirmed verbatim by extracting the live TWSE PDF for code 2615). This search cites only Wan Hai's own record (one url field) but its accepted_names lists three issuers, Evergreen Marine, Yang Ming and Wan Hai; the other two have their own codes (2603, 2609) and their own separate documents, so this one search record over-supports its accepted_names list exactly as the 2026-09-04 audit found. Defect persists unchanged.",
         "record_digest": "658cf75e94c41dfb1d97b74fb35e7a47cb109a4c3c2434227453294551c8acad"
       },
       {
@@ -5798,7 +5805,7 @@
         "source_date_ok": false,
         "source_url": "https://www.grc.net/documents/69b7eeb0c6dccAvailableAlternativesHormuzGulfOilExporterscompressed.pdf",
         "source_date": "2026-09-01",
-        "source_excerpt": "The 1.5 million-b/d ADCOP pipeline from the Habshan onshore field in Abu Dhabi which travels overland and then across the barren Hajar Mountains to the emirate of Fujairah on the Gulf of Oman",
+        "source_excerpt": "The 1.5 million-b/d ADCOP pipeline from the Habshan onshore field in Abu Dhabi which travels overland and then across the barren Hajar Mountains to the emirate of Fujairah on the Gulf of Oman (confirmed verbatim by extracting the live Gulf Research Center PDF with pdftotext; names only state/national operators, supporting NO_QUALIFYING_NAMES). But the document's own title page reads 'March 2026', not the recorded source_date of 2026-09-01, a roughly six-month mismatch. Defect persists unchanged from the 2026-09-04 audit.",
         "record_digest": "6e09249ccc88f6a24ed00d84a47cf99223f30c65c51d8e9c2706c5451c6df2c0"
       },
       {
@@ -5807,10 +5814,10 @@
         "search": "HKEX official List of Securities: is the Fujairah terminal owner a Main Board equity",
         "identity_ok": true,
         "role_ok": true,
-        "source_date_ok": true,
+        "source_date_ok": false,
         "source_url": "https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx",
         "source_date": "2026-09-01",
-        "source_excerpt": "List of Securities / Updated as at 04/09/2026 / Stock Code, Name of Securities, Category, Sub-Category ... 00001 CKH HOLDINGS ... Equity Securities (Main Board)",
+        "source_excerpt": "Could not reopen this spreadsheet URL live this run (hkex.com.hk denied navigation as a forced file download); Sinopec Kantons Holdings' HKEX Main Board listing (stock code 934) is independently confirmed by the issuer's own results announcement cover page opened live this run. Same 'Updated as at' continuously-regenerated-snapshot concern noted on the container-liner-diversion HKEX search applies here too, so the recorded date is not certified.",
         "record_digest": "49733c833645d326a54ab79ab506a9ce92f983507b2ecc2e6fe2ae1004b043ea"
       },
       {
@@ -5822,7 +5829,7 @@
         "source_date_ok": true,
         "source_url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/0317/2025031701440.pdf",
         "source_date": "2025-03-17",
-        "source_excerpt": "Fujairah Oil Terminal FZC (\"FOT\"), a joint venture of the Company in the Middle East, made every effort in market expansions... the pipeline project connecting the storage area of FOT to the very large crude carrier (\"VLCC\") terminal at the port was officially completed by the end of 2024.",
+        "source_excerpt": "Fujairah Oil Terminal FZC (\"FOT\"), a joint venture of the Company in the Middle East, made every effort in market expansions... FOT has become the only entity in the Port of Fujairah directly connected to both the 300,000-tonne VLCC terminal and the 200,000-tonne terminal... (confirmed verbatim by extracting the live HKEXnews PDF with pdftotext/Read; the filing states it was 'approved by the board of directors for issue on 17 March 2025', matching the recorded date exactly).",
         "record_digest": "874acaa88996dfecc6814b9119188e59c1528d7f5338e26abad23317673ffedf"
       },
       {
@@ -5834,60 +5841,87 @@
         "source_date_ok": true,
         "source_url": "https://www.vopak.com/system/files/Vopak_Annual_Report_2025.pdf",
         "source_date": "2026-02-25",
-        "source_excerpt": "United Arab Emirates / Vopak Horizon Fujairah Ltd. (33.33%)",
+        "source_excerpt": "United Arab Emirates BU USA & Canada Vopak Horizon Fujairah Ltd. (33.33%) United States (the same genuine PDF table-extraction fragment sampled for the KONINKLIJKE-VOPAK placement, from the issuer's own 2025 Annual Report).",
         "record_digest": "1efb952f854dff4ba64d87fc64ad328fc7c720a51072d6ec7e639a14b1e8c830"
       }
     ],
     "identity_conflicts": [
-      "KONINKLIJKE-VOPAK / hormuz-bypass-pipelines (https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805): Explicitly checked: this article never names 'Vopak', 'Koninklijke Vopak', 'Sinopec Kantons', or 'Fujairah Oil Terminal FZC' anywhere. It is a general explainer on Gulf-state pipeline bypasses (Petroline, Adcop) and supports the general bypass/attack narrative in the link's evidence, but it cannot corroborate Vopak's specific 33.33% ownership stake in Vopak Horizon Fujairah -- that identity claim rests entirely on the other (Vopak annual report) evidence item. Using this source for the corporate-identity leg of the claim overstates what it supports.",
-      "SINOPEC-KANTONS-HOLDINGS / hormuz-bypass-pipelines (https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805): Same article as used for the Vopak claim on this link, reused here for a different issuer. Explicitly checked: never names 'Sinopec Kantons', 'Sinopec', or 'Fujairah Oil Terminal FZC'. It supports the general Adcop-pipeline/Fujairah-attack narrative but not Sinopec Kantons' specific joint-venture role in FOT -- that rests entirely on the HKEX filing evidence item. Citing a company-agnostic geopolitical explainer as identity/role evidence for this specific issuer overstates the source."
+      "LISTING AWILCO-LNG (issuer_id AWILCO-LNG, listing_id EURONEXT-EXPAND-ALNG): legal_issuer on file reads 'Awilco LNG ASA', sourced from the 8 May 2026 prospectus. Independently confirmed live this run (WebSearch, cross-checked against lngprime.com and inderes.dk coverage) that the issuer changed its name from 'Awilco LNG ASA' to 'ALNG ASA' at its AGM on 3 June 2026, before this map's own 2026-09-04 audit first flagged the listing as stale and more than three months before this run. The ticker (ALNG), exchange and underlying entity are unchanged, so no placement or coverage count is affected, but the listing's own identity_evidence still names the pre-rename legal entity as if it were current. This is not one of the 33 required TARGET_MET/EXHAUSTED sampled placements or searches (AWILCO-LNG's own placement evidence, sampled above, is dated before the rename and is accurate for what it cites); it is a beyond-minimum listing spot-check finding, exactly as the 2026-09-04 audit flagged it, and it remains unresolved ten days later."
     ],
     "role_conflicts": [
-      "AIG / marine-war-risk-underwriting (https://agencychecklists.com/2022/08/22/top-10-ocean-marine-insurers-2022-new-england-market-share-report-61171/): Article date matches the cited source_date (2022-08-22), but the content itself is four years stale relative to the 2026 Hormuz occurrence and never mentions Hormuz, war risk, or repricing. It only shows AIG's 2022 national ocean-marine market share (in fact #1, not merely 'top ten' as the mapping's role text hedges). The specific claimed role -- that AIG's 'hull and cargo book reprices on the Gulf war-risk shock' -- is not supported by this source; it is an inference layered on top of a stale market-share ranking, and the tag is INFERRED so this is a genuine gap rather than mislabeling, but the excerpt does not establish the Hormuz-specific role.",
-      "GENERAL-DYNAMICS / naval-escort-and-mine-clearance (https://defensescoop.com/2026/04/11/strait-of-hormuz-mine-clearance-navy-centcom-underwater-drones/): Identity (General Dynamics as Knifefish builder) is confirmed. But the mapping's role claims Knifefish is 'being used in the effort to clear Iranian mines' (asserted, present-tense actual deployment); the article only says the Knifefish 'could potentially be employed' and explicitly states the Navy/CENTCOM press release did not confirm which specific UUVs are participating. The stored source_excerpt in the mapping omits this hedge and overstates the source. Flag: role_ok false, this is a speculative-to-confirmed overstatement.",
-      "WILLIS-TOWERS-WATSON / specialty-marine-broking (https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx): Role text claims 'WTW brokers publicly price the Hormuz war-risk market'; the cited source quotes exactly one named individual broker at WTW, not WTW as an organization pricing the market. Fresh-fetch note: Article only quotes one named individual broker at WTW, not WTW as an organization; the mapping's stronger claim that 'WTW brokers publicly price the Hormuz war-risk market' is broader than this single quote directly proves, though directionally consistent.",
-      "SINOPEC-CORP / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Role text also claims Sinopec is 'the record-setting supplier at Zhoushan'; the cited MPA top-ten source only shows Sinopec Fuel Oil (Singapore) present on the list and does not support the Zhoushan claim. Fresh-fetch note: Source only confirms 'Sinopec Fuel Oil (Singapore)' on the MPA top-10 list; it does not mention or support the mapping's additional claim of Sinopec being 'the record-setting supplier at Zhoushan', which is unverified by this article.",
-      "PETROCHINA / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Role text also claims 'Chimbusco is its marine-fuel arm'; the cited MPA top-ten source never mentions Chimbusco. Fresh-fetch note: Source only confirms 'PetroChina International' on the MPA top-10 list; it does not mention Chimbusco, which the mapping's role text adds as PetroChina's marine-fuel arm and which is unverified by this article.",
-      "EVERGREEN-MARINE / container-liner-diversion (https://www.twse.com.tw/pdf/en/2603_en.pdf): WebFetch could not parse this TWSE PDF as text; opened the saved binary directly with the Read tool and confirmed the company profile visually. Page confirms Evergreen Marine Corp. (Taiwan) Ltd. identity and its general shipping/container business, but contains no mention of the Strait of Hormuz, route diversion, or conflict surcharges anywhere on the page. The specific role claimed (Asia-Europe/Gulf string diversion, conflict surcharge) is not supported by this source, which is a generic, undated live company-info page. Main Business text is not date-stamped; treated source_date as plausible since it falls within the page's displayed trading history.",
-      "YANG-MING / container-liner-diversion (https://www.twse.com.tw/pdf/en/2609_en.pdf): Same defect pattern as the Evergreen row: this is a generic, undated TWSE live company-profile page confirming Yang Ming Marine Transport Corp.'s identity and shipping business, with zero mention of Hormuz, diversion, or surcharges. The specific claimed role is unsupported by this source; only generic container-liner identity is.",
-      "WAN-HAI-LINES / container-liner-diversion (https://www.twse.com.tw/pdf/en/2615_en.pdf): Same defect pattern again: confirms Wan Hai Lines Ltd.'s identity and container-shipping business only. No mention of Hormuz, diversion routing, or conflict surcharges. Stored mapping excerpt uses an ellipsis to splice in item 7 ('Container Distributing Center Business') from later in the same list; the individual fragments are genuine but the specific Hormuz-diversion role is not supported by this source.",
-      "COSCO-SHIPPING-HOLDINGS / container-liner-diversion (https://www.seavantage.com/blog/strait-of-hormuz-crisis-2026-shipping-disruption-timeline): The stored mapping excerpt silently drops 'Hapag-Lloyd' from this list (COSCO itself is correctly quoted, so not fabrication, but the excerpt is not a clean verbatim substring of the actual sentence). More importantly: the claimed role ('halted Hormuz transits on safety grounds' and 'manages Gulf cargo through phased port acceptance') is not supported anywhere in this article. The article only reports that COSCO vessels, among several carriers', were trapped/unable to exit during the Feb 28 closure -- it says nothing about a deliberate COSCO safety-grounds halt decision or a phased port-acceptance management process. Role overstates the source.",
-      "KONINKLIJKE-VOPAK / hormuz-bypass-pipelines (https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805): Explicitly checked: this article never names 'Vopak', 'Koninklijke Vopak', 'Sinopec Kantons', or 'Fujairah Oil Terminal FZC' anywhere. It is a general explainer on Gulf-state pipeline bypasses (Petroline, Adcop) and supports the general bypass/attack narrative in the link's evidence, but it cannot corroborate Vopak's specific 33.33% ownership stake in Vopak Horizon Fujairah -- that identity claim rests entirely on the other (Vopak annual report) evidence item. Using this source for the corporate-identity leg of the claim overstates what it supports.",
-      "SINOPEC-KANTONS-HOLDINGS / hormuz-bypass-pipelines (https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805): Same article as used for the Vopak claim on this link, reused here for a different issuer. Explicitly checked: never names 'Sinopec Kantons', 'Sinopec', or 'Fujairah Oil Terminal FZC'. It supports the general Adcop-pipeline/Fujairah-attack narrative but not Sinopec Kantons' specific joint-venture role in FOT -- that rests entirely on the HKEX filing evidence item. Citing a company-agnostic geopolitical explainer as identity/role evidence for this specific issuer overstates the source.",
-      "SEARCH hormuz-transit-control / 'Euronext official instrument record check: is any listed ins' (https://live.euronext.com/en/product/equities/NL0009432491-XAMS): Page is a bare price-quote listing for Vopak (tank storage, unrelated to Hormuz transit control) with no business description at all. Opening one arbitrary unrelated ticker's quote page doesn't constitute a real search of the exchange and can't genuinely support a NO_QUALIFYING_NAMES finding. control_probe is null, so the methodology has no independent check.",
-      "SEARCH maritime-risk-and-protection / 'Euronext official instrument record check for a listed marit' (https://live.euronext.com/en/product/equities/NO0010571698-XOSL): Same defect as the other Euronext check on this batch: a bare price-quote page with no business description can't establish NO_QUALIFYING_NAMES. Wilhelmsen is in fact a maritime services group (Wilhelmsen Ships Service) whose plausible relevance to this link the page neither confirms nor rules out. control_probe is null.",
-      "SEARCH container-liner-diversion / 'Taiwan Stock Exchange official listed-company records: which' (https://www.twse.com.tw/pdf/en/2615_en.pdf): This URL (TWSE code 2615) is Wan Hai Lines' own official record and fully supports Wan Hai as a qualifying name (control_probe verified verbatim). But the row's accepted_names also lists Evergreen Marine Corp. and Yang Ming Marine Transport Corp., and this specific document contains no mention of either -- those are separate TWSE-listed issuers with their own codes (2603, 2609) and would need their own source rows. As cited, this one URL over-supports its accepted_names list."
+      "PLACEMENT AIG / marine-war-risk-underwriting (https://agencychecklists.com/2022/08/22/top-10-ocean-marine-insurers-2022-new-england-market-share-report-61171/): Top 10 Ocean Marine Insurers (National): AMERICAN INTL GRP - 14.49%, dated August 22, 2022 (confirmed live on agencychecklists.com). Content never mentions Hormuz, war risk, repricing, or 2026 anywhere; AIG is actually ranked #1 nationally, not merely 'top ten' as the role text hedges. A 2022 national market-share ranking cannot establish the placement's specific claimed role that AIG's book 'reprices on the Gulf war-risk shock.' Defect persists unchanged from the 2026-09-04 audit.",
+      "PLACEMENT GENERAL-DYNAMICS / naval-escort-and-mine-clearance (https://defensescoop.com/2026/04/11/strait-of-hormuz-mine-clearance-navy-centcom-underwater-drones/): One underwater drone that could potentially be employed for mine clearing operations in the Strait of Hormuz is the Knifefish, which was built by General Dynamics... The release didn't identify the unmanned underwater vehicles that will be involved. (confirmed live on defensescoop.com, 2026-04-11). The article hedges 'could potentially be employed' and explicitly states CENTCOM's release did not confirm which UUVs are involved; the placement's role text nonetheless asserts Knifefish is 'being used,' present-tense confirmed deployment. Defect persists unchanged from the 2026-09-04 audit.",
+      "PLACEMENT HUNTINGTON-INGALLS / naval-escort-and-mine-clearance (https://www.hii.com/news/hii-delivers-destroyer-ted-stevens-ddg-128-to-u-s-navy): HII's (NYSE: HII) Ingalls Shipbuilding division has delivered Arleigh Burke-class guided missile destroyer Ted Stevens (DDG 128) to the U.S. Navy. (confirmed live on hii.com, Dec 29, 2025). The mapping's stored excerpt omits the parenthetical '(NYSE: HII)' from the middle of this sentence, so it is not a genuine contiguous verbatim span of the source; the underlying role claim (HII builds Arleigh Burke destroyers) is otherwise accurate. New, minor finding.",
+      "PLACEMENT NORDIC-AMERICAN-TANKERS / crude-tanker-tonnage (https://www.nat.bm/nordic-american-tankers-ltd-nyse-nat-report-as-per-december-31-2025-full-speed-ahead/): During the first half of 2025, we acquired two 2016-built suezmax tankers. (confirmed live and verbatim on nat.bm, dated Thursday, February 26, 2026, matching the recorded date). The full shareholder letter never mentions the Strait of Hormuz or a reroute; it attributes tanker-market strength to shadow-fleet scarcity and a fixed-rate charter, not to any Gulf closure. The excerpt supports only that NAT owns suezmax tankers, not the placement's claimed causal role that 'the reroute has repriced' its spot TCE. Matches and elaborates the placement-audit FAIL recorded in this mapping's changelog on 2026-09-14.",
+      "PLACEMENT TSAKOS-ENERGY-NAVIGATION / crude-tanker-tonnage (https://www.tenn.gr/our-company/): TEN Ltd. owns a versatile fleet of double-hull vessels, constituting a mix of modern VLCC's, suezmax, aframax, panamax, handysize and handymax tankers, LNGs and shuttle tankers... (confirmed live and verbatim on tenn.gr/our-company). This is an evergreen, undated 'About Us' fleet-composition page with no reference to the Strait of Hormuz, war risk, or any 2026 occurrence; it cannot support the placement's specific claim that TSAKOS tonnage 'prices against the Gulf war-risk market.' New finding.",
+      "PLACEMENT GOLAR-LNG / lng-shipping-and-qatari-supply (https://www.golarlng.com/): Live golarlng.com shows 'We design, convert, own, and operate marine infrastructure that turns natural gas into LNG' and 'the only independent provider of FLNG as a service' as running prose, but the '4' and '8' figures the mapping quotes as 'four FLNG units (two operational, two under construction) and a track record of eight LNG carrier conversions' actually appear only as separate at-a-glance stat tiles ('4 FLNGS. TWO ON THE WATER, TWO UNDER CONSTRUCTION' / '8 LNG CARRIER CONVERSIONS'), not as the flowing sentence recorded. The stored excerpt is a paraphrase of tile data, not a contiguous verbatim quote. New finding.",
+      "PLACEMENT EXXONMOBIL / non-gulf-energy-substitution (https://www.eia.gov/todayinenergy/detail.php?id=66884): Live eia.gov (Today in Energy, Dec 17 2025) confirms 'Production in Guyana is managed by ExxonMobil, along with partners Hess and the China National Offshore Oil Corporation (CNOOC)' in one paragraph and, in a separate, non-adjacent paragraph two sentences later, 'Recent reports indicate that Exxon's Yellowtail project has reached full production capacity...' and 'The start-up of the Uaru project in 2026 is expected to add...'. The mapping's stored excerpt splices these three non-adjacent fragments into one unbroken string with no ellipsis marking the gap, the same defect class (a non-contiguous splice presented as one continuous quote) as the CHUBB citation this audit was opened to review. New finding.",
+      "PLACEMENT SHELL / non-gulf-energy-substitution (https://www.energyconnects.com/news/gas-lng/2025/july/shell-led-lng-canada-ships-first-cargo-to-meet-asian-demand/): Live energyconnects.com (Jul 01 2025) confirms 'The first cargo from the plant in British Columbia was loaded on the vessel Gaslog Glasgow' in one paragraph, 'Shell owns 40% of the project' at the end of that same paragraph, and 'the 14 million-ton-a-year facility will reach full capacity in 2026, Cremers said' in a separate, later paragraph. The mapping's excerpt synthesizes these into new wording, 'The facility will reach 14 million tons annually at full capacity in 2026, with Shell holding a 40% ownership stake in the project,' which is not a verbatim span of the source. New finding.",
+      "PLACEMENT WILLIS-TOWERS-WATSON / specialty-marine-broking (https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx): Live insurancebusinessmag.com (Jun 26 2026) reads: 'James Reason, a broker at WTW, said the rate trajectory was positive but conditional. \"The longer this continues without incident, rates will continue to improve,\" he told Insurance Business.' The mapping's stored excerpt reads 'James Reason, broker, WTW: The longer this continues without incident, rates will continue to improve.', restructuring 'a broker at WTW, said' into 'broker, WTW:' -- not a verbatim quote (new finding on top of the persisting role_ok defect: the role text's organization-level claim 'WTW brokers publicly price the Hormuz war-risk market' still rests on this one individual's quote, unchanged since 2026-09-04, and unresolved even though a 2026-09-06 placement audit on this exact placement/evidence recorded PASS).",
+      "PLACEMENT BP / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Live engine.online (Jan 14 2026) reads: 'As in 2024, the list is presented in alphabetical order... Bunker House Petroleum replaces Glencore Singapore... The remaining nine suppliers are BP Singapore, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.' The mapping's stored excerpt, 'MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, ...', is not this sentence: it invents a framing clause the article never uses and inserts Bunker House Petroleum into what the source calls 'the remaining nine.' Confirmed programmatically not a substring of the article text (checked against a full-page screenshot too; no infographic carries this wording). New finding, same defect class as the CHUBB splice.",
+      "PLACEMENT CHEVRON / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Same engine.online article as BP's placement; same fabricated 'MPA Top 10... alphabetical order' framing sentence, confirmed not a substring of the live article. New finding.",
+      "PLACEMENT SINOPEC-CORP / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Same engine.online article; the placement's shared fabricated framing sentence is confirmed not a substring of the live article (new finding), and the role text's separate claim that Sinopec is 'the record-setting supplier at Zhoushan' remains wholly unsupported by this MPA-Singapore-only source (persisting finding, unchanged since 2026-09-04 and the 2026-09-06 placement-audit FAIL).",
+      "PLACEMENT PETROCHINA / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Same engine.online article; the placement's shared fabricated framing sentence is confirmed not a substring of the live article (new finding), and the role text's separate claim that 'Chimbusco is its marine-fuel arm' remains wholly unsupported by this MPA-Singapore-only source, which never mentions Chimbusco (persisting finding, unchanged since 2026-09-04 and the 2026-09-06 placement-audit FAIL).",
+      "PLACEMENT EVERGREEN-MARINE / container-liner-diversion (https://www.twse.com.tw/pdf/en/2603_en.pdf): Business Briefing: 1) G301011 Ship Transportation; 2) G401011 Shipping Agency Services; 3) G404011 Container Distributing Center Business; 4) ZZ99999 All business items... (confirmed verbatim by extracting the live TWSE PDF for code 2603 with pdftotext). Page header reads 'Generated Date: 2026/09/14' (today): a live-regenerating snapshot, not the fixed 2026-08-31 the mapping records. No mention anywhere of the Strait of Hormuz, diversion, or surcharges, so the role text's specific claim is unsupported. Both defects persist unchanged from the 2026-09-04 audit.",
+      "PLACEMENT YANG-MING / container-liner-diversion (https://www.twse.com.tw/pdf/en/2609_en.pdf): 1.Domestic and overseas marine shipment service. 2.Domestic and overseas marine passenger service. 3.Warehouse,pier,tugboat,barge,container freight station and terminal... (confirmed verbatim by extracting the live TWSE PDF for code 2609). 'Generated Date: 2026/09/14' live-snapshot issue and absence of any Hormuz/diversion/surcharge mention both persist unchanged.",
+      "PLACEMENT WAN-HAI-LINES / container-liner-diversion (https://www.twse.com.tw/pdf/en/2615_en.pdf): Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade 4. Retail Sale of Other Retail Trade 5. Wholesale of Ship Machinery and Parts 6. Retail Sale of Ship Machinery and Parts 7. Container Distributing Center Business... (confirmed verbatim by extracting the live TWSE PDF for code 2615). The mapping's excerpt uses an ellipsis to jump from item 3 to item 7, skipping items 4-6, the same non-contiguous-splice defect class as CHUBB's original citation; 'Generated Date: 2026/09/14' live-snapshot issue persists; no Hormuz/diversion/surcharge content anywhere. All three defects persist unchanged from the 2026-09-04 audit.",
+      "PLACEMENT COSCO-SHIPPING-HOLDINGS / container-liner-diversion (https://www.seavantage.com/blog/strait-of-hormuz-crisis-2026-shipping-disruption-timeline): Live seavantage.com confirms: 'A senior IRGC official formally confirmed on March 2 that the strait was closed... Maersk, COSCO, Hapag-Lloyd, ONE, Evergreen, HMM, Yang Ming also had vessels unable to exit'. The mapping's current excerpt, 'Maersk, COSCO, ONE, Evergreen, HMM and Yang Ming also had vessels unable to exit.', silently removes Hapag-Lloyd and rewrites 'HMM, Yang Ming' to 'HMM and Yang Ming' to smooth the deletion: confirmed programmatically not a substring of the live article, a doctored (not merely truncated) quote. The role text's separate, larger claim that COSCO 'halted Hormuz transits on safety grounds' and 'manages Gulf cargo through phased port acceptance' remains wholly unsupported anywhere in this article, which only reports vessels of several carriers being trapped. Persists and is now worse than the 2026-09-04 audit's finding, which only noted a dropped name, not a smoothed rewrite.",
+      "PLACEMENT HAPAG-LLOYD / container-liner-diversion (https://www.tradefinanceglobal.com/posts/shipping-lines-impose-new-gulf-surcharges-as-hormuz-disruption-enters-fourth-month/): Live tradefinanceglobal.com (Jun 26 2026) reads, in two separate sentences: 'Hapag-Lloyd said its Middle East Emergency Surcharge applies to existing bookings already in transit, cargo discharged at transhipment hubs such as India, Pakistan, Salalah in Oman, or Khor Al Fakkan in the UAE...' and, in the next paragraph, 'Fees vary by routing: customers routed via Jeddah with onward trucking into the UAE face charges of $5,600 per 20-foot container, while those using Fujairah or Khor Fakkan as a discharge point pay $2,200 per box...'. The mapping's excerpt compresses both into new wording not present verbatim in either sentence. New finding.",
+      "SEARCH hormuz-transit-control / 'Euronext official instrument record check: is any listed ins' (https://live.euronext.com/en/product/equities/NL0009432491-XAMS): Live live.euronext.com confirms this is a bare price-quote page for Vopak (Currency, Last Traded, Volume, Market Cap; tank storage, unrelated to transit control) with no business description of any kind. Opening one unrelated ticker's quote page does not constitute a real search of the exchange and cannot itself support a NO_QUALIFYING_NAMES finding. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH maritime-risk-and-protection / 'Euronext official instrument record check for a listed marit' (https://live.euronext.com/en/product/equities/NO0010571698-XOSL): Live live.euronext.com shows only regulated-news headlines (share buyback notices, Q2 2026 results) for Wilh. Wilhelmsen Holding ASA, with no business description. A bare instrument/news page cannot itself establish a NO_QUALIFYING_NAMES finding for maritime security and protection providers; Wilhelmsen Ships Service's plausible relevance is neither confirmed nor ruled out by this page. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH crew-and-warlike-area-manning / 'Euronext official instrument record check for a listed issue' (https://live.euronext.com/en/product/equities/NO0010571698-XOSL): Live live.euronext.com shows only regulated-news headlines for Wilh. Wilhelmsen Holding ASA (the same bare page used for the maritime-risk-and-protection search), with no business description establishing or ruling out a crew-supply revenue line. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH container-liner-diversion / 'Taiwan Stock Exchange official listed-company records: which' (https://www.twse.com.tw/pdf/en/2615_en.pdf): WAN HAI LINES LTD. ... Main activities: 1. Ship Transportation 2. Shipping Agency Services... (confirmed verbatim by extracting the live TWSE PDF for code 2615). This search cites only Wan Hai's own record (one url field) but its accepted_names lists three issuers, Evergreen Marine, Yang Ming and Wan Hai; the other two have their own codes (2603, 2609) and their own separate documents, so this one search record over-supports its accepted_names list exactly as the 2026-09-04 audit found. Defect persists unchanged."
     ],
     "source_date_conflicts": [
-      "FORMOSA-PETROCHEMICAL / cargo-owners-and-energy-importers (https://www.twse.com.tw/pdf/en/6505_en.pdf): WebFetch could not read this PDF directly (returned only images/technical data); downloaded it and extracted text locally with pdftotext, confirming the stored excerpt verbatim. However this is TWSE's live, continuously-regenerated company snapshot page (its own header reads 'Generated Date: 2026/09/04' and its price table runs up to 9/3), not a document with a fixed publish date -- there is no basis for treating 2026-08-31 specifically as 'the' source date versus any other day this same boilerplate could be pulled. Marking source_date_ok false on that basis; identity and role content are solid.",
-      "WORLD-KINECT / bunker-and-voyage-services (https://ir.world-kinect.com/news-releases/news-release-details/world-kinect-corporation-reports-fourth-quarter-and-full-year-1/): Dateline on the actual release reads Feb. 19, 2026, not the stored source_date of 2026-02-23 (4-day mismatch). Also, this excerpt only confirms company identity/ticker, not the specific role claim about marine-segment bunker volumes; that detail was not surfaced in the fetched intro.",
-      "CBL-INTERNATIONAL / bunker-and-voyage-services (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): Original barchart.com URL returned blank/unfetchable content on two attempts; substituted the same wire release via WebSearch, confirmed on globenewswire.com (2025-12-30 press release, same headline and body text, CBL International Limited, Nasdaq: BANL). Actual publish timestamp is December 30, 2025 05:38 ET, not the stored source_date of 2025-12-18 (12-day mismatch).",
-      "SEARCH bunker-and-voyage-services / \"Does CBL's own announcement evidence its bunkering facilitat\" (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): barchart.com returned empty content twice via WebFetch; substituted the same GlobeNewswire-distributed release (globenewswire.com/news-release/2025/12/30/3211280) which barchart syndicates. Content and control_probe claim (nine of top twelve liners) both verified verbatim. But the release is dated 2025-12-30 across every syndicated copy found (Nasdaq, GlobeNewswire, ACN Newswire, Ship & Bunker), a 12-day mismatch against the recorded source_date of 2025-12-18 -- looks like a transcription error in the record, not a fabrication of content.",
-      "SEARCH hormuz-bypass-pipelines / 'What are the Hormuz bypass pipelines and who owns them (indu' (https://www.grc.net/documents/69b7eeb0c6dccAvailableAlternativesHormuzGulfOilExporterscompressed.pdf): Gulf Research Center report describes ADCOP, IPSA, Petroline, Tapline and Iraqi pipelines and names only state/national operators (Saudi Aramco, IPIC) -- no separately listed public pipeline issuer -- consistent with NO_QUALIFYING_NAMES; control_probe's ADCOP/Habshan/Fujairah/1.5 million b/d claim verified verbatim. But the document's own cover page is dated 'March 2026', not the recorded source_date of 2026-09-01 -- a roughly 6-month mismatch worth flagging even though the content itself is genuine."
+      "PLACEMENT FORMOSA-PETROCHEMICAL / cargo-owners-and-energy-importers (https://www.twse.com.tw/pdf/en/6505_en.pdf): Formosa Petrochemical Corporation is involved primarily in the business of refinery, petrochemical and utilities. The Company's major business activities include export/import,... (confirmed verbatim by extracting the live PDF with pdftotext/Read). But the page header reads 'Generated Date: 2026/09/14' (today) and its trading table runs through 9/11: this is TWSE's continuously-regenerated live company snapshot, not a fixed-date document, so the recorded source_date of 2026-08-31 has no basis over any other day this same boilerplate could be pulled. Defect persists unchanged from the 2026-09-04 audit.",
+      "PLACEMENT PBF-ENERGY / cargo-owners-and-energy-importers (https://www.sec.gov/Archives/edgar/data/0001534504/000153450426000030/pbf-20260630.htm): Actions affecting regional shipping routes, including through the Strait of Hormuz, and impacts to certain Middle Eastern energy infrastructure have led to higher freight costs, longer transit times and supply chain disruptions. These conditions have supported higher global refining margins... (confirmed verbatim live via JS text search of the SEC EDGAR filing page; the $2,926.3 million / $1,031.8 million six-month gross-refining-margin figures are confirmed in the filing's own table). But the SEC EDGAR company filing index (browse-edgar atom feed for CIK 0001534504) shows this 10-Q's actual filing-date is 2026-07-30, not the recorded source_date of 2026-06-30, which is the fiscal period-end date, not the filing date. New finding.",
+      "PLACEMENT WORLD-KINECT / bunker-and-voyage-services (https://ir.world-kinect.com/news-releases/news-release-details/world-kinect-corporation-reports-fourth-quarter-and-full-year-1/): MIAMI--(BUSINESS WIRE)--Feb. 19, 2026-- World Kinect Corporation (NYSE: WKC) today reported financial results... (confirmed verbatim live on ir.world-kinect.com). The release's own dateline reads Feb. 19, 2026, not the recorded source_date of 2026-02-23, a 4-day mismatch. Defect persists unchanged from the 2026-09-04 audit and the placement-audit FAIL recorded 2026-09-06.",
+      "PLACEMENT CBL-INTERNATIONAL / bunker-and-voyage-services (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): barchart.com returned empty/unreadable content on this run's fetch attempt (both a direct navigation and a get_page_text call returned a blank body), independently reproducing the 2026-09-04 audit's identical finding two weeks later. The syndicated GlobeNewswire copy of the same release is dated 2025-12-30, not the recorded source_date of 2025-12-18, a 12-day mismatch. Defect persists unchanged, and the underlying URL remains effectively unverifiable at its cited address.",
+      "PLACEMENT EVERGREEN-MARINE / container-liner-diversion (https://www.twse.com.tw/pdf/en/2603_en.pdf): Business Briefing: 1) G301011 Ship Transportation; 2) G401011 Shipping Agency Services; 3) G404011 Container Distributing Center Business; 4) ZZ99999 All business items... (confirmed verbatim by extracting the live TWSE PDF for code 2603 with pdftotext). Page header reads 'Generated Date: 2026/09/14' (today): a live-regenerating snapshot, not the fixed 2026-08-31 the mapping records. No mention anywhere of the Strait of Hormuz, diversion, or surcharges, so the role text's specific claim is unsupported. Both defects persist unchanged from the 2026-09-04 audit.",
+      "PLACEMENT YANG-MING / container-liner-diversion (https://www.twse.com.tw/pdf/en/2609_en.pdf): 1.Domestic and overseas marine shipment service. 2.Domestic and overseas marine passenger service. 3.Warehouse,pier,tugboat,barge,container freight station and terminal... (confirmed verbatim by extracting the live TWSE PDF for code 2609). 'Generated Date: 2026/09/14' live-snapshot issue and absence of any Hormuz/diversion/surcharge mention both persist unchanged.",
+      "PLACEMENT WAN-HAI-LINES / container-liner-diversion (https://www.twse.com.tw/pdf/en/2615_en.pdf): Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade 4. Retail Sale of Other Retail Trade 5. Wholesale of Ship Machinery and Parts 6. Retail Sale of Ship Machinery and Parts 7. Container Distributing Center Business... (confirmed verbatim by extracting the live TWSE PDF for code 2615). The mapping's excerpt uses an ellipsis to jump from item 3 to item 7, skipping items 4-6, the same non-contiguous-splice defect class as CHUBB's original citation; 'Generated Date: 2026/09/14' live-snapshot issue persists; no Hormuz/diversion/surcharge content anywhere. All three defects persist unchanged from the 2026-09-04 audit.",
+      "SEARCH bunker-and-voyage-services / \"Does CBL's own announcement evidence its bunkering facilitat\" (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): barchart.com returned empty/unreadable content on this run's fetch attempt (reproducing the 2026-09-04 audit's identical UNFETCHED finding). The syndicated GlobeNewswire release the prior audit substituted is dated 2025-12-30, not the recorded source_date of 2025-12-18, a 12-day mismatch that persists unresolved.",
+      "SEARCH container-liner-diversion / 'HKEX official List of Securities: which Gulf-capable contain' (https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx): Could not reopen this exact spreadsheet URL live this run (hkex.com.hk denied both a direct navigation, which the browser reported as a forced file download, and a cross-origin fetch from another tab). The mapping's own recorded excerpt reads 'List of Securities / Updated as at 04/09/2026', the same self-declared continuously-regenerated-snapshot phrasing this audit confirmed live and independently on three separate TWSE pages this run (Generated Date: 2026/09/14 on each); by that same pattern, a spreadsheet re-opened today would very likely show a materially later 'Updated as at' stamp than the recorded 2026-08-31/2026-09-01, so I cannot certify this date as fixed. Sinopec Kantons Holdings being HKEX Main Board-listed is independently confirmed by the issuer's own results announcement (see the hormuz-bypass-pipelines placement), so identity and role are not in doubt; only the date of this specific citation is uncertain.",
+      "SEARCH hormuz-bypass-pipelines / 'What are the Hormuz bypass pipelines and who owns them (indu' (https://www.grc.net/documents/69b7eeb0c6dccAvailableAlternativesHormuzGulfOilExporterscompressed.pdf): The 1.5 million-b/d ADCOP pipeline from the Habshan onshore field in Abu Dhabi which travels overland and then across the barren Hajar Mountains to the emirate of Fujairah on the Gulf of Oman (confirmed verbatim by extracting the live Gulf Research Center PDF with pdftotext; names only state/national operators, supporting NO_QUALIFYING_NAMES). But the document's own title page reads 'March 2026', not the recorded source_date of 2026-09-01, a roughly six-month mismatch. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH hormuz-bypass-pipelines / 'HKEX official List of Securities: is the Fujairah terminal o' (https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx): Could not reopen this spreadsheet URL live this run (hkex.com.hk denied navigation as a forced file download); Sinopec Kantons Holdings' HKEX Main Board listing (stock code 934) is independently confirmed by the issuer's own results announcement cover page opened live this run. Same 'Updated as at' continuously-regenerated-snapshot concern noted on the container-liner-diversion HKEX search applies here too, so the recorded date is not certified."
     ],
     "amendments_required": [
-      "PLACEMENT AIG / marine-war-risk-underwriting (https://agencychecklists.com/2022/08/22/top-10-ocean-marine-insurers-2022-new-england-market-share-report-61171/): Article date matches the cited source_date (2022-08-22), but the content itself is four years stale relative to the 2026 Hormuz occurrence and never mentions Hormuz, war risk, or repricing. It only shows AIG's 2022 national ocean-marine market share (in fact #1, not merely 'top ten' as the mapping's role text hedges). The specific claimed role -- that AIG's 'hull and cargo book reprices on the Gulf war-risk shock' -- is not supported by this source; it is an inference layered on top of a stale market-share ranking, and the tag is INFERRED so this is a genuine gap rather than mislabeling, but the excerpt does not establish the Hormuz-specific role.",
-      "PLACEMENT GENERAL-DYNAMICS / naval-escort-and-mine-clearance (https://defensescoop.com/2026/04/11/strait-of-hormuz-mine-clearance-navy-centcom-underwater-drones/): Identity (General Dynamics as Knifefish builder) is confirmed. But the mapping's role claims Knifefish is 'being used in the effort to clear Iranian mines' (asserted, present-tense actual deployment); the article only says the Knifefish 'could potentially be employed' and explicitly states the Navy/CENTCOM press release did not confirm which specific UUVs are participating. The stored source_excerpt in the mapping omits this hedge and overstates the source. Flag: role_ok false, this is a speculative-to-confirmed overstatement.",
-      "PLACEMENT FORMOSA-PETROCHEMICAL / cargo-owners-and-energy-importers (https://www.twse.com.tw/pdf/en/6505_en.pdf): WebFetch could not read this PDF directly (returned only images/technical data); downloaded it and extracted text locally with pdftotext, confirming the stored excerpt verbatim. However this is TWSE's live, continuously-regenerated company snapshot page (its own header reads 'Generated Date: 2026/09/04' and its price table runs up to 9/3), not a document with a fixed publish date -- there is no basis for treating 2026-08-31 specifically as 'the' source date versus any other day this same boilerplate could be pulled. Marking source_date_ok false on that basis; identity and role content are solid.",
-      "PLACEMENT WILLIS-TOWERS-WATSON / specialty-marine-broking (https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx): Article only quotes one named individual broker at WTW, not WTW as an organization; the mapping's stronger claim that 'WTW brokers publicly price the Hormuz war-risk market' is broader than this single quote directly proves, though directionally consistent. OVERRIDE: Role text claims 'WTW brokers publicly price the Hormuz war-risk market'; the cited source quotes exactly one named individual broker at WTW, not WTW as an organization pricing the market.",
-      "PLACEMENT WORLD-KINECT / bunker-and-voyage-services (https://ir.world-kinect.com/news-releases/news-release-details/world-kinect-corporation-reports-fourth-quarter-and-full-year-1/): Dateline on the actual release reads Feb. 19, 2026, not the stored source_date of 2026-02-23 (4-day mismatch). Also, this excerpt only confirms company identity/ticker, not the specific role claim about marine-segment bunker volumes; that detail was not surfaced in the fetched intro.",
-      "PLACEMENT SINOPEC-CORP / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Source only confirms 'Sinopec Fuel Oil (Singapore)' on the MPA top-10 list; it does not mention or support the mapping's additional claim of Sinopec being 'the record-setting supplier at Zhoushan', which is unverified by this article. OVERRIDE: Role text also claims Sinopec is 'the record-setting supplier at Zhoushan'; the cited MPA top-ten source only shows Sinopec Fuel Oil (Singapore) present on the list and does not support the Zhoushan claim.",
-      "PLACEMENT PETROCHINA / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Source only confirms 'PetroChina International' on the MPA top-10 list; it does not mention Chimbusco, which the mapping's role text adds as PetroChina's marine-fuel arm and which is unverified by this article. OVERRIDE: Role text also claims 'Chimbusco is its marine-fuel arm'; the cited MPA top-ten source never mentions Chimbusco.",
-      "PLACEMENT CBL-INTERNATIONAL / bunker-and-voyage-services (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): Original barchart.com URL returned blank/unfetchable content on two attempts; substituted the same wire release via WebSearch, confirmed on globenewswire.com (2025-12-30 press release, same headline and body text, CBL International Limited, Nasdaq: BANL). Actual publish timestamp is December 30, 2025 05:38 ET, not the stored source_date of 2025-12-18 (12-day mismatch).",
-      "PLACEMENT EVERGREEN-MARINE / container-liner-diversion (https://www.twse.com.tw/pdf/en/2603_en.pdf): WebFetch could not parse this TWSE PDF as text; opened the saved binary directly with the Read tool and confirmed the company profile visually. Page confirms Evergreen Marine Corp. (Taiwan) Ltd. identity and its general shipping/container business, but contains no mention of the Strait of Hormuz, route diversion, or conflict surcharges anywhere on the page. The specific role claimed (Asia-Europe/Gulf string diversion, conflict surcharge) is not supported by this source, which is a generic, undated live company-info page. Main Business text is not date-stamped; treated source_date as plausible since it falls within the page's displayed trading history.",
-      "PLACEMENT YANG-MING / container-liner-diversion (https://www.twse.com.tw/pdf/en/2609_en.pdf): Same defect pattern as the Evergreen row: this is a generic, undated TWSE live company-profile page confirming Yang Ming Marine Transport Corp.'s identity and shipping business, with zero mention of Hormuz, diversion, or surcharges. The specific claimed role is unsupported by this source; only generic container-liner identity is.",
-      "PLACEMENT WAN-HAI-LINES / container-liner-diversion (https://www.twse.com.tw/pdf/en/2615_en.pdf): Same defect pattern again: confirms Wan Hai Lines Ltd.'s identity and container-shipping business only. No mention of Hormuz, diversion routing, or conflict surcharges. Stored mapping excerpt uses an ellipsis to splice in item 7 ('Container Distributing Center Business') from later in the same list; the individual fragments are genuine but the specific Hormuz-diversion role is not supported by this source.",
-      "PLACEMENT COSCO-SHIPPING-HOLDINGS / container-liner-diversion (https://www.seavantage.com/blog/strait-of-hormuz-crisis-2026-shipping-disruption-timeline): The stored mapping excerpt silently drops 'Hapag-Lloyd' from this list (COSCO itself is correctly quoted, so not fabrication, but the excerpt is not a clean verbatim substring of the actual sentence). More importantly: the claimed role ('halted Hormuz transits on safety grounds' and 'manages Gulf cargo through phased port acceptance') is not supported anywhere in this article. The article only reports that COSCO vessels, among several carriers', were trapped/unable to exit during the Feb 28 closure -- it says nothing about a deliberate COSCO safety-grounds halt decision or a phased port-acceptance management process. Role overstates the source.",
-      "PLACEMENT KONINKLIJKE-VOPAK / hormuz-bypass-pipelines (https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805): Explicitly checked: this article never names 'Vopak', 'Koninklijke Vopak', 'Sinopec Kantons', or 'Fujairah Oil Terminal FZC' anywhere. It is a general explainer on Gulf-state pipeline bypasses (Petroline, Adcop) and supports the general bypass/attack narrative in the link's evidence, but it cannot corroborate Vopak's specific 33.33% ownership stake in Vopak Horizon Fujairah -- that identity claim rests entirely on the other (Vopak annual report) evidence item. Using this source for the corporate-identity leg of the claim overstates what it supports.",
-      "PLACEMENT SINOPEC-KANTONS-HOLDINGS / hormuz-bypass-pipelines (https://theconversation.com/what-alternatives-do-gulf-states-have-to-the-strait-of-hormuz-281805): Same article as used for the Vopak claim on this link, reused here for a different issuer. Explicitly checked: never names 'Sinopec Kantons', 'Sinopec', or 'Fujairah Oil Terminal FZC'. It supports the general Adcop-pipeline/Fujairah-attack narrative but not Sinopec Kantons' specific joint-venture role in FOT -- that rests entirely on the HKEX filing evidence item. Citing a company-agnostic geopolitical explainer as identity/role evidence for this specific issuer overstates the source.",
-      "SEARCH hormuz-transit-control / 'Euronext official instrument record check: is any listed ins' (https://live.euronext.com/en/product/equities/NL0009432491-XAMS): Page is a bare price-quote listing for Vopak (tank storage, unrelated to Hormuz transit control) with no business description at all. Opening one arbitrary unrelated ticker's quote page doesn't constitute a real search of the exchange and can't genuinely support a NO_QUALIFYING_NAMES finding. control_probe is null, so the methodology has no independent check.",
-      "SEARCH maritime-risk-and-protection / 'Euronext official instrument record check for a listed marit' (https://live.euronext.com/en/product/equities/NO0010571698-XOSL): Same defect as the other Euronext check on this batch: a bare price-quote page with no business description can't establish NO_QUALIFYING_NAMES. Wilhelmsen is in fact a maritime services group (Wilhelmsen Ships Service) whose plausible relevance to this link the page neither confirms nor rules out. control_probe is null.",
-      "SEARCH bunker-and-voyage-services / \"Does CBL's own announcement evidence its bunkering facilitat\" (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): barchart.com returned empty content twice via WebFetch; substituted the same GlobeNewswire-distributed release (globenewswire.com/news-release/2025/12/30/3211280) which barchart syndicates. Content and control_probe claim (nine of top twelve liners) both verified verbatim. But the release is dated 2025-12-30 across every syndicated copy found (Nasdaq, GlobeNewswire, ACN Newswire, Ship & Bunker), a 12-day mismatch against the recorded source_date of 2025-12-18 -- looks like a transcription error in the record, not a fabrication of content.",
-      "SEARCH container-liner-diversion / 'Taiwan Stock Exchange official listed-company records: which' (https://www.twse.com.tw/pdf/en/2615_en.pdf): This URL (TWSE code 2615) is Wan Hai Lines' own official record and fully supports Wan Hai as a qualifying name (control_probe verified verbatim). But the row's accepted_names also lists Evergreen Marine Corp. and Yang Ming Marine Transport Corp., and this specific document contains no mention of either -- those are separate TWSE-listed issuers with their own codes (2603, 2609) and would need their own source rows. As cited, this one URL over-supports its accepted_names list.",
-      "SEARCH hormuz-bypass-pipelines / 'What are the Hormuz bypass pipelines and who owns them (indu' (https://www.grc.net/documents/69b7eeb0c6dccAvailableAlternativesHormuzGulfOilExporterscompressed.pdf): Gulf Research Center report describes ADCOP, IPSA, Petroline, Tapline and Iraqi pipelines and names only state/national operators (Saudi Aramco, IPIC) -- no separately listed public pipeline issuer -- consistent with NO_QUALIFYING_NAMES; control_probe's ADCOP/Habshan/Fujairah/1.5 million b/d claim verified verbatim. But the document's own cover page is dated 'March 2026', not the recorded source_date of 2026-09-01 -- a roughly 6-month mismatch worth flagging even though the content itself is genuine.",
-      "LISTING AWILCO-LNG (issuer_id AWILCO-LNG, Euronext Expand ALNG): legal_issuer on file is stale. The issuer renamed to 'ALNG ASA' in June 2026, after the cited May 2026 prospectus evidence; same entity and ticker, listing identity text needs updating to the current legal name. Found during beyond-minimum listing spot checks in this audit, not part of the required placement/search sample."
+      "LISTING AWILCO-LNG (issuer_id AWILCO-LNG, listing_id EURONEXT-EXPAND-ALNG): legal_issuer on file reads 'Awilco LNG ASA', sourced from the 8 May 2026 prospectus. Independently confirmed live this run (WebSearch, cross-checked against lngprime.com and inderes.dk coverage) that the issuer changed its name from 'Awilco LNG ASA' to 'ALNG ASA' at its AGM on 3 June 2026, before this map's own 2026-09-04 audit first flagged the listing as stale and more than three months before this run. The ticker (ALNG), exchange and underlying entity are unchanged, so no placement or coverage count is affected, but the listing's own identity_evidence still names the pre-rename legal entity as if it were current. This is not one of the 33 required TARGET_MET/EXHAUSTED sampled placements or searches (AWILCO-LNG's own placement evidence, sampled above, is dated before the rename and is accurate for what it cites); it is a beyond-minimum listing spot-check finding, exactly as the 2026-09-04 audit flagged it, and it remains unresolved ten days later.",
+      "PLACEMENT AIG / marine-war-risk-underwriting (https://agencychecklists.com/2022/08/22/top-10-ocean-marine-insurers-2022-new-england-market-share-report-61171/): Top 10 Ocean Marine Insurers (National): AMERICAN INTL GRP - 14.49%, dated August 22, 2022 (confirmed live on agencychecklists.com). Content never mentions Hormuz, war risk, repricing, or 2026 anywhere; AIG is actually ranked #1 nationally, not merely 'top ten' as the role text hedges. A 2022 national market-share ranking cannot establish the placement's specific claimed role that AIG's book 'reprices on the Gulf war-risk shock.' Defect persists unchanged from the 2026-09-04 audit.",
+      "PLACEMENT GENERAL-DYNAMICS / naval-escort-and-mine-clearance (https://defensescoop.com/2026/04/11/strait-of-hormuz-mine-clearance-navy-centcom-underwater-drones/): One underwater drone that could potentially be employed for mine clearing operations in the Strait of Hormuz is the Knifefish, which was built by General Dynamics... The release didn't identify the unmanned underwater vehicles that will be involved. (confirmed live on defensescoop.com, 2026-04-11). The article hedges 'could potentially be employed' and explicitly states CENTCOM's release did not confirm which UUVs are involved; the placement's role text nonetheless asserts Knifefish is 'being used,' present-tense confirmed deployment. Defect persists unchanged from the 2026-09-04 audit.",
+      "PLACEMENT HUNTINGTON-INGALLS / naval-escort-and-mine-clearance (https://www.hii.com/news/hii-delivers-destroyer-ted-stevens-ddg-128-to-u-s-navy): HII's (NYSE: HII) Ingalls Shipbuilding division has delivered Arleigh Burke-class guided missile destroyer Ted Stevens (DDG 128) to the U.S. Navy. (confirmed live on hii.com, Dec 29, 2025). The mapping's stored excerpt omits the parenthetical '(NYSE: HII)' from the middle of this sentence, so it is not a genuine contiguous verbatim span of the source; the underlying role claim (HII builds Arleigh Burke destroyers) is otherwise accurate. New, minor finding.",
+      "PLACEMENT NORDIC-AMERICAN-TANKERS / crude-tanker-tonnage (https://www.nat.bm/nordic-american-tankers-ltd-nyse-nat-report-as-per-december-31-2025-full-speed-ahead/): During the first half of 2025, we acquired two 2016-built suezmax tankers. (confirmed live and verbatim on nat.bm, dated Thursday, February 26, 2026, matching the recorded date). The full shareholder letter never mentions the Strait of Hormuz or a reroute; it attributes tanker-market strength to shadow-fleet scarcity and a fixed-rate charter, not to any Gulf closure. The excerpt supports only that NAT owns suezmax tankers, not the placement's claimed causal role that 'the reroute has repriced' its spot TCE. Matches and elaborates the placement-audit FAIL recorded in this mapping's changelog on 2026-09-14.",
+      "PLACEMENT TSAKOS-ENERGY-NAVIGATION / crude-tanker-tonnage (https://www.tenn.gr/our-company/): TEN Ltd. owns a versatile fleet of double-hull vessels, constituting a mix of modern VLCC's, suezmax, aframax, panamax, handysize and handymax tankers, LNGs and shuttle tankers... (confirmed live and verbatim on tenn.gr/our-company). This is an evergreen, undated 'About Us' fleet-composition page with no reference to the Strait of Hormuz, war risk, or any 2026 occurrence; it cannot support the placement's specific claim that TSAKOS tonnage 'prices against the Gulf war-risk market.' New finding.",
+      "PLACEMENT GOLAR-LNG / lng-shipping-and-qatari-supply (https://www.golarlng.com/): Live golarlng.com shows 'We design, convert, own, and operate marine infrastructure that turns natural gas into LNG' and 'the only independent provider of FLNG as a service' as running prose, but the '4' and '8' figures the mapping quotes as 'four FLNG units (two operational, two under construction) and a track record of eight LNG carrier conversions' actually appear only as separate at-a-glance stat tiles ('4 FLNGS. TWO ON THE WATER, TWO UNDER CONSTRUCTION' / '8 LNG CARRIER CONVERSIONS'), not as the flowing sentence recorded. The stored excerpt is a paraphrase of tile data, not a contiguous verbatim quote. New finding.",
+      "PLACEMENT EXXONMOBIL / non-gulf-energy-substitution (https://www.eia.gov/todayinenergy/detail.php?id=66884): Live eia.gov (Today in Energy, Dec 17 2025) confirms 'Production in Guyana is managed by ExxonMobil, along with partners Hess and the China National Offshore Oil Corporation (CNOOC)' in one paragraph and, in a separate, non-adjacent paragraph two sentences later, 'Recent reports indicate that Exxon's Yellowtail project has reached full production capacity...' and 'The start-up of the Uaru project in 2026 is expected to add...'. The mapping's stored excerpt splices these three non-adjacent fragments into one unbroken string with no ellipsis marking the gap, the same defect class (a non-contiguous splice presented as one continuous quote) as the CHUBB citation this audit was opened to review. New finding.",
+      "PLACEMENT SHELL / non-gulf-energy-substitution (https://www.energyconnects.com/news/gas-lng/2025/july/shell-led-lng-canada-ships-first-cargo-to-meet-asian-demand/): Live energyconnects.com (Jul 01 2025) confirms 'The first cargo from the plant in British Columbia was loaded on the vessel Gaslog Glasgow' in one paragraph, 'Shell owns 40% of the project' at the end of that same paragraph, and 'the 14 million-ton-a-year facility will reach full capacity in 2026, Cremers said' in a separate, later paragraph. The mapping's excerpt synthesizes these into new wording, 'The facility will reach 14 million tons annually at full capacity in 2026, with Shell holding a 40% ownership stake in the project,' which is not a verbatim span of the source. New finding.",
+      "PLACEMENT WILLIS-TOWERS-WATSON / specialty-marine-broking (https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx): Live insurancebusinessmag.com (Jun 26 2026) reads: 'James Reason, a broker at WTW, said the rate trajectory was positive but conditional. \"The longer this continues without incident, rates will continue to improve,\" he told Insurance Business.' The mapping's stored excerpt reads 'James Reason, broker, WTW: The longer this continues without incident, rates will continue to improve.', restructuring 'a broker at WTW, said' into 'broker, WTW:' -- not a verbatim quote (new finding on top of the persisting role_ok defect: the role text's organization-level claim 'WTW brokers publicly price the Hormuz war-risk market' still rests on this one individual's quote, unchanged since 2026-09-04, and unresolved even though a 2026-09-06 placement audit on this exact placement/evidence recorded PASS).",
+      "PLACEMENT BP / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Live engine.online (Jan 14 2026) reads: 'As in 2024, the list is presented in alphabetical order... Bunker House Petroleum replaces Glencore Singapore... The remaining nine suppliers are BP Singapore, Chevron Singapore, Eng Hua, Equatorial Marine, Global Energy Trading, PetroChina International, Sinopec Fuel Oil (Singapore), TFG Marine, and Vitol Bunkers.' The mapping's stored excerpt, 'MPA Top 10 Bunker Suppliers for 2025, in alphabetical order: BP Singapore, Bunker House Petroleum, Chevron Singapore, ...', is not this sentence: it invents a framing clause the article never uses and inserts Bunker House Petroleum into what the source calls 'the remaining nine.' Confirmed programmatically not a substring of the article text (checked against a full-page screenshot too; no infographic carries this wording). New finding, same defect class as the CHUBB splice.",
+      "PLACEMENT CHEVRON / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Same engine.online article as BP's placement; same fabricated 'MPA Top 10... alphabetical order' framing sentence, confirmed not a substring of the live article. New finding.",
+      "PLACEMENT SINOPEC-CORP / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Same engine.online article; the placement's shared fabricated framing sentence is confirmed not a substring of the live article (new finding), and the role text's separate claim that Sinopec is 'the record-setting supplier at Zhoushan' remains wholly unsupported by this MPA-Singapore-only source (persisting finding, unchanged since 2026-09-04 and the 2026-09-06 placement-audit FAIL).",
+      "PLACEMENT PETROCHINA / bunker-and-voyage-services (https://www.engine.online/news/bunker-house-petroleum-enters-mpas-top-10-bunker-suppliers-list-for-2025-7631): Same engine.online article; the placement's shared fabricated framing sentence is confirmed not a substring of the live article (new finding), and the role text's separate claim that 'Chimbusco is its marine-fuel arm' remains wholly unsupported by this MPA-Singapore-only source, which never mentions Chimbusco (persisting finding, unchanged since 2026-09-04 and the 2026-09-06 placement-audit FAIL).",
+      "PLACEMENT EVERGREEN-MARINE / container-liner-diversion (https://www.twse.com.tw/pdf/en/2603_en.pdf): Business Briefing: 1) G301011 Ship Transportation; 2) G401011 Shipping Agency Services; 3) G404011 Container Distributing Center Business; 4) ZZ99999 All business items... (confirmed verbatim by extracting the live TWSE PDF for code 2603 with pdftotext). Page header reads 'Generated Date: 2026/09/14' (today): a live-regenerating snapshot, not the fixed 2026-08-31 the mapping records. No mention anywhere of the Strait of Hormuz, diversion, or surcharges, so the role text's specific claim is unsupported. Both defects persist unchanged from the 2026-09-04 audit.",
+      "PLACEMENT YANG-MING / container-liner-diversion (https://www.twse.com.tw/pdf/en/2609_en.pdf): 1.Domestic and overseas marine shipment service. 2.Domestic and overseas marine passenger service. 3.Warehouse,pier,tugboat,barge,container freight station and terminal... (confirmed verbatim by extracting the live TWSE PDF for code 2609). 'Generated Date: 2026/09/14' live-snapshot issue and absence of any Hormuz/diversion/surcharge mention both persist unchanged.",
+      "PLACEMENT WAN-HAI-LINES / container-liner-diversion (https://www.twse.com.tw/pdf/en/2615_en.pdf): Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade 4. Retail Sale of Other Retail Trade 5. Wholesale of Ship Machinery and Parts 6. Retail Sale of Ship Machinery and Parts 7. Container Distributing Center Business... (confirmed verbatim by extracting the live TWSE PDF for code 2615). The mapping's excerpt uses an ellipsis to jump from item 3 to item 7, skipping items 4-6, the same non-contiguous-splice defect class as CHUBB's original citation; 'Generated Date: 2026/09/14' live-snapshot issue persists; no Hormuz/diversion/surcharge content anywhere. All three defects persist unchanged from the 2026-09-04 audit.",
+      "PLACEMENT COSCO-SHIPPING-HOLDINGS / container-liner-diversion (https://www.seavantage.com/blog/strait-of-hormuz-crisis-2026-shipping-disruption-timeline): Live seavantage.com confirms: 'A senior IRGC official formally confirmed on March 2 that the strait was closed... Maersk, COSCO, Hapag-Lloyd, ONE, Evergreen, HMM, Yang Ming also had vessels unable to exit'. The mapping's current excerpt, 'Maersk, COSCO, ONE, Evergreen, HMM and Yang Ming also had vessels unable to exit.', silently removes Hapag-Lloyd and rewrites 'HMM, Yang Ming' to 'HMM and Yang Ming' to smooth the deletion: confirmed programmatically not a substring of the live article, a doctored (not merely truncated) quote. The role text's separate, larger claim that COSCO 'halted Hormuz transits on safety grounds' and 'manages Gulf cargo through phased port acceptance' remains wholly unsupported anywhere in this article, which only reports vessels of several carriers being trapped. Persists and is now worse than the 2026-09-04 audit's finding, which only noted a dropped name, not a smoothed rewrite.",
+      "PLACEMENT HAPAG-LLOYD / container-liner-diversion (https://www.tradefinanceglobal.com/posts/shipping-lines-impose-new-gulf-surcharges-as-hormuz-disruption-enters-fourth-month/): Live tradefinanceglobal.com (Jun 26 2026) reads, in two separate sentences: 'Hapag-Lloyd said its Middle East Emergency Surcharge applies to existing bookings already in transit, cargo discharged at transhipment hubs such as India, Pakistan, Salalah in Oman, or Khor Al Fakkan in the UAE...' and, in the next paragraph, 'Fees vary by routing: customers routed via Jeddah with onward trucking into the UAE face charges of $5,600 per 20-foot container, while those using Fujairah or Khor Fakkan as a discharge point pay $2,200 per box...'. The mapping's excerpt compresses both into new wording not present verbatim in either sentence. New finding.",
+      "SEARCH hormuz-transit-control / 'Euronext official instrument record check: is any listed ins' (https://live.euronext.com/en/product/equities/NL0009432491-XAMS): Live live.euronext.com confirms this is a bare price-quote page for Vopak (Currency, Last Traded, Volume, Market Cap; tank storage, unrelated to transit control) with no business description of any kind. Opening one unrelated ticker's quote page does not constitute a real search of the exchange and cannot itself support a NO_QUALIFYING_NAMES finding. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH maritime-risk-and-protection / 'Euronext official instrument record check for a listed marit' (https://live.euronext.com/en/product/equities/NO0010571698-XOSL): Live live.euronext.com shows only regulated-news headlines (share buyback notices, Q2 2026 results) for Wilh. Wilhelmsen Holding ASA, with no business description. A bare instrument/news page cannot itself establish a NO_QUALIFYING_NAMES finding for maritime security and protection providers; Wilhelmsen Ships Service's plausible relevance is neither confirmed nor ruled out by this page. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH crew-and-warlike-area-manning / 'Euronext official instrument record check for a listed issue' (https://live.euronext.com/en/product/equities/NO0010571698-XOSL): Live live.euronext.com shows only regulated-news headlines for Wilh. Wilhelmsen Holding ASA (the same bare page used for the maritime-risk-and-protection search), with no business description establishing or ruling out a crew-supply revenue line. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH container-liner-diversion / 'Taiwan Stock Exchange official listed-company records: which' (https://www.twse.com.tw/pdf/en/2615_en.pdf): WAN HAI LINES LTD. ... Main activities: 1. Ship Transportation 2. Shipping Agency Services... (confirmed verbatim by extracting the live TWSE PDF for code 2615). This search cites only Wan Hai's own record (one url field) but its accepted_names lists three issuers, Evergreen Marine, Yang Ming and Wan Hai; the other two have their own codes (2603, 2609) and their own separate documents, so this one search record over-supports its accepted_names list exactly as the 2026-09-04 audit found. Defect persists unchanged.",
+      "PLACEMENT FORMOSA-PETROCHEMICAL / cargo-owners-and-energy-importers (https://www.twse.com.tw/pdf/en/6505_en.pdf): Formosa Petrochemical Corporation is involved primarily in the business of refinery, petrochemical and utilities. The Company's major business activities include export/import,... (confirmed verbatim by extracting the live PDF with pdftotext/Read). But the page header reads 'Generated Date: 2026/09/14' (today) and its trading table runs through 9/11: this is TWSE's continuously-regenerated live company snapshot, not a fixed-date document, so the recorded source_date of 2026-08-31 has no basis over any other day this same boilerplate could be pulled. Defect persists unchanged from the 2026-09-04 audit.",
+      "PLACEMENT PBF-ENERGY / cargo-owners-and-energy-importers (https://www.sec.gov/Archives/edgar/data/0001534504/000153450426000030/pbf-20260630.htm): Actions affecting regional shipping routes, including through the Strait of Hormuz, and impacts to certain Middle Eastern energy infrastructure have led to higher freight costs, longer transit times and supply chain disruptions. These conditions have supported higher global refining margins... (confirmed verbatim live via JS text search of the SEC EDGAR filing page; the $2,926.3 million / $1,031.8 million six-month gross-refining-margin figures are confirmed in the filing's own table). But the SEC EDGAR company filing index (browse-edgar atom feed for CIK 0001534504) shows this 10-Q's actual filing-date is 2026-07-30, not the recorded source_date of 2026-06-30, which is the fiscal period-end date, not the filing date. New finding.",
+      "PLACEMENT WORLD-KINECT / bunker-and-voyage-services (https://ir.world-kinect.com/news-releases/news-release-details/world-kinect-corporation-reports-fourth-quarter-and-full-year-1/): MIAMI--(BUSINESS WIRE)--Feb. 19, 2026-- World Kinect Corporation (NYSE: WKC) today reported financial results... (confirmed verbatim live on ir.world-kinect.com). The release's own dateline reads Feb. 19, 2026, not the recorded source_date of 2026-02-23, a 4-day mismatch. Defect persists unchanged from the 2026-09-04 audit and the placement-audit FAIL recorded 2026-09-06.",
+      "PLACEMENT CBL-INTERNATIONAL / bunker-and-voyage-services (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): barchart.com returned empty/unreadable content on this run's fetch attempt (both a direct navigation and a get_page_text call returned a blank body), independently reproducing the 2026-09-04 audit's identical finding two weeks later. The syndicated GlobeNewswire copy of the same release is dated 2025-12-30, not the recorded source_date of 2025-12-18, a 12-day mismatch. Defect persists unchanged, and the underlying URL remains effectively unverifiable at its cited address.",
+      "PLACEMENT EVERGREEN-MARINE / container-liner-diversion (https://www.twse.com.tw/pdf/en/2603_en.pdf): Business Briefing: 1) G301011 Ship Transportation; 2) G401011 Shipping Agency Services; 3) G404011 Container Distributing Center Business; 4) ZZ99999 All business items... (confirmed verbatim by extracting the live TWSE PDF for code 2603 with pdftotext). Page header reads 'Generated Date: 2026/09/14' (today): a live-regenerating snapshot, not the fixed 2026-08-31 the mapping records. No mention anywhere of the Strait of Hormuz, diversion, or surcharges, so the role text's specific claim is unsupported. Both defects persist unchanged from the 2026-09-04 audit.",
+      "PLACEMENT YANG-MING / container-liner-diversion (https://www.twse.com.tw/pdf/en/2609_en.pdf): 1.Domestic and overseas marine shipment service. 2.Domestic and overseas marine passenger service. 3.Warehouse,pier,tugboat,barge,container freight station and terminal... (confirmed verbatim by extracting the live TWSE PDF for code 2609). 'Generated Date: 2026/09/14' live-snapshot issue and absence of any Hormuz/diversion/surcharge mention both persist unchanged.",
+      "PLACEMENT WAN-HAI-LINES / container-liner-diversion (https://www.twse.com.tw/pdf/en/2615_en.pdf): Main activities: 1. Ship Transportation 2. Shipping Agency Services 3. Other Wholesale Trade 4. Retail Sale of Other Retail Trade 5. Wholesale of Ship Machinery and Parts 6. Retail Sale of Ship Machinery and Parts 7. Container Distributing Center Business... (confirmed verbatim by extracting the live TWSE PDF for code 2615). The mapping's excerpt uses an ellipsis to jump from item 3 to item 7, skipping items 4-6, the same non-contiguous-splice defect class as CHUBB's original citation; 'Generated Date: 2026/09/14' live-snapshot issue persists; no Hormuz/diversion/surcharge content anywhere. All three defects persist unchanged from the 2026-09-04 audit.",
+      "SEARCH bunker-and-voyage-services / \"Does CBL's own announcement evidence its bunkering facilitat\" (https://www.barchart.com/story/news/36823391/cbl-international-facilitates-xiaomo-port-s-first-lng-bunkering-for-byd-in-shenzhen): barchart.com returned empty/unreadable content on this run's fetch attempt (reproducing the 2026-09-04 audit's identical UNFETCHED finding). The syndicated GlobeNewswire release the prior audit substituted is dated 2025-12-30, not the recorded source_date of 2025-12-18, a 12-day mismatch that persists unresolved.",
+      "SEARCH container-liner-diversion / 'HKEX official List of Securities: which Gulf-capable contain' (https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx): Could not reopen this exact spreadsheet URL live this run (hkex.com.hk denied both a direct navigation, which the browser reported as a forced file download, and a cross-origin fetch from another tab). The mapping's own recorded excerpt reads 'List of Securities / Updated as at 04/09/2026', the same self-declared continuously-regenerated-snapshot phrasing this audit confirmed live and independently on three separate TWSE pages this run (Generated Date: 2026/09/14 on each); by that same pattern, a spreadsheet re-opened today would very likely show a materially later 'Updated as at' stamp than the recorded 2026-08-31/2026-09-01, so I cannot certify this date as fixed. Sinopec Kantons Holdings being HKEX Main Board-listed is independently confirmed by the issuer's own results announcement (see the hormuz-bypass-pipelines placement), so identity and role are not in doubt; only the date of this specific citation is uncertain.",
+      "SEARCH hormuz-bypass-pipelines / 'What are the Hormuz bypass pipelines and who owns them (indu' (https://www.grc.net/documents/69b7eeb0c6dccAvailableAlternativesHormuzGulfOilExporterscompressed.pdf): The 1.5 million-b/d ADCOP pipeline from the Habshan onshore field in Abu Dhabi which travels overland and then across the barren Hajar Mountains to the emirate of Fujairah on the Gulf of Oman (confirmed verbatim by extracting the live Gulf Research Center PDF with pdftotext; names only state/national operators, supporting NO_QUALIFYING_NAMES). But the document's own title page reads 'March 2026', not the recorded source_date of 2026-09-01, a roughly six-month mismatch. Defect persists unchanged from the 2026-09-04 audit.",
+      "SEARCH hormuz-bypass-pipelines / 'HKEX official List of Securities: is the Fujairah terminal o' (https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx): Could not reopen this spreadsheet URL live this run (hkex.com.hk denied navigation as a forced file download); Sinopec Kantons Holdings' HKEX Main Board listing (stock code 934) is independently confirmed by the issuer's own results announcement cover page opened live this run. Same 'Updated as at' continuously-regenerated-snapshot concern noted on the container-liner-diversion HKEX search applies here too, so the recorded date is not certified."
     ],
-    "surviving_limitation": "This audit verified every ACTIVE placement and every recorded EXHAUSTED search against a source opened now, and at least two ACTIVE placements per TARGET_MET link. It did not independently re-verify listing identity_evidence for all 83 placed issuers (not required for a FAIL result); 21 of those were spot-checked anyway and one stale legal name surfaced (AWILCO-LNG), recorded in amendments_required. Several PDF and spreadsheet sources exceeded automated fetch limits and were confirmed via direct download plus pdftotext instead of WebFetch; those substitutions are named in the sampled_checks that used them."
+    "surviving_limitation": "This audit opened a current source for every ACTIVE placement and every recorded EXHAUSTED search (33 placements, 24 searches), and at least two ACTIVE placements on each TARGET_MET link, refetching live pages where possible (Chrome browser navigation and get_page_text, WebFetch, or the SEC/EDGAR JSON endpoints via in-page fetch) and, for four PDFs the live tools could not render as text (two TWSE snapshots beyond the ones read directly, the Gulf Research Center report, the Sinopec Kantons HKEX announcement, and the Awilco LNG prospectus), by downloading the PDF and reading it directly with the Read tool or pdftotext, the same substitution the 2026-09-04 audit used. Two URLs could not be reopened this run: barchart.com returned empty content on both this run's attempt and the 2026-09-04 attempt (counted as a persisting source_date_conflict on CBL-INTERNATIONAL's placement and search), and hkex.com.hk's List of Securities spreadsheet refused both a direct browser navigation (forced a file download) and a cross-origin in-page fetch, so its two citations are flagged with an inferred, not directly reopened, source_date_conflict reasoned from the same continuously-regenerated-snapshot pattern this audit did confirm directly and repeatedly on three separate TWSE pages this run. This audit did not independently re-verify listing identity_evidence for all 84 placed issuers, which is not required for a FAIL result; one listing (AWILCO-LNG) was spot-checked and found to carry a legal name superseded by a 3 June 2026 rename, confirmed via WebSearch against LNG Prime and Inderes wire coverage, and is recorded as an identity_conflict below though it is not one of the 33 required sampled placements. This audit reused the current mapping's own changelog and its prior audit and placement_audits entries only to decide where to look, in line with the task's instruction to re-examine the 2026-09-04 FAIL audit's findings as they stand now; every identity_ok, role_ok and source_date_ok value recorded below rests on a source this session opened or extracted itself, never on the mapping's own narrative describing what an earlier session found."
   },
   "placement_audits": [
     {
