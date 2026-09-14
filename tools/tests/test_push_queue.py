@@ -162,6 +162,25 @@ class TestCodedRules(unittest.TestCase):
             kept = json.loads((fx.a / "data" / "edgar" / "docs" / "NVDA.json").read_text())
             self.assertEqual("2026-09-01T02:00:00+00:00", kept["fetched_at"])
 
+    def test_stored_web_pages_take_the_newer_fetch(self):
+        """2026-09-14: two chained fetch runs stored the same page; refusing it lost the batch."""
+        with tempfile.TemporaryDirectory() as td:
+            fx = TwoWriters(td)
+            page = lambda ts: json.dumps({"id": "0123abcd4567ef89", "url": "https://example.com/ir",
+                                          "http_status": 200, "fetched_at": ts, "text": ts})
+            fx.race(
+                lambda c: (lambda p: (p.parent.mkdir(parents=True, exist_ok=True),
+                                      p.write_text(page("2026-09-14T18:30:00+00:00"))))(
+                    c / "data" / "web" / "0123abcd4567ef89.json"),
+                lambda c: (lambda p: (p.parent.mkdir(parents=True, exist_ok=True),
+                                      p.write_text(page("2026-09-14T18:50:00+00:00"))))(
+                    c / "data" / "web" / "0123abcd4567ef89.json"))
+            rr = subprocess.run([sys.executable, str(RESOLVER), "--continue-rebase",
+                                 "--root", str(fx.a)], capture_output=True, text=True)
+            self.assertEqual(0, rr.returncode, rr.stdout + rr.stderr)
+            kept = json.loads((fx.a / "data" / "web" / "0123abcd4567ef89.json").read_text())
+            self.assertEqual("2026-09-14T18:50:00+00:00", kept["fetched_at"])
+
     def test_a_path_with_no_rule_is_refused_not_guessed(self):
         """The safety property. data/chains/ holds judgment work; no code may pick a side."""
         with tempfile.TemporaryDirectory() as td:

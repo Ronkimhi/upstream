@@ -29,8 +29,11 @@ rule is stated in terms of CONTENT:
                               graded into results.json elsewhere, so there is nothing to
                               rank between two copies of the same id.
   data/market/*.json,
-  data/edgar/docs|fts/*.json  newer `fetched_at` wins. Both sides are the same fetcher
-                              writing the same public document.
+  data/edgar/docs|fts/*.json,
+  data/web/*.json             newer `fetched_at` wins. Both sides are the same fetcher
+                              writing the same public document (data/web added
+                              2026-09-14: two chained fetch runs stored the same pages and
+                              the refusal discarded a whole 20-minute batch).
   data/feeds/latest.json      newer `last_run.ts` (fallback `as_of`) wins.
   data/health/actions.json    per-key newest: fetch, feeds and smoke each taken from the
                               side whose `last_run` is later.
@@ -199,7 +202,7 @@ def resolve_one(root: Path, path: str):
     if path == "data/shadow/book.json":
         m = union_shadow_book(a, b)
         return m, False, "union of rows by id, both sides kept"
-    if path.startswith(("data/market/", "data/edgar/docs/", "data/edgar/fts/")):
+    if path.startswith(("data/market/", "data/edgar/docs/", "data/edgar/fts/", "data/web/")):
         return newer_by(a, b, "fetched_at"), False, "same fetcher, newer fetched_at wins"
     if path == "data/feeds/latest.json":
         return newer_by(a, b, "last_run.ts", "as_of"), False, "newer feed batch wins"
