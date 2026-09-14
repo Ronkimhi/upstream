@@ -903,6 +903,18 @@ def placement_audit_failures(mapping: dict) -> list[str]:
     required = {"chain_id", "link_id", "issuer_id", "audited_at", "reviewed_by", "agent_id",
                 "transcript_ref", "review_mode", "independence_limitation", "status",
                 "evidence_index", "source_excerpt", "record_digest"}
+    # The newest entry per placement is the audit that binds; an older entry for the same
+    # placement is history. History keeps its shape and provenance checks, but it is not
+    # asked to match content that an amendment has since changed: superseding it with a
+    # fresh audit is the answer to that (2026-09-14, GENERAL-DYNAMICS re-citation).
+    newest = {}
+    for j, e in enumerate(entries):
+        if isinstance(e, dict):
+            k = (e.get("chain_id"), e.get("link_id"), e.get("issuer_id"))
+            ts = _utc_datetime(e.get("audited_at"))
+            prev = newest.get(k)
+            if prev is None or ts is None or prev[1] is None or ts >= prev[1]:
+                newest[k] = (j, ts)
     for i, entry in enumerate(entries):
         where = f"placement_audits[{i}]"
         if not isinstance(entry, dict):
@@ -933,6 +945,8 @@ def placement_audit_failures(mapping: dict) -> list[str]:
             failures.append(f"{where}.source_excerpt must be a substantive verbatim span")
         idx = entry.get("evidence_index")
         evidence = (placement or {}).get("evidence") or []
+        if newest.get(key, (i,))[0] != i:
+            continue  # superseded history: shape and provenance were checked above
         if not isinstance(idx, int) or not 0 <= idx < len(evidence):
             failures.append(f"{where}.evidence_index does not index the placement's evidence")
         elif placement is not None:
