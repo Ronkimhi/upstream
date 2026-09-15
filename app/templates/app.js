@@ -1854,9 +1854,19 @@
       gradeChip(st.earnings_quality) +
       '<span class="muted">עודכן <span class="num">' + esc(st.updated_at) + '</span> · לבדיקה עד <span class="num">' + esc(st.review_by) + "</span></span>" +
       staleChip(st.updated_at) + "</span></div>";
+    /* red_team.challenges arrives in two shapes: a list of {question, attack, finding, outcome}
+       (15 of 16 dives) and, on WSP.TO, an object keyed by the attacked dimension holding
+       {challenge, finding, outcome}. Calling .map on the object threw and blanked the whole dive
+       page; a headless walk of every drill-down found it on 2026-09-15. Both shapes render, and
+       the bold label names the question, which the list shape carries instead of a dimension. */
+    var rtRaw = (st.red_team && st.red_team.challenges) || [];
+    var rtChallenges = Array.isArray(rtRaw) ? rtRaw : Object.keys(rtRaw).map(function (k) {
+      var c = rtRaw[k] || {};
+      return { dimension: k.replace(/_/g, " "), attack: c.attack || c.challenge, outcome: c.outcome };
+    });
     var rt = st.red_team
       ? '<div class="card redteam"><div class="rt-label">צוות אדום · תקף ב ' + esc(st.red_team.attacked_at) + " · " + (st.red_team.verdict_survived ? "ההכרעה שרדה" : "ההכרעה נהפכה") + "</div>" +
-        (st.red_team.challenges || []).map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
+        rtChallenges.map(function (ch) { return "<div class='small' style='margin:9px 0'><b>" + esc(ch.dimension || ch.question) + ":</b> " + esc(ch.attack) + " <span class='muted'>→ " + esc(ch.outcome) + "</span></div>"; }).join("") +
         (st.red_team.amendments ? "<div class='small'><b>תוקן:</b> " + esc(st.red_team.amendments) + "</div>" : "") +
         /* The pre-mortem is the check that catches a lazy verdict — "it is twelve months
            on and this was wrong, why?" — and it rendered nowhere, so the page showed the
