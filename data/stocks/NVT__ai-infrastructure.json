@@ -11,7 +11,7 @@
  "tier": "T1",
  "clock": "COMPOUNDER",
  "clock_basis": "Inherited from the ai-infrastructure chain, which is COMPOUNDER (structural, multi-year grid and data-center electrification buildout repricing over 2-5 years), and stated explicitly per method section 2. scenario_ids is empty, so no scenario overrides it to an EVENT clock.",
- "status": "DRAFT",
+ "status": "FINAL",
  "created_at": "2026-09-15",
  "updated_at": "2026-09-15",
  "as_of": "2026-09-15",
@@ -65,7 +65,7 @@
    "tag": "INFERRED"
   },
   {
-   "expectation": "The forward ask embedded in today's price is demanding on any reading. The reverse DCF solved in the data plane implies a 43.19% five-year free-cash-flow CAGR (29.66% at seven years, 23.09% at ten), against a company whose own achieved three-year revenue CAGR is 19.26% and whose own trailing four-year and eight-year revenue CAGRs are materially lower still (12.14% and 8.40%). Reconstructing the same growing-FCF-plus-Gordon-terminal-value formula the filed solve uses (validated: it reproduces the filed enterprise value of $27,479.4M to within 0.002% when fed the market-implied 43.19% growth rate) at a defensible bear-case growth range of 14%-17% implies a fair enterprise value, and therefore a fair share price, of roughly $51.01 to $58.41: 64% to 69% below today's close.",
+   "expectation": "The forward ask embedded in today's price is demanding on any reading. The reverse DCF solved in the data plane implies a 43.19% five-year free-cash-flow CAGR (31.32% at seven years, 23.09% at ten), against a company whose own achieved three-year revenue CAGR is 19.26% and whose own trailing four-year and eight-year revenue CAGRs are materially lower still (12.14% and 8.40%). Reconstructing the same growing-FCF-plus-Gordon-terminal-value formula the filed solve uses (validated: it reproduces the filed enterprise value of $27,479.4M to within 0.002% when fed the market-implied 43.19% growth rate) at a defensible bear-case growth range of 14%-17% implies a fair enterprise value, and therefore a fair share price, of roughly $51.01 to $58.41: 64% to 69% below today's close.",
    "evidence": "data/market/NVT.json quality.reverse_dcf (implied_fcf_cagr 0.4319, state SOLVED, base_fcf $371.9M, enterprise_value $27,479.446M, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection method; implied_by_horizon 7y 0.2966, 10y 0.2309, horizon_spread 0.201) and fundamentals.revenue_fy for the achieved and trailing CAGRs; the reconstruction and bear-case price band are this dive's own computation, shown in full in would_buy_zone.basis",
    "tag": "INFERRED"
   },
@@ -415,13 +415,19 @@
   "PCS axis A (DARK, 100.0) runs under the same ADVISORY gate and unreadable positive-control-fixture caveat as every other issuer profiled this campaign era. Not adopted as a clean crowdedness finding; carried forward in watch_triggers per the same treatment prior dives in this chain gave it.",
   "The Thermal Management divestiture close date (2025-01-30), its $1.7 billion price and Brookfield Asset Management as buyer, and the CFO appointment date (Gary Corona, effective 2025-03-31) are all sourced to this run's WebSearch (Businesswire and Investing.com respectively), not to a document fetched into data/edgar/docs/NVT.json, and are tagged INFERRED in the events list on that basis.",
   "Governance search (auditor change, CFO turnover, related-party dealings) was via WebSearch, not exhaustive, and found one real item (the CFO appointment, now settled) and nothing else adverse; absence of evidence on the other two is recorded as exactly that in earnings_quality.inputs.governance_source rather than upgraded to a clean bill of health.",
-  "This dive's own bear-case fair-value reconstruction ($51.01-$58.41) is highly sensitive to the filed 9% discount rate and 2.5% terminal-growth assumptions (a narrow 6.5-point spread that makes the terminal value dominate the total), both of which are SPECULATIVE per quality.reverse_dcf.assumptions and were not re-derived or challenged this run; a materially different discount-rate or terminal-growth assumption would move the band without changing the underlying finding that the market's own implied growth rate is far above any defensible estimate this dive can construct."
+  "This dive's own bear-case fair-value reconstruction ($51.01-$58.41) is highly sensitive to the filed 9% discount rate and 2.5% terminal-growth assumptions (a narrow 6.5-point spread that makes the terminal value dominate the total), both of which are SPECULATIVE per quality.reverse_dcf.assumptions and were not re-derived or challenged this run; a materially different discount-rate or terminal-growth assumption would move the band without changing the underlying finding that the market's own implied growth rate is far above any defensible estimate this dive can construct.",
+  "Red team (run redteam, 2026-09-15): no filing on disk or figure in this dive names customer concentration, single-buyer share, or channel structure behind the Systems Protection segment's organic growth. The operating_margin row's mix-shift argument assumes nVent keeps the pricing power a multi-year lead-time backlog implies, but that read differs materially between a fragmented buyer base and a small number of hyperscaler-scale buyers able to dual-source or vertically integrate over a multi-year horizon; this dive's fresh-context red team, confined to the dive file and data/market/NVT.json, found no evidence on either side and could not resolve it."
  ],
  "notes": [
   {
    "ts": "2026-09-15T15:00:00Z",
    "by": "stocky",
    "text": "DRAFT, not red-teamed. Admission chain (issuer_id, listing_id, chain_id, link_id, screen_ref) verified against data/companies/NVENT-ELECTRIC.json, data/mappings/ai-infrastructure.json (COMPLETE, current PASS census audit 2026-09-06) and data/screens/ai-infrastructure.json before any verdict work began, per method section 6A and the stocky contract refusal conditions. All identity fields resolved exactly. Per docs/method.md section 7 and CLAUDE.md, this is not yet a verdict: only a FINAL status carries a red_team block and may be reported as a call."
+  },
+  {
+   "ts": "2026-09-15T16:40:00Z",
+   "by": "stocky",
+   "text": "FINAL. Red team ran in fresh context (dive JSON + data/market/NVT.json only), four required attacks plus the price-instrument check (not applicable, no price_instruments on this link). WATCH survives; core gap-table and would_buy_zone arithmetic independently reconstructed and confirmed sound; three smaller misquoted or mislabeled figures elsewhere in the file corrected, none verdict-critical. Pre-mortem written and does not force a downgrade."
   }
  ],
  "changelog": [
@@ -430,6 +436,12 @@
    "by": "stocky",
    "kind": "BUILD",
    "change": "run deepdive NVT ai-infrastructure: first dive on NVENT-ELECTRIC, promoted O1 via CAMP-20260901-01's per-theme exception (Ron, 2026-09-15). Status DRAFT. Verdict WATCH, clock COMPOUNDER, earnings_quality grade B. Expectations gap: market-implied 5y FCF CAGR 43.19% against this dive's 19.26% base case, a 23.93pp gap surviving the 20.10pp horizon_spread test by 3.83pp. would_buy_zone $51.01-$58.41 reconstructed from the filed reverse-DCF formula at a 14%-17% bear-case growth assumption (validated: the reconstruction reproduces the filed enterprise value to within 0.002% at the market-implied growth rate). Independence test answered: the market is reading a twice-raised, single-year hyper-growth guide as a durable five-year compounding rate. Surfaced and flagged, not resolved: FY2025 total GAAP net income ($710.2M, the basis for the canonical 36.97x P/E and 0.655x cash-conversion ratio) includes a one-time gain from the $1.7B Thermal Management divestiture (closed 2025-01-30), while the company's own Q2 2026 release discloses FY2025 continuing-operations net income of only $428.5M, implying a materially higher effective multiple (~61.28x) and a materially better effective cash-conversion ratio (~1.086x) on a like-for-like basis; this dive could not confirm from documents on disk which basis the canonical operating-cash-flow figure itself uses. Not red-teamed."
+  },
+  {
+   "ts": "2026-09-15T16:40:00Z",
+   "by": "stocky",
+   "kind": "AMEND",
+   "change": "run redteam NVT ai-infrastructure (fresh context: dive JSON and data/market/NVT.json only). Five attacks run: crowdedness reality (NOT_AMENDED, the draft already carried the crowding read as contested rather than settled), priced-in check (AMENDED, corrected a misquoted 7-year implied FCF CAGR, 29.66% to 31.32%, decorative and not used in the gap-table math), capture reality (AMENDED, added a data_gaps entry naming the unaddressed customer-concentration question behind the margin mix-shift argument), entry-basis stress (AMENDED, independently reconstructed the would_buy_zone formula: the filed $51.01-$58.41 band itself reproduces exactly, but corrected two mislabeled supporting figures in would_buy_zone.basis and would_buy_stress that did not match their stated growth rates), price-instrument check (NOT_APPLICABLE, no price_instruments on this link). Pre-mortem written, names a coherent market-could-have-been-right story (the physical lead-time bottleneck genuinely persisting for years), does not force a downgrade. Verdict WATCH survives unchanged. Status FINAL. Process note: this attack briefly listed data/stocks/_dive-log.json's top-level keys before catching the fresh-context restriction; no content from it was read or used, recorded in red_team.process_note rather than left silent."
   }
  ],
  "confidence_audit": {
@@ -441,9 +453,81 @@
  "would_buy_zone": {
   "low": 51.01,
   "high": 58.41,
-  "basis": "The band at which this file's own bear-case revenue-growth assumption for expectations_gap.rows[revenue_cagr_5y] (14%-17%, anchored above nVent's own trailing 4-year revenue CAGR of 12.14% to give some credit to the disclosed multi-year transformer and switchgear backlog, but held well below both this dive's own 19.26% base case and the market's 43.19% implied ask) would still clear, forward-solved through the same growing-FCF-plus-Gordon-terminal-value formula quality.reverse_dcf uses: base_fcf $371.9M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon. The reconstruction is validated before use: fed the market-implied 43.19% growth rate, it reproduces the filed enterprise value of $27,479.446M to within 0.002% ($27,479.934M reconstructed). Net debt of $1,222.6M (quality.derived.enterprise_value minus quality.derived.market_cap) and shares outstanding of 161,700,000 (fundamentals.shares_fy, FY2025) convert the resulting enterprise values ($8,736.1M at 14% growth, $9,470.5M at 17%) to a per-share band.",
+  "basis": "The band at which this file's own bear-case revenue-growth assumption for expectations_gap.rows[revenue_cagr_5y] (14%-17%, anchored above nVent's own trailing 4-year revenue CAGR of 12.14% to give some credit to the disclosed multi-year transformer and switchgear backlog, but held well below both this dive's own 19.26% base case and the market's 43.19% implied ask) would still clear, forward-solved through the same growing-FCF-plus-Gordon-terminal-value formula quality.reverse_dcf uses: base_fcf $371.9M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon. The reconstruction is validated before use: fed the market-implied 43.19% growth rate, it reproduces the filed enterprise value of $27,479.446M to within 0.002% ($27,479.934M reconstructed). Net debt of $1,222.6M (quality.derived.enterprise_value minus quality.derived.market_cap) and shares outstanding of 161,700,000 (fundamentals.shares_fy, FY2025) convert the resulting enterprise values ($9,470.5M at 14% growth, $10,667.9M at 17%) to a per-share band.",
   "as_of": "2026-09-15"
  },
- "would_buy_stress": "This zone is deliberately built on the bear case, not the base case, per method section 7's 2026-09-08 re-anchoring: the 14%-17% growth band sits meaningfully below this dive's own 19.26% base-case estimate (which would imply approximately $64.49, itself still 60% below spot) and further below the market's 43.19% implied ask. Both bounds pass the file's own 0.3x-2.0x sanity band against the last close ($48.71-$324.76); a harsher bear case (nVent's trailing 8-year revenue CAGR of 8.40%, or its 4-year CAGR of 12.14% used without any structural credit) would price below that floor entirely ($38.26 and $46.77 respectively, both outside the 0.3x band), which this dive reads as the DCF's terminal-value sensitivity being extreme at this valuation rather than as a reason to inflate the growth assumption past what is defensible. The zone therefore understates how bearish a fully unforgiving read could be; it is drawn at the most pessimistic band this dive can defend as still analytically grounded (above nVent's own trailing multi-year growth history) while remaining inside the sanity check.",
- "zone_contains_spot": false
+ "would_buy_stress": "This zone is deliberately built on the bear case, not the base case, per method section 7's 2026-09-08 re-anchoring: the 14%-17% growth band sits meaningfully below this dive's own 19.26% base-case estimate (which would imply approximately $64.49, itself still 60% below spot) and further below the market's 43.19% implied ask. Both bounds pass the file's own 0.3x-2.0x sanity band against the last close ($48.71-$324.76); a harsher bear case (nVent's trailing 8-year revenue CAGR of 8.40%, or its 4-year CAGR of 12.14% used without any structural credit) would price below that floor entirely ($39.03 and $46.77 respectively, both outside the 0.3x band), which this dive reads as the DCF's terminal-value sensitivity being extreme at this valuation rather than as a reason to inflate the growth assumption past what is defensible. The zone therefore understates how bearish a fully unforgiving read could be; it is drawn at the most pessimistic band this dive can defend as still analytically grounded (above nVent's own trailing multi-year growth history) while remaining inside the sanity check.",
+ "zone_contains_spot": false,
+ "red_team": {
+  "attacked_at": "2026-09-15T16:40:00Z",
+  "fresh_context": true,
+  "fresh_context_scope": "Read only data/stocks/NVT__ai-infrastructure.json (the DRAFT dive) and data/market/NVT.json, plus CLAUDE.md's run redteam row and postlude 1c, docs/method.md section 7, .claude/agents/stocky.md, and (once, in error, before this attack began substantive work) the top-level key list only of data/stocks/_dive-log.json, no content read or used. The chain narrative, signal card, screen thesis, company profile, mapping and deepdive transcript were not read.",
+  "process_note": "This attack briefly opened data/stocks/_dive-log.json to list its top-level keys before recognising the fresh-context rule (dive JSON and data/market/<T>.json only) does not admit it. No content, calibration figure or prior-verdict record from that file was read or used anywhere below; recorded here rather than left silent, per the same honesty the surviving bear case below asks of the dive itself.",
+  "challenges": [
+   {
+    "dimension": "CROWDEDNESS_REALITY",
+    "question": "Is the chain's inherited UNDISCOVERED read true for NVT, or is the draft laundering issuer-level crowding into a chain-level label?",
+    "finding": "Re-verified both PCS axes against data/market/NVT.json.pcs directly: axis_a DARK 100.0 (sub_scores trends 30, wsb 25, stocktwits 13, media null) under the ADVISORY gate (unreadable positive-control fixture), and axis_b SATURATED on 15 analysts, 93.73% institutional ownership and 2.14% short float, all matching the draft exactly. Unlike a name this attack would expect to find laundered, the draft already treats this as an open, contested question rather than a settled bull point: its own crowdedness.basis names the profile's caveat that NVT has more than doubled its own guidance twice this year as issuer-level evidence against a genuinely undiscovered name, consistent with this dive's own price-action finding of a 71.34% rise from the 52-week low with no unwind. The chain-level UNDISCOVERED tag is not repeated here as if it settled the issuer-level question.",
+    "outcome": "NOT_AMENDED",
+    "amendment": null
+   },
+   {
+    "dimension": "PRICED_IN_CHECK",
+    "question": "Does the claimed 23.93pp expectations gap actually survive the 20.10pp horizon-spread test as stated, and does every number the file cites from quality.reverse_dcf actually match the data plane?",
+    "finding": "The gap-table arithmetic is sound and independently reproduced: 43.19% minus 19.26% equals a 23.93pp claimed gap, the file's own horizon_spread (5y 43.19% minus 10y 23.09%) is exactly 20.10pp matching data/market/NVT.json.quality.reverse_dcf, and the 3.83pp survival margin is correct. But the what_is_priced_in row's own parenthetical, '(29.66% at seven years, 23.09% at ten)', misquoted the data plane: quality.reverse_dcf.implied_by_horizon['7'] is 0.3132 (31.32%), not 29.66%. This figure was decorative, not used anywhere in the gap-table math (which correctly cites only the 5y and 10y points), so the verdict-critical arithmetic was never wrong, but a file that verifies every filing quote verbatim should not misquote its own data-plane numbers.",
+    "outcome": "AMENDED",
+    "amendment": "what_is_priced_in[1].expectation corrected from 29.66% to 31.32% for the 7-year implied FCF CAGR."
+   },
+   {
+    "dimension": "CAPTURE_REALITY",
+    "question": "When AI/data-center demand keeps compounding, does nVent keep the incremental dollar, or does a concentrated buyer take it back in price?",
+    "finding": "The bull case and the operating_margin gap-table row both rest on a segment mix-shift argument (Systems Protection growing far faster than Electrical Connections) without naming who is buying that growth or how concentrated they are. Neither the dive nor data/market/NVT.json (the only two sources this fresh-context attack may read) discloses customer concentration, a single-buyer share, or channel structure. A demand-constrained equipment maker with 52-80 week lead times holds price against a fragmented buyer base differently than against a small number of hyperscaler-scale buyers able to dual-source or vertically integrate over a multi-year horizon, and this file supplies no evidence distinguishing the two. This does not move the verdict: the expectations gap's own thin 3.83pp survival margin already keeps WATCH the ceiling regardless of how this resolves.",
+    "outcome": "AMENDED",
+    "amendment": "data_gaps appended naming the unaddressed customer-concentration and channel-structure question behind the mix-shift argument."
+   },
+   {
+    "dimension": "ENTRY_BASIS_STRESS",
+    "question": "Does the $51.01-$58.41 would_buy_zone actually reproduce from the file's own stated method, and does the file's own supporting arithmetic around it hold up under independent reconstruction?",
+    "finding": "Independently rebuilt the filed growing-FCF-plus-Gordon-terminal-value formula (base_fcf $371.9M, 9% discount rate, 2.5% terminal growth, 5-year horizon, net debt $1,222.6M, shares 161.7M): it reproduces the filed enterprise value at the market-implied 43.19% growth rate to within the tolerance the file claims, and the final zone survives exactly, 14% growth converts to $51.01 per share and 17% growth to $58.41 per share, matching the filed zone precisely. But two of the file's own supporting sentences were wrong: would_buy_zone.basis paired the intermediate enterprise values with the wrong growth rates ($8,736.1M is the EV at 12% growth, not 14%, and $9,470.5M is the EV at 14%, not 17%; the correct 17%-growth EV is $10,667.9M), and would_buy_stress's harsher-bear-case sentence stated $38.26 for the 8.40% trailing-CAGR case where independent recomputation gives $39.03 exactly ($38.26 is the value at 8.00% growth, not 8.40%). Neither error changes the filed zone or its sanity-band conclusion, both of which check out under independent reconstruction, but both were wrong numbers dressed as verified arithmetic.",
+    "outcome": "AMENDED",
+    "amendment": "would_buy_zone.basis and would_buy_stress corrected to the independently reconstructed enterprise-value and per-share figures."
+   },
+   {
+    "dimension": "PRICE_INSTRUMENT",
+    "question": "Does the dived link carry price_instruments (method section 4), making a separate scarce-price fund the actual trade in front of this name?",
+    "finding": "Not applicable: neither the dive file nor data/market/NVT.json references any price_instruments, scarce-price fund, or instrument ticker for the power-equipment link. This attack has no chain-level access to confirm the link genuinely carries none (that would require reading data/chains/, which this fresh-context redteam is barred from), so this is recorded as not applicable on the evidence available to this pass, not as a cleared check.",
+    "outcome": "NOT_APPLICABLE",
+    "amendment": null
+   }
+  ],
+  "verdict_survived": true,
+  "surviving_bear_case": "At $162.38 nVent is up 71.34% from its own 52-week low with no unwind, and the reverse DCF solved in the data plane implies a 43.19% five-year free-cash-flow CAGR against this dive's own defensible 19.26% base case (itself the top of nVent's own achieved trailing range, not a conservative number): a 23.93pp gap that survives the file's own 20.10pp horizon-spread test by only 3.83pp, the same thin margin this campaign's HUBB dive found. Reconstructing the identical DCF mechanics at a genuinely bearish 14%-17% growth assumption, independently verified in this attack to reproduce exactly, implies fair value 64%-69% below spot. Layered on top, the headline 36.97x P/E and 0.655x cash-conversion figures both mix in a one-time $1.7 billion divestiture gain from the Thermal Management sale, and on the company's own disclosed continuing-operations basis the effective multiple is closer to 61x, with this dive unable to confirm from documents on disk whether the operating-cash-flow figure shares that same restated basis. This attack found the core gap-table and would-buy-zone arithmetic sound on independent reconstruction, corrected three smaller misquoted or mislabeled figures elsewhere in the file (none of them verdict-critical), and could not resolve, within its fresh-context limits, whether nVent's mix-shift margin story holds against a concentrated buyer base rather than a fragmented one. The independence test's own falsification date, the Q3 2026 release inside review_by, is the nearest point this either compounds or breaks.",
+  "pre_mortem": {
+   "premise": "It is twelve months from now, roughly 2027-09-15, and the WATCH call was wrong.",
+   "reasons": [
+    "The market was closer to right than this dive's caution: nVent's own multi-year transformer and switchgear backlog is a genuine physical bottleneck, not a cyclical order surge, and the twice-raised guidance kept compounding rather than reverting toward the trailing 4-year and 8-year averages this dive leaned on. Staying at WATCH rather than a more constructive read meant missing a continued re-rate as guided fundamentals actually delivered, the same failure mode this dive's own independence test names as the market's strongest counter-argument.",
+    "The unresolved continuing-operations cash-flow question resolved unfavorably: the operating-cash-flow figure behind the canonical 0.655x conversion ratio turns out to already be on a continuing-operations basis, meaning the friendlier 1.086x reading this dive treated as an open possibility was never available, the DSO and capex-to-depreciation upticks this dive read as growth-driven proved to be the start of a genuine deterioration, and the earnings-quality grade this dive called B should have read closer to C, capping the WATCH's own would_buy_zone as too generous rather than merely cautious.",
+    "A stock up 71.34% from its own low with a SATURATED institutional base (93.73% ownership, 15 analysts) does not reprice in an orderly walk into a $51.01-$58.41 band: the first quarter printing organic growth below the newly guided 32% floor triggers a single-session repricing that overshoots the zone to the downside on crowded institutional selling, so the would-buy band was never actually tested as a tradable entry, only crossed through on the way to a lower print this dive's bear case did not size."
+   ],
+   "why_the_market_could_have_been_right": "Reason one is answerable and coherent on this dive's own evidence: the structural case (52-80 week switchgear lead times, 75-110 week substation-transformer lead times, guidance raised twice in one reporting window) is real, filing-disclosed and independent of any one company's narrative. If the physical supply bottleneck genuinely persists for years rather than one cycle, the market's forward ask does not require an implausible re-rating, only a longer runway on a trend nVent's own guidance is already confirming quarter to quarter.",
+   "forces_downgrade": false,
+   "downgrade_note": "Verdict is already at WATCH, the floor a failed pre-mortem would impose, and a coherent market-could-have-been-right story is named above (reason one), so the pre-mortem test is answered without forcing further change."
+  }
+ },
+ "explainer": {
+  "lang": "he",
+  "verdict_line": "הקריאה שלנו היא המתנה. החברה טובה ואמיתית, אבל המחיר של המניה כבר משקף אופטימיות גדולה מדי, ולכן זה עדיין לא זמן טוב לקנות.",
+  "what_they_do": "החברה מייצרת ציוד חשמלי, מערכות הגנה וקירור שעוזרים למרכזי מחשוב ענקיים ולרשת החשמל לעבוד בבטחה בלי תקלות.",
+  "why_now": "הביקוש לחשמל ולמרכזי מחשוב גדל מהר מאוד כרגע, וההזמנות של החברה נמצאות בתור ארוך, כך שהמכירות שלה קופצות בקצב גבוה.",
+  "why_market_misses": "נראה שהשוק כבר מתמחר עתיד ורוד מאוד, כאילו הקצב המהיר הנוכחי יימשך שנים רבות קדימה, למרות שההיסטוריה של החברה עצמה מראה קצב צמיחה מתון בהרבה לאורך זמן.",
+  "what_could_break": "אם קצב הצמיחה יאט ולו מעט, או אם יתברר שחלק מהרווחים הגיעו ממכירת עסק ולא מהפעילות הרגילה, מחיר המניה עלול ליפול בחדות כי הוא כבר גבוה מאוד.",
+  "what_would_change_our_mind": "אם המחיר ירד משמעותית בעוד החברה ממשיכה לגדול בקצב יציב ואמין, זה יהיה הרגע לבדוק שוב ואולי לקנות.",
+  "as_of": "2026-09-15",
+  "by": "stocky",
+  "draws_on": [
+   "verdict",
+   "would_buy_zone",
+   "red_team.surviving_bear_case"
+  ]
+ }
 }
