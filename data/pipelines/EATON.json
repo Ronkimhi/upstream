@@ -1,7 +1,7 @@
 {
   "issuer_id": "EATON",
   "ticker": "ETN",
-  "as_of": "2026-09-13",
+  "as_of": "2026-09-15",
   "generated_by": "sieve-profiler",
   "status": "PARTIAL",
   "items": [
@@ -26,14 +26,23 @@
     {
       "query_or_url": "data/market/ETN.json#fundamentals",
       "result": "No remaining_performance_obligations or backlog field present in the stored fundamentals block."
+    },
+    {
+      "query_or_url": "https://www.businesswire.com/news/home/20260730561562/en/Eaton-Reports-Record-Second-Quarter-2026-Results-with-Strong-Organic-Growth-Accelerating-Orders-and-Backlog-and-Raises-Organic-Growth-Guidance (round 2, web_doc REQ-20260914-1399)",
+      "result": "Fetched but stored with http_status 403 and 0 chars of text (data/web/4a69e50f9fe8ea66.json) -- BusinessWire blocked the fetch, so no new prose is available from this source. No dollar-level backlog figure found this round; the existing percentage-growth item from the stored 8-K remains the only cited disclosure."
     }
   ],
-  "notes": "Eaton discloses backlog only as a percentage growth figure by segment in this release, with no absolute dollar level, RPO figure, or named contract. A web_doc fetch of Eaton's 10-Q MD&A (which typically carries a dollar backlog figure) would be needed to complete this to a dollar level; not yet queued in this run.",
+  "notes": "Eaton discloses backlog only as a percentage growth figure by segment in this release, with no absolute dollar level, RPO figure, or named contract. A round-2 web_doc fetch of Eaton's BusinessWire earnings release returned HTTP 403 with no text; a 10-Q MD&A fetch (which typically carries a dollar backlog figure) would still be needed to complete this to a dollar level.",
   "changelog": [
     {
       "ts": "2026-09-13T00:00:00Z",
       "by": "sieve-profiler",
       "change": "Created PARTIAL. One percentage backlog-growth item sourced verbatim from the stored 2026-07-31 8-K earnings release (data/edgar/docs/ETN.json); no dollar-level backlog or named contract found on disk."
+    },
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "sieve-profiler",
+      "change": "run pipeline (round 2): remains PARTIAL. The queued BusinessWire web_doc fetch returned HTTP 403 with no text (data/web/4a69e50f9fe8ea66.json); no new item added."
     }
   ]
 }

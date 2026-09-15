@@ -1,7 +1,7 @@
 {
  "issuer_id": "DESCARTES",
  "ticker": "DSGX",
- "as_of": "2026-09-14",
+ "as_of": "2026-09-15",
  "generated_by": "sieve-profiler",
  "status": "NONE_FOUND",
  "items": [],
@@ -13,14 +13,27 @@
   {
    "query_or_url": "data/market/DSGX.json#fundamentals.remaining_performance_obligations",
    "result": "Present as a structured us-gaap:RevenueRemainingPerformanceObligation fact ($647.2 million, period_end 2026-01-31), but the field is a nested object ({value, unit, period_end, concept, taxonomy}) and tools/check_pipeline.py's xbrl matcher requires a bare scalar at fundamentals.<field>, so this fact cannot be cited as a source_kind: xbrl item under the current gate shape (see tasks/backlog.md, bucket xbrl-nested-field-mismatch, filed this run)."
+  },
+  {
+   "query_or_url": "data/web/94f88d2964b001e7.json (Descartes exhibit 99.1, sec.gov, fetched batch 1) re-read this round",
+   "result": "No occurrence of 'backlog' or 'remaining performance obligation' anywhere in the stored 26,948-character document."
+  },
+  {
+   "query_or_url": "https://www.globenewswire.com/news-release/2026/09/10/3360039/0/en/descartes-announces-fiscal-2027-second-quarter-financial-results.html (round 2, web_doc REQ-20260914-1405)",
+   "result": "Fetch FAILED: HTTPSConnectionPool read timeout after 45s; no document stored. No new evidence this round."
   }
  ],
- "notes": "The only quantified RPO figure available for Descartes is a structured XBRL fact that the pipeline gate's xbrl matcher cannot currently verify (nested object, not a scalar); no prose backlog/RPO/contract disclosure is present in the stored 6-K. Left NONE_FOUND rather than writing an uncitable item.",
+ "notes": "The only quantified RPO figure available for Descartes remains a structured XBRL fact that the pipeline gate's xbrl matcher cannot currently verify (nested object, not a scalar; bucket xbrl-nested-field-mismatch, still OPEN); no prose backlog/RPO/contract disclosure is present in either stored EDGAR document, and the round-2 web_doc fetch of Descartes' FQ2 2027 GlobeNewswire release timed out with nothing stored. Left NONE_FOUND rather than writing an uncitable item.",
  "changelog": [
   {
    "ts": "2026-09-14T00:00:00Z",
    "by": "sieve-profiler",
    "change": "run pipeline: initial write, NONE_FOUND -- stored 6-K carries no prose backlog/RPO figure, and the structured RPO fact cannot be cited under the pipeline gate's current xbrl matcher (bucket xbrl-nested-field-mismatch)."
+  },
+  {
+   "ts": "2026-09-15T00:00:00Z",
+   "by": "sieve-profiler",
+   "change": "run pipeline (round 2): remains NONE_FOUND. Re-read the stored exhibit 99.1 (no hits); the round-2 GlobeNewswire web_doc fetch (REQ-20260914-1405) failed with a read timeout, so no new source is on disk. The xbrl gate bug noted 2026-09-14 is still OPEN."
   }
  ]
 }
