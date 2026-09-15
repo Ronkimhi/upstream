@@ -1,15 +1,15 @@
 {
   "issuer_id": "HENSOLDT",
   "issuer_name": "HENSOLDT AG",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-15",
   "created_at": "2026-09-04T22:00:00Z",
-  "updated_at": "2026-09-04T22:00:00Z",
+  "updated_at": "2026-09-15T00:35:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T3",
   "data_tier_basis": "Local-only listing (method section 6): Xetra Frankfurt:HAG has no SEC CIK; data/market/HAG-DE.json has a fetched yfinance-statements vendor fundamentals block and a scored quality block; Ron's 2026-09-01 decision admits this vendor aggregate directly into T2/T3 canonical metrics (method section 6A).",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profile, held O2. Re-examined for O1 by run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out confirmatory pass, ninth run, 2026-09-14): zero NULL canonical fields, favorable heat and a current PASS placement audit on the c2-and-sensor-fusion money-corner CHOKE_POINT placement, but revenue.latest_fy and both cash_conversion fields remain vendor-aggregate INFERRED with official_source false, refusing tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate. REQ-20260914-630 is now FULFILLED and read: revenue reconciles cleanly against HENSOLDT's own FY2025 results release, but the release discloses no net income and no unadjusted operating cash flow, and its 'adjusted free cash flow' does not cleanly reconcile with the vendor-implied fcf_margin. See selection_review for the full finding. Next stage: run profile HENSOLDT to judge the fcf_margin substitution, or a fetch of the FY2025 audited financial statements (due 2026-03-26 per the release) for operating_cash_flow_to_net_income.",
+  "opportunity_tier_basis": "COMPLETE profile, held O2. run profile HENSOLDT (2026-09-15, offshore-counter-drone O1 unblock): metrics.revenue.latest_fy now crosses officially (EUR 2,455m, HENSOLDT's own FY2025 results press release, data/web/5b6dfa49148d7004.json). Both cash_conversion fields (operating_cash_flow_to_net_income, fcf_margin) remain vendor-aggregate INFERRED: that same press release discloses only Adjusted EBITDA and Adjusted free cash flow, never raw net income or unadjusted operating cash flow. This run additionally searched HENSOLDT's interactive Annual Report site (annualreport.hensoldt.net) for an HTML consolidated financial statements chapter: /financial_statements/ (REQ-20260914-1390), /key_performance_indicators/ (REQ-20260914-1392) and /management_report/ (REQ-20260914-1393) all returned HTTP 404, and /downloads/ (REQ-20260914-1394) returned 200 but confirms the site still serves the 'Annual Report 2024', not FY2025, so no path on that site can help regardless of naming. tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate still refuses O1 on both cash_conversion fields. Not promoted; this is a profile refresh, not run selection. The FY2025 audited consolidated financial statements (due 2026-03-26 per the press release) remain the only identified document likely to carry the missing figures, and remain unfetched in any HTML-extractable form.",
   "listing_refs": [
     "XETRA-HAG"
   ],
@@ -90,13 +90,14 @@
   "metrics": {
     "revenue": {
       "latest_fy": {
-        "value": 2454000000.0,
-        "tag": "INFERRED",
-        "source_name": "yfinance-statements",
-        "source_date": "2026-09-04",
-        "url": "https://finance.yahoo.com/quote/HAG.DE/financials",
-        "basis": "Fiscal-year revenue for the period ended 2025-12-31, from the yfinance-statements vendor statements for HENSOLDT (HAG-DE).",
-        "official_source": false
+        "value": 2455000000.0,
+        "tag": "VERIFIED",
+        "source_name": "HENSOLDT FY2025 results press release",
+        "source_date": "2026-02-26",
+        "url": "https://www.hensoldt.net/news/financial-year-2025-hensoldt-achieves-record-order-intake-and-confirms-structural-growth-path",
+        "basis": "Official FY2025 revenue, EUR 2,455 million, from HENSOLDT's own FY2025 results press release (26/02/2026), fetched via REQ-20260914-630 and stored at data/web/5b6dfa49148d7004.json. Cross-checks the vendor-aggregate figure this field previously carried: 2,454,000,000 EUR from yfinance-statements, a EUR 1 million (0.04%) rounding difference against the official EUR 2,455 million.",
+        "official_source": true,
+        "source_excerpt": "Revenue rose by close to 10% to EUR 2,455 million (previous year: EUR 2,240 million)."
       }
     },
     "growth": {
@@ -235,7 +236,8 @@
   ],
   "data_gaps": [
     "Filled 2026-09-04 from data/market/HAG-DE.json (yfinance-statements vendor aggregate, admitted into T2/T3 canonical metrics by the 2026-09-01 method decision): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
-    "No chain- or link-specific revenue percentage is disclosed or sourced for HENSOLDT; only company-wide figures are available."
+    "No chain- or link-specific revenue percentage is disclosed or sourced for HENSOLDT; only company-wide figures are available.",
+    "2026-09-15: revenue.latest_fy now rests on HENSOLDT's own official FY2025 results press release (VERIFIED, official_source true) rather than the yfinance-statements vendor aggregate. cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin remain vendor-aggregate INFERRED: that press release discloses only Adjusted EBITDA and Adjusted free cash flow, never raw net income or an unadjusted operating-cash-flow line, and HENSOLDT's interactive Annual Report site (annualreport.hensoldt.net) still serves the FY2024 report, confirmed by fetch, so it cannot supply FY2025 figures regardless of chapter path. The audited FY2025 consolidated financial statements (due 2026-03-26 per the release) are the only identified document that could still close this gap and remain unfetched in HTML-extractable form."
   ],
   "disposition": {
     "state": "RETAIN",
@@ -243,12 +245,12 @@
     "basis": "Complete medium profile on offshore-counter-drone/maritime-detection-radar and 3 further placement(s). Retained rather than advanced because selection is a separate command (run selection) not run here; this batch only profiles."
   },
   "confidence_audit": {
-    "VERIFIED": 0,
-    "INFERRED": 10,
+    "VERIFIED": 1,
+    "INFERRED": 9,
     "SPECULATIVE": 2,
     "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/HAG-DE.json (yfinance-statements vendor aggregate)."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED (revenue.latest_fy, since 2026-09-15) rests on HENSOLDT's own official FY2025 results press release, official_source true. The remaining INFERRED fields rest on data/market/HAG-DE.json (yfinance-statements vendor aggregate), admitted into T2/T3 canonical metrics by the 2026-09-01 method decision; never a filing quote."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -278,6 +280,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (offshore-counter-drone scope, fan-out confirmatory pass, ninth run overall, 2026-09-14). Held O2, unchanged. REQ-20260914-630 (queued by the eighth run) is now FULFILLED with real text (data/web/5b6dfa49148d7004.json, 9,384 chars): HENSOLDT's FY2025 results release gives Revenue EUR 2,455m, Adjusted EBITDA EUR 452m and Adjusted free cash flow EUR 347m, and discloses neither net income nor unadjusted operating cash flow. Revenue would reconcile cleanly (EUR 2,455m vs EUR 2,454m on file); the release's Adjusted FCF (EUR 347m) does not cleanly reconcile with the vendor-implied unadjusted FCF behind this profile's fcf_margin (roughly EUR 244m); operating_cash_flow_to_net_income has no candidate figure in this document at all. Per the same boundary the 2026-09-06 and eighth-run sessions drew, none of the three metrics fields are written from this run: doing so would not clear the O1 gate alone (every present cash_conversion field must cross, not just one) and the fcf_margin substitution is a methodology judgment left to run profile HENSOLDT. Confirmed via check_map.placement_audit_for that the c2-and-sensor-fusion placement's PASS placement audit (atlas-fresh-context, 2026-09-04T19:20:44Z) is still current against the mapping as it stands today. Not promoted. See selection_review for the full finding."
+    },
+    {
+      "ts": "2026-09-15T00:35:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile HENSOLDT (offshore-counter-drone O1 unblock, campaign blocker BLK-13). Moved metrics.revenue.latest_fy from vendor-aggregate INFERRED/official_source false to official-source VERIFIED/official_source true: HENSOLDT's own FY2025 results press release (already stored at data/web/5b6dfa49148d7004.json from REQ-20260914-630) states 'Revenue rose by close to 10% to EUR 2,455 million (previous year: EUR 2,240 million)', which reconciles cleanly against the vendor figure this field previously carried (EUR 2,454,000,000, a 0.04% rounding difference); value updated to the official EUR 2,455,000,000. Searched for an official HTML source for the two cash_conversion fields (operating_cash_flow_to_net_income, fcf_margin), since the press release discloses neither raw net income nor unadjusted operating cash flow, only Adjusted EBITDA and Adjusted free cash flow: queued and fetched four candidate pages on HENSOLDT's own interactive Annual Report site, annualreport.hensoldt.net (WebSearch-identified as an official primary source distinct from the press release and the still-unfetched PDF audited financial statements). /financial_statements/ (REQ-20260914-1390, the path that carried the 2021 edition's cash-flow statement), /key_performance_indicators/ (REQ-20260914-1392) and /management_report/ (REQ-20260914-1393) all returned HTTP 404: the site's chapter structure has changed since 2021. /downloads/ (REQ-20260914-1394) returned HTTP 200 but its text confirms the site currently serves 'Annual Report 2024' ('HENSOLDT Geschaftsbericht 2024'), not FY2025, so no chapter of this site can supply an FY2025 figure regardless of path guessed. No ESEF XHTML filing or Bundesanzeiger/Unternehmensregister HTML publication was found via WebSearch this run (the Unternehmensregister filing deadline for FY2025 is 2026-12-31, per search results, and appears not yet filed). cash_conversion.operating_cash_flow_to_net_income and cash_conversion.fcf_margin left unchanged, vendor-aggregate INFERRED: tools/check_profile.py's O1_OFFICIAL_CROSSCHECK_FIELDS gate still refuses O1 on both. opportunity_tier stays O2; this is a profile refresh, not run selection, and does not promote. Per the task's instruction, run selection CAMP-20260901-01 is not invoked this pass because HENSOLDT does not meet the full O1 contract (two of three crosscheck fields still uncrossed)."
     }
   ],
   "selection_review": {
