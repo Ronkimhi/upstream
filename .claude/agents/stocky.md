@@ -222,6 +222,15 @@ the amendments made, and the surviving bear case in one paragraph, which prints 
 page. **A red team that amends nothing, repeatedly, is not a strong thesis, it is a broken
 attack.** My log counts my amendment rate for exactly that reason.
 
+**The Hebrew report (Ron, 2026-09-15), my last act on a run, after the verdict is final.**
+Once the red team has run and the verdict survives or is amended, I write `explainer` on
+the dive: a plain-Hebrew report of what the company does, why now, why the market misses
+it, what could break it, and what would change our mind, honest about the real verdict
+whichever it is, INVESTABLE, WATCH or TOO_LATE. I write it the way I would explain the
+call to a ten-year-old: no figures (a number lives in a sourced field, not in this prose),
+no em or en dashes, and no softening a WATCH or a TOO_LATE into something it is not.
+`tools/check_analyst.py` checks it exactly like it checks everything else I write.
+
 ### 3. My own accuracy (the loop)
 
 Four channels, recomputed from disk every run into `data/stocks/_dive-log.json`. Every

@@ -33,6 +33,12 @@ Checks, each reported with the denominator it examined:
      (Ron, 2026-09-03: five WATCH verdicts and no price at which any would have been a
      yes left the INVESTABLE bar untestable). Warning on dives whose last changelog entry
      predates the gate, failure after; the would-buy denominator prints on every run.
+ 13. the Hebrew explainer bar (Ron, 2026-09-15): a dive FINAL on or after
+     STOCK_EXPLAINER_GATE on its latest changelog date carries a plain-Hebrew explainer
+     (verdict_line, what_they_do, why_now, why_market_misses, what_could_break,
+     what_would_change_our_mind) written for a ten-year-old; any explainer present on any
+     dive, gated or not, is checked in full for the same prose rules the chain explainer
+     bar holds (Hebrew, no figure, no em or en dash). Older dives are unaffected.
 
 Scope: admission check 0 and schema-drift check 11 always run. Checks 1-10 only bind on a
 day that actually wrote a dive. On a day with no dive the gate reports NOT RUN TODAY
@@ -52,6 +58,7 @@ from pathlib import Path
 import check_map
 import check_profile
 import market_paths
+from check_chain import explainer_failures
 
 
 def _load_normalizer():
@@ -100,6 +107,15 @@ STOCKY_IDENTITY_FIELDS = (
 # `is_committed_legacy_stock` is kept intact so a future migration can add an entry, and
 # `TestLegacyBaselineMechanism` now tests that function directly rather than through a dive.
 STOCKY_LEGACY_BASELINE: dict[str, str] = {}
+
+# The Hebrew report layer (Ron, 2026-09-15). Same dated ratchet as the chain explainer bar
+# in check_chain.py, reused rather than copied: a dive FINAL on or after this date, on its
+# latest changelog entry, carries a plain-Hebrew explainer written for a ten-year-old,
+# honest about WATCH and TOO_LATE, naming no figure. Any explainer present on any dive,
+# gated or not, is checked in full the moment it is written.
+STOCK_EXPLAINER_GATE = "2026-09-15"
+STOCK_KEYS = ("verdict_line", "what_they_do", "why_now", "why_market_misses",
+              "what_could_break", "what_would_change_our_mind")
 
 # A WATCH must carry a would-buy zone from this date (Ron, 2026-09-03). Dives whose latest
 # changelog entry predates it warn instead of failing, so the tree validates between the
@@ -751,6 +767,28 @@ def main() -> int:
     report(
         f"admission: {admission_checked} campaign-era dive(s) checked; "
         f"{lapsed} lapse(s) reported; {legacy} pre-{STOCKY_ADMISSION_GATE} legacy warning(s)")
+
+    # 13. the Hebrew explainer bar, every run, over the whole corpus (same shape as the
+    # chain explainer bar this reuses): any explainer present is checked in full, and a
+    # dive FINAL on or after STOCK_EXPLAINER_GATE on its latest changelog date must carry
+    # one. Older dives are reported, not failed, exactly like the chain-level ratchet.
+    ex_have = ex_required = ex_missing = 0
+    for p, d in dives:
+        latest = latest_changelog_date(d)
+        bound = d.get("status") == "FINAL" and latest and latest >= STOCK_EXPLAINER_GATE
+        if bound:
+            ex_required += 1
+        if d.get("explainer") is not None:
+            ex_have += 1
+            for m in explainer_failures(d, STOCK_KEYS, p.name):
+                fail(m)
+        elif bound:
+            ex_missing += 1
+            fail(f"{p.name}: status FINAL, latest changelog {latest} on or after "
+                 f"{STOCK_EXPLAINER_GATE}, carries no explainer; run redteam writes one in "
+                 "plain Hebrew for a ten-year-old, honest about the verdict, naming no figure")
+    report(f"explainer: {ex_have} of {len(dives)} dive(s) carry one; {ex_required} FINAL "
+           f"dive(s) bound by the {STOCK_EXPLAINER_GATE} gate, {ex_missing} missing")
 
     # 12. the would-buy denominator, every run, over the whole corpus: a WATCH with no
     # price at which it would have been a yes is the state that left the INVESTABLE bar

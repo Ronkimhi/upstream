@@ -1350,6 +1350,12 @@ def project_companies(companies: list, market: dict) -> list:
             "data_gaps": [_compact_text(g, COMPANY_SUMMARY_CHAR_LIMIT) for g in gaps[:1]],
             "data_gaps_total": len(gaps),
             "listings": _trim_listings(doc.get("listings"), market),
+            # The Hebrew selection note (2026-09-15): a plain-language why-not-now for a
+            # COMPLETE profile a selection run left O2, same shape as a chain/link
+            # explainer and trimmed the same way (_trim_explainer), never truncated —
+            # only present on the minority of profiles a selection run actually wrote one
+            # for, so it carries no meaningful weight against the byte budget above.
+            "selection_note": _trim_explainer(doc.get("selection_note")),
         })
     out.sort(key=lambda r: r["issuer_id"])
     return out

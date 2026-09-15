@@ -6,6 +6,11 @@ and opportunity priority (O1/O2/O3) are separate axes. T2 and T3 profiles may co
 with official-source INFERRED facts; the gate never requires a market-data file or a T1
 classification.
 
+A profile may also carry `selection_note` (Ron, 2026-09-15): a plain-Hebrew note a
+selection run writes on a COMPLETE profile it considered and left O2, why not now and
+what would promote it. Checked whenever present, same prose rules the chain and stock
+explainers hold, via check_chain.explainer_failures; never required.
+
 Run: python3 tools/check_profile.py [--root PATH]
 Exit 0 clean, 1 on any failure.
 """
@@ -18,6 +23,7 @@ from pathlib import Path
 
 from market_paths import market_path
 
+from check_chain import explainer_failures
 from check_map import ISSUER_ID_RE, read_json, valid_date
 
 PROFILE_STATUS = {"DRAFT", "BLOCKED", "COMPLETE"}
@@ -49,6 +55,12 @@ MISSING_MARKET_CLAIM_RE = re.compile(
 NO_MARKET_CLAIM_RE = re.compile(
     r"no market file (?:has ever been fetched|exists|on disk) for ([A-Za-z0-9.\-]+)", re.I)
 VERDICT_WORDS = {"INVESTABLE", "WATCH", "TOO_LATE"}
+# The Hebrew selection note (Ron, 2026-09-15). A COMPLETE profile a selection run
+# considered and left O2 carries a plain-Hebrew note, same prose rules as the chain and
+# stock explainers, reused from check_chain.explainer_failures rather than copied: why it
+# did not clear O1 this round, and what would promote it next time. Checked whenever
+# present; no profile is required to carry one.
+SELECTION_NOTE_KEYS = ("why_not_now", "what_would_promote")
 VALUATION_RATIO_FIELDS = {
     "price_to_earnings", "forward_price_to_earnings", "pe_ratio",
     "ev_to_ebitda", "ev_ebitda", "ev_to_sales", "price_to_sales",
@@ -709,6 +721,11 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
     if not isinstance(profile.get("changelog"), list):
         failures.append("changelog must be a list")
     failures.extend(_verdict_leaks(profile))
+
+    if profile.get("selection_note") is not None:
+        failures.extend(explainer_failures(
+            profile, SELECTION_NOTE_KEYS, path.name, field="selection_note"))
+
     return failures
 
 

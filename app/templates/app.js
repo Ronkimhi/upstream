@@ -1529,6 +1529,49 @@
     return '<div class="card he" dir="rtl" lang="he">' + sec("צורת השרשרת", x.shape) + sec("התזה", x.thesis) +
       '<div class="stamp">נכתב <bdi>' + esc(x.as_of) + "</bdi> · <bdi>" + esc(x.by) + "</bdi></div></div>";
   }
+  /* ---------------- the Hebrew investment report (Ron, 2026-09-15) ----------------
+     st.explainer: a dive's honest, plain-Hebrew report, written by run redteam once the
+     verdict is final. "as if I am ten": no figures, no dashes, honest about a WATCH or a
+     TOO_LATE. tools/check_analyst.py is the gate; this only renders what it wrote.
+     `href`, when given, links the card to the full dive page (used from companyView,
+     where the card sits above the profile for whichever dive it picked). */
+  function heReportBlock(st, href) {
+    var x = st && st.explainer;
+    if (x == null) {
+      return '<section class="he card" dir="rtl" lang="he"><div class="absent">עדיין אין דוח השקעה בעברית לצלילה הזאת. הוא ייכתב בסוף <bdi>run redteam</bdi>.' +
+        (href ? ' <a href="' + esc(href) + '">לצלילה המלאה →</a>' : "") + "</div></section>";
+    }
+    function sec(t, v) { return v == null ? "" : "<h3>" + t + "</h3><p>" + esc(v) + "</p>"; }
+    return '<section class="he card" dir="rtl" lang="he">' +
+      '<div class="row" style="align-items:center;gap:8px">' + chip(st.verdict, st.verdict) +
+      (href ? '<a href="' + esc(href) + '" class="small">' + esc(st.ticker || "") + " · " + esc(st.chain_id || "") + " →</a>" : "") +
+      "</div>" +
+      (x.verdict_line ? "<p style='font-size:15px;margin-top:10px'>" + esc(x.verdict_line) + "</p>" : "") +
+      sec("מה החברה עושה", x.what_they_do) + sec("למה עכשיו", x.why_now) +
+      sec("למה השוק מפספס את זה", x.why_market_misses) + sec("מה יכול להשתבש", x.what_could_break) +
+      sec("מה ישנה את דעתנו", x.what_would_change_our_mind) +
+      '<div class="stamp">נכתב <bdi>' + esc(x.as_of) + "</bdi> · <bdi>" + esc(x.by) + "</bdi></div></section>";
+  }
+  /* A COMPLETE profile a selection run left O2: why not now, in the same plain Hebrew,
+     when Sieve wrote one. No verdict lives here, only the reason it did not clear O1. */
+  function selectionNoteBlock(co) {
+    var x = co && co.selection_note;
+    if (x == null) return "";
+    function sec(t, v) { return v == null ? "" : "<h3>" + t + "</h3><p>" + esc(v) + "</p>"; }
+    return '<section class="he card" dir="rtl" lang="he">' +
+      sec("למה לא עכשיו", x.why_not_now) + sec("מה יקדם את זה", x.what_would_promote) +
+      '<div class="stamp">נכתב <bdi>' + esc(x.as_of) + "</bdi> · <bdi>" + esc(x.by) + "</bdi></div></section>";
+  }
+  /* Which of a company's dives gets the inline card on its page: the newest dive that
+     carries a report, or, when none does yet, the newest dive at all (so the absent
+     state links straight to the file that will carry it). */
+  function pickDiveForCompany(dives) {
+    if (!dives || !dives.length) return null;
+    var withReport = dives.filter(function (d) { return d.explainer != null; });
+    var pool = withReport.length ? withReport : dives;
+    var finals = pool.filter(function (d) { return d.status === "FINAL"; });
+    return (finals.length ? finals : pool).slice(-1)[0];
+  }
   function heatTab(c, links, scored) {
     if (!scored.length) return '<div class="emptystate">עדיין אין חוליות מדורגות.<div class="runwrap">' + runButton("run heat " + c.id) + "</div></div>";
     var W = 940, H = 560, P = { l: 64, r: 40, t: 34, b: 52 };
@@ -1984,7 +2027,8 @@
     var qualc = qualityCard(mk, st);
     return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
       (st.fixture ? '<div class="fixturebanner">עמוד לדוגמה: נתוני הדגמה מלאכותיים כדי שאפשר יהיה לבדוק את הממשק. הוא יימחק כשתגיע הצלילה האמיתית הראשונה.</div>' : "") +
-      '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" + hero +
+      '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" +
+      "<div style='margin-bottom:14px'>" + heReportBlock(st) + "</div>" + hero +
       (alc ? "<div style='margin-top:14px'>" + alc + "</div>" : "") +
       (linkc ? "<div style='margin-top:14px'>" + linkc + "</div>" : "") +
       seclabel("מחיר") + "<div class='card'>" + rangeBar(mk, st) + priceChart(mk, st) + "</div>" +
@@ -2715,6 +2759,19 @@
       "<h1>" + esc(title) + (res.ticker && title !== res.ticker
         ? ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(res.ticker) + "</span>" : "") + "</h1></div>";
 
+    // The Hebrew investment report, inline at the top of the company page: whichever
+    // dive Stocky wrote for this issuer, linked to the full page; failing that, Sieve's
+    // O2 selection note when one exists; failing that, an honest line naming the gap.
+    var pickedDive = pickDiveForCompany(dives);
+    var heReportHTML;
+    if (pickedDive) {
+      heReportHTML = heReportBlock(pickedDive, "#/stock/" + pickedDive.ticker + "/" + pickedDive.chain_id);
+    } else if (co && co.selection_note) {
+      heReportHTML = selectionNoteBlock(co);
+    } else {
+      heReportHTML = '<section class="he card" dir="rtl" lang="he"><div class="absent">עדיין אין צלילה לחברה הזאת.</div></section>';
+    }
+
     var listings = (co && (co.listings || []).length) ? co.listings :
       (res.ticker ? [{ ticker: res.ticker, exchange: null, market_file: res.marketFile }] : []);
     var idCard = "<div class='card'><h3>זהות ורישומים</h3>" +
@@ -2846,7 +2903,8 @@
             }).join("") + "</details>" : "");
     }
 
-    return topbar("board") + crumbs([{ label: title }]) + "<main>" + head + idCard +
+    return topbar("board") + crumbs([{ label: title }]) + "<main>" + head +
+      "<div style='margin-bottom:14px'>" + heReportHTML + "</div>" + idCard +
       priceSection + (qualc ? "<div style='margin-top:14px'>" + qualc + "</div>" : "") +
       (fundCard ? "<div style='margin-top:14px'>" + fundCard + "</div>" : "") +
       profileHTML + placementsHTML + screenHTML + divesHTML + reqHTML + pipelineHTML +

@@ -118,31 +118,35 @@ def resolve_path(obj, path: str):
     return cur
 
 
-def explainer_failures(owner: dict, keys, ctx: str) -> list[str]:
-    """Every way an explainer present on `owner` can be wrong. Pure; the tests call it."""
-    x = owner.get("explainer")
+def explainer_failures(owner: dict, keys, ctx: str, field: str = "explainer") -> list[str]:
+    """Every way a plain-Hebrew explainer block present on `owner` can be wrong. Pure; the
+    tests call it. `field` names the key on `owner` that carries the block: "explainer" for
+    chains and links, and reused as-is (Stocky dives) or with a different `field` (Sieve's
+    `selection_note`) by every other stage that adopts the same prose rules rather than
+    copying this function a second time."""
+    x = owner.get(field)
     if not isinstance(x, dict):
-        return [f"{ctx}: explainer is not an object"]
+        return [f"{ctx}: {field} is not an object"]
     fails = []
     if x.get("lang") != "he":
-        fails.append(f"{ctx}: explainer.lang must be 'he'")
+        fails.append(f"{ctx}: {field}.lang must be 'he'")
     for k in keys:
         v = x.get(k)
         if not isinstance(v, str) or len(v.strip()) < EXPLAINER_MIN_CHARS or not HEBREW.search(v):
-            fails.append(f"{ctx}: explainer.{k} missing, short, or not Hebrew")
+            fails.append(f"{ctx}: {field}.{k} missing, short, or not Hebrew")
             continue
         m = NUMERIC_TOKEN.search(v)
         if m:
-            fails.append(f"{ctx}: explainer.{k} carries the numeric token {m.group(0)!r}; the "
+            fails.append(f"{ctx}: {field}.{k} carries the numeric token {m.group(0)!r}; the "
                          f"prose names no figure (method section 1: a number lives in a sourced field)")
         if DASHES.search(v):
-            fails.append(f"{ctx}: explainer.{k} contains an em or en dash")
+            fails.append(f"{ctx}: {field}.{k} contains an em or en dash")
     for k in ("as_of", "by"):
         if not x.get(k):
-            fails.append(f"{ctx}: explainer.{k} missing")
+            fails.append(f"{ctx}: {field}.{k} missing")
     for path in x.get("draws_on") or []:
         if resolve_path(owner, path) is None:
-            fails.append(f"{ctx}: explainer.draws_on {path!r} resolves to nothing on this object")
+            fails.append(f"{ctx}: {field}.draws_on {path!r} resolves to nothing on this object")
     return fails
 
 

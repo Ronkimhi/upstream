@@ -171,6 +171,12 @@ profiles remain O3. A campaign may have fewer than 30 O1 while active. It never 
 queue; status COMPLETE requires 30 to 60 O1 because that is the locked campaign boundary.
 Every tier change is appended to the profile changelog and reflected in the campaign.
 
+**The selection note (Ron, 2026-09-15).** For every COMPLETE profile I consider and leave
+O2, I write `selection_note` on it: a plain-Hebrew note, the same register and the same
+rules as Stocky's dive explainer, why it did not clear O1 this round and what would
+promote it next time. No figures, no em or en dashes, no verdict vocabulary; this is a
+research priority note, never a call. `tools/check_profile.py` checks it whenever present.
+
 The output is a Stocky work queue, not a verdict. Sieve never writes INVESTABLE, WATCH,
 TOO_LATE, an entry zone, a red team, or a FINAL stock status.
 
