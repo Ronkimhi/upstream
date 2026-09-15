@@ -1211,7 +1211,7 @@
     "profile_ref": "data/companies/ATI-INC.json",
     "data_tier": "T1",
     "audit_scope": "PLACEMENT",
-    "audit_scope_basis": "Mapping status ACTIVE with audit.status FAIL (audited_at 2026-08-31T20:58:00Z, 8 amendments_required at the census level); no current PASS placement_audits[] entry exists for this issuer on this link. This row rests solely on the all-VERIFIED-evidence basis: the metal-parts-and-forgings placement for ATI-INC carries exactly one evidence item, tagged VERIFIED, quoting ATI Inc. 2025 Annual Report, business overview directly, which alone satisfies check_screen._placement_admissible's all-VERIFIED bar.",
+    "audit_scope_basis": "Mapping status ACTIVE with audit.status FAIL at the census level (audited_at 2026-09-15T00:39:00Z, 17 amendments_required; previously audited_at 2026-08-31T20:58:00Z, 8 amendments_required), so the whole-census PASS-audit path remains unavailable and this row still declares audit_scope PLACEMENT. Two independent bases now admit this row. First, the all-VERIFIED-evidence basis still holds: the metal-parts-and-forgings placement for ATI-INC carries exactly one evidence item, tagged VERIFIED, now citing ATI's Form 8-K Exhibit 99.1 (Second Quarter 2026 Results, filed 2026-08-06, accession 0001628280-26-053856) Revenue by Market table, which on 2026-09-15 superseded the prior citation to the 2025 Annual Report business overview after a fresh-context placement audit (audited_at 2026-09-14T00:38:00Z) found that citation a non-contiguous splice; the new citation alone still satisfies check_screen._placement_admissible's all-VERIFIED bar. Second, a current PASS placement_audits[] entry for this exact issuer, link and chain now exists, audited_at 2026-09-15T00:39:00Z, evidence_index 0, superseding that same 2026-09-14T00:38:00Z FAIL entry; its record_digest is confirmed current against the placement's present role and evidence by check_map.placement_audit_for. Neither basis depends on the other.",
     "name": "ATI Inc.",
     "exchange": "New York Stock Exchange",
     "tier": "T1",
@@ -2109,6 +2109,11 @@
    "ts": "2026-09-14T15:10:00Z",
    "by": "stocky",
    "change": "GENERAL-DYNAMICS / energetic-materials row status CANDIDATE -> DIVED: run deepdive GD munitions-replenishment wrote data/stocks/GD__munitions-replenishment.json (status DRAFT, verdict WATCH, COMPOUNDER clock, earnings grade B). Admission rested on the placement's current PASS placement_audits[] entry (2026-09-14T02:25:00Z), not on the mapping's whole-census audit (still FAIL). No other field on the row was touched."
+  },
+  {
+   "ts": "2026-09-15T00:50:00Z",
+   "by": "sieve-profiler",
+   "change": "ATI-INC / metal-parts-and-forgings row: amended audit_scope_basis only, fired as part of Ron's approved full-cycle fan-out (worktree audit-ati, refresh data/screens/munitions-replenishment.json). The prior text said no current PASS placement_audits[] entry existed for this issuer and link; that became false after this same worktree's fresh-context run universe-audit munitions-replenishment --placement ATI-INC (audited_at 2026-09-15T00:39:00Z) PASSED on the re-cited placement evidence (ATI's Form 8-K Exhibit 99.1, Second Quarter 2026 Results, filed 2026-08-06, accession 0001628280-26-053856), superseding the 2026-09-14T00:38:00Z FAIL entry against the now-replaced 2025 Annual Report citation. Rewrote the field to name both admissible bases: the all-VERIFIED evidence tag (unchanged in kind, now pointing at the new citation) and the current PASS placement_audits[] entry, naming its audited_at. Also refreshed the field's stale census-level figures (audited_at, amendments_required) to match the mapping's own current fresh-context census re-audit, also this worktree, audited_at 2026-09-15T00:39:00Z, FAIL, 17 amendments_required, unchanged bottom line. Row admission itself is unchanged: it was already admitted on the all-VERIFIED basis before this edit (check_screen.py already reported OK) and remains admitted on both bases after it. No other row and no other field touched."
   }
  ]
 }
