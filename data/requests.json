@@ -79976,6 +79976,34 @@
     "data/web/d77bd0eece86f093.json"
    ],
    "fulfilled_at": "2026-09-15T00:24:27.125252+00:00"
+  },
+  {
+   "id": "REQ-20260914-1390",
+   "kind": "web_doc",
+   "ticker": null,
+   "url": "https://annualreport.hensoldt.net/en/financial_statements/",
+   "query": null,
+   "forms": null,
+   "lookback_days": null,
+   "requested_by": "run profile HENSOLDT (offshore-counter-drone O1 unblock, BLK-13): revenue.latest_fy now reconciles cleanly against the already-stored FY2025 results press release (data/web/5b6dfa49148d7004.json, EUR 2,455m official vs EUR 2,454m vendor-derived on file), but that release discloses neither net income nor an unadjusted operating-cash-flow line, only Adjusted EBITDA and Adjusted free cash flow, so it cannot cross-check cash_conversion.operating_cash_flow_to_net_income or cash_conversion.fcf_margin (three prior sessions, 2026-09-06 through 2026-09-14, already established this). The press release itself states the audited consolidated financial statements were due 2026-03-26 and are unfetched. Queuing HENSOLDT's own interactive Annual Report site (the /financial_statements/ chapter, which carried the Consolidated Statement of Cash Flows and Consolidated Income Statement for the 2021 edition of this same site at annualreport2021.hensoldt.net/en/financial_statements/, an HTML chapter structure, never the PDF whose text this fetch plane cannot extract) as an official primary source that might carry the raw IFRS operating cash flow and net income figures the press release omits.",
+   "requested_at": "2026-09-14T23:59:00Z",
+   "by": "sieve-profiler",
+   "status": "PENDING",
+   "note": null
+  },
+  {
+   "id": "REQ-20260914-1391",
+   "kind": "web_doc",
+   "ticker": null,
+   "url": "https://www.thalesgroup.com/en/investor-relations/financial-indicators",
+   "query": null,
+   "forms": null,
+   "lookback_days": null,
+   "requested_by": "run profile THALES (offshore-counter-drone O1 unblock, BLK-13): revenue.latest_fy and cash_conversion.fcf_margin already cross to Thales's own official FY2025 results press release (VERIFIED, official_source true). The one remaining field, cash_conversion.operating_cash_flow_to_net_income, has no candidate in that press release (only Free operating cash flow, a non-GAAP figure net of capex and UK pension deficit payments, is disclosed) and the identified primary document with the full cash flow statement, Thales's Consolidated Financial Statements at 31 December 2025 (REQ-20260913-02), came back FULFILLED but stores 0 extractable characters because it is a PDF and tools/fetch/fetch.py never text-extracts PDFs by design (a structural dead end, already flagged to tasks/backlog.md bucket pdf-evidence-dead-end). No ESEF XHTML filing or AMF/info-financiere.fr HTML page carrying this figure was found via WebSearch this run. Queuing Thales's own Financial Indicators page (an HTML page on the issuer's own investor-relations site distinct from the press release and the PDF statements, not yet fetched) as a last official-source HTML candidate before concluding this field cannot currently be cross-checked.",
+   "requested_at": "2026-09-14T23:59:15Z",
+   "by": "sieve-profiler",
+   "status": "PENDING",
+   "note": null
   }
  ]
 }
