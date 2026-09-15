@@ -1,0 +1,321 @@
+{
+  "ticker": "BDX",
+  "name": "Becton, Dickinson and Company",
+  "issuer_id": "BECTON-DICKINSON",
+  "listing_id": "NYSE-BDX",
+  "chain_id": "glp1-fill-finish",
+  "link_id": "autoinjector-and-pen-platforms",
+  "link_id_basis": "BECTON-DICKINSON holds exactly one ACTIVE placement on data/mappings/glp1-fill-finish.json: autoinjector-and-pen-platforms (link position 11, money_corner true, link_heat UNDISCOVERED). The O1 profile's own selection_basis.screen_handoff and the campaign-v1 screen row (data/screens/glp1-fill-finish.json, bucket picks_and_shovels) both resolve to this same link_id, listing_id NYSE-BDX and chain_id glp1-fill-finish; there is no second BDX placement on this map to disambiguate, unlike WST or WEST-PHARMACEUTICAL-SERVICES on this same chain.",
+  "screen_ref": "data/screens/glp1-fill-finish.json",
+  "scenario_ids": [],
+  "tier": "T1",
+  "clock": "COMPOUNDER",
+  "clock_basis": "glp1-fill-finish carries a live 5-scenario set (S1-S5, data/chains/glp1-fill-finish.json), but this dive is not anchored to any one of them: scenario_ids is empty because no scenario's moved-links list names this issuer's own placement (autoinjector-and-pen-platforms), and the thesis here is BD's ongoing, diversified device-platform exposure to a secular GLP-1 self-injection demand trend rather than a dated catalyst this chain's scenarios describe. COMPOUNDER, held through the cycle regardless of which scenario resolves, fits a name whose own bull case (Vystra/EMS Brazil, BioPharma Systems reacceleration) plays out over multiple years of device-platform adoption, not a single dated event with a 21-day review clock.",
+  "status": "DRAFT",
+  "created_at": "2026-09-15T20:00:00Z",
+  "updated_at": "2026-09-15T20:00:00Z",
+  "as_of": "2026-09-15",
+  "review_by": "2026-12-14",
+  "verdict": "WATCH",
+  "price_ref": {
+    "value": 177.85,
+    "source": "data/market/BDX.json series.rows last close (2026-09-11), price_status AGREED",
+    "as_of": "2026-09-11"
+  },
+  "price_source_note": "data/market/BDX.json carries price_status AGREED: the yfinance leg prints 177.85000610351562 and the stockanalysis leg prints 177.85, both dated 2026-09-11 (legs.second_source_used stockanalysis), so no SINGLE_SOURCE or DISPUTED disclosure is required here (method section 1); noted anyway because the close sits four calendar days before this dive's as_of, inside this gate's 7-day staleness tolerance.",
+  "would_buy_zone": {
+    "low": 74.23,
+    "high": 81.55,
+    "basis": "Re-anchored to the bear case per method section 7 (Ron, 2026-09-08), not to this file's own base case. Forward-solving quality.reverse_dcf's own bisection formula (base_fcf $2,670.0M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon; this reconstruction reproduces the filed implied_fcf_cagr to within 0.01% at all three filed horizons: 17.698% vs filed 0.177 at 5y, 10.778% vs filed 0.1078 at 10y) for two genuine bear-case FCF-CAGR targets instead of the market's 17.70% five-year ask: low=$74.23 is where the ask falls to a 1.5% FCF-CAGR-equivalent hard-bear case (flat FY2025 GAAP operating margin of 11.81%, revenue growth below even this dive's own guided-low-end reading, reflecting sustained tariff/macro drag and no net GLP-1 tailwind materializing); high=$81.55 is where it falls to a 3.0% FCF-CAGR-equivalent soft-bear case (FY2025 GAAP margin held flat, revenue growing at the low end of BD's own guided 'Low single-digit plus' FY2026 range, with no incremental GLP-1 credit). Both bounds convert via EV = price x 370,594,401 FY2025 shares (quality.shares_used) minus $12,803.0M net debt (quality.derived enterprise_value minus market_cap), the same bridge that reproduces today's price_ref exactly from the filed $65,910.2M market cap. Both bounds sit inside 0.3x-2.0x of the last close ($53.36-$355.70) and strictly below price_ref.value ($177.85, -58.3% and -54.1% respectively). Even this dive's own constructive 'mine' base case (4.5% revenue CAGR, 13% steady-state margin, FCF CAGR-equivalent 6.53%) only clears to $100.41 at this convention, itself 43.5% below spot; the zone is drawn below that, on an actual bear case, per the re-anchored rule.",
+    "as_of": "2026-09-15"
+  },
+  "zone_contains_spot": false,
+  "watch_triggers": [
+    {
+      "metric": "BioPharma Systems segment revenue growth, foreign-currency-neutral, quarterly, as reported",
+      "level": "5.2%",
+      "direction": "below",
+      "note": "Q3 FY2026 BioPharma Systems FXN growth was 5.2% ($670M vs $629M, +6.6% reported; data/edgar/docs/BDX.json, VERIFIED). Management characterized this quarter's segment growth as 'driven by double-digit biologics growth led by GLP-1 programs' with 'mid-teens' growth excluding vaccines (this run's WebFetch of a Q3 FY2026 earnings-call summary, INFERRED, not independently filing-verified this run). A future quarter printing FXN growth below 5.2% would say the GLP-1-linked reacceleration this dive's bull case leans on is fading rather than compounding, in the one segment that actually carries this link's exposure."
+    },
+    {
+      "metric": "FY2026 full-year GAAP revenue growth, as guided and reported at the year-end release",
+      "level": "3%",
+      "direction": "below",
+      "note": "BD's own FY2026 guidance, raised for a second straight quarter on 2026-08-06, calls for 'Low single-digit plus' GAAP revenue growth and 'Low single-digit' FXN growth (data/edgar/docs/BDX.json, VERIFIED). A full-year print below roughly 3% reported growth at the FY2026 year-end release (expected around November 2026, per the FY2025 precedent of a 2025-11-06 release) would say even the low end of a twice-raised guide was missed."
+    },
+    {
+      "metric": "Net debt to EBITDA, fiscal year end",
+      "level": "2.54x",
+      "direction": "above, sustained",
+      "note": "data/market/BDX.json quality.derived / net_debt_to_ebitda computes 2.5398x as of FY2025 (2026-09-15 fetch), already real leverage on an Altman Z score of 2.31 (GREY zone, between the 1.81 distress and 2.99 safe cutoffs). A sustained rise above this level at the next fiscal year end, rather than delevering from the ~$4B RMT cash distribution BD received in the Waters spin-off, would say the earnings-quality counterweight named in this file is getting worse, not better."
+    }
+  ],
+  "what_is_priced_in": [
+    {
+      "expectation": "The stock has already re-rated hard off its 52-week low ($138.6714, 2025-11-05) to a 52-week high of $192.00 (2026-08-21), a +38.5% move, most of it landing in the three weeks after the 2026-08-06 Q3 FY2026 beat-and-raise, before settling back 7.4% to today's $177.85 (2026-09-11). The market is treating the twice-raised FY2026 guide and the newly disclosed GLP-1 commentary as durable evidence of a structurally faster 'New BD' growth path, not a one-off post-spin beat.",
+      "evidence": "data/market/BDX.json series.rows and week52 (138.6714 low 2025-11-05, 192.00 high 2026-08-21, 177.85 close 2026-09-11); data/edgar/docs/BDX.json (VERIFIED, the 2026-08-06 8-K guidance raise and CEO quote).",
+      "tag": "VERIFIED"
+    },
+    {
+      "expectation": "No filing or company disclosure attributes a specific GLP-1 or Vystra-pen revenue percentage to this dive's own link. The only quantified segment figure available is for the whole BioPharma Systems segment ($670M of $4,983M total company revenue in Q3 FY2026, about 13.4%), which carries prefilled syringes, pharmaceutical systems and other biologics-delivery products alongside the Vystra pen; management's 'double-digit biologics growth led by GLP-1 programs' and 'mid-teens excluding vaccines' language (this run's WebFetch, INFERRED) describes part of that segment, not a GLP-1-specific dollar figure, and the CEO's cited 'approximately 100 agreements across novel and biosimilar GLP-1 programs' (this run's WebSearch, INFERRED) is a count of deals, not revenue. The selection_basis this dive inherited already flagged disclosed_theme_revenue_pct as NULL for the same reason.",
+      "evidence": "data/companies/BECTON-DICKINSON.json selection_basis.direct_exposure.disclosed_theme_revenue_pct (NULL); data/edgar/docs/BDX.json segment table (VERIFIED, $670M BioPharma Systems, 13.4% of $4,983M total); this run's WebFetch/WebSearch of post-earnings coverage (INFERRED).",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "BD completed the spin-off of its former Biosciences and Diagnostic Solutions business (the old Life Sciences segment, roughly $3.4B of FY2024 revenue at an approximately 30% EBITDA margin per the Waters Form 10 pro forma disclosure) into a combination with Waters Corporation on 2026-02-09. The historical financials this dive's own market file computes fundamentals and the reverse-DCF from -- revenue_fy through FY2025, operating_cashflow_fy through FY2025, and therefore quality.reverse_dcf's base_fcf -- are all annual figures filed BEFORE the spin closed, so they are WHOLE-COMPANY figures that still include the now-divested business's cash flow. The market's own $65.9B market cap, by contrast, already reflects only the smaller 'New BD' that exists today. This dive treats the resulting mismatch as a reason the filed market-implied FCF CAGR is more likely UNDERSTATED than overstated (a smaller true continuing-ops FCF base would need a HIGHER growth rate to justify the same enterprise value), not as a reason to distrust the direction of this dive's own gap finding.",
+      "evidence": "data/edgar/docs/BDX.json (VERIFIED, the recast/discontinued-operations disclosure); this run's WebFetch of BD's Q1 FY2026 earnings release, which shows BOTH a whole-company reported revenue line ($5,252M Q1 FY2026 vs $5,168M Q1 FY2025) and a separate 'New BD' continuing-operations-only line ($4,486M vs $4,333M, INFERRED) for the SAME quarter, directly evidencing the basis break; this run's WebSearch of the Waters Form 10 pro forma disclosure (~$3.4B FY2024 divested-unit revenue, ~30% EBITDA margin, INFERRED).",
+      "tag": "INFERRED"
+    }
+  ],
+  "priced_in_summary": "WATCH on the COMPOUNDER clock. This is a real, filing-verified GLP-1 device placement (BD's Vystra Injection Pen is the delivery device in a live EMS semaglutide launch in Brazil) sitting over a mechanically clean-to-mild-flagged earnings-quality core (Piotroski 7/9 STRONG, Beneish -2.638 CLEAN, but Altman Z 2.31 GREY and a five-year declining capex-to-depreciation trend), and the FY2026 guide was raised for a second straight quarter on 2026-08-06 on genuine, disclosed reacceleration (BioPharma Systems +5.2% FXN, management citing double-digit GLP-1-linked biologics growth within it). But the forward ask the price still embeds -- a 17.70% five-year implied FCF CAGR against this dive's own independently built 6.53% base case, an 11.17-point gap well outside this file's own 6.92-point horizon_spread, that survives at the ten-year convention only against a genuine bear case, not against this dive's own base case (4.25 points, inside the band) -- is far larger than anything the disclosed evidence for this exact link supports. No figure anywhere attributes a GLP-1-specific revenue share to the autoinjector-and-pen-platforms link; the whole BioPharma Systems segment it sits in is only about 13% of total company revenue; and the reverse-DCF's own base_fcf is drawn from BD's WHOLE-COMPANY financials, filed before the 2026-02-09 Waters spin-off, not from the smaller 'New BD' the current market cap actually prices. Even a generous 8%-revenue/15%-margin stretch case only justifies $143.76 at the tougher five-year convention, 19.2% below today's $177.85. Not TOO_LATE: BD's own reported growth (Q3 FY2026 +5.4% reported/+4.4% FXN) has not remotely traveled the distance the price implies, so there is no multiple-expansion-ate-the-runway story to decompose, and this chain carries no scenario naming a specific price distance BD was meant to travel.",
+  "bull": [
+    "BD's Vystra Injection Pen is the confirmed delivery device in a live EMS semaglutide launch in Brazil (data/edgar/docs/BDX.json, VERIFIED: 'Announced a collaboration with EMS, one of Brazil’s leading pharmaceutical companies, to expand access to GLP-1 therapies through a semaglutide launch utilizing BD's Vystra™ Injection Pen platform to support consistent, reliable self-injection for patients with obesity and type 2 diabetes.'), and this run's WebSearch/WebFetch of Q3 FY2026 commentary describes 'double-digit biologics growth led by GLP-1 programs' within BioPharma Systems and roughly 100 signed agreements across novel and biosimilar GLP-1 programs (INFERRED) -- a real, growing commercial foothold, not just a press release.",
+    "A mechanically clean-to-mild-flagged core with real balance-sheet flexibility: Piotroski 7/9 STRONG, Beneish -2.638 CLEAN, FY2025 free cash flow at 204% of net income, and roughly 14x price to the raised FY2026 adjusted-EPS guide midpoint ($12.67), cheap for a medtech name even before crediting any GLP-1 upside.",
+    "Guidance momentum is real and recent: Q3 FY2026 revenue grew 5.4% reported / 4.4% FXN and adjusted diluted EPS grew 4.9% / 3.9% FXN (data/edgar/docs/BDX.json, VERIFIED); the FY2026 guide was raised for a second straight quarter on 2026-08-06 to 'Low single-digit plus' GAAP revenue growth and $12.62-$12.72 adjusted diluted EPS, and nine-month continuing-operations free cash flow rose 44.6% to $1.7 billion (data/edgar/docs/BDX.json, VERIFIED)."
+  ],
+  "bear": [
+    "The reverse-DCF's own base_fcf ($2,670.0M) and this dive's own achieved_revenue_cagr_3y (4.99%) are both built from BD's WHOLE-COMPANY financials through FY2025, filed before the 2026-02-09 spin-off of the Biosciences & Diagnostic Solutions business (roughly $3.4B of FY2024 revenue) into Waters. New BD's smaller, continuing-operations-only cash-generating base is not what today's $65.9B market cap and the filed 17.70% implied FCF CAGR are actually being measured against; this dive flags the comparability defect rather than resolving it, and the correction, if anything, makes the true ask on New BD alone HIGHER, not lower.",
+    "No filing or company disclosure attributes a specific GLP-1 or Vystra-pen revenue percentage to this exact link; the Vystra/EMS Brazil deal sits inside BioPharma Systems, a segment that is itself only about 13.4% of total company revenue ($670M of $4,983M in Q3 FY2026), so even a strong GLP-1 sub-story has a small mechanical ceiling on consolidated results, and BD's disclosed 'approximately 100 agreements' figure counts deals, not dollars.",
+    "Even a generous 8%-revenue/15%-margin five-year stretch case, above anything BD has delivered in years, only justifies a fair price of $143.76 on the filed reverse-DCF bridge at the tougher five-year convention, 19.2% below today's $177.85 close; the market's own 17.70% implied ask is far outside anything this dive can defend even at the friendly end of its own range."
+  ],
+  "events": [
+    {
+      "date": "2025-11-05",
+      "label": "52-week low $138.6714",
+      "kind": "PRICE",
+      "note": "computed from data/market/BDX.json series.rows; week52.low agrees (138.6714)"
+    },
+    {
+      "date": "2025-12-05",
+      "label": "CFO Chris DelOrefice departs; Vitor Roque named interim CFO",
+      "kind": "GOVERNANCE",
+      "note": "this run's WebSearch of BD's 2025-10-15 CFO Transition Plan press release, INFERRED"
+    },
+    {
+      "date": "2026-01-13",
+      "label": "$110M announced to expand BD Neopak Glass Prefillable Syringe production (Columbus, Nebraska), citing biologic and GLP-1 drug delivery demand",
+      "kind": "CORPORATE_ACTION",
+      "note": "this run's WebSearch of BD's 2026-01-13 press release, INFERRED. Neopak is a prefilled-syringe platform within BD's Pharmaceutical Systems portfolio, not the Vystra pen this dive's own link is placed on; cited as adjacent evidence of BD's broader GLP-1-linked capacity appetite, not as direct evidence for this exact link."
+    },
+    {
+      "date": "2026-02-09",
+      "label": "Spin-off of Biosciences & Diagnostic Solutions business completed, combined with Waters Corporation via Reverse Morris Trust; BD's historicals recast to continuing operations going forward",
+      "kind": "CORPORATE_ACTION",
+      "note": "data/edgar/docs/BDX.json, VERIFIED (the recast disclosure quoted in earnings_quality and expectations_gap); deal-size figures via this run's WebSearch, INFERRED"
+    },
+    {
+      "date": "2026-07-29",
+      "label": "EMS/BD collaboration to launch semaglutide therapy in Brazil using the Vystra Injection Pen announced",
+      "kind": "CORPORATE_ACTION",
+      "note": "data/mappings/glp1-fill-finish.json placement evidence, source_date 2026-07-29; cross-confirmed in data/edgar/docs/BDX.json (VERIFIED, the same fact restated in the 2026-08-06 8-K's Recent Business Highlights)"
+    },
+    {
+      "date": "2026-08-06",
+      "label": "Q3 FY2026 results: revenue +5.4% reported/+4.4% FXN, adjusted EPS +4.9%/+3.9% FXN; FY2026 guide raised for a second straight quarter",
+      "kind": "EARNINGS",
+      "note": "data/edgar/docs/BDX.json, VERIFIED"
+    },
+    {
+      "date": "2026-08-21",
+      "label": "52-week high $192.00",
+      "kind": "PRICE",
+      "note": "computed from data/market/BDX.json series.rows; week52.high agrees (192.00)"
+    },
+    {
+      "date": "2026-05-07",
+      "label": "Vitor Roque named permanent EVP and CFO after serving as interim since December 2025",
+      "kind": "GOVERNANCE",
+      "note": "this run's WebSearch of BD's 2026-05-07 press release, INFERRED"
+    }
+  ],
+  "valuation_snapshot": {
+    "price": {
+      "value": 177.85,
+      "source": "data/market/BDX.json series.rows last close",
+      "as_of": "2026-09-11"
+    },
+    "market_cap": {
+      "value": "$65,910.21M",
+      "source": "data/market/BDX.json quality.derived.market_cap",
+      "as_of": "2026-09-15"
+    },
+    "lines": [
+      {
+        "name": "Enterprise value",
+        "value": "$78,713.21M",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15",
+        "note": "data/market/BDX.json quality.derived.enterprise_value (net debt $12,803.0M, so EV sits above market cap, the opposite of WST's net-cash position on this same chain)"
+      },
+      {
+        "name": "Price-to-sales (FY2025 whole-company revenue)",
+        "value": "3.02x",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15",
+        "note": "market_cap $65,910.21M / revenue_fy FY2025 $21,840.0M, computed this run; the FY2025 revenue denominator is whole-company (pre-spin), see the basis-mismatch finding in what_is_priced_in and earnings_quality"
+      },
+      {
+        "name": "Forward P/E on FY2026 adjusted-EPS guide midpoint",
+        "value": "14.04x",
+        "tag": "SPECULATIVE",
+        "as_of": "2026-09-15",
+        "note": "177.85 / (($12.62+$12.72)/2) = 177.85/12.67, computed this run from price_ref and the 2026-08-06 guide (data/edgar/docs/BDX.json, VERIFIED for the guide figures); not a canonical field. Notably modest for a medtech name, in tension with the much steeper FCF-based reverse-DCF ask below."
+      },
+      {
+        "name": "EV / FY2025 free cash flow (base_fcf)",
+        "value": "29.48x",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15",
+        "note": "$78,713.21M / $2,670.0M, computed this run from quality.derived.enterprise_value and quality.reverse_dcf.base_fcf; base_fcf is whole-company FY2025, see the basis-mismatch finding"
+      }
+    ],
+    "denominator_note": "No trailing multi-year price-to-sales percentile distribution computed this run. The more decision-relevant tension this snapshot surfaces is the gap between a modest ~14x forward adjusted-EPS multiple and a demanding ~29.5x EV/FCF multiple on the same stock: part of that gap is ordinary (FCF and adjusted EPS measure different things), and part of it is this dive's own basis-mismatch finding (a FY2025 FCF base that still includes the divested Life Sciences business's cash flow)."
+  },
+  "crowdedness": {
+    "issuer_pcs_axis_a": 100.0,
+    "issuer_pcs_axis_a_tag": "INFERRED",
+    "issuer_pcs_axis_a_basis": "data/market/BDX.json pcs.axis_a: score 100.0, state DARK, 3 of 4 sub-fields measured (trends 30, wsb 25, stocktwits 13, media null), machine_admissible true, as_of 2026-09-14. DARK on this axis means low retail/social chatter (search trends, WSB, StockTwits), consistent with a mature, un-hyped industrial medtech name rather than a name currently being talked about.",
+    "issuer_pcs_axis_b": null,
+    "issuer_pcs_axis_b_tag": "INFERRED",
+    "issuer_pcs_axis_b_basis": "data/market/BDX.json pcs.axis_b: band SATURATED (analyst_count 12, held_pct_institutions 99.73%, short_pct_float 4.47%, index_member null), as_of 2026-09-14. held_pct_institutions >= 0.85 alone triggers SATURATED regardless of the relatively modest 12-analyst count.",
+    "reliance": "LINK_HEAT_PLUS_ISSUER_PCS_BOTH_PRESENT",
+    "basis": "Ember's link heat (crowdedness 38, verdict UNDISCOVERED) is a link-level read; the issuer's own PCS block, present for BDX unlike several other names on this chain (WST, ANDR.VI carry none), shows a real tension the red team should test rather than one this draft resolves: DARK on retail/social attention (score 100, no chatter) sitting under SATURATED institutional ownership (99.73% held by institutions, an unusually high figure even for a large-cap industrial name). A stock nobody on social media is discussing but that institutions already own almost completely is not the same 'undiscovered' as a name few professional investors have looked at; whether the SPECIFIC GLP-1/Vystra mechanism is genuinely under-covered within that already-saturated institutional base, or whether the 12 covering analysts already price it, is the crowdedness-reality question left to run redteam."
+  },
+  "expectations_gap": {
+    "market_implied_source": "data/market/BDX.json quality.reverse_dcf [implied_fcf_cagr 0.177, state SOLVED, base_fcf $2,670.0M, enterprise_value $78,713,214,217.85, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection method; implied_by_horizon 7y 0.1368, 10y 0.1078, horizon_spread 0.0692; as of 2026-09-15]",
+    "rows": [
+      {
+        "driver": "revenue_cagr_5y",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve returns an FCF CAGR, not a decomposed revenue CAGR; this row records this dive's own revenue-growth assumption on its own terms, reserved for the net_gap_direction row below where it is bridged into an FCF-CAGR-equivalent figure comparable to the filed solve.",
+        "mine": 0.045,
+        "percentile": 55,
+        "why": "BD's own FY2026 guidance (raised twice this year) calls for 'Low single-digit plus' GAAP revenue growth (data/edgar/docs/BDX.json, VERIFIED); New BD's disclosed organic growth for full-year FY2025 was 3.9% (this run's WebSearch, INFERRED); Q3 FY2026 grew 5.4% reported / 4.4% FXN (data/edgar/docs/BDX.json, VERIFIED); and BioPharma Systems, the segment carrying this dive's own Vystra/GLP-1 link, grew 5.2% FXN this same quarter with management citing 'double-digit biologics growth led by GLP-1 programs' within it (this run's WebFetch, INFERRED). 4.5% sits modestly above the whole-company trailing 3-year CAGR of 4.99% is actually roughly in line with it, and above New BD's disclosed 3.9% organic FY2025 pace, crediting a small, real but bounded incremental lift from the GLP-1-linked device platform without assuming it becomes a company-wide growth driver.",
+        "structural_reason": "A real, filing-verified GLP-1 device placement (Vystra/EMS Brazil) sitting inside a segment (BioPharma Systems) that management itself is currently characterizing as accelerating on GLP-1 demand, but one that is only about 13.4% of total company revenue and sits alongside three larger, slower-growing segments (Medical Essentials, Connected Care, Interventional).",
+        "leading_indicator": "FY2026 full-year organic/GAAP revenue growth landing at or above the guided 'Low single-digit plus' floor at the year-end release (watch_triggers[1]), and BioPharma Systems FXN growth holding at or above 5.2% (watch_triggers[0]).",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "operating_margin",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose an operating-margin path separately from the headline FCF CAGR.",
+        "mine": 0.13,
+        "percentile": 50,
+        "why": "FY2025 GAAP operating margin was 11.81% ($2,579M / $21,840M, both whole-company). CEO Tom Polen's own Q3 FY2026 quote cites 'further progress through BD Excellence' (data/edgar/docs/BDX.json, VERIFIED), the company's stated cost/margin program, plus mix shift as the fully continuing-operations base excludes the divested Life Sciences business going forward. 13% credits modest expansion, not the much larger implied jump the GAAP-to-adjusted EPS gap alone would suggest (Q3 FY2026 GAAP diluted EPS $1.64 vs adjusted $3.23, data/edgar/docs/BDX.json, VERIFIED, nearly double), because a large share of that gap is disclosed as separation-related, integration/restructuring, purchase-accounting and other addbacks this dive treats as genuinely transitional rather than a clean run-rate.",
+        "structural_reason": "Post-spin overhead right-sizing and a richer device/biologics mix argue for some real margin recovery; the scale and breadth of the one-time addback list disclosed in the same release argues against assuming the full GAAP-to-adjusted gap converts to durable GAAP margin within five years.",
+        "leading_indicator": "The GAAP-to-adjusted diluted EPS gap narrowing over the next 2-3 quarterly releases as separation-related costs roll off.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "reinvestment_return",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a reinvestment return separately from the headline FCF CAGR, and BD does not disclose an ROIC figure.",
+        "mine": 0.05,
+        "percentile": 20,
+        "why": "A rough return on invested capital, computed this run from fundamentals on disk (NOPAT at an assumed 21% tax rate, over invested capital = long_term_debt_fy + equity_fy): approximately 4.60% in FY2022 ($1,802.8M / $39,168.0M) to approximately 4.74% in FY2025 ($2,037.4M / $43,011.0M), roughly flat and low-single-digit throughout, the trailing signature of a balance sheet still carrying substantial legacy M&A goodwill and intangibles (the 2017 C.R. Bard acquisition among others) without a commensurate operating-income base. 5% assumes only a marginal improvement, well below this repo's own base rate for top-quartile ROIC firms.",
+        "structural_reason": "The approximately $4B cash distribution BD received in the Waters RMT could mechanically lift ROIC if used for debt paydown or buybacks rather than reinvestment or further M&A, but no disclosed figure on this run confirms that allocation has happened yet.",
+        "leading_indicator": "Net debt declining from FY2025's ~$12.8B level (net_debt_to_ebitda 2.54x) in the FY2026 10-K, evidencing the RMT cash distribution was used to delever rather than routed elsewhere.",
+        "tag": "SPECULATIVE"
+      },
+      {
+        "driver": "terminal",
+        "market_implied": 0.025,
+        "mine": 0.025,
+        "percentile": 50,
+        "why": "No disagreement, and saying so matters. The solve's 2.5% perpetual growth sits at the long-run nominal GDP ceiling this repo's own base rates cite, and is not the input this dive would change for a mature, diversified medtech supplier with real but unremarkable pricing power (capture score 72 on the money-corner link per the chain's own heat rationale, but the profile's own capture section notes BD's consolidated 11.81% operating margin sits far below Ypsomed's disclosed 33-35% device-platform-segment margin, because the device platform is a minority line of a much larger, lower-margin business for BD).",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "net_gap_direction",
+        "mine": "MARKET_IMPLIES_MORE_THAN_DEFENSIBLE_AT_THE_FIVE_YEAR_CONVENTION_AND_MARGINALLY_AT_THE_TEN_YEAR_CONVENTION",
+        "note": "Building like-for-like (revenue CAGR x steady-state margin x the filed base_fcf / FY2025 operating-income ratio held constant, the same bridge this corpus uses elsewhere): $21,840.0M FY2025 revenue compounding at 4.5% to $27,216.5M in FY2030; operating income at a 13% margin gives $3,538.1M; holding the FY2025 base_fcf-to-operating-income ratio ($2,670.0M / $2,579.0M = 1.0353, BD's FCF running ABOVE operating income, unlike most names in this corpus, reflecting heavy D&A add-back from BD's large device-manufacturing asset base) gives FY2030 free cash flow of $3,663.8M, an FCF CAGR of 6.53%. Gap against the filed 5-year 17.70%: 11.17 points, well outside this file's own 6.92-point horizon_spread, a real claimed gap. At the 10-year convention (10.78% implied) the gap narrows to 4.25 points, INSIDE the horizon_spread, so by this file's own rule there is no measurable CAGR-point gap at that duration for this dive's OWN BASE CASE, the same horizon-fragile pattern this corpus has already recorded for WST and CAT on this same chain and its sibling. In PRICE SPACE, not CAGR-point space, the base case still implies $100.41 at the 5-year convention (-43.5%) and $119.44 at the 10-year convention (-32.8%), both far below today's $177.85: a small CAGR-point gap held for ten years still compounds into a large dollar gap. Stress-tested against a genuine bear case (1.5%-3.0% FCF-CAGR-equivalent, FY2025 GAAP margin held flat, no GLP-1 credit): this DOES clear the horizon_spread band at both conventions (14.70-16.20 points at 5y, 7.78-9.28 points at 10y), which is why the would_buy_zone is drawn on the bear case rather than the base case, per method section 7's 2026-09-08 re-anchor. Even an aggressive stretch case (8% revenue, 15% margin, 13.29% FCF-CAGR-equivalent) only reaches $143.76 at the 5-year convention (-19.2%), and only clears above spot ($222.23, +25.0%) at the friendlier 10-year convention this corpus treats as 'accepting the market's own optimistic duration read' rather than a real margin of safety. Net: the claimed gap is real and large at the five-year convention and in dollar terms at both conventions; it is horizon-fragile in CAGR-point terms at ten years for this dive's own base case specifically, which is exactly the finding the independence test below has to answer for.",
+        "tag": "SPECULATIVE"
+      }
+    ]
+  },
+  "independence_test": {
+    "largest_disagreement": "The market is pricing New BD's forward free-cash-flow trajectory as if the post-spin 'focused MedTech company' re-rating, the twice-raised FY2026 guide, and the newly disclosed GLP-1/Vystra commentary together support a 17.70% five-year implied FCF CAGR (the tougher of the two horizon conventions the filed solve computes); this dive's own independently built base case, using BD's own guided and disclosed growth figures with modest, filing-consistent margin credit, implies roughly 6.53%, an 11.17-point gap under that convention that survives cleanly at five years and in dollar terms at ten, but is not robust in CAGR-point terms at ten years for this dive's own base case specifically.",
+    "why_the_gap_exists": "TWO LAYERED CATEGORY ERRORS, not one. First, RECENCY/EXTRAPOLATION on the guidance raise and the GLP-1 commentary: the stock ran from a 52-week low of $138.6714 (2025-11-05) to a 52-week high of $192.00 (2026-08-21), +38.5%, mostly in the three weeks after the 2026-08-06 beat-and-raise, and the market appears to be treating a single quarter's acceleration inside one 13%-of-revenue segment as durable evidence for the WHOLE company's multi-year FCF path, when no disclosed figure attributes a specific GLP-1 revenue share to this exact link. Second, and more structurally, a DATA-COMPARABILITY error this dive's own gap-table build inherits rather than causes: quality.reverse_dcf's base_fcf is BD's WHOLE-COMPANY FY2025 free cash flow, filed before the 2026-02-09 spin-off of the Biosciences & Diagnostic Solutions business (roughly $3.4B of FY2024 revenue at an approximately 30% EBITDA margin) into Waters, while the enterprise value the solve is matched against already reflects only the smaller 'New BD' that exists today. This means the filed 17.70% figure is more likely an UNDERSTATEMENT of the true ask on New BD's real, smaller asset base than an overstatement, which argues the disagreement named above is conservative, not inflated by a modeling artifact running the other way.",
+    "falsification": "BD's FY2026 Q4/full-year results, expected around November 2026 (per the FY2025 precedent of a 2025-11-06 release), will be the first release to report a FULL FISCAL YEAR on a clean, fully-recast continuing-operations basis, closing this dive's own basis-mismatch finding and letting a future run re-solve the reverse-DCF on a like-for-like base. If full-year organic/GAAP revenue growth lands at or meaningfully above the guided 'Low single-digit plus' floor AND BioPharma Systems FXN growth holds at or above the Q3 FY2026 5.2% pace with the GLP-1 contribution characterized as still accelerating (not just 'double-digit' but explicitly widening), this dive's disagreement with the market would be wrong and should be revisited toward INVESTABLE. If growth prints closer to this dive's own 4.5% base case or below, the disagreement stands and the zone should hold."
+  },
+  "earnings_quality": {
+    "grade": "B",
+    "basis": "Grade B: a clean mechanical core (no Beneish breach, no confirmed sustained multi-year drift, no audit qualification or auditor change found) carrying several mild, each-disclosed, each-explainable flags that keep it off Grade A. Clean: Beneish M of -2.638 against the -1.78 review threshold (CLEAN, 12 of 12 inputs found, data/market/BDX.json quality.beneish); Piotroski F-score 7 of 9 (STRONG per the file's own labeling; the two failed criteria, d_roa and d_current, are ordinary year-over-year softness, not manipulation-consistent flags, data/market/BDX.json quality.piotroski.criteria); free cash flow at 204.4% of net income in FY2025 ($3,430M operating cash flow / $1,678M net income), an unusually high ratio explained by BD's heavy depreciation and amortization base ($2,462M FY2025, largely from legacy acquisition intangibles including the 2017 C.R. Bard deal) rather than by an aggressive accrual choice; accruals of -3.11% of average total assets in FY2025 (net income $1,678M less operating cash flow $3,430M, over average total assets $56,305.5M, computed this run from data/market/BDX.json fundamentals), the conservative direction and well inside the Grade-A <5%-magnitude threshold; DSO of 50.03 days in FY2025, DOWN from a 54.85-day FY2024 peak (42.37 FY2022, 47.75 FY2023, 54.85 FY2024, 50.03 FY2025, computed this run from receivables_fy/revenue_fy*365), a one-year peak-and-recovery, not a sustained drift; Ernst & Young LLP ratified as BD's independent registered public accounting firm for fiscal year 2026 (this run's WebSearch of BD's December 2025 DEF 14A, INFERRED), with no evidence found this run of a recent auditor change. Flags, not disqualifying individually: (1) capex-to-depreciation has declined for five straight fiscal years, 0.536x FY2021 to 0.437x FY2022 to 0.382x FY2023 to 0.317x FY2024 to 0.309x FY2025 (computed this run from capex_fy/depreciation_fy), a persistent, multi-year pattern of capital spending running well under the depreciation rate, worth watching as either disciplined capital allocation or a slowly aging asset base rather than assuming either without more evidence; (2) Altman Z of 2.31 sits in the GREY zone (between the 1.81 distress and 2.99 safe cutoffs, data/market/BDX.json quality.altman), a real leverage signal (net_debt_to_ebitda 2.54x) atop a balance sheet that just went through a major reverse-Morris-trust divestiture; (3) a CFO transition completed within the trailing twelve months (Chris DelOrefice departed 2025-12-05 'to pursue a new professional opportunity,' per this run's WebSearch, INFERRED; Vitor Roque, a 25-year BD veteran, served as interim CFO and was named permanent EVP and CFO effective 2026-05-07), framed throughout as an orderly, planned succession with no disclosed governance concern, but a leadership change in the finance function during a major corporate restructuring is itself worth naming; (4) the GAAP-to-adjusted diluted EPS gap is unusually wide in the most recent quarter ($1.64 GAAP vs $3.23 adjusted, nearly double, data/edgar/docs/BDX.json, VERIFIED), driven by a long, explicitly disclosed list of addbacks (purchase accounting adjustments, integration and restructuring costs, transaction costs, separation-related costs, certain product remediation costs, certain legal matters, certain investment gains and losses, certain asset impairment charges, certain pension settlement costs, and the impact of debt extinguishment, data/edgar/docs/BDX.json, VERIFIED) that is plausibly transitional given the recent spin-off but is exactly the shape of a 'recurring one-time item' pattern worth monitoring for how quickly it narrows; (5) BD's own annual fundamentals through FY2025 are on a WHOLE-COMPANY basis (pre-dating the 2026-02-09 spin-off), a comparability issue this grade's own inputs (accruals, DSO, capex/depreciation, cash conversion) all inherit, though each was computed consistently within itself (both numerator and denominator on the same whole-company basis for any given fiscal year), which is why this is named as a comparability caveat rather than treated as invalidating any single ratio above."
+  },
+  "no_entry_above": null,
+  "filing_evidence": [
+    {
+      "label": "GLP-1 / Vystra Injection Pen placement (Brazil semaglutide launch with EMS), restated in the Q3 FY2026 Recent Business Highlights",
+      "quote": "Announced a collaboration with EMS, one of Brazil’s leading pharmaceutical companies, to expand access to GLP-1 therapies through a semaglutide launch utilizing BD's Vystra™ Injection Pen platform to support consistent, reliable self-injection for patients with obesity and type 2 diabetes.",
+      "source": "SEC Form 8-K Exhibit 99.1, filed 2026-08-06",
+      "accession": "0001628280-26-053790",
+      "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828026053790/ex9916302026.htm",
+      "date": "2026-08-06",
+      "tag": "VERIFIED"
+    },
+    {
+      "label": "Continuing-operations recast disclosure following the Waters spin-off",
+      "quote": "The historical results of the former Biosciences and Diagnostic Solutions business, which was previously the Life Sciences segment, are reflected as discontinued operations for all periods presented. Financial information presented in this release reflects BD's results on a continuing operations basis. Prior periods have been recast to conform to this presentation.",
+      "source": "SEC Form 8-K Exhibit 99.1, filed 2026-08-06",
+      "accession": "0001628280-26-053790",
+      "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828026053790/ex9916302026.htm",
+      "date": "2026-08-06",
+      "tag": "VERIFIED"
+    },
+    {
+      "label": "FY2026 guidance raise (second straight quarter)",
+      "quote": "The company updates its full year fiscal 2026 guidance as follows; expects revenue growth toward the high end of its range and raises the midpoint of adjusted diluted EPS guidance.",
+      "source": "SEC Form 8-K Exhibit 99.1, filed 2026-08-06",
+      "accession": "0001628280-26-053790",
+      "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828026053790/ex9916302026.htm",
+      "date": "2026-08-06",
+      "tag": "VERIFIED"
+    },
+    {
+      "label": "CEO Tom Polen on Q3 FY2026 results and BD Excellence",
+      "quote": "We delivered a strong third quarter, with revenue, adjusted operating margin and adjusted EPS all ahead of our expectations,\" said Tom Polen, chairman, CEO and president of BD. \"Our first full quarter as New BD demonstrates the early benefits of a more focused MedTech company, with strong momentum across our key growth platforms, continued innovation and further progress through BD Excellence.",
+      "source": "SEC Form 8-K Exhibit 99.1, filed 2026-08-06",
+      "accession": "0001628280-26-053790",
+      "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828026053790/ex9916302026.htm",
+      "date": "2026-08-06",
+      "tag": "VERIFIED"
+    },
+    {
+      "label": "Q3 FY2026 total revenue by geography, reported and FXN change (Total Revenues $4,983M vs $4,726M, +5.4%/+4.4%)",
+      "quote": "Geographic Results Revenues (Millions of dollars) Three Months Ended June 30, Reported Change Foreign Currency Neutral Change 1 2026 2025 United States $ 3,081 $ 2,882 6.9 % 6.9 % International $ 1,902 $ 1,844 3.2 % 0.6 % Total Revenues $ 4,983 $ 4,726 5.4 % 4.4",
+      "source": "SEC Form 8-K Exhibit 99.1, filed 2026-08-06",
+      "accession": "0001628280-26-053790",
+      "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828026053790/ex9916302026.htm",
+      "date": "2026-08-06",
+      "tag": "VERIFIED"
+    }
+  ],
+  "filing_evidence_note": "data/edgar/docs/BDX.json holds one stored document (SEC Form 8-K, filed 2026-08-06, accession 0001628280-26-053790, the Q3 FY2026 earnings-release exhibit). All five quotes above verify verbatim against it. Facts that go beyond this one document (the CFO transition, the auditor, the Nebraska capacity investment, the Waters Form 10 pro forma disclosure, the Q1 FY2026 whole-company-vs-New-BD revenue split, the 'approximately 100 agreements' and 'double-digit biologics growth led by GLP-1 programs' commentary) are cited inline throughout this dive with their source and date via this run's WebSearch/WebFetch, tagged INFERRED, not as literal 'quote' fields, because no locally stored EDGAR document exists for a 10-Q, a DEF 14A, or an earnings-call transcript this run. edgar_doc requests for BD's FY2026 10-Q filings and DEF 14A are queued in this run's requests batch so a future re-run, or the red team, can verify these facts verbatim against stored documents.",
+  "data_gaps": [
+    "No data/edgar/docs/BDX.json document exists for BD's FY2026 10-Qs, its December 2025 DEF 14A, or any earnings-call transcript; the CFO transition, the auditor, the Nebraska capacity investment, and the GLP-1-specific earnings-call commentary are sourced via this run's WebSearch/WebFetch only, tagged INFERRED. edgar_doc requests for these are queued.",
+    "No chain- or link-specific GLP-1 or Vystra-pen revenue percentage is disclosed anywhere found this run; the closest disclosed figure is the whole BioPharma Systems segment (13.4% of total company revenue in Q3 FY2026), which carries products well beyond the Vystra pen. This is named as the core of this dive's independence-test disagreement, not merely a gap.",
+    "BD's annual fundamentals through FY2025 (revenue_fy, operating_cashflow_fy, and therefore quality.reverse_dcf's base_fcf) are on a WHOLE-COMPANY basis, filed before the 2026-02-09 Waters spin-off. No clean, fully-recast, multi-year continuing-operations annual series exists on disk or was found this run; this dive treats the resulting gap-table figures as conservative (understating the true ask on New BD alone) rather than attempting to hand-reconstruct a corrected base_fcf, per method section 1's rule against inventing a number.",
+    "data/market/BDX.json pcs.axis_a has only 3 of 4 sub-fields measured (media is null); machine_admissible is still true, but the DARK read rests on trends/wsb/stocktwits alone.",
+    "This dive's own independent revenue/margin/reinvestment build (expectations_gap rows) is SPECULATIVE by construction, the analyst's own model rather than a company disclosure, same as every other dive in this corpus."
+  ],
+  "shadow_ref": null,
+  "notes": [],
+  "confidence_audit": {
+    "verified": 6,
+    "inferred": 8,
+    "speculative": 5,
+    "null": 3,
+    "basis": "Recomputed by scanning this file for literal tag occurrences (VERIFIED/INFERRED/SPECULATIVE/NULL), same mechanism as tools/check_analyst.py check 9."
+  },
+  "changelog": [
+    {
+      "ts": "2026-09-15T20:00:00Z",
+      "by": "stocky",
+      "kind": "BUILD",
+      "change": "run deepdive BDX glp1-fill-finish. First dive on this issuer. Verdict WATCH, clock COMPOUNDER, earnings-quality grade B, would_buy_zone drawn at DRAFT time under the bear-case-anchored convention ($74.23-$81.55), data tier T1. Central finding: the filed reverse-DCF's base_fcf and this dive's own 3-year revenue CAGR are drawn from BD's whole-company financials, filed before the 2026-02-09 Waters spin-off, while the market cap they are matched against already reflects the smaller post-spin 'New BD'; this comparability gap is treated as making the stated 17.70% implied ask conservative rather than as grounds to distrust the direction of the finding. Status DRAFT pending run redteam."
+    }
+  ]
+}
