@@ -21,7 +21,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from market_paths import market_path
+from market_paths import market_path, resolve_market_stem
 
 from check_chain import explainer_failures
 from check_map import ISSUER_ID_RE, read_json, valid_date
@@ -45,6 +45,34 @@ O1_OFFICIAL_CROSSCHECK_FIELDS = (
     ("cash_conversion", "operating_cash_flow_to_net_income"),
     ("cash_conversion", "fcf_margin"),
 )
+# Ron's decision, 2026-09-15 ("Yes, for brokers only"): method section 6A forbids a NULL
+# canonical field on O1, no exception, because a NULL almost always means "not yet
+# researched." quality.piotroski and quality.beneish_state are different: both formulas
+# need cost_of_revenue_fy (tools/acis/quality.py piotroski/beneish), and an insurance
+# broker's income statement carries no cost-of-goods line at all, so that input is not
+# late, it does not exist and never will. Before this every O1 profile on one of these four
+# names blocked permanently on a field its own filings can never supply.
+#
+# The exception is a named issuer allowlist, not a free-text industry inference, so a name
+# that merely resembles a broker cannot claim it. It also re-checks the actual fetched
+# market file rather than trusting the profile's own prose: the state must be
+# NOT_APPLICABLE, and the market file's quality block for this exact score must show
+# PENDING_DATA with nothing missing except cost_of_revenue_fy and/or sga_fy (see
+# BROKER_QUALITY_MISSING_INPUTS) -- any other missing input, or a market file that shows
+# something else, and the field still blocks O1. The written basis must independently name
+# both the missing input and the industry reason (see broker_quality_basis_ok).
+BROKER_NO_COGS_ISSUERS = frozenset({
+    "AON", "ARTHUR-J-GALLAGHER", "WILLIS-TOWERS-WATSON", "MARSH-MCLENNAN",
+})
+# profile canonical field -> data/market/<T>.json quality block key (they are spelled
+# differently: acis.quality.compute_quality writes "beneish", the profile schema's
+# canonical field is "beneish_state").
+BROKER_QUALITY_FIELDS = {"piotroski": "piotroski", "beneish_state": "beneish"}
+BROKER_QUALITY_MISSING_INPUTS = frozenset({"cost_of_revenue_fy", "sga_fy"})
+BROKER_BASIS_INPUT_TERMS = {
+    "cost_of_revenue_fy": (("cost", "revenue"), ("cost", "goods")),
+    "sga_fy": (("sga",), ("selling", "general", "administrative")),
+}
 # A NULL basis that says a market file does not exist, naming the dotted ticker the
 # fetcher never writes (it maps '.' to '-'). Every one of these on 2026-09-01 was false:
 # the file was on disk under its dashed name (AFCONS.NS -> AFCONS-NS.json, 20/20 fields).
@@ -248,8 +276,85 @@ def _basis_names_field(basis, field: str) -> bool:
                for alternative in terms)
 
 
+def _broker_basis_ok(basis, missing_inputs) -> bool:
+    """The written basis must name the industry reason ('broker') AND at least one of the
+    actually-missing inputs, in readable prose -- not just repeat the canonical field name
+    the generic NULL-basis check above already demands."""
+    normalized = re.sub(r"[^a-z0-9]+", " ", str(basis or "").casefold()).strip()
+    if "broker" not in normalized:
+        return False
+    return any(
+        all(term in normalized for term in alt)
+        for name in missing_inputs
+        for alt in BROKER_BASIS_INPUT_TERMS.get(name, ((name,),))
+    )
+
+
+def broker_quality_basis_ok(basis) -> bool:
+    """Public form of _broker_basis_ok reused by check_analyst's earnings-quality veto
+    (method section 7 broker exception, Ron 2026-09-15): the basis must name the industry
+    reason and at least one of the two structurally-missing inputs."""
+    return _broker_basis_ok(basis, BROKER_QUALITY_MISSING_INPUTS)
+
+
+def _broker_market_missing_inputs(root: Path, issuer_id: str, field: str):
+    """The `missing` list from data/market/<T>.json's quality block for this canonical
+    field, when that block is genuinely PENDING_DATA -- or None if no market file for this
+    issuer resolves, or the block is not PENDING_DATA at all. Never trusts the profile's
+    own prose: this reads the fetched file the market plane actually wrote.
+    """
+    if not isinstance(root, Path) or field not in BROKER_QUALITY_FIELDS:
+        return None
+    issuer_names, listing_to_issuer, listing_details, listing_chains, placements = \
+        _mapping_indexes(root)
+    market_field = BROKER_QUALITY_FIELDS[field]
+    seen_stems = set()
+    for listing in listing_details.values():
+        if not isinstance(listing, dict) or listing.get("issuer_id") != issuer_id:
+            continue
+        stem = resolve_market_stem(
+            ticker=listing.get("ticker"),
+            exchange=listing.get("exchange"),
+            market_ticker=listing.get("market_ticker"),
+            available=root / "data" / "market",
+        )
+        if not stem or stem in seen_stems:
+            continue
+        seen_stems.add(stem)
+        data = read_json(root / "data" / "market" / f"{stem}.json")
+        if not isinstance(data, dict):
+            continue
+        block = (data.get("quality") or {}).get(market_field)
+        if not isinstance(block, dict) or block.get("state") != "PENDING_DATA":
+            continue
+        missing = {m for m in (block.get("missing") or []) if isinstance(m, str)}
+        if missing:
+            return missing
+    return None
+
+
+def _broker_quality_null_exception(
+        field: str, item: dict, *, issuer_id, root) -> bool:
+    """True iff a NULL quality.piotroski/beneish_state value is covered by the broker
+    exception (Ron, 2026-09-15, "Yes, for brokers only"): a named issuer, state
+    NOT_APPLICABLE, a market file whose matching quality score is PENDING_DATA on nothing
+    but the cost-of-goods inputs a broker's income statement never carries, and a basis
+    that says so. Any one of these missing still blocks O1 -- this is a narrow door, not a
+    blanket waiver for the four names.
+    """
+    if field not in BROKER_QUALITY_FIELDS or issuer_id not in BROKER_NO_COGS_ISSUERS:
+        return False
+    if item.get("state") != "NOT_APPLICABLE":
+        return False
+    missing_market = _broker_market_missing_inputs(root, issuer_id, field)
+    if not missing_market or not missing_market <= BROKER_QUALITY_MISSING_INPUTS:
+        return False
+    return _broker_basis_ok(item.get("basis"), missing_market)
+
+
 def _canonical_field_failures(
-        field: str, item, where: str, *, allow_null: bool, data_tier=None) -> list[str]:
+        field: str, item, where: str, *, allow_null: bool, data_tier=None,
+        issuer_id=None, root=None) -> list[str]:
     """Validate one named canonical metric field without inherited source metadata."""
     failures = []
     if not isinstance(item, dict):
@@ -267,7 +372,8 @@ def _canonical_field_failures(
         elif not _basis_names_field(basis, field):
             failures.append(
                 f"{where}: NULL basis must name the missing {field} field")
-        if not allow_null:
+        if not allow_null and not _broker_quality_null_exception(
+                field, item, issuer_id=issuer_id, root=root):
             failures.append(
                 f"{where}: O1 cannot retain a NULL critical canonical field")
         return failures
@@ -319,7 +425,8 @@ def _quality_equivalent_failures(item, data_tier, where: str) -> list[str]:
 
 
 def metric_group_failures(
-        group: str, value, *, data_tier=None, opportunity_tier=None) -> list[str]:
+        group: str, value, *, data_tier=None, opportunity_tier=None,
+        issuer_id=None, root=None) -> list[str]:
     """Enforce the closed minimum schema for one metric group."""
     where = f"metrics.{group}"
     if not isinstance(value, dict):
@@ -356,7 +463,8 @@ def metric_group_failures(
     for field in sorted(set(value) & allowed):
         item_where = f"{where}.{field}"
         failures.extend(_canonical_field_failures(
-            field, value[field], item_where, allow_null=allow_null, data_tier=data_tier))
+            field, value[field], item_where, allow_null=allow_null, data_tier=data_tier,
+            issuer_id=issuer_id, root=root))
         if field == "official_source_equivalent":
             failures.extend(_quality_equivalent_failures(
                 value[field], data_tier, item_where))
@@ -463,7 +571,7 @@ def _nonempty_object(value) -> bool:
     )
 
 
-def completeness(profile: dict) -> tuple[int, int]:
+def completeness(profile: dict, root: Path | None = None) -> tuple[int, int]:
     """Required-field completeness with an explicit denominator."""
     checks = [
         bool(profile.get("issuer_id")),
@@ -484,6 +592,8 @@ def completeness(profile: dict) -> tuple[int, int]:
             metrics[group],
             data_tier=profile.get("data_tier"),
             opportunity_tier=profile.get("opportunity_tier"),
+            issuer_id=profile.get("issuer_id"),
+            root=root,
         )
         for group in sorted(METRIC_GROUPS)
     )
@@ -627,6 +737,8 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
                 metrics[group],
                 data_tier=profile.get("data_tier"),
                 opportunity_tier=profile.get("opportunity_tier"),
+                issuer_id=issuer_id,
+                root=root,
             ))
         failures.extend(duplicate_null_basis_failures(metrics))
 
@@ -652,7 +764,7 @@ def validate_profile(root: Path, path: Path, obj=None) -> list[str]:
         if not isinstance(profile.get(field), list):
             failures.append(f"{field} must be a list")
     if profile.get("status") == "COMPLETE":
-        have, total = completeness(profile)
+        have, total = completeness(profile, root)
         if have != total:
             failures.append(f"COMPLETE profile has {have}/{total} required fields complete")
         if not profile.get("catalysts") or not profile.get("risks"):

@@ -147,6 +147,16 @@ Grade A through D per §7.
 - Cheap does not cure a credibility problem, and I do not let a good gap table talk me past
   a bad accrual line.
 
+**The broker exception (Ron, 2026-09-15, "Yes, for brokers only").** For the four named
+insurance brokers (`AON`, `ARTHUR-J-GALLAGHER`, `WILLIS-TOWERS-WATSON`, `MARSH-MCLENNAN`,
+`check_profile.BROKER_NO_COGS_ISSUERS`) Piotroski and Beneish are structurally uncomputable,
+not late: no cost-of-goods line means `cost_of_revenue_fy` never arrives. I write
+`earnings_quality.grade: null`, and the basis must say plainly that the scores could not be
+computed and name the broker reason, not just "data missing" — `check_analyst.py`'s
+`broker_null_grade_basis_failures` refuses a generic basis on these four names. A null
+grade already caps the verdict at WATCH like any other uncomputable grade; this is never a
+silent pass on quality, only an honest one that names why.
+
 **The expectations gap, which is the actual work.** §7's `what_is_priced_in` is a table, not
 a list of assertions. Per driver: what the current price implies, what I expect, where my
 number sits as a percentile against base rates, why, and the dated signal that would prove

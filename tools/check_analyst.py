@@ -252,6 +252,32 @@ def upward_check_failures(d: dict) -> list[str]:
             "verdict is INVESTABLE".format(grade)]
 
 
+def broker_null_grade_basis_failures(d: dict) -> list[str]:
+    """Ron's decision, 2026-09-15 ("Yes, for brokers only"): the four insurance-brokerage
+    issuers (check_profile.BROKER_NO_COGS_ISSUERS) can never produce a Piotroski or
+    Beneish score — their income statement carries no cost-of-goods line, so
+    cost_of_revenue_fy/sga_fy are permanently absent, not merely late. A null grade
+    already caps the verdict at WATCH and already needs a basis (both checked elsewhere in
+    this gate), so it is never a silent pass; this adds one more bar for exactly these
+    four names: the basis must say the scores could not be computed and name why, the
+    same broker + missing-input wording check_profile requires on the profile's
+    NOT_APPLICABLE quality fields. A generic "data missing" basis does not clear it, and
+    the rule never touches a non-broker issuer or a non-null grade.
+    """
+    eq = d.get("earnings_quality")
+    grade = eq.get("grade") if isinstance(eq, dict) else "MISSING"
+    if grade is not None:
+        return []
+    if d.get("issuer_id") not in check_profile.BROKER_NO_COGS_ISSUERS:
+        return []
+    basis = eq.get("basis") if isinstance(eq, dict) else None
+    if check_profile.broker_quality_basis_ok(basis):
+        return []
+    return ["earnings_quality.basis on a broker null grade must say the Piotroski/Beneish "
+            "scores could not be computed and name the broker reason (method section 7 "
+            "broker exception, Ron 2026-09-15)"]
+
+
 def would_buy_reached(zone: dict, rows: list) -> bool:
     """True when any close dated on or after the zone's as_of sits inside [low, high]."""
     if not isinstance(zone, dict):
@@ -981,6 +1007,8 @@ def main() -> int:
             if not eq.get("basis"):
                 fail(f"{n}: earnings_quality.basis missing — a grade with no stated inputs "
                      "is an opinion")
+            for finding in broker_null_grade_basis_failures(d):
+                fail(f"{n}: {finding}")
             # Cass PROP-20260829-02 finding 3: the veto fired on whatever grade was written,
             # but the grade was never checked against the mechanical signal it claims to
             # summarize. Method §7 defines a Beneish breach as grade-C territory, so an A/B

@@ -54,6 +54,15 @@ DEPTH_TARGETS = {
     "verdicts_min": 10,
     "verdicts_max": 20,
 }
+# Ron's decision, 2026-09-15 ("Yes, dive NVT and BDX"): the DEPTH cap of 1-3 O1 per theme
+# stays locked for every theme except the two named here. `targets.o1_per_theme_exceptions`
+# is the only door past it, and it lives in the campaign manifest (not this module) because
+# it is a per-campaign, per-theme, per-issuer decision, not a rule change to DEPTH itself.
+# Each row must be well-formed AND its named issuer_id must actually be the one occupying
+# the theme's 4th O1 slot, or the base cap still applies (see o1_per_theme_exceptions and
+# _depth_completion_failures below) -- the exception cannot be reused for a different name
+# just by existing in the manifest.
+O1_PER_THEME_EXCEPTION_KEY = "o1_per_theme_exceptions"
 
 
 def campaign_mode(campaign: dict) -> str:
@@ -79,6 +88,84 @@ def links_in_scope(chain: dict, targets: dict) -> set:
         if heat.get("verdict") in wanted:
             out.add(link.get("id"))
     return out
+
+
+def o1_per_theme_exceptions(targets: dict) -> dict:
+    """Well-formed rows of targets.o1_per_theme_exceptions, keyed by theme_id.
+
+    A malformed row (bad theme_id, bad issuer_id, non-raising cap) is silently excluded
+    here so completion math never trusts a broken exception; validate_campaign reports the
+    malformed shape separately via o1_per_theme_exception_failures.
+    """
+    out = {}
+    raw = targets.get(O1_PER_THEME_EXCEPTION_KEY) if isinstance(targets, dict) else None
+    if not isinstance(raw, list):
+        return out
+    for exc in raw:
+        if not isinstance(exc, dict):
+            continue
+        theme_id = exc.get("theme_id")
+        issuer_id = exc.get("issuer_id")
+        max_n = exc.get("o1_per_theme_max")
+        if not isinstance(theme_id, str) or not theme_id.strip() or theme_id in out:
+            continue
+        if not isinstance(issuer_id, str) or not ISSUER_ID_RE.fullmatch(issuer_id):
+            continue
+        if isinstance(max_n, bool) or not isinstance(max_n, int) or \
+                max_n <= DEPTH_TARGETS["o1_per_theme_max"]:
+            continue
+        out[theme_id] = exc
+    return out
+
+
+def o1_per_theme_exception_failures(targets: dict, theme_ids: set) -> list[str]:
+    """Schema for targets.o1_per_theme_exceptions (Ron, 2026-09-15, 'Yes, dive NVT and
+    BDX'). Each row is named (an exact theme_id that resolves to a selected theme), dated,
+    issuer-scoped (a stable issuer_id, so it cannot silently cover whichever name happens
+    to fill the slot) and raises the cap by a stated, larger integer -- never a bare
+    boolean flag that reopens the theme to any 4th name.
+    """
+    failures = []
+    raw = targets.get(O1_PER_THEME_EXCEPTION_KEY) if isinstance(targets, dict) else None
+    if raw is None:
+        return failures
+    if not isinstance(raw, list):
+        return [f"targets.{O1_PER_THEME_EXCEPTION_KEY} must be a list"]
+    seen = set()
+    for i, exc in enumerate(raw):
+        where = f"targets.{O1_PER_THEME_EXCEPTION_KEY}[{i}]"
+        if not isinstance(exc, dict):
+            failures.append(f"{where}: must be an object")
+            continue
+        theme_id = exc.get("theme_id")
+        issuer_id = exc.get("issuer_id")
+        max_n = exc.get("o1_per_theme_max")
+        if not isinstance(theme_id, str) or not theme_id.strip():
+            failures.append(f"{where}.theme_id must be a non-empty string")
+        elif theme_id not in theme_ids:
+            failures.append(
+                f"{where}.theme_id {theme_id!r} does not resolve to a selected theme")
+        elif theme_id in seen:
+            failures.append(f"{where}: duplicate exception for theme {theme_id!r}")
+        if isinstance(theme_id, str) and theme_id.strip():
+            seen.add(theme_id)
+        if not isinstance(issuer_id, str) or not ISSUER_ID_RE.fullmatch(issuer_id):
+            failures.append(
+                f"{where}.issuer_id {issuer_id!r} is not a stable safe identifier")
+        if isinstance(max_n, bool) or not isinstance(max_n, int) or \
+                max_n <= DEPTH_TARGETS["o1_per_theme_max"]:
+            failures.append(
+                f"{where}.o1_per_theme_max must be an integer greater than the base cap "
+                f"of {DEPTH_TARGETS['o1_per_theme_max']}, found {max_n!r}")
+        if not valid_date(exc.get("decided_at")):
+            failures.append(f"{where}.decided_at must be YYYY-MM-DD")
+        if not str(exc.get("decided_by") or "").strip():
+            failures.append(f"{where}.decided_by must be non-empty")
+        if not str(exc.get("note") or "").strip():
+            failures.append(f"{where}.note must name Ron's dated decision")
+    return failures
+
+
 SELECTION_DIMENSIONS = {
     "occurrence_strength", "economic_impact", "unmappedness",
     "public_market_reach", "overlap",
@@ -452,6 +539,7 @@ def compute_campaign_completion(root: Path, campaign: dict) -> dict:
             "distinct_mapped_issuers": len(theme_mapped_issuers),
             "completed_profiles": len(theme_complete),
             "o1": len(theme_o1),
+            "o1_issuer_ids": sorted(theme_o1),
             "o1_final": len(theme_final),
         })
     return {
@@ -506,6 +594,8 @@ def _depth_completion_failures(campaign: dict, computed: dict) -> list[str]:
     O1 issuers or by a sourced no_candidate_finding, ten to twenty verdicts in all."""
     failures = []
     t = DEPTH_TARGETS
+    targets = campaign.get("targets") if isinstance(campaign.get("targets"), dict) else {}
+    exceptions = o1_per_theme_exceptions(targets)
     themes = campaign.get("themes") or []
     if len(themes) != t["theme_count"]:
         failures.append(f"COMPLETE requires exactly {t['theme_count']} themes, found {len(themes)}")
@@ -527,11 +617,39 @@ def _depth_completion_failures(campaign: dict, computed: dict) -> list[str]:
                if isinstance(theme, dict) and isinstance(theme.get("no_candidate_finding"), dict)}
     for row in computed.get("per_theme") or []:
         n = row.get("o1", 0)
-        if row.get("theme_id") in no_name and n == 0:
+        theme_id = row.get("theme_id")
+        if theme_id in no_name and n == 0:
             continue
-        if not t["o1_per_theme_min"] <= n <= t["o1_per_theme_max"]:
-            failures.append(f"COMPLETE theme {row.get('theme_id')} has {n} O1, needs "
-                            f"{t['o1_per_theme_min']}-{t['o1_per_theme_max']} or a sourced "
+        cap_max = t["o1_per_theme_max"]
+        exc = exceptions.get(theme_id)
+        if exc:
+            exc_issuer = exc.get("issuer_id")
+            issuer_ids = set(row.get("o1_issuer_ids") or [])
+            if exc_issuer in issuer_ids:
+                # The exception covers exactly one issuer occupying exactly one extra
+                # slot: pulling that issuer back out must land the rest inside the base
+                # cap, or the theme is using the exception to cover more than the one
+                # named name.
+                cap_max = exc.get("o1_per_theme_max", t["o1_per_theme_max"])
+                remainder = n - 1
+                if remainder > t["o1_per_theme_max"]:
+                    failures.append(
+                        f"COMPLETE theme {theme_id} has {n} O1 under its named exception "
+                        f"for {exc_issuer}, but excluding that issuer it still has "
+                        f"{remainder}, more than the base cap of "
+                        f"{t['o1_per_theme_max']}: the exception covers exactly one "
+                        "issuer, not a raised theme cap")
+            elif n > t["o1_per_theme_max"]:
+                failures.append(
+                    f"COMPLETE theme {theme_id} has {n} O1, needs "
+                    f"{t['o1_per_theme_min']}-{t['o1_per_theme_max']} or a sourced "
+                    f"no_candidate_finding: its named exception is for issuer "
+                    f"{exc_issuer!r}, which is not among the theme's O1 issuers, so it "
+                    "does not cover this count")
+                continue
+        if not t["o1_per_theme_min"] <= n <= cap_max:
+            failures.append(f"COMPLETE theme {theme_id} has {n} O1, needs "
+                            f"{t['o1_per_theme_min']}-{cap_max} or a sourced "
                             "no_candidate_finding")
     return failures
 
@@ -568,7 +686,12 @@ def validate_campaign(root: Path, path: Path, obj=None) -> list[str]:
     for key, locked in locked_set.items():
         if targets.get(key) != locked:
             failures.append(f"targets.{key} must be {locked}, found {targets.get(key)!r}")
-    extra_targets = sorted(set(targets) - set(locked_set))
+    # The one door past the frozen DEPTH targets: a named, dated, issuer-scoped per-theme
+    # O1 cap exception (Ron, 2026-09-15). Its shape is checked below, once theme_ids is
+    # known; its presence alone is not an extra/unlocked key under DEPTH.
+    allowed_extra_targets = {O1_PER_THEME_EXCEPTION_KEY} if targets.get("mode") == "DEPTH" \
+        else set()
+    extra_targets = sorted(set(targets) - set(locked_set) - allowed_extra_targets)
     if extra_targets:
         failures.append(f"targets carries keys outside its frozen set: {extra_targets}")
 
@@ -702,6 +825,7 @@ def validate_campaign(root: Path, path: Path, obj=None) -> list[str]:
         clean = [value for value in values if value is not None]
         if len(clean) != len(set(clean)):
             failures.append(f"themes contain duplicate {label} values")
+    failures.extend(o1_per_theme_exception_failures(targets, set(theme_ids)))
     if campaign.get("status") in {"SELECTED", "ACTIVE", "COMPLETE"}:
         if sorted(rank for rank in ranks if isinstance(rank, int) and not isinstance(rank, bool)) \
                 != list(range(1, len(themes) + 1)):
@@ -850,8 +974,27 @@ def preservation_failures(root: Path, path: Path, current: dict) -> list[str]:
         after = current.get(field) or []
         if len(after) < len(before) or after[:len(before)] != before:
             failures.append(f"{field} is not append-only versus HEAD")
-    if prior.get("targets") != current.get("targets"):
+    prior_targets = prior.get("targets") if isinstance(prior.get("targets"), dict) else {}
+    current_targets = current.get("targets") if isinstance(current.get("targets"), dict) \
+        else {}
+    prior_core = {k: v for k, v in prior_targets.items()
+                  if k != O1_PER_THEME_EXCEPTION_KEY}
+    current_core = {k: v for k, v in current_targets.items()
+                    if k != O1_PER_THEME_EXCEPTION_KEY}
+    if prior_core != current_core:
         failures.append("locked campaign targets changed versus HEAD")
+    else:
+        # The one exception to a frozen targets block: o1_per_theme_exceptions is
+        # append-only, the same discipline alternates/exclusions already hold above. A
+        # landed row (Ron's named, dated, issuer-scoped decision) can never be edited or
+        # dropped, only added to.
+        prior_exc = prior_targets.get(O1_PER_THEME_EXCEPTION_KEY)
+        current_exc = current_targets.get(O1_PER_THEME_EXCEPTION_KEY)
+        prior_exc = prior_exc if isinstance(prior_exc, list) else []
+        current_exc = current_exc if isinstance(current_exc, list) else []
+        if len(current_exc) < len(prior_exc) or current_exc[:len(prior_exc)] != prior_exc:
+            failures.append(
+                f"targets.{O1_PER_THEME_EXCEPTION_KEY} is not append-only versus HEAD")
     if len(current.get("changelog") or []) < len(prior.get("changelog") or []):
         failures.append("changelog shrank versus HEAD")
     return failures

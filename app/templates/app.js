@@ -2028,6 +2028,11 @@
     return topbar("chain") + crumbs([{ label: c ? c.title : chainId, href: "#/chain/" + chainId }, { label: ticker }]) + "<main>" +
       (st.fixture ? '<div class="fixturebanner">עמוד לדוגמה: נתוני הדגמה מלאכותיים כדי שאפשר יהיה לבדוק את הממשק. הוא יימחק כשתגיע הצלילה האמיתית הראשונה.</div>' : "") +
       '<div class="pagehead"><h1>' + esc(st.ticker) + ' <span style="font-weight:400;font-size:16px;color:var(--ink-3)">' + esc(st.name || "") + "</span></h1></div>" +
+      // The campaign-era identity chain a dive admits through (CLAUDE.md's `run deepdive`
+      // row): issuer_id is what actually stays stable across a ticker rename or a
+      // duplicate listing, so it is worth one linkable line even though the ticker header
+      // above is what a reader recognizes first.
+      (str_or_empty(st.issuer_id) ? "<div class='small muted' style='margin-top:-8px;margin-bottom:14px'>מזהה חברה: <a class='mono' href='#/company/" + esc(st.issuer_id) + "'>" + esc(st.issuer_id) + "</a></div>" : "") +
       "<div style='margin-bottom:14px'>" + heReportBlock(st) + "</div>" + hero +
       (alc ? "<div style='margin-top:14px'>" + alc + "</div>" : "") +
       (linkc ? "<div style='margin-top:14px'>" + linkc + "</div>" : "") +

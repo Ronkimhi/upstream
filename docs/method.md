@@ -215,6 +215,17 @@ placement being dived (section 7). Measured cause: three days into BREADTH the m
 waiting on a whole-map audit no cloud session could run. `CAMP-20260901-01` runs DEPTH over
 the same slate as `CAMP-20260830-01` and supersedes it; the older manifest stays as history.
 
+**The per-theme O1 cap exception (Ron's decision, 2026-09-15: "Yes, dive NVT and BDX").**
+DEPTH's 1-3 O1 per theme is otherwise absolute. The one door past it is
+`targets.o1_per_theme_exceptions` in the campaign manifest: a named, dated, issuer-scoped
+array, never a bare number. Two rows exist, both dated 2026-09-15: `ai-infrastructure` may
+carry a 4th O1 for `NVENT-ELECTRIC`, and `glp1-fill-finish` may carry a 4th O1 for
+`BECTON-DICKINSON`. No other theme, and no other issuer in those two themes, may use the
+raised cap; a row only raises the cap when its named `issuer_id` is actually the one
+occupying the theme's 4th O1 slot, or the base cap still applies. A landed row is
+append-only, like `alternates`/`exclusions`: it is never edited or removed, only added to
+by a later dated decision. `tools/check_campaign.py` enforces the whole shape.
+
 **Campaign slate.** Nell starts with at least 25 credible, dated occurrences, including
 existing signals on equal terms, and freezes exactly ten non-duplicate themes. The recorded
 basis covers occurrence strength, 2 to 5 year economic impact, unmappedness, public-market
@@ -365,6 +376,23 @@ field. T2 and T3 profiles may use official local filings or issuer relations mat
 INFERRED with `official_source: true` and a derivation basis; they are not replaced by an
 easier T1 proxy. Missing fetched data produces a shaped BLOCKED profile and PENDING request,
 not a made-up COMPLETE one.
+
+**The broker quality exception (Ron's decision, 2026-09-15: "Yes, for brokers only").** The
+O1 NULL prohibition above has exactly one narrow door. `quality.piotroski` and
+`quality.beneish_state` may carry `{value:null,tag:"NULL",state:"NOT_APPLICABLE",basis:...}`
+on an O1 profile ONLY for the four named insurance brokers in
+`tools/check_profile.py:BROKER_NO_COGS_ISSUERS` (AON, Arthur J. Gallagher, Willis Towers
+Watson, Marsh McLennan), and ONLY when the fetched market file's matching quality score
+(`data/market/<T>.json` `quality.piotroski`/`quality.beneish`) is itself `PENDING_DATA` for
+no reason but `cost_of_revenue_fy` and/or `sga_fy` — the two Piotroski/Beneish inputs an
+insurance broker's income statement structurally never carries, per
+`tools/acis/quality.py`. Any other missing input still means "not yet researched," not
+"cannot exist," and still blocks O1. The basis must name both the missing input and the
+industry reason in plain prose (`tools/check_profile.py:broker_quality_basis_ok`); a basis
+that only repeats "not available" does not clear it. The same wording bar applies to
+Stocky's `earnings_quality.basis` on a null grade for these four names (section 7): a null
+grade already caps the verdict at WATCH, and this exception never turns that into a silent
+pass, only an honest, checkable one.
 
 **Vendor-aggregate fundamentals.** A fundamentals block whose `source` is not a primary
 filing surface is a vendor aggregate: a third party's normalization of a report nobody here
@@ -521,6 +549,8 @@ Closed vocabulary: `INVESTABLE | WATCH | TOO_LATE`, clock-labeled.
 | D | multiple severe flags, or an audit qualification | **forbids INVESTABLE**, and the dive says so in one line |
 
 The grade is written on the page whatever it is; an A is evidence too. A grade that cannot be computed because the data is thin is `NULL`, never a default A, and it caps the verdict at WATCH until the data arrives. Why this exists: a cheap valuation and a good gap table are exactly what a manipulated book looks like from the outside, and the funnel's whole job before this point is to find names nobody is checking.
+
+A `NULL` grade for one of the four insurance brokers named in section 6A's broker quality exception (Ron, 2026-09-15, "Yes, for brokers only") is never merely "data is thin": Piotroski and Beneish are structurally uncomputable for these four, not late. The dive's `earnings_quality.basis` must say the scores could not be computed and name the broker reason, the same wording the profile's `NOT_APPLICABLE` quality fields carry (`tools/check_profile.py:broker_quality_basis_ok`); `tools/check_analyst.py:broker_null_grade_basis_failures` refuses a generic basis on these four names. The verdict still caps at WATCH exactly like any other NULL grade — this exception changes what the basis must say, never what the grade permits.
 
 **The upward check (Ron, 2026-09-08).** Every mechanism above caps a verdict DOWNWARD: grade C and grade NULL cap at WATCH, grade D forbids INVESTABLE, an unanswered independence test caps at WATCH, a gap inside `horizon_spread` is not a gap. Until this amendment nothing anywhere questioned a WATCH. `tools/check_analyst.py` failed a file for claiming INVESTABLE without earning it and never once for defaulting to WATCH, so the safe write was always the smaller claim, and 14 dives produced 1 INVESTABLE, 13 WATCH and 0 TOO_LATE. A ratchet that turns one way is not a standard, it is a drift.
 

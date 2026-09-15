@@ -41,7 +41,7 @@ def build_calibration(root: Path) -> dict:
         statuses[status] = statuses.get(status, 0) + 1
         data_tiers[data_tier] = data_tiers.get(data_tier, 0) + 1
         opportunity_tiers[opportunity] = opportunity_tiers.get(opportunity, 0) + 1
-        have, total = completeness(profile)
+        have, total = completeness(profile, root)
         _, nums, inferred = numeric_source_failures(profile.get("metrics") or {})
         numeric_fields += nums
         inferred_fields += inferred

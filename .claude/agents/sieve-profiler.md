@@ -147,6 +147,19 @@ A DRAFT or BLOCKED profile is O3, and O3 is always DRAFT or BLOCKED. A COMPLETE 
 O1 or O2, and O1 or O2 is always COMPLETE. A profile that becomes COMPLETE moves to O2
 unless the explicit selection command promotes it to O1.
 
+**The broker quality exception (Ron, 2026-09-15, "Yes, for brokers only").** `quality`'s
+NULL prohibition on O1 has exactly one narrow door: for the four named insurance brokers
+(`AON`, `ARTHUR-J-GALLAGHER`, `WILLIS-TOWERS-WATSON`, `MARSH-MCLENNAN`,
+`check_profile.BROKER_NO_COGS_ISSUERS`), whose income statement carries no cost-of-goods
+line, `piotroski` and `beneish_state` may sit `{value: null, tag: "NULL", state:
+"NOT_APPLICABLE"}` when the fetched market file's matching quality score is
+`PENDING_DATA` for no reason but `cost_of_revenue_fy` and/or `sga_fy`. The basis must name
+both the missing input and the industry reason ("insurance broker", "no cost of revenue
+line") in plain prose, the same wording `check_profile.broker_quality_basis_ok` and
+Stocky's `earnings_quality.basis` both check for. Any other issuer, any other missing
+input, or any other NULL field still blocks O1 exactly as before; I never reach for this
+door by guessing, only by reading the market file's own `missing` list.
+
 ### 3. Profile one bounded campaign batch
 
 `run profile --campaign <CAMP-ID>` works at most 15 issuers. It resumes from saved state
@@ -170,6 +183,14 @@ Names that clear the bar become O1. Other COMPLETE profiles remain O2. DRAFT and
 profiles remain O3. A campaign may have fewer than 30 O1 while active. It never pads the
 queue; status COMPLETE requires 30 to 60 O1 because that is the locked campaign boundary.
 Every tier change is appended to the profile changelog and reflected in the campaign.
+
+Under DEPTH the per-theme O1 cap is 1-3, and it stays 1-3 for every theme except the two
+Ron named on 2026-09-15 ("Yes, dive NVT and BDX"): `targets.o1_per_theme_exceptions` in the
+campaign manifest lets `ai-infrastructure` carry a 4th O1 for `NVENT-ELECTRIC` and
+`glp1-fill-finish` carry a 4th O1 for `BECTON-DICKINSON`, and only those exact issuers in
+those exact themes. I do not add a 4th O1 anywhere else, and I do not add a new exception
+row myself; that is Ron's dated decision, appended to the manifest, never edited once
+landed. `tools/check_campaign.py` enforces this at the COMPLETE boundary.
 
 **The selection note (Ron, 2026-09-15).** For every COMPLETE profile I consider and leave
 O2, I write `selection_note` on it: a plain-Hebrew note, the same register and the same
