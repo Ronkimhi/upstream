@@ -1,0 +1,489 @@
+{
+  "ticker": "AON",
+  "name": "Aon plc",
+  "issuer_id": "AON",
+  "listing_id": "NYSE-AON",
+  "chain_id": "hormuz-maritime",
+  "link_id": "specialty-marine-broking",
+  "link_id_basis": "Exact match to the O1 profile's single placement and screen_handoff (link_id specialty-marine-broking, chain position 4, money_corner true, link_heat UNDISCOVERED) and to the picks_and_shovels screen row's link_id. AON carries exactly one ACTIVE placement, on this chain and this link only (no other chain exposure on disk for this issuer). The placement carries a current PASS placement_audits[] entry (Atlas, fresh-context, 2026-09-06T15:41:00Z) for exactly (hormuz-maritime, specialty-marine-broking, AON), which is the admission path this dive uses: the mapping's own whole-census audit (audited_at 2026-09-14T20:15:00Z, status FAIL) remains open on 12 links unrelated to this placement's own evidence, per method section 7's 2026-09-01 handoff rule (a screen and a dive consume one placement, not the whole census).",
+  "screen_ref": "data/screens/hormuz-maritime.json",
+  "scenario_ids": [],
+  "tier": "T1",
+  "tier_basis": "US-listed SEC filer (method section 6): NYSE:AON carries a real SEC CIK (315293) with sec-companyfacts fundamentals in data/market/AON.json, price_status AGREED (yfinance and stockanalysis both print 302.69 on the same 2026-09-11 session), and one stored EDGAR document (data/edgar/docs/AON.json, the Q2 2026 8-K EX-99.1, accession 0001628280-26-050367) this dive quotes verbatim. cost_of_revenue_fy and sga_fy remain untagged in fundamentals.coverage.missing, a genuine companyfacts concept gap for insurance brokers rather than a fetch failure (method section 6A broker quality exception).",
+  "clock": "COMPOUNDER",
+  "clock_basis": "Inherited from the hormuz-maritime chain, whose own clock field reads COMPOUNDER (data/chains/hormuz-maritime.json): a structural, multi-year war-risk repricing of Gulf marine insurance held through the cycle, not a single dated binary resolution (method section 2). scenario_ids is empty even though three of the chain's five scenarios (S1 DOWN, S4 UP, S5 UP) explicitly move this link, because AON's single placement is a diversified, firm-wide broking-commission exposure to however the strait situation resolves, not a bet on one scenario's specific resolution; this is a chain-level dive, per method section 7's 2026-09-08 'clock is chosen, not defaulted' rule and the same pattern this desk's own ESLT dive on this chain already established. review_by is the 90-day COMPOUNDER cap, set inside it to land shortly after AON's own expected Q3 2026 earnings release (~late October, per the ~91-day cadence between the 2026-04 Q1 print and the 2026-07-29 Q2 print, WebSearch, not filing-confirmed for Q3) rather than at the full 90 days, because that release is this dive's own nearest real catalyst.",
+  "status": "DRAFT",
+  "created_at": "2026-09-15",
+  "updated_at": "2026-09-15",
+  "as_of": "2026-09-15",
+  "review_by": "2026-11-06",
+  "verdict": "WATCH",
+  "shadow_ref": null,
+  "entry_zone": null,
+  "no_entry_above": null,
+  "watch_triggers": [
+    {
+      "metric": "AON weekly close against $355.40, the last close before the USI acquisition was announced (2026-08-28)",
+      "level": "$355.40",
+      "direction": "below, sustained for three consecutive weeks",
+      "note": "Computed from data/market/AON.json series.rows: the close the session before the deal (2026-08-28) was 355.40; the stock fell 9.53% to 321.52 the next session (2026-08-31) on the all-debt-financed $17.0B USI announcement (WebSearch, not filing-verified), bounced to 330.88 by 2026-09-02, then resumed sliding to today's 52-week low of 302.69 (2026-09-11), 14.83% below the pre-deal close. A sustained close under 355.40 says the market keeps reading the deal as a net leverage negative rather than the accretive platform play management describes; a reclaim and hold above it would say the opposite."
+    },
+    {
+      "metric": "Pro forma net debt to EBITDA, as disclosed by AON at or after the USI close (expected Q4 2026, company guidance)",
+      "level": "3.5x",
+      "direction": "above, at or shortly after close",
+      "note": "Current net_debt_to_ebitda is 2.622462x (data/companies/AON.json, 2026-06-30 balance sheet, official_source true), before any of the $17.0B in new acquisition debt AON says it will use to fund USI in full (WebSearch: 'Aon expects to fund the acquisition entirely through new debt and said it anticipates remaining investment-grade rated'; not filing-verified this run). 3.5x is this dive's own read of the rough ceiling management's own 'remain investment-grade' language implies, not a disclosed covenant level; a print meaningfully above it at close would say the leverage risk the market has already partly priced (bear[1]) is real rather than overstated."
+    },
+    {
+      "metric": "Total company organic revenue growth, Q3 2026 (as reported)",
+      "level": "5%, the low end of the reaffirmed FY2026 guided range (mid-single-digit or greater)",
+      "direction": "below, at the Q3 2026 release",
+      "note": "Q2 2026 organic growth was 5% (filing_evidence[0]), matching Q2 2025's own 5% (data/edgar/docs/AON.json). 2026 is the stated final year of AON's own 3x3 Plan (WebSearch, not filing-verified); a Q3 print below the guided floor would say the pre-deal organic engine is decelerating at exactly the moment the balance sheet is also getting more levered, compounding rather than offsetting the leverage concern in bear[1]."
+    },
+    {
+      "metric": "Permanent CFO appointment (interim: Nadin Virani, effective 2026-08-17)",
+      "level": "n/a, qualitative: a permanent CFO named",
+      "direction": "no permanent CFO named within six months of Reese's departure (by 2027-02-17)",
+      "note": "Edmund Reese stepped down as EVP and CFO effective immediately on 2026-08-17, 'to pursue opportunities outside the firm', 13 days before the USI deal was signed (Aon plc press release, WebFetch 2026-09-15, aon.mediaroom.com/2026-08-17-Aon-Announces-CFO-Transition; not filing-verified against data/edgar/docs/AON.json, a different document). A prolonged interim period spanning the USI financing and close would be a genuine governance gap at exactly the moment the balance sheet is being remade; a swift, credible permanent hire would ease it."
+    }
+  ],
+  "price_ref": {
+    "value": 302.69,
+    "source": "data/market/AON.json series.rows last close (2026-09-11), price_status AGREED",
+    "as_of": "2026-09-11"
+  },
+  "price_source_note": "data/market/AON.json carries price_status AGREED for the current print: the 2026-09-11 close of 302.69 is confirmed by two same-session prints (yfinance 302.69000244140625, stockanalysis 302.69, data/market/AON.json.prints), agreeing to the cent. quality.reverse_dcf's own price_used snapshot (302.69, as of 2026-09-11) is the SAME price and date as this dive's price_ref, unlike some other names in this corpus: no horizon exists here between the filed solve's price and this dive's own, so the market-implied figures below need no staleness adjustment.",
+  "what_is_priced_in": [
+    {
+      "expectation": "302.69 is AON's own 52-week low, reached the same week as this dive: the stock is 20.60% below its 52-week high (381.26, 2026-07-28, the session before Q2 2026 earnings) and 14.83% below its last close before the USI acquisition was announced (355.40, 2026-08-28), having fallen 9.53% in the single session the deal broke (2026-08-31) before continuing to slide. This is not a quiet name drifting down; it is a stock the market has actively repriced around one specific, dated, company-wide event.",
+      "evidence": "computed from data/market/AON.json series.rows and week52 (low 302.69, high 381.26); WebSearch (Insurance Journal, CNBC, 2026-08-31 coverage of the USI announcement and reaction, not filing-verified)",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "The single dated event behind essentially all of that move is AON's own $17.0 billion, all-cash, all-debt-financed acquisition of USI Insurance Services from KKR, signed 2026-08-30 and expected to close in Q4 2026: the 10th-largest US broker (~$3 billion revenue, ~10,500 employees), funded entirely with new debt, with AON saying it does not plan to repurchase shares near-term while it prioritizes paying the debt down, and expecting the deal to be EPS-accretive starting in 2028 on $395 million of projected run-rate synergies. Nothing about this event is connected to the specialty-marine-broking placement this dive is chartered on.",
+      "evidence": "WebSearch and WebFetch 2026-09-15 (Insurance Journal, CNBC, Yahoo Finance/PlanAdviser coverage dated 2026-08-31, and the Aon 8-K exhibit at sec.gov/Archives/edgar/data/0000315293/000119312526375328/d108801dex991.htm); not present in the one document stored at data/edgar/docs/AON.json (a different, earlier 8-K) and therefore not filing-verified by this run",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "Even after the drawdown, the reverse DCF in the data plane solves a 12.39% five-year implied free-cash-flow CAGR (9.85% at seven years, 7.99% at ten), against this dive's own hand-built base case of approximately 7.0% (a 7% revenue CAGR, crediting the signed USI deal's revenue step-up without assuming further M&A, and operating margin held flat at FY2025's actual GAAP 25.28% rather than assumed to keep expanding). The 5-year gap (5.39 points) exceeds the file's own 4.4-point horizon_spread and is a real gap by method section 7's test; the 10-year gap (0.99 points) does NOT, sitting inside the spread.",
+      "evidence": "data/market/AON.json quality.reverse_dcf (implied_fcf_cagr 0.1239, implied_by_horizon {5: 0.1239, 7: 0.0985, 10: 0.0799}, horizon_spread 0.044); this dive's own forward solve, independently reproducing the filed enterprise value ($76,812,005,000) to within 0.02% before solving forward (see expectations_gap and would_buy_zone)",
+      "tag": "INFERRED"
+    },
+    {
+      "expectation": "Whatever the read, this is one of the most institutionally owned and professionally covered names on this desk's slate, not an undiscovered one: PCS Axis B reads SATURATED (18 analysts on the repo's own feed, 93.11% institutional ownership, 1.8% short interest, data/market/AON.json pcs), and a separate WebSearch (2026-09-15) finds 38 sell-side ratings averaging a $393-399 price target, itself 30% above today's price, even after the drawdown. PCS Axis A reads fully DARK (score 100, essentially no retail/social attention), which matches the chain's own link-level crowdedness read (30, UNDISCOVERED): the Gulf-marine angle specifically is unnoticed, but the equity itself is about as institutionally saturated as a large-cap gets.",
+      "evidence": "data/market/AON.json pcs (axis_a score 100 state DARK, axis_b band SATURATED, analyst_count 18, held_pct_institutions 0.93114996, short_pct_float 0.018, as_of 2026-09-14); WebSearch 2026-09-15 (thecerbatgem.com, aggregating 38 brokerage ratings, average target $393.30-$399.12, range $349-$465, not filing-verified)",
+      "tag": "INFERRED"
+    }
+  ],
+  "priced_in_summary": "WATCH on the COMPOUNDER clock. This dive sits on a real, evidenced, UNDISCOVERED money-corner link (AON's own head of marine for Asia quoted directly on how the hull war market reacted to the Gulf closure), inside a company posting a genuine beat-and-raise quarter (Q2 2026 total revenue +2%, organic +5%, GAAP operating margin +80bp to 21.5%, buyback pace ahead of its own full-year target). But almost none of AON's own recent stock-price action is about that link at all. The stock is at its own 52-week low, 20.60% below its July high and 14.83% below its last close before one specific, dated, company-wide event: the 2026-08-30 signing of a $17.0 billion, all-cash, all-debt-funded acquisition of USI Insurance Services, which the market greeted with a 9.53% single-session drop and has continued to mark down since. Nothing about USI touches the Gulf marine war-risk book this placement is chartered on; it is a middle-market and E&S platform play, EPS-accretive only from 2028, funded entirely with new debt AON says it does not intend to repay with equity issuance, with no share buybacks near-term while the balance sheet delevers. Layered on that: AON's own current net_debt_to_ebitda (2.62x) does not yet reflect a dollar of the new USI debt, and this desk's own reconstruction of AON's incremental return on invested capital since its last big deal (NFP, 2024) runs only 2.94%-3.58% over the last two and three years respectively, well below what a 'quality compounder' multiple typically assumes, a genuine, disclosed-data-based caution about whether USI's promised synergies show up in returns any faster than NFP's did. Even after the 20.60% drawdown, the reverse DCF still asks for a 12.39% five-year FCF CAGR, 5.39 points above this dive's own defended 7.0% base case and outside the file's own 4.4-point horizon_spread at the default five-year convention; that gap narrows to 0.99 points, inside the spread, at ten years. Genuinely bullish, dated evidence sits alongside all of this: a sitting AON director, Lester B. Knight, bought $6.55 million of stock in six open-market purchases on 2026-09-03, three days after the USI announcement and squarely inside the post-deal selloff (data/market/AON.json insider), and 38 sell-side analysts still average a price target roughly 30% above today's price. Not TOO_LATE: the trailing multiple has CONTRACTED sharply, not expanded (an approximate trailing P/E of 29.49x a year ago to 17.57x today, on 40.20% trailing EPS growth against a 16.47% price decline over the same twelve months), which rules out TOO_LATE's first route cleanly, and no chain scenario has travelled the distance TOO_LATE's second route requires. Not INVESTABLE: the specific marine-broking thesis carries no disclosed revenue size anywhere on disk, the stock's own price action right now is dominated by an unrelated, large, debt-funded acquisition whose leverage and integration risk this dive cannot yet size, and this dive's own bear-case would-buy zone (see would_buy_zone) sits 42.2%-56.5% below today's price, meaning today's price does not clear even a moderate bear case built on AON's own numbers.",
+  "bull": [
+    "The specific role is real, dated and directly quoted, not merely asserted: AON's own head of marine for Asia is quoted describing how the hull war market reacted to the Gulf closure (Insurance Journal, 2026-03-06, verified in the mapping's own current PASS placement audit, 2026-09-06T15:41:00Z), and this sits on the chain's own money-corner, UNDISCOVERED-scored link (impact 62, crowdedness 30, capture 62), one of an oligopoly of three or four brokers named as the market's own commentators on a premium base the chain's own evidence says moved by roughly an order of magnitude on this route.",
+    "AON's own most recent quarter was a genuine beat, unconnected to the USI story: Q2 2026 total revenue grew 2% (organic 5%, matching Q2 2025's own pace), GAAP operating margin expanded 80 basis points to 21.5%, and the company returned $775 million to shareholders including $600 million of buybacks, already exceeding its own full-year objective mid-year (filing_evidence[0], [2], [4]). The mechanical earnings-quality battery is clean everywhere it is computable: accruals ran negative or near-zero all four of the last four fiscal years (-1.95% to +0.43% of average assets, never approaching the 5% caution band), DSO held essentially flat at 88-89 days with no drift, capex-to-depreciation stayed in a normal 1.19x-1.51x band, and FY2025 operating-cash-flow-to-net-income was 94.2%.",
+    "A sitting AON director bought stock with his own money squarely inside the post-USI-announcement selloff, and the sell-side has not capitulated: Lester B. Knight purchased 24,000 shares ($6.55 million) across six open-market transactions on 2026-09-03, three days after the deal was signed and while the stock traded $325-330 (data/market/AON.json insider, filing-sourced Form 4 data), and a separate WebSearch (2026-09-15) finds 38 analysts still averaging a $393-399 price target, roughly 30% above today's 302.69, even after the drawdown."
+  ],
+  "bear": [
+    "Almost none of AON's own recent stock-price action is about the link this dive is chartered on. The stock sits at its own 52-week low (302.69), 20.60% below its July 2026 high and 14.83% below its last close (355.40, 2026-08-28) before one specific, dated, company-wide event: the 2026-08-30 signing of a $17.0 billion, all-cash, all-debt-funded acquisition of USI Insurance Services, unconnected to the Gulf marine war-risk book, which the market greeted with a 9.53% single-session drop (2026-08-31) and has continued marking down since (WebSearch/WebFetch, not filing-verified against the one stored document, a different, earlier 8-K).",
+    "The deal is funded entirely with new debt against a balance sheet whose current leverage (net_debt_to_ebitda 2.622462x, as of 2026-06-30) does not yet reflect a dollar of it, AON says it will not buy back stock near-term while it pays the debt down, and management's own promised EPS accretion does not begin until 2028. This desk's own reconstruction of AON's incremental return on invested capital since its last comparably sized deal (NFP, 2024) runs only 2.94% (two-year) to 3.58% (three-year), computed as the change in NOPAT over the change in long-term-debt-plus-equity from data/market/AON.json fundamentals, a genuine, disclosed-data-based caution about whether USI's promised synergies show up in returns materially faster than NFP's did, layered on top of a CFO who departed effective immediately ('to pursue opportunities outside the firm') 13 days before the deal was signed, with no permanent successor yet named.",
+    "No filing on disk discloses any Gulf-marine-specific revenue figure at AON: it is one undisclosed piece of a diversified, roughly $17.2 billion revenue broking business whose 38-analyst sell-side coverage and 93.11% institutional ownership (data/market/AON.json pcs) leave essentially no informational edge in owning the stock for this specific, undisclosed reason. Even after the 20.60% drawdown, the reverse DCF still implies a 12.39% five-year FCF CAGR against this dive's own defended 7.0% base case, a 5.39-point gap that survives the tougher five-year convention but narrows to 0.99 points, inside the file's own 4.4-point horizon_spread, at the friendlier ten-year convention: whichever convention is right is a genuine, unresolved disagreement about duration, not a settled edge, and this dive's own bear-case would-buy zone prices 42.2%-56.5% below today's level."
+  ],
+  "filing_evidence": [
+    {
+      "quote": "Aon delivered another quarter of strong performance, including 2% total revenue growth, 5% organic revenue growth and operating margin expansion.",
+      "accession": "0001628280-26-050367",
+      "url": "https://www.sec.gov/Archives/edgar/data/315293/000162828026050367/ex991prq22026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/AON.json (SEC EDGAR 8-K EX-99.1, Q2 2026 earnings release)",
+      "basis": "Headline quarterly performance summary, cited in bull[1] and priced_in_summary."
+    },
+    {
+      "quote": "Operating margin 21.5% 20.7% 80bps 28.3% 26.1% 220bps",
+      "accession": "0001628280-26-050367",
+      "url": "https://www.sec.gov/Archives/edgar/data/315293/000162828026050367/ex991prq22026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/AON.json (SEC EDGAR 8-K EX-99.1, Q2 2026 earnings release)",
+      "basis": "Q2 2026 GAAP operating margin 21.5% (+80bp YoY) and H1 2026 28.3% (+220bp YoY), from the financial-summary table. Cited in bull[1]; the expectations_gap operating_margin row instead anchors on the FY2025 full-year GAAP margin (25.28%, companyfacts), not this quarterly print, because AON's own quarterly margin is seasonal."
+    },
+    {
+      "quote": "We returned $775 million to shareholders during the quarter through $600 million of share repurchases",
+      "accession": "0001628280-26-050367",
+      "url": "https://www.sec.gov/Archives/edgar/data/315293/000162828026050367/ex991prq22026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/AON.json (SEC EDGAR 8-K EX-99.1, Q2 2026 earnings release)",
+      "basis": "Capital-return pace ahead of the company's own stated full-year objective, cited in bull[1]. Contrast with the post-USI 'no buybacks near-term' posture (WebSearch, priced_in_summary and bear[1]) is a load-bearing before/after tension in this dive."
+    },
+    {
+      "quote": "Cash provided by operations $556 $796 (30)% $986 $936 5%",
+      "accession": "0001628280-26-050367",
+      "url": "https://www.sec.gov/Archives/edgar/data/315293/000162828026050367/ex991prq22026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/AON.json (SEC EDGAR 8-K EX-99.1, Q2 2026 earnings release)",
+      "basis": "Q2 2026 operating cash flow fell 30% year over year ($556M vs $796M) but H1 2026 operating cash flow actually GREW 5% ($986M vs $936M): a quarter-level timing/seasonality read rather than a half-year cash-quality deterioration, addressed directly in earnings_quality.basis so the isolated quarterly figure is not read out of context."
+    },
+    {
+      "quote": "Wealth Solutions 426 519 (18) 1 — (24) 5",
+      "accession": "0001628280-26-050367",
+      "url": "https://www.sec.gov/Archives/edgar/data/315293/000162828026050367/ex991prq22026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/AON.json (SEC EDGAR 8-K EX-99.1, Q2 2026 earnings release)",
+      "basis": "Segment revenue table row: Wealth Solutions revenue fell 18% (-24% organic) on the NFP Wealth divestiture, the segment layer this dive's canonical consolidated growth figures do not surface; named in data_gaps as the reason segment-level detail matters and none is available for Commercial Risk Solutions' own marine sub-line."
+    },
+    {
+      "quote": "We are reaffirming 2026 guidance of mid-single-digit or greater organic revenue growth, 70-80 basis points of adjusted operating margin expansion, strong adjusted EPS growth and double-digit free cash flow growth",
+      "accession": "0001628280-26-050367",
+      "url": "https://www.sec.gov/Archives/edgar/data/315293/000162828026050367/ex991prq22026.htm",
+      "form": "8-K",
+      "filing_date": "2026-07-29",
+      "tag": "VERIFIED",
+      "source_name": "data/edgar/docs/AON.json (SEC EDGAR 8-K EX-99.1, Q2 2026 earnings release)",
+      "basis": "Company's own reaffirmed FY2026 guidance, the anchor for watch_triggers[2] and the organic-growth floor of the expectations_gap revenue_cagr_5y row."
+    }
+  ],
+  "events": [
+    {
+      "date": "2026-07-28",
+      "label": "52w high 381.26, the session before Q2 2026 earnings",
+      "kind": "PRICE",
+      "note": "computed from data/market/AON.json series.rows; week52.high agrees"
+    },
+    {
+      "date": "2026-07-29",
+      "label": "Q2 2026 results: beat, organic revenue +5%, margin +80bp",
+      "kind": "EARNINGS",
+      "note": "8-K EX-99.1, accession 0001628280-26-050367 (data/edgar/docs/AON.json): total revenue +2% to $4.2B, organic +5%, GAAP operating margin 21.5% (+80bp), $775M returned to shareholders including $600M of buybacks, FY2026 guidance reaffirmed."
+    },
+    {
+      "date": "2026-08-17",
+      "label": "CFO Edmund Reese departs effective immediately; Nadin Virani named interim CFO",
+      "kind": "GOVERNANCE",
+      "note": "WebFetch 2026-09-15, aon.mediaroom.com/2026-08-17-Aon-Announces-CFO-Transition: Reese transitions 'to pursue opportunities outside the firm', remains senior advisor through 2026-08-16 (one year); Virani, internal Global Head of Corporate Planning and Analytics since January 2025, named interim. Not present in data/edgar/docs/AON.json (a different, earlier document); not filing-verified this run."
+    },
+    {
+      "date": "2026-08-28",
+      "label": "last close before the USI deal was announced: 355.40",
+      "kind": "PRICE",
+      "note": "computed from data/market/AON.json series.rows; used for watch_triggers[0]"
+    },
+    {
+      "date": "2026-08-30",
+      "label": "USI Insurance Services acquisition signed: $17.0B all-cash, funded entirely with new debt",
+      "kind": "M&A",
+      "note": "WebSearch/WebFetch 2026-09-15 (Insurance Journal, CNBC, insurancebusinessmag.com; SEC 8-K exhibit at sec.gov/Archives/edgar/data/0000315293/000119312526375328/d108801dex991.htm, not the document stored at data/edgar/docs/AON.json). USI: 10th-largest US broker, ~$3B revenue, ~10,500 employees, ~200 offices, acquired from KKR. AON: no near-term buybacks, prioritizes debt paydown, expects to remain investment-grade, EPS-accretive from 2028, $395M projected run-rate synergies. Close expected Q4 2026, subject to regulatory approval. Not filing-verified against the document on disk."
+    },
+    {
+      "date": "2026-08-31",
+      "label": "market reaction: stock falls 9.53% to 321.52 on the USI announcement",
+      "kind": "PRICE",
+      "note": "computed from data/market/AON.json series.rows (355.40 to 321.52); WebSearch corroborates a same-day negative reaction attributed to 'scrutiny of leverage tied to the planned $17.0 billion cash acquisition' alongside a negative macro tape that session"
+    },
+    {
+      "date": "2026-09-03",
+      "label": "director Lester B. Knight buys $6.55M of stock in six open-market purchases",
+      "kind": "INSIDER",
+      "note": "data/market/AON.json insider.rows: 24,000 shares across six Open Market Purchase transactions at 325.63-330.51 per share, three days after the USI announcement and inside the post-deal selloff. Same insider also bought 4,000 shares at 319.24 on 2026-02-12. Cited in bull[2]."
+    },
+    {
+      "date": "2026-09-11",
+      "label": "price_ref: 302.69, a new 52-week low, 20.60% below the July high and 14.83% below the pre-deal close",
+      "kind": "PRICE",
+      "note": "last close in data/market/AON.json series.rows, price_status AGREED"
+    },
+    {
+      "date": "2026-11-06",
+      "label": "review_by: shortly after AON's expected Q3 2026 release (WebSearch cadence estimate, not filing-confirmed)",
+      "kind": "SCHEDULED",
+      "note": "watch_triggers[2] resolves at this release; watch_triggers[1] and [3] resolve on their own later timelines (USI close, permanent CFO search) and this dive's own review_by is set for the nearer catalyst"
+    }
+  ],
+  "valuation_snapshot": {
+    "price": {
+      "value": 302.69,
+      "source": "data/market/AON.json series (price_status AGREED)",
+      "as_of": "2026-09-11"
+    },
+    "market_cap": {
+      "value": "$64.9270B",
+      "source": "data/companies/AON.json valuation.market_cap (data/market/AON.json quality.derived.market_cap)",
+      "as_of": "2026-09-15",
+      "note": "canonical field, computed at the SAME price_ref (302.69, 2026-09-11) this dive uses; no recompute needed, unlike some other names in this corpus."
+    },
+    "denominator_note": "No trailing multi-year price-to-sales percentile distribution was computed for this dive; the more decision-relevant reads this run found are the trailing-P/E contraction and the reverse-DCF horizon/discount-rate sensitivity below.",
+    "lines": [
+      {
+        "name": "Enterprise value",
+        "value": "$76.8120B",
+        "tag": "VERIFIED",
+        "as_of": "2026-09-15",
+        "note": "market cap ($64.9270B) plus canonical net debt ($11.8850B: total debt $12.947B less cash $1.062B, both as of 2026-06-30); matches data/market/AON.json quality.derived.enterprise_value exactly, does NOT yet reflect any of the new debt AON says it will raise to fund USI."
+      },
+      {
+        "name": "EV / FY2025 revenue",
+        "value": "4.471x",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15"
+      },
+      {
+        "name": "Price / FY2025 revenue",
+        "value": "3.779x",
+        "tag": "VERIFIED",
+        "as_of": "2026-09-15",
+        "note": "matches data/companies/AON.json valuation.price_to_sales exactly"
+      },
+      {
+        "name": "EV / EBITDA (FY2025 proxy: operating income + depreciation)",
+        "value": "16.949x",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15"
+      },
+      {
+        "name": "Trailing P/E, 2025-09-10 (362.37), on FY2024 EPS (12.2870, net income over shares_fy, the last annual figures available at that date)",
+        "value": "29.492x",
+        "tag": "INFERRED",
+        "as_of": "2025-09-10",
+        "note": "FY2024 net income $2,654M / 216,000,000 FY2024 shares_fy; both VERIFIED, SEC XBRL companyfacts. AON does not disclose a single 'diluted EPS' figure for the full fiscal year in the one document on disk, so this dive approximates from companyfacts net income and shares_fy, the same method this corpus used on GD; a genuine reported diluted EPS figure would refine but is not expected to reverse the direction found here."
+      },
+      {
+        "name": "Trailing P/E today (302.69), on FY2025 EPS (17.2261)",
+        "value": "17.572x",
+        "tag": "INFERRED",
+        "as_of": "2026-09-11",
+        "note": "FY2025 net income $3,695M / 214,500,000 FY2025 shares_fy; both VERIFIED, SEC XBRL companyfacts"
+      },
+      {
+        "name": "Trailing annual EPS change, FY2024 to FY2025 (approximated)",
+        "value": "+40.20%",
+        "tag": "INFERRED",
+        "as_of": "2025-12-31",
+        "note": "12.2870 to 17.2261; both computed from VERIFIED SEC XBRL net income and share-count figures. This growth rate is materially inflated by the 214.5M FY2025 share count already reflecting buybacks against FY2024's flat-to-higher 216.0M count and by FY2024's own depressed base (NFP integration costs), so it should be read as directional (a real increase) rather than a clean run-rate."
+      },
+      {
+        "name": "Price change, 2025-09-10 to today",
+        "value": "-16.47%",
+        "tag": "INFERRED",
+        "as_of": "2026-09-11"
+      },
+      {
+        "name": "Trailing P/E change over the same twelve months",
+        "value": "-40.42%",
+        "tag": "INFERRED",
+        "as_of": "2026-09-11",
+        "note": "Multiple CONTRACTED sharply, not expanded: approximated EPS growth (+40.20%) far outran the price decline (-16.47%). The central fact ruling out TOO_LATE's first route."
+      },
+      {
+        "name": "Market-implied 5y FCF CAGR",
+        "value": "12.39% (SOLVED in the data plane; assumptions block self-tagged SPECULATIVE)",
+        "tag": "INFERRED",
+        "as_of": "2026-09-11"
+      },
+      {
+        "name": "Market-implied FCF CAGR, 10y horizon (same price, base, discount, terminal)",
+        "value": "7.99%",
+        "tag": "INFERRED",
+        "as_of": "2026-09-11"
+      },
+      {
+        "name": "Horizon spread (5y vs 10y implied)",
+        "value": "4.40pp",
+        "tag": "INFERRED",
+        "as_of": "2026-09-11"
+      },
+      {
+        "name": "This dive's own FCF-equivalent CAGR, base case (7.0% revenue CAGR, FY2025 GAAP margin held flat at 25.28%, FCF margin held flat at 18.73%)",
+        "value": "7.0%",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15",
+        "note": "see expectations_gap and would_buy_zone for the derivation"
+      },
+      {
+        "name": "AON's own incremental return on invested capital, computed (NOPAT change over long-term-debt-plus-equity change, 22% assumed tax rate)",
+        "value": "3.58% (3-year, FY2022 to FY2025); 2.94% (2-year, FY2023 to FY2025)",
+        "tag": "INFERRED",
+        "as_of": "2026-09-15",
+        "note": "Invested capital roughly 2.4x'd from $9.169-9.296B (FY2022-2023) to $22.386-24.012B (FY2024-2025) on the NFP acquisition, while NOPAT grew only from roughly $2.86-2.95B to $3.39B over the same window; the low incremental figure is this dive's own single most load-bearing reinvestment-return finding (bear[1])."
+      }
+    ]
+  },
+  "crowdedness": {
+    "issuer_pcs_axis_a": {
+      "score": 100.0,
+      "state": "DARK",
+      "sub_scores": {
+        "trends": 30,
+        "wsb": 25,
+        "stocktwits": 13,
+        "media": null
+      },
+      "note": "data/market/AON.json pcs.axis_a, as_of 2026-09-14: fully dark on retail/social attention (Google Trends, WSB, Stocktwits all low or null). This is the on-disk read the O1 profile's own crowdedness_caveats note (written 2026-09-02) said did not exist; the pcs block was fetched later (2026-09-14) and this dive uses the current file, per the venue rule, rather than carrying the profile's now-stale note forward."
+    },
+    "issuer_pcs_axis_b": {
+      "band": "SATURATED",
+      "analyst_count": 18,
+      "held_pct_institutions": 0.93114996,
+      "short_pct_float": 0.018,
+      "note": "data/market/AON.json pcs.axis_b, as_of 2026-09-14. A separate WebSearch (2026-09-15, thecerbatgem.com aggregating brokerage coverage) counts 38 analysts and a $393.30-$399.12 average target, a different source and methodology from the 18-analyst figure on disk; both agree directionally that AON is heavily covered and institutionally held (93.11%), with low short interest (1.8% of float)."
+    },
+    "reliance": "LINK_UNDISCOVERED_STOCK_SATURATED",
+    "basis": "The chain's own heat block scores specialty-marine-broking UNDISCOVERED (crowdedness 30): the brokers appear as quoted market commentators on the Hormuz war-risk story and nowhere as its named beneficiaries, and no cited source anywhere on the chain sizes the marine war-risk revenue line at any listed broker. That read is corroborated, not contradicted, by this dive's own issuer-level check: AON-the-stock is 93.11% institutionally owned, SATURATED on PCS axis B, and averages a 30%-above-spot sell-side target, while carrying essentially zero retail/social attention (axis A DARK, score 100). The specific Gulf-marine angle is genuinely unnoticed; the equity itself is about as far from 'undiscovered' as a name on this desk gets, for reasons (USI, the CFO transition, the earnings cadence) that have nothing to do with the Hormuz thesis. Named as a real but thin distinction in bear[2] and independence_test.",
+    "tag": "INFERRED"
+  },
+  "expectations_gap": {
+    "market_implied_source": "data/market/AON.json quality.reverse_dcf [implied_fcf_cagr 0.1239, state SOLVED, base_fcf $3,218.0M, enterprise_value $76,812,005,000, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection method; implied_by_horizon 7y 0.0985, 10y 0.0799, horizon_spread 0.044; price_used $302.69 as of 2026-09-11, the SAME price and date as this dive's price_ref, so no staleness adjustment is needed]",
+    "rows": [
+      {
+        "driver": "revenue_cagr_5y",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve returns an FCF CAGR, not a decomposed revenue CAGR; net_gap_direction below builds a hand-derived FCF-equivalent figure instead of comparing this row directly to the market-implied column.",
+        "mine": 0.07,
+        "percentile": 55,
+        "why": "AON's own trailing 3-year revenue CAGR (canonical profile field) is 11.25%, inflated by the 2024 NFP acquisition and a multi-year hard commercial-insurance pricing cycle now widely reported to be softening. Management's own FY2026 guidance is 'mid-single-digit or greater' organic growth (filing_evidence[5]), roughly 5%. 7.0% credits the signed USI acquisition's revenue step-up (~$3B, roughly 17% of FY2025 revenue, landing over the explicit period as the deal closes and is absorbed) on top of that organic floor, without assuming any further M&A beyond what is already signed or a return to the NFP-era pace.",
+        "structural_reason": "AON is a repeat, programmatic acquirer in a consolidating brokerage industry, and USI is already signed, not speculative; crediting it while holding the organic rate at management's own stated floor is the conservative middle between 'pure organic only' (5%) and 'extrapolate the trailing M&A-inflated pace' (11.25%).",
+        "leading_indicator": "Q3 2026 organic revenue growth at or above the 5% guided floor (watch_triggers[2]), and the USI close proceeding on the expected Q4 2026 timeline without a re-priced or terminated deal.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "operating_margin",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a margin path separately from the headline FCF CAGR.",
+        "mine": 0.2528,
+        "percentile": 50,
+        "why": "25.28% is AON's own actual, VERIFIED FY2025 GAAP operating margin (companyfacts), held flat rather than assumed to keep expanding. AON's own GAAP margin has swung from 14.34% (FY2018) to 29.40% (FY2022) to 24.43% (FY2024) across the last eight years, computed directly from fundamentals.operating_income_fy and revenue_fy, a real volatility this desk attributes to recurring 'certain items' (the 2021 Willis Towers Watson break fee is a widely reported example, WebSearch, not filing-verified this run) rather than a clean trend; the company's own emphasized 'adjusted' margin (28.9% in Q2 2026, filing_evidence[1]) already strips most of that volatility out, which this dive treats as a real but softer signal than the GAAP figure it actually anchors on.",
+        "structural_reason": "A genuine, oligopoly-structured, UNDISCOVERED money-corner link (heat.capture 62) could carry real pricing power, but nothing on disk isolates whether that shows up in AON's consolidated GAAP margin at all, since the marine book is undisclosed and small relative to the whole company (data_gaps).",
+        "leading_indicator": "FY2026 full-year GAAP operating margin printing above 25.28% without a comparably sized offsetting 'certain item' (USI integration costs are the obvious near-term candidate), observable at year-end 2026 reporting.",
+        "tag": "VERIFIED"
+      },
+      {
+        "driver": "reinvestment_return",
+        "market_implied": null,
+        "market_implied_tag": "NULL",
+        "market_implied_note": "The filed solve does not decompose a reinvestment return separately from the headline FCF CAGR, and no company-disclosed ROIC figure appears in the fetched 8-K.",
+        "mine": 0.0358,
+        "percentile": 15,
+        "why": "A rough return on invested capital, computed here (not disclosed) as NOPAT (operating income at an assumed 22% tax rate) over long-term debt plus equity, runs 30.79% (FY2022), 32.20% (FY2023), 13.36% (FY2024) and 14.11% (FY2025); invested capital roughly 2.4x'd between FY2023 and FY2024 on the NFP acquisition. The 3-year INCREMENTAL return (change in NOPAT over change in invested capital, FY2022 to FY2025) is 3.58%; the 2-year figure (FY2023 to FY2025) is lower still at 2.94%. Both are the most load-bearing single finding in this dive's bear case: whatever AON's steady-state ROIC has been, the return on the MARGINAL capital it has actually deployed on its last big deal has run far below it, which is directly relevant to what USI's own incremental return is likely to look like before 2028.",
+        "structural_reason": "A qualification-locked, oligopoly link (capture 62) would normally argue for returns above cost of capital, but this is computed at the whole-company level, not isolated to the marine book, and the whole-company figure is dragged down by exactly the kind of large, debt-and-equity-funded deal AON is about to repeat with USI.",
+        "leading_indicator": "FY2026-2027 incremental ROIC (recomputed once USI closes and a post-deal balance sheet is reported) tracking meaningfully above the 2.94%-3.58% NFP-era reading rather than repeating or worsening it.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "terminal",
+        "market_implied": 0.025,
+        "mine": 0.025,
+        "percentile": 50,
+        "why": "No disagreement. 2.5% perpetual growth sits at the long-run nominal-GDP ceiling this desk's own base rates cite, and is the one input this dive would not change for a diversified, large-cap global insurance broker with real but not unlimited pricing power.",
+        "tag": "INFERRED"
+      },
+      {
+        "driver": "net_gap_direction",
+        "mine": "MARKET_IMPLIES_MORE_ON_THE_DEFAULT_CONVENTION_BUT_THE_GAP_DOES_NOT_SURVIVE_THE_LONGER_HORIZON",
+        "note": "This dive builds a hand-derived FCF-equivalent CAGR of 7.0% from the rows above (7% revenue CAGR compounding revenue to $24.10B by year 5 including the signed USI step-up, times a 25.28% GAAP operating margin held flat, then re-expressed through AON's own FY2025 FCF-margin-to-revenue ratio, 18.73%, held flat, independently forward-solved through the same bisection formula quality.reverse_dcf uses, which reproduces the filed $76,812,005,000 enterprise value to within 0.02% at g=12.39%, r=9%, tg=2.5%, n=5 before being used to solve forward). Against the market's 12.39% five-year implied ask, that is a 5.39-point gap, larger than this file's own 4.4-point horizon_spread, so on the DEFAULT five-year convention this reads as a real gap per method section 7, not a horizon-convention artifact: the market is asking for MORE than this dive's base case defends. But at the ten-year convention the same market ask falls to 7.99%, only 0.99 points above this dive's 7.0% base case, INSIDE the 4.4-point horizon_spread: per method section 7, a gap smaller than horizon_spread is not a gap. The direction (market implies more) is genuine and survives the tougher convention; whether it survives the friendlier one is a real, named, unresolved disagreement about duration, echoing VRT, CAT, WST, CMI, J and GD earlier in this corpus. This dive does not resolve that disagreement in either direction; it prices the would_buy_zone on a genuine bear case rather than on whichever convention makes an entry case look better, and separately treats the pending USI leverage step-up as an argument the price does not yet fully discount even on the tougher convention, not merely a horizon-convention question.",
+        "tag": "INFERRED"
+      }
+    ],
+    "gap_vs_spread": "Method section 7: a gap smaller than horizon_spread must say which of the two it is claiming, and a gap inside the band is not a gap. The 5-year convention gap (5.39pp: 12.39% implied vs this dive's 7.0% base case) exceeds the file's 4.4pp horizon_spread and survives; the 10-year convention gap (0.99pp: 7.99% vs 7.0%) does not, sitting well inside the band. This is the same horizon-convention fragility this desk's log has now found on VRT, CAT, WST, CMI, J and GD: a claimed gap that is real on the tougher convention and nearly closes on the friendlier one. Unlike several of those names, this dive treats the fragility as secondary to a separate, non-horizon-dependent finding: AON's own incremental ROIC on its last comparable deal (2.94%-3.58%) and the pending, debt-funded USI acquisition (not yet reflected in the current net_debt_to_ebitda of 2.62x) are reasons to think even the 7.0% base case may prove generous through 2027, before the promised accretion arrives in 2028, which does not depend on which reverse-DCF horizon is 'right'.",
+    "denominator": "5 of 5 required rows populated. Market-implied column, counted honestly: 1 of 5 numeric drivers directly comparable (terminal, SOLVED and category-matched, where this dive states no disagreement); 1 of 5 matched against AON's own filed actual rather than the reverse-DCF (operating_margin, which the solve does not decompose); 3 of 5 not decomposed by the filed solve (revenue_cagr_5y and reinvestment_return are NULL in quality.reverse_dcf, and net_gap_direction is a hand-derived FCF-equivalent comparison, not a single clean market-implied number). Checked against both the 5-year and 10-year conventions per this channel's own standing lesson: enumerate every convention on both sides, then vary them, because a declared convention is an untested one."
+  },
+  "independence_test": {
+    "largest_disagreement": "Even after a 20.60% drawdown to a 52-week low, AON's price (302.69) still embeds a reverse-DCF-implied five-year free-cash-flow CAGR of 12.39%, well above this dive's own defended base case (approximately 7.0%, crediting the signed USI acquisition's revenue step-up without assuming further M&A, and operating margin held flat at FY2025's actual 25.28% GAAP level), a gap (5.39 points) that is real against the file's own 4.4-point horizon_spread at the default 5-year convention but narrows to 0.99 points, inside the spread, at the 10-year convention; separately, and not dependent on that horizon question at all, this dive thinks the market has not yet fully discounted that AON's incremental return on invested capital since its last comparable deal (NFP, 2024) has run only 2.94%-3.58%, well below what the current price's implied growth rate would need if the newly signed, entirely debt-funded, $17.0 billion USI acquisition follows a similar pattern before its promised 2028 accretion arrives.",
+    "why_the_gap_exists": "This reads as a market caught between two moves at once, extrapolating AON's genuinely strong, multi-year organic execution (the 3x3 Plan's mid-single-digit-or-greater growth and 70-80bp annual margin expansion, delivered consistently through 2024, 2025 and Q1-Q2 2026) forward at close to its trailing, M&A-inflated pace, while simultaneously already discounting real leverage risk from USI (the stock fell 9.53% the session the deal was announced and has kept sliding since). The two reactions are in tension: the price has moved sharply lower on the leverage news, yet the reverse-DCF ask computed off that SAME lower price, using AON's CURRENT, pre-USI balance sheet, still implies growth above what this dive's own base case defends, which argues the selloff has re-rated sentiment more than it has re-priced the underlying cash-flow math. Separately, 2026 is the stated final year of AON's own 3x3 Plan (WebSearch, not filing-verified), so the specific long-run algorithm the market may be extrapolating past 2026 is itself unconfirmed. If a mispricing exists, this dive reads it as a TREND-EXTRAPOLATION error (crediting AON's strong recent execution and a not-yet-disclosed 2027+ algorithm) meeting an INCOMPLETE DISCOUNTING error (the price has moved on leverage sentiment before the pro forma balance sheet, or even a confirmed close, exists to price precisely), not an informational edge: AON is SATURATED on PCS axis B and 38 analysts already cover the same public facts this dive does.",
+    "falsification": "By this dive's own review_by (2026-11-06, shortly after AON's expected Q3 2026 release), if organic revenue growth is at or above the 5% guided floor (watch_triggers[2]) and the company has given any concrete pro forma leverage figure for the USI close that credibly supports its own 'remain investment grade' language, this dive's caution is wrong and the market's steeper implied path is closer to being earned than this dive's 7.0% base case allows. More decisively, at or shortly after the USI close (expected Q4 2026), if pro forma net debt to EBITDA prints meaningfully below watch_triggers[1]'s 3.5x reference and AON names a permanent CFO within the six months following Reese's 2026-08-17 departure, the specific leverage and governance concerns this dive weighs most heavily are resolved, and the case for waiting rather than owning the stock weakens materially."
+  },
+  "earnings_quality": {
+    "grade": "B",
+    "basis": "Grade B: a mechanically clean earnings-quality battery on every leg that IS computable, held back from A by a structural gap in two of method section 7's named inputs (not an adverse reading) plus one genuine, recent governance flag. Clean: accruals ran small and mostly negative all four of the last four fiscal years (-1.95% FY2022, -2.613% FY2023, -0.919% FY2024, +0.429% FY2025, all net income minus operating cash flow over average total assets), well inside the 5% caution band in every year including the one year it turned slightly positive; FY2025 cash conversion (operating cash flow over net income) was 94.21%, above the grade-A 90% reference on its own; DSO held essentially flat at 88.77, 88.79, 88.42 and 89.42 days across FY2022-FY2025, a stable pattern rather than drift; capex-to-depreciation stayed in a normal band (1.298x, 1.509x, 1.191x, 1.399x). No deferred-revenue or unearned-premium concept exists anywhere in data/market/AON.json fundamentals (coverage.missing names gross_profit, cost_of_revenue, sga and inventory as the only 4 of 20 gaps, none of them a deferred-revenue field), and no filing on disk (data/edgar/docs/AON.json, the Q2 2026 8-K) discloses a comparable balance, so this leg is genuinely NULL rather than adversely drifting (data_gaps). Altman Z 1.62 (DISTRESS, 8 of 8 inputs; not a method section 7 named input, and this dive treats it as a poor fit for a brokerage's balance sheet structure rather than a red flag: AON carries negative retained earnings, -$245M at FY2025, a mechanical consequence of a years-long, large-scale buyback program rather than accumulated losses, which is exactly the kind of input the Altman formula was not built to interpret for an asset-light services firm; reported for completeness, not weighed). Governance: auditor Ernst & Young LLP, no change found (WebSearch 2026-09-15, not independently filing-verified beyond this search); no restatement or SEC investigation found (WebSearch, not exhaustive). Not A: quality.piotroski and quality.beneish in the current data/market/AON.json are both PENDING_DATA, missing cost_of_revenue_fy (piotroski) and cost_of_revenue_fy plus sga_fy (beneish); fundamentals.coverage confirms these are AON's own income-statement XBRL tagging never carrying a cost-of-revenue or SG&A concept in any year on file, a structural feature of how an insurance broker's commission-based income statement is presented, not a transient fetch gap. Marked NOT_APPLICABLE per Ron's 2026-09-15 broker quality exception ('Yes, for brokers only'): AON is one of the four named issuers (check_profile.BROKER_NO_COGS_ISSUERS), and the PENDING_DATA state rests on nothing but those two structurally absent inputs. The Piotroski/Beneish gap alone would not by itself hold this dive back from A (the same gap on GD still supported a clean B there). What DOES hold this dive at B rather than A is a genuine, dated governance event this run found: CFO Edmund Reese stepped down effective immediately on 2026-08-17, 'to pursue opportunities outside the firm' (Aon plc press release, WebFetch 2026-09-15), 13 days before the USI deal was signed, with an internal interim (Nadin Virani) named the same day and an active internal-and-external search underway for a permanent successor. Nothing found makes this look like anything other than a genuine, if abrupt, personal transition (Reese remains a paid senior advisor through 2027, and his own Form 4 history shows no unusual open-market selling before the exit), but an 'effective immediately' CFO departure with no permanent successor yet named, arriving just as the company begins financing and integrating the largest acquisition in its history, is a real governance watch item this dive is unwilling to treat as fully orderly. Not C or D: nothing found rises to that severity; there is no Beneish breach to weigh (it is uncomputable, not breached), no restatement, no auditor change, and no related-party or SEC-investigation disclosure found (WebSearch, not exhaustive). The Q2 2026 operating-cash-flow decline the headline quarterly table shows (-30% YoY) is addressed directly rather than left as an unexplained flag: the H1 2026 aggregate actually GREW 5% YoY (filing_evidence[3]), so this reads as normal quarterly timing (AON's own renewal and incentive-compensation cadence), not a cash-quality deterioration. The grade does not itself cap this dive's verdict: WATCH is reached independently on the pending USI leverage step-up, the low incremental-ROIC finding, and the undisclosed size of the marine-specific thesis (bear[1]-[2]), which this dive treats separately from the mechanical earnings-quality battery.",
+    "inputs": {
+      "beneish": null,
+      "beneish_state": "PENDING_DATA",
+      "beneish_threshold": -1.78,
+      "beneish_note": "data/market/AON.json quality.beneish: 10 of 12 inputs found, missing cost_of_revenue_fy and sga_fy (structural, per fundamentals.coverage.missing).",
+      "piotroski": null,
+      "piotroski_state": "PENDING_DATA",
+      "piotroski_note": "data/market/AON.json quality.piotroski: 8 of 9 inputs found, missing cost_of_revenue_fy, same structural cause as Beneish.",
+      "piotroski_not_applicable_basis": "Marked state NOT_APPLICABLE per Ron's 2026-09-15 broker quality exception ('Yes, for brokers only', method section 7 / section 6A): AON is one of the four named insurance-brokerage issuers (check_profile.BROKER_NO_COGS_ISSUERS), and the PENDING_DATA state above rests on nothing but the structurally absent cost_of_revenue_fy input, not a late fetch.",
+      "beneish_not_applicable_basis": "Marked state NOT_APPLICABLE per the same 2026-09-15 broker quality exception: the PENDING_DATA state above rests on nothing but the structurally absent cost_of_revenue_fy and sga_fy inputs, not a late fetch.",
+      "altman": 1.62,
+      "altman_state": "DISTRESS",
+      "altman_note": "Context only; not a method section 7 named input. Read with caution for this issuer: negative retained earnings (-$245M, FY2025) reflect a multi-year buyback program, not accumulated losses, and the Altman formula's working-capital and tangible-asset terms are a poor structural fit for an asset-light insurance broker.",
+      "accruals_pct_avg_assets_fy2022": -0.0195,
+      "accruals_pct_avg_assets_fy2023": -0.02613,
+      "accruals_pct_avg_assets_fy2024": -0.00919,
+      "accruals_pct_avg_assets_fy2025": 0.00429,
+      "ocf_to_net_income_fy2025": 0.942084,
+      "dso_days_fy2022": 88.77,
+      "dso_days_fy2023": 88.79,
+      "dso_days_fy2024": 88.42,
+      "dso_days_fy2025": 89.42,
+      "capex_to_depreciation_fy2022": 1.298,
+      "capex_to_depreciation_fy2023": 1.509,
+      "capex_to_depreciation_fy2024": 1.191,
+      "capex_to_depreciation_fy2025": 1.399,
+      "deferred_revenue_drift": null,
+      "deferred_revenue_drift_state": "NULL",
+      "deferred_revenue_drift_basis": "No deferred-revenue, unearned-premium or comparable balance-sheet concept exists anywhere in data/market/AON.json fundamentals (coverage.missing names only gross_profit, cost_of_revenue, sga and inventory) or in the one document at data/edgar/docs/AON.json. Looked for and not found, per method section 1's NULL discipline; not estimated.",
+      "source": "data/market/AON.json quality (altman) plus ratios computed from fundamentals",
+      "governance_source": {
+        "source": "WebSearch/WebFetch 2026-09-15: auditor Ernst & Young LLP, no change found (SEC filing index search); CFO Edmund Reese stepped down effective immediately 2026-08-17 ('to pursue opportunities outside the firm', remains senior advisor through 2027-08-16), Nadin Virani (internal, Global Head of Corporate Planning and Analytics since January 2025) named interim CFO the same day, per Aon plc's own press release (aon.mediaroom.com); no permanent successor yet named as of this dive's as_of date; no related-party transaction, SEC investigation or restatement disclosure found",
+        "as_of": "2026-09-15",
+        "tag": "INFERRED",
+        "note": "Secondary-source and not exhaustive, and not filing-verified against data/edgar/docs/AON.json (a different, earlier document). None of these facts sets a level; all feed the grade only."
+      }
+    }
+  },
+  "would_buy_zone": {
+    "low": 131.68,
+    "high": 174.93,
+    "as_of": "2026-09-15",
+    "basis": "Method section 7 (re-anchored 2026-09-08): the band at which this file's own BEAR case still clears, not the band that closes the gap table to the base case. Both bounds are built from bear scenarios more conservative than this dive's own base case (7.0% revenue CAGR, 25.28% margin held flat) on BOTH growth and margin, and the margin compression in each case is not hypothetical: it reflects the real interest-expense drag from the $17.0B of new, entirely debt-funded acquisition debt AON itself says it will raise. Low uses a hard bear (3% organic revenue CAGR, no further M&A credit beyond what is signed, and FCF margin compressed to 14% from FY2025's actual 18.73%, a rough estimate of the debt-service drag if USI's financing runs close to a market rate against AON's post-deal debt load), a -2.83% FCF-equivalent CAGR (FCF actually shrinks under this case); high uses a softer bear (4.5% organic revenue CAGR, FCF margin compressed to 16.5%), a 1.88% FCF-equivalent CAGR. Each is forward-solved through the identical bisection formula behind quality.reverse_dcf (base_fcf $3,218.0M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon; this reconstruction independently reproduces the filed enterprise value ($76,812,005,000) to within 0.02% at g=12.39% before being used to solve forward, confirming the formula is faithful before it is trusted) at each bear case's own FCF-CAGR-equivalent instead of the market's 12.39% ask, then converted to price via the same canonical net debt ($11,885,000,000, AON's CURRENT pre-USI balance sheet, the same figure the filed solve already uses) and FY2025 share count (214,500,000) the filed solve already uses: low=$131.68, high=$174.93, both strictly below price_ref.value (302.69) and both inside 0.3x-2.0x of the last close. Deliberately drawn on the tougher 5-year reverse-DCF convention rather than the friendlier 10-year one, per the ESLT/CAT/WST/GD precedent in this corpus."
+  },
+  "would_buy_stress": "Re-running the identical forward solve at the 10-year explicit horizon instead of 5-year, holding base_fcf, the discount rate, and the two bear-case FCF-equivalent growth paths fixed, moves the same bear-case-anchored band to $103.81 (hard bear) to $170.48 (soft bear), both still comfortably below price_ref. Unlike this dive's own BASE case, whose 10-year gap (0.99pp) sits inside the file's 4.4pp horizon_spread and is therefore not a measurable gap at all by method section 7's own rule, the hard-bear case's 10-year gap (10.81pp: 7.99% implied vs -2.83% hard-bear FCF-equivalent) and the soft-bear case's (6.11pp) both remain real gaps even at the friendlier convention. This is the practical difference between a zone genuinely anchored to a bear case and the base-case-with-a-haircut construction this desk's own log (VRT, MYRG, WST, CMI, ONT, J) found defective before the 2026-09-08 re-anchoring: a price this low would represent real value under a scenario this dive is not even forecasting as its base case, not merely a discount off the scenario it IS forecasting. would_buy_zone.low and .high are deliberately drawn on the tougher 5-year convention rather than the one that makes the entry case look better, per the discipline this corpus established on VRT, ESLT, CAT and GD.",
+  "zone_contains_spot": false,
+  "data_gaps": [
+    "No Gulf-marine-specific revenue percentage or dollar figure is disclosed or sourced anywhere on disk for AON: the placement's whole exposure argument rests on a quoted role and a firm-level operating margin, not a measured segment figure (selection_basis.direct_exposure, this dive's data throughout).",
+    "quality.piotroski and quality.beneish are structurally PENDING_DATA for this issuer (marked NOT_APPLICABLE under the 2026-09-15 broker exception): AON's own income-statement XBRL tagging carries no cost-of-revenue or SG&A concept in any year on file, a structural feature of how an insurance broker's commission-based financials are presented, not a transient fetch gap.",
+    "No deferred-revenue or unearned-premium concept exists in data/market/AON.json fundamentals or in the one stored filing; this earnings-quality leg is genuinely NULL rather than estimated (earnings_quality.inputs.deferred_revenue_drift_basis).",
+    "The USI Insurance Services acquisition (terms, financing, timeline), the 2026-08-17 CFO transition, the 38-analyst consensus target, and the 3x3-Plan/organic-growth-algorithm characterization are all WebSearch/WebFetch-only, dated 2026-09-15, and are NOT present in the one document stored at data/edgar/docs/AON.json (an earlier, different 8-K); every one is tagged INFERRED, not filing-verified this run. A future re-run that requests the USI deal 8-K (SEC accession referenced in events[4]) or AON's FY2025 10-K into data/edgar/docs/ would let these upgrade to VERIFIED.",
+    "AON's own reverse_dcf and current net_debt_to_ebitda (2.622462x) reflect its CURRENT, pre-USI balance sheet only; no pro forma post-close leverage figure exists on disk or in this run's WebSearch, so watch_triggers[1]'s 3.5x reference level is this dive's own estimate of a reasonable ceiling, not a disclosed covenant or company target.",
+    "AON also carries an ACTIVE, placement-audit-PASS placement held by WILLIS-TOWERS-WATSON on this exact same link (specialty-marine-broking, per the O1 profile's own selection_basis.duplicate_exposure), promoted to O1 in the same 2026-09-15 selection batch; no WTW dive exists on disk yet. A future WTW dive should treat this AON dive's independence_test and priced_in_summary as background, not duplicate it: the two are genuine oligopoly peers on the same repricing cycle, not diversified exposures.",
+    "reinvestment_return (ROIC and incremental ROIC) is computed here, not company-disclosed, at the whole-company level; it cannot isolate the specialty-marine-broking link specifically from AON's four other reporting segments."
+  ],
+  "notes": [
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "stocky",
+      "text": "This dive's central, load-bearing tension is that AON's own recent stock-price action has almost nothing to do with the specialty-marine-broking placement it is chartered on. The stock is at a 52-week low driven by a single, dated, company-wide event (the 2026-08-30 signing of a $17.0B, all-debt USI acquisition) that this dive found through WebSearch, not through the chain, the screen, or the O1 profile, none of which mention it (they predate the announcement). If a future re-run can source any Gulf-marine-specific revenue figure, or a pro forma post-USI leverage figure, those are the two single highest-value additions to this file: the first would let a re-run size the actual thesis this placement is chartered on rather than reasoning about firm-level margins; the second would let watch_triggers[1] test against a real disclosed level instead of this dive's own estimated 3.5x reference."
+    },
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "stocky",
+      "text": "The would_buy_zone is drawn from two genuinely bear-case scenarios (both below this dive's own base case on growth AND margin, with the margin compression specifically modeling the debt-service drag from the signed USI financing), per method section 7's 2026-09-08 re-anchoring to a bear-case-survived floor rather than a base-case-with-a-haircut. would_buy_stress shows the practical difference it makes: both bear cases' gaps survive even the friendlier 10-year convention, unlike this dive's own base case."
+    },
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "stocky",
+      "text": "data/market/AON.json's pcs and insider blocks (fetched 2026-09-14) are newer than the O1 profile's own crowdedness_caveats note (written 2026-09-02, which said no pcs block existed for this issuer). This dive uses the current market file per the venue rule (a remembered number is a defect) rather than carrying the profile's now-superseded note forward; a future profile refresh should update that note to match."
+    }
+  ],
+  "confidence_audit": {
+    "verified": 9,
+    "inferred": 22,
+    "speculative": 1,
+    "null": 4
+  },
+  "changelog": [
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "stocky",
+      "action": "DRAFT",
+      "change": "Initial deep dive on AON / hormuz-maritime / specialty-marine-broking. WATCH, COMPOUNDER clock, earnings grade B (Piotroski/Beneish NOT_APPLICABLE under the 2026-09-15 broker exception; held at B rather than A by a recent, abrupt CFO departure with no permanent successor named). would_buy_zone drawn at draft time on a genuine bear case (margin compressed for the pending USI debt load), per the 2026-09-08 re-anchoring. Central finding: this dive's own recent price action is dominated by an unrelated, dated, company-wide event (the 2026-08-30 signing of a $17.0B all-debt USI Insurance Services acquisition, found via WebSearch, not on this chain, screen, or profile), not by the Hormuz marine-broking thesis, whose specific revenue size remains undisclosed anywhere on disk. Reverse-DCF gap survives only on the tougher 5-year convention (5.39pp, vs a 4.4pp horizon_spread) and nearly closes at 10 years (0.99pp); a director's $6.55M open-market purchase on 2026-09-03 and a still-bullish 38-analyst consensus are named as real countervailing evidence. Not yet red-teamed."
+    }
+  ]
+}
