@@ -1,10 +1,47 @@
 {
   "issuer_id": "WOODSIDE-ENERGY",
   "ticker": "WDS",
-  "as_of": "2026-09-14",
+  "as_of": "2026-09-15",
   "generated_by": "sieve-profiler",
-  "status": "PARTIAL",
-  "items": [],
+  "status": "COMPLETE",
+  "items": [
+    {
+      "type": "PROJECT",
+      "name": "Louisiana LNG foundation project",
+      "claim": "A high point of 2025 was the final investment decision taken in April on the $17.5 billion three-train, 16.5 million tonne per annum foundation Louisiana LNG project, which was 22% complete at year-end and on target for first LNG in 2029.",
+      "date": "2026-02-23",
+      "source_kind": "web_doc",
+      "value": 17500000000,
+      "currency": "USD",
+      "source_url": "https://finance.yahoo.com/news/woodside-energy-releases-full-2025-235400356.html",
+      "source_ref": "data/web/084803a69ea9415f.json",
+      "source_excerpt": "A high point of 2025 was the final investment decision taken in April on the $17.5 billion three-train, 16.5 million tonne per annum foundation Louisiana LNG project, which was 22% complete at year-end and on target for first LNG in 2029."
+    },
+    {
+      "type": "PROJECT",
+      "name": "Scarborough Energy Project",
+      "claim": "Scarborough was 94% complete at year-end with the floating production unit arriving on location in Australia in January 2026, and is on track for first LNG cargo in the fourth quarter of 2026.",
+      "date": "2026-02-23",
+      "source_kind": "web_doc",
+      "value": null,
+      "currency": null,
+      "source_url": "https://finance.yahoo.com/news/woodside-energy-releases-full-2025-235400356.html",
+      "source_ref": "data/web/084803a69ea9415f.json",
+      "source_excerpt": "Scarborough was 94% complete at year-end with the floating production unit arriving on location in Australia in January 2026. Scarborough is on track for first LNG cargo in the fourth quarter of 2026."
+    },
+    {
+      "type": "PROJECT",
+      "name": "Trion oil development",
+      "claim": "Woodside said its Trion oil development stayed on schedule for first oil in 2028, having reached 50% completion at year end.",
+      "date": "2026-02-23",
+      "source_kind": "web_doc",
+      "value": null,
+      "currency": null,
+      "source_url": "https://finance.yahoo.com/news/woodside-energy-releases-full-2025-235400356.html",
+      "source_ref": "data/web/084803a69ea9415f.json",
+      "source_excerpt": "Trion remains on target for first oil in 2028, with the project 50% complete at year end."
+    }
+  ],
   "searched": [
     {
       "query_or_url": "https://www.businesswire.com/news/home/20260223899485/en/Woodside-Energy-Releases-Full-Year-2025-Results (REQ-20260914-1267, web_doc)",
@@ -13,14 +50,27 @@
     {
       "query_or_url": "data/edgar/docs/WDS.json (stored 6-K, filed 2026-09-14)",
       "result": "Stored document is only the SEC-EDGAR submission index/header (filer metadata and exhibit filenames); the EX-99.1 press-release exhibit body was not itself fetched, so no prose backlog/RPO/project text is present in the stored text."
+    },
+    {
+      "query_or_url": "https://finance.yahoo.com/news/woodside-energy-releases-full-2025-235400356.html (REQ-20260915-14, Yahoo Finance HTML syndication of the FY2025 results release, alternate to the businesswire.com page that 403'd)",
+      "result": "HTTP 200, 16,873 chars stored (data/web/084803a69ea9415f.json). Full press-release prose recovered: Louisiana LNG, Scarborough and Trion project status, all with completion percentages and target dates, now cited."
+    },
+    {
+      "query_or_url": "https://investingnews.com/woodside-energy-releases-full-year-2025-results/ (REQ-20260915-15, Investing News Network HTML syndication of the same FY2025 results release, second alternate to businesswire.com)",
+      "result": "HTTP 200, 17,438 chars stored (data/web/b98898b7cf640333.json); duplicate syndication of the same businesswire press release already cited from the Yahoo Finance copy, no additional facts."
     }
   ],
-  "notes": "Both available source routes failed to yield extractable prose: the queued IR press-release page returned HTTP 403, and the stored EDGAR 6-K is an index shell without the exhibit body fetched. PARTIAL rather than NONE_FOUND because the search itself did not complete cleanly -- both sources failed to deliver text, none was searched and found empty. Needs a further web_doc/edgar_doc request for the actual exhibit text to complete. hormuz-maritime screen row seats NYSE-WDS.",
+  "notes": "Round 2: both queued alternate HTML syndications of the FY2025 results release fetched clean at HTTP 200, carrying identical press-release prose. Three PROJECT items extracted from the Yahoo Finance copy: the $17.5 billion Louisiana LNG foundation project (22% complete, first LNG 2029), the Scarborough Energy Project (94% complete, first LNG cargo Q4 2026), and the Trion oil development (50% complete, first oil 2028). No backlog or RPO dollar figure was disclosed in this release; Woodside's disclosure style is project-completion percentage and target-date, not a formal order-backlog total. hormuz-maritime screen row seats NYSE-WDS.",
   "changelog": [
     {
       "ts": "2026-09-14T00:00:00Z",
       "by": "sieve-profiler",
       "change": "run pipeline WOODSIDE-ENERGY (hormuz-maritime). PARTIAL, 0 items -- the queued web_doc source (REQ-20260914-1267) returned HTTP 403 and the stored EDGAR 6-K holds only the filing index, not the exhibit text."
+    },
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "sieve-profiler",
+      "change": "run pipeline (round 2): PARTIAL -> COMPLETE. Yahoo Finance and Investing News Network alternate syndications (REQ-20260915-14/15) both fetched HTTP 200; added 3 items (Louisiana LNG $17.5bn/22% complete, Scarborough 94% complete, Trion 50% complete, all PROJECT), cited from the Yahoo Finance copy."
     }
   ]
 }

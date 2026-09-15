@@ -1,10 +1,35 @@
 {
   "issuer_id": "EXAIL-TECHNOLOGIES",
   "ticker": "EXA",
-  "as_of": "2026-09-14",
+  "as_of": "2026-09-15",
   "generated_by": "sieve-profiler",
-  "status": "PARTIAL",
-  "items": [],
+  "status": "COMPLETE",
+  "items": [
+    {
+      "type": "BACKLOG",
+      "name": "FY2025 order intake",
+      "claim": "Exail Technologies reported record order intake of €844 million, up +87%.",
+      "date": "2026-03-18",
+      "source_kind": "web_doc",
+      "value": 844000000,
+      "currency": "EUR",
+      "source_url": "https://www.exail-technologies.com/2025-annual-results-strong-improvement-in-financial-earnings-and-cash-flows/",
+      "source_ref": "data/web/0d99e00fa771d37c.json",
+      "source_excerpt": "Record order intake of €844 million, up +87%."
+    },
+    {
+      "type": "CONTRACT",
+      "name": "Belgian and Dutch navies mine countermeasures capability delivery",
+      "claim": "Exail delivered to the Belgian and Dutch navies a first operational mine countermeasures capability, the world's first fully integrated autonomous naval drone system capable of carrying out an entire demining mission autonomously and safely.",
+      "date": "2026-03-18",
+      "source_kind": "web_doc",
+      "value": null,
+      "currency": null,
+      "source_url": "https://www.exail-technologies.com/2025-annual-results-strong-improvement-in-financial-earnings-and-cash-flows/",
+      "source_ref": "data/web/0d99e00fa771d37c.json",
+      "source_excerpt": "First, the delivery to the Belgian and Dutch navies of a first operational mine countermeasures capability. It is the world’s first fully integrated autonomous naval drone system capable of carrying out an entire demining mission autonomously and safely."
+    }
+  ],
   "searched": [
     {
       "query_or_url": "https://www.actusnews.com/en/exail-technologies/pr/2026/03/18/2025-annual-results-strong-improvement-in-financial-earnings-and-cash-flows (REQ-20260914-1268, web_doc)",
@@ -13,14 +38,23 @@
     {
       "query_or_url": "data/edgar/docs/EXA.json",
       "result": "Does not exist on disk. Exail Technologies is Euronext Paris-listed (EPA-EXA) and files no U.S. EDGAR forms, so no edgar_doc source is available for this issuer."
+    },
+    {
+      "query_or_url": "https://www.exail-technologies.com/2025-annual-results-strong-improvement-in-financial-earnings-and-cash-flows/ (REQ-20260915-22, Exail's own website HTML copy of the same 2025 annual results release, alternate to the actusnews.com page that 403'd)",
+      "result": "HTTP 200, 2,985 chars stored (data/web/0d99e00fa771d37c.json). Full press-release prose recovered: record order intake and the Belgian/Dutch navy mine-countermeasures delivery are both disclosed and now cited."
     }
   ],
-  "notes": "Both available source routes failed: the only queued web page returned HTTP 403 (blocked, no text captured), and this non-U.S. issuer has no EDGAR filing to fall back on. PARTIAL rather than NONE_FOUND because the search itself did not complete -- the source fetch failed, it was not run to a clean empty result. Needs a further web_doc request against an alternate Exail IR/press URL to complete. hormuz-maritime screen row seats EPA-EXA.",
+  "notes": "Round 2: Exail's own website copy of the same 2025 annual results release (queued as an alternate to the actusnews.com page that 403'd) fetched clean at HTTP 200. Two items extracted: record FY2025 order intake of €844 million (BACKLOG) and delivery of a first operational mine countermeasures capability to the Belgian and Dutch navies, described as the world's first fully integrated autonomous naval drone demining system (CONTRACT). No backlog balance (total order book carried forward) or RPO figure distinct from the intake flow was disclosed in this release. hormuz-maritime screen row seats EPA-EXA.",
   "changelog": [
     {
       "ts": "2026-09-14T00:00:00Z",
       "by": "sieve-profiler",
       "change": "run pipeline EXAIL-TECHNOLOGIES (hormuz-maritime). PARTIAL, 0 items -- the queued web_doc source (REQ-20260914-1268) returned HTTP 403 and no EDGAR filing exists for this Euronext-listed issuer; no alternate stored source found."
+    },
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "sieve-profiler",
+      "change": "run pipeline (round 2): PARTIAL -> COMPLETE. Exail's own-website alternate source (REQ-20260915-22) fetched HTTP 200; added 2 items (FY2025 record order intake €844m, BACKLOG; Belgian/Dutch navy mine-countermeasures delivery, CONTRACT)."
     }
   ]
 }

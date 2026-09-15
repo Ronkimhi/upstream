@@ -1,7 +1,7 @@
 {
   "issuer_id": "ROMGAZ",
   "ticker": "SNG.RO",
-  "as_of": "2026-09-14",
+  "as_of": "2026-09-15",
   "generated_by": "sieve-profiler",
   "status": "PARTIAL",
   "items": [
@@ -34,14 +34,27 @@
     {
       "query_or_url": "https://www.romgaz.ro/en/about-neptun-deep-project",
       "result": "web_doc request REQ-20260914-717 FAILED at fetch: same romgaz.ro connect timeout"
+    },
+    {
+      "query_or_url": "round 2 re-check: data/requests.json for any new ROMGAZ/SNG web_doc rows, and data/web/ for any newly stored romgaz.ro document",
+      "result": "No new round-2 web_doc requests were queued for this issuer (no row carries requested_by \"run pipeline SNG (sources, round 2)\" or similar); the only post-round-1 addition is REQ-20260914-718 (FULFILLED, data/web/83b04a145006fb42.json), the duplicate OMV Petrom copy already noted below and not carrying any new fact. No new romgaz.ro fetch exists on disk; the domain remains untested since the round-1 timeouts."
+    },
+    {
+      "query_or_url": "data/market/SNG-RO.json fundamentals (re-checked for a remaining_performance_obligations field)",
+      "result": "Still absent: the fundamentals block carries revenue/income/balance-sheet fields only, no RPO or backlog field, so no xbrl item is available."
     }
   ],
-  "notes": "ROMGAZ's own investor-relations domain (romgaz.ro) is unreachable from the fetcher on every attempt across both fires (4/4 web_doc requests FAILED with a connect timeout, not a 403/404), so no ROMGAZ-issued backlog, RPO, or named-contract disclosure could be cited. No SEC/EDGAR filings exist for ROMGAZ (Bucharest Stock Exchange issuer, not a US filer) and data/market/SNG-RO.json fundamentals carries no remaining_performance_obligations field, so no xbrl item is available either. The one PROJECT item cites a stored, HTTP 200 OMV Petrom (joint operator) press release that names ROMGAZ directly and discloses Neptun Deep's status and 2027 production-start schedule; a duplicate copy of the same release is also stored at data/web/83b04a145006fb42.json. Status is PARTIAL rather than NONE_FOUND: real disclosure exists via the joint-venture partner even though ROMGAZ's own sources could not be fetched.",
+  "notes": "ROMGAZ's own investor-relations domain (romgaz.ro) is unreachable from the fetcher on every attempt across both fires (4/4 web_doc requests FAILED with a connect timeout, not a 403/404), so no ROMGAZ-issued backlog, RPO, or named-contract disclosure could be cited. No SEC/EDGAR filings exist for ROMGAZ (Bucharest Stock Exchange issuer, not a US filer) and data/market/SNG-RO.json fundamentals carries no remaining_performance_obligations field, so no xbrl item is available either. The one PROJECT item cites a stored, HTTP 200 OMV Petrom (joint operator) press release that names ROMGAZ directly and discloses Neptun Deep's status and 2027 production-start schedule; a duplicate copy of the same release is also stored at data/web/83b04a145006fb42.json. Status is PARTIAL rather than NONE_FOUND: real disclosure exists via the joint-venture partner even though ROMGAZ's own sources could not be fetched. Round 2 found no new queued sources for this issuer and no new stored romgaz.ro document; the item set and status are unchanged from round 1.",
   "changelog": [
     {
       "ts": "2026-09-14T00:00:00Z",
       "by": "sieve-profiler",
       "change": "run pipeline ROMGAZ (offshore-counter-drone). Created PARTIAL pipeline with 1 PROJECT item (Neptun Deep, cited from a stored OMV Petrom press release) after all 4 web_doc requests to romgaz.ro FAILED at fetch across two fires (connect timeout); no EDGAR filings and no RPO field in data/market/SNG-RO.json fundamentals."
+    },
+    {
+      "ts": "2026-09-15T00:00:00Z",
+      "by": "sieve-profiler",
+      "change": "run pipeline (round 2): still PARTIAL, 1 item unchanged. No round-2 web_doc requests were queued for this issuer (romgaz.ro's round-1 connect timeouts were never retried) and no new stored source was found; re-confirmed data/market/SNG-RO.json still carries no RPO field."
     }
   ]
 }

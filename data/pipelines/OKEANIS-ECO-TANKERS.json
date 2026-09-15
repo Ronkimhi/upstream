@@ -17,14 +17,27 @@
     {
       "query_or_url": "https://www.sec.gov/Archives/edgar/data/1964954/000110465926097930/0001104659-26-097930-index.html",
       "result": "6-K (Aug 17 2026) fetched but only the SEC full-text-search index wrapper was stored (data/edgar/docs/ECO.json), not the EX-99.1/EX-99.2 exhibit text; queued REQ-20260915-05 and REQ-20260915-06 for the two exhibit URLs directly."
+    },
+    {
+      "query_or_url": "https://www.sec.gov/Archives/edgar/data/1964954/000110465926097930/tm2623429d1_ex99-1.htm (REQ-20260915-05, the actual EX-99.1 exhibit text of the same 6-K)",
+      "result": "HTTP 200, 1,550 chars stored (data/web/f7ace433a24d9ba3.json). The exhibit is a mandatory notification of insider share trades (a QVT Financial LP fund tied to board member Daniel Gold sold shares on Aug 13-14 2026) -- no backlog, RPO, contract, or project disclosure of any kind."
+    },
+    {
+      "query_or_url": "https://www.sec.gov/Archives/edgar/data/1964954/000110465926097930/tm2623429d1_ex99-2.htm (REQ-20260915-06, the second exhibit of the same 6-K)",
+      "result": "HTTP 200, 1,771 chars stored (data/web/d77bd0eece86f093.json). The exhibit is the MAR Article 19 managers'-transactions notification for the same insider trade -- again no backlog, RPO, contract, or project disclosure."
     }
   ],
-  "notes": "No disclosed backlog, RPO, named contract, or project figure found in any source fetched so far. The commercial-update press release most likely to carry a backlog figure 404'd at the URL tried; the fleet page has no financial content; the stored EDGAR document for the most recent 6-K is the filing index, not the exhibit prose. Two web_doc requests for the actual exhibit URLs (built from the same accession, 0001104659-26-097930) are now queued; re-run `run pipeline ECO` once they are FULFILLED.",
+  "notes": "No disclosed backlog, RPO, named contract, or project figure found in any source fetched so far, across two rounds and five distinct URLs. The commercial-update press release most likely to carry a backlog figure 404'd at the URL tried; the fleet page has no financial content; and the most recent 6-K (accession 0001104659-26-097930), now fully fetched with both exhibits, turns out to be a routine insider-trading notification (Aug 17 2026 filing date) rather than a commercial or operational update -- it carries no order, contract, or project prose to cite. No further web_doc requests are queued this round; a future run should target an older or more recent 6-K/20-F carrying an actual commercial update, or the annual report on Form 20-F, rather than this accession.",
   "changelog": [
     {
       "ts": "2026-09-15T00:26:00Z",
       "by": "sieve-profiler",
       "change": "run pipeline OKEANIS-ECO-TANKERS (hormuz-maritime). PARTIAL: no usable backlog/contract/project disclosure in the three sources checked (commercial-update page 404, fleet page has no financial data, stored 6-K is index-only). Queued REQ-20260915-05/06 for the actual exhibit text."
+    },
+    {
+      "ts": "2026-09-15T01:00:00Z",
+      "by": "sieve-profiler",
+      "change": "run pipeline (round 2): still PARTIAL, 0 items. Both queued exhibit fetches (REQ-20260915-05/06) came back HTTP 200 but the 6-K they belong to is an insider-trading notification, not a commercial update -- no backlog/contract/project prose in either exhibit. No further sources queued; the accession chased this round was the wrong filing type."
     }
   ]
 }

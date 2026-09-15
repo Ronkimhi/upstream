@@ -1,7 +1,7 @@
 {
  "issuer_id": "HINDUSTAN-PETROLEUM",
  "ticker": "HINDPETRO",
- "as_of": "2026-09-14",
+ "as_of": "2026-09-15",
  "generated_by": "sieve-profiler",
  "status": "NONE_FOUND",
  "items": [],
@@ -12,15 +12,24 @@
   },
   {
    "query_or_url": "https://www.hindustanpetroleum.com/documents/pdf/20250807HPCLPressReleaseQ1FINAL.pdf (Q1 FY2025-26 results press release) -- data/web/dd312068fb179413.json",
-   "result": "Same limitation: HTTP 200, application/pdf, 0 chars of text. No HTML alternate source was located this session (WebSearch budget was exhausted before this issuer could be searched)."
+   "result": "Same limitation: HTTP 200, application/pdf, 0 chars of text."
+  },
+  {
+   "query_or_url": "https://www.hindustanpetroleum.com/NewsroomDetails/439 (REQ-20260915-20, HPCL's own server-rendered newsroom HTML page for Q4 FY2025 results, alternate to the PDF-only annual report and press release)",
+   "result": "Fetch blocked: HTTP 403 (data/web/484ad74f95aa21cd.json, chars 0). No text stored to extract from. No further HTML alternate source was located this session (WebSearch budget was exhausted before this issuer could be searched a second time)."
   }
  ],
- "notes": "HPCL Rajasthan Refinery Limited's June 2026 commercial-operation declaration and its 1QFY27 capex figure (Rs 1,734 crore) are real and verified verbatim at the mapping-placement level, sourced from a BSE corporate-filing PDF the mapping already quotes, but every official HPCL document tried by this pipeline is a PDF that this repo's fetcher cannot text-extract, so no source_excerpt can be verified against a stored document per method section 1. A future run should try the exact bseindia.com corporate-filing URL the mapping cites, or an HTML press-release mirror, in case either extracts differently from the corporate PDFs tried here.",
+ "notes": "Round 2: the one new queued source (HPCL's own newsroom HTML page) also 403'd, so no new disclosure was recovered. HPCL Rajasthan Refinery Limited's June 2026 commercial-operation declaration and its 1QFY27 capex figure (Rs 1,734 crore) are real and verified verbatim at the mapping-placement level, sourced from a BSE corporate-filing PDF the mapping already quotes, but every official HPCL document tried by this pipeline (two PDFs, now one HTML newsroom page) has returned either a text-empty PDF or an HTTP 403. A future run should try the exact bseindia.com corporate-filing URL the mapping cites, which is a different host than hindustanpetroleum.com and has not yet been tried as a web_doc for this pipeline.",
  "changelog": [
   {
    "ts": "2026-09-14T00:00:00Z",
    "by": "sieve-profiler",
    "change": "run pipeline: NONE_FOUND, only PDF sources available and this fetcher stores PDFs with empty text"
+  },
+  {
+   "ts": "2026-09-15T00:00:00Z",
+   "by": "sieve-profiler",
+   "change": "run pipeline (round 2): still NONE_FOUND. The queued HPCL newsroom HTML alternate (REQ-20260915-20) also returned HTTP 403; no usable source recovered this round. bseindia.com (the mapping's own cited host) remains untried."
   }
  ]
 }
