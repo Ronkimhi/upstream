@@ -224,8 +224,13 @@ class TestAdmissionLapseGateEndToEnd(AdmissionLapseTree):
 
 
 # ---------------------------------------------------------------------------
-# 4. The 16 committed dives keep their outcomes: none carries admission_lapse, and the
-# mechanism must be provably a no-op for every one of them.
+# 4. The committed dives keep their outcomes. When the mechanism landed no dive carried
+# admission_lapse, and these tests pinned that absence. On 2026-09-14 Ron downgraded
+# WSP.TO__data-center-moratoria to WATCH through it, the first real lapse, which turned CI
+# red on a corpus that was behaving exactly as designed. They now pin the rule on both
+# kinds of dive instead: a no-op for every dive without a lapse, and for every dive with
+# one a well-formed lapse on a FINAL WATCH dive that turns its admission findings into
+# reported lapses.
 # ---------------------------------------------------------------------------
 class ExistingCorpusUnaffected(unittest.TestCase):
     @staticmethod
@@ -233,20 +238,28 @@ class ExistingCorpusUnaffected(unittest.TestCase):
         folder = ROOT / "data" / "stocks"
         return [p for p in sorted(folder.glob("*.json")) if not p.name.startswith("_")]
 
-    def test_sixteen_dives_on_disk(self):
+    def _real_dives(self):
+        for p in self._dives():
+            d = json.loads(p.read_text())
+            if not d.get("fixture"):
+                yield p, d
+
+    def test_at_least_sixteen_dives_on_disk(self):
         names = [p.name for p in self._dives()]
-        self.assertEqual(len(names), 16, names)
+        self.assertGreaterEqual(len(names), 16, names)
 
-    def test_no_committed_dive_carries_admission_lapse_yet(self):
-        for p in self._dives():
-            d = json.loads(p.read_text())
+    def test_every_committed_lapse_is_well_formed_on_a_final_watch_dive(self):
+        for p, d in self._real_dives():
+            if "admission_lapse" not in d:
+                continue
             with self.subTest(dive=p.name):
-                self.assertNotIn("admission_lapse", d)
+                self.assertEqual(d.get("status"), "FINAL")
+                self.assertEqual(d.get("verdict"), "WATCH")
+                self.assertEqual(check_analyst.admission_lapse_failures(d["admission_lapse"]), [])
 
-    def test_lapse_outcome_is_a_no_op_for_every_committed_dive(self):
-        for p in self._dives():
-            d = json.loads(p.read_text())
-            if d.get("fixture"):
+    def test_lapse_outcome_is_a_no_op_for_every_dive_without_a_lapse(self):
+        for p, d in self._real_dives():
+            if "admission_lapse" in d:
                 continue
             with self.subTest(dive=p.name):
                 admission_findings = check_analyst.stock_admission_failures(ROOT, d)
@@ -255,14 +268,30 @@ class ExistingCorpusUnaffected(unittest.TestCase):
                 self.assertEqual(fail_msgs, admission_findings)
                 self.assertEqual(lapse_msgs, [])
 
-    def test_gate_reports_zero_lapses_over_the_real_tree(self):
+    def test_a_committed_lapse_reports_its_admission_findings_instead_of_failing(self):
+        for p, d in self._real_dives():
+            if "admission_lapse" not in d:
+                continue
+            with self.subTest(dive=p.name):
+                admission_findings = check_analyst.stock_admission_failures(ROOT, d)
+                fail_msgs, lapse_msgs = check_analyst.admission_lapse_outcome(
+                    d, admission_findings)
+                # Empty findings would mean the gap closed and the lapse is stale, which
+                # the gate fails; a live lapse always has findings to report.
+                self.assertTrue(admission_findings)
+                self.assertEqual(fail_msgs, [])
+                self.assertEqual(lapse_msgs, admission_findings)
+
+    def test_gate_reports_one_lapse_per_lapsed_dive_over_the_real_tree(self):
         """A real subprocess run, date-independent (a far past date touches nothing), so
         this does not depend on today's ledger lines the way a same-day check would."""
+        expected = sum(1 for _, d in self._real_dives() if "admission_lapse" in d)
         result = subprocess.run(
             [sys.executable, str(ROOT / "tools" / "check_analyst.py"),
              "--date", "1999-01-01"],
             cwd=ROOT, capture_output=True, text=True, check=False)
-        self.assertIn("0 lapse(s) reported", result.stdout, result.stdout + result.stderr)
+        self.assertIn("%d lapse(s) reported" % expected, result.stdout,
+                      result.stdout + result.stderr)
 
 
 # ---------------------------------------------------------------------------
