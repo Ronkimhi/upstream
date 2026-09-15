@@ -1,7 +1,7 @@
 {
  "issuer_id": "SAMSUNG-ELECTRONICS",
  "ticker": "005930",
- "as_of": "2026-09-14",
+ "as_of": "2026-09-15",
  "generated_by": "sieve-profiler",
  "status": "PARTIAL",
  "items": [],
@@ -9,14 +9,23 @@
   {
    "query_or_url": "https://news.samsung.com/global/samsung-electronics-announces-second-quarter-2026-results",
    "result": "Fetch attempted and FAILED (read timed out after 45s); no stored text on disk. Samsung is a foreign private issuer with no US 8-K/10-Q equivalent in data/edgar/docs/; no market-file RPO/backlog field is populated in data/market/005930.json."
+  },
+  {
+   "query_or_url": "https://news.samsung.com/global/samsung-electronics-and-broadcom-expand-strategic-collaboration-across-memory-and-foundry-technologies (REQ-20260915-29, round 2)",
+   "result": "Fetch attempted and FAILED again (HTTPSConnectionPool(host='news.samsung.com', port=443): Read timed out, read timeout=45); no stored text on disk. The news.samsung.com host has now timed out on two separate URLs across two rounds; not re-queuing a third attempt against the same host."
   }
  ],
- "notes": "First fire, two-step contract: no usable stored evidence yet. A retry web_doc request (REQ-20260914-1388) is queued for the same Samsung newsroom Q2 2026 results release. Re-run `run pipeline 005930` after the fetch completes.",
+ "notes": "First fire, two-step contract: no usable stored evidence yet. A retry web_doc request (REQ-20260914-1388) is queued for the same Samsung newsroom Q2 2026 results release. Re-run `run pipeline 005930` after the fetch completes. Round 2: the queued alternate news.samsung.com URL (REQ-20260915-29) also timed out; the host itself appears unreachable to the fetcher across two rounds, so this run does not re-queue a third news.samsung.com URL. An alternate non-newsroom source (e.g. Samsung's own investor-relations PDF or a stored EDGAR/DART filing) would need to be identified for a future round.",
  "changelog": [
   {
    "ts": "2026-09-14T00:00:00Z",
    "by": "sieve-profiler",
    "change": "run pipeline: first fire, source fetch failed, retry queued (REQ-20260914-1388)"
+  },
+  {
+   "ts": "2026-09-15T01:00:00Z",
+   "by": "sieve-profiler",
+   "change": "run pipeline SAMSUNG-ELECTRONICS (sources, round 2): the queued news.samsung.com alternate URL (REQ-20260915-29) also timed out (read timeout=45). Status remains PARTIAL, 0 items."
   }
  ]
 }
