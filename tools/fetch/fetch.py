@@ -380,8 +380,15 @@ FACT_MAP = {
     "operating_cashflow": (["NetCashProvidedByUsedInOperatingActivities",
                             "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
                            "duration", "USD"),
+    # PaymentsForCapitalImprovements appended 2026-09-15: AJG (CIK 354190) tags neither
+    # of the two concepts above past FY2016 (a broker with leased offices, not owned
+    # plant) but carries this one continuously from FY2015 through FY2025, confirmed via
+    # data.sec.gov/api/xbrl/companyfacts/CIK0000354190.json. Listed last: it is only a
+    # capex proxy for a services filer with no PP&E purchase line, never preferred over
+    # the two above when either is fresher (pick() already orders by freshness/length).
     "capex": (["PaymentsToAcquirePropertyPlantAndEquipment",
-               "PaymentsToAcquireProductiveAssets"], "duration", "USD"),
+               "PaymentsToAcquireProductiveAssets",
+               "PaymentsForCapitalImprovements"], "duration", "USD"),
     "depreciation": (["DepreciationDepletionAndAmortization",
                       "DepreciationAmortizationAndAccretionNet",
                       "DepreciationAndAmortization", "Depreciation"], "duration", "USD"),
@@ -395,8 +402,12 @@ FACT_MAP = {
     "equity": (["StockholdersEquity",
                 "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
                "instant", "USD"),
+    # AccountsAndNotesReceivableNet appended 2026-09-15: NVT (CIK 1720635) carries none
+    # of the three concepts above at all but tags this one continuously FY2017-FY2025,
+    # confirmed via data.sec.gov/api/xbrl/companyfacts/CIK0001720635.json.
     "receivables": (["AccountsReceivableNetCurrent", "AccountsReceivableNet",
-                     "ReceivablesNetCurrent"], "instant", "USD"),
+                     "ReceivablesNetCurrent", "AccountsAndNotesReceivableNet"],
+                    "instant", "USD"),
     "inventory": (["InventoryNet",
                    "InventoryNetOfAllowancesCustomerAdvancesAndProgressBillings"],
                   "instant", "USD"),
@@ -620,10 +631,28 @@ def _fundamentals_sec(ticker, cik):
             # 2026-09-06: one 2025 row). Union the candidates by period, freshest concept
             # winning each period, so the change legs have something to change from;
             # the merge is declared on the block, never silent.
+            #
+            # Fixed 2026-09-15: `sorted(found_series)` sorted the WHOLE tuple, so two
+            # concepts tied on latest end (common — both routinely mirror the same
+            # period) broke the tie by comparing `rows` next, i.e. by VALUE, not by
+            # candidate preference. Whichever concept happened to have the larger dollar
+            # figure sorted later and silently overwrote the other in the merge, so a
+            # lower-preference concept could outrank a same-freshness higher-preference
+            # one for no reason connected to freshness at all (caught by
+            # test_fetch_concept_choice.py's tie test, which failed by reading the
+            # candidate LISTED LAST — the widened capex list's own new fallback concept —
+            # over the first-listed one on an exact freshness tie). Sorting on end alone
+            # is a stable sort, so `enumerate` before it preserves FACT_MAP's own
+            # preference order among ties; negating the index and processing lowest-
+            # preference first means the first-listed (highest-preference) candidate is
+            # written LAST for any period it shares with a lower one, so it wins ties
+            # exactly like the single-concept freshest/longest selection above already
+            # does.
             merged = {}
-            for _, rows, _n in sorted(found_series):  # oldest-ending concept first
+            ordered = sorted(enumerate(found_series), key=lambda ix: (ix[1][0], -ix[0]))
+            for _, (_, rows, _n) in ordered:  # oldest-ending, lowest-preference first
                 for end, val in rows:
-                    merged[end] = val  # a fresher concept overwrites the same period
+                    merged[end] = val  # a fresher OR higher-preference concept overwrites
             merged_concepts.setdefault(key, [_n for _, _, _n in sorted(found_series)])
             return sorted(merged.items())[-8:]
         return best
@@ -720,6 +749,22 @@ def _fundamentals_sec(ticker, cik):
             f["total_liabilities_fy"] = derived[-8:]
             found.append("total_liabilities")
             f.setdefault("derived", {})["total_liabilities_fy"] = "total_assets_fy - equity_fy"
+    # Same identity for gross profit: ETN (CIK 1551182) tags no GrossProfit concept at
+    # all in its companyfacts, and BDX (CIK 10795) stopped tagging it after FY2020, while
+    # both keep tagging revenue and cost_of_revenue every year since (confirmed via
+    # companyfacts 2026-09-15). gross_profit = revenue - cost_of_revenue is the standard
+    # definition, not an estimate, so it is computed per common period exactly like
+    # total_liabilities above rather than left NULL when both of its own inputs are on
+    # hand.
+    if ("gross_profit" not in found and f.get("revenue_fy")
+            and f.get("cost_of_revenue_fy")):
+        cor = dict(f["cost_of_revenue_fy"])
+        derived = [(end, val - cor[end]) for end, val in f["revenue_fy"]
+                   if end in cor and val is not None and cor[end] is not None]
+        if len(derived) >= 2:
+            f["gross_profit_fy"] = derived[-8:]
+            found.append("gross_profit")
+            f.setdefault("derived", {})["gross_profit_fy"] = "revenue_fy - cost_of_revenue_fy"
     if merged_concepts:
         f["merged_concepts"] = merged_concepts
     missing_keys = [k for k in attempted if k not in found]
