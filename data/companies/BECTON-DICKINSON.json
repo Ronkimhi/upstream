@@ -8,8 +8,8 @@
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:BDX carries a real SEC CIK (10795); data/market/BDX.json has a fetched SEC XBRL companyfacts fundamentals block and a scored quality block.",
-  "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch. Revisit if run selection promotes this issuer.",
+  "opportunity_tier": "O1",
+  "opportunity_tier_basis": "Promoted by run selection CAMP-20260901-01 on 2026-09-15 under Ron's dated exception (\"Yes, dive NVT and BDX\", CAMP-20260901-01 targets.o1_per_theme_exceptions, theme glp1-fill-finish raised to 4 for issuer_id BECTON-DICKINSON). All 12 canonical fields are sourced numbers (zero NULL as of the 2026-09-15 refetch), revenue.latest_fy is VERIFIED and cash_conversion.operating_cash_flow_to_net_income is INFERRED with official_source true, clearing the O1 official-source cross-check. This is the fourth O1 in glp1-fill-finish, one above the normal 1-3 DEPTH cap, admissible only because the named exception names this exact issuer in this exact theme. See selection_basis for the full 7-dimension case.",
   "listing_refs": [
     "NYSE-BDX"
   ],
@@ -201,9 +201,9 @@
     "No chain- or link-specific revenue percentage is disclosed or sourced for BECTON-DICKINSON; only company-wide figures are available."
   ],
   "disposition": {
-    "state": "RETAIN",
-    "as_of": "2026-09-04",
-    "basis": "Complete medium profile on glp1-fill-finish/autoinjector-and-pen-platforms. Retained rather than advanced because selection is a separate command (run selection) not run here; this batch only profiles."
+    "state": "ADVANCE",
+    "as_of": "2026-09-15",
+    "basis": "run selection CAMP-20260901-01 promoted BDX to O1 on 2026-09-15 under Ron's dated per-theme exception. Complete medium profile on glp1-fill-finish/autoinjector-and-pen-platforms (money corner, UNDISCOVERED), fully computed T1 metric set, zero NULL canonical fields. The link's own crowdedness rationale honestly notes BD's pen platform is a minority line of a diversified Medical segment rather than a pure play like Ypsomed; that caveat is carried forward in selection_basis.duplicate_exposure rather than smoothed over."
   },
   "confidence_audit": {
     "VERIFIED": 1,
@@ -247,31 +247,175 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. BDX now clears the O1 data-completeness bar in full (no NULL canonical fields; both cash_conversion fields and both reverse_dcf fields resolved this refresh). Held O2 anyway: theme glp1-fill-finish already holds three FINAL O1 issuers, the DEPTH cap this run; promoting a fourth is a quota decision, not a data one. selection_review and selection_note rewritten to reflect the cleared bar."
+    },
+    {
+      "ts": "2026-09-15T14:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01, scoped batch (NVT, BDX, AON, WTW, AJG): promoted to O1 under Ron's 2026-09-15 decision (\"Yes, dive NVT and BDX\"), landed the same day as data/campaigns/CAMP-20260901-01.json targets.o1_per_theme_exceptions (theme glp1-fill-finish raised from 3 to 4, issuer_id BECTON-DICKINSON named exactly). The quota-cap block this profile's prior NOTE described is the block the exception exists to lift; no new data was needed, the bar was already cleared. Direct exposure, capture, heat, quality, expectations_gap, evidence_confidence and duplicate_exposure all written under selection_basis with an exact screen_handoff into data/screens/glp1-fill-finish.json (bucket picks_and_shovels, issuer_id BECTON-DICKINSON, listing_id NYSE-BDX, link_id autoinjector-and-pen-platforms). disposition set to ADVANCE; stale QUOTA_CAP selection_review and selection_note removed as superseded."
     }
   ],
   "selection_review": {
     "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 scoped batch: NVT, BDX, AON, WTW, AJG)",
     "reviewed_by": "sieve-profiler",
-    "outcome": "HELD_O2",
+    "outcome": "PROMOTED_O1",
     "null_canonical_fields": [],
     "examined_links": [
       {
         "theme_id": "glp1-fill-finish",
         "chain_id": "glp1-fill-finish",
         "link_id": "autoinjector-and-pen-platforms",
-        "state": "QUOTA_CAP",
-        "reason": "Every canonical metric field is present and sourced (revenue.latest_fy VERIFIED; cash_conversion carries the official-source cross-check); this profile clears the O1 data-completeness bar in full.",
-        "detail": "No NULL canonical fields remain after the 2026-09-15 refresh (both cash_conversion fields and both reverse_dcf fields resolved this run). It stays O2 only because the theme already holds three O1 issuers (HALOZYME-THERAPEUTICS, STERIS, WEST-PHARMACEUTICAL-SERVICES), each with a FINAL verdict, the DEPTH cap for this run; promoting a fourth needs an explicit quota decision, not a data fix."
+        "state": "PROMOTED",
+        "reason": "Every canonical metric field is present and sourced; the only barrier was the theme's normal 1-3 O1 cap, which Ron's dated exception (targets.o1_per_theme_exceptions, glp1-fill-finish/BECTON-DICKINSON, cap raised to 4) lifts for this exact issuer in this exact theme.",
+        "detail": "No NULL canonical fields; the theme now holds four O1 issuers (HALOZYME-THERAPEUTICS, STERIS, WEST-PHARMACEUTICAL-SERVICES, BECTON-DICKINSON), one above the normal DEPTH cap, exactly matching the campaign manifest's named exception row."
       }
     ]
   },
-  "selection_note": {
-    "lang": "he",
-    "why_not_now": "הפרופיל של BDX בקישור פלטפורמות מזרק עט אוטומטיות בשרשרת מילוי וגימור תרופות ההרזיה מסוג אגוניסט GLP עבר רענון מלא וכל שדות החובה שלו כעת מלאים במספרים ממקור רשמי, כולל יחס תזרים המזומנים התפעולי לרווח הנקי, שולי תזרים המזומנים החופשי, קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. הסיבה שהוא עדיין ברמת מחקר שתיים היא לא נתונים חסרים אלא תקרת התימה: התימה הזאת כבר מחזיקה שלוש חברות ברמה אחת עם פסק דין סופי לכל אחת, התקרה המרבית בסבב הנוכחי.",
-    "what_would_promote": "קידום BDX לרמה אחת לא דורש עוד השלמת נתונים בפרופיל עצמו. הוא ידרוש החלטה מפורשת להרחיב את תקרת החברות ברמה אחת בתימה הזאת או להחליף אחת מהחברות הקיימות שכבר קיבלו פסק דין סופי, החלטה שמעבר לסמכות הרגילה של בדיקת פרופיל בודד.",
+  "selection_basis": {
     "as_of": "2026-09-15",
-    "by": "sieve-profiler"
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "selected_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (scoped: NVT, BDX, AON, WTW, AJG)",
+    "direct_exposure": {
+      "state": "DISCLOSED_ROLE_UNDISCLOSED_PCT",
+      "placement": {
+        "chain_id": "glp1-fill-finish",
+        "link_id": "autoinjector-and-pen-platforms",
+        "link_position": 11,
+        "placement_status": "ACTIVE",
+        "money_corner": true,
+        "mapping_ref": "data/mappings/glp1-fill-finish.json"
+      },
+      "basis": "One ACTIVE placement on autoinjector-and-pen-platforms, the chain's money corner (position 11). The placement carries a current PASS fresh-context placement audit (data/mappings/glp1-fill-finish.json placement_audits[], issuer_id BECTON-DICKINSON, audited_at 2026-09-04T18:57:30Z), the admission path this row uses; this mapping has never reached a full census-level audit (status ACTIVE, no top-level audit block yet), so the placement audit is the only identity evidence, not a fallback from a failed census. Role evidence, per the screen row's own thesis: BD's Vystra injection pen platform is licensed directly into GLP-1 self-injection, most recently for a semaglutide launch in Brazil, VERIFIED at the placement-audit level against a live re-fetch of investors.bd.com. This profile's own placements[].role_evidence array is empty; the sourcing lives in the mapping's placement_audits entry, not duplicated here.",
+      "disclosed_theme_revenue_pct": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "BD does not disclose a GLP-1- or autoinjector-specific revenue percentage; Vystra sits inside its diversified Medical segment alongside syringes, catheters and other devices unrelated to this chain."
+      },
+      "source_refs": [
+        "data/mappings/glp1-fill-finish.json",
+        "data/chains/glp1-fill-finish.json",
+        "data/screens/glp1-fill-finish.json"
+      ]
+    },
+    "capture": {
+      "state": "PLATFORM_ECONOMICS_MINORITY_LINE",
+      "link_capture_score": 72,
+      "link_investability": "PURE_PLAYS_EXIST",
+      "operating_margin_fy2025": 0.11808608058608058,
+      "basis": "The chain scores autoinjector-and-pen-platforms capture at 72 ('platform economics with the margin disclosed... switching cost: a pen platform is registered as part of the combination product'), driven by Ypsomed's disclosed 33-35 percent EBIT-margin guide for its Delivery Systems segment. BD's own consolidated operating margin of 11.81 percent is far below that figure, but BD does not break out Vystra or any device-platform segment separately: the link's own crowdedness rationale states plainly that 'for Becton Dickinson, Gerresheimer and Stevanato the device platform is a minority line' of a much larger, lower-margin diversified medtech business, unlike Ypsomed's near-pure-play segment economics. BD's capture on this specific link cannot be measured from consolidated fundamentals.",
+      "what_would_change_it": "A segment-level margin or revenue figure for the Vystra pen platform specifically would let this dimension separate device-platform capture from BD's much larger syringes/catheters/diagnostics business. Nothing on disk does this today.",
+      "source_refs": [
+        "data/chains/glp1-fill-finish.json",
+        "data/market/BDX.json"
+      ]
+    },
+    "heat": {
+      "link_verdict": "UNDISCOVERED",
+      "heat_as_of": "2026-08-30",
+      "scores": {
+        "impact": 78,
+        "crowdedness": 38,
+        "capture": 72
+      },
+      "money_corner": true,
+      "bottleneck_criticality": "HIGH",
+      "basis": "Ember scores autoinjector-and-pen-platforms UNDISCOVERED: impact 78 (Ypsomed's Delivery Systems segment grew 20 percent while the parent company's group revenue fell; roughly $400 million disclosed industry-wide device-capacity investment), crowdedness 38 ('the one link where a low crowdedness score survives the listing-artifact test... BD is a minority line, Ypsomed is the pure play'), capture 72. The chain's own crowdedness rationale names BD explicitly as one of the names whose marginal exposure to the pen platform is not bought through its stock, the honest counterweight to this promotion.",
+      "source_refs": [
+        "data/chains/glp1-fill-finish.json",
+        "data/screens/glp1-fill-finish.json"
+      ]
+    },
+    "quality": {
+      "state": "COMPLETE_MEASURED_SET",
+      "piotroski": {
+        "value": 8,
+        "state": "STRONG",
+        "inputs": "9/9 present"
+      },
+      "beneish": {
+        "value": -2.732,
+        "state": "CLEAN",
+        "inputs": "12/12 present"
+      },
+      "net_debt_to_ebitda": 2.5397738543939696,
+      "fcf_margin": 0.122253,
+      "operating_cash_flow_to_net_income": 2.0441,
+      "basis": "Every canonical metric field on this profile resolves to a sourced number, no exception of any kind needed. Piotroski 8 (STRONG) is the strongest quality read of the five names in this batch, and Beneish -2.732 (CLEAN) computes from complete inputs (9/9, 12/12). Operating cash flow to net income of 2.04x is unusually high, reflecting depreciation and amortization from BD's large device-manufacturing asset base flowing through cash flow well above reported net income; FCF margin of 12.23 percent and net debt to EBITDA of 2.54x are both moderate.",
+      "counterweight": "2.54x net debt to EBITDA is real leverage on a diversified industrial medtech balance sheet, and the 2.04x cash-conversion ratio, while STRONG by Piotroski, is unusually wide and worth Stocky checking against one-off working-capital or divestiture effects rather than assumed as a clean run-rate.",
+      "source_refs": [
+        "data/market/BDX.json"
+      ]
+    },
+    "expectations_gap": {
+      "state": "MARKET_IMPLIES_MORE_THAN_ACHIEVED",
+      "market_implied_fcf_cagr_5y": 0.177,
+      "implied_by_horizon": {
+        "5": 0.177,
+        "7": 0.1368,
+        "10": 0.1078
+      },
+      "horizon_spread": 0.0692,
+      "achieved_revenue_cagr_3y": 0.04992975699544888,
+      "basis": "The reverse DCF in data/market/BDX.json quality.reverse_dcf solves a 17.70 percent five-year implied FCF CAGR against an achieved three-year revenue CAGR of only 4.99 percent, a raw gap of 12.71 percentage points, well above the 6.92-point horizon spread, so this clears method section 7's claimable-gap bar comfortably. BD's own consolidated growth is modest; the market-implied bar assumes a materially faster expansion, consistent with a thesis that the GLP-1 device-platform exposure (not yet separately disclosed) is expected to lift the growth rate, not with BD's recent reported trend on its own.",
+      "horizon_caveat": "The horizon spread is 6.92 percentage points; any gap claim below that on this name is a horizon-convention artifact. The 12.71-point raw gap here clears that bar with room.",
+      "assumption_caveat": "The discount rate and terminal growth in the reverse DCF are assumed, so both reverse_dcf fields are tagged SPECULATIVE; this dimension records the measured state only, the deep-dive stage adjudicates whether the GLP-1 device thesis justifies the implied bar.",
+      "source_refs": [
+        "data/market/BDX.json"
+      ]
+    },
+    "evidence_confidence": {
+      "canonical_fields_written": 12,
+      "confidence_audit": {
+        "verified": 1,
+        "inferred": 9,
+        "speculative": 2,
+        "null": 0
+      },
+      "identity_chain": {
+        "mapping_status": "ACTIVE",
+        "mapping_census_audit_status": "NOT_YET_AUDITED",
+        "placement_audit_status": "PASS",
+        "placement_audited_at": "2026-09-04T18:57:30Z",
+        "listing_id": "NYSE-BDX",
+        "cik": 10795,
+        "screen_identity_schema": "campaign-v1",
+        "screen_audit_scope": "PLACEMENT"
+      },
+      "filing_evidence": "The screen row (data/screens/glp1-fill-finish.json) carries the full placement-audit provenance directly in its thesis_1line: VERIFIED at the fresh-context placement-audit level, live re-fetch of investors.bd.com confirming the Vystra pen / semaglutide self-injection role. This profile's own placements[].role_evidence array is empty, which is a genuine gap in this file specifically (the sourcing exists in the mapping and the screen, not duplicated onto the profile), worth closing on a future refresh rather than hidden.",
+      "known_weaknesses": [
+        "This profile's placements[].role_evidence array is empty; the actual role citation lives in the mapping's placement_audits entry and the screen row, not on this file. Stocky should pull the citation from data/mappings/glp1-fill-finish.json directly rather than expect it here.",
+        "No GLP-1- or device-platform-specific revenue share is disclosed anywhere on disk; the exposure and capture arguments both rest on a qualitative role plus a link-level (not issuer-level) margin comparison, and the chain's own crowdedness rationale explicitly flags BD as a minority-line holder of this link, not the pure play.",
+        "PCS attention data is unavailable for this listing (data/market/BDX.json carries no pcs block).",
+        "The glp1-fill-finish mapping has not yet reached a full census-level audit (status ACTIVE, no top-level audit block); admission rests entirely on the one placement-level PASS audit, with no broader census cross-check available yet."
+      ],
+      "basis": "Identity resolves end to end without a ticker fallback: issuer BECTON-DICKINSON, listing NYSE-BDX, one ACTIVE placement carrying a current PASS placement audit, and one campaign-v1 screen row (data/screens/glp1-fill-finish.json, bucket picks_and_shovels) carrying the same identity fields under audit_scope PLACEMENT. Confidence is highest on identity and the sourced FY2025 fundamentals; lowest on the role-evidence citation gap on this profile itself and on the undisclosed device-platform revenue share.",
+      "source_refs": [
+        "data/mappings/glp1-fill-finish.json",
+        "data/screens/glp1-fill-finish.json",
+        "data/market/BDX.json"
+      ]
+    },
+    "duplicate_exposure": {
+      "state": "SAME_LINK_MINORITY_LINE_VS_PURE_PLAY",
+      "placements_held": 1,
+      "listings_held": 1,
+      "secondary_links_on_screen_row": 0,
+      "basis": "BECTON-DICKINSON holds one ACTIVE placement on autoinjector-and-pen-platforms, the same link_id as HALOZYME-THERAPEUTICS and WEST-PHARMACEUTICAL-SERVICES, both already O1 (WEST-PHARMACEUTICAL-SERVICES also holds a second placement on elastomer-closure-components). This is the fourth O1 name on this link's theme overall and the third on this specific link, admissible only because Ron's exception names BECTON-DICKINSON exactly. The chain's own crowdedness rationale draws the honest distinction this dimension carries forward: Ypsomed (not covered, private-adjacent) is the pure play; BD, like Gerresheimer and Stevanato, holds the device platform as a minority line of a much larger diversified business. BD is a genuine but partial economic overlap with the other two O1 names on this link, not a duplicate claim on the same revenue pool, and not the same magnitude of exposure either.",
+      "watchlist": "STERIS holds its own O1 placement on aseptic-filling-and-isolator-equipment, a different link in the same theme, so no additional overlap there. No further O1 promotion is available on autoinjector-and-pen-platforms this round: the exception names BECTON-DICKINSON specifically and does not open a fifth theme slot.",
+      "source_refs": [
+        "data/mappings/glp1-fill-finish.json",
+        "data/chains/glp1-fill-finish.json",
+        "data/companies/WEST-PHARMACEUTICAL-SERVICES.json"
+      ]
+    },
+    "screen_handoff": {
+      "screen_ref": "data/screens/glp1-fill-finish.json",
+      "chain_id": "glp1-fill-finish",
+      "link_id": "autoinjector-and-pen-platforms",
+      "listing_id": "NYSE-BDX"
+    }
   }
 }

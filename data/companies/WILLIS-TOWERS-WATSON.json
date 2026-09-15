@@ -8,8 +8,8 @@
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:WTW carries a real SEC CIK (1140536). data/market/WTW.json is on disk (fetched_at 2026-09-15) with a sec-companyfacts fundamentals block; capex_fy and depreciation_fy, previously stale since 2015 and 2012 respectively, were resolved through FY2025 by the 2026-09-15 refetch. cost_of_revenue_fy and sga_fy remain untagged entirely (fundamentals.coverage.missing), a genuine companyfacts concept gap for this insurance broker.",
-  "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command. The 2026-09-15 refetch (run profile WTW) resolved cash_conversion.fcf_margin and leverage.net_debt_to_ebitda, previously NULL; quality.piotroski and quality.beneish_state remain genuinely NULL (no cost_of_revenue_fy or sga_fy concept tagged for this issuer). Revisit if run selection promotes this issuer.",
+  "opportunity_tier": "O1",
+  "opportunity_tier_basis": "Promoted by run selection CAMP-20260901-01 on 2026-09-15. The 2026-09-15 refetch (run profile WTW) resolved cash_conversion.fcf_margin and leverage.net_debt_to_ebitda, previously NULL. quality.piotroski and quality.beneish_state are now state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"): data/market/WTW.json's own quality blocks are PENDING_DATA on nothing but cost_of_revenue_fy/sga_fy, a companyfacts concept insurance brokers never file. Revenue.latest_fy (VERIFIED) and cash_conversion.operating_cash_flow_to_net_income (INFERRED, official_source true) both clear the O1 official-source cross-check. See selection_basis for the full 7-dimension case; the known-weakness on the placement's own role-evidence citation, flagged by the mapping's 2026-09-14 census audit, is carried forward there rather than hidden.",
   "listing_refs": [
     "NASDAQ-WTW"
   ],
@@ -133,12 +133,14 @@
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score still not computed as of the 2026-09-15 refetch: data/market/WTW.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); companyfacts does not tag this filer's cost of revenue (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory)."
+        "state": "NOT_APPLICABLE",
+        "basis": "piotroski F-score still not computed as of the 2026-09-15 refetch: data/market/WTW.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); companyfacts does not tag this filer's cost of revenue (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory), the same insurance-broker concept gap as the industry's other named filers. Marked NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"): WTW is on the named allowlist, the market file's PENDING_DATA rests on nothing but the structurally-absent cost_of_revenue_fy input, and this is not a late fetch."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish M-score still not computed as of the 2026-09-15 refetch: data/market/WTW.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); companyfacts does not tag either line for this filer."
+        "state": "NOT_APPLICABLE",
+        "basis": "beneish M-score still not computed as of the 2026-09-15 refetch: data/market/WTW.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); companyfacts does not tag either line for this filer, the same insurance-broker concept gap. Marked NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"): WTW is on the named allowlist, the market file's PENDING_DATA rests on nothing but the structurally-absent cost_of_revenue_fy and sga_fy inputs, and this is not a late fetch."
       }
     },
     "valuation": {
@@ -199,6 +201,13 @@
       "source_date": "2026-09-04",
       "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
       "tag": "INFERRED"
+    },
+    {
+      "claim": "data/mappings/hormuz-maritime.json's own 2026-09-14 census audit re-opened the WTW/specialty-marine-broking role-evidence citation: the live insurancebusinessmag.com article reads 'James Reason, a broker at WTW, said the rate trajectory was positive but conditional', while the mapping's stored excerpt restructures it to 'James Reason, broker, WTW: ...', not a verbatim quote, and the audit separately flags that the placement's organization-level claim ('WTW brokers publicly price the Hormuz war-risk market') still rests on one individual's quote. This finding sits alongside, not instead of, the 2026-09-06 placement-audit PASS this profile's O1 admission uses; it is carried here rather than smoothed over.",
+      "source_name": "data/mappings/hormuz-maritime.json audit.amendments_required, 2026-09-14 census audit",
+      "source_date": "2026-09-14",
+      "url": "https://www.insurancebusinessmag.com/us/news/marine/strait-of-hormuz-crisis-why-the-biggest-opportunity-in-marine-war-insurance-lies-ahead-580434.aspx",
+      "tag": "INFERRED"
     }
   ],
   "data_gaps": [
@@ -207,9 +216,9 @@
     "No specialty-marine-broking-specific revenue percentage is sourced for WTW this run."
   ],
   "disposition": {
-    "state": "RETAIN",
+    "state": "ADVANCE",
     "as_of": "2026-09-15",
-    "basis": "Refreshed against the 2026-09-15 data/market/WTW.json refetch. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields now carry a sourced number, the remaining 2 honest NULL on companyfacts' missing cost_of_revenue_fy/sga_fy concepts for this filer. COMPLETE and O2 per method section 6A."
+    "basis": "run selection CAMP-20260901-01 promoted WTW to O1 on 2026-09-15: 10 of 12 canonical fields carry a sourced number and the remaining two (quality.piotroski, quality.beneish_state) are state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception, a structural companyfacts gap for insurance brokers, not an unresearched field. COMPLETE, O1, per method section 6A. The role-evidence citation weakness the 2026-09-14 census audit raised is recorded in risks and selection_basis.evidence_confidence rather than treated as blocking, since the exact placement admission path (2026-09-06 placement-audit PASS) is unaffected."
   },
   "confidence_audit": {
     "VERIFIED": 1,
@@ -217,7 +226,7 @@
     "SPECULATIVE": 2,
     "NULL": 2,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. SPECULATIVE covers the two reverse-DCF fields, whose discount rate and terminal growth are assumed. NULL covers the 2 fields blocked by companyfacts' missing cost_of_revenue_fy and sga_fy concepts for this filer, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. SPECULATIVE covers the two reverse-DCF fields, whose discount rate and terminal growth are assumed. NULL is quality.piotroski and quality.beneish_state, blocked by companyfacts' missing cost_of_revenue_fy and sga_fy concepts for this filer, never estimated; both are also state NOT_APPLICABLE under the 2026-09-15 broker quality exception, which is why they do not block this O1 promotion despite the NULL tag."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -265,15 +274,28 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. Held O2. NULL canonical fields narrowed to quality.piotroski, quality.beneish_state (fcf_margin and leverage resolved this refresh); the quality gap is structural, no cost_of_revenue concept in companyfacts for this filer. Theme hormuz-maritime has room under its DEPTH O1 cap (one of three). selection_review and selection_note updated to match current metrics."
+    },
+    {
+      "ts": "2026-09-15T14:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile WTW: applied Ron's 2026-09-15 broker quality NULL exception (\"Yes, for brokers only\"). quality.piotroski and quality.beneish_state each gained state: NOT_APPLICABLE; value, tag and the existing NULL basis prose are unchanged, only the exemption sentence and state key were added. Confirmed against the fetched data/market/WTW.json quality block directly: piotroski PENDING_DATA missing only cost_of_revenue_fy, beneish PENDING_DATA missing only cost_of_revenue_fy and sga_fy, both a subset of BROKER_QUALITY_MISSING_INPUTS. No other field touched."
+    },
+    {
+      "ts": "2026-09-15T14:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01, scoped batch (NVT, BDX, AON, WTW, AJG): promoted to O1. With the broker exception applied, WTW now carries zero canonical fields that block O1 (10 sourced, 2 NOT_APPLICABLE). Direct exposure, capture, heat, quality, expectations_gap, evidence_confidence and duplicate_exposure all written under selection_basis with an exact screen_handoff into data/screens/hormuz-maritime.json (bucket picks_and_shovels, issuer_id WILLIS-TOWERS-WATSON, listing_id NASDAQ-WTW, link_id specialty-marine-broking). The mapping's 2026-09-14 census audit separately re-opened this placement's own role-evidence citation as not verbatim; that finding does not change the placement's current PASS placement-audit (2026-09-06), which is the admission path this row uses, and is recorded as a known weakness in evidence_confidence and as a risks entry rather than hidden. hormuz-maritime's O1 count moves toward the normal 1-3 DEPTH cap alongside AON, no exception row needed. disposition set to ADVANCE; stale HELD_O2 selection_review and selection_note removed as superseded."
     }
   ],
   "selection_review": {
     "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 scoped batch: NVT, BDX, AON, WTW, AJG)",
     "reviewed_by": "sieve-profiler",
-    "outcome": "HELD_O2",
-    "null_canonical_fields": [
+    "outcome": "PROMOTED_O1",
+    "null_canonical_fields": [],
+    "not_applicable_canonical_fields": [
       "quality.piotroski",
       "quality.beneish_state"
     ],
@@ -282,17 +304,151 @@
         "theme_id": "hormuz-maritime",
         "chain_id": "hormuz-maritime",
         "link_id": "specialty-marine-broking",
-        "state": "DATA_COMPLETENESS",
-        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: quality.piotroski, quality.beneish_state (cash_conversion.fcf_margin and leverage.net_debt_to_ebitda resolved by the 2026-09-15 refresh). The remaining gap is structural: companyfacts carries no cost_of_revenue concept for this filer, the input both quality scores need; T1 filers cannot substitute the T2/T3 official_source_equivalent path."
+        "state": "PROMOTED",
+        "reason": "Every canonical metric field is either a sourced number or, for quality.piotroski/quality.beneish_state, state NOT_APPLICABLE under the 2026-09-15 broker quality exception. Full selection_basis written below.",
+        "detail": "No NULL canonical field remains that is not covered by the named exception; cash_conversion.fcf_margin and leverage.net_debt_to_ebitda resolved by the 2026-09-15 refresh and revenue/cash-conversion both clear the O1 official-source cross-check."
       }
     ]
   },
-  "selection_note": {
-    "lang": "he",
-    "why_not_now": "הפרופיל של WTW בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה, אבל אחרי הרענון האחרון שולי תזרים המזומנים החופשי ויחס החוב נטו כבר מלאים. השדה היחיד שנשאר ריק ברמה אחת הוא קבוצת האיכות, ציון פיוטרוסקי ומדד בנייש, מאותה סיבה מבנית כמו אצל ברוקרי ביטוח אחרים בתימה: הדוחות הרשמיים לא כוללים שורת עלות הכנסות, קלט שהחישוב של שני המדדים חייב. השדה מסומן במפורש כריק עם הסבר למה אין לו ערך במקור הנתונים הקיים, ולא הומצא עבורו מספר.",
-    "what_would_promote": "קידום WTW לרמה אחת ידרוש דרך עוקפת לחישוב איכות הדוחות שלא נשענת על עלות ההכנסות, עבודה שמחוץ לתחום הסמכות של בדיקת פרופיל בודד ודורשת החלטה נפרדת על השיטה. בתימה הזאת עדיין יש מקום מתחת לתקרה, כך שפתרון השדה החסר עשוי להספיק לבדו.",
+  "selection_basis": {
     "as_of": "2026-09-15",
-    "by": "sieve-profiler"
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "selected_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (scoped: NVT, BDX, AON, WTW, AJG)",
+    "direct_exposure": {
+      "state": "DISCLOSED_ROLE_UNDISCLOSED_PCT",
+      "placement": {
+        "chain_id": "hormuz-maritime",
+        "link_id": "specialty-marine-broking",
+        "link_position": 4,
+        "placement_status": "ACTIVE",
+        "money_corner": true,
+        "mapping_ref": "data/mappings/hormuz-maritime.json"
+      },
+      "basis": "One ACTIVE placement on specialty-marine-broking, the chain's money corner (position 4). The placement carries a current PASS fresh-context placement audit (data/mappings/hormuz-maritime.json placement_audits[], issuer_id WILLIS-TOWERS-WATSON, audited_at 2026-09-06T15:39:32Z), which is the admission path this row uses: the mapping's own census-level audit (audited_at 2026-09-14, status FAIL) is blocked on 12 OPEN links and separately re-opens this exact citation as not fully verbatim (see risks and evidence_confidence.known_weaknesses), which is recorded, not hidden. Role evidence is a WTW broker quoted publicly on the Gulf war-risk rate trajectory (Insurance Business America, 2026-06-26).",
+      "disclosed_theme_revenue_pct": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "No specialty-marine-broking-specific revenue percentage is disclosed anywhere on disk for WTW; marine broking is one line of business within WTW's broader Risk & Broking segment, and the exposure argument rests on the disclosed role rather than a measured segment share."
+      },
+      "source_refs": [
+        "data/mappings/hormuz-maritime.json",
+        "data/chains/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json"
+      ]
+    },
+    "capture": {
+      "state": "COMMISSION_ON_PREMIUM_OLIGOPOLY_LINE_NOT_SIZED",
+      "link_capture_score": 62,
+      "link_investability": "PURE_PLAYS_EXIST",
+      "operating_margin_fy2025": 0.234763,
+      "basis": "The chain scores specialty-marine-broking capture at 62, held at the middle anchor because placement is competitively bid among the same few names. WTW's own FY2025 operating margin of 23.48 percent (companyfacts, official_source true) sits just under AON's 25.28 percent and supports real firm-level commission economics, though the specific Gulf war-risk line is not separately disclosed anywhere on disk.",
+      "what_would_change_it": "A disclosed marine war-risk commission dollar figure, or evidence the broking fee itself (not just the underlying premium) is being repriced, would sharpen this from a firm-level margin proxy to a link-specific measurement. Neither exists on disk today.",
+      "source_refs": [
+        "data/chains/hormuz-maritime.json",
+        "data/market/WTW.json"
+      ]
+    },
+    "heat": {
+      "link_verdict": "UNDISCOVERED",
+      "heat_as_of": "2026-08-30",
+      "scores": {
+        "impact": 62,
+        "crowdedness": 30,
+        "capture": 62
+      },
+      "money_corner": true,
+      "bottleneck_criticality": "MEDIUM",
+      "basis": "Ember scores specialty-marine-broking UNDISCOVERED: impact 62, crowdedness 30 ('the brokers appear all over this occurrence as quoted market commentators and nowhere as the trade'), capture 62. MEDIUM bottleneck because placement is competitively bid and the Gulf marine book is a small slice of diversified broking revenue.",
+      "source_refs": [
+        "data/chains/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json"
+      ]
+    },
+    "quality": {
+      "state": "COMPLETE_UNDER_BROKER_EXCEPTION",
+      "piotroski": {
+        "value": null,
+        "state": "NOT_APPLICABLE"
+      },
+      "beneish": {
+        "value": null,
+        "state": "NOT_APPLICABLE"
+      },
+      "net_debt_to_ebitda": 1.688618,
+      "fcf_margin": 0.162463,
+      "operating_cash_flow_to_net_income": 1.105919,
+      "basis": "Ten of twelve canonical fields carry a sourced number; quality.piotroski and quality.beneish_state are state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (method section 6A): data/market/WTW.json's own quality blocks are PENDING_DATA on nothing but cost_of_revenue_fy (piotroski) and cost_of_revenue_fy plus sga_fy (beneish). Net debt to EBITDA of 1.69x is the lowest leverage of the three brokers in this batch; operating cash flow to net income of 1.11x and FCF margin of 16.25 percent are both healthy.",
+      "counterweight": "The quality NOT_APPLICABLE exception substitutes structural companyfacts absence for a computed score; it is not equivalent to a strong measured Piotroski/Beneish read, and Stocky's earnings-quality veto must apply the same broker basis wording, not silently pass a blank field.",
+      "source_refs": [
+        "data/market/WTW.json"
+      ]
+    },
+    "expectations_gap": {
+      "state": "GAP_WITHIN_HORIZON_SPREAD_NOT_CLAIMABLE",
+      "market_implied_fcf_cagr_5y": 0.1195,
+      "implied_by_horizon": {
+        "5": 0.1195,
+        "7": 0.0952,
+        "10": 0.0775
+      },
+      "horizon_spread": 0.042,
+      "achieved_revenue_cagr_3y": 0.029311,
+      "basis": "The reverse DCF in data/market/WTW.json quality.reverse_dcf solves an 11.95 percent five-year implied FCF CAGR against an achieved three-year revenue CAGR of only 2.93 percent, a raw gap of 9.02 percentage points, which does exceed the 4.2-point horizon spread (11.95 percent at five years to 7.75 percent at ten) and is therefore a claimable gap under method section 7, unlike AON's. Recorded plainly: WTW's market-implied growth bar sits well above its recent achieved revenue growth. Whether that gap is closed by the marine war-risk repricing outrunning the mature legacy broking base, or is a genuine expectations problem, is Stocky's question; this dimension states the measured gap and does not adjudicate it.",
+      "horizon_caveat": "The horizon spread is 4.2 percentage points; any gap claim below that on this name is a horizon-convention artifact, not a price statement, per method section 7. The 9.02-point raw gap here clears that bar.",
+      "assumption_caveat": "The discount rate and terminal growth in the reverse DCF are assumed, so both reverse_dcf fields are tagged SPECULATIVE; this dimension records the measured state only, the deep-dive stage adjudicates whether price is wrong.",
+      "source_refs": [
+        "data/market/WTW.json"
+      ]
+    },
+    "evidence_confidence": {
+      "canonical_fields_written": 12,
+      "confidence_audit": {
+        "verified": 1,
+        "inferred": 7,
+        "speculative": 2,
+        "null": 2
+      },
+      "identity_chain": {
+        "mapping_status": "ACTIVE",
+        "mapping_census_audit_status": "FAIL",
+        "placement_audit_status": "PASS",
+        "placement_audited_at": "2026-09-06T15:39:32Z",
+        "listing_id": "NASDAQ-WTW",
+        "cik": 1140536,
+        "screen_identity_schema": "campaign-v1",
+        "screen_audit_scope": "PLACEMENT"
+      },
+      "filing_evidence": "The mapping's 2026-09-14 census audit directly names this placement's own role-evidence citation as a new finding: the live insurancebusinessmag.com article reads 'a broker at WTW, said' where the mapping's stored excerpt reads 'broker, WTW:', not a verbatim quote, and flags that the organization-level role claim still rests on one individual's statement. Admission here rests on the earlier, still-current 2026-09-06 placement-level PASS audit, which check_screen.py and check_analyst.py both key off directly; the census-level finding is carried as a known weakness, not silently dropped.",
+      "known_weaknesses": [
+        "The mapping's 2026-09-14 census audit found the role-evidence excerpt for this exact placement not verbatim against the live source, and separately notes the organization-level claim rests on one quoted individual. This is the single largest evidence-quality flag on any of the five names in this selection batch and should be the first thing Stocky re-verifies against a freshly fetched source before treating the role as settled.",
+          "The Gulf-marine-specific revenue share is undisclosed anywhere on disk; the exposure and capture arguments both rest on a firm-level margin and a quoted role, not a measured segment figure.",
+        "PCS attention data is unavailable for this T1 listing (data/market/WTW.json pcs is null), so crowdedness at the issuer level rests entirely on the chain's link-level score."
+      ],
+      "basis": "Identity resolves end to end without a ticker fallback: issuer WILLIS-TOWERS-WATSON, listing NASDAQ-WTW, one ACTIVE placement carrying a current PASS placement audit, and one campaign-v1 screen row (data/screens/hormuz-maritime.json, bucket picks_and_shovels) carrying the same identity fields under audit_scope PLACEMENT. Confidence is highest on identity and the sourced FY2025 fundamentals; lowest on the role-evidence citation the census audit just re-opened and on the undisclosed Gulf-specific revenue share.",
+      "source_refs": [
+        "data/mappings/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json",
+        "data/market/WTW.json"
+      ]
+    },
+    "duplicate_exposure": {
+      "state": "SAME_LINK_MULTIPLE_BROKERS",
+      "placements_held": 1,
+      "listings_held": 1,
+      "secondary_links_on_screen_row": 0,
+      "basis": "This same selection run also promotes AON on the identical link_id specialty-marine-broking. Both are ACTIVE, placement-audit-PASS, and each evidenced by its own quoted marine practitioner rather than one shared citation. They are genuine oligopoly peers, not duplicate claims on one revenue pool, but they do bid the same Lloyd's placements and move together on the same premium-repricing cycle, which Stocky's independence test should treat as real co-movement, not diversification.",
+      "watchlist": "ARTHUR-J-GALLAGHER also holds an ACTIVE specialty-marine-broking placement with a current PASS placement audit but stays O2 this round: its margins.operating_margin and leverage.net_debt_to_ebitda are both NULL (no operating_income_fy concept in companyfacts at all), a gap the broker quality exception does not cover.",
+      "source_refs": [
+        "data/mappings/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json"
+      ]
+    },
+    "screen_handoff": {
+      "screen_ref": "data/screens/hormuz-maritime.json",
+      "chain_id": "hormuz-maritime",
+      "link_id": "specialty-marine-broking",
+      "listing_id": "NASDAQ-WTW"
+    }
   }
 }

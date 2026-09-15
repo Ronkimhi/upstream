@@ -8,8 +8,8 @@
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:AON carries a real SEC CIK (315293) with sec-companyfacts fundamentals in data/market/AON.json. shares_fy and depreciation_fy, frozen for years, were resolved through FY2025 by the 2026-09-15 refetch; cost_of_revenue_fy and sga_fy remain untagged (fundamentals.coverage.missing), a genuine companyfacts concept gap for insurance brokers rather than a fetch failure.",
-  "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Last examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS) for 7 NULL canonical fields. The 2026-09-15 refetch (run profile AON) resolved 5 of them: leverage.net_debt_to_ebitda, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Two remain genuinely NULL: quality.piotroski and quality.beneish_state, both blocked on companyfacts' missing cost_of_revenue_fy/sga_fy concepts for this insurance broker. This profile does not self-promote; opportunity tier stays O2 until the next run selection CAMP-20260901-01 re-examines it against the O1 bar with 2 NULL canonical fields remaining.",
+  "opportunity_tier": "O1",
+  "opportunity_tier_basis": "Promoted by run selection CAMP-20260901-01 on 2026-09-15. The 2026-09-15 refetch (run profile AON) resolved 5 of 7 NULL canonical fields: leverage.net_debt_to_ebitda, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. The remaining two, quality.piotroski and quality.beneish_state, are now state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"): data/market/AON.json's own quality.piotroski/quality.beneish blocks are PENDING_DATA on nothing but cost_of_revenue_fy/sga_fy, a companyfacts concept insurance brokers never file, not a late fetch. Every other canonical field is a sourced number with an official-source cross-check on revenue.latest_fy (VERIFIED) and cash_conversion.operating_cash_flow_to_net_income (INFERRED, official_source true). See selection_basis for the full 7-dimension case.",
   "listing_refs": [
     "NYSE-AON"
   ],
@@ -132,12 +132,14 @@
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski cannot be scored for AON as of the 2026-09-15 refetch: data/market/AON.json quality.piotroski.state is still PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); Aon is an insurance broker and companyfacts carries no cost-of-revenue concept for it (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory)."
+        "state": "NOT_APPLICABLE",
+        "basis": "piotroski cannot be scored for AON as of the 2026-09-15 refetch: data/market/AON.json quality.piotroski.state is still PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); Aon is an insurance broker and companyfacts carries no cost-of-revenue concept for it (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory). Marked NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (method section 6A / CLAUDE.md 2026-09-15, \"Yes, for brokers only\"): AON is on the named allowlist, the market file's PENDING_DATA rests on nothing but the structurally-absent cost_of_revenue_fy input, and this is not a late fetch."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish_state cannot be scored for AON as of the 2026-09-15 refetch: data/market/AON.json quality.beneish.state is still PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); same insurance-broker concept gap as piotroski."
+        "state": "NOT_APPLICABLE",
+        "basis": "beneish_state cannot be scored for AON as of the 2026-09-15 refetch: data/market/AON.json quality.beneish.state is still PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); same insurance-broker concept gap as piotroski. Marked NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"): AON is on the named allowlist, the market file's PENDING_DATA rests on nothing but the structurally-absent cost_of_revenue_fy and sga_fy inputs, and this is not a late fetch."
       }
     },
     "valuation": {
@@ -206,9 +208,9 @@
     "quality.piotroski and quality.beneish_state remain NULL: companyfacts carries no cost_of_revenue_fy or sga_fy concept for Aon at all (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory), a genuine insurance-broker filing gap, not a stale series."
   ],
   "disposition": {
-    "state": "RETAIN",
+    "state": "ADVANCE",
     "as_of": "2026-09-15",
-    "basis": "Refreshed against the 2026-09-15 data/market/AON.json refetch. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields now carry a sourced number, the rest honest NULL on a real companyfacts concept gap (Aon does not tag cost_of_revenue or sga at all). COMPLETE and O2 per method section 6A."
+    "basis": "run selection CAMP-20260901-01 promoted AON to O1 on 2026-09-15: 10 of 12 canonical fields carry a sourced number and the remaining two (quality.piotroski, quality.beneish_state) are state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception, a structural companyfacts gap for insurance brokers, not an unresearched field. COMPLETE, O1, per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 1,
@@ -216,7 +218,7 @@
     "SPECULATIVE": 2,
     "NULL": 2,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in companyfacts and found genuinely absent (no cost_of_revenue or sga concept tagged for this issuer), named on the field itself, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is quality.piotroski and quality.beneish_state, both looked for in companyfacts and found genuinely absent (no cost_of_revenue or sga concept tagged for this issuer), named on the field itself, never estimated; both are also state NOT_APPLICABLE under the 2026-09-15 broker quality exception (method section 6A), which is why they do not block this O1 promotion despite the NULL tag."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -258,15 +260,28 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. Held O2. NULL canonical fields narrowed to quality.piotroski, quality.beneish_state (leverage, valuation and reverse_dcf resolved this refresh); the quality gap is structural, no cost_of_revenue concept in companyfacts for this insurance broker. Theme hormuz-maritime has room under its DEPTH O1 cap (one of three). selection_review and selection_note updated to match current metrics."
+    },
+    {
+      "ts": "2026-09-15T14:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile AON: applied Ron's 2026-09-15 broker quality NULL exception (\"Yes, for brokers only\"). quality.piotroski and quality.beneish_state each gained state: NOT_APPLICABLE; value, tag and the existing NULL basis prose are unchanged, only the exemption sentence and state key were added. Confirmed against the fetched data/market/AON.json quality block directly: piotroski PENDING_DATA missing only cost_of_revenue_fy, beneish PENDING_DATA missing only cost_of_revenue_fy and sga_fy, both a subset of BROKER_QUALITY_MISSING_INPUTS. No other field touched."
+    },
+    {
+      "ts": "2026-09-15T14:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01, scoped batch (NVT, BDX, AON, WTW, AJG): promoted to O1. With the broker exception applied, AON now carries zero canonical fields that block O1 (10 sourced, 2 NOT_APPLICABLE). Direct exposure, capture, heat, quality, expectations_gap, evidence_confidence and duplicate_exposure all written under selection_basis with an exact screen_handoff into data/screens/hormuz-maritime.json (bucket picks_and_shovels, issuer_id AON, listing_id NYSE-AON, link_id specialty-marine-broking). hormuz-maritime's O1 count moves from 1 (ELBIT-SYSTEMS) toward the normal 1-3 DEPTH cap, no exception row needed. disposition set to ADVANCE; stale HELD_O2 selection_review and selection_note removed as superseded."
     }
   ],
   "selection_review": {
     "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 scoped batch: NVT, BDX, AON, WTW, AJG)",
     "reviewed_by": "sieve-profiler",
-    "outcome": "HELD_O2",
-    "null_canonical_fields": [
+    "outcome": "PROMOTED_O1",
+    "null_canonical_fields": [],
+    "not_applicable_canonical_fields": [
       "quality.piotroski",
       "quality.beneish_state"
     ],
@@ -275,17 +290,151 @@
         "theme_id": "hormuz-maritime",
         "chain_id": "hormuz-maritime",
         "link_id": "specialty-marine-broking",
-        "state": "DATA_COMPLETENESS",
-        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: quality.piotroski, quality.beneish_state. leverage, valuation and reverse_dcf all resolved by the 2026-09-15 refresh. The remaining gap is structural: Aon is an insurance broker and companyfacts carries no cost_of_revenue concept for it, the input both quality scores need; T1 filers cannot substitute the T2/T3 official_source_equivalent path."
+        "state": "PROMOTED",
+        "reason": "Every canonical metric field is either a sourced number or, for quality.piotroski/quality.beneish_state, state NOT_APPLICABLE under the 2026-09-15 broker quality exception. Full selection_basis written below.",
+        "detail": "No NULL canonical field remains that is not covered by the named exception; leverage, valuation and reverse_dcf all resolved by the 2026-09-15 refresh and revenue/cash-conversion both clear the O1 official-source cross-check."
       }
     ]
   },
-  "selection_note": {
-    "lang": "he",
-    "why_not_now": "הפרופיל של AON בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה, אבל אחרי הרענון האחרון רוב שדות החובה כבר מלאים: יחס החוב נטו, שווי השוק, מכפיל המכירות וגם שני שדות מודל ההיוון ההפוך. השדה היחיד שנשאר ריק ברמה אחת הוא קבוצת האיכות, ציון פיוטרוסקי ומדד בנייש, ולא בגלל תקלה זמנית אלא בגלל שברוקר ביטוח כמו אאון לא מדווח בדוחות הרשמיים על עלות ההכנסות, קלט שהחישוב של שני המדדים האלה חייב. השדה מסומן במפורש כריק עם הסבר למה אין לו ערך במקור הנתונים הקיים, ולא הומצא עבורו מספר.",
-    "what_would_promote": "קידום AON לרמה אחת ידרוש דרך עוקפת לחישוב איכות הדוחות שלא נשענת על עלות ההכנסות, או אישור שהחלופה למקור רשמי ברמת נתונים נמוכה חלה גם על חברה שמדווחת ברמת נתונים אחת מלאה, מה שאינו כך היום. זו עבודה שמחוץ לתחום הסמכות של בדיקת פרופיל בודד ודורשת החלטה נפרדת על השיטה. בתימה הזאת עדיין יש מקום מתחת לתקרה, כך שפתרון השדה החסר עשוי להספיק לבדו.",
+  "selection_basis": {
     "as_of": "2026-09-15",
-    "by": "sieve-profiler"
+    "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
+    "selected_by": "sieve-profiler",
+    "command": "run selection CAMP-20260901-01 (scoped: NVT, BDX, AON, WTW, AJG)",
+    "direct_exposure": {
+      "state": "DISCLOSED_ROLE_UNDISCLOSED_PCT",
+      "placement": {
+        "chain_id": "hormuz-maritime",
+        "link_id": "specialty-marine-broking",
+        "link_position": 4,
+        "placement_status": "ACTIVE",
+        "money_corner": true,
+        "mapping_ref": "data/mappings/hormuz-maritime.json"
+      },
+      "basis": "One ACTIVE placement on specialty-marine-broking, the chain's money corner (position 4). The placement carries a current PASS fresh-context placement audit (data/mappings/hormuz-maritime.json placement_audits[], issuer_id AON, audited_at 2026-09-06T15:41:00Z), which is the admission path this row uses: the mapping's own census-level audit (audited_at 2026-09-14, status FAIL) is blocked on 12 OPEN links and unrelated placement findings, none of which name AON's specialty-marine-broking evidence. Role evidence is Aon's own head of marine for Asia, quoted directly on the Hormuz closure's effect on the hull war market (Insurance Journal, 2026-03-06).",
+      "disclosed_theme_revenue_pct": {
+        "value": null,
+        "tag": "NULL",
+        "basis": "No Gulf-marine-specific revenue percentage is disclosed anywhere on disk for Aon; the chain's own bottleneck note states the Gulf marine book is a small slice of a diversified broking revenue base, which the exposure argument rests on rather than a measured share."
+      },
+      "source_refs": [
+        "data/mappings/hormuz-maritime.json",
+        "data/chains/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json"
+      ]
+    },
+    "capture": {
+      "state": "COMMISSION_ON_PREMIUM_OLIGOPOLY_LINE_NOT_SIZED",
+      "link_capture_score": 62,
+      "link_investability": "PURE_PLAYS_EXIST",
+      "operating_margin_fy2025": 0.252837,
+      "basis": "The chain scores specialty-marine-broking capture at 62 ('the broker takes a share of premium and none of the claim... the shipowner can move between brokers but not around them for a Lloyd's placement'), held at the middle anchor because placement is competitively bid among the same few names. Aon's own FY2025 operating margin of 25.28 percent (companyfacts, official_source true) is the highest of the three brokers this batch examines (WTW 23.48 percent, AJG uncomputable), consistent with a broker capturing real commission economics at the firm level, though the specific Gulf war-risk line is not separately disclosed anywhere on disk.",
+      "what_would_change_it": "A disclosed marine war-risk commission dollar figure, or evidence the same rate surge is being competed away in the broking fee itself rather than just the underlying premium, would sharpen this from a firm-level margin proxy to a link-specific measurement. Neither exists on disk today; the chain's own capture_inputs.who_posted_the_margin field says the same thing.",
+      "source_refs": [
+        "data/chains/hormuz-maritime.json",
+        "data/market/AON.json"
+      ]
+    },
+    "heat": {
+      "link_verdict": "UNDISCOVERED",
+      "heat_as_of": "2026-08-30",
+      "scores": {
+        "impact": 62,
+        "crowdedness": 30,
+        "capture": 62
+      },
+      "money_corner": true,
+      "bottleneck_criticality": "MEDIUM",
+      "basis": "Ember scores specialty-marine-broking UNDISCOVERED: impact 62 ('commission scales with a premium base that moved by roughly an order of magnitude on this route'), crowdedness 30 ('the brokers appear all over this occurrence as quoted market commentators and nowhere as the trade... not one cited source frames a listed broker as a beneficiary'), capture 62. MEDIUM bottleneck because placement is competitively bid and the Gulf marine book is a small slice of diversified broking revenue, which the screen and this basis both size honestly as undisclosed.",
+      "source_refs": [
+        "data/chains/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json"
+      ]
+    },
+    "quality": {
+      "state": "COMPLETE_UNDER_BROKER_EXCEPTION",
+      "piotroski": {
+        "value": null,
+        "state": "NOT_APPLICABLE"
+      },
+      "beneish": {
+        "value": null,
+        "state": "NOT_APPLICABLE"
+      },
+      "net_debt_to_ebitda": 2.622462,
+      "fcf_margin": 0.1873,
+      "operating_cash_flow_to_net_income": 0.942084,
+      "basis": "Ten of twelve canonical fields carry a sourced number; quality.piotroski and quality.beneish_state are state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (method section 6A): data/market/AON.json's own quality blocks are PENDING_DATA on nothing but cost_of_revenue_fy (piotroski) and cost_of_revenue_fy plus sga_fy (beneish), inputs an insurance broker's income statement never carries. Net debt to EBITDA of 2.62x is the highest leverage of the three brokers in this batch (WTW 1.69x); operating cash flow to net income of 0.94x and FCF margin of 18.73 percent are both healthy and unremarkable for a broking model.",
+      "counterweight": "2.62x net debt to EBITDA is real leverage, not alarming for an insurance brokerage but the least clean balance sheet of the three names promoted in this batch. The quality NOT_APPLICABLE exception substitutes structural companyfacts absence for a computed score; it is not equivalent to a strong measured Piotroski/Beneish read, and Stocky's earnings-quality veto must apply the same broker basis wording, not silently pass a blank field.",
+      "source_refs": [
+        "data/market/AON.json"
+      ]
+    },
+    "expectations_gap": {
+      "state": "GAP_WITHIN_HORIZON_SPREAD_NOT_CLAIMABLE",
+      "market_implied_fcf_cagr_5y": 0.1239,
+      "implied_by_horizon": {
+        "5": 0.1239,
+        "7": 0.0985,
+        "10": 0.0799
+      },
+      "horizon_spread": 0.044,
+      "achieved_revenue_cagr_3y": 0.112473,
+      "basis": "The reverse DCF in data/market/AON.json quality.reverse_dcf solves an 12.39 percent five-year implied FCF CAGR against an achieved three-year revenue CAGR of 11.25 percent, a raw gap of 1.14 percentage points. Per method section 7 that raw gap is smaller than the horizon spread itself (4.4 points, from 12.39 percent at five years to 7.99 percent at ten), so this is a statement about the reverse-DCF's horizon convention, not a claimable pricing gap. Recorded honestly rather than rounded up: unlike HUBBELL or a genuine expectations-gap name, Aon's market-implied growth sits close to what it has actually delivered.",
+      "horizon_caveat": "Any gap claim on this name below 4.4 percentage points is a horizon-convention artifact, not a price statement, per method section 7.",
+      "assumption_caveat": "The discount rate and terminal growth in the reverse DCF are assumed, so both reverse_dcf fields are tagged SPECULATIVE in the confidence audit; this dimension records the measured state only, the deep-dive stage adjudicates whether price is wrong.",
+      "source_refs": [
+        "data/market/AON.json"
+      ]
+    },
+    "evidence_confidence": {
+      "canonical_fields_written": 12,
+      "confidence_audit": {
+        "verified": 1,
+        "inferred": 7,
+        "speculative": 2,
+        "null": 2
+      },
+      "identity_chain": {
+        "mapping_status": "ACTIVE",
+        "mapping_census_audit_status": "FAIL",
+        "placement_audit_status": "PASS",
+        "placement_audited_at": "2026-09-06T15:41:00Z",
+        "listing_id": "NYSE-AON",
+        "cik": 315293,
+        "screen_identity_schema": "campaign-v1",
+        "screen_audit_scope": "PLACEMENT"
+      },
+      "filing_evidence": "The role-evidence citation (Insurance Journal, Aon's head of marine for Asia quoted on the hull war market) is not itself one of the findings the mapping's 2026-09-14 census audit raised against this placement; that audit's open findings target other issuers' placements on this and other links (e.g. AIG on marine-war-risk-underwriting, WTW's own specialty-marine-broking citation). Admission rests on the placement-level PASS audit specific to AON, per CLAUDE.md's 2026-09-04 screen-row rule, not on the mapping's overall census status.",
+      "known_weaknesses": [
+        "The Gulf-marine-specific revenue share is undisclosed anywhere on disk; the exposure and capture arguments both rest on a firm-level margin and a quoted role, not a measured segment figure.",
+        "The mapping's census-level audit (2026-09-14, status FAIL) remains open on 12 links unrelated to this placement; while AON's specific citation is not itself named as a finding, the mapping as a whole has not reached COMPLETE, so the census cannot yet corroborate this placement beyond its own dedicated 2026-09-06 audit.",
+        "PCS attention data is unavailable for this T1 listing (data/market/AON.json pcs is null), so crowdedness at the issuer level rests entirely on the chain's link-level score, not an issuer-level attention read."
+      ],
+      "basis": "Identity resolves end to end without a ticker fallback: issuer AON, listing NYSE-AON, one ACTIVE placement carrying a current PASS placement audit, and one campaign-v1 screen row (data/screens/hormuz-maritime.json, bucket picks_and_shovels) carrying the same identity fields under audit_scope PLACEMENT. Confidence is highest on identity and the sourced FY2025 fundamentals; lowest on the undisclosed Gulf-specific revenue share and on the still-open census-level audit.",
+      "source_refs": [
+        "data/mappings/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json",
+        "data/market/AON.json"
+      ]
+    },
+    "duplicate_exposure": {
+      "state": "SAME_LINK_MULTIPLE_BROKERS",
+      "placements_held": 1,
+      "listings_held": 1,
+      "secondary_links_on_screen_row": 0,
+      "basis": "This same selection run also promotes WILLIS-TOWERS-WATSON on the identical link_id specialty-marine-broking. Both are ACTIVE, placement-audit-PASS, and evidenced by their own quoted marine practitioners in the same Insurance Journal-and-adjacent coverage rather than one shared citation. They are genuine oligopoly peers rather than duplicate claims: the chain's own capture_inputs.supply_concentration names Aon, Marsh and Gallagher as the three brokers whose quotes anchor this occurrence, and Aon and WTW both bid the same Lloyd's placements as real competitors, not economically identical exposure. Stocky's independence test should treat the two as correlated on the same premium-repricing cycle, not diversified away.",
+      "watchlist": "ARTHUR-J-GALLAGHER also holds an ACTIVE specialty-marine-broking placement with a current PASS placement audit but stays O2 this round: its margins.operating_margin and leverage.net_debt_to_ebitda are both NULL (no operating_income_fy concept in companyfacts at all), a gap the broker quality exception does not cover. MMC (Marsh McLennan) and BRO (Brown & Brown) are named on the chain's example_tickers but are not yet mapped placements in this census.",
+      "source_refs": [
+        "data/mappings/hormuz-maritime.json",
+        "data/screens/hormuz-maritime.json"
+      ]
+    },
+    "screen_handoff": {
+      "screen_ref": "data/screens/hormuz-maritime.json",
+      "chain_id": "hormuz-maritime",
+      "link_id": "specialty-marine-broking",
+      "listing_id": "NYSE-AON"
+    }
   }
 }

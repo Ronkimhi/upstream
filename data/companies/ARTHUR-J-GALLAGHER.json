@@ -9,7 +9,7 @@
   "data_tier": "T1",
   "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:AJG carries a real SEC CIK (354190) with sec-companyfacts fundamentals in data/market/AJG.json. capex_fy, previously frozen at 2016-12-31, was resolved through FY2025 by the 2026-09-15 refetch; the series still carries no operating_income_fy tag at all and no sga_fy tag, a genuine companyfacts coverage gap rather than a fetch failure.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Last examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS) for 6 NULL canonical fields. The 2026-09-15 refetch (run profile AJG) resolved 3 of them: cash_conversion.fcf_margin, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread (capex_fy now reaches FY2025). Three remain genuinely NULL: margins.operating_margin and leverage.net_debt_to_ebitda (no operating_income_fy concept exists for this issuer at all) and quality.beneish_state (sga_fy untagged). This profile does not self-promote; opportunity tier stays O2 until the next run selection CAMP-20260901-01 re-examines it against the O1 bar with 3 NULL canonical fields remaining.",
+  "opportunity_tier_basis": "run selection CAMP-20260901-01 (2026-09-15, scoped batch NVT/BDX/AON/WTW/AJG) held AJG at O2. quality.beneish_state is now state NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"), closing one of the three remaining NULLs, but margins.operating_margin and leverage.net_debt_to_ebitda are still NULL and still block O1: companyfacts carries no operating_income_fy concept at all for CIK 354190, and the exception is a named door for quality.piotroski/quality.beneish_state only, method section 6A, it does not reach margins or leverage. AJG cannot clear O1 this round on data completeness alone, independent of the broker exception. Revisit when an operating_income_fy series appears in companyfacts, or a T2/T3 vendor-normalisation path becomes available for this T1 filer.",
   "listing_refs": [
     "NYSE-AJG"
   ],
@@ -133,7 +133,8 @@
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish_state still cannot be scored for AJG as of the 2026-09-15 refetch: data/market/AJG.json quality.beneish.state is PENDING_DATA, missing sga_fy (11 of 12 inputs found); companyfacts carries no sga concept for this issuer."
+        "state": "NOT_APPLICABLE",
+        "basis": "beneish_state still cannot be scored for AJG as of the 2026-09-15 refetch: data/market/AJG.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found, corrected from a prior 11/12 count that undercounted the gap); companyfacts carries no cost-of-revenue or sga concept for this insurance broker. Marked NOT_APPLICABLE under Ron's 2026-09-15 broker quality exception (\"Yes, for brokers only\"): AJG is on the named allowlist, the market file's PENDING_DATA rests on nothing but the structurally-absent cost_of_revenue_fy and sga_fy inputs, and this is not a late fetch. quality.piotroski is unaffected: it already carries a computed value (5, MIDDLING) and the exception only ever applies to a NULL field."
       }
     },
     "valuation": {
@@ -204,7 +205,7 @@
   "disposition": {
     "state": "RETAIN",
     "as_of": "2026-09-15",
-    "basis": "Refreshed against the 2026-09-15 data/market/AJG.json refetch. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 9 of 12 canonical fields now carry a sourced number, the rest honest NULL on real companyfacts concept gaps (no operating_income_fy or sga_fy tag at all). COMPLETE and O2 per method section 6A."
+    "basis": "run selection CAMP-20260901-01 (2026-09-15, scoped batch) examined AJG and held it at O2, RETAIN not ADVANCE. quality.beneish_state moved to state NOT_APPLICABLE under the 2026-09-15 broker quality exception, but margins.operating_margin and leverage.net_debt_to_ebitda remain plain NULL and are not covered by that exception (it is a quality-group-only door): companyfacts carries no operating_income_fy concept at all for this issuer. AJG cannot clear O1 on data completeness this round; COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 1,
@@ -212,7 +213,7 @@
     "SPECULATIVE": 2,
     "NULL": 3,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in companyfacts and found genuinely absent, named on the field itself."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is 3 fields looked for in companyfacts and found genuinely absent, named on the field itself: quality.beneish_state (now also state NOT_APPLICABLE under the 2026-09-15 broker quality exception, though still counted NULL here since the tag and value are unchanged) plus margins.operating_margin and leverage.net_debt_to_ebitda, which the exception does not reach and which still block O1."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -254,17 +255,31 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. Held O2. NULL canonical fields narrowed to margins.operating_margin, leverage.net_debt_to_ebitda, quality.beneish_state (fcf_margin and both reverse_dcf fields resolved this refresh; piotroski scored 5). The remaining gap is structural, no operating_income or sga concept in companyfacts for this filer. Theme hormuz-maritime has room under its DEPTH O1 cap (one of three). selection_review and selection_note updated to match current metrics."
+    },
+    {
+      "ts": "2026-09-15T14:05:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile AJG: applied Ron's 2026-09-15 broker quality NULL exception (\"Yes, for brokers only\") to quality.beneish_state only, which gained state: NOT_APPLICABLE; value and tag unchanged. Corrected the basis's missing-input count against the fetched data/market/AJG.json quality.beneish block directly: it is PENDING_DATA missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found), not the previously recorded 11 of 12/sga_fy-only; both missing inputs are within BROKER_QUALITY_MISSING_INPUTS. quality.piotroski is untouched: it already carries a computed value (5, MIDDLING), not a NULL, so the exception does not apply to it. margins.operating_margin and leverage.net_debt_to_ebitda are untouched: the exception is a quality-group-only door and does not reach them."
+    },
+    {
+      "ts": "2026-09-15T14:20:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run selection CAMP-20260901-01, scoped batch (NVT, BDX, AON, WTW, AJG): examined and held O2. Even with the broker exception applied to quality.beneish_state, AJG still carries two blocking NULL canonical fields the exception does not cover: margins.operating_margin and leverage.net_debt_to_ebitda, both blocked because companyfacts has no operating_income_fy concept at all for this issuer. AJG does not clear the O1 bar this round on data completeness alone. selection_review and selection_note both rewritten to reflect the broker-exception state precisely rather than restating the pre-exception reasoning; disposition stays RETAIN."
     }
   ],
   "selection_review": {
     "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 scoped batch: NVT, BDX, AON, WTW, AJG)",
     "reviewed_by": "sieve-profiler",
     "outcome": "HELD_O2",
     "null_canonical_fields": [
       "margins.operating_margin",
-      "leverage.net_debt_to_ebitda",
+      "leverage.net_debt_to_ebitda"
+    ],
+    "not_applicable_canonical_fields": [
       "quality.beneish_state"
     ],
     "examined_links": [
@@ -273,15 +288,15 @@
         "chain_id": "hormuz-maritime",
         "link_id": "specialty-marine-broking",
         "state": "DATA_COMPLETENESS",
-        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: margins.operating_margin, leverage.net_debt_to_ebitda, quality.beneish_state (quality.piotroski scored 5, and cash_conversion.fcf_margin plus both reverse_dcf fields resolved by the 2026-09-15 refresh). The remaining gap is structural: companyfacts carries no operating_income or sga concept for this filer at all, the inputs the first two fields and beneish both need."
+        "reason": "Two canonical metric fields are still plain NULL, not covered by the 2026-09-15 broker quality exception (a quality-group-only door); O1 forbids any NULL canonical field the exception does not name, so this profile cannot clear the O1 bar until they are filled.",
+        "detail": "NULL canonical fields: margins.operating_margin, leverage.net_debt_to_ebitda. quality.beneish_state is now state NOT_APPLICABLE under the broker exception and quality.piotroski already carries a computed value (5), so the quality group itself is effectively complete; the block is structural on the operating-income concept companyfacts never tagged for this filer, the input both remaining NULL fields need. AON and WTW, the other two brokers in this batch, do not carry this second gap and clear O1 this round; AJG's is a genuinely different, deeper companyfacts coverage hole."
       }
     ]
   },
   "selection_note": {
     "lang": "he",
-    "why_not_now": "הפרופיל של AJG בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה. אחרי הרענון האחרון שולי תזרים המזומנים החופשי וקצב הצמיחה הגלום במודל ההיוון ההפוך כבר מלאים, אבל שלושה שדות חובה עדיין ריקים ברמה אחת: שולי הרווח התפעולי, יחס החוב נטו לרווח התפעולי לפני פחת והפחתות ומדד בנייש. הסיבה המשותפת לשלושתם היא שהדוחות הרשמיים של החברה לא כוללים כלל שורת הכנסות עלות, קלט שהחישוב של שני השדות הראשונים ושל מדד בנייש חייב. השדות מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
-    "what_would_promote": "קידום AJG לרמה אחת ידרוש דרך חלופית לבניית שולי הרווח התפעולי ומדד האיכות שלא נשענת על שורת עלות הכנסות שאינה קיימת בדוחות, עבודה שמחוץ לתחום הסמכות של בדיקת פרופיל בודד. בתימה הזאת עדיין יש מקום מתחת לתקרה, כך שפתרון השדות החסרים עשוי להספיק לבדו.",
+    "why_not_now": "הפרופיל של AJG בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה. אחרי החלטתו האחרונה של רון על חריגה עבור ברוקרי ביטוח, שדה מדד בנייש כבר לא נחשב ריק חוסם ומסומן כלא רלוונטי במפורש, ופיוטרוסקי כבר היה מחושב מקודם. אבל שני שדות חובה אחרים עדיין ריקים ברמה אחת ולא נכנסים תחת אותה חריגה: שולי הרווח התפעולי ויחס החוב נטו לרווח התפעולי לפני פחת והפחתות. הסיבה היא שהדוחות הרשמיים של החברה לא כוללים כלל שורת רווח תפעולי, קלט שגם שולי הרווח וגם יחס המינוף חייבים, וזו תקלה מבנית עמוקה יותר משל שני הברוקרים האחרים שקודמו הסבב הזה. השדות מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
+    "what_would_promote": "קידום AJG לרמה אחת ידרוש שורת רווח תפעולי שתופיע בדוחות הרשמיים של החברה, או דרך חלופית מוכרת לבניית שולי הרווח התפעולי ומדד המינוף שלא נשענת על שורה שאינה קיימת. זו עבודה שמחוץ לתחום הסמכות של בדיקת פרופיל בודד ודורשת החלטה נפרדת על השיטה, לא רק את החריגה שכבר ניתנה למדד האיכות. בתימה הזאת עדיין יש מקום מתחת לתקרה, כך שפתרון שני השדות החסרים האלה עשוי להספיק לבדו.",
     "as_of": "2026-09-15",
     "by": "sieve-profiler"
   }
