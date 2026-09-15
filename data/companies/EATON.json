@@ -1,9 +1,9 @@
 {
   "issuer_id": "EATON",
   "issuer_name": "Eaton Corporation plc",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-15",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-15T12:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -118,7 +118,7 @@
       "operating_margin": {
         "value": null,
         "tag": "NULL",
-        "basis": "operating margin is not computable from the local store: the companyfacts OperatingIncomeLoss series in data/market/ETN.json ends at fiscal year 2019-12-31 while the Revenues series runs to 2025-12-31, so no fiscal year carries both legs on the same period"
+        "basis": "operating margin is not computable from the local store: the 2026-09-15 refetch of data/market/ETN.json fundamentals.coverage still names operating_income as the sole missing annual field (19 of 20 found), and concept_hints shows the companyfacts XBRL tags found under that concept are lease and cash-flow line items (OperatingLeaseCost, OperatingLeaseLiability, NetCashProvidedByUsedInOperatingActivities), never OperatingIncomeLoss itself; Eaton does not tag the concept, not merely a stale series."
       }
     },
     "cash_conversion": {
@@ -145,19 +145,27 @@
       "net_debt_to_ebitda": {
         "value": null,
         "tag": "NULL",
-        "basis": "net debt to EBITDA is not computable: the only total_debt observation companyfacts returned for Eaton is 2014-12-31, and pairing it with the 2026-06-30 cash balance would mix balance-sheet legs twelve years apart"
+        "basis": "net debt to EBITDA is still not computable after the 2026-09-15 refetch: total_debt now resolves to a single 2026-06-30 observation and cash likewise, closing the old twelve-year balance-sheet gap, but EBITDA (operating income plus depreciation) cannot be built without operating_income, which fundamentals.coverage.missing still names as the sole gap (see margins.operating_margin)."
       }
     },
     "quality": {
       "piotroski": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "piotroski F-score is PENDING_DATA in data/market/ETN.json quality: only 0 common fiscal periods across the 9 inputs, and the change legs need at least 2"
+        "value": 6,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/ETN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001551182.json",
+        "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/ETN.json quality.piotroski; 9 of 9 inputs found after the 2026-09-15 refetch closed the common-fiscal-period gap."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "beneish M-score is PENDING_DATA in data/market/ETN.json quality: only 0 common fiscal periods across the 12 inputs, and every Beneish index is a year-over-year ratio"
+        "value": -2.375,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/ETN.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001551182.json",
+        "basis": "Beneish M-score -2.375 (threshold -1.78), earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/ETN.json quality.beneish; 12 of 12 inputs found after the 2026-09-15 refetch. A more negative M-score is the non-manipulator reading."
       }
     },
     "valuation": {
@@ -270,9 +278,9 @@
     }
   ],
   "data_gaps": [
-    "Operating margin is NULL: the companyfacts OperatingIncomeLoss series in data/market/ETN.json stops at fiscal 2019 while revenue runs to fiscal 2025, so no fiscal year carries both legs. A future fetch that adds the post-2019 operating-income tag would close this.",
-    "Net debt to EBITDA is NULL: the only total_debt observation companyfacts returned is 2014-12-31. The 2026-06-30 cash balance exists, but pairing the two would be a twelve-year period mismatch.",
-    "Piotroski and Beneish are both PENDING_DATA in data/market/ETN.json quality: the change legs need at least two common fiscal periods across their inputs and found none.",
+    "Operating margin is NULL: Eaton does not tag OperatingIncomeLoss in companyfacts at all (fundamentals.coverage.missing: operating_income, confirmed again on the 2026-09-15 refetch); the concept simply is not filed under XBRL for this issuer.",
+    "Net debt to EBITDA is NULL for the same reason: EBITDA needs operating income, which Eaton does not tag. total_debt and cash now both resolve to 2026-06-30 (the balance-sheet gap that used to block this is closed).",
+    "Piotroski (6, MIDDLING) and Beneish (-2.375, CLEAN) are both now SCORED as of the 2026-09-15 refetch; no longer a data gap.",
     "No data-centre revenue percentage is disclosed in the fetched filing, so exposure is a role claim rather than a measured share.",
     "The fetched EDGAR document is the Q2 2026 8-K earnings exhibit, not the 10-K; segment detail beyond the release is not in the local store."
   ],
@@ -283,9 +291,9 @@
   },
   "confidence_audit": {
     "verified": 1,
-    "inferred": 7,
+    "inferred": 9,
     "speculative": 2,
-    "null": 4,
+    "null": 2,
     "canonical_fields_written": 14,
     "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/ETN.json, price_status AGREED) and not an issuer document. SPECULATIVE is reserved for the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for and not found, never estimated."
   },
@@ -329,6 +337,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on ai-infrastructure/power-equipment. Held O2. NULL canonical fields: margins.operating_margin, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state."
+    },
+    {
+      "ts": "2026-09-15T12:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile ETN: refreshed against the 2026-09-15 data/market/ETN.json refetch (fetch.py fix confirmed gross_profit_fy now reaches FY2025). quality.piotroski scored 6 (MIDDLING) and quality.beneish_state scored -2.375 (CLEAN), both newly computable now that companyfacts carries a common fiscal period across all inputs. margins.operating_margin and leverage.net_debt_to_ebitda remain NULL: fundamentals.coverage.missing still names operating_income as the one unfiled annual concept for this issuer (confirmed genuine, not stale) and EBITDA cannot be built without it; basis text updated to cite the current refetch. Status COMPLETE, data tier T1, opportunity tier O2 unchanged (selection decides O1); listings, placements and prior evidence preserved."
     }
   ],
   "selection_review": {

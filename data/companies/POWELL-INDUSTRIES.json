@@ -1,15 +1,15 @@
 {
   "issuer_id": "POWELL-INDUSTRIES",
   "issuer_name": "Powell Industries, Inc.",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-15",
   "created_at": "2026-08-31T01:10:50Z",
-  "updated_at": "2026-09-04T04:05:00Z",
+  "updated_at": "2026-09-15T12:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
   "data_tier_basis": "US SEC filer, CIK 80420: dual-source price plane (price_status AGREED), SEC companyfacts fundamentals, and a full PCS block in data/market/POWL.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-04 (re-examined; also examined 2026-09-02 x2 and under CAMP-20260830-01 on 2026-08-31) and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are, and this bar is unrelated to and unaffected by the 2026-09-04 pre-split share-count correction (see data_gaps and valuation.market_cap.basis): reverse_dcf and valuation were never the reason this profile is barred from O1, and the corrected figures do not change the outcome. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-04 (re-examined; also examined 2026-09-02 x2 and under CAMP-20260830-01 on 2026-08-31) and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. As of the 2026-09-15 refetch, barred by 5 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state (retracted 2026-09-15, see changelog), reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
   "listing_refs": [
     "NASDAQ-POWL"
   ],
@@ -136,16 +136,12 @@
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score is PENDING_DATA in data/market/POWL.json quality: only 1 common fiscal period across the 9 inputs, and the change legs need at least 2"
+        "basis": "piotroski F-score is PENDING_DATA in data/market/POWL.json quality as of the 2026-09-15 refetch: fundamentals.coverage.missing names long_term_debt_fy as the sole absent annual field, 8 of 9 Piotroski inputs found (the total_debt series that exists is a distinct XBRL concept and does not substitute)."
       },
       "beneish_state": {
-        "value": -2.163,
-        "tag": "INFERRED",
-        "official_source": true,
-        "source_name": "Upstream market store data/market/POWL.json quality, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models",
-        "source_date": "2026-08-29",
-        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000080420.json",
-        "basis": "Beneish M-score -2.163, earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/POWL.json quality.beneish. A more negative M-score is the non-manipulator reading."
+        "value": null,
+        "tag": "NULL",
+        "basis": "RETRACTED 2026-09-15: the prior value -2.163 (CLEAN, source_date 2026-08-29, computed in the Actions venue over SEC EDGAR companyfacts with financetoolkit.models) is no longer supported. The 2026-09-15 refetch of data/market/POWL.json quality.beneish reports state PENDING_DATA, missing long_term_debt_fy, 11 of 12 inputs found; that earlier score evidently rested on a long_term_debt input the fetcher no longer supplies (or supplied differently) for this issuer. Per the venue rule, a number no longer backed by the current market file is not carried forward as a remembered figure; do not cite the retracted -2.163 reading."
       }
     },
     "valuation": {
@@ -190,12 +186,12 @@
       "implied_fcf_cagr": {
         "value": null,
         "tag": "NULL",
-        "basis": "The implied FCF CAGR is retracted 2026-09-04: the prior value -0.0734 was solved over enterprise_value 1571781222.38, which rested on the same pre-split share-count defect described in valuation.market_cap.basis (data/market/POWL.json quality.shares_used never rolled forward past the 2026-04-02 three-for-one forward split). Re-solving the implied FCF CAGR bisection by hand risks not matching the Actions fetcher's exact method and is outside Sieve's venue; REQ-20260904-40/41/42 are PENDING for a corrected recompute of data/market/POWL.json quality.reverse_dcf over the corrected enterprise value (approximately 6054355840, see ev_to_sales.basis). Do not cite the retracted -0.0734 reading or its NEGATIVE-growth framing; it is wrong, not merely stale."
+        "basis": "The implied FCF CAGR is retracted 2026-09-04: the prior value -0.0734 was solved over enterprise_value 1571781222.38, which rested on the same pre-split share-count defect described in valuation.market_cap.basis (data/market/POWL.json quality.shares_used never rolled forward past the 2026-04-02 three-for-one forward split). Re-solving the implied FCF CAGR bisection by hand risks not matching the Actions fetcher's exact method and is outside Sieve's venue. REQ-20260904-40/41/42 were FULFILLED but did not fix this: the 2026-09-15 refetch of data/market/POWL.json quality.shares_used still reads 12070178 as_of 2025-09-30, the same pre-split figure (fundamentals.shares_fy carries no post-split observation), so quality.reverse_dcf.state is still SOLVED over the uncorrected enterprise value (1569246485, built on the stale share count) rather than the corrected one (~6054355840, see ev_to_sales.basis). Still outside Sieve's venue to hand-resolve; a further Actions fix is needed to roll shares_used forward past the split. Do not cite the retracted -0.0734 reading or its NEGATIVE-growth framing; it is wrong, not merely stale."
       },
       "horizon_spread": {
         "value": null,
         "tag": "NULL",
-        "basis": "The horizon spread is retracted 2026-09-04 for the same reason as reverse_dcf.implied_fcf_cagr: the prior value 0.0391 was computed over the same pre-split-corrupted enterprise value. Pending the same Actions recompute (REQ-20260904-40/41/42)."
+        "basis": "The horizon spread is retracted 2026-09-04 for the same reason as reverse_dcf.implied_fcf_cagr: the prior value 0.0391 was computed over the same pre-split-corrupted enterprise value. Reconfirmed 2026-09-15: the refetch still has not rolled quality.shares_used forward past the split, so this remains unresolved outside Sieve's venue."
       }
     }
   },
@@ -263,10 +259,11 @@
     }
   ],
   "data_gaps": [
-    "Net debt to EBITDA is NULL: the last total_debt observation in companyfacts is 2022-09-30 and reads zero, while the cash balance is 2026-06-30, so the two legs sit four fiscal years apart and pairing them would fabricate a ratio.",
-    "Piotroski is PENDING_DATA in data/market/POWL.json quality: only one common fiscal period across the nine inputs, and the change legs need at least two.",
+    "Net debt to EBITDA is NULL: the last total_debt observation in companyfacts is 2022-09-30 and reads zero, while the cash balance is 2026-06-30, so the two legs sit four fiscal years apart and pairing them would fabricate a ratio. Reconfirmed unchanged on the 2026-09-15 refetch.",
+    "Piotroski is PENDING_DATA in data/market/POWL.json quality as of the 2026-09-15 refetch: fundamentals.coverage.missing names long_term_debt_fy as the sole absent field, 8 of 9 inputs found.",
+    "Beneish RETRACTED 2026-09-15: the prior -2.163 CLEAN score (2026-08-29) is no longer supported. The 2026-09-15 refetch reports quality.beneish state PENDING_DATA, missing long_term_debt_fy (11 of 12 inputs found); the earlier score rested on an input the fetcher no longer supplies the same way for this issuer.",
     "No end-market revenue split is disclosed, so the data-centre exposure is measurable only at order level and only for the orders the company chooses to name.",
-    "A three-for-one forward stock split effected 2026-04-02 (record date 2026-03-20) is disclosed in the fetched release. Corrected 2026-09-04: this DID reach a canonical metric group. data/market/POWL.json quality.shares_used still carries the PRE-split share count (12070178, as_of 2025-09-30) multiplied against the post-split price 182.71, understating market_cap and enterprise_value roughly 3x and, downstream, corrupting the reverse-DCF solve to a false NEGATIVE implied growth reading. valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales are now session-computed from the 8-K's own split-adjusted diluted share count (36,604,000, quarter ended 2026-06-30) pending an Actions recompute; reverse_dcf.implied_fcf_cagr and horizon_spread are retracted to NULL rather than hand-resolved. REQ-20260904-40/41/42 are PENDING for the corrected data/market/POWL.json refetch; re-run run profile POWL once they land to replace the session-computed valuation figures with a fetched recompute.",
+    "A three-for-one forward stock split effected 2026-04-02 (record date 2026-03-20) is disclosed in the fetched release. Corrected 2026-09-04: this DID reach a canonical metric group. data/market/POWL.json quality.shares_used still carries the PRE-split share count (12070178, as_of 2025-09-30) multiplied against the post-split price, understating market_cap and enterprise_value roughly 3x and, downstream, corrupting the reverse-DCF solve to a false NEGATIVE implied growth reading. valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales are session-computed from the 8-K's own split-adjusted diluted share count (36,604,000, quarter ended 2026-06-30). REQ-20260904-40/41/42 are now FULFILLED but did NOT fix this: the 2026-09-15 refetch of quality.shares_used still reads the pre-split 12070178; reverse_dcf.implied_fcf_cagr and horizon_spread remain retracted to NULL rather than hand-resolved, pending a further Actions fix that actually rolls shares_used forward past the split.",
     "The fetched EDGAR document is a fiscal-Q3 8-K exhibit rather than the 10-K, so segment and backlog definitions come from the release footnotes only."
   ],
   "disposition": {
@@ -276,11 +273,11 @@
   },
   "confidence_audit": {
     "verified": 1,
-    "inferred": 9,
+    "inferred": 8,
     "speculative": 0,
-    "null": 4,
+    "null": 5,
     "canonical_fields_written": 14,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/POWL.json, price_status AGREED) and not an issuer document. Updated 2026-09-04: valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales moved from a market-file-derived read to a session-computed INFERRED figure correcting a pre-split share-count defect (see data_gaps); reverse_dcf.implied_fcf_cagr and horizon_spread moved from SPECULATIVE to NULL, retracted rather than hand-resolved, pending an Actions recompute over the corrected enterprise value. NULL is a field looked for and not found, or in this case a figure known to be wrong and not yet correctly refetched, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED is a figure computed from SEC companyfacts, with the derivation named in its basis; where a market price enters the computation the basis says so explicitly, because the price leg is the repo's own dual-source market plane (data/market/POWL.json, price_status AGREED) and not an issuer document. Updated 2026-09-04: valuation.market_cap, price_to_sales, price_to_earnings and ev_to_sales moved from a market-file-derived read to a session-computed INFERRED figure correcting a pre-split share-count defect (see data_gaps); reverse_dcf.implied_fcf_cagr and horizon_spread moved from SPECULATIVE to NULL, retracted rather than hand-resolved. Updated 2026-09-15: quality.beneish_state RETRACTED from -2.163 INFERRED to NULL because the refetched market file no longer supports it (state PENDING_DATA, missing long_term_debt_fy); reverse_dcf remains NULL because quality.shares_used is still pre-split. NULL is a field looked for and not found, or in this case a figure known to be wrong or no longer supported and not yet correctly refetched, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -334,6 +331,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on ai-infrastructure/power-equipment. Held O2. NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
+    },
+    {
+      "ts": "2026-09-15T12:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile POWL: refreshed against the 2026-09-15 data/market/POWL.json refetch. leverage.net_debt_to_ebitda and quality.piotroski remain genuinely PENDING_DATA (long_term_debt zeroed since FY2022, unfixed; basis text updated to cite current fundamentals.coverage.missing). RETRACTED quality.beneish_state from -2.163 CLEAN (2026-08-29) to NULL: the refetched market file's quality.beneish now reports state PENDING_DATA missing long_term_debt_fy (11 of 12 inputs), so the prior score is no longer supported by the current store and is dropped rather than carried forward as a remembered figure (venue rule, method section 1). Confirmed REQ-20260904-40/41/42 are FULFILLED but did not restore quality.shares_used past the 2026-04-02 forward split (still reads the pre-split 12070178 as_of 2025-09-30): reverse_dcf.implied_fcf_cagr and horizon_spread stay retracted to NULL, basis updated to remove the now-stale 'REQ PENDING' language. 5 of 14 canonical fields now NULL (up from 4, net of the beneish retraction). Status COMPLETE, data tier T1, opportunity tier O2 unchanged; listings, placements and prior evidence preserved."
     }
   ],
   "selection_review": {

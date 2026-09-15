@@ -1,15 +1,15 @@
 {
   "issuer_id": "NVENT-ELECTRIC",
   "issuer_name": "nVent Electric plc",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-15",
   "created_at": "2026-08-31T03:20:43Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-15T12:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US SEC filer, CIK 1720635: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent on 2026-08-28), SEC companyfacts fundamentals with 19/20 annual-field coverage (receivables missing), and a computed quality block in data/market/NVT.json.",
+  "data_tier_basis": "US SEC filer, CIK 1720635: dual-source price plane (price_status AGREED, yfinance and stockanalysis agreeing to the cent on 2026-08-28), SEC companyfacts fundamentals with 20/20 annual-field coverage as of the 2026-09-15 refetch (receivables_fy now resolved), and a computed quality block in data/market/NVT.json.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 2 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.beneish_state. A campaign-v1 screen row exists on the in-scope link, so the handoff is not the bar here; the metrics are. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Last examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS) for leverage.net_debt_to_ebitda and quality.beneish_state. The 2026-09-15 refetch (run profile NVT) resolved both fields: total_debt and cash now share the same 2026-06-30 date and receivables_fy now reaches FY2025, so no canonical field is NULL. This profile does not self-promote; opportunity tier stays O2 until the next run selection CAMP-20260901-01 re-examines it against the O1 bar with zero NULL canonical fields.",
   "listing_refs": [
     "NYSE-NVT"
   ],
@@ -147,9 +147,13 @@
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA is not computable from matched observations: the only total_debt point companyfacts returned for nVent is 2026-06-30 while the only cash point is 2023-12-31, a two-and-a-half-year gap between the two balance-sheet legs that a net-debt subtraction would silently paper over"
+        "value": 1.804576,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/NVT.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001720635.json",
+        "basis": "Net debt to EBITDA: total debt 1478600000 less cash 256000000, both as of 2026-06-30 (both legs now share the same balance-sheet date after the 2026-09-15 refetch, closing the prior two-and-a-half-year gap), giving net debt 1222600000; divided by an EBITDA proxy 677500000 (operating income 616800000 plus depreciation 60700000, both for the fiscal year ended 2025-12-31), all from companyfacts."
       }
     },
     "quality": {
@@ -163,9 +167,13 @@
         "basis": "Piotroski F-score 6 (state MIDDLING) computed over SEC companyfacts statements in data/market/NVT.json quality.piotroski; 9 of 9 inputs found."
       },
       "beneish_state": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "beneish M-score is PENDING_DATA in data/market/NVT.json quality: receivables_fy is absent from companyfacts coverage, leaving 11 of the 12 required inputs found."
+        "value": -1.862,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/NVT.json quality, computed over SEC EDGAR companyfacts",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001720635.json",
+        "basis": "Beneish M-score -1.862 (threshold -1.78), earnings-manipulation state CLEAN, computed over SEC companyfacts statements in data/market/NVT.json quality.beneish; 12 of 12 inputs found after the 2026-09-15 refetch resolved receivables_fy through fiscal year ended 2025-12-31 (previously absent from coverage). A more negative M-score is the non-manipulator reading."
       }
     },
     "valuation": {
@@ -266,23 +274,22 @@
   ],
   "data_gaps": [
     "This run could not independently fetch data/edgar/docs/NVT.json or the primary sec.gov exhibit: outbound access to sec.gov is blocked by this session's egress policy, so catalysts and risks rest on search-engine synthesis (INFERRED) rather than a verbatim-verified filing quote (VERIFIED).",
-    "Net debt to EBITDA is NULL: companyfacts returns only one total_debt point (2026-06-30) and one cash point (2023-12-31) for nVent, a two-and-a-half-year gap between the two legs.",
-    "Beneish is PENDING_DATA (state NULL here) because companyfacts is missing receivables_fy, leaving 11 of 12 required inputs.",
+    "Net debt to EBITDA and Beneish are both now computed as of the 2026-09-15 refetch (total_debt/cash dates now match; receivables_fy now reaches FY2025); no longer data gaps.",
     "No data-center revenue percentage of total company revenue is disclosed in the located coverage, only an absolute dollar figure.",
     "data/market/NVT.json carries no pcs block, so crowdedness caveats rest on the chain's own link-level rationale."
   ],
   "disposition": {
     "state": "RETAIN",
-    "basis": "Complete medium profile on the chain's money corner (power-equipment, UNDISCOVERED) and on the emerging liquid-cooling link, with a real, filing-referenced role on each and a fully computed T1 metric set apart from two companyfacts coverage gaps (leverage, Beneish). Retained rather than advanced because this run could not independently verify the cited press-release language against the primary filing (sec.gov blocked) and data-center exposure is disclosed only in dollars, not as a share of revenue. Selection is a separate command and is not run here.",
-    "as_of": "2026-08-31"
+    "basis": "Complete medium profile on the chain's money corner (power-equipment, UNDISCOVERED) and on the emerging liquid-cooling link, with a real, filing-referenced role on each and, as of the 2026-09-15 refetch, a fully computed T1 metric set with zero NULL canonical fields. Retained rather than advanced because this run could not independently verify the cited press-release language against the primary filing (sec.gov blocked) and data-center exposure is disclosed only in dollars, not as a share of revenue; opportunity-tier promotion itself is selection's call, not profile's. Selection is a separate command and is not run here.",
+    "as_of": "2026-09-15"
   },
   "confidence_audit": {
     "verified": 1,
-    "inferred": 7,
+    "inferred": 9,
     "speculative": 2,
-    "null": 2,
+    "null": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is the one figure read directly off SEC companyfacts as reported (latest_fy revenue). INFERRED covers figures computed from companyfacts, with the derivation named in each basis. SPECULATIVE is reserved for the reverse-DCF solve. NULL covers leverage (mismatched debt/cash observation dates) and Beneish (missing receivables input), both companyfacts coverage gaps rather than judgement calls."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the one figure read directly off SEC companyfacts as reported (latest_fy revenue). INFERRED covers figures computed from companyfacts, with the derivation named in each basis. SPECULATIVE is reserved for the reverse-DCF solve. No canonical field is NULL as of the 2026-09-15 refetch."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -325,6 +332,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on ai-infrastructure/power-equipment. Held O2. NULL canonical fields: leverage.net_debt_to_ebitda, quality.beneish_state."
+    },
+    {
+      "ts": "2026-09-15T12:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile NVT: refreshed against the 2026-09-15 data/market/NVT.json refetch (fetch.py fix confirmed receivables_fy now reaches FY2025). leverage.net_debt_to_ebitda computed 1.804576 (total_debt and cash now both dated 2026-06-30, closing the prior mismatched-dates gap) and quality.beneish_state scored -1.862 (CLEAN, 12/12 inputs found now that receivables_fy resolves). Zero canonical fields remain NULL. Status COMPLETE, data tier T1, opportunity tier held at O2 pending the next run selection re-examination; listings, placements and prior evidence preserved."
     }
   ],
   "selection_review": {

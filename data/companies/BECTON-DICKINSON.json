@@ -1,9 +1,9 @@
 {
   "issuer_id": "BECTON-DICKINSON",
   "issuer_name": "BECTON DICKINSON & CO",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-15",
   "created_at": "2026-09-04T22:00:00Z",
-  "updated_at": "2026-09-04T22:00:00Z",
+  "updated_at": "2026-09-15T12:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
@@ -87,14 +87,22 @@
     },
     "cash_conversion": {
       "operating_cash_flow_to_net_income": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "cash_conversion cannot be computed for BECTON-DICKINSON: operating_cashflow_fy in data/market/BDX.json fundamentals is stale since 2021-09-30 (net_income_fy and revenue_fy report through 2025-09-30), so neither operating_cash_flow_to_net_income nor fcf_margin can rest on a current same-period operating cash flow figure."
+        "value": 2.0441,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BDX.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+        "basis": "Operating cash flow 3430000000 divided by net income 1678000000, both for the fiscal year ended 2025-09-30, from companyfacts. operating_cashflow_fy was stale since 2021-09-30 in the prior fetch; the 2026-09-15 refetch resolved it through the current fiscal year.",
+        "official_source": true
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "fcf_margin specifically cannot be computed for BECTON-DICKINSON: operating_cashflow_fy in data/market/BDX.json fundamentals is stale since 2021-09-30 (net_income_fy and revenue_fy report through 2025-09-30), so neither operating_cash_flow_to_net_income nor fcf_margin can rest on a current same-period operating cash flow figure."
+        "value": 0.122253,
+        "tag": "INFERRED",
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/BDX.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+        "basis": "Free cash flow margin: operating cash flow 3430000000 less capital expenditure 760000000, divided by revenue 21840000000, all for the fiscal year ended 2025-09-30 from companyfacts. Same operating_cashflow_fy fix as operating_cash_flow_to_net_income.",
+        "official_source": true
       }
     },
     "leverage": {
@@ -150,14 +158,20 @@
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr not usable for BECTON-DICKINSON: data/market/BDX.json quality.derived.fcf (3887000000.0) is built from a stale operating_cashflow_fy figure (last reported 2021-09-30) combined with a current capex figure, so the base free cash flow is not a current, same-period statement."
+        "value": 0.177,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/BDX.json quality.reverse_dcf",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 78713214217.85 implies over a 5-year explicit period on base FCF 2670000000.0 (operating cash flow 3430000000 less capex 760000000, both fiscal year ended 2025-09-30), solved by bisection at a 0.09 discount rate and 0.025 terminal growth. data/market/BDX.json quality.reverse_dcf.state is SOLVED as of the 2026-09-15 refetch, which resolved the previously stale operating_cashflow_fy input. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread not usable for BECTON-DICKINSON for the same reason as implied_fcf_cagr: the underlying base_fcf mixes a stale operating_cashflow_fy figure with current capex."
+        "value": 0.0692,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/BDX.json quality.reverse_dcf",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000010795.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.177, '7': 0.1368, '10': 0.1078}). Measures how much of the expectation reading is a horizon convention rather than a price statement; inherits the same assumed discount rate and terminal growth."
       }
     }
   },
@@ -183,7 +197,7 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-04 from data/market/BDX.json (SEC XBRL companyfacts): canonical fields carry a sourced number except where noted below; each remaining NULL field carries a field-specific basis on the metric itself.",
+    "Filled 2026-09-15 from the refetched data/market/BDX.json (SEC XBRL companyfacts): operating_cashflow_fy, previously stale since 2021-09-30, now reaches fiscal year ended 2025-09-30, which closed all four prior NULL canonical fields (cash_conversion x2, reverse_dcf x2). No canonical metric field remains NULL.",
     "No chain- or link-specific revenue percentage is disclosed or sourced for BECTON-DICKINSON; only company-wide figures are available."
   ],
   "disposition": {
@@ -193,11 +207,11 @@
   },
   "confidence_audit": {
     "VERIFIED": 1,
-    "INFERRED": 7,
-    "SPECULATIVE": 0,
-    "NULL": 4,
+    "INFERRED": 9,
+    "SPECULATIVE": 2,
+    "NULL": 0,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only, computed this run from data/market/BDX.json (SEC XBRL companyfacts)."
+    "basis": "Counts cover the canonical metric fields only, computed this run from the 2026-09-15 refetch of data/market/BDX.json (SEC XBRL companyfacts). Zero canonical fields remain NULL."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -221,6 +235,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on glp1-fill-finish/autoinjector-and-pen-platforms. Held O2. NULL canonical fields: cash_conversion.operating_cash_flow_to_net_income, cash_conversion.fcf_margin, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
+    },
+    {
+      "ts": "2026-09-15T12:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile BDX: refreshed against the 2026-09-15 data/market/BDX.json refetch (fetch.py fix confirmed operating_cashflow_fy, previously stale since 2021-09-30, now reaches FY2025-09-30). Filled cash_conversion.operating_cash_flow_to_net_income (2.0441), cash_conversion.fcf_margin (0.122253), reverse_dcf.implied_fcf_cagr (0.177) and reverse_dcf.horizon_spread (0.0692), all previously NULL. Zero canonical fields remain NULL. Status COMPLETE, data tier T1, opportunity tier held at O2 (selection decides O1); listings, placements and prior evidence preserved."
     }
   ],
   "selection_review": {

@@ -1,15 +1,15 @@
 {
   "issuer_id": "WILLIS-TOWERS-WATSON",
   "issuer_name": "Willis Towers Watson plc",
-  "as_of": "2026-09-04",
+  "as_of": "2026-09-15",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-04T16:00:00Z",
+  "updated_at": "2026-09-15T12:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:WTW carries a real SEC CIK (1140536). data/market/WTW.json is on disk (fetched_at 2026-09-04) with a sec-companyfacts fundamentals block (16 of 20 statement fields; cost_of_revenue_fy and sga_fy missing entirely, and capex_fy/depreciation_fy stop at 2015 and 2012 respectively, both stale) and a SCORED-state quality block whose reverse_dcf solved despite the gaps because it needs only revenue, FCF and enterprise value, not the missing income-statement lines. The prior BLOCKED profile's basis (REQ-20260902-139/140 still PENDING) is stale: the fetch has since landed. Corrected this run.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): Nasdaq:WTW carries a real SEC CIK (1140536). data/market/WTW.json is on disk (fetched_at 2026-09-15) with a sec-companyfacts fundamentals block; capex_fy and depreciation_fy, previously stale since 2015 and 2012 respectively, were resolved through FY2025 by the 2026-09-15 refetch. cost_of_revenue_fy and sga_fy remain untagged entirely (fundamentals.coverage.missing), a genuine companyfacts concept gap for this insurance broker.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command, not run this batch (T1 O1 promotion additionally needs its own official cross-check on revenue and cash conversion, moot here since both fields already rest on sec-companyfacts directly). Revisit if run selection promotes this issuer.",
+  "opportunity_tier_basis": "COMPLETE profiles default to O2 per method section 6A; O1 is reserved for the explicit run selection command. The 2026-09-15 refetch (run profile WTW) resolved cash_conversion.fcf_margin and leverage.net_debt_to_ebitda, previously NULL; quality.piotroski and quality.beneish_state remain genuinely NULL (no cost_of_revenue_fy or sga_fy concept tagged for this issuer). Revisit if run selection promotes this issuer.",
   "listing_refs": [
     "NASDAQ-WTW"
   ],
@@ -109,28 +109,36 @@
         "official_source": true
       },
       "fcf_margin": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "free cash flow margin cannot be computed: companyfacts' capex_fy series for this filer stops at fiscal year 2015-12-31 (data/market/WTW.json fundamentals.capex_fy), ten years before the current 2025-12-31 revenue and cash-flow figures; no current-period capital expenditure figure exists to net against operating cash flow."
+        "value": 0.162463,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Free cash flow margin: operating cash flow 1775000000 less capital expenditure 229000000, divided by revenue 9516000000, all for the fiscal year ended 2025-12-31 from companyfacts. capex_fy was frozen at fiscal year ended 2015-12-31 in the prior fetch; the 2026-09-15 refetch resolved it through the current fiscal year."
       }
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net debt to EBITDA cannot be reliably proxied: net debt itself is known (total debt 5781000000 less cash 1627000000, both as of 2026-06-30, from companyfacts), but companyfacts' depreciation_fy series for this filer stops at fiscal year 2012-12-31 (data/market/WTW.json fundamentals.depreciation_fy), so no current-period EBITDA proxy (operating income plus depreciation) can be built without inventing a depreciation figure."
+        "value": 1.688618,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/WTW.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001140536.json",
+        "basis": "Net debt to EBITDA: total debt 5781000000 less cash 1627000000, both as of 2026-06-30, giving net debt 4154000000; divided by an EBITDA proxy 2460000000 (operating income 2234000000 plus depreciation 226000000, both for the fiscal year ended 2025-12-31), all from companyfacts. depreciation_fy was frozen at fiscal year ended 2012-12-31 in the prior fetch; the 2026-09-15 refetch resolved it through the current fiscal year, closing the gap."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski F-score not computed: data/market/WTW.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); companyfacts does not tag this filer's cost of revenue."
+        "basis": "piotroski F-score still not computed as of the 2026-09-15 refetch: data/market/WTW.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); companyfacts does not tag this filer's cost of revenue (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish M-score not computed: data/market/WTW.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); companyfacts does not tag either line for this filer."
+        "basis": "beneish M-score still not computed as of the 2026-09-15 refetch: data/market/WTW.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); companyfacts does not tag either line for this filer."
       }
     },
     "valuation": {
@@ -194,24 +202,22 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-04 from data/market/WTW.json (sec-companyfacts, official source, T1): 8 of 12 canonical fields carry a sourced number.",
-    "cash_conversion.fcf_margin NULL: companyfacts' capex_fy series stops at fiscal year 2015-12-31 for this filer.",
-    "leverage.net_debt_to_ebitda NULL: companyfacts' depreciation_fy series stops at fiscal year 2012-12-31 for this filer, so no current EBITDA proxy can be built even though net debt itself is known.",
-    "quality.piotroski and quality.beneish_state NULL: companyfacts is missing cost_of_revenue_fy (and sga_fy for beneish) for this filer.",
+    "Filled 2026-09-15 from the refetched data/market/WTW.json (sec-companyfacts, official source, T1): capex_fy and depreciation_fy, previously stale since 2015-12-31 and 2012-12-31, now reach FY2025, closing cash_conversion.fcf_margin and leverage.net_debt_to_ebitda. 10 of 12 canonical fields now carry a sourced number.",
+    "quality.piotroski and quality.beneish_state remain NULL: companyfacts is still missing cost_of_revenue_fy (and sga_fy for beneish) for this filer entirely, a genuine insurance-broker concept gap, not a stale series.",
     "No specialty-marine-broking-specific revenue percentage is sourced for WTW this run."
   ],
   "disposition": {
     "state": "RETAIN",
-    "as_of": "2026-09-04",
-    "basis": "Filled this run from data/market/WTW.json: sec-companyfacts, official source (T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 8 of 12 canonical fields carry a sourced number, the remaining 4 honest NULL on companyfacts' missing or stale income-statement lines for this filer. COMPLETE and O2 per method section 6A."
+    "as_of": "2026-09-15",
+    "basis": "Refreshed against the 2026-09-15 data/market/WTW.json refetch. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields now carry a sourced number, the remaining 2 honest NULL on companyfacts' missing cost_of_revenue_fy/sga_fy concepts for this filer. COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 1,
-    "INFERRED": 5,
+    "INFERRED": 7,
     "SPECULATIVE": 2,
-    "NULL": 4,
+    "NULL": 2,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. SPECULATIVE covers the two reverse-DCF fields, whose discount rate and terminal growth are assumed. NULL covers the 4 fields blocked by companyfacts' missing or stale cost_of_revenue_fy, sga_fy, capex_fy and depreciation_fy for this filer, never estimated."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is the single figure (revenue) read directly off sec-companyfacts as reported. INFERRED with official_source true is computed from the same companyfacts filing. SPECULATIVE covers the two reverse-DCF fields, whose discount rate and terminal growth are assumed. NULL covers the 2 fields blocked by companyfacts' missing cost_of_revenue_fy and sga_fy concepts for this filer, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -247,6 +253,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on hormuz-maritime/specialty-marine-broking. Held O2. NULL canonical fields: cash_conversion.fcf_margin, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state."
+    },
+    {
+      "ts": "2026-09-15T12:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile WTW: refreshed against the 2026-09-15 data/market/WTW.json refetch (capex_fy resolved through FY2025, previously stale since 2015-12-31; depreciation_fy resolved through FY2025, previously stale since 2012-12-31). Filled cash_conversion.fcf_margin (0.162463) and leverage.net_debt_to_ebitda (1.688618), both previously NULL. quality.piotroski and quality.beneish_state remain NULL: companyfacts still carries no cost_of_revenue_fy (or sga_fy) concept for this issuer, confirmed genuine and unfixed. 2 of 12 canonical fields remain NULL (down from 4). Status COMPLETE, data tier T1, opportunity tier O2 unchanged; listings, placements and prior evidence preserved."
     }
   ],
   "selection_review": {

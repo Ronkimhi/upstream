@@ -1,15 +1,15 @@
 {
   "issuer_id": "AON",
   "issuer_name": "Aon plc",
-  "as_of": "2026-09-02",
+  "as_of": "2026-09-15",
   "created_at": "2026-09-02T14:30:00Z",
-  "updated_at": "2026-09-02T15:16:47Z",
+  "updated_at": "2026-09-15T12:00:00Z",
   "generated_by": "sieve-profiler",
   "status": "COMPLETE",
   "data_tier": "T1",
-  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:AON carries a real SEC CIK (315293) with sec-companyfacts fundamentals in data/market/AON.json; several balance-sheet-adjacent series (shares_fy, depreciation_fy) stopped updating years ago, a real companyfacts coverage gap rather than a fetch failure.",
+  "data_tier_basis": "US-listed SEC filer (method section 6): NYSE:AON carries a real SEC CIK (315293) with sec-companyfacts fundamentals in data/market/AON.json. shares_fy and depreciation_fy, frozen for years, were resolved through FY2025 by the 2026-09-15 refetch; cost_of_revenue_fy and sga_fy remain untagged (fundamentals.coverage.missing), a genuine companyfacts concept gap for insurance brokers rather than a fetch failure.",
   "opportunity_tier": "O2",
-  "opportunity_tier_basis": "Examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS). Sits on hormuz-maritime/specialty-marine-broking (Specialty marine broking and placement, verdict UNDISCOVERED, money_corner True), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 7 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed. O2 is a COMPLETE medium profile kept for monitoring, not a rejection; the full record is in selection_review.",
+  "opportunity_tier_basis": "Last examined by run selection CAMP-20260901-01 on 2026-09-02 and retained at O2 (O1_BARRED_BY_NULL_CANONICAL_FIELDS) for 7 NULL canonical fields. The 2026-09-15 refetch (run profile AON) resolved 5 of them: leverage.net_debt_to_ebitda, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Two remain genuinely NULL: quality.piotroski and quality.beneish_state, both blocked on companyfacts' missing cost_of_revenue_fy/sga_fy concepts for this insurance broker. This profile does not self-promote; opportunity tier stays O2 until the next run selection CAMP-20260901-01 re-examines it against the O1 bar with 2 NULL canonical fields remaining.",
   "listing_refs": [
     "NYSE-AON"
   ],
@@ -119,45 +119,63 @@
     },
     "leverage": {
       "net_debt_to_ebitda": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "net_debt_to_ebitda cannot be computed reliably for AON: companyfacts depreciation_fy in data/market/AON.json fundamentals has no entry after fiscal year ended 2018-12-31, seven years stale against the FY2025 operating-income figure, so the EBITDA proxy (operating income plus depreciation) would rest on a non-representative depreciation input."
+        "value": 2.622462,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "SEC EDGAR XBRL companyfacts, read from data/market/AON.json fundamentals (source sec-companyfacts)",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315293.json",
+        "basis": "Net debt to EBITDA: total debt 12947000000 less cash 1062000000, both as of 2026-06-30, giving net debt 11885000000; divided by an EBITDA proxy 4532000000 (operating income 4344000000 plus depreciation 188000000, both for the fiscal year ended 2025-12-31), all from companyfacts. depreciation_fy was frozen at fiscal year ended 2018-12-31 in the prior fetch; the 2026-09-15 refetch resolved it through the current fiscal year, closing the gap."
       }
     },
     "quality": {
       "piotroski": {
         "value": null,
         "tag": "NULL",
-        "basis": "piotroski cannot be scored for AON: data/market/AON.json quality.piotroski.state is PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found)."
+        "basis": "piotroski cannot be scored for AON as of the 2026-09-15 refetch: data/market/AON.json quality.piotroski.state is still PENDING_DATA, missing cost_of_revenue_fy (8 of 9 inputs found); Aon is an insurance broker and companyfacts carries no cost-of-revenue concept for it (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory)."
       },
       "beneish_state": {
         "value": null,
         "tag": "NULL",
-        "basis": "beneish_state cannot be scored for AON: data/market/AON.json quality.beneish.state is PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found)."
+        "basis": "beneish_state cannot be scored for AON as of the 2026-09-15 refetch: data/market/AON.json quality.beneish.state is still PENDING_DATA, missing cost_of_revenue_fy and sga_fy (10 of 12 inputs found); same insurance-broker concept gap as piotroski."
       }
     },
     "valuation": {
       "market_cap": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "market capitalization cannot be reliably computed for AON: companyfacts shares_fy in data/market/AON.json fundamentals has no entry after fiscal year ended 2015-12-31 (269800000 shares), eleven years stale; the quality block's derived.market_cap of 95886920000.0 rests on that same stale share count and is not usable as a current figure."
+        "value": 64927005000.0,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/AON.json quality.derived.market_cap",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315293.json",
+        "basis": "Market capitalization 64927005000.0 = SEC companyfacts diluted share count 214500000 (as of 2025-12-31) multiplied by the close 302.69 (data/market/AON.json, as of 2026-09-11). shares_fy was frozen at fiscal year ended 2015-12-31 (269800000 shares) in the prior fetch; the 2026-09-15 refetch resolved it through fiscal year ended 2025-12-31, closing the gap. The share count is the official SEC figure; the close is the repo's own market plane, not an issuer document."
       },
       "price_to_sales": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "price-to-sales cannot be computed for AON without a reliable market capitalization; see valuation.market_cap basis (shares_fy frozen since 2015-12-31)."
+        "value": 3.779,
+        "tag": "INFERRED",
+        "official_source": true,
+        "source_name": "Upstream market store data/market/AON.json quality.derived.market_cap over SEC companyfacts revenue",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315293.json",
+        "basis": "Market capitalization 64927005000.0 divided by fiscal year 2025-12-31 revenue 17181000000."
       }
     },
     "reverse_dcf": {
       "implied_fcf_cagr": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "implied_fcf_cagr not usable for AON: data/market/AON.json quality.reverse_dcf solved (0.2099) but its enterprise_value input rests on the same stale (2015-12-31) share count used for market_cap, so the solve is not a current-price statement."
+        "value": 0.1239,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/AON.json quality.reverse_dcf",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315293.json",
+        "basis": "Free-cash-flow CAGR the current enterprise value 76812005000.0 implies over a 5-year explicit period on base FCF 3218000000.0, solved by bisection at a 0.09 discount rate and 0.025 terminal growth. data/market/AON.json quality.reverse_dcf.state is SOLVED as of the 2026-09-15 refetch, which resolved the previously stale (2015-12-31) share count feeding enterprise_value. Assumption-dependent expectation reading, not a reported figure."
       },
       "horizon_spread": {
-        "value": null,
-        "tag": "NULL",
-        "basis": "horizon_spread not usable for AON for the same reason as implied_fcf_cagr: the underlying enterprise_value rests on a share count frozen since fiscal year ended 2015-12-31."
+        "value": 0.044,
+        "tag": "SPECULATIVE",
+        "source_name": "Upstream market store data/market/AON.json quality.reverse_dcf",
+        "source_date": "2026-09-15",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000315293.json",
+        "basis": "Spread between the implied CAGR solved over the shortest and longest explicit periods in quality.reverse_dcf.implied_by_horizon ({'5': 0.1239, '7': 0.0985, '10': 0.0799}). Measures how much of the expectation reading is a horizon convention rather than a price statement; inherits the same assumed discount rate and terminal growth."
       }
     }
   },
@@ -183,22 +201,22 @@
     }
   ],
   "data_gaps": [
-    "Filled 2026-09-02 from data/market/AON.json (sec-companyfacts): 5 of 12 canonical fields carry a sourced number; leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr and reverse_dcf.horizon_spread stay NULL, each with a field-specific basis on the metric.",
+    "Filled 2026-09-15 from the refetched data/market/AON.json (sec-companyfacts): shares_fy and depreciation_fy, previously frozen at 2015-12-31 and 2018-12-31 respectively, now reach FY2025, which closed leverage.net_debt_to_ebitda, valuation.market_cap, valuation.price_to_sales and both reverse_dcf fields. 10 of 12 canonical fields now carry a sourced number.",
     "No Gulf-marine-specific revenue percentage is sourced for Aon this run.",
-    "companyfacts shares_fy is frozen at fiscal year ended 2015-12-31 (269800000 shares) and depreciation_fy at fiscal year ended 2018-12-31 for CIK 315293: a fresh companyfacts pull or an official Aon annual report is needed to unblock market_cap, leverage and reverse_dcf."
+    "quality.piotroski and quality.beneish_state remain NULL: companyfacts carries no cost_of_revenue_fy or sga_fy concept for Aon at all (fundamentals.coverage.missing: gross_profit, cost_of_revenue, sga, inventory), a genuine insurance-broker filing gap, not a stale series."
   ],
   "disposition": {
     "state": "RETAIN",
-    "as_of": "2026-09-02",
-    "basis": "Created this run from data/market/AON.json (sec-companyfacts, T1). RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 5 of 12 canonical fields carry a sourced number, the rest honest NULL on a real companyfacts staleness gap (shares_fy since 2015, depreciation_fy since 2018). COMPLETE and O2 per method section 6A."
+    "as_of": "2026-09-15",
+    "basis": "Refreshed against the 2026-09-15 data/market/AON.json refetch. RETAIN rather than ADVANCE because run selection is a separate command not run this batch; 10 of 12 canonical fields now carry a sourced number, the rest honest NULL on a real companyfacts concept gap (Aon does not tag cost_of_revenue or sga at all). COMPLETE and O2 per method section 6A."
   },
   "confidence_audit": {
     "VERIFIED": 1,
-    "INFERRED": 4,
-    "SPECULATIVE": 0,
-    "NULL": 7,
+    "INFERRED": 7,
+    "SPECULATIVE": 2,
+    "NULL": 2,
     "canonical_fields_written": 12,
-    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. NULL is a field looked for in companyfacts and found to rest on a stale (multi-year-frozen) input, named on the field itself, never estimated from a stale base."
+    "basis": "Counts cover the canonical metric fields only. VERIFIED is a figure read directly off SEC companyfacts as reported. INFERRED with official_source true is computed from SEC companyfacts. SPECULATIVE is the reverse-DCF solve, whose discount rate and terminal growth are assumed. NULL is a field looked for in companyfacts and found genuinely absent (no cost_of_revenue or sga concept tagged for this issuer), named on the field itself, never estimated."
   },
   "notes": [
     "Profiles are medium-depth reusable research. This file carries no final verdict, no entry zone and no red team; those belong to the deep-dive stage.",
@@ -228,6 +246,12 @@
       "by": "sieve-profiler",
       "kind": "NOTE",
       "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on hormuz-maritime/specialty-marine-broking. Held O2. NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
+    },
+    {
+      "ts": "2026-09-15T12:00:00Z",
+      "by": "sieve-profiler",
+      "kind": "AMEND",
+      "change": "run profile AON: refreshed against the 2026-09-15 data/market/AON.json refetch (shares_fy resolved through FY2025, previously frozen since 2015-12-31; depreciation_fy resolved through FY2025, previously frozen since 2018-12-31). Filled leverage.net_debt_to_ebitda (2.622462), valuation.market_cap (64927005000.0), valuation.price_to_sales (3.779), reverse_dcf.implied_fcf_cagr (0.1239) and reverse_dcf.horizon_spread (0.044), all previously NULL. quality.piotroski and quality.beneish_state remain NULL: fundamentals.coverage.missing still names cost_of_revenue, sga (and gross_profit, inventory) as unfiled concepts for this insurance broker, confirmed genuine and unfixed. 2 of 12 canonical fields remain NULL (down from 7). Status COMPLETE, data tier T1, opportunity tier held at O2 pending the next run selection re-examination; listings, placements and prior evidence preserved."
     }
   ],
   "selection_review": {
