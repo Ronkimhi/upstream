@@ -296,15 +296,20 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile ABBNY: re-read data/market/ABBNY.json after the 2026-09-04 fetcher fix (commit 54cbeaa, foreign filers' cash and debt now read from 20-F/40-F, latest-facts taxonomy wins). All 6 remaining NULL canonical fields filled: cash_conversion.operating_cash_flow_to_net_income 1.121862 (INFERRED, official_source true); leverage.net_debt_to_ebitda 0.235357 (INFERRED, official_source true); quality.piotroski 7/STRONG and quality.beneish_state -2.501/CLEAN (both INFERRED, official_source true, sec-companyfacts quality block); reverse_dcf.implied_fcf_cagr 0.335 and reverse_dcf.horizon_spread 0.1491 (both SPECULATIVE, discount-rate/terminal-growth assumptions). 12 of 12 canonical fields now sourced, zero NULL. Added one catalyst and superseded one stale risk; added one new risk naming the SPECULATIVE reverse-DCF assumptions and the single-source price. Status stays COMPLETE, data_tier T2 unchanged; opportunity_tier stays O2 (this run does not run selection; the 2026-09-02 selection_review NULL-field list is a preserved historical snapshot)."
+    },
+    {
+      "ts": "2026-09-15T02:18:43Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14): examined against the O1 bar on ai-infrastructure/power-equipment. Held O2. NULL canonical fields: cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-02",
+    "as_of": "2026-09-14",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01",
+    "command": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14)",
     "reviewed_by": "sieve-profiler",
-    "outcome": "RETAINED_O2",
-    "reason_code": "O1_BARRED_BY_NULL_CANONICAL_FIELDS",
+    "outcome": "HELD_O2",
     "null_canonical_fields": [
       "cash_conversion.operating_cash_flow_to_net_income",
       "leverage.net_debt_to_ebitda",
@@ -313,7 +318,22 @@
       "reverse_dcf.implied_fcf_cagr",
       "reverse_dcf.horizon_spread"
     ],
-    "reason": "Sits on ai-infrastructure/power-equipment (Power equipment, verdict UNDISCOVERED, money_corner True); ai-infrastructure/grid-interconnect (Grid & interconnection, verdict UNDISCOVERED, money_corner False), inside this campaign's DEPTH scope (money-corner and UNDISCOVERED links only), so it was examined as a real O1 candidate. Barred by 6 NULL canonical metric field(s) that method section 6A forbids retaining on an O1 profile: cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. No campaign-v1 screen row exists on the in-scope link either, so a screen_handoff could not be written even if the metrics closed.",
-    "revisit": "Revisit once the named canonical fields carry a sourced value (a fetch or an official-source cross-check), then re-run run selection CAMP-20260901-01."
+    "examined_links": [
+      {
+        "theme_id": "ai-infrastructure",
+        "chain_id": "ai-infrastructure",
+        "link_id": "power-equipment",
+        "state": "DATA_COMPLETENESS",
+        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
+        "detail": "NULL canonical fields: cash_conversion.operating_cash_flow_to_net_income, leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Theme is at its DEPTH O1 cap this run."
+      }
+    ]
+  },
+  "selection_note": {
+    "lang": "he",
+    "why_not_now": "הפרופיל של ABBNY בקישור ציוד הספק בשרשרת תשתיות בינה מלאכותית נשאר ברמת מחקר שתיים בסבב הזה. הסיבה האמיתית היא נתונים חסרים על שדות חובה בפרופיל שאסור להשאיר ריקים ברמה אחת: יחס תזרים המזומנים התפעולי לרווח הנקי; יחס החוב נטו לרווח התפעולי לפני פחת והפחתות; ציון פיוטרוסקי לאיכות הדוחות; מדד בנייש לזיהוי מניפולציה חשבונאית; קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. השדות האלה מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
+    "what_would_promote": "קידום ABBNY לרמה אחת ידרוש קודם עדכון פרופיל אמיתי דרך הפקודה הייעודית שממלא את השדות החסרים ממקור רשמי או ממאגר הנתונים המעודכן, ורק אחר כך בדיקה חוזרת מול התקרה. התימה כבר מחזיקה שלוש חברות ברמה אחת, התקרה המרבית בסבב הנוכחי, וגם אין עדיין שורת סינון על הקישור הזה.",
+    "as_of": "2026-09-14",
+    "by": "sieve-profiler"
   }
 }
