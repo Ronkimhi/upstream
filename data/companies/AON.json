@@ -252,22 +252,23 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile AON: refreshed against the 2026-09-15 data/market/AON.json refetch (shares_fy resolved through FY2025, previously frozen since 2015-12-31; depreciation_fy resolved through FY2025, previously frozen since 2018-12-31). Filled leverage.net_debt_to_ebitda (2.622462), valuation.market_cap (64927005000.0), valuation.price_to_sales (3.779), reverse_dcf.implied_fcf_cagr (0.1239) and reverse_dcf.horizon_spread (0.044), all previously NULL. quality.piotroski and quality.beneish_state remain NULL: fundamentals.coverage.missing still names cost_of_revenue, sga (and gross_profit, inventory) as unfiled concepts for this insurance broker, confirmed genuine and unfixed. 2 of 12 canonical fields remain NULL (down from 7). Status COMPLETE, data tier T1, opportunity tier held at O2 pending the next run selection re-examination; listings, placements and prior evidence preserved."
+    },
+    {
+      "ts": "2026-09-15T13:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. Held O2. NULL canonical fields narrowed to quality.piotroski, quality.beneish_state (leverage, valuation and reverse_dcf resolved this refresh); the quality gap is structural, no cost_of_revenue concept in companyfacts for this insurance broker. Theme hormuz-maritime has room under its DEPTH O1 cap (one of three). selection_review and selection_note updated to match current metrics."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-14",
+    "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
     "reviewed_by": "sieve-profiler",
     "outcome": "HELD_O2",
     "null_canonical_fields": [
-      "leverage.net_debt_to_ebitda",
       "quality.piotroski",
-      "quality.beneish_state",
-      "valuation.market_cap",
-      "valuation.price_to_sales",
-      "reverse_dcf.implied_fcf_cagr",
-      "reverse_dcf.horizon_spread"
+      "quality.beneish_state"
     ],
     "examined_links": [
       {
@@ -276,15 +277,15 @@
         "link_id": "specialty-marine-broking",
         "state": "DATA_COMPLETENESS",
         "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, valuation.market_cap, valuation.price_to_sales, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
+        "detail": "NULL canonical fields: quality.piotroski, quality.beneish_state. leverage, valuation and reverse_dcf all resolved by the 2026-09-15 refresh. The remaining gap is structural: Aon is an insurance broker and companyfacts carries no cost_of_revenue concept for it, the input both quality scores need; T1 filers cannot substitute the T2/T3 official_source_equivalent path."
       }
     ]
   },
   "selection_note": {
     "lang": "he",
-    "why_not_now": "הפרופיל של AON בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה. הסיבה האמיתית היא נתונים חסרים על שדות חובה בפרופיל שאסור להשאיר ריקים ברמה אחת: יחס החוב נטו לרווח התפעולי לפני פחת והפחתות; ציון פיוטרוסקי לאיכות הדוחות; מדד בנייש לזיהוי מניפולציה חשבונאית; שווי השוק; מכפיל המכירות; קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. השדות האלה מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
-    "what_would_promote": "קידום AON לרמה אחת ידרוש קודם עדכון פרופיל אמיתי דרך הפקודה הייעודית שממלא את השדות החסרים ממקור רשמי או ממאגר הנתונים המעודכן, ורק אחר כך בדיקה חוזרת מול התקרה. בתימה הזאת יש עדיין מקום מתחת לתקרה, כך שהשלמת הנתונים לבדה עשויה לספיק.",
-    "as_of": "2026-09-14",
+    "why_not_now": "הפרופיל של AON בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה, אבל אחרי הרענון האחרון רוב שדות החובה כבר מלאים: יחס החוב נטו, שווי השוק, מכפיל המכירות וגם שני שדות מודל ההיוון ההפוך. השדה היחיד שנשאר ריק ברמה אחת הוא קבוצת האיכות, ציון פיוטרוסקי ומדד בנייש, ולא בגלל תקלה זמנית אלא בגלל שברוקר ביטוח כמו אאון לא מדווח בדוחות הרשמיים על עלות ההכנסות, קלט שהחישוב של שני המדדים האלה חייב. השדה מסומן במפורש כריק עם הסבר למה אין לו ערך במקור הנתונים הקיים, ולא הומצא עבורו מספר.",
+    "what_would_promote": "קידום AON לרמה אחת ידרוש דרך עוקפת לחישוב איכות הדוחות שלא נשענת על עלות ההכנסות, או אישור שהחלופה למקור רשמי ברמת נתונים נמוכה חלה גם על חברה שמדווחת ברמת נתונים אחת מלאה, מה שאינו כך היום. זו עבודה שמחוץ לתחום הסמכות של בדיקת פרופיל בודד ודורשת החלטה נפרדת על השיטה. בתימה הזאת עדיין יש מקום מתחת לתקרה, כך שפתרון השדה החסר עשוי להספיק לבדו.",
+    "as_of": "2026-09-15",
     "by": "sieve-profiler"
   }
 }

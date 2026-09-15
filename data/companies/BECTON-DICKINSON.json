@@ -241,36 +241,37 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile BDX: refreshed against the 2026-09-15 data/market/BDX.json refetch (fetch.py fix confirmed operating_cashflow_fy, previously stale since 2021-09-30, now reaches FY2025-09-30). Filled cash_conversion.operating_cash_flow_to_net_income (2.0441), cash_conversion.fcf_margin (0.122253), reverse_dcf.implied_fcf_cagr (0.177) and reverse_dcf.horizon_spread (0.0692), all previously NULL. Zero canonical fields remain NULL. Status COMPLETE, data tier T1, opportunity tier held at O2 (selection decides O1); listings, placements and prior evidence preserved."
+    },
+    {
+      "ts": "2026-09-15T13:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. BDX now clears the O1 data-completeness bar in full (no NULL canonical fields; both cash_conversion fields and both reverse_dcf fields resolved this refresh). Held O2 anyway: theme glp1-fill-finish already holds three FINAL O1 issuers, the DEPTH cap this run; promoting a fourth is a quota decision, not a data one. selection_review and selection_note rewritten to reflect the cleared bar."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-14",
+    "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
     "reviewed_by": "sieve-profiler",
     "outcome": "HELD_O2",
-    "null_canonical_fields": [
-      "cash_conversion.operating_cash_flow_to_net_income",
-      "cash_conversion.fcf_margin",
-      "reverse_dcf.implied_fcf_cagr",
-      "reverse_dcf.horizon_spread"
-    ],
+    "null_canonical_fields": [],
     "examined_links": [
       {
         "theme_id": "glp1-fill-finish",
         "chain_id": "glp1-fill-finish",
         "link_id": "autoinjector-and-pen-platforms",
-        "state": "DATA_COMPLETENESS",
-        "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: cash_conversion.operating_cash_flow_to_net_income, cash_conversion.fcf_margin, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Theme is at its DEPTH O1 cap this run."
+        "state": "QUOTA_CAP",
+        "reason": "Every canonical metric field is present and sourced (revenue.latest_fy VERIFIED; cash_conversion carries the official-source cross-check); this profile clears the O1 data-completeness bar in full.",
+        "detail": "No NULL canonical fields remain after the 2026-09-15 refresh (both cash_conversion fields and both reverse_dcf fields resolved this run). It stays O2 only because the theme already holds three O1 issuers (HALOZYME-THERAPEUTICS, STERIS, WEST-PHARMACEUTICAL-SERVICES), each with a FINAL verdict, the DEPTH cap for this run; promoting a fourth needs an explicit quota decision, not a data fix."
       }
     ]
   },
   "selection_note": {
     "lang": "he",
-    "why_not_now": "הפרופיל של BDX בקישור פלטפורמות מזרק עט אוטומטיות בשרשרת מילוי וגימור תרופות ההרזיה מסוג אגוניסט GLP נשאר ברמת מחקר שתיים בסבב הזה. הסיבה האמיתית היא נתונים חסרים על שדות חובה בפרופיל שאסור להשאיר ריקים ברמה אחת: יחס תזרים המזומנים התפעולי לרווח הנקי; שולי תזרים המזומנים החופשי; קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. השדות האלה מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
-    "what_would_promote": "קידום BDX לרמה אחת ידרוש קודם עדכון פרופיל אמיתי דרך הפקודה הייעודית שממלא את השדות החסרים ממקור רשמי או ממאגר הנתונים המעודכן, ורק אחר כך בדיקה חוזרת מול התקרה. התימה כבר מחזיקה שלוש חברות ברמה אחת, התקרה המרבית בסבב הנוכחי.",
-    "as_of": "2026-09-14",
+    "why_not_now": "הפרופיל של BDX בקישור פלטפורמות מזרק עט אוטומטיות בשרשרת מילוי וגימור תרופות ההרזיה מסוג אגוניסט GLP עבר רענון מלא וכל שדות החובה שלו כעת מלאים במספרים ממקור רשמי, כולל יחס תזרים המזומנים התפעולי לרווח הנקי, שולי תזרים המזומנים החופשי, קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. הסיבה שהוא עדיין ברמת מחקר שתיים היא לא נתונים חסרים אלא תקרת התימה: התימה הזאת כבר מחזיקה שלוש חברות ברמה אחת עם פסק דין סופי לכל אחת, התקרה המרבית בסבב הנוכחי.",
+    "what_would_promote": "קידום BDX לרמה אחת לא דורש עוד השלמת נתונים בפרופיל עצמו. הוא ידרוש החלטה מפורשת להרחיב את תקרת החברות ברמה אחת בתימה הזאת או להחליף אחת מהחברות הקיימות שכבר קיבלו פסק דין סופי, החלטה שמעבר לסמכות הרגילה של בדיקת פרופיל בודד.",
+    "as_of": "2026-09-15",
     "by": "sieve-profiler"
   }
 }

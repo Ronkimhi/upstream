@@ -337,17 +337,24 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile POWL: refreshed against the 2026-09-15 data/market/POWL.json refetch. leverage.net_debt_to_ebitda and quality.piotroski remain genuinely PENDING_DATA (long_term_debt zeroed since FY2022, unfixed; basis text updated to cite current fundamentals.coverage.missing). RETRACTED quality.beneish_state from -2.163 CLEAN (2026-08-29) to NULL: the refetched market file's quality.beneish now reports state PENDING_DATA missing long_term_debt_fy (11 of 12 inputs), so the prior score is no longer supported by the current store and is dropped rather than carried forward as a remembered figure (venue rule, method section 1). Confirmed REQ-20260904-40/41/42 are FULFILLED but did not restore quality.shares_used past the 2026-04-02 forward split (still reads the pre-split 12070178 as_of 2025-09-30): reverse_dcf.implied_fcf_cagr and horizon_spread stay retracted to NULL, basis updated to remove the now-stale 'REQ PENDING' language. 5 of 14 canonical fields now NULL (up from 4, net of the beneish retraction). Status COMPLETE, data tier T1, opportunity tier O2 unchanged; listings, placements and prior evidence preserved."
+    },
+    {
+      "ts": "2026-09-15T13:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. Held O2. NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state (retracted this refresh), reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Theme ai-infrastructure remains at its DEPTH O1 cap (three, all FINAL). selection_review and selection_note updated to add the retracted beneish_state field."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-14",
+    "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
     "reviewed_by": "sieve-profiler",
     "outcome": "HELD_O2",
     "null_canonical_fields": [
       "leverage.net_debt_to_ebitda",
       "quality.piotroski",
+      "quality.beneish_state",
       "reverse_dcf.implied_fcf_cagr",
       "reverse_dcf.horizon_spread"
     ],
@@ -358,15 +365,15 @@
         "link_id": "power-equipment",
         "state": "DATA_COMPLETENESS",
         "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. Theme is at its DEPTH O1 cap this run."
+        "detail": "NULL canonical fields: leverage.net_debt_to_ebitda, quality.piotroski, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread. The 2026-09-15 refresh also retracted the prior beneish_state reading (-2.163 CLEAN) to NULL: the refetched market file now reports that input PENDING_DATA, so the old score is no longer supported. Theme is at its DEPTH O1 cap this run."
       }
     ]
   },
   "selection_note": {
     "lang": "he",
-    "why_not_now": "הפרופיל של POWL בקישור ציוד הספק בשרשרת תשתיות בינה מלאכותית נשאר ברמת מחקר שתיים בסבב הזה. הסיבה האמיתית היא נתונים חסרים על שדות חובה בפרופיל שאסור להשאיר ריקים ברמה אחת: יחס החוב נטו לרווח התפעולי לפני פחת והפחתות; ציון פיוטרוסקי לאיכות הדוחות; קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. השדות האלה מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
-    "what_would_promote": "קידום POWL לרמה אחת ידרוש קודם עדכון פרופיל אמיתי דרך הפקודה הייעודית שממלא את השדות החסרים ממקור רשמי או ממאגר הנתונים המעודכן, ורק אחר כך בדיקה חוזרת מול התקרה. התימה כבר מחזיקה שלוש חברות ברמה אחת, התקרה המרבית בסבב הנוכחי.",
-    "as_of": "2026-09-14",
+    "why_not_now": "הפרופיל של POWL בקישור ציוד הספק בשרשרת תשתיות בינה מלאכותית נשאר ברמת מחקר שתיים בסבב הזה. הרענון האחרון גם משך בחזרה את מדד בנייש לריק: הערך הקודם נשען על קלט חוב שהמאגר כבר לא מספק לחברה הזאת, ולכן לא ניתן להמשיך ולצטט אותו. השדות שנשארים ריקים ברמה אחת הם יחס החוב נטו לרווח התפעולי לפני פחת והפחתות, ציון פיוטרוסקי, מדד בנייש, קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. כל השדות האלה מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
+    "what_would_promote": "קידום POWL לרמה אחת ידרוש קודם תיקון אצל מריץ הנתונים של יחס החוב, מספר המניות המעודכן אחרי פיצול המניות והחישוב מחדש של מודל ההיוון ההפוך שנשען עליו, כל אלה מחוץ לתחום הסמכות של בדיקת פרופיל. רק אחרי שהשדות האלה יתמלאו ממקור אמין תיתכן בדיקה חוזרת מול תקרת החברות בתימה.",
+    "as_of": "2026-09-15",
     "by": "sieve-profiler"
   }
 }

@@ -248,21 +248,24 @@
       "by": "sieve-profiler",
       "kind": "AMEND",
       "change": "run profile AJG: refreshed against the 2026-09-15 data/market/AJG.json refetch (capex_fy resolved through FY2025, previously frozen since 2016-12-31, confirming the fetch-plane fix named for this ticker). Filled cash_conversion.fcf_margin (0.12803), reverse_dcf.implied_fcf_cagr (0.2606) and reverse_dcf.horizon_spread (0.1106), all previously NULL. margins.operating_margin, leverage.net_debt_to_ebitda and quality.beneish_state remain NULL: companyfacts still carries no operating_income_fy or sga_fy concept at all for this issuer, confirmed genuine and unfixed (insurance brokers do not tag these lines). 3 of 12 canonical fields remain NULL (down from 6). Status COMPLETE, data tier T1, opportunity tier held at O2 pending the next run selection re-examination; listings, placements and prior evidence preserved."
+    },
+    {
+      "ts": "2026-09-15T13:30:00Z",
+      "by": "sieve-profiler",
+      "kind": "NOTE",
+      "change": "run selection CAMP-20260901-01: re-examined after the 2026-09-15 profile refresh. Held O2. NULL canonical fields narrowed to margins.operating_margin, leverage.net_debt_to_ebitda, quality.beneish_state (fcf_margin and both reverse_dcf fields resolved this refresh; piotroski scored 5). The remaining gap is structural, no operating_income or sga concept in companyfacts for this filer. Theme hormuz-maritime has room under its DEPTH O1 cap (one of three). selection_review and selection_note updated to match current metrics."
     }
   ],
   "selection_review": {
-    "as_of": "2026-09-14",
+    "as_of": "2026-09-15",
     "campaign_ref": "data/campaigns/CAMP-20260901-01.json",
-    "command": "run selection CAMP-20260901-01 (money-corner scope, 2026-09-14)",
+    "command": "run selection CAMP-20260901-01 (2026-09-15 post-refresh review)",
     "reviewed_by": "sieve-profiler",
     "outcome": "HELD_O2",
     "null_canonical_fields": [
       "margins.operating_margin",
-      "cash_conversion.fcf_margin",
       "leverage.net_debt_to_ebitda",
-      "quality.beneish_state",
-      "reverse_dcf.implied_fcf_cagr",
-      "reverse_dcf.horizon_spread"
+      "quality.beneish_state"
     ],
     "examined_links": [
       {
@@ -271,15 +274,15 @@
         "link_id": "specialty-marine-broking",
         "state": "DATA_COMPLETENESS",
         "reason": "At least one canonical metric field is NULL; O1 forbids any NULL canonical field, so this profile cannot clear the O1 bar until the field is filled.",
-        "detail": "NULL canonical fields: margins.operating_margin, cash_conversion.fcf_margin, leverage.net_debt_to_ebitda, quality.beneish_state, reverse_dcf.implied_fcf_cagr, reverse_dcf.horizon_spread."
+        "detail": "NULL canonical fields: margins.operating_margin, leverage.net_debt_to_ebitda, quality.beneish_state (quality.piotroski scored 5, and cash_conversion.fcf_margin plus both reverse_dcf fields resolved by the 2026-09-15 refresh). The remaining gap is structural: companyfacts carries no operating_income or sga concept for this filer at all, the inputs the first two fields and beneish both need."
       }
     ]
   },
   "selection_note": {
     "lang": "he",
-    "why_not_now": "הפרופיל של AJG בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה. הסיבה האמיתית היא נתונים חסרים על שדות חובה בפרופיל שאסור להשאיר ריקים ברמה אחת: שולי הרווח התפעולי; שולי תזרים המזומנים החופשי; יחס החוב נטו לרווח התפעולי לפני פחת והפחתות; מדד בנייש לזיהוי מניפולציה חשבונאית; קצב הצמיחה הגלום בתזרים המזומנים לפי מודל ההיוון ההפוך וגם הפער בין אופקי הזמן במודל ההיוון ההפוך. השדות האלה מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
-    "what_would_promote": "קידום AJG לרמה אחת ידרוש קודם עדכון פרופיל אמיתי דרך הפקודה הייעודית שממלא את השדות החסרים ממקור רשמי או ממאגר הנתונים המעודכן, ורק אחר כך בדיקה חוזרת מול התקרה. בתימה הזאת יש עדיין מקום מתחת לתקרה, כך שהשלמת הנתונים לבדה עשויה לספיק.",
-    "as_of": "2026-09-14",
+    "why_not_now": "הפרופיל של AJG בקישור תיווך וביטוח ימי מתמחה בשרשרת הימאות במיצר הורמוז נשאר ברמת מחקר שתיים בסבב הזה. אחרי הרענון האחרון שולי תזרים המזומנים החופשי וקצב הצמיחה הגלום במודל ההיוון ההפוך כבר מלאים, אבל שלושה שדות חובה עדיין ריקים ברמה אחת: שולי הרווח התפעולי, יחס החוב נטו לרווח התפעולי לפני פחת והפחתות ומדד בנייש. הסיבה המשותפת לשלושתם היא שהדוחות הרשמיים של החברה לא כוללים כלל שורת הכנסות עלות, קלט שהחישוב של שני השדות הראשונים ושל מדד בנייש חייב. השדות מסומנים במפורש כריקים עם הסבר למה אין להם ערך במקור הנתונים הקיים, ולא הומצא עבורם מספר.",
+    "what_would_promote": "קידום AJG לרמה אחת ידרוש דרך חלופית לבניית שולי הרווח התפעולי ומדד האיכות שלא נשענת על שורת עלות הכנסות שאינה קיימת בדוחות, עבודה שמחוץ לתחום הסמכות של בדיקת פרופיל בודד. בתימה הזאת עדיין יש מקום מתחת לתקרה, כך שפתרון השדות החסרים עשוי להספיק לבדו.",
+    "as_of": "2026-09-15",
     "by": "sieve-profiler"
   }
 }
