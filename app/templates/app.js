@@ -2084,7 +2084,7 @@
     if (q.health) {
       s += "<div class='small muted' style='margin-top:10px'>" + esc(q.health.statement_fields_found) + " מתוך " +
         esc(q.health.statement_fields_needed) + " שדות דוחות בדיסק · נכון ל " + esc(q.as_of || "—") +
-        " · נוסחאות: " + esc(q.formulas || "") + "</div>";
+        " · נוסחאות: " + esc(q.formulas || (METHOD.quality || {}).formulas_note || "") + "</div>";
     }
     return s + "</div>";
   }

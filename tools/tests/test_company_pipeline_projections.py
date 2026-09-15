@@ -386,6 +386,69 @@ class TestTrimQuality(unittest.TestCase):
         self.assertIsNone(build._trim_quality(None))
         self.assertEqual(build._trim_quality("PENDING_DATA"), "PENDING_DATA")
 
+    def test_health_periods_available_dropped_statement_fields_kept(self):
+        # 2026-09-14, the page-diet pass: qualityCard (app.js) reads only
+        # health.statement_fields_found/needed, never the per-ticker filed-year list.
+        q = {"health": {"statement_fields_found": 10, "statement_fields_needed": 12,
+                        "periods_available": ["2021-12-31", "2022-12-31"]}}
+        out = build.project_market(self._market_with_quality(q))["XYZ"]["quality"]
+        self.assertEqual(out["health"], {"statement_fields_found": 10,
+                                         "statement_fields_needed": 12})
+
+    def test_top_level_unrendered_scalars_dropped_as_of_kept(self):
+        # 2026-09-14: qualityCard binds market[T].quality to its local `q` and reads only
+        # `.as_of` off the top level (plus the named sub-groups elsewhere in this class).
+        q = {"as_of": "2026-09-13", "source": "yfinance-statements",
+             "fundamentals_as_of": "2026-09-01", "currency_note": None,
+             "official_source": False, "source_tag": "INFERRED", "state": "SCORED",
+             "shares_used": {"value": 1000000.0}, "price_used": {"value": 12.5}}
+        out = build.project_market(self._market_with_quality(q))["XYZ"]["quality"]
+        self.assertEqual(out["as_of"], "2026-09-13")
+        for field in build.QUALITY_TOP_UNRENDERED:
+            self.assertNotIn(field, out)
+
+    def test_formulas_dropped_only_when_it_matches_the_shared_note(self):
+        # Byte-identical across every ticker that carries it — confirmed 2026-09-14 —
+        # so a match drops in favor of the one copy in payload["method"]["quality"]
+        # (QUALITY_SHARED_FORMULAS_NOTE). A ticker whose note genuinely differs (a
+        # different quality provider) is never silently swapped for the shared one.
+        shared = build.project_market(
+            self._market_with_quality({"formulas": build.QUALITY_SHARED_FORMULAS_NOTE})
+        )["XYZ"]["quality"]
+        self.assertNotIn("formulas", shared)
+        distinct = build.project_market(
+            self._market_with_quality({"formulas": "a different methodology note"})
+        )["XYZ"]["quality"]
+        self.assertEqual(distinct["formulas"], "a different methodology note")
+
+
+class TestTrimPcs(unittest.TestCase):
+    """2026-09-14, the page-diet pass: market's `pcs` block (189,409 bytes for 595
+    tickers) carried down to the one boolean app.js actually reads —
+    `m.pcs.axis_a.machine_admissible`, used only to count PCS-armed tickers in the
+    cortex overview. Confirmed by exhaustive search: axis_a's score/state/
+    non_null_fields/flags/sub_scores, all of axis_b, gate and health feed Ember's heat
+    scoring on the agent side and are never drawn."""
+
+    def test_pcs_trimmed_to_machine_admissible_only(self):
+        pcs = {"axis_a": {"score": 88.2, "state": "DARK", "machine_admissible": True,
+                          "sub_scores": {"trends": 30, "wsb": 25}},
+               "axis_b": {"band": "SATURATED", "fields": {"analyst_count": 26}},
+               "gate": {"state": "ADVISORY", "reason": "fixtures unreadable"},
+               "health": {"attempted": 4, "fetched": 2, "null": 2}}
+        market = {"XYZ": {"series": {"rows": []}, "pcs": pcs}}
+        out = build.project_market(market)["XYZ"]["pcs"]
+        self.assertEqual(out, {"axis_a": {"machine_admissible": True}})
+
+    def test_missing_axis_a_reads_as_none_never_a_guess(self):
+        market = {"XYZ": {"series": {"rows": []}, "pcs": {"gate": {"state": "ADVISORY"}}}}
+        out = build.project_market(market)["XYZ"]["pcs"]
+        self.assertEqual(out, {"axis_a": {"machine_admissible": None}})
+
+    def test_non_dict_pcs_passed_through(self):
+        self.assertIsNone(build._trim_pcs(None))
+        self.assertEqual(build._trim_pcs("PENDING_DATA"), "PENDING_DATA")
+
 
 class TestTrimScreenFundamentals(unittest.TestCase):
     """2026-09-14, the page-diet pass: a screen row's own `fundamentals` snapshot (619 KB
@@ -486,6 +549,235 @@ class TestProjectRequestsTrimming(unittest.TestCase):
         self.assertEqual(out["latest_by_ticker"]["AAA"]["quality"]["status"], "FAILED")
         self.assertEqual(out["settled"], 1)  # only the FULFILLED row is settled
 
+    def test_latest_by_ticker_drops_fulfilled_entries_and_fulfilled_at(self):
+        # 2026-09-14, the page-diet pass: the company page's reqLatest block (app.js)
+        # filters to status != "FULFILLED" before rendering anything and never reads
+        # `fulfilled_at` even for the rows it keeps — confirmed by exhaustive search.
+        # 437,070 of 500,804 real bytes were exactly this: FULFILLED (ticker,kind)
+        # entries shipped only to be filtered out client-side.
+        requests = {"requests": [
+            {"id": "R1", "kind": "prices", "ticker": "AAA", "status": "FULFILLED",
+             "requested_at": "2026-09-01T00:00:00Z", "fulfilled_at": "2026-09-01T01:00:00Z"},
+            {"id": "R2", "kind": "quality", "ticker": "AAA", "status": "PENDING",
+             "requested_at": "2026-09-02T00:00:00Z", "note": "queued"},
+        ]}
+        out = build.project_requests(requests)
+        self.assertNotIn("prices", out["latest_by_ticker"]["AAA"])
+        self.assertNotIn("fulfilled_at", out["latest_by_ticker"]["AAA"]["quality"])
+        self.assertEqual(out["latest_by_ticker"]["AAA"]["quality"]["note"], "queued")
+
+    def test_ticker_with_only_fulfilled_entries_absent_not_an_empty_dict(self):
+        requests = {"requests": [
+            {"id": "R1", "kind": "prices", "ticker": "AAA", "status": "FULFILLED",
+             "requested_at": "2026-09-01T00:00:00Z"},
+        ]}
+        out = build.project_requests(requests)
+        self.assertNotIn("AAA", out["latest_by_ticker"])
+
+    def test_kept_rows_drop_fetch_workflow_bookkeeping_fields(self):
+        # pipelineRequestRow (app.js) reads only kind/status/note/id/requested_at (plus
+        # ticker/url) — confirmed by exhaustive search. Everything in
+        # REQUEST_ROW_UNRENDERED is the fetch workflow's own retry/verification state.
+        requests = {"requests": [
+            {"id": "R1", "kind": "edgar_doc", "ticker": "AAA", "status": "PENDING",
+             "requested_at": "2026-09-02T00:00:00Z", "requested_by": "ron",
+             "last_attempt_at": "2026-09-03T00:00:00Z", "query": "10-K",
+             "forms": ["10-K"], "lookback_days": 90, "attempts": 2, "cik": "0000320193",
+             "wrote": "data/edgar/docs/AAA.json", "by": "routine"},
+        ]}
+        row = build.project_requests(requests)["requests"][0]
+        self.assertEqual(row["id"], "R1")
+        self.assertEqual(row["kind"], "edgar_doc")
+        for field in build.REQUEST_ROW_UNRENDERED:
+            self.assertNotIn(field, row)
+
+
+class TestProjectLinkTrimming(unittest.TestCase):
+    """2026-09-14, the page-diet pass: a chain link's price-test fields
+    (instrument_search/scarce_price/price_instruments, method §4) and heat.instrument
+    have no render path — confirmed by exhaustive search of app.js. All three stay
+    required on data/chains/<slug>.json, which tools/check_chain.py validates directly."""
+
+    def _link(self, **overrides):
+        link = {"id": "l1", "name": "Link One", "position": 1,
+                "instrument_search": {"searched_at": "2026-09-14", "result": "FOUND"},
+                "scarce_price": {"name": "Benchmark", "unit": "USD"},
+                "price_instruments": [{"ticker": "ETF1", "holds": "x"}],
+                "heat": {"verdict": "CROWDED",
+                        "instrument": {"as_of": "2026-09-13",
+                                      "crowdedness": {"score": 68, "rationale": "r"}}}}
+        link.update(overrides)
+        return link
+
+    def test_price_test_fields_dropped(self):
+        row = build._project_link(self._link())
+        for field in build.LINK_UNRENDERED:
+            self.assertNotIn(field, row)
+
+    def test_heat_instrument_dropped_verdict_kept(self):
+        row = build._project_link(self._link())
+        self.assertNotIn("instrument", row["heat"])
+        self.assertEqual(row["heat"]["verdict"], "CROWDED")
+
+    def test_explainer_draws_on_and_lang_dropped_rest_kept(self):
+        link = self._link(explainer={"what": "It moves goods.", "players": "Yards.",
+                                     "why": "Bottleneck.", "bottleneck": "Yes.",
+                                     "hands_to": "Next link.", "as_of": "2026-09-01",
+                                     "by": "atlas", "draws_on": ["SIG-1"], "lang": "he"})
+        row = build._project_link(link)
+        out = row["explainer"]
+        self.assertEqual(out["what"], "It moves goods.")
+        self.assertEqual(out["by"], "atlas")
+        self.assertNotIn("draws_on", out)
+        self.assertNotIn("lang", out)
+
+
+class TestProjectChainTrimming(unittest.TestCase):
+    def test_map_limitation_dropped_explainer_trimmed(self):
+        # Never rendered by any template — confirmed 2026-09-14 — while staying required
+        # on disk, where tools/check_chain.py enforces it and chainPath() names it.
+        chain = {"id": "c1", "title": "Chain One", "links": [], "scenarios": [],
+                 "map_limitation": "Cannot see private tier-3 suppliers.",
+                 "explainer": {"shape": "Linear.", "thesis": "x", "draws_on": ["SIG-1"],
+                              "lang": "he"}}
+        doc = build._project_chain(chain)
+        self.assertNotIn("map_limitation", doc)
+        self.assertNotIn("draws_on", doc["explainer"])
+        self.assertEqual(doc["explainer"]["shape"], "Linear.")
+
+
+class TestProjectScenarioTrimming(unittest.TestCase):
+    def test_leading_indicator_check_and_check_source_dropped(self):
+        # `.armed`, `.check_basis`, `.where_to_watch`, `.tripped_at` and indText()'s
+        # `.signal`/`.indicator` are the only fields a scenario's indicator renders
+        # through (app.js) — confirmed 2026-09-14 by exhaustive search.
+        scenario = {"id": "S1", "title": "Scenario", "evidence": [],
+                   "leading_indicators": [
+                       {"signal": "ETR above 52w high", "armed": True,
+                        "check_basis": "Price crosses the 52-week high.",
+                        "check": {"type": "PRICE", "ticker": "ETR", "op": "ABOVE",
+                                 "level": "52w_high"},
+                        "check_source": "data/market/ETR.json week52"},
+                   ]}
+        row = build._project_scenario(scenario)
+        ind = row["leading_indicators"][0]
+        self.assertEqual(ind["signal"], "ETR above 52w high")
+        self.assertTrue(ind["armed"])
+        self.assertNotIn("check", ind)
+        self.assertNotIn("check_source", ind)
+
+
+class TestProjectScreensTrimming(unittest.TestCase):
+    """2026-09-14, the page-diet pass: a screen document's search-log bookkeeping
+    (queries_run/superseded_rows) and a row's identity/audit bookkeeping
+    (audit_scope/audit_scope_basis/secondary_links/secondary_link_basis/mapping_ref/
+    profile_ref/listing_id/market_ticker) have no render path — confirmed by exhaustive
+    search of app.js. Both stay required on data/screens/<chain>.json for
+    tools/check_screen.py."""
+
+    def test_screen_doc_search_log_fields_dropped(self):
+        screen = {"chain_id": "c1", "id": "s1", "buckets": {},
+                 "queries_run": ["site:sec.gov widget maker"],
+                 "superseded_rows": [{"ticker": "OLD"}]}
+        out = build.project_screens([screen])[0]
+        for field in build.SCREEN_UNRENDERED:
+            self.assertNotIn(field, out)
+
+    def test_screen_row_identity_audit_fields_dropped(self):
+        row = {"ticker": "ACM", "chain_id": "c1", "link_id": "l1", "issuer_id": "ACME",
+              "audit_scope": "PLACEMENT", "audit_scope_basis": "current PASS entry",
+              "secondary_links": ["l2"], "secondary_link_basis": "shared supplier",
+              "mapping_ref": "data/mappings/c1.json", "profile_ref": "data/companies/ACME.json",
+              "listing_id": "NASDAQ-ACM", "market_ticker": "ACM"}
+        screen = {"chain_id": "c1", "id": "s1", "buckets": {"pure_play": [row]}}
+        out = build.project_screens([screen])[0]["buckets"]["pure_play"][0]
+        self.assertEqual(out["ticker"], "ACM")
+        self.assertEqual(out["issuer_id"], "ACME")
+        for field in build.SCREEN_ROW_UNRENDERED:
+            self.assertNotIn(field, out)
+
+    def test_crowdedness_trimmed_to_state_and_pcs_axis_a(self):
+        # stockCard() (app.js) reads only `.state` and `.pcs_axis_a` off a row's own PCS
+        # cross-check — confirmed 2026-09-14 by exhaustive search.
+        row = {"ticker": "ACM", "crowdedness": {
+            "state": "DARK", "pcs_axis_a": 88.2, "basis": "x" * 300,
+            "caveat": "y" * 200, "source": "data/market/ACM.json pcs",
+            "sub_scores": {"trends": 30}, "analyst_count": 26}}
+        screen = {"chain_id": "c1", "id": "s1", "buckets": {"pure_play": [row]}}
+        out = build.project_screens([screen])[0]["buckets"]["pure_play"][0]
+        self.assertEqual(out["crowdedness"], {"state": "DARK", "pcs_axis_a": 88.2})
+
+
+class TestProjectCandidatesTrimming(unittest.TestCase):
+    def test_campaign_record_dropped_rest_kept(self):
+        # A full copy of the candidate's `run campaign init` evaluation, never read by
+        # app.js — confirmed 2026-09-14. The campaign manifest is the permanent record.
+        candidates = {"as_of": "2026-09-14", "candidates": [
+            {"id": "CAND-1", "title": "x", "changelog": [{"ts": "2026-09-01", "by": "nell",
+             "change": "created"}],
+             "campaign_record": {"dimensions": {"occurrence_strength": {"score": 85}}}},
+        ]}
+        out = build.project_candidates(candidates)["candidates"][0]
+        self.assertEqual(out["id"], "CAND-1")
+        self.assertEqual(out["changelog_total"], 1)
+        self.assertNotIn("campaign_record", out)
+
+
+class TestProjectBook(unittest.TestCase):
+    """2026-09-14, the page-diet pass: data/book.json's 33-field ranked rows trimmed to
+    the 4 fields bookRowsForTicker (app.js) actually reads — confirmed by exhaustive
+    search: ticker/chain_id are the lookup keys, price/piotroski the only facts the link
+    modal's "additional names" list draws from a matched row."""
+
+    def test_rows_trimmed_methodology_block_kept(self):
+        book = {"id": "book-1", "ranking": {"method": "x"}, "denominator": 229,
+               "rows": [{"ticker": "ACM", "chain_id": "c1", "price": 45.2,
+                        "piotroski": 6, "rank": 3, "heat_verdict": "CROWDED",
+                        "investability": "HIGH", "criticality": "CHOKE_POINT"}]}
+        out = build.project_book(book)
+        self.assertEqual(out["ranking"], {"method": "x"})
+        self.assertEqual(out["denominator"], 229)
+        self.assertEqual(out["rows"], [{"ticker": "ACM", "chain_id": "c1",
+                                        "price": 45.2, "piotroski": 6}])
+
+    def test_non_dict_book_passed_through(self):
+        self.assertIsNone(build.project_book(None))
+
+
+class TestProjectAgentLogs(unittest.TestCase):
+    """2026-09-14, the page-diet pass: the rank/map/scout calibration logs each carry a
+    block or four no template reads — confirmed by exhaustive search of app.js."""
+
+    def test_rank_log_drops_queue_and_changelog(self):
+        rank_log = {"as_of": "2026-09-14", "calibration": {"denominators": {"a": 1}},
+                   "queue": ["SIG-1", "SIG-2"], "changelog": [{"ts": "x"}]}
+        out = build.project_rank(rank_log)
+        self.assertEqual(out["calibration"], {"denominators": {"a": 1}})
+        self.assertNotIn("queue", out)
+        self.assertNotIn("changelog", out)
+
+    def test_map_log_drops_dead_blocks_keeps_notes_and_archetypes(self):
+        # mapCard (app.js) filters .notes for ESCALATION-tagged rows and reads
+        # .calibration/.archetypes in full — confirmed 2026-09-14.
+        map_log = {"calibration": {"per_chain": {}}, "archetypes": [{"status": "HARDENED"}],
+                  "notes": [{"text": "ESCALATION: x"}], "changelog": [{"ts": "x"}],
+                  "spot_tests": [{"x": 1}], "repairs": [{"x": 1}], "confidence_audit": {}}
+        out = build.project_map_log(map_log)
+        self.assertEqual(out["notes"], [{"text": "ESCALATION: x"}])
+        self.assertEqual(out["archetypes"], [{"status": "HARDENED"}])
+        for field in ("changelog", "spot_tests", "repairs", "confidence_audit"):
+            self.assertNotIn(field, out)
+
+    def test_scout_log_drops_dead_blocks_keeps_notes_and_proposed_rules(self):
+        scout_log = {"calibration": {"denominators": {}}, "proposed_rules": [{"status": "HARDENED"}],
+                    "notes": [{"text": "ESCALATION: y"}], "changelog": [{"ts": "x"}],
+                    "spot_tests": [{"x": 1}], "repairs": [{"x": 1}], "confidence_audit": {}}
+        out = build.project_scout_log(scout_log)
+        self.assertEqual(out["notes"], [{"text": "ESCALATION: y"}])
+        self.assertEqual(out["proposed_rules"], [{"status": "HARDENED"}])
+        for field in ("changelog", "spot_tests", "repairs", "confidence_audit"):
+            self.assertNotIn(field, out)
+
 
 class TestLedgerCap(unittest.TestCase):
     def test_ledger_capped_to_newest_200_with_a_truthful_total(self):
@@ -512,6 +804,67 @@ class TestLedgerCap(unittest.TestCase):
             self.assertEqual(len(payload["ledger"]), 200)
             self.assertEqual(payload["ledger_total"], 500)
             self.assertEqual(payload["ledger"][-1], "2026-09-24 12:00Z | RUN | line 499")
+
+
+def _minimal_data_tree(root: Path) -> Path:
+    """The same bare-minimum data/ tree TestLedgerCap builds, factored out so the
+    2026-09-14 page-diet pass's other build_payload-level tests (digests, theme
+    occurrence rows) do not each retype it."""
+    data = root / "data"
+    for folder in ("signals", "chains", "screens", "stocks", "impact", "digest",
+                   "companies", "mappings", "pipelines"):
+        (data / folder).mkdir(parents=True)
+    (data / "market").mkdir()
+    (data / "shadow").mkdir()
+    (data / "health").mkdir()
+    (data / "radar").mkdir()
+    (data / "calendar").mkdir()
+    (data / "feeds").mkdir()
+    (data / "themes").mkdir()
+    (data / "campaigns").mkdir()
+    (data / "requests.json").write_text(json.dumps({"requests": []}))
+    (data / "ledger.md").write_text("")
+    return data
+
+
+class TestDigestsKeepsOnlyNewest(unittest.TestCase):
+    def test_only_the_newest_week_is_carried(self):
+        # `(D.digests || [])[0]` — the only way app.js ever reads a digest, three call
+        # sites, confirmed 2026-09-14 by exhaustive search; no view lists past weeks, and
+        # `run digest` never prunes data/digest/, so the unread tail only grows.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data = _minimal_data_tree(root)
+            for week in ("2026-34", "2026-35", "2026-36"):
+                (data / "digest" / f"{week}.json").write_text(
+                    json.dumps({"week": week, "verdicts": {"named": []}}))
+            payload = build.build_payload(data, root)
+            self.assertEqual(len(payload["digests"]), 1)
+            self.assertEqual(payload["digests"][0]["week"], "2026-36")
+
+
+class TestThemeOccurrenceRowsTrimming(unittest.TestCase):
+    def test_id_and_theme_by_dropped_rest_of_the_row_kept(self):
+        # thOccRow (app.js) reads t/s/u/d/o/r/f/b/th — never the row's own `id` or
+        # `theme_by` — confirmed 2026-09-14 by exhaustive search of the whole occurrence
+        # log section. The permanent row on disk keeps both.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data = _minimal_data_tree(root)
+            (data / "themes" / "themes.json").write_text(json.dumps({
+                "as_of": "2026-09-14", "themes": [], "calibration": {}}))
+            (data / "themes" / "occurrences.json").write_text(json.dumps({"occurrences": [
+                {"id": "OCC-1", "title": "x", "source": "y", "url": "https://example.invalid",
+                 "ts": "2026-09-14", "origin": "feed", "origin_ref": "f1", "family": "POLICY",
+                 "theme_id": "th-1", "theme_basis": "matched 'tariff'", "theme_by": "nell"},
+            ]}))
+            payload = build.build_payload(data, root)
+            row = payload["themes"]["rows"][0]
+            self.assertEqual(row["t"], "x")
+            self.assertEqual(row["th"], "th-1")
+            self.assertEqual(row["b"], "matched 'tariff'")
+            self.assertNotIn("i", row)
+            self.assertNotIn("by", row)
 
 
 class TestRealPageSize(unittest.TestCase):

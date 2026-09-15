@@ -942,6 +942,26 @@ def _history(doc: dict) -> dict:
 # Blocks in a market file that no template renders. Everything else is carried whole.
 MARKET_UNRENDERED = ("fundamentals", "insider", "prints", "legs")
 
+# quality.formulas (tools/acis/quality.py) is byte-identical across every ticker that
+# carries it — confirmed 2026-09-14, the same duplication reverse_dcf.horizon_note was
+# cut for below. It is rendered (stock page, "נוסחאות:"), so it cannot simply drop; it
+# is instead shipped once, under payload["method"]["quality"], and app.js falls back to
+# that shared copy when a ticker's own `formulas` has been cut for matching it exactly.
+# A ticker whose quality block ever carries a DIFFERENT methodology note keeps it in
+# place untouched, so no ticker's disclosure can be silently swapped for another's.
+QUALITY_SHARED_FORMULAS_NOTE = "financetoolkit.models (MIT); see docs/analyst-sources.md"
+
+# Top-level quality fields qualityCard (app.js, the sole reader of market[T].quality,
+# bound to its local `q`) never draws — confirmed 2026-09-14 by exhaustive search.
+# `as_of` stays (it IS printed, "נכון ל..."); `source`/`fundamentals_as_of`/
+# `currency_note`/`official_source`/`source_tag`/`state`/`shares_used`/`price_used` are
+# not. `price_used` still reaches the page indirectly: project_screens' `_row_valuation`
+# reads it from the raw market dict before this trim runs, so a screened ticker's price
+# survives there even though this per-ticker quality copy of it does not.
+QUALITY_TOP_UNRENDERED = ("source", "fundamentals_as_of", "currency_note",
+                          "official_source", "source_tag", "state",
+                          "shares_used", "price_used")
+
 
 def _trim_quality(quality):
     """`quality` (tools/acis/quality.py's scored output) carried whole except the specific
@@ -958,10 +978,20 @@ def _trim_quality(quality):
     trim runs, so nothing downstream loses it by this function cutting it from the
     output. Same principle MARKET_UNRENDERED already applies one level up, reaching
     quality's own internals now that quality (511 tickers, ~0.85 MB before this trim) is
-    most of what is left of market's weight after the daily/weekly split above."""
+    most of what is left of market's weight after the daily/weekly split above.
+
+    2026-09-14, the page-diet pass: `health.periods_available` (a per-ticker filed-year
+    list) drops the same way — qualityCard (app.js) reads only
+    `health.statement_fields_found`/`statement_fields_needed`, never the list of periods
+    itself, confirmed by exhaustive search — and `formulas`, when it matches the one
+    shared sentence every ticker carries, drops in favor of the single copy in
+    payload["method"]["quality"] (QUALITY_SHARED_FORMULAS_NOTE above). The eight
+    top-level scalars in QUALITY_TOP_UNRENDERED (see there) drop the same way `derived`
+    already did: none of them has a render path either."""
     if not isinstance(quality, dict):
         return quality
-    out = {k: v for k, v in quality.items() if k != "derived"}
+    out = {k: v for k, v in quality.items()
+           if k != "derived" and k not in QUALITY_TOP_UNRENDERED}
     for group in ("piotroski", "beneish", "altman"):
         blk = out.get(group)
         if isinstance(blk, dict):
@@ -972,7 +1002,29 @@ def _trim_quality(quality):
         out["reverse_dcf"] = {k: v for k, v in rd.items()
                               if k not in ("base_fcf", "enterprise_value", "horizon_spread",
                                            "horizon_note")}
+    health = out.get("health")
+    if isinstance(health, dict) and "periods_available" in health:
+        out["health"] = {k: v for k, v in health.items() if k != "periods_available"}
+    if out.get("formulas") == QUALITY_SHARED_FORMULAS_NOTE:
+        out = {k: v for k, v in out.items() if k != "formulas"}
     return out
+
+
+def _trim_pcs(pcs):
+    """`pcs` (tools/acis's retail-attention cross-check, method §3) carried down to the
+    one boolean app.js actually reads: `market[T].pcs.axis_a.machine_admissible`, used
+    only to count how many tickers are PCS-armed (the cortex "PCS דרוך" stat). Confirmed
+    2026-09-14 by exhaustive search of app.js: axis_a's score/state/non_null_fields/
+    flags/sub_scores, all of axis_b, gate, and health feed Ember's heat-scoring
+    crowdedness leg (`run heat`, method §3) at build time on the agent side, not the
+    browser, and no template draws any of them. 189,409 bytes for 595 tickers, almost
+    all of it one boolean's supporting cast. The full block stays in
+    data/market/<T>.json, which the fetcher and Ember both read directly."""
+    if not isinstance(pcs, dict):
+        return pcs
+    axis_a = pcs.get("axis_a")
+    admissible = axis_a.get("machine_admissible") if isinstance(axis_a, dict) else None
+    return {"axis_a": {"machine_admissible": admissible}}
 
 
 def encode_series_rows(rows: list) -> dict:
@@ -1072,6 +1124,8 @@ def project_market(market: dict, fundamentals_for=()) -> dict:
         row = {k: v for k, v in doc.items() if k not in skip}
         if isinstance(row.get("quality"), dict):
             row["quality"] = _trim_quality(row["quality"])
+        if isinstance(row.get("pcs"), dict):
+            row["pcs"] = _trim_pcs(row["pcs"])
         series = doc.get("series")
         if isinstance(series, dict):
             rows = series.get("rows") if isinstance(series.get("rows"), list) else []
@@ -1473,11 +1527,33 @@ def _heat_leg(leg: dict) -> dict:
     return out
 
 
+# what/players/why/bottleneck/hands_to/as_of/by — exactly what explainerBlock and
+# overviewBlock (app.js) read from a Hebrew explainer, chain- or link-level alike.
+# `draws_on` and `lang` are never rendered by either, confirmed 2026-09-14 by exhaustive
+# search. The full block, both fields included, stays on data/chains/<slug>.json.
+def _trim_explainer(explainer):
+    if not isinstance(explainer, dict):
+        return explainer
+    return {k: v for k, v in explainer.items() if k not in ("draws_on", "lang")}
+
+
+# The price-test amendment (method §4, 2026-09-13) requires these of every HIGH or
+# CHOKE_POINT link and tools/check_chain.py's check 12 enforces them on disk — but no
+# template renders any of the three, confirmed 2026-09-14 by exhaustive search of
+# app/templates/app.js. The full blocks stay in data/chains/<slug>.json, which the price
+# test itself validates directly and chainPath() names for a reader who wants them.
+LINK_UNRENDERED = ("instrument_search", "scarce_price", "price_instruments")
+
+
 def _project_link(link: dict) -> dict:
     """One chain link, whole: map citations, capture judgments, bottleneck note, every
     heat leg with every evidence row and its verbatim excerpt, the repricing check with
     its per-leg basis. The counts app.js already prints ride along beside the rows."""
     row = dict(link)
+    for k in LINK_UNRENDERED:
+        row.pop(k, None)
+    if isinstance(row.get("explainer"), dict):
+        row["explainer"] = _trim_explainer(row["explainer"])
     evidence = link.get("evidence")
     if isinstance(evidence, list):
         row["evidence_count"] = len(evidence)
@@ -1498,24 +1574,53 @@ def _project_link(link: dict) -> dict:
             if isinstance(legs, list):
                 slim["legs_detail_held"] = len(legs)
             full["repricing_check"] = slim
+        # `heat.instrument` (a full crowdedness+capture scoring, evidence and all, for
+        # the rare link that has a tradeable instrument) has no render path yet —
+        # confirmed 2026-09-14 by exhaustive search; the only `.instrument` app.js reads
+        # is the unrelated, much smaller shadow_summary() `by_link[].instrument` row.
+        # Drop it here rather than carry a second full evidence-backed scoring block no
+        # view shows; it stays in data/chains/<slug>.json for whichever view reaches it.
+        full.pop("instrument", None)
         row["heat"] = full
     return row
 
 
 def _project_scenario(scenario: dict) -> dict:
     """One scenario, whole: evidence rows, each moved link's `why`, each indicator's
-    `check_basis`. `evidence_count` rides along because the tab prints it."""
+    `check_basis`. `evidence_count` rides along because the tab prints it.
+
+    2026-09-14: each indicator's `check` (the machine-checkable {type,ticker,op,level}
+    tools/check_scenarios.py validates and `.armed` is derived from) and `check_source`
+    drop — confirmed by exhaustive search, only `.armed`, `.check_basis`,
+    `.where_to_watch`, `.tripped_at` and indText()'s `.signal`/`.indicator` are ever
+    drawn. The full indicator, both fields included, stays on the chain file."""
     row = dict(scenario)
     evidence = scenario.get("evidence")
     if isinstance(evidence, list):
         row["evidence_count"] = len(evidence)
+    indicators = scenario.get("leading_indicators")
+    if isinstance(indicators, list):
+        row["leading_indicators"] = [
+            ({k: v for k, v in ind.items() if k not in ("check", "check_source")}
+             if isinstance(ind, dict) else ind)
+            for ind in indicators
+        ]
     return row
 
 
 def _project_chain(chain: dict) -> dict:
-    """One chain, whole, stamped FULL (the only fidelity since 2026-09-04)."""
+    """One chain, whole, stamped FULL (the only fidelity since 2026-09-04).
+
+    2026-09-14: `map_limitation` drops from the page projection — never rendered by any
+    template, confirmed by exhaustive search of app/templates/app.js — while staying
+    required on data/chains/<slug>.json, where tools/check_chain.py enforces it and
+    chainPath() names it for a reader who wants it. The chain-level explainer is trimmed
+    the same way the link-level one is (_trim_explainer)."""
     doc = dict(chain)
+    doc.pop("map_limitation", None)
     doc.update(_history(chain))
+    if isinstance(doc.get("explainer"), dict):
+        doc["explainer"] = _trim_explainer(doc["explainer"])
     links = chain.get("links")
     if isinstance(links, list):
         doc["links"] = [_project_link(l) if isinstance(l, dict) else l for l in links]
@@ -1649,6 +1754,32 @@ def _trim_screen_fundamentals(fundamentals):
     return out
 
 
+# A screen row's own PCS cross-check (the same method §3 block market.pcs carries,
+# _trim_pcs above). stockCard() (app.js) reads only two of its fields: `.state` (the
+# DARK/SATURATED chip) and `.pcs_axis_a` (the number beside it) — confirmed 2026-09-14 by
+# exhaustive search. basis/caveat/source/as_of/sub_scores/pcs_axis_b*/analyst_count/
+# held_pct_institutions/gate_state and the rest are never drawn. The full block stays in
+# data/screens/<chain>.json.
+def _trim_screen_crowdedness(cw):
+    if not isinstance(cw, dict):
+        return cw
+    return {"state": cw.get("state"), "pcs_axis_a": cw.get("pcs_axis_a")}
+
+
+# A screen document's own search-log bookkeeping (method §6): required on disk, never
+# drawn by any template — confirmed 2026-09-14 by exhaustive search of app.js. The full
+# screen stays in data/screens/<chain>.json, which chainPath() names for a reader.
+SCREEN_UNRENDERED = ("queries_run", "superseded_rows")
+
+# A screen row's own identity/audit bookkeeping (method §6): campaign-v1 rows carry all
+# of these for check_screen.py, and no card draws any of them — confirmed 2026-09-14 by
+# exhaustive search. `mapping_ref`/`profile_ref` here are the ROW's own copies (distinct
+# from a screen document's top-level refs, which this trim leaves alone).
+SCREEN_ROW_UNRENDERED = ("audit_scope", "audit_scope_basis", "secondary_links",
+                         "secondary_link_basis", "mapping_ref", "profile_ref",
+                         "listing_id", "market_ticker")
+
+
 def project_screens(screens: list, market=None) -> list:
     out = []
     for screen in screens:
@@ -1656,6 +1787,8 @@ def project_screens(screens: list, market=None) -> list:
             out.append(screen)
             continue
         doc = dict(screen)
+        for k in SCREEN_UNRENDERED:
+            doc.pop(k, None)
         doc.update(_history(screen))
         buckets = screen.get("buckets")
         if isinstance(buckets, dict):
@@ -1670,8 +1803,12 @@ def project_screens(screens: list, market=None) -> list:
                         new_rows.append(r)
                         continue
                     nr = dict(r)
+                    for k in SCREEN_ROW_UNRENDERED:
+                        nr.pop(k, None)
                     if "fundamentals" in nr:
                         nr["fundamentals"] = _trim_screen_fundamentals(nr["fundamentals"])
+                    if "crowdedness" in nr:
+                        nr["crowdedness"] = _trim_screen_crowdedness(nr["crowdedness"])
                     val = _row_valuation(nr.get("ticker"), market)
                     if val is not None:
                         nr["valuation"] = val
@@ -1701,6 +1838,13 @@ def project_stocks(stocks: list) -> tuple:
     return rows, note
 
 
+# A kept (non-FULFILLED) request row's own fetch-workflow bookkeeping: required for the
+# pull-data skill's verification and for Actions' own retry logic, never drawn by any
+# template — confirmed 2026-09-14 by exhaustive search of app.js.
+REQUEST_ROW_UNRENDERED = ("requested_by", "last_attempt_at", "query", "forms",
+                          "lookback_days", "attempts", "cik", "wrote", "by")
+
+
 def project_requests(requests: dict) -> dict:
     """1,865 rows and 1,809 of them FULFILLED on 2026-09-13 (0.98 MB) — room-making room:
     every row that is not FULFILLED (PENDING + FAILED, the two states anyone needs to act
@@ -1709,7 +1853,22 @@ def project_requests(requests: dict) -> dict:
     `latest_by_ticker` (the newest row per ticker per kind, so a company page can say what
     is queued or stuck for its own tickers without scanning 1,865 rows client-side).
     `total` and `settled` still describe the WHOLE store, not just what is carried —
-    the denominator app.js is required to print beside any cut."""
+    the denominator app.js is required to print beside any cut.
+
+    2026-09-14, the page-diet pass: `latest_by_ticker` itself is now trimmed to the
+    entries a company page can actually show. app.js's reqLatest block (the only reader)
+    filters to `status !== "FULFILLED"` before rendering anything, and never reads
+    `fulfilled_at` even for the rows it keeps — confirmed by exhaustive search. At
+    today's real store that filter, applied here instead of in the browser, is the
+    difference between 437,070 bytes and 9,180: 2,638 of 2,682 (ticker,kind) entries
+    were FULFILLED, each one shipped only to be filtered out client-side, never once
+    read. The full history of every request, fulfilled or not, stays in
+    data/requests.json; only this derived, already-filtered index is cut.
+
+    The kept (non-FULFILLED) rows are trimmed the same way: pipelineRequestRow and the
+    pending/failed counts (app.js) read only kind/status/note/id/requested_at/ticker/url
+    from a request row — confirmed by exhaustive search. REQUEST_ROW_UNRENDERED below is
+    everything else a row carries for the fetch workflow's own bookkeeping."""
     rows = [r for r in ((requests or {}).get("requests") or []) if isinstance(r, dict)]
     total = len(rows)
     by_kind_status: dict = {}
@@ -1730,30 +1889,111 @@ def project_requests(requests: dict) -> dict:
                               "requested_at": r.get("requested_at"),
                               "fulfilled_at": r.get("fulfilled_at"), "note": r.get("note")}
         if status != "FULFILLED":
-            kept.append(r)
+            kept.append({k: v for k, v in r.items() if k not in REQUEST_ROW_UNRENDERED})
     open_rows = [r for r in kept if r.get("status") in ("PENDING", "FAILED")]
+    latest_by_ticker_open = {}
+    for ticker, kinds in latest_by_ticker.items():
+        open_kinds = {k: {kk: vv for kk, vv in row.items() if kk != "fulfilled_at"}
+                      for k, row in kinds.items() if row.get("status") != "FULFILLED"}
+        if open_kinds:
+            latest_by_ticker_open[ticker] = open_kinds
     return {"requests": kept, "total": total,
             "settled": total - len(open_rows),
             "by_kind_status": by_kind_status,
-            "latest_by_ticker": latest_by_ticker}
+            "latest_by_ticker": latest_by_ticker_open}
 
 
 
 def project_candidates(candidates: dict) -> dict:
     """Every candidate whole, including its selection audit and changelog, with the
-    changelog count beside it because the drawer prints the count."""
+    changelog count beside it because the drawer prints the count.
+
+    2026-09-14: `campaign_record` drops — a full copy of the candidate's `run campaign
+    init` evaluation (occurrence, all five selection dimensions, rationale), 64,304 bytes
+    across today's candidates and never read by app.js, confirmed by exhaustive search.
+    The campaign manifest (data/campaigns/CAMP-*.json) is the permanent record of that
+    evaluation; data/radar/candidates.json carries this same copy for it, unread either
+    way."""
     rows = (candidates or {}).get("candidates") or []
     out = []
     for row in rows:
         if not isinstance(row, dict):
             continue
         projected = dict(row)
+        projected.pop("campaign_record", None)
         changelog = row.get("changelog")
         if isinstance(changelog, list):
             projected["changelog_total"] = len(changelog)
         out.append(projected)
     return {"as_of": (candidates or {}).get("as_of"), "candidates": out,
             "total": len(rows)}
+
+
+# --- book, rank/map/scout logs: rich agent-facing stores the page barely reads --------
+#
+# Four small stores added 2026-09-14 to the page-diet pass for the same reason: each one
+# is a rich, multi-field working record for the agent that owns it, and app.js reads
+# only a handful of fields out of it — every other field confirmed dead by exhaustive
+# search. None of these files are touched; only what this build carries into the browser
+# shrinks.
+
+def project_book(book: dict) -> dict:
+    """`data/book.json`'s ranked rows, trimmed to what bookRowsForTicker (app.js) reads:
+    `ticker` and `chain_id` (the lookup keys) and `price`/`piotroski` (the only two
+    facts the link modal's "additional names" list draws from a matched row). Confirmed
+    2026-09-14 by exhaustive search: investability, heat_verdict, the DCF/quality state
+    columns, the entry-zone bounds, rank, criticality, the dived/screened flags and the
+    rest of the book's 33 fields have no reader yet — this store has no page of its own.
+    `contract`, `ranking` and `denominator` (the book's own methodology block) are
+    carried whole; only the 229 per-ticker rows are trimmed. The full ranked book stays
+    in data/book.json."""
+    if not isinstance(book, dict):
+        return book
+    out = dict(book)
+    rows = book.get("rows")
+    if isinstance(rows, list):
+        out["rows"] = [
+            {"ticker": r.get("ticker"), "chain_id": r.get("chain_id"),
+             "price": r.get("price"), "piotroski": r.get("piotroski")}
+            for r in rows if isinstance(r, dict)
+        ]
+    return out
+
+
+def project_rank(rank_log: dict) -> dict:
+    """data/impact/_rank-log.json, with the one block no template reads dropped:
+    `queue` (the unappraised-occurrence work list `run impact --queue` already reads
+    straight off disk, 17,233 bytes) and its `changelog`. `.calibration` stays — the
+    only block app.js reads (a denominator line). Confirmed 2026-09-14 by exhaustive
+    search. The full log stays on disk."""
+    if not isinstance(rank_log, dict):
+        return rank_log
+    return {k: v for k, v in rank_log.items() if k not in ("queue", "changelog")}
+
+
+def project_map_log(map_log: dict) -> dict:
+    """data/chains/_map-log.json, with the blocks no template reads dropped: `changelog`
+    (21,906 bytes), `spot_tests`, `repairs` and `confidence_audit`. `.notes` and
+    `.calibration`/`.archetypes` stay — mapCard (app.js) filters notes for
+    ESCALATION-tagged rows and reads the rest in full, the same pattern scoutCard
+    applies to the scout log below. Confirmed 2026-09-14 by exhaustive search. The full
+    log stays on disk."""
+    if not isinstance(map_log, dict):
+        return map_log
+    return {k: v for k, v in map_log.items()
+            if k not in ("changelog", "spot_tests", "repairs", "confidence_audit")}
+
+
+def project_scout_log(scout_log: dict) -> dict:
+    """data/radar/scout-log.json, with the blocks no template reads dropped:
+    `spot_tests`, `repairs`, `changelog` and `confidence_audit`. `.notes`,
+    `.proposed_rules` and `.calibration` stay — scoutCard (app.js) reads all three, notes
+    filtered for ESCALATION-tagged rows. Confirmed 2026-09-14 by exhaustive search. The
+    full log stays on disk."""
+    if not isinstance(scout_log, dict):
+        return scout_log
+    return {k: v for k, v in scout_log.items()
+            if k not in ("spot_tests", "repairs", "changelog", "confidence_audit")}
 
 
 BLOB_MARKER = "window.UPSTREAM_DATA = "
@@ -2036,6 +2276,11 @@ def build_payload(data_dir=DATA, root=ROOT):
 
     digests = read_json_dir(DATA / "digest")
     digests.sort(key=lambda d: d.get("week", ""), reverse=True)
+    # Only the newest is ever read — `(D.digests || [])[0]`, three call sites in
+    # app.js, confirmed 2026-09-14 by exhaustive search; no view lists past weeks.
+    # `run digest` never prunes data/digest/, so the unread tail only grows; every
+    # weekly file stays on disk regardless of what this build carries.
+    digests = digests[:1]
 
     signals = read_json_dir(DATA / "signals")
     impact = read_json_dir(DATA / "impact")
@@ -2109,11 +2354,15 @@ def build_payload(data_dir=DATA, root=ROOT):
                 # Short keys and only the fields the page renders. `origin_ref` rides
                 # along only for the origins the page can link to; every feed id on the
                 # page would be 355 dead strings, since the store they point into prunes.
-                "rows": [{"i": r.get("id"), "t": r.get("title"),
+                # 2026-09-14: `id` and `theme_by` dropped too — thOccRow (app.js) never
+                # reads either, confirmed by exhaustive search of the whole occurrence-log
+                # section; the permanent row on disk (data/themes/occurrences.json) still
+                # carries both.
+                "rows": [{"t": r.get("title"),
                           "s": r.get("source"), "u": r.get("url"), "d": r.get("ts"),
                           "o": r.get("origin"), "r": r.get("origin_ref"),
                           "f": r.get("family"), "th": r.get("theme_id"),
-                          "b": r.get("theme_basis"), "by": r.get("theme_by")}
+                          "b": r.get("theme_basis")}
                          for r in _rows],
             }
         except Exception:
@@ -2147,12 +2396,14 @@ def build_payload(data_dir=DATA, root=ROOT):
             fundamentals_for=[s.get("ticker") for s in stocks if isinstance(s, dict)]),
         # Compact projections (2026-09-13): every issuer profile, every mapping's
         # placements, and every company pipeline, each trimmed per the rule at the top
-        # of this section. `book` is data/book.json's own already-compact rows, carried
-        # whole (229 rows on 2026-09-13; ranking and denominator ride along verbatim).
+        # of this section. `book` was data/book.json's own already-compact rows, carried
+        # whole through 2026-09-13; from 2026-09-14 project_book trims its rows further
+        # (see its docstring) now that a real per-ticker row carries 33 fields and only
+        # 4 have a reader.
         "companies": project_companies(companies_raw, market),
         "placements": project_placements(mappings_raw, market),
         "pipelines": project_pipelines(DATA),
-        "book": book,
+        "book": project_book(book),
         "ledger_total": ledger_total,
         "shadow": {
             "book": json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
@@ -2181,9 +2432,9 @@ def build_payload(data_dir=DATA, root=ROOT):
             json.loads((DATA / "radar" / "candidates.json").read_text())
             if (DATA / "radar" / "candidates.json").exists() else {"candidates": []}),
         "impact": project_impact(impact),
-        "rank": json.loads((DATA / "impact" / "_rank-log.json").read_text()) if (DATA / "impact" / "_rank-log.json").exists() else None,
-        "scout": json.loads((DATA / "radar" / "scout-log.json").read_text()) if (DATA / "radar" / "scout-log.json").exists() else None,
-        "map": json.loads((DATA / "chains" / "_map-log.json").read_text()) if (DATA / "chains" / "_map-log.json").exists() else None,
+        "rank": project_rank(json.loads((DATA / "impact" / "_rank-log.json").read_text())) if (DATA / "impact" / "_rank-log.json").exists() else None,
+        "scout": project_scout_log(json.loads((DATA / "radar" / "scout-log.json").read_text())) if (DATA / "radar" / "scout-log.json").exists() else None,
+        "map": project_map_log(json.loads((DATA / "chains" / "_map-log.json").read_text())) if (DATA / "chains" / "_map-log.json").exists() else None,
         "campaign_ix": campaign_ix,
         "board": {**build_board(DATA, chains, stocks, campaign_ix), "top": build_top(DATA, chains, stocks)},
         # The eight agent contracts, verbatim, plus the ownership map parsed out of the
@@ -2216,11 +2467,16 @@ def build_payload(data_dir=DATA, root=ROOT):
                        "baseline_weeks": BASELINE_WEEKS},
             # The quality-score zones the stock page draws its meters with (2026-09-13),
             # from the same constants tools/acis/quality.py decides each state with.
+            # `formulas_note` (2026-09-14): the one methodology sentence every ticker's
+            # quality.formulas carried byte-identically; _trim_quality cuts a ticker's
+            # own copy only when it matches this exactly, so a ticker with a genuinely
+            # different note keeps it untouched.
             "quality": {"altman": {"distress_below": ALTMAN_DISTRESS_BELOW,
                                    "safe_above": ALTMAN_SAFE_ABOVE},
                         "beneish": {"review_above": BENEISH_REVIEW_THRESHOLD},
                         "piotroski": {"strong_min": PIOTROSKI_STRONG_MIN,
-                                      "weak_max": PIOTROSKI_WEAK_MAX}},
+                                      "weak_max": PIOTROSKI_WEAK_MAX},
+                        "formulas_note": QUALITY_SHARED_FORMULAS_NOTE},
             # What this one file carries, shipped so the page can say it in its own words.
             # Since 2026-09-04: everything, at the fidelity the files hold.
             "page": {"fidelity": "FULL",
