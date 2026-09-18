@@ -47,6 +47,24 @@ NUM_RE = re.compile(r"(?<![A-Za-z0-9])\d+(?:\.\d+)?(?![A-Za-z0-9])")
 DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 ALWAYS_ALLOWED = {"100"}  # the fixed 0..100 heat scale, never a copied data value
 
+# A letter-led hyphenated token is an IDENTIFIER, not a number this wording claims.
+# NUM_RE's lookarounds already protect digits welded to letters (`h5n1` yields no token),
+# but a digit SEGMENT fenced by hyphens is not: `CAMP-20260901-01` handed the gate
+# '20260901' and '01' as if the line had asserted them. It had not — `lines.next` for a
+# SCREENED row is the command a reader types, `run selection {campaign_id}`, and that id
+# is copied off data/campaigns/ by opportunities.py, never composed. The gate failed CI on
+# its own id format (2026-09-18), which is the false positive that trains a reader to skip
+# the gate. Masked before number extraction; SIG-, OCC-, REQ- and THM- ids have the same
+# shape and the same standing. A bare date is NOT masked (it starts with a digit), so the
+# 4-digit-year and date-piece rules below still see it. A number the wording genuinely
+# claims is written as its own token, never welded inside a hyphenated word.
+IDENT_RE = re.compile(r"\b[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+\b")
+
+
+def _strip_identifiers(text: str) -> str:
+    """`text` with identifier tokens blanked, so NUM_RE cannot read digits out of one."""
+    return IDENT_RE.sub(lambda m: " " * len(m.group(0)), text)
+
 failures: list = []
 lines: list = []
 
@@ -307,7 +325,7 @@ def check_grounded_wording(top: list) -> None:
             if not isinstance(text, str):
                 continue
             examined += 1
-            for tok in NUM_RE.findall(text):
+            for tok in NUM_RE.findall(_strip_identifiers(text)):
                 if re.fullmatch(r"\d{4}", tok):
                     continue  # a 4-digit year is always allowed
                 if tok in tokens or tok in date_pieces:

@@ -251,6 +251,47 @@ class TestGateOnACleanFixture(unittest.TestCase):
         self.assertIn("check_opportunities: OK", r.stdout)
 
 
+class TestIdentifiersAreNotNumbers(unittest.TestCase):
+    """2026-09-18: the grounded-wording check read digits out of the gate's own id
+    format. `lines.next` for a SCREENED row is the command a reader types,
+    `run selection {campaign_id}`, and that id is copied off data/campaigns/ by
+    opportunities.py and never composed — but NUM_RE saw `CAMP-20260901-01` as the two
+    numbers '20260901' and '01' and failed CI on them. The rule the check enforces is
+    that wording may not INVENT a number; an identifier asserts nothing, so it is masked
+    before extraction. What must not change: a number written as its own token, and a
+    date, are still read."""
+
+    def setUp(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("check_opportunities_mod", CHECK)
+        self.chk = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.chk)
+
+    def nums(self, text):
+        return self.chk.NUM_RE.findall(self.chk._strip_identifiers(text))
+
+    def test_a_system_id_contributes_no_numbers(self):
+        self.assertEqual(self.nums("run selection CAMP-20260901-01"), [])
+        self.assertEqual(self.nums("open SIG-20260830-01 and OCC-20260828-014"), [])
+        self.assertEqual(self.nums("REQ-20260914-02 is fulfilled"), [])
+
+    def test_a_number_in_prose_is_still_read(self):
+        self.assertEqual(self.nums("crowdedness is 47 against a 60 bar"), ["47", "60"])
+        self.assertEqual(self.nums("heat 82 on the 0..100 scale"), ["82", "0", "100"])
+
+    def test_a_bare_date_is_still_read(self):
+        # It starts with a digit, so the identifier mask must not touch it; the year and
+        # date-piece rules downstream are what allow it.
+        self.assertEqual(self.nums("as of 2026-09-01 the score moved"),
+                         ["2026", "09", "01"])
+
+    def test_a_hyphenated_slug_is_masked_and_carries_no_digits_anyway(self):
+        self.assertEqual(self.nums("run redteam AON hormuz-maritime"), [])
+        # A digit welded to letters was already safe via NUM_RE's lookarounds; this holds
+        # that the mask did not change the answer for a chain id shaped like h5n1.
+        self.assertEqual(self.nums("h5n1-panzootic reached stage 3"), ["3"])
+
+
 class TestScopeEmpty(unittest.TestCase):
     def test_an_absent_store_is_not_reported_as_a_pass(self):
         with tempfile.TemporaryDirectory() as td:
