@@ -424,6 +424,76 @@ class TestPayloadDiff(unittest.TestCase):
         self.assertFalse(build._is_ordered_subsequence(["a", "b", "c"], ["a", "c"]))
 
 
+class TestLedgerDerivedCountersMayLag(unittest.TestCase):
+    """2026-09-18: `ledger` and `health.sessions` were both special-cased for the
+    build-then-append-then-commit lag, and the two keys DERIVED from the ledger's length
+    were missed — `ledger_total` (len(data/ledger.md)) and `method.page.ledger_lines`
+    ("newest 200 of {that}"). So a commit that appends a ledger line without rebuilding
+    passed the tolerant `ledger` branch and failed on the counter beside it.
+
+    That is what kept CI red from 2026-09-14 to 2026-09-18: with radar and campaign
+    PAUSED, a routine fire appends ONE ledger NOTE every three hours and CLAUDE.md's
+    PAUSED section instructs it not to rebuild the page, so the build went red again
+    within three hours of every repair.
+
+    The invariant kept is the `ledger` branch's own: the page may LAG the file, never
+    lead it."""
+
+    def _tree(self, tmp, page_payload, ledger_line_count):
+        root = Path(tmp)
+        (root / "app").mkdir()
+        (root / "data").mkdir()
+        (root / "data" / "ledger.md").write_text("".join(
+            f"2026-09-{(i % 28) + 1:02d} 00:00Z | NOTE | line {i} | by: routine\n"
+            for i in range(ledger_line_count)))
+        (root / "app" / "index.html").write_text(
+            "<script>\n" + build.BLOB_MARKER
+            + json.dumps(page_payload, separators=(",", ":")) + ";\n</script>\n")
+        return root
+
+    def _drift(self, tmp, page_payload, current_payload, ledger_line_count):
+        root = self._tree(tmp, page_payload, ledger_line_count)
+        old_app, old_data = build.APP, build.DATA
+        build.APP, build.DATA = root / "app", root / "data"
+        try:
+            return build.compare_committed(current_payload)
+        finally:
+            build.APP, build.DATA = old_app, old_data
+
+    @staticmethod
+    def _payload(total):
+        return {"built_at": "x", "ledger_total": total,
+                "method": {"money_corner": {"impact_min": 60},
+                           "page": {"fidelity": "FULL",
+                                    "ledger_lines": f"newest 200 of {total}"}}}
+
+    def test_a_page_built_before_the_newest_ledger_lines_is_not_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            drift = self._drift(tmp, self._payload(997), self._payload(1000), 1000)
+            self.assertEqual(drift, [], "a page three ledger lines behind the file is the "
+                                        "normal postlude lag, not drift")
+
+    def test_a_page_claiming_more_ledger_lines_than_the_file_holds_is_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            drift = self._drift(tmp, self._payload(1003), self._payload(1000), 1000)
+            self.assertTrue(any("ledger_total" in d for d in drift), drift)
+
+    def test_method_still_fails_on_any_field_that_is_not_the_ledger_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stale = self._payload(1000)
+            stale["method"]["money_corner"] = {"impact_min": 61}
+            drift = self._drift(tmp, stale, self._payload(1000), 1000)
+            self.assertTrue(any(d.startswith("method:") for d in drift), drift)
+            self.assertIn("money_corner", " ".join(drift))
+
+    def test_a_missing_ledger_total_is_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stale = self._payload(1000)
+            del stale["ledger_total"]
+            drift = self._drift(tmp, stale, self._payload(1000), 1000)
+            self.assertTrue(any("ledger_total" in d for d in drift), drift)
+
+
 def _drift_between(committed: dict, current: dict) -> list:
     """compare_committed() reads the page off disk; this exercises the same comparison
     over two dicts by writing a minimal page into a temp tree."""

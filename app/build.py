@@ -2137,6 +2137,50 @@ def compare_committed(payload: dict) -> list:
                 drift.append("ledger: the committed page shows line(s) that data/ledger.md does "
                              "not contain, or shows them in a different order")
             continue
+        if key in ("ledger_total", "method"):
+            # 2026-09-18: the SAME structural lag the `ledger` branch above was written
+            # for, and the `health` branch says was "special-cased there and missed here"
+            # -- missed a third time, in the two keys DERIVED from the ledger's length.
+            # `ledger_total` is len(data/ledger.md) and `method.page.ledger_lines` is the
+            # string "newest 200 of {that}", so any commit that appends a ledger line
+            # without rebuilding fails this gate on a counter while the tolerant `ledger`
+            # branch passes the lines themselves. That is not hypothetical: with radar and
+            # campaign PAUSED, a routine fire appends ONE ledger NOTE every three hours and
+            # is instructed by CLAUDE.md's PAUSED section not to rebuild the page, so CI
+            # went red on this counter within three hours of every repair, from 2026-09-14
+            # to 2026-09-18.
+            #
+            # The invariant kept is the one the `ledger` branch keeps: the page may LAG
+            # the file, never lead it. A committed total ABOVE the file's is still drift
+            # (lines the ledger does not have, or a page built against a different tree),
+            # and every other field of `method` stays strictly compared.
+            try:
+                real_total = len([ln for ln in (DATA / "ledger.md").read_text().splitlines()
+                                  if ln[:2].isdigit() and "|" in ln])
+            except Exception:  # noqa: BLE001
+                real_total = payload.get("ledger_total") or 0
+            if key == "ledger_total":
+                page_total = committed.get(key)
+                if not isinstance(page_total, int):
+                    drift.append("ledger_total: missing or not a number on the committed page")
+                elif page_total > real_total:
+                    drift.append(f"ledger_total: the committed page claims {page_total} ledger "
+                                 f"line(s), more than the {real_total} data/ledger.md holds")
+                continue
+            a = _strip_derived_sizes(committed.get(key))
+            b = _strip_derived_sizes(payload.get(key))
+            for side in (a, b):
+                if isinstance(side, dict) and isinstance(side.get("page"), dict):
+                    side["page"] = {k: v for k, v in side["page"].items()
+                                    if k != "ledger_lines"}
+            if a != b:
+                moved = ""
+                if isinstance(a, dict) and isinstance(b, dict):
+                    diff = sorted(set(a) ^ set(b)) or \
+                        sorted(k for k in set(a) & set(b) if a[k] != b[k])
+                    moved = f" (differs at: {', '.join(map(str, diff[:6]))})" if diff else ""
+                drift.append(f"method: the committed page disagrees with data/{moved}")
+            continue
         if key not in committed:
             drift.append(f"{key}: missing from the committed page")
         elif key not in payload:
@@ -2343,6 +2387,20 @@ def build_payload(data_dir=DATA, root=ROOT):
     # reason: `total` is the whole store, `rows` is what the page can afford to carry. The
     # UI must never print len(rows) where the corpus size belongs -- that exact mistake put
     # "300 HELD" on a page whose store held 317.
+    #
+    # 2026-09-18: the comment above promised a trim this code never performed -- `rows`
+    # carried the WHOLE log, so the payload grew one row per occurrence forever while the
+    # store is append-only by design. A single ingest catch-up (+758 feed rows, the
+    # backlog left by upstream-radar being PAUSED since 2026-09-01 while the fetch
+    # workflow kept landing items) pushed the real build to 12,575,792 bytes, over the
+    # 12.5 MB page-diet target TestRealPageSize holds. The rule there is "shrink a
+    # projection, never raise this number", and the trim the comment already described is
+    # that projection. Capped at the newest 1500 the same way LEDGER_CARRIED_LINES caps
+    # the ledger: `total` stays the corpus size, and app.js already renders the gap --
+    # thTheme appends " \u05d1\u05e2\u05de\u05d5\u05d3 \u05d4\u05d6\u05d4" ("on this
+    # page") to its count whenever TH.total exceeds TH.rows.length, so the truncated state
+    # is one the UI was built for and never silently claimed otherwise.
+    OCCURRENCE_CARRIED_ROWS = 1500
     themes_store = None
     tf, of = DATA / "themes" / "themes.json", DATA / "themes" / "occurrences.json"
     if tf.exists() and of.exists():
@@ -2369,7 +2427,7 @@ def build_payload(data_dir=DATA, root=ROOT):
                           "o": r.get("origin"), "r": r.get("origin_ref"),
                           "f": r.get("family"), "th": r.get("theme_id"),
                           "b": r.get("theme_basis")}
-                         for r in _rows],
+                         for r in _rows[:OCCURRENCE_CARRIED_ROWS]],
             }
         except Exception:
             themes_store = None
@@ -2490,6 +2548,11 @@ def build_payload(data_dir=DATA, root=ROOT):
                      "impact_detail_rule": "every appraisal, legs and evidence whole",
                      "history_rows": "all",
                      "ledger_lines": f"newest {LEDGER_CARRIED_LINES} of {ledger_total}",
+                     "occurrence_rows": (
+                         f"newest {OCCURRENCE_CARRIED_ROWS} of "
+                         f"{(themes_store or {}).get('total', 0)}"
+                         if themes_store and (themes_store.get("total") or 0)
+                            > OCCURRENCE_CARRIED_ROWS else "all"),
                      "fundamentals_rule": "whole for every dived ticker (the stock page "
                                           "draws them); other tickers get a compact "
                                           "fundamentals_headline instead",

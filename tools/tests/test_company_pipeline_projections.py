@@ -866,6 +866,48 @@ class TestThemeOccurrenceRowsTrimming(unittest.TestCase):
             self.assertNotIn("i", row)
             self.assertNotIn("by", row)
 
+    def test_rows_are_capped_at_the_newest_1500_and_total_stays_the_corpus(self):
+        # 2026-09-18: the projection's own comment promised a trim the code never did, so
+        # `rows` grew one entry per occurrence forever against an append-only store. A
+        # single ingest catch-up took the real page over the 12.5 MB target below. The cap
+        # is the newest 1500 by (ts, id) descending; `total` must keep reporting the whole
+        # corpus, because app.js decides whether to say "on this page" by comparing the
+        # two, and a `total` that shrank to len(rows) would make a truncated page claim to
+        # be the whole log.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data = _minimal_data_tree(root)
+            (data / "themes" / "themes.json").write_text(json.dumps({
+                "as_of": "2026-09-18", "themes": [], "calibration": {}}))
+            (data / "themes" / "occurrences.json").write_text(json.dumps({"occurrences": [
+                {"id": f"OCC-{i:05d}", "title": f"item {i}", "source": "wire",
+                 "url": "https://example.invalid", "ts": f"2026-09-{(i % 28) + 1:02d}",
+                 "origin": "feed", "family": "POLICY"}
+                for i in range(1600)]}))
+            payload = build.build_payload(data, root)
+            th = payload["themes"]
+            self.assertEqual(th["total"], 1600)
+            self.assertEqual(len(th["rows"]), 1500)
+            # Newest first, so the row that survives at the head is the latest date.
+            self.assertEqual(th["rows"][0]["d"], "2026-09-28")
+            self.assertEqual(payload["method"]["page"]["occurrence_rows"],
+                             "newest 1500 of 1600")
+
+    def test_a_log_under_the_cap_is_carried_whole_and_says_so(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data = _minimal_data_tree(root)
+            (data / "themes" / "themes.json").write_text(json.dumps({
+                "as_of": "2026-09-18", "themes": [], "calibration": {}}))
+            (data / "themes" / "occurrences.json").write_text(json.dumps({"occurrences": [
+                {"id": f"OCC-{i:05d}", "title": f"item {i}", "source": "wire",
+                 "ts": "2026-09-18", "origin": "feed", "family": "POLICY"}
+                for i in range(10)]}))
+            payload = build.build_payload(data, root)
+            self.assertEqual(payload["themes"]["total"], 10)
+            self.assertEqual(len(payload["themes"]["rows"]), 10)
+            self.assertEqual(payload["method"]["page"]["occurrence_rows"], "all")
+
 
 class TestRealPageSize(unittest.TestCase):
     """The page-diet engineering brief's own target (2026-09-14): with companies,
