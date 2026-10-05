@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exact tests for the model-tier gate. Every audit must be able to FAIL."""
+import datetime
 import subprocess
 import sys
 import tempfile
@@ -7,6 +8,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
+# Fixture ledger lines are dated today (UTC, the clock the gates use) so they stay
+# inside the 21-day window; a hardcoded date rotted out of it on 2026-09-20.
+TODAY = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 
 
 def run(root, *extra):
@@ -86,20 +90,20 @@ class TestAuditsCanFail(unittest.TestCase):
 
     def test_ledger_line_with_no_model_is_found(self):
         def m(f):
-            f.ledger = "2026-08-30 00:00Z | RUN | run alpha | by: ron | result: ok\n"
+            f.ledger = f"{TODAY} 00:00Z | RUN | run alpha | by: ron | result: ok\n"
         r = run(self.build(m))
         self.assertIn("names no model, tier requires claude-haiku-4-5-20251001", r.stdout)
 
     def test_ledger_line_with_wrong_model_is_found(self):
         def m(f):
-            f.ledger = ("2026-08-30 00:00Z | RUN | run alpha | by: ron | result: ok "
+            f.ledger = (f"{TODAY} 00:00Z | RUN | run alpha | by: ron | result: ok "
                         "| model: claude-opus-5\n")
         r = run(self.build(m))
         self.assertIn("ran on claude-opus-5, tier requires claude-haiku-4-5-20251001", r.stdout)
 
     def test_ledger_line_with_matching_model_has_no_finding(self):
         def m(f):
-            f.ledger = ("2026-08-30 00:00Z | RUN | run alpha | by: ron | result: ok "
+            f.ledger = (f"{TODAY} 00:00Z | RUN | run alpha | by: ron | result: ok "
                         "| model: claude-haiku-4-5-20251001\n")
         r = run(self.build(m))
         self.assertIn("check_model: OK", r.stdout, r.stdout)
@@ -107,7 +111,7 @@ class TestAuditsCanFail(unittest.TestCase):
 
     def test_advisory_by_default_strict_blocks(self):
         def m(f):
-            f.ledger = "2026-08-30 00:00Z | RUN | run alpha | by: ron | result: ok\n"
+            f.ledger = f"{TODAY} 00:00Z | RUN | run alpha | by: ron | result: ok\n"
         root = self.build(m)
         self.assertEqual(run(root).returncode, 0, "advisory must exit 0")
         self.assertEqual(run(root, "--strict").returncode, 1, "--strict must block")

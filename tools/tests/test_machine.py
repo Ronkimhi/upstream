@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exact tests for Adam's machine audit. Every audit must be able to FAIL."""
+import datetime
 import json
 import subprocess
 import sys
@@ -8,6 +9,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
+# Fixture ledger lines are dated today (UTC, the clock the gates use) so they stay
+# inside the 21-day window; a hardcoded date rotted out of it on 2026-09-20.
+TODAY = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
 sys.path.insert(0, str(ROOT / "tools"))
 
 from check_machine import gate_refusal_certifications  # noqa: E402
@@ -54,7 +58,7 @@ class Fixture:
         self.hooks = ["ann-gate.py"]
         self.registered = ["ann-gate.py"]
         self.agents = ["ann.md"]
-        self.ledger = "2026-08-30 00:00Z | NOTE | run alpha by ann | by: ron | result: ok\n"
+        self.ledger = f"{TODAY} 00:00Z | NOTE | run alpha by ann | by: ron | result: ok\n"
         self.sessions = {"routine_status": {"radar": "LIVE"},
                          "routine_evidence": {"radar": {"first_evidenced_fire": "2026-08-29"}}}
 
