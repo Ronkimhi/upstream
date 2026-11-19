@@ -61,6 +61,13 @@ jobs:
           # `actions: write` above is what lets that token dispatch a workflow.
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/fetch/fetch.py
+      # The scorecard (Ron, 2026-11-19): grades every label the machine issued against the
+      # closes just fetched. Pure computation, no network. Best effort for the same reason
+      # as the rebuild below: a scorecard failure (including its own refusal to append to
+      # an edited calls.json, exit 2) must never discard fetched data.
+      - name: scorecard (best effort)
+        continue-on-error: true
+        run: python3 tools/scorecard.py
       # Best-effort, never a gate on the data commit. app/build.py runs validate.py first
       # and validate examines session-written profiles: from 2026-09-02 a profile whose NULL
       # basis says "market file missing" FAILS the moment the fetcher puts that file on disk.
