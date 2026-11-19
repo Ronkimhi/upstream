@@ -16,69 +16,69 @@
  "clock": "COMPOUNDER",
  "status": "FINAL",
  "created_at": "2026-09-06T18:00:36Z",
- "updated_at": "2026-09-06T18:30:55Z",
- "as_of": "2026-09-06",
- "review_by": "2026-10-30",
- "verdict": "WATCH",
+ "updated_at": "2026-11-19T23:50:00Z",
+ "as_of": "2026-11-19",
+ "review_by": "2027-02-17",
+ "verdict": "TOO_LATE",
  "price_ref": {
-  "value": 342.08,
-  "source": "data/market/WST.json series.rows last close (2026-09-04), price_status SINGLE_SOURCE",
-  "as_of": "2026-09-04"
+  "value": 396.69,
+  "source": "data/market/WST.json series.rows last close (2026-11-19), price_status AGREED (yfinance 396.69 and stockanalysis 396.69, same session)",
+  "as_of": "2026-11-19"
  },
- "price_source_note": "data/market/WST.json carries price_status SINGLE_SOURCE: the yfinance leg prints 342.0799865722656 dated 2026-09-04 and the stockanalysis leg prints 342.73 dated 2026-09-03, different sessions, so compare_prints correctly refused to call them an agreement (method section 1: a stale peer print is not a second reading of today's close). Every level in this dive is built off the yfinance close of $342.08 on 2026-09-04, the more recent of the two prints.",
- "would_buy_zone": {
-  "low": 148.13,
-  "high": 162.54,
-  "basis": "Closes expectations_gap.rows[net_gap_direction] at the 5-year reverse-DCF convention (the tougher of the two the filed solve computes, and the one this dive's own gap claim rests on). Forward-solving quality.reverse_dcf's own growing-FCF-plus-Gordon-terminal-value formula (base_fcf $468.9M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon; this reconstruction reproduces the filed implied_fcf_cagr to three decimals at all three filed horizons: 32.963% vs filed 0.3296 at 5y, 24.386% vs filed 0.2439 at 7y, 18.337% vs filed 0.1834 at 10y) for a target g instead of solving for g: low=$148.13 is where the market's ask falls to this dive's own defended 10.67% five-year FCF-CAGR base case (net_gap_direction.mine); high=$162.54 is where it falls to a 13% stretch case (both derived from the same revenue-times-margin-times-conversion bridge in net_gap_direction, using EV = price x 72,000,000 FY2025 shares minus the file's own $232.9M net cash, the same bridge that reproduces today's $342.08 close exactly from the filed $24,629.76M market cap). Both bounds sit inside 0.3x-2.0x of the last close ($102.62-$684.16) and strictly below price_ref.value. RED TEAM (2026-09-06) bear-case stress: the zone's low ($148.13) is built on this file's own 'mine' net_gap_direction base case (7.5% revenue CAGR, percentile 65, already characterized in expectations_gap.rows[revenue_cagr_5y] as 'roughly at the top of the company's own previously stated long-term algorithm', not a bear case) and a 22% steady-state margin, also above the FY2025 GAAP level. Re-running the same bridge and forward-solve on an actual bear case, the trailing 3-year revenue CAGR this file itself cites (2.1%) with margin held flat at the FY2025 GAAP level (19.03%, no expansion), gives a fair price of $104.18 at the FY2025 cash-conversion ratio (0.8017) and $84.29 at the more volatile 4-year-average conversion ratio (0.6246), 29.7% to 43.1% BELOW this zone's own low end; even the guided FY2026 pace itself (9.38%) with no margin expansion prices the stock at $140.66, still below $148.13. This zone is therefore the price at which this dive's BASE case, not a haircut off the bear case, becomes fair value, and it does not survive an actual bear-case stress: a buyer at $148-162 is still paying for above-trend growth and margin expansion, with no demonstrated margin of safety against bear[0]-[1] actually playing out. The zone bounds are left unchanged because they correctly close this file's own gap-table row and every other WATCH zone in this analyst's log (VRT, HUBB, MYRG, ESLT) was drawn and left the same way; this finding instead corrects what the zone should be understood to represent (a base-case-fair floor, not a demonstrated bear-survived floor) and is escalated in this run's ledger and dive-log entry as a methodology question for Ron: whether method section 7's 'gap table AND bear case' wording for would_buy_zone requires the low bound itself to be a bear-case-survived price, which this zone, and by the same construction VRT's and MYRG's, is not.",
-  "as_of": "2026-09-06"
- },
+ "price_source_note": "data/market/WST.json carries price_status AGREED on 2026-11-19 (yfinance and stockanalysis both print 396.69 for the same session), so every level in this refresh rests on a two-source confirmed close. The 2026-09-06 file's price_ref of 342.08 was SINGLE_SOURCE on that day; the series now carries 339.97 for 2026-09-04 (a later restatement of the historical row), so the 16.0% move from the old reference is measured against the 342.08 the old file reasoned from and would read 16.7% against the restated row.",
  "watch_triggers": [
   {
-   "metric": "FY2026 organic net sales growth, as guided and reported at year-end",
-   "level": "10%",
-   "direction": "below",
-   "note": "West's own FY2026 guide was raised at the Q2 2026 call (2026-07-28, per this run's WebFetch of the Investing.com transcript, not independently filing-verified this run so carried INFERRED) to organic revenue growth of 10-11% (from a prior 7-9%, itself raised from an initial mid-single-digit guide given in February 2026 alongside the stock's 52-week low). A full-year print at or below the 10% floor of the twice-raised range would say the GLP-1-linked reacceleration this dive's bull case rests on is already fading, not compounding."
+   "metric": "FY2026 free cash flow (operating cash flow less capital expenditures) in the FY2026 10-K or Q4 release cash flow statement",
+   "level": "$600M",
+   "direction": "above would falsify this file; at or below $500M would confirm it",
+   "note": "The filed reverse DCF compounds from FY2025 free cash flow of $468.9M and its five-year ask of 37.21% requires about $643M in year one (468.9 x 1.3721). Nine months filed: operating cash flow $403.4M less capex $125.0M is $278.4M against $293.9M a year earlier (data/edgar/docs/WST.json cash flow statement, VERIFIED); a fourth quarter equal to Q4 2025's derived $175.0M gives about $453M. A full-year print at or above $600M would say working capital is releasing and the market's cash path is arriving. Red team 2026-11-19, reachability of the falsifier: $600M needs a fourth-quarter FCF of $321.6M, 1.84 times the derived Q4 2025 figure of $175.0M, so the trigger sits near the market's own path and a print between $500M and $600M neither confirms nor falsifies this file. The tie-break inside the review window is the FY2027 initial guide (organic growth at or above 10% and an adjusted margin run rate at or above 25%, watch_triggers[3]) read with year-end DSO (watch_triggers[1]). The shadow row grades price against SPY at 90 days and this trigger grades cash; they can disagree, and both stay on the page."
   },
   {
-   "metric": "Non-SmartDose-3.5 HVP Delivery Devices net sales growth, quarterly, as characterized on the earnings call",
-   "level": "10%",
-   "direction": "below",
-   "note": "CFO Bob McMahon stated on the Q2 2026 call that the 'non-SmartDose 3.5 portion of this business represents more than half of HVP delivery device revenues and was up double digits in the quarter, led by SelfDose and Crystal Zenith' (per this run's WebFetch of the Investing.com transcript, INFERRED, not independently filing-verified this run). This is the closest disclosed proxy to the money-corner link's growth net of the AbbVie divestiture. A future quarter characterized as growing below 10% (i.e. no longer 'double digits') would say the durable remainder of the device-platform book, not just the divested SmartDose 3.5mL line, is decelerating."
+   "metric": "Days sales outstanding (receivables over quarter revenue, annualized) at FY2026 year-end",
+   "level": "70 days",
+   "direction": "below, to restore grade B; above 78 days to deepen the flag",
+   "note": "Derived from filed balance sheets: 65.1 days at 2025-12-31 (574.4 over Q4 2025 revenue 805.0 derived from FY2025 less nine months), 74.5 at 2026-06-30 (712.0, INFERRED from the earlier 10-Q fetch), 78.1 at 2026-09-30 (748.2 over 874.5, VERIFIED). A return under 70 with receivables falling in dollars would be the explanation this file does not currently have."
   },
   {
-   "metric": "Deferred income (contract liabilities), balance sheet",
-   "level": "$45.7M",
-   "direction": "below, sustained",
-   "note": "Deferred income fell from $53.7M at 2025-12-31 to $45.7M at 2026-06-30 (per this run's WebFetch of the Q2 2026 10-Q, wst-20260630.htm, INFERRED, not verified against a locally stored EDGAR document this run). A further decline below $45.7M at the Q3 2026 or FY2026 balance-sheet date would say customer prepayment and order-book momentum is fading ahead of revenue recognition, a leading indicator rather than a lagging one."
+   "metric": "HVP Delivery Devices organic growth ex SmartDose 3.5mL, quarterly (this dive's own link)",
+   "level": "20%",
+   "direction": "below",
+   "note": "Q3 2026 filed 26.4% organic on a flat reported figure ($99.1M vs $99.1M), 27.9% for nine months (VERIFIED). A print under 20% says the device-platform remainder is decelerating while the multiple still capitalizes it."
+  },
+  {
+   "metric": "FY2027 initial guidance, organic net sales growth and adjusted operating margin, at the Q4 2026 release (February 2027, company-unconfirmed date)",
+   "level": "10% organic growth and a 25% adjusted operating margin run rate",
+   "direction": "at or above both would support the market path; below organic 10% would end the story",
+   "note": "Three raises in 2026 took organic growth guidance from the initial range to 11.3% to 11.6%, but the Q4 revenue guide of $820M to $830M implies reported growth of only about 2.3% over a derived Q4 2025 of $805.0M (arithmetic from the Q3 release and FY2025 fundamentals, not a forecast)."
   }
  ],
  "what_is_priced_in": [
   {
-   "expectation": "The stock has already re-rated hard in 2026 on two consecutive guidance raises, and the market is treating the most recent quarter's growth rate as the durable run rate. From a 52-week low of $230.95 (around 2026-02-02, alongside an initial mid-single-digit FY2026 organic guide that itself disappointed the market) the stock rallied to a 52-week high of $365.74 (around 2026-07-01), a +58.4% move, before settling at today's $342.08, still +48.1% above the low. Q1 2026 HVP Delivery Devices net sales grew 29.0% year-on-year and company-wide organic growth ran 15.3%; Q2 2026 organic revenue accelerated further (FY2026 guide raised to 10-11% from 7-9%, adjusted EPS guide raised to $8.85-$9.05, +21-24% YoY).",
-   "evidence": "data/market/WST.json series.rows (230.95 low, 365.74 high, 342.08 close 2026-09-04; week52 agrees); this run's WebFetch of the Q1 2026 earnings release Exhibit 99.1 (SEC EDGAR, VERIFIED, 'HVP Delivery Devices net sales of $123.6 million increased by 29.0%...organic growth was 15.3%') and the Q2 2026 earnings-call transcript (Investing.com via WebFetch, INFERRED, guide raise figures).",
+   "expectation": "The price has outrun the earnings. From the 2026-02-03 low of $230.95 the stock is up 71.8% to $396.69 (2026-11-19), and 16.0% since the 342.08 reference of the last dive. Against that, the FY2026 adjusted EPS guide midpoint rose from $8.025 (the initial $7.85 to $8.20 range, INFERRED from the Q1 release's statement of the range it raised) to $9.43, +17.5%, and from $8.95 (the Q2 range) to $9.43 since the last dive, +5.4%. The forward multiple went from 28.8x at the February low to 42.1x today (+46.2%), and from 38.2x to 42.1x since the last dive (+10.1%). In log terms 70.2% of the move since February and 64.7% of the move since September is multiple expansion, the rest estimate revisions. The 52-week high is now $417.80 (2026-11-16), the stock closed 5.1% below it, and it ran 19.8% from $336.94 (2026-09-09) to $403.64 (2026-10-28) into the Q3 print, then rose only 3.23% on the print itself ($403.64 to $416.67), after +12.86% on the Q1 print and +1.74% on the Q2 print. Red team 2026-11-19: the 28.8x to 42.1x comparison sets an eleven-months-forward multiple against a six-weeks-forward one; read on the next twelve months the multiple expansion share of the move since February is 70.2% at 0% FY2027 EPS growth, 54.6% at 10%, 47.3% at 15% and 40.2% at 20% (weights 0.88 FY2027 and 0.12 FY2026 on 2026-11-19, FY2026 alone on 2026-02-03; computed, growth is an assumption, FY2027 EPS is not on disk). Since 2026-09-06 the same grid gives 64.7%, 52.2%, 46.6% and 41.4%.",
+   "evidence": "data/market/WST.json series.rows and week52 (230.95 low on 2026-02-03, 417.80 high on 2026-11-16, 396.69 close 2026-11-19); Q3 2026 release (data/edgar/docs/WST.json) for the $9.38 to $9.48 guide and the prior $8.85 to $9.05 range (VERIFIED); the $7.85 to $8.20 initial range is read from a WebSearch of the Q1 release comparison, not stored locally (INFERRED); multiples and log shares computed this run from those inputs. Sensitivity grid computed in the 2026-11-19 red team from data/market/WST.json series.rows and the guide figures above, tag SPECULATIVE on the FY2027 growth assumption.",
    "tag": "INFERRED"
   },
   {
-   "expectation": "No figure on disk or disclosed by the company attributes a GLP-1 or self-injection-specific revenue percentage to this dive's own link (autoinjector-and-pen-platforms). The company discloses a clean, quantified figure only for the OTHER link this same issuer sits on: 'HVP components GLP-1 revenues grew significantly and contributed 10% of total company sales, consistent with the previous quarter' (Q1 2026 call, Eric Green, per WebFetch of the transcript). For the device-platform link, the company states only that 'HVP Delivery Devices' (15% of total company revenue, all products, not GLP-1-specific) grew on 'increased sales of self-injection device platforms and Daikyo Crystal Zenith' and that segment performance was 'driven by an increase in sales of self-injection devices for obesity and diabetes' (Q1 2026 earnings release, SEC EDGAR, VERIFIED) -- qualitative language, never a quantified GLP-1 share of the device-platform line itself.",
-   "evidence": "This run's WebFetch of the Q1 2026 earnings release Exhibit 99.1 to Form 8-K (https://www.sec.gov/Archives/edgar/data/105770/000010577026000047/exh991q12026earningsrelease.htm) and the Q1 2026 earnings-call transcript (Investing.com via WebFetch). The O1 profile's own exposure_summary.disclosed_revenue_exposure is independently NULL for the same reason.",
+   "expectation": "The growth the market is capitalizing is mostly in the OTHER placement. Q3 2026: HVP Components net sales $466.7M, +19.7% reported and +20.3% organic, 53% of company sales; HVP Delivery Devices, this dive's link, $99.1M, flat reported against $99.1M and +26.4% organic only after excluding the divested SmartDose 3.5mL line ($11.8M against $29.8M), 11% of company sales. Delivery Devices grew 19.6% reported for nine months ($353.9M against $296.0M). No company figure attributes GLP-1 revenue to the device platforms: the Q3 earnings deck (SEC exhibit to the same 8-K, read by WebFetch, INFERRED) gives 12% of Q3 company revenue as GLP-1 elastomer and 9% as GLP-1 West Vantage (21% of net sales in total), and says Administration Systems and Crystal Zenith both had strong double-digit growth, but gives no GLP-1 share for SelfDose, SmartDose 10mL or any device platform.",
+   "evidence": "Q3 2026 release segment and product-category tables (data/edgar/docs/WST.json, VERIFIED); Q3 2026 earnings deck, a3q26earningsdeck-final.htm under accession 0000105770-26-000118, WebFetch summary this run (INFERRED, not stored locally).",
    "tag": "VERIFIED"
   },
   {
-   "expectation": "Part of the exact device platform named in this dive's own placement role (SmartDose) has just been divested, shrinking the disclosed device-platform revenue base going forward even as the market prices acceleration. West sold the manufacturing and supply rights for SmartDose 3.5mL On-Body Delivery System to AbbVie for $112.5 million, closed 2026-07-01; SmartDose 3.5mL revenues were 'anticipated to be approximately 4 percent of revenues in fiscal year 2025' (roughly $123M of the $3,074.1M FY2025 total). West retains SmartDose 10mL and SelfDose. The CFO called the divested line 'dilutive in the first half of the year' and its removal 'going away in the second half' worth '50 basis points of incremental margin for the full year, so that's 100 basis points in the second half' (Q2 2026 call) -- a real, disclosed margin tailwind attached to a revenue base the bull case must now build without.",
-   "evidence": "This run's WebFetch of the divestiture press release (prnewswire.com, 2026-01-12, VERIFIED as a direct company disclosure) and the Q2 2026 earnings-call transcript (Investing.com via WebFetch, INFERRED).",
+   "expectation": "Earnings are being capitalized before cash confirms them. Nine months of 2026: net income $506.8M, +40.2% (it includes a $55.7M gain on the SmartDose 3.5mL sale), operating cash flow $403.4M, down 19.9% from $503.7M, with changes in assets and liabilities of minus $208.2M against minus $1.9M. Receivables $748.2M against $574.4M at year-end (+30.3%) while quarterly revenue rose 8.6% over the derived Q4 2025. Free cash flow for nine months is $278.4M against $293.9M. At the $396.69 price EV is $28,300M, 60.4x the FY2025 base free cash flow of $468.9M and 62.4x a trailing figure of about $453M (468.9 plus the nine-month change). The filed five-year ask of 37.21% a year is about $2.28B of free cash flow in FY2030, 4.9x the FY2025 base.",
+   "evidence": "Q3 2026 release cash flow statement and balance sheet (data/edgar/docs/WST.json, VERIFIED); data/market/WST.json quality.reverse_dcf and quality.derived (SOLVED, as of 2026-11-19); ratios computed this run.",
    "tag": "VERIFIED"
   }
  ],
- "priced_in_summary": "WATCH on the COMPOUNDER clock. This is a real, disclosed, money-corner exposure (chain heat: impact 78, crowdedness 38, capture 72, verdict UNDISCOVERED) sitting over a mechanically clean earnings-quality core (Piotroski 8/9, Beneish -2.791 CLEAN, Altman 16.49 SAFE, net cash), and the FY2026 guide has been raised twice this year on genuine, disclosed reacceleration (HVP Delivery Devices +29.0% in Q1 2026; non-SmartDose-3.5 delivery devices growing 'double digits' in Q2, per the CFO). But the forward ask the price still embeds -- a 32.96% five-year implied FCF CAGR against this dive's own independently built 10.67% base case, a 22.29-point gap well outside this file's own 14.62-point horizon_spread -- survives only at the five-year convention: at the ten-year convention the implied ask (18.34%) sits only 7.67 points above this dive's estimate, inside the horizon_spread band, so by this file's own rule there is no measurable gap at that duration. Layered on that horizon-fragile gap: no figure anywhere on disk or disclosed attributes a specific GLP-1 or self-injection revenue share to this exact link (unlike the clean 10%-of-total-company figure disclosed for West's OTHER, CROWDED placement on this chain), and roughly a quarter of the disclosed device-platform revenue base (SmartDose 3.5mL, ~4% of FY2025 total company revenue) was sold to AbbVie mid-year, a real, sourced fact the market's extrapolation of Q1-Q2 growth rates does not appear to net out. Not TOO_LATE: FY2026 EPS guidance has been raised twice this year roughly in step with the price, which is an estimate-revision story rather than a pure multiple blow-off, and this dive's own log records six consecutive TOO_LATE declines precisely because the vocabulary requires demonstrated multiple EXPANSION eating the runway, not merely a rich forward multiple (38.2x on the FY2026 adjusted-EPS guide midpoint) sitting next to real numbers. Not INVESTABLE: the gap that would justify it is real only under the convention this dive considers the tougher, not the only defensible one, and the independence test's own falsification trigger (Q3 2026 results, late October) has not yet had a chance to fire in either direction.",
+ "priced_in_summary": "TOO_LATE on the COMPOUNDER clock, and the reason is the decomposition, not the business. The business is better than at the last dive: Q3 net sales +8.7% reported and +11.9% organic, HVP Components +20.3% organic, adjusted operating margin 25.3% against 21.1%, and a third guide raise (EPS $9.38 to $9.48 from $8.85 to $9.05, capex cut to $215M to $220M). But the stock rose 16.0% from the 342.08 reference while the EPS guide rose 5.4%, so the forward multiple went from 38.2x to 42.1x, and since the February low the move is 71.8% in price against 17.5% in guided EPS, 28.8x to 42.1x. Log shares: 64.7% of the move since the last dive and 70.2% of the move since February is multiple expansion, which is method section 7's first route to TOO_LATE, and it reverses this file's own reason for declining the word on 2026-09-06 ('guidance raised roughly in step with price'): guidance has not kept in step. The market's filed ask is a 37.21% five-year FCF CAGR (27.29% at seven, 20.34% at ten, spread 16.87 points) against this file's rebuilt base of 13.13% (11.64% and 10.54% over seven and ten years) and stretch of 18.15% (16.06% and 14.52%). The 5-year gap, 24.08 points, exceeds the spread and is real; at ten years it is 9.80 points, inside the spread, the same horizon fragility the earlier file recorded, but the price is above this file's own STRETCH case at every horizon in dollars (stretch $199.07, $222.08 and $258.28 against $396.69), which the earlier file's price was not. The growth that earned the re-rating is mostly in West's other placement (HVP Components +20.3% organic), while this dive's link, HVP Delivery Devices, printed flat reported ($99.1M against $99.1M), +26.4% organic only after excluding the divested SmartDose 3.5mL line, and no company figure ties GLP-1 revenue to it. Earnings quality moves from B to C on the file's own stated condition: DSO 65.1 to 74.5 to 78.1 days across three balance-sheet dates, receivables +30.3% in nine months, and operating cash flow down 19.9% while net income is up 40.2%. Not WATCH: a WATCH needs a price at which the file's bear case still clears, and that price is $104.58, 73.6% below spot and below the 0.3x band the gate allows, so the word would describe a price nobody expects to see. Not INVESTABLE: grade C caps at WATCH and the base case is worth $163.80 to $192.16. The call is falsifiable on a dated number: FY2026 free cash flow at or above $600M (the market's path needs about $643M in year one; the nine-month run rate points to about $453M) would say the cash is arriving and this file was early. RED TEAM AMENDMENTS 2026-11-19 (fresh context): (1) The multiple-expansion shares above compare the FY2026 EPS guide to the price on both dates, but on 2026-02-03 FY2026 was eleven months ahead and on 2026-11-19 it is about six weeks from complete, so 42.1x is nearly a trailing multiple set against a forward one. FY2027 EPS is not on disk. On a next-twelve-months basis the share since February is 70.2% at 0% FY2027 EPS growth, 54.6% at 10%, 47.3% at 15%, 40.2% at 20% and 26.9% at 30%, and it reaches zero only at about 52% growth; since the last dive it is 64.7%, 52.2%, 46.6% and 41.4% at 0%, 10%, 15% and 20%. The multiple expanded in every case, from 28.8x to between 35.8x and 42.1x at 0% to 20% growth, so route one of TOO_LATE (multiple expansion that ate the runway) is met as a large share, and 'most of the move' holds only at FY2027 growth of about 12% or less. (2) 'Above this file's own stretch case at every horizon' is true at the filed 9% discount rate and 2.5% terminal growth only. The filed formula at 8% and 3% values the base case at $210.3 (five years) and $247.1 (ten) and the stretch at $256.8 and $335.9; at 7.5% and 3.5% base $259.2 and $302.5, stretch $317.5 and $414.6; at 7% and 3% base $263.8 and $314.1, stretch $323.2 and $430.8 (all computed, SPECULATIVE inputs). The base case stays below $396.69 in every convention tested (best $314.1, 20.8% below spot), so TOO_LATE rests on the base case being below price, not on the stretch case being below it: the stretch case clears spot at ten years once the discount rate is 7.5% or less. (3) The paragraph above says 'Not WATCH: a WATCH needs a price at which the file's bear case still clears'. That elimination is withdrawn: method section 7 allows a WATCH with a null would-buy zone when grade C binds at any price, so WATCH stayed legal. TOO_LATE stands on the decomposition in (1) and the base-below-price result in (2), on the definition, not by elimination.",
  "bull": [
-  "Real, disclosed, sourced reacceleration on the money-corner link net of the divestiture: HVP Delivery Devices net sales grew 29.0% in Q1 2026, and the CFO stated on the Q2 2026 call that the non-SmartDose-3.5 portion (>50% of Delivery Devices revenue) was 'up double digits in the quarter, led by SelfDose and Crystal Zenith' -- growth in the exact remaining device platforms this placement's role names, net of the line that was sold off.",
-  "A mechanically clean balance sheet funding aggressive capital return: Piotroski F-score 8 of 9 (STRONG), Beneish M-score -2.791 (CLEAN against the -1.78 review threshold), Altman Z 16.49 (SAFE), a net cash position (-0.31x net debt/EBITDA), and $454M of buybacks (1.8M shares) plus $32M of dividends paid through H1 2026 funded from operating cash flow that already covers capex.",
-  "The SmartDose 3.5mL divestiture (closed 2026-07-01, $112.5M) is margin-accretive, not just revenue-dilutive: the CFO characterized the sold line as having been 'dilutive in the first half of the year' and its removal worth '50 basis points of incremental margin for the full year,' meaning the device-platform book the market is now pricing is a smaller but cleaner, higher-margin slice than the one that drove the earlier growth prints."
+  "The operating momentum is real and still being revised up: Q3 2026 net sales $874.5M (+8.7% reported, +11.9% organic), HVP Components +20.3% organic, adjusted operating margin 25.3% against 21.1%, adjusted EPS +35.7%, and a third guide raise in 2026 (FY2026 net sales $3.41B to $3.42B, EPS $9.38 to $9.48, capex cut to $215M to $220M). The Q4 revenue guide of $820M to $830M implies only about 2.3% reported growth over a derived Q4 2025 of $805.0M, which is either conservatism or timing, and the receivables line makes timing worth asking about.",
+  "On this dive's own link the remainder after the divestiture is growing fast: HVP Delivery Devices +26.4% organic in Q3 and +27.9% for nine months excluding the SmartDose 3.5mL line, which is now fully sold (no further SmartDose 3.5mL sales expected this year), and the company's deck says Administration Systems and Crystal Zenith both grew strong double digits (INFERRED, WebFetch of the SEC-filed deck). The earlier file's falsification question, whether the non-SmartDose-3.5 device business keeps compounding, passed its first test.",
+  "A strong balance sheet is funding the per-share compounding: net cash of $261.2M ($464.1M cash less $202.9M debt) after $685.3M of buybacks year to date (2.4M shares, an average of about $286 against today's $396.69) and an 18% dividend increase, shares outstanding down 3.1% from 72.0M to 69.8M, Piotroski 8 of 9 and Altman Z 18.64 (SAFE). The reverse-DCF base still uses 72.0M shares, so per-share values are about 3.2% higher than the filed convention shows."
  ],
  "bear": [
-  "No figure anywhere on disk or disclosed by the company attributes a GLP-1 or self-injection revenue percentage to this exact link; the company discloses a clean 10%-of-total-company figure only for its OTHER, CROWDED placement (elastomer-closure-components), and this dive's own O1 profile independently carries disclosed_revenue_exposure: NULL for this placement. The bull case rests on qualitative language ('self-injection devices for obesity and diabetes') over a revenue base that just shrank by a disclosed ~4 points (SmartDose 3.5mL, sold to AbbVie, closed 2026-07-01). RED TEAM (2026-09-06) quantification: even reading the disclosed figures most generously, HVP Delivery Devices (~15% of FY2025 total company revenue, ~$461.1M) minus the divested SmartDose 3.5mL line (~4%, ~$123.0M) leaves the remaining device-platform book at roughly 11.0% of FY2025 total revenue (~$338.2M), of which the CFO's 'more than half... up double digits' language brackets the actual money-corner growth driver at roughly 5.5% of total company revenue (~$169.1M) or more, an UPPER bound because SelfDose and Crystal Zenith are named, multi-indication platforms, not GLP-1-exclusive, and no company disclosure separates GLP-1-specific revenue from other self-injection use within that sub-slice. Whether the actual GLP-1 dollar volume flowing through this link is a fraction of even that 5.5% ceiling, or whether GLP-1 volume growth's money accrues mainly to the drugmaker (Novo Nordisk, Eli Lilly) rather than to West's device/component fee, cannot be answered from the two files this red team is scoped to; no customer-concentration disclosure for the device-platform link is present in either file, which is a capture-reality data gap this dive's own data_gaps list did not yet name.",
-  "The expectations gap is horizon-fragile: the reverse-DCF ask at the ten-year explicit-period convention (18.34%) sits only 7.67 points above this dive's own 10.67% independent FCF-CAGR estimate, inside this file's own 14.62-point horizon_spread band, so the 22.29-point gap this dive claims exists only under the five-year convention; a market pricing this on a ten-year growth runway would not be measurably wrong by this file's own rule.",
-  "Mild earnings-quality and governance flags are stacking rather than isolated: days-sales-outstanding rose from 68.2 days at FY2025 to roughly 75.7-78.1 days annualized at H1 2026 (a 11-15% jump), deferred income fell 14.9% ($53.7M to $45.7M) over the same six months, and both the CFO (new August 2025) and the CEO (new effective 2026-08-31, five days before this dive) turned over within about thirteen months of each other, capping the earnings-quality grade at B rather than A despite a clean mechanical core."
+  "The price is above this file's own stretch case at every horizon. The filed ask is a 37.21% five-year FCF CAGR (27.29% over seven years, 20.34% over ten) against a rebuilt base of 13.13% (11.64%, 10.54%) and a stretch of 18.15% (16.06%, 14.52%). Forward-solved prices: base $163.80, $175.31 and $192.16; stretch $199.07, $222.08 and $258.28; bear $104.58 at five years; against $396.69. Only a discount rate near 5.2% justifies the price on the base case, and the ask is about $2.28B of FY2030 free cash flow, 4.9x the FY2025 base. Multiple expansion is 70.2% of the move since February (28.8x to 42.1x on the FY2026 guide) and 64.7% since the last dive when measured on that guide, and 40.2% to 54.6% (since February) and 41.4% to 52.2% (since the last dive) if FY2027 EPS grows 10% to 20% and the multiple is read on the next twelve months (red team 2026-11-19, computed): a re-rating in every case, a majority of the move only at the low end.",
+  "Cash is not following earnings, and the earlier file's own condition for grade C is now met: DSO 65.1, 74.5, 78.1 days across three balance-sheet dates, receivables $748.2M against $574.4M at year-end (+30.3%) while revenue rose 8.6% on the derived Q4 2025, nine-month operating cash flow down 19.9% ($403.4M against $503.7M) while net income rose 40.2% (including a $55.7M divestiture gain), changes in assets and liabilities of minus $208.2M against minus $1.9M. Free cash flow of $278.4M for nine months is below last year's $293.9M, so the FY2025 base the market compounds from has not grown. A new CEO (2026-08-31), a CFO who started in August 2025, a May 2026 cybersecurity incident whose costs are adjusted out, and restructuring and M&A items adjusted out of EPS again this year sit beside it.",
+  "The growth the market is paying for is in the other placement, and no number ties GLP-1 revenue to this link. HVP Components, the elastomer placement scored CROWDED on this chain, is 53% of company sales and grew 20.3% organic; this dive's link, HVP Delivery Devices (11% of sales), printed flat reported in Q3 ($99.1M against $99.1M) and was +26.4% only organically after removing the divested line. The deck's GLP-1 figures are 12% of company revenue for elastomers and 9% for West Vantage, whose segment net sales fell 6.6% organic in Q3, with nothing for device platforms. The pre-mortem's third reason, a new CEO reshaping the capital allocation story, has no filed evidence either way; insiders sold $6.57M on eight open-market rows (two insiders, last filed 2026-09-15 at $345 to $365) and bought nothing in the twelve-month window. Red team 2026-11-19: at 21% of Q3 sales (INFERRED, deck) GLP-1 is about $735M of a $3,498M annualized base; the filed five-year ask needs about $9.48B of FY2030 revenue at a 30% margin or $11.85B at 24% (FCF $2.28B at conversion 0.8017), so even a fivefold GLP-1 book leaves the other $2.76B to grow 16.0% to 24.2% a year for five years."
  ],
  "events": [
   {
@@ -118,78 +118,96 @@
    "note": "Announced 2026-06-01, effective 2026-08-31, five days before this dive. WebSearch/WebFetch this run (prnewswire.com), INFERRED"
   },
   {
-   "date": "2026-10-30",
-   "label": "Q3 2026 results expected (review_by), the independence test's falsification window",
+   "date": "2026-10-29",
+   "label": "Q3 2026 results: organic +11.9%, FY2026 guide raised a third time (net sales $3.41B to $3.42B, adjusted EPS $9.38 to $9.48)",
+   "kind": "EARNINGS",
+   "note": "AMENDED 2026-11-19: the 2026-09-06 file estimated this print for around 2026-10-30; the filed release is dated 2026-10-29. SEC EDGAR 8-K Exhibit 99.1, accession 0000105770-26-000118, VERIFIED against data/edgar/docs/WST.json. The close moved 403.64 to 416.67, +3.23%."
+  },
+  {
+   "date": "2026-11-16",
+   "label": "52w high $417.80",
+   "kind": "PRICE",
+   "note": "computed from data/market/WST.json series.rows; week52.high agrees (417.8). The close on 2026-11-19 is 396.69, 5.1% below it."
+  },
+  {
+   "date": "2026-09-30",
+   "label": "Year-to-date buybacks reach $685.3M (2.4M shares); shares outstanding 69.8M",
+   "kind": "CORPORATE_ACTION",
+   "note": "Q3 2026 release balance sheet and cash flow statement, VERIFIED against data/edgar/docs/WST.json."
+  },
+  {
+   "date": "2027-02-15",
+   "label": "Q4 and FY2026 results with FY2027 guidance expected (review_by window)",
    "kind": "SCHEDULED",
-   "note": "Estimated from the Q1 (2026-04-23) / Q2 (2026-07-28) cadence; not a company-confirmed date"
+   "note": "Estimated from the prior-year cadence (the Q4 2025 release is accession 0000105770-26-000005, filed February 2026); not a company-confirmed date. Falsification window for this refresh: FY2026 free cash flow and year-end receivables days."
   }
  ],
  "valuation_snapshot": {
   "price": {
-   "value": 342.08,
+   "value": 396.69,
    "source": "data/market/WST.json series.rows last close",
-   "as_of": "2026-09-04"
+   "as_of": "2026-11-19"
   },
   "market_cap": {
-   "value": "$24,629.76M",
-   "source": "data/market/WST.json quality.derived.market_cap",
-   "as_of": "2026-09-04"
+   "value": "$28,561.68M",
+   "source": "data/market/WST.json quality.derived.market_cap (396.69 x 72.0M FY2025 shares; with the 69.8M shares outstanding at 2026-09-30 it would be about $27,689M)",
+   "as_of": "2026-11-19"
   },
   "lines": [
    {
     "name": "Enterprise value",
-    "value": "$24,396.86M",
+    "value": "$28,300.48M",
     "tag": "INFERRED",
-    "as_of": "2026-09-04",
-    "note": "data/market/WST.json quality.derived.enterprise_value (net CASH of $232.9M, so EV sits below market cap)"
+    "as_of": "2026-11-19",
+    "note": "data/market/WST.json quality.derived.enterprise_value (net cash $261.2M: cash $464.1M less debt $202.9M at 2026-09-30, so EV sits below market cap)"
    },
    {
     "name": "Price-to-sales (FY2025 revenue)",
-    "value": "8.01x",
+    "value": "9.29x",
     "tag": "INFERRED",
-    "as_of": "2026-09-04",
-    "note": "profile metrics.valuation.price_to_sales, computed from market_cap / revenue.latest_fy"
+    "as_of": "2026-11-19",
+    "note": "market_cap 28,561.68 / FY2025 revenue 3,074.1, computed this run from data/market/WST.json (was 8.01x on 2026-09-04)"
    },
    {
     "name": "Forward P/E on FY2026 adjusted-EPS guide midpoint",
-    "value": "38.2x",
+    "value": "42.1x",
     "tag": "SPECULATIVE",
-    "as_of": "2026-09-04",
-    "note": "342.08 / (($8.85+$9.05)/2) = 342.08/8.95, computed this run from the price and the Q2 2026 guide (WebFetch, INFERRED); not a canonical field"
+    "as_of": "2026-11-19",
+    "note": "396.69 / 9.43, the $9.38 to $9.48 range VERIFIED in the Q3 release; the ratio is computed this run, not a canonical field. Was 38.2x on 2026-09-04 and 28.8x at the 2026-02-03 low on the $8.025 initial midpoint (INFERRED)."
    },
    {
     "name": "EV / FY2025 free cash flow (base_fcf)",
-    "value": "52.03x",
+    "value": "60.36x",
     "tag": "INFERRED",
-    "as_of": "2026-09-04",
-    "note": "24,396.86M / 468.9M, computed this run from quality.derived.enterprise_value and quality.reverse_dcf.base_fcf"
+    "as_of": "2026-11-19",
+    "note": "28,300.48 / 468.9, computed this run from quality.derived.enterprise_value and quality.reverse_dcf.base_fcf (was 52.03x). On a trailing figure of about $453M (468.9 plus the nine-month change of minus 15.5) it is 62.4x."
    }
   ],
-  "denominator_note": "No trailing multi-year price-to-sales percentile distribution computed this run; the more decision-relevant move is the 2026 range (52w low $230.95 to high $365.74, a +58.4% swing), covered in what_is_priced_in rather than a multi-year distribution."
+  "denominator_note": "No trailing multi-year price-to-sales percentile distribution computed this run; the move decomposition in what_is_priced_in (price, guided EPS and forward multiple from the 2026-02-03 low and from the last dive) is the valuation evidence this verdict rests on."
  },
  "crowdedness": {
-  "issuer_pcs_axis_a": null,
-  "issuer_pcs_axis_a_tag": "NULL",
-  "issuer_pcs_axis_a_basis": "data/market/WST.json carries no pcs block at all (not merely unreadable positive controls); no attention read exists for this issuer this run.",
+  "issuer_pcs_axis_a": 73.5,
+  "issuer_pcs_axis_a_tag": "INFERRED",
+  "issuer_pcs_axis_a_basis": "data/market/WST.json pcs.axis_a: score 73.5, state DARK, 3 non-null fields (trends 12, wsb 25, stocktwits 13, media null), machine_admissible true, but the pcs gate is ADVISORY because the positive-control fixtures were unreadable on the runner. Axis A measures retail attention (search, Reddit, Stocktwits), which is structurally low for a 28 billion dollar S&P 500 medical supplier regardless of how widely the stock is held, so DARK here is a listing artifact, not evidence of an undiscovered name.",
   "issuer_pcs_axis_b": null,
-  "issuer_pcs_axis_b_tag": "NULL",
-  "issuer_pcs_axis_b_basis": "No PCS Axis B (institutional/analyst) block on disk for WST.",
-  "reliance": "CHAIN_LEVEL_JUDGMENT_ONLY_NO_PCS_DATA",
-  "basis": "Ember's link heat (crowdedness 38, verdict UNDISCOVERED) is a link-level read, not an issuer-level one, and this run's WebSearch corroborates that the ISSUER itself is heavily covered even if the specific device-platform narrative is not singled out: 23 analysts, an 82% buy-rating consensus, and price targets averaging roughly $350-405 (Evercore ISI raised its target to $390 from $350), all above or near today's $342.08 close. This tension -- an UNDISCOVERED link heat score sitting under a heavily sell-side-covered, richly-valued, already-re-rated stock -- is named here rather than resolved: whether the specific device-platform mechanism is genuinely under-covered or whether coverage of the whole issuer already prices it is a crowdedness-reality question for the red team, not this draft. RED TEAM (2026-09-06) cross-check: series.rows shows the market's reaction magnitude to the two guidance raises this dive cites falling sharply between them, not holding steady. The Q1 2026 release (2026-04-23) saw the close jump from $274.41 (2026-04-22) to $309.70, +12.86% in one session; the Q2 2026 release (2026-07-28), a comparably-shaped guide raise, saw the close move only $331.25 (2026-07-27) to $337.00 (2026-07-28), +1.74%. A reaction an order of magnitude smaller to a similarly-shaped raise four months later is consistent with the market having already anticipated and substantially priced the reacceleration story by Q2, which argues the UNDISCOVERED link-heat label is more contestable now (September) than it would have been in April, though it does not resolve whether the specific device-platform mechanism, as opposed to the issuer as a whole, is what got priced. Also recomputed from series.rows: the 52-week low ($230.95) printed 2026-02-03 and the 52-week high ($365.74) printed 2026-07-02, one day later in each case than the 'around' dates this file's events[] and what_is_priced_in cite (2026-02-02 and 2026-07-01); both figures are otherwise correct and the dates were already hedged with 'around'."
+  "issuer_pcs_axis_b_tag": "INFERRED",
+  "issuer_pcs_axis_b_basis": "data/market/WST.json pcs.axis_b: band SATURATED, analyst_count 15, held_pct_institutions 1.0245 (102.45%, as the feed reports it), short_pct_float 0.0304, index_member null. The institutional read is the decisive one for this issuer. (The earlier file's WebSearch figure of 23 covering analysts and the feed's analyst_count of 15 differ; both are secondary counts and neither is a filing.)",
+  "reliance": "PCS_AXIS_B_SATURATED_AXIS_A_ARTIFACT",
+  "basis": "The earlier file left a tension unresolved: link heat UNDISCOVERED (crowdedness 38, a link-level read) beside a heavily covered issuer. The pcs block now on disk resolves it toward crowded at the issuer level: Axis B is SATURATED with institutions holding about 102% of the float as reported, and the three earnings reactions in series.rows have shrunk and then partly rebuilt as the stock ran ahead of each print (+12.86% on 2026-04-23, +1.74% on 2026-07-28, +3.23% on 2026-10-29, after a 19.8% run into the October print). Insider behaviour is consistent with that: the market file's insider block (window 2025-11-19 to 2026-11-19, 101 rows) shows 8 open-market sale rows worth $6.57M by two insiders (Annette F Favorite 7 rows, $6.30M; Chad Winters 1 row, $0.27M), the latest filed 2026-09-15 at $345 to $365, and no open-market purchase; the remaining rows are option exercises, tax withholding and awards. This dive does not claim the specific device-platform mechanism is covered by name, only that the issuer-level price is not an un-crowded price and that the money-corner label does not make it one. RED TEAM 2026-11-19: held_pct_institutions 1.0245 is above 100%, a double count the feed does not clean, so it establishes 'heavily institutional' and cannot rank this name against one held at 85%. The decisive crowding evidence is the earnings-reaction series (recomputed from series.rows and confirmed: +12.86% on 2026-04-23, +1.74% on 2026-07-28, +3.23% on 2026-10-29 after a 19.8% run from 336.94 on 2026-09-09 to 403.64 on 2026-10-28) and the 15-analyst count; short interest is 3.04% of float, no squeeze set-up in either direction. Axis A DARK 73.5 is a listing artifact for a $28.6B S&P 500 name, as stated above. The 5.1% fall off the 417.80 high (2026-11-16) to 396.69 (2026-11-19) is three sessions and shows no crowd exit. Crowdedness does not carry TOO_LATE, which needs only that the issuer-level price is not an un-crowded price; the conclusion is unchanged and only the weight of the 102% figure is corrected."
  },
  "expectations_gap": {
-  "market_implied_source": "data/market/WST.json quality.reverse_dcf [implied_fcf_cagr 0.3296, state SOLVED, base_fcf $468.9M, enterprise_value $24,396.86M, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection method; implied_by_horizon 7y 0.2439, 10y 0.1834, horizon_spread 0.1462; as of 2026-09-04]",
+  "market_implied_source": "data/market/WST.json quality.reverse_dcf [implied_fcf_cagr 0.3721, state SOLVED, base_fcf $468.9M (FY2025), enterprise_value $28,300.48M, 9% discount rate, 2.5% terminal growth, 5-year horizon, bisection method; implied_by_horizon 7y 0.2729, 10y 0.2034, horizon_spread 0.1687; price_used 396.69 yfinance 2026-11-19; shares_used 72,000,000 as of 2025-12-31; as of 2026-11-19]",
   "rows": [
    {
     "driver": "revenue_cagr_5y",
     "market_implied": null,
     "market_implied_tag": "NULL",
-    "market_implied_note": "The filed solve returns an FCF CAGR, not a decomposed revenue CAGR; the reverse_dcf block does not separate the two. This dive avoids the category mismatch a prior red team caught on this repo (comparing a revenue rate to an FCF rate) by building an independent revenue-to-FCF bridge instead, reserved for the net_gap_direction row below; this row records the revenue-specific assumption on its own terms.",
-    "mine": 0.075,
-    "percentile": 65,
-    "why": "FY2026 guide (raised twice this year) implies +9.38% at the guided revenue-range midpoint ($3,362.5M vs FY2025's $3,074.1M); the trailing 3-year CAGR is only 2.1%. 7.5% sits between those two points: below the current guided pace (assuming GLP-1 comp effects and the SmartDose divestiture normalize growth over five years) but well above the trailing multi-year average, roughly at the top of the company's own previously stated long-term algorithm (an analyst reference to a prior 7-9% long-term target was found this run via WebSearch, INFERRED, not filing-verified).",
-    "structural_reason": "A real, disclosed, multi-quarter reacceleration (Q1 2026 organic +15.3%, Q2 2026 guide raised again) tied to GLP-1-linked demand, which this repo's own base rates (10-20% growers fall to 5-8% within five years) would put West's likely five-year path at the upper end of, not above, that band.",
-    "leading_indicator": "FY2026 organic sales growth landing at or above the raised 10-11% guided floor at the year-end release (watch_triggers[0]).",
+    "market_implied_note": "The filed solve returns an FCF CAGR, not a decomposed revenue CAGR. To make the comparison like for like this file builds a revenue-times-margin-times-conversion bridge (net_gap_direction below) and records the revenue-specific assumption here on its own terms. For scale: at a 24% margin and 0.8017 conversion the filed five-year ask needs FY2030 revenue of about $11.85B, a 31.0% revenue CAGR from $3,074.1M; at a 30% margin it needs about $9.48B, a 25.3% CAGR.",
+    "mine": 0.08,
+    "percentile": 70,
+    "why": "FY2026 guide $3.41B to $3.42B is +11.1% reported at the midpoint over FY2025's $3,074.1M, and Q3 organic growth was 11.9%. Year one at 11.1% then about 7% a year for four years compounds to 7.8%, rounded to 8.0%. The trailing 3-year CAGR is only 2.1% (FY2022 to FY2025) and the FY2018 to FY2025 CAGR is 8.7%, flattered by the FY2021 COVID spike. Raised from 7.5% (percentile 65) at the last dive because 2026 has now delivered three guide raises, not because the base rates changed.",
+    "structural_reason": "A disclosed, multi-quarter acceleration (HVP Components +20.3% organic in Q3, Delivery Devices +26.4% organic ex SmartDose 3.5mL) tied to injectable biologics and GLP-1 volume. This repo's own base rate (10 to 20% growers fall to 5 to 8% within five years) puts 8.0% at the top of that band, hence percentile 70.",
+    "leading_indicator": "FY2027 initial organic growth guidance at or above 10% at the Q4 2026 release (watch_triggers[3]).",
     "tag": "SPECULATIVE"
    },
    {
@@ -197,23 +215,23 @@
     "market_implied": null,
     "market_implied_tag": "NULL",
     "market_implied_note": "The filed solve does not decompose an operating-margin path separately from the headline FCF CAGR.",
-    "mine": 0.22,
-    "percentile": 60,
-    "why": "FY2025 GAAP operating margin was 19.03%, and Q2 2026 adjusted operating margin already ran at 22.6% (per WebSearch this run, INFERRED). 22% by year five sits between the current GAAP level and the FY2021 COVID-cycle peak of 26.57% (752.3M/2831.6M), consistent with -- not exceeding -- management's own stated direction ('margin expansion should continue into 2027,' per WebSearch this run) plus the disclosed SmartDose-divestiture tailwind (+50bps FY2026).",
-    "structural_reason": "Mix shift toward higher-margin HVP/Delivery Devices revenue, the disclosed SmartDose 3.5mL divestiture margin accretion, and capex moderating from the FY2023-2024 peak ($362-377M) toward a guided $250-275M annual run rate as built capacity reaches utilization, per the Q2 2026 call (WebSearch this run, INFERRED).",
-    "leading_indicator": "Adjusted operating margin holding at or above 22% (the Q2 2026 print) through the FY2026 year-end release, rather than reverting toward the 19.03% FY2025 GAAP level.",
+    "mine": 0.24,
+    "percentile": 70,
+    "why": "Q3 2026 adjusted operating margin 25.3% against 21.1%, nine-month adjusted 23.1% (VERIFIED), reported GAAP nine-month 24.1% including the $55.7M divestiture gain (about 21.9% without it, computed). FY2025 GAAP was 19.03% and the FY2021 peak 26.57%; the eight-year GAAP range is 14.0% to 26.6%, so 24% sits near the 70th percentile of the company's own history. Raised from 22% because the nine-month adjusted margin already exceeds it; held below the Q3 print because the divestiture tailwind (about 50 basis points a year per the earlier call) and mix are partly in the base already.",
+    "structural_reason": "Mix toward HVP Components, the SmartDose 3.5mL line (dilutive in the first half per the earlier call) now sold, and capex guided down to $215M to $220M as built capacity fills.",
+    "leading_indicator": "Adjusted operating margin at or above 25% through the FY2026 year-end release and in the FY2027 guide, rather than reverting toward the 19.03% FY2025 GAAP level.",
     "tag": "SPECULATIVE"
    },
    {
     "driver": "reinvestment_return",
     "market_implied": null,
     "market_implied_tag": "NULL",
-    "market_implied_note": "The filed solve does not decompose a reinvestment return separately from the headline FCF CAGR, and no company-disclosed ROIC figure was found this run.",
-    "mine": 0.15,
-    "percentile": 45,
-    "why": "A rough return on invested capital, computed here from fundamentals on disk (not disclosed by the company), fell from approximately 20.05% in FY2022 (NOPAT $579.86M at an assumed 21% tax rate, over invested capital $2,891.6M = long-term debt $206.7M + equity $2,684.9M) to approximately 13.68% in FY2025 (NOPAT $462.1M over invested capital $3,378.8M = long-term debt $202.8M + equity $3,176.0M), the trailing signature of the heavy FY2023-2024 capex build (capex/depreciation ran 2.36x-2.64x those years) landing ahead of revenue. 15% assumes only a partial recovery toward the 2022 level as utilization catches up to the built capacity, not a full round trip, which this repo's own base rate (roughly 40-50% of top-quartile ROIC firms stay there after ten years) argues against assuming without more evidence than a management comment on a call.",
-    "structural_reason": "Guided capex moderation ($250-275M annually vs $362-377M in FY2023-2024) alongside continued revenue growth would mechanically lift ROIC even without margin expansion, provided the built capacity is actually filled with demand rather than sitting idle.",
-    "leading_indicator": "FY2026 capex landing inside the guided $250-275M range (down from FY2025's $285.9M) while revenue growth holds at or above the raised guide, the combination that would mechanically lift ROIC without requiring a margin assumption beyond the operating_margin row above.",
+    "market_implied_note": "The filed solve does not decompose a reinvestment return, and no company-disclosed ROIC figure was found.",
+    "mine": 0.17,
+    "percentile": 55,
+    "why": "Rough ROIC computed from filed data (not disclosed by the company): nine-month adjusted operating profit $599.9M annualized to $799.9M, taxed at 21%, over invested capital of $3,171.1M (equity $2,968.2M plus long-term debt $202.9M at 2026-09-30) is about 19.9%, up from 13.7% in FY2025. Part of that lift is the $685M of buybacks shrinking equity and a Q3 margin of 25.3%, neither a reinvestment return. 17% assumes most but not all of the run rate persists.",
+    "structural_reason": "Capex guided to $215M to $220M (from $250M to $275M and $285.9M in FY2025) against guided revenue growth of 11%: capex over depreciation is about 1.2x on the guide against 2.4x to 2.6x in FY2023 and FY2024, so built capacity is filling rather than being added.",
+    "leading_indicator": "FY2026 capex inside the guided $215M to $220M while FY2026 free cash flow rises above $500M.",
     "tag": "SPECULATIVE"
    },
    {
@@ -221,75 +239,241 @@
     "market_implied": 0.025,
     "mine": 0.025,
     "percentile": 50,
-    "why": "No disagreement, and saying so matters. The solve's 2.5% perpetual growth sits at or below the long-run nominal GDP ceiling this repo's own base rates cite, and is not the input this dive would change for a specialty pharma-services supplier with real but not unlimited pricing power (capture score 72, a qualification-locked but partly private layer, per the chain's own heat rationale).",
+    "why": "No disagreement. The solve's 2.5% perpetual growth is at or below the long-run nominal GDP ceiling this repo's base rates cite and is not the input this dive would change for a qualification-locked but partly commoditizing components supplier.",
     "tag": "INFERRED"
    },
    {
     "driver": "net_gap_direction",
-    "mine": "MARKET_IMPLIES_MORE_THAN_DEFENSIBLE_AT_THE_FIVE_YEAR_CONVENTION_BUT_NOT_AT_TEN",
-    "note": "Building like-for-like (revenue CAGR x steady-state margin x FY2025 cash conversion held constant, the same bridge ANDR.VI/688425.SS/ESLT used in this repo): 3,074.1M revenue compounding at 7.5% to 4,413.3M in FY2030; operating income at a 22% margin gives 970.9M against FY2025's 584.9M (+10.67% CAGR); holding the FY2025 FCF-to-operating-income ratio (468.9/584.9 = 0.8017) gives FY2030 free cash flow of 778.4M against the filed base of 468.9M, an FCF CAGR also of 10.67% (unchanged by the constant-conversion assumption, since it scales both numerator and denominator identically). Gap against the filed 5-year 32.96%: 22.29 points, well outside this file's own 14.62-point horizon_spread -- a real claimed gap, not a horizon-convention artifact, at this convention. At the 10-year convention (18.34% implied) the gap narrows to 7.67 points, INSIDE the horizon_spread, so by this file's own rule there is NO measurable gap at that duration: the sign does not flip, but the claim of a real gap does not survive every convention this dive can vary, unlike 688425.SS's record in this same log. Stress-tested on three further axes: (1) discount rate -- independently replicating quality.reverse_dcf's own bisection (reproduces the filed solve to three decimals: 32.963% vs 0.3296 at 5y, 24.386% vs 0.2439 at 7y, 18.337% vs 0.1834 at 10y) and lowering the discount rate to 7% still implies 22.30% at the 5-year horizon, an 11.63-point gap against 10.67%, wider than the horizon_spread and in the same direction, so the 5-year gap survives a lower discount rate; (2) FCF base -- the filed $468.9M base is 1.17x the FY2022-2025 trailing 4-year average ($399.8M), a materially smaller outlier than this log's recurring base-year defect class (MYRG 2.90x, 688425.SS 2.00x), and using the LOWER trailing-average base makes the market's implied ask WORSE, not better (37.53% at 5y instead of 32.96%), the same direction as ESLT, because West's FCF has been broadly rising rather than spiking off one outlier year; (3) cash conversion -- reverting the FY2025 conversion ratio (0.8017) to the FY2022-2025 four-year average (0.6246, the series runs 0.599/0.613/0.485/0.802, itself volatile) lowers my_fcf_cagr to 5.28% against the same 970.9M FY2030 operating income, WIDENING the 5-year gap to 27.68 points and leaving the 10-year gap (18.34% vs 5.28% = 13.06pp) still inside the 14.62pp horizon_spread. Net: the claimed gap is real and survives discount-rate and base stress at the 5-year convention, but is not robust across horizon conventions, which is why this dive is WATCH rather than INVESTABLE. RED TEAM (2026-09-06) cross-check: independently forward-solved the same bridge at the 10-year explicit-period convention using this dive's own 10.67% base case (rather than comparing CAGR points against the market's 18.34% 10-year ask alone): EV = price x 72,000,000 shares - $232.9M net cash gives a fair price of $193.67 at 10 years, still 43.4% below the $342.08 reference, against $148.13 (56.7% below) at the 5-year convention already used for the zone. This confirms the priced_in_summary's 'no measurable gap' finding at the 10-year convention is a statement about method section 7's horizon_spread band specifically (the 7.67pp CAGR gap sits inside the 14.62pp band the filed solve itself generates by varying only the horizon), not a claim that the stock is fairly priced at that convention: a CAGR gap that small still compounds, over ten years, into a price gap nearly as large in percentage terms as the five-year convention's. Both conventions price this dive's own defended case well below spot; only the CAGR-point framing, not the dollar framing, disappears at ten years.",
+    "mine": "MARKET_ASKS_MORE_THAN_BASE_AND_STRETCH_AT_EVERY_HORIZON_GAP_OUTSIDE_SPREAD_ONLY_AT_FIVE_YEARS",
+    "note": "Like-for-like bridge as in the earlier file (revenue CAGR times steady-state margin times FY2025 FCF-to-operating-income conversion 0.8017 held constant, solved through the filed growing-FCF-plus-Gordon formula at the filed 9% and 2.5%; the formula reproduces the filed 37.21%, 27.29% and 20.34% from EV $28,300.48M and base $468.9M). BASE (8.0% revenue, 24% margin): FCF CAGR 13.13% at five years, 11.64% at seven, 10.54% at ten (the margin step is held at the horizon end, so the rate falls with the horizon). Market minus base: 24.08, 15.65 and 9.80 points against the 16.87-point horizon_spread: a gap outside the spread at five years, inside it at seven and ten, the same horizon fragility the earlier file found. STRETCH (11% revenue, 26% margin): 18.15%, 16.06%, 14.52%. BEAR (2.1% revenue, the FY2022 to FY2025 trailing rate; 19.03% margin held flat; 0.8017): 2.10%. Forward-solved prices on the filed convention (72.0M shares, net cash $261.2M), against 396.69: base $163.80 (5y), $175.31 (7y), $192.16 (10y), which is 58.7%, 55.8% and 51.6% below spot; stretch $199.07, $222.08, $258.28 (49.8%, 44.0%, 34.9% below); bear $104.58, $104.02, $103.30 (73.6% below). The price is therefore above the stretch case at every horizon, (the earlier file's five-year gap was 22.29 points against a 14.62-point spread; it is now 24.08 against 16.87). The CAGR-point test goes quiet at ten years, but the dollar test does not: a 9.80-point gap held for ten years is a $192 value against a $397 price. Stress: (1) discount rate: at 8% base $194.24 and bear $122.90, at 10% base $141.51 and bear $91.14; the base case reaches $396.69 only at a discount rate of about 5.2%. (2) FCF base: the filed base $468.9M against a trailing figure of about $453M (468.9 plus the nine-month change of minus 15.5, computed) moves the ask to 38.19%, 27.95%, 20.79%; against the FY2022 to FY2025 average of $399.8M it is 41.90%, 30.46%, 22.50%. Both worsen the ask, so the base year is not what drives the gap. (3) Conversion: reverting 0.8017 to the four-year average 0.6246 lowers the five-year base to 7.63% and its value to $131.36, bear to $84.68. (4) Shares: the filed solve uses the 72.0M FY2025 count while 69.8M were outstanding at 2026-09-30 (VERIFIED, Q3 release balance sheet); EV on 69.8M is $27,427.8M, the ask 36.30%, 26.67%, 19.91%, and per-share values rise about 3.2% (base $168.96, bear $107.87 at five years). None of the four moves the conclusion. RED TEAM 2026-11-19, convention stress (filed growing-FCF-plus-Gordon formula, computed, reproduces the filed 37.21%, 27.29% and 20.34%): at 8% and 3% the market-implied FCF CAGR is 29.67% (five years) and 16.69% (ten), at 8% and 3.5% 27.13% and 15.63%, at 7.5% and 3.5% 23.87% and 13.96%. Against the base case (13.13% and 10.54%) the five-year gap stays outside the horizon spread in each case; at ten years the gap to the base is 6.15 points at 8% and 3%, and to the stretch (14.52%) it is 2.17 points. Forward-solved prices (net cash $261.2M, 72.0M shares): 8% and 3% base $210.3 and $247.1, stretch $256.8 and $335.9; 7.5% and 3.5% base $259.2 and $302.5, stretch $317.5 and $414.6; 7% and 3% base $263.8 and $314.1, stretch $323.2 and $430.8. The base case is below $396.69 in every convention tested (best $314.1); the stretch case is above it at ten years at 7.5% and 3.5% or lower. The verdict therefore depends on the file's own base case (8.0% revenue, 24% margin, both SPECULATIVE) being a better estimate than its stretch case, and that dependence is stated rather than hidden.",
     "tag": "SPECULATIVE"
    }
   ]
  },
  "independence_test": {
-  "largest_disagreement": "The market is pricing West's autoinjector-and-pen-platforms exposure as if the 29.0% Q1 2026 HVP Delivery Devices growth print and the twice-raised FY2026 guide are a durable, multi-year structural run rate, embedding a 32.96% five-year implied FCF CAGR (the tougher of the two horizon conventions the filed solve computes); this dive's own independently built base case, using its own defended revenue, margin and conversion assumptions, implies roughly 10.67%, a 22.29-point gap under that convention that survives discount-rate and base stress but disappears (7.67 points, inside this file's own 14.62-point horizon_spread) under the ten-year convention.",
-  "why_the_gap_exists": "RECENCY / EXTRAPOLATION, layered on an unquantified attribution. Two consecutive guidance raises in 2026 took the stock from a 52-week low of $230.95 in February to a 52-week high of $365.74 in July (+58.4%), and 23 covering analysts carry an 82% buy-rating consensus with price targets averaging roughly $350-405, all at or above today's $342.08 close. The market appears to be extrapolating the most recent two quarters' growth rate into a multi-year structural story without separating the divesting SmartDose 3.5mL line (~4% of FY2025 revenue, sold to AbbVie, closed 2026-07-01) from the durable remainder, and without a single disclosed figure attributing GLP-1 revenue to this exact link the way West discloses a clean 10%-of-total-company figure for its OTHER, CROWDED placement on this same chain -- a case of the market pricing a diversified components-and-devices supplier as if the device-platform narrative alone were both quantified and durable, when this dive can find neither on disk.",
-  "falsification": "Q3 2026 results, expected around 2026-10-30 (this dive's review_by). If West's FY2026 organic sales growth prints at or below the 10% floor of the raised guidance range, or if the non-SmartDose-3.5 Delivery Devices business is characterized as growing below 'double digits' (watch_triggers[0] and [1]), that is the data point showing the market's extrapolation was right and this dive's caution was wrong. Conversely, a third consecutive guidance raise with the non-SmartDose device business still compounding at 'double digits' or better would argue this dive underweighted the structural case."
+  "largest_disagreement": "The market is paying for a 37.21% five-year FCF CAGR (20.34% over ten), roughly 2.0x this file's stretch case of 18.15% and 2.8x its base case of 13.13%, on the strength of three guide raises, while the cash flow statement shows nine-month operating cash flow down 19.9% and free cash flow below last year's, so the filed ask compounds from a base that has not grown.",
+  "why_the_gap_exists": "RECENCY / EXTRAPOLATION layered on NARRATIVE ATTRIBUTION. Two seasons of upside surprises in HVP Components were extrapolated into a multi-year structural rate, and the whole issuer was re-rated on the GLP-1 story (forward multiple 28.8x to 42.1x since February, 70.2% of the move) although the growth sits in the elastomer placement and this dive's own device link printed flat reported in Q3. The move is also partly flow: institutions hold about 102% of float as the feed reports it (Axis B SATURATED), 15 analysts follow the name, and the guidance cadence (three raises) trains anchoring on the next raise.",
+  "falsification": "FY2026 free cash flow (operating cash flow less capex) at the Q4 2026 release in February 2027, the date inside this file's review_by of 2027-02-17 (company-unconfirmed; the Q4 2025 release was filed in February 2026). The filed ask needs about $643M in year one; at or above $600M, together with year-end receivables days back under 70, says working capital is releasing, the earnings were real cash, and this file was early. At or below $500M with days above 75 says the opposite and the multiple has nothing under it. A FY2027 initial guide of at or above 10% organic growth with a margin run rate of at least 25% would also argue the extrapolation was right."
  },
  "earnings_quality": {
-  "grade": "B",
-  "basis": "Grade B: a clean mechanical core with several mild, each-disclosed, each-defensible flags, none of which is a Beneish breach, a sustained multi-year drift, or an undisclosed one-time item. Clean: Beneish M of -2.791 against the -1.78 review threshold (CLEAN, 12 of 12 inputs found); Piotroski F-score 8 of 9 (STRONG); Altman Z of 16.49 (SAFE, far from distress); free cash flow at 94.98% of net income in FY2025 ($468.9M / $493.7M); auditor PricewaterhouseCoopers LLP, long-standing (found in filings back to at least 2009 per this run's WebSearch), ratified for FY2026 by shareholder vote with no auditor change; the Daikyo Seiko related-party relationship (West holds a 49% equity stake, a decades-old distribution and technology-exchange partnership, extended by a new 10-year distributorship agreement in July 2026, per this run's WebSearch) is longstanding and disclosed, not a new or opaque arrangement. Flags, not disqualifying individually: (1) accruals of -6.60% of average assets in FY2025 (cash exceeds earnings, the conservative direction, computed this run from fundamentals: net income $493.7M less operating cash flow $754.8M, over average total assets $3,956.7M; -4.92% FY2023, -4.30% FY2024), exceeding the grade-A <5%-magnitude threshold on magnitude alone despite the favorable direction; (2) days-sales-outstanding rose from 68.2 days at FY2025 (63.4 FY2023, 69.7 FY2024, a flat multi-year band) to roughly 75.7-78.1 days annualized at H1 2026 (accounts receivable $712.0M at 2026-06-30 vs $574.4M at 2025-12-31, a 23.96% six-month jump, per this run's WebFetch of the Q2 2026 10-Q), a single-period step-up rather than a confirmed sustained multi-year drift; (3) deferred income (contract liabilities) fell 14.9% from $53.7M at 2025-12-31 to $45.7M at 2026-06-30 (per the same 10-Q fetch), again one data point rather than a multi-year series this dive could independently confirm as a drift; (4) elevated capex-to-depreciation (2.36x-2.64x in FY2022-2024, moderating to 1.67x in FY2025), a growth-investment profile the company itself explains as capacity build-out ahead of GLP-1 demand, now guided to moderate further ($250-275M vs FY2025's $285.9M); (5) BOTH the CFO (Robert McMahon, effective August 2025, succeeding Bernard Birkett's announced retirement) and the CEO (Michel Lagarde, effective 2026-08-31, succeeding Eric M. Green's announced retirement, five days before this dive) turned over within about thirteen months of each other -- both orderly, multi-month-telegraphed successions rather than abrupt departures, but a double leadership transition in just over a year is still named plainly rather than smoothed over. Not A: flags (1) and (5) alone exceed grade A's threshold and clean-governance bar. Not C: none of the above is a Beneish breach, and neither the DSO nor the deferred-income move is confirmed as SUSTAINED (each is one data point against a prior flat or unconfirmed series); this dive could not independently verify a multi-year deferred-income series this run (data_gaps), which is itself named as a limit on how confidently grade B, rather than C, can be held. No related-party dealings beyond the disclosed, decades-old Daikyo relationship were found; that search was not exhaustive. The veto is not load-bearing on this dive: grade B caps nothing, and the verdict is WATCH on gap-horizon-fragility and independence-test grounds that would bind at grade A as well.",
+  "grade": "C",
+  "basis": "Grade C, moved from B on 2026-11-19 on the earlier file's own stated test. The 2026-09-06 basis kept B because 'neither the DSO nor the deferred-income move is confirmed as SUSTAINED (each is one data point)'. Method section 7 defines C as a Beneish breach, SUSTAINED DSO or deferred drift, or recurring one-time items. The DSO drift is no longer one point: receivables over quarterly revenue, annualized, run 65.1 days at 2025-12-31 (574.4 over a derived Q4 2025 revenue of 805.0), 74.5 at 2026-06-30 (712.0, INFERRED from the earlier 10-Q fetch) and 78.1 at 2026-09-30 (748.2 over 874.5, VERIFIED), 80.4 on a trailing-revenue basis, against year-end values of 63.4, 69.7 and 68.2 days in FY2023 to FY2025. Receivables rose 30.3% in nine months and 5.1% in Q3 alone on flat sequential revenue (874.5 against 872.3), and the cash flow statement carries it: operating cash flow $403.4M against $503.7M (minus 19.9%) while net income rose 40.2%, changes in assets and liabilities minus $208.2M against minus $1.9M, free cash flow $278.4M against $293.9M. Accruals flipped sign: minus 6.60% of average assets in FY2025 (cash above earnings) to plus 2.48% for nine months of 2026 (earnings above cash; net income $506.8M less operating cash flow $403.4M over average assets of $4,165.4M), still under the 5% magnitude line, and nine-month operating cash flow over net income is 79.6% (89.4% excluding the $55.7M gain) against 139.3% a year earlier. Cash conversion is below grade A's 90% on any basis. Capex over depreciation fell to about 0.9x for nine months ($125.0M over $137.3M) and about 1.2x on the capex guide, from 2.4x to 2.6x in FY2023 and FY2024, so the weak cash is working capital, not investment. Not D: Beneish M of minus 2.791 (CLEAN against minus 1.78, 12 of 12 inputs) and Piotroski 8 of 9 are still clean, but they are computed from FY2025 annual statements and cannot see the 2026 receivables move, so they are not evidence against the drift. Governance and recurring items, each disclosed: a new CEO (Michel Lagarde, effective 2026-08-31) and a CFO since August 2025, within about thirteen months, both orderly; a May 2026 cybersecurity incident whose professional fees are adjusted out of EPS ('Other' $9.2M for nine months, VERIFIED quote in filing_evidence); restructuring and other charges adjusted out of adjusted EPS in both 2025 ($21.9M for nine months) and 2026 ($9.3M), plus M&A advisory costs, which is a mild version of the recurring one-time pattern; auditor PricewaterhouseCoopers LLP long standing, no change (INFERRED); the Daikyo Seiko 49% related-party relationship unchanged and disclosed, extended by a ten-year distributorship in July 2026 (INFERRED). Deferred income (contract liabilities) is not in the Q3 release; the last two points are $53.7M and $45.7M (INFERRED, earlier 10-Q fetch), so that leg is unconfirmed rather than cleared. Why not B: three consecutive balance-sheet dates, a widening gap between earnings and cash, and the governance and recurring items together exceed 'one or two mild flags with defensible explanations', and this file has no management explanation for the receivables on disk (the Q3 deck, WebFetch, contains no receivables commentary). What would restore B: year-end days under 70 with receivables falling in dollars and FY2026 free cash flow at or above $500M. The grade caps any verdict at WATCH and does not change TOO_LATE; it is written because it removes the one route to INVESTABLE the earlier file left open, and because the veto exists for exactly the case where a cheap-looking gap table sits next to cash that is not following.",
   "inputs": {
    "beneish": -2.791,
    "beneish_state": "CLEAN",
    "beneish_threshold": -1.78,
+   "beneish_note": "FY2025 annual inputs, unchanged from the earlier read; blind to 2026 receivables",
    "piotroski": 8,
-   "altman": 16.49,
+   "altman": 18.64,
    "accruals_pct_avg_assets_fy2025": -0.066,
-   "accruals_pct_avg_assets_fy2024": -0.043,
-   "accruals_pct_avg_assets_fy2023": -0.0492,
+   "accruals_pct_avg_assets_9m_2026": 0.0248,
    "fcf_to_net_income_fy2025": 0.9498,
+   "fcf_to_net_income_9m_2026": 0.5493,
+   "ocf_to_net_income_9m_2026": 0.796,
+   "ocf_to_net_income_9m_2026_ex_gain": 0.894,
+   "ocf_to_net_income_9m_2025": 1.393,
+   "ocf_9m_2026_musd": 403.4,
+   "ocf_9m_2025_musd": 503.7,
+   "fcf_9m_2026_musd": 278.4,
+   "fcf_9m_2025_musd": 293.9,
+   "changes_in_assets_and_liabilities_9m_2026_musd": -208.2,
+   "changes_in_assets_and_liabilities_9m_2025_musd": -1.9,
+   "receivables_2025_12_31_musd": 574.4,
+   "receivables_2026_06_30_musd": 712.0,
+   "receivables_2026_09_30_musd": 748.2,
    "dso_days_fy2023": 63.35,
    "dso_days_fy2024": 69.7,
    "dso_days_fy2025": 68.2,
-   "dso_days_h1_2026_annualized": 75.67,
-   "dso_days_h1_2026_ttm": 78.12,
-   "capex_to_depreciation_fy2022": 2.36,
+   "dso_days_q4_2025_annualized": 65.11,
+   "dso_days_q2_2026_annualized": 74.48,
+   "dso_days_q3_2026_annualized": 78.07,
+   "dso_days_q3_2026_ttm_revenue": 80.4,
    "capex_to_depreciation_fy2023": 2.637,
    "capex_to_depreciation_fy2024": 2.426,
    "capex_to_depreciation_fy2025": 1.668,
+   "capex_to_depreciation_9m_2026": 0.91,
    "deferred_income_2025_12_31_musd": 53.7,
    "deferred_income_2026_06_30_musd": 45.7,
-   "deferred_income_decline_pct": -0.149,
-   "source": "data/market/WST.json quality (piotroski, beneish, altman) plus ratios computed from fundamentals (data/market/WST.json fundamentals: revenue_fy, net_income_fy, operating_cashflow_fy, capex_fy, depreciation_fy, total_assets_fy, receivables_fy). DSO H1 2026 and deferred-income figures from this run's WebFetch of the Q2 2026 10-Q (wst-20260630.htm), not verified against a locally stored EDGAR document this run (data_gaps).",
+   "source": "data/market/WST.json quality (piotroski, beneish, altman, as of 2026-11-19) and fundamentals; data/edgar/docs/WST.json Q3 2026 release balance sheet and cash flow statement (accession 0000105770-26-000118) for every 2026 figure; ratios computed this run. Q2 2026 receivables and deferred income are carried from the earlier file's 10-Q WebFetch and are INFERRED.",
    "governance_source": {
-    "source": "This run's WebSearch/WebFetch: CFO succession (Robert McMahon effective August 2025, succeeding Bernard Birkett), CEO succession (Michel Lagarde effective 2026-08-31, succeeding Eric M. Green, announced 2026-06-01), auditor PricewaterhouseCoopers LLP (EX-23 consent, FY2025 10-K accession 0000105770-26-000010, and ratification vote results), and the Daikyo Seiko 49% equity relationship.",
-    "as_of": "2026-09-06",
+    "source": "data/edgar/docs/WST.json (cybersecurity incident and adjusted-out items, VERIFIED); carried from the 2026-09-06 file's WebSearch/WebFetch (CEO and CFO succession, auditor, Daikyo Seiko), INFERRED; data/market/WST.json insider block (8 open-market sale rows, $6.57M, zero purchases, window 2025-11-19 to 2026-11-19, computed).",
+    "as_of": "2026-11-19",
     "tag": "INFERRED",
-    "note": "Secondary-source except the auditor consent exhibit (VERIFIED, SEC-filed). None of these facts sets a price level; all feed the grade only."
+    "note": "No new auditor change, CFO or CEO departure, or related-party dealing was found this run beyond the items named; that search was not repeated in full."
    }
   }
  },
  "no_entry_above": null,
- "filing_evidence": [],
- "filing_evidence_note": "No data/edgar/docs/WST.json exists on disk this run. Per this dive's own contract, every fact this dive draws from a filing or company disclosure is instead cited inline (what_is_priced_in, earnings_quality, watch_triggers, events) with its source and an as_of date, using this run's WebFetch of the primary SEC filing or company press release directly, rather than the literal 'quote' key check_analyst.py verifies against a locally stored EDGAR document (method section 1's verbatim rule; tools/check_analyst.py check_dive_quotes fails closed on any 'quote' key with no document on disk). An edgar_doc request for WST is queued in this run's requests batch so a future re-run of this dive, or its red team, can verify these same passages verbatim against a stored document.",
- "data_gaps": [
-  "No data/edgar/docs/WST.json exists on disk; this dive's filing-sourced facts (the Q1 2026 earnings release, the Q2 2026 10-Q, the SmartDose divestiture press release, governance facts) were confirmed this run via direct WebFetch of the primary SEC/company source, but are not verified against a locally stored, machine-checkable EDGAR document. An edgar_doc request is queued (REQ- id in this run's requests batch) so a future run can close this gap.",
-  "No chain- or link-specific GLP-1 revenue percentage is disclosed for the autoinjector-and-pen-platforms link specifically; only the OTHER, CROWDED placement (elastomer-closure-components) carries a disclosed 10%-of-total-company GLP-1 figure. This is named as a finding, not merely a gap: it is the core of this dive's independence-test disagreement.",
-  "data/market/WST.json carries no pcs block; crowdedness for this dive reads from Ember's link heat map only, corroborated by this run's WebSearch of analyst coverage (23 analysts, 82% buy), not from a computed attention score.",
-  "Deferred income (contract liabilities) is confirmed at only two points (2025-12-31 and 2026-06-30) via this run's WebFetch; a full multi-year series could not be independently confirmed this run, so the earnings_quality grade treats the observed decline as one data point rather than a confirmed sustained drift.",
-  "This dive's own independent revenue/margin/reinvestment build (expectations_gap rows) is SPECULATIVE by construction, same as every other dive in this repo's corpus: it is a reasoned estimate, not a company-disclosed or third-party-forecast figure.",
-  "No customer-concentration disclosure exists in this file or data/market/WST.json for the autoinjector-and-pen-platforms link: which GLP-1 drugmakers (Novo Nordisk, Eli Lilly, or others) account for the device-platform growth this dive's bull case rests on, and how much of GLP-1 volume growth's dollar value reaches West's device/component fee versus the drugmaker, is unaddressed. Named by the 2026-09-06 red team's CAPTURE_REALITY attack; not resolvable from the dive file and data/market/WST.json alone."
+ "filing_evidence": [
+  {
+   "quote": "Net sales of $874.5 million increased 8.7%; organic growth was 11.9%.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Headline Q3 growth: reported against organic."
+  },
+  {
+   "quote": "Components net sales of $466.7 million increased 19.7% and rose 20.3% on an organic basis.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Where the growth is: the elastomer placement, not this dive's link."
+  },
+  {
+   "quote": "HVP Delivery Devices net sales of $99.1 million were flat, and were up 26.4% on an organic basis excluding foreign currency translation effects and the impact of the divestiture of SmartDose\u00ae 3.5mL.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "This dive's own link: flat reported, +26.4% organic only after excluding the divested line."
+  },
+  {
+   "quote": "increasing its full-year 2026 adjusted-diluted EPS guidance range to $9.38 to $9.48, up from the previous range of $8.85 to $9.05.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Third guide raise; the $8.85 to $9.05 predecessor verifies the September EPS midpoint of $8.95 used in the decomposition."
+  },
+  {
+   "quote": "increasing its full-year 2026 net sales guidance range to $3.41 billion to $3.42 billion, up from the previous range of $3.345 billion to $3.380 billion.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "FY2026 revenue guide (midpoint $3,415M, +11.1% on FY2025) and the source of the implied Q4 revenue."
+  },
+  {
+   "quote": "Full-year 2026 capital spending guidance is updated to a range of $215 million to $220 million, down from the prior range of $250 million to $275 million.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Capex cut: feeds the reinvestment-return row and the capex over depreciation read."
+  },
+  {
+   "quote": "Net cash provided by operating activities 403.4 503.7",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Nine-month operating cash flow down 19.9% year on year while net income rose 40.2%."
+  },
+  {
+   "quote": "Changes in assets and liabilities (208.2) (1.9)",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "The working-capital drag that explains the cash flow gap."
+  },
+  {
+   "quote": "Accounts receivable, net 748.2 574.4",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Receivables at 2026-09-30 against 2025-12-31 (+30.3%): the DSO drift behind grade C."
+  },
+  {
+   "quote": "Adjusted Operating Profit Margin 25.3 % 21.1 % 23.1 % 19.8 %",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Q3 and nine-month adjusted operating margin against the prior year: the margin evidence for the 24% steady-state assumption."
+  },
+  {
+   "quote": "The Company repurchased $231 million of stock in the quarter, bringing the year-to-date total to $685 million.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Buyback pace behind the 69.8M share count and the shrinking equity in the ROIC arithmetic."
+  },
+  {
+   "quote": "shares outstanding: September 30, 2026 - 69.8 million, December 31, 2025 - 72.0 million",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "Share count against the 72.0M the filed reverse DCF still uses."
+  },
+  {
+   "quote": "No additional SmartDose\u00ae 3.5mL product sales are expected for the remainder of the year.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "The divested line is fully out of the base from Q4."
+  },
+  {
+   "quote": "nonrecurring professional fees associated with various items including certain legal matters and our cybersecurity incident from May 2026.",
+   "accession": "0000105770-26-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/105770/000010577026000118/exh991q32026earningsrelease.htm",
+   "form": "8-K",
+   "filing_date": "2026-10-29",
+   "tag": "VERIFIED",
+   "source_name": "data/edgar/docs/WST.json (SEC EDGAR 8-K EX-99.1, Q3 2026 earnings release, filed 2026-10-29)",
+   "basis": "The May 2026 cybersecurity incident, new since the earlier file: costs adjusted out of EPS."
+  }
  ],
- "shadow_ref": null,
- "notes": [],
+ "filing_evidence_note": "Rebuilt 2026-11-19 from data/edgar/docs/WST.json, now on disk (Form 8-K EX-99.1, Q3 2026 earnings release, accession 0000105770-26-000118, filed 2026-10-29): 14 verbatim passages, each verified by tools/check_analyst.py against that document. The earlier file carried none because no document existed. Facts from the Q2 2026 call and 10-Q, the SmartDose divestiture press release, the earnings deck and the governance searches are cited inline with INFERRED where they are not in the stored document.",
+ "data_gaps": [
+  "The Q3 2026 Form 10-Q is not on disk (data/edgar/docs/WST.json holds the Q3 earnings release only): deferred income (contract liabilities), receivables ageing, any allowance changes and the customer-concentration note are unconfirmed for 2026-09-30. Deferred income is carried at its last two known points ($53.7M and $45.7M, INFERRED). No management explanation for the receivables increase was found: the Q3 deck has no receivables commentary and the call transcript was not retrievable (Benzinga returned 403). This is the main gap behind grade C; a 10-Q and call read could move it back to B.",
+  "Q3 2025 receivables are not on disk, so DSO cannot be compared with the same quarter a year earlier; the drift rests on year-end 2025 against Q2 and Q3 2026, and seasonality cannot be ruled out from the files held.",
+  "The initial FY2026 EPS guide ($7.85 to $8.20) is read from a WebSearch of the Q1 2026 release's statement of the range it raised, not from a stored February document. The 2026-02 decomposition (28.8x to 42.1x forward) rests on it; the 2026-09 decomposition rests on the VERIFIED $8.85 to $9.05 range.",
+  "No chain- or link-specific GLP-1 revenue percentage exists for autoinjector-and-pen-platforms. The Q3 deck (INFERRED, WebFetch summary of an SEC-filed exhibit not stored locally) gives GLP-1 as 12% of Q3 company revenue for elastomers and 9% for West Vantage and nothing for device platforms. Which drugmakers drive the device growth, and whether GLP-1 volume's money reaches West's fee or the drugmaker, is still unaddressed (carried from the 2026-09-06 capture-reality finding).",
+  "The reverse-DCF block uses FY2025 free cash flow ($468.9M) as base and 72.0M shares as of 2025-12-31 while 69.8M were outstanding at 2026-09-30 and nine-month 2026 FCF is below nine-month 2025. quality.beneish and quality.piotroski are computed on FY2025 annual statements and cannot see 2026 interim receivables. These are properties of the filed solve, stress-tested in the net_gap_direction row, not defects this file can fix; the file does not re-solve the market column in-session.",
+  "This file's independent revenue, margin and reinvestment build is SPECULATIVE by construction, as in every dive in the corpus. The 24% margin and 8.0% revenue CAGR were raised from 22% and 7.5% on 2026 evidence; if the raised inputs are too generous the base case is lower still."
+ ],
+ "shadow_ref": "SHD-20261119-01",
+ "notes": [
+  {
+   "ts": "2026-11-19T23:30:00Z",
+   "by": "stocky",
+   "text": "Refresh result in one line: WATCH becomes TOO_LATE because 64.7% of the 16.0% move since the last dive and 70.2% of the 71.8% move since February is multiple expansion (forward 28.8x to 42.1x on a guide that rose only 17.5%), the price is above this file's stretch case at every horizon, and the earnings grade moves B to C on the earlier file's own sustained-DSO test; this is the first dive in this log whose decomposition meets method section 7's first TOO_LATE route, and it reverses the earlier file's reason for declining the word ('guidance raised roughly in step with price'). The honest counter-case is that three raises in a row might continue, which is why the falsifier is a dated cash number (FY2026 FCF at or above $600M) and not a price."
+  },
+  {
+   "ts": "2026-11-19T23:50:00Z",
+   "by": "stocky",
+   "text": "Red team result in one line: TOO_LATE survives and is FINAL, but three of its supports were weakened and the file now says so: the multiple-expansion share is 40% to 70% (not 70.2%) once the calendar roll is allowed for, the stretch case is above spot at ten years under a 7.5% discount rate (the base case is below spot in every convention tested), and the withdrawn 'not WATCH' elimination is replaced by the definition. The falsifier is a dated cash number (FY2026 FCF at or above $600M, with a $500M to $600M zone that decides nothing) and the shadow row grades price, so the two can disagree."
+  }
+ ],
  "confidence_audit": {
-  "verified": 7,
-  "inferred": 18,
-  "speculative": 6,
-  "null": 7,
-  "basis": "Recomputed by scanning this file for literal tag occurrences (VERIFIED/INFERRED/SPECULATIVE/NULL), same mechanism as tools/check_analyst.py check 9. Recounted after the 2026-09-06 red team's amendments."
+  "verified": 32,
+  "inferred": 32,
+  "speculative": 10,
+  "null": 4,
+  "basis": "Recomputed 2026-11-19 after the red team by scanning this file for literal tag occurrences (VERIFIED/INFERRED/SPECULATIVE/NULL), same mechanism as tools/check_analyst.py check 9. The count includes the preserved prior_verdict_snapshot and prior_red_team blocks, which carry the 2026-09-06 tags, and the red_team block."
  },
  "changelog": [
   {
@@ -308,9 +492,93 @@
    "ts": "2026-09-08T18:52:59+00:00",
    "by": "ron",
    "change": "AMEND: recorded zone_contains_spot=False, a mechanical comparison of this file's own price_ref.value (342.08) against its own would_buy_zone [148.13, 162.54]. method section 7 re-anchored the zone convention to the bear case on 2026-09-08 and the gate now requires the flag. NOTHING ELSE IS CHANGED: this zone is still the BASE-case-anchored band drawn under the previous convention, and re-deriving it against this file's own bear case is still owed (Stocky's open escalation of 2026-09-06)."
+  },
+  {
+   "ts": "2026-11-19T23:30:00Z",
+   "by": "stocky",
+   "action": "AMEND",
+   "kind": "AMEND",
+   "model": "claude-sonnet-5-5",
+   "change": "Refresh on Ron's command (refresh data/stocks/WST__glp1-fill-finish.json), data as of 2026-11-19 after Actions fetched prices, fundamentals (revenue_q to 2026-09-30, cash and debt at 2026-09-30), quality, pcs, insider and the Q3 2026 8-K (accession 0000105770-26-000118, filed 2026-10-29). VERDICT CHANGED: WATCH to TOO_LATE, clock COMPOUNDER, earnings grade B to C, review_by 2026-10-30 to 2027-02-17 (90 days), shadow_ref SHD-20261119-01 written to data/shadow/book.json. Status FINAL to DRAFT: the 2026-09-06 red team is preserved under prior_red_team and does not cover this amendment; a fresh-context red team is owed. PRIOR VERDICT PRESERVED in prior_verdict_snapshot: WATCH, would_buy_zone 148.13 to 162.54 (base-anchored, never reached: lowest close since the dive 336.94), price_ref 342.08, implied 32.96% / 24.39% / 18.34% against a 10.67% base. WHAT CHANGED: price 396.69 (+16.0%, 5.1% below a new 52-week high of 417.80); implied 37.21% / 27.29% / 20.34% (spread 16.87) against a rebuilt base of 13.13% / 11.64% / 10.54% (8.0% revenue, 24% margin) and stretch 18.15%; multiple expansion is 64.7% of the move since the last dive and 70.2% of the move since the February low, which meets method section 7's first TOO_LATE route; price above the file's own stretch case at all three horizons; Q3 organic +11.9% with HVP Components +20.3% but this dive's link, HVP Delivery Devices, flat reported ($99.1M) and +26.4% organic ex SmartDose 3.5mL; DSO 65.1 / 74.5 / 78.1 days across three balance-sheet dates and nine-month operating cash flow down 19.9% against net income +40.2%, moving the grade to C; the 2026-09-06 falsification test (FY2026 organic at or above the 10% floor, non-SmartDose-3.5 devices still double digits) was met on its own terms, so the dive's caution on growth was wrong and its caution on price was not. NEW: would_buy_zone and zone_contains_spot moved to the snapshot (a TOO_LATE draws none; a bear-clears reference band $92.13 to $104.58 is recorded under reentry, below the gate's 0.3x band), re-entry price $199.07, four re-underwriting triggers (FY2026 FCF, year-end DSO, Delivery Devices organic growth, FY2027 guide), crowdedness now scored from the pcs block (Axis A DARK 73.5 advisory, Axis B SATURATED), insider block read (8 sales, $6.57M, no purchases), filing_evidence rebuilt as 14 verbatim quotes from the Q3 8-K, Hebrew explainer, clock_basis. No new data request was queued. The Q3 10-Q and the call transcript are not on disk (data_gaps)."
+  },
+  {
+   "ts": "2026-11-19T23:50:00Z",
+   "by": "stocky",
+   "action": "AMEND",
+   "kind": "RED_TEAM",
+   "model": "claude-sonnet-5-5",
+   "change": "run redteam WST glp1-fill-finish (fresh context over the 2026-11-19 refresh). Verdict survived: TOO_LATE, COMPOUNDER, grade C. Status DRAFT to FINAL. 4 of 5 attacks amended the file (CROWDEDNESS_REALITY minor, PRICED_IN_CHECK, CAPTURE_REALITY, ENTRY_BASIS_STRESS), EARNINGS_QUALITY_STRESS confirmed grade C, pre-mortem answered (three reasons, no forced downgrade). Material corrections: the multiple-expansion shares of 70.2% (since 2026-02-03) and 64.7% (since 2026-09-06) were point values on the FY2026 guide and are a 40.2% to 70.2% and 41.4% to 64.7% range on a next-twelve-months basis at FY2027 EPS growth of 0% to 20%; 'above the stretch case at every horizon' holds at the filed 9% and 2.5% only (stretch $414.6 at ten years at 7.5% and 3.5%) while the base case is below $396.69 in every convention tested (best $314.1); the 'Not WATCH' elimination was withdrawn because a grade C cap permits a WATCH with a null zone. Re-entry reference stays 199.07 on the filed convention with a $199 to $336 band. Explainer why_now softened from 'most of the rise' to 'a large part'. Shadow row SHD-20261119-01 note updated. Nothing removed; prior text stands in changelog and prior_red_team."
   }
  ],
- "red_team": {
+ "prior_verdict_snapshot": {
+  "verdict": "WATCH",
+  "status": "FINAL",
+  "as_of": "2026-09-06",
+  "review_by": "2026-10-30",
+  "clock": "COMPOUNDER",
+  "price_ref": {
+   "value": 342.08,
+   "source": "data/market/WST.json series.rows last close (2026-09-04), price_status SINGLE_SOURCE",
+   "as_of": "2026-09-04"
+  },
+  "would_buy_zone": {
+   "low": 148.13,
+   "high": 162.54,
+   "basis": "Closes expectations_gap.rows[net_gap_direction] at the 5-year reverse-DCF convention (the tougher of the two the filed solve computes, and the one this dive's own gap claim rests on). Forward-solving quality.reverse_dcf's own growing-FCF-plus-Gordon-terminal-value formula (base_fcf $468.9M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon; this reconstruction reproduces the filed implied_fcf_cagr to three decimals at all three filed horizons: 32.963% vs filed 0.3296 at 5y, 24.386% vs filed 0.2439 at 7y, 18.337% vs filed 0.1834 at 10y) for a target g instead of solving for g: low=$148.13 is where the market's ask falls to this dive's own defended 10.67% five-year FCF-CAGR base case (net_gap_direction.mine); high=$162.54 is where it falls to a 13% stretch case (both derived from the same revenue-times-margin-times-conversion bridge in net_gap_direction, using EV = price x 72,000,000 FY2025 shares minus the file's own $232.9M net cash, the same bridge that reproduces today's $342.08 close exactly from the filed $24,629.76M market cap). Both bounds sit inside 0.3x-2.0x of the last close ($102.62-$684.16) and strictly below price_ref.value. RED TEAM (2026-09-06) bear-case stress: the zone's low ($148.13) is built on this file's own 'mine' net_gap_direction base case (7.5% revenue CAGR, percentile 65, already characterized in expectations_gap.rows[revenue_cagr_5y] as 'roughly at the top of the company's own previously stated long-term algorithm', not a bear case) and a 22% steady-state margin, also above the FY2025 GAAP level. Re-running the same bridge and forward-solve on an actual bear case, the trailing 3-year revenue CAGR this file itself cites (2.1%) with margin held flat at the FY2025 GAAP level (19.03%, no expansion), gives a fair price of $104.18 at the FY2025 cash-conversion ratio (0.8017) and $84.29 at the more volatile 4-year-average conversion ratio (0.6246), 29.7% to 43.1% BELOW this zone's own low end; even the guided FY2026 pace itself (9.38%) with no margin expansion prices the stock at $140.66, still below $148.13. This zone is therefore the price at which this dive's BASE case, not a haircut off the bear case, becomes fair value, and it does not survive an actual bear-case stress: a buyer at $148-162 is still paying for above-trend growth and margin expansion, with no demonstrated margin of safety against bear[0]-[1] actually playing out. The zone bounds are left unchanged because they correctly close this file's own gap-table row and every other WATCH zone in this analyst's log (VRT, HUBB, MYRG, ESLT) was drawn and left the same way; this finding instead corrects what the zone should be understood to represent (a base-case-fair floor, not a demonstrated bear-survived floor) and is escalated in this run's ledger and dive-log entry as a methodology question for Ron: whether method section 7's 'gap table AND bear case' wording for would_buy_zone requires the low bound itself to be a bear-case-survived price, which this zone, and by the same construction VRT's and MYRG's, is not.",
+   "as_of": "2026-09-06"
+  },
+  "zone_contains_spot": false,
+  "implied_at_the_time": {
+   "five_year": 0.3296,
+   "seven_year": 0.2439,
+   "ten_year": 0.1834,
+   "horizon_spread": 0.1462
+  },
+  "my_base_at_the_time": {
+   "revenue_cagr_5y": 0.075,
+   "operating_margin": 0.22,
+   "fcf_cagr_5y": 0.1067
+  },
+  "earnings_quality_grade": "B",
+  "priced_in_summary": "WATCH on the COMPOUNDER clock. This is a real, disclosed, money-corner exposure (chain heat: impact 78, crowdedness 38, capture 72, verdict UNDISCOVERED) sitting over a mechanically clean earnings-quality core (Piotroski 8/9, Beneish -2.791 CLEAN, Altman 16.49 SAFE, net cash), and the FY2026 guide has been raised twice this year on genuine, disclosed reacceleration (HVP Delivery Devices +29.0% in Q1 2026; non-SmartDose-3.5 delivery devices growing 'double digits' in Q2, per the CFO). But the forward ask the price still embeds -- a 32.96% five-year implied FCF CAGR against this dive's own independently built 10.67% base case, a 22.29-point gap well outside this file's own 14.62-point horizon_spread -- survives only at the five-year convention: at the ten-year convention the implied ask (18.34%) sits only 7.67 points above this dive's estimate, inside the horizon_spread band, so by this file's own rule there is no measurable gap at that duration. Layered on that horizon-fragile gap: no figure anywhere on disk or disclosed attributes a specific GLP-1 or self-injection revenue share to this exact link (unlike the clean 10%-of-total-company figure disclosed for West's OTHER, CROWDED placement on this chain), and roughly a quarter of the disclosed device-platform revenue base (SmartDose 3.5mL, ~4% of FY2025 total company revenue) was sold to AbbVie mid-year, a real, sourced fact the market's extrapolation of Q1-Q2 growth rates does not appear to net out. Not TOO_LATE: FY2026 EPS guidance has been raised twice this year roughly in step with the price, which is an estimate-revision story rather than a pure multiple blow-off, and this dive's own log records six consecutive TOO_LATE declines precisely because the vocabulary requires demonstrated multiple EXPANSION eating the runway, not merely a rich forward multiple (38.2x on the FY2026 adjusted-EPS guide midpoint) sitting next to real numbers. Not INVESTABLE: the gap that would justify it is real only under the convention this dive considers the tougher, not the only defensible one, and the independence test's own falsification trigger (Q3 2026 results, late October) has not yet had a chance to fire in either direction.",
+  "bull": [
+   "Real, disclosed, sourced reacceleration on the money-corner link net of the divestiture: HVP Delivery Devices net sales grew 29.0% in Q1 2026, and the CFO stated on the Q2 2026 call that the non-SmartDose-3.5 portion (>50% of Delivery Devices revenue) was 'up double digits in the quarter, led by SelfDose and Crystal Zenith' -- growth in the exact remaining device platforms this placement's role names, net of the line that was sold off.",
+   "A mechanically clean balance sheet funding aggressive capital return: Piotroski F-score 8 of 9 (STRONG), Beneish M-score -2.791 (CLEAN against the -1.78 review threshold), Altman Z 16.49 (SAFE), a net cash position (-0.31x net debt/EBITDA), and $454M of buybacks (1.8M shares) plus $32M of dividends paid through H1 2026 funded from operating cash flow that already covers capex.",
+   "The SmartDose 3.5mL divestiture (closed 2026-07-01, $112.5M) is margin-accretive, not just revenue-dilutive: the CFO characterized the sold line as having been 'dilutive in the first half of the year' and its removal worth '50 basis points of incremental margin for the full year,' meaning the device-platform book the market is now pricing is a smaller but cleaner, higher-margin slice than the one that drove the earlier growth prints."
+  ],
+  "bear": [
+   "No figure anywhere on disk or disclosed by the company attributes a GLP-1 or self-injection revenue percentage to this exact link; the company discloses a clean 10%-of-total-company figure only for its OTHER, CROWDED placement (elastomer-closure-components), and this dive's own O1 profile independently carries disclosed_revenue_exposure: NULL for this placement. The bull case rests on qualitative language ('self-injection devices for obesity and diabetes') over a revenue base that just shrank by a disclosed ~4 points (SmartDose 3.5mL, sold to AbbVie, closed 2026-07-01). RED TEAM (2026-09-06) quantification: even reading the disclosed figures most generously, HVP Delivery Devices (~15% of FY2025 total company revenue, ~$461.1M) minus the divested SmartDose 3.5mL line (~4%, ~$123.0M) leaves the remaining device-platform book at roughly 11.0% of FY2025 total revenue (~$338.2M), of which the CFO's 'more than half... up double digits' language brackets the actual money-corner growth driver at roughly 5.5% of total company revenue (~$169.1M) or more, an UPPER bound because SelfDose and Crystal Zenith are named, multi-indication platforms, not GLP-1-exclusive, and no company disclosure separates GLP-1-specific revenue from other self-injection use within that sub-slice. Whether the actual GLP-1 dollar volume flowing through this link is a fraction of even that 5.5% ceiling, or whether GLP-1 volume growth's money accrues mainly to the drugmaker (Novo Nordisk, Eli Lilly) rather than to West's device/component fee, cannot be answered from the two files this red team is scoped to; no customer-concentration disclosure for the device-platform link is present in either file, which is a capture-reality data gap this dive's own data_gaps list did not yet name.",
+   "The expectations gap is horizon-fragile: the reverse-DCF ask at the ten-year explicit-period convention (18.34%) sits only 7.67 points above this dive's own 10.67% independent FCF-CAGR estimate, inside this file's own 14.62-point horizon_spread band, so the 22.29-point gap this dive claims exists only under the five-year convention; a market pricing this on a ten-year growth runway would not be measurably wrong by this file's own rule.",
+   "Mild earnings-quality and governance flags are stacking rather than isolated: days-sales-outstanding rose from 68.2 days at FY2025 to roughly 75.7-78.1 days annualized at H1 2026 (a 11-15% jump), deferred income fell 14.9% ($53.7M to $45.7M) over the same six months, and both the CFO (new August 2025) and the CEO (new effective 2026-08-31, five days before this dive) turned over within about thirteen months of each other, capping the earnings-quality grade at B rather than A despite a clean mechanical core."
+  ],
+  "watch_triggers": [
+   {
+    "metric": "FY2026 organic net sales growth, as guided and reported at year-end",
+    "level": "10%",
+    "direction": "below",
+    "note": "West's own FY2026 guide was raised at the Q2 2026 call (2026-07-28, per this run's WebFetch of the Investing.com transcript, not independently filing-verified this run so carried INFERRED) to organic revenue growth of 10-11% (from a prior 7-9%, itself raised from an initial mid-single-digit guide given in February 2026 alongside the stock's 52-week low). A full-year print at or below the 10% floor of the twice-raised range would say the GLP-1-linked reacceleration this dive's bull case rests on is already fading, not compounding."
+   },
+   {
+    "metric": "Non-SmartDose-3.5 HVP Delivery Devices net sales growth, quarterly, as characterized on the earnings call",
+    "level": "10%",
+    "direction": "below",
+    "note": "CFO Bob McMahon stated on the Q2 2026 call that the 'non-SmartDose 3.5 portion of this business represents more than half of HVP delivery device revenues and was up double digits in the quarter, led by SelfDose and Crystal Zenith' (per this run's WebFetch of the Investing.com transcript, INFERRED, not independently filing-verified this run). This is the closest disclosed proxy to the money-corner link's growth net of the AbbVie divestiture. A future quarter characterized as growing below 10% (i.e. no longer 'double digits') would say the durable remainder of the device-platform book, not just the divested SmartDose 3.5mL line, is decelerating."
+   },
+   {
+    "metric": "Deferred income (contract liabilities), balance sheet",
+    "level": "$45.7M",
+    "direction": "below, sustained",
+    "note": "Deferred income fell from $53.7M at 2025-12-31 to $45.7M at 2026-06-30 (per this run's WebFetch of the Q2 2026 10-Q, wst-20260630.htm, INFERRED, not verified against a locally stored EDGAR document this run). A further decline below $45.7M at the Q3 2026 or FY2026 balance-sheet date would say customer prepayment and order-book momentum is fading ahead of revenue recognition, a leading indicator rather than a lagging one."
+   }
+  ],
+  "independence_test": {
+   "largest_disagreement": "The market is pricing West's autoinjector-and-pen-platforms exposure as if the 29.0% Q1 2026 HVP Delivery Devices growth print and the twice-raised FY2026 guide are a durable, multi-year structural run rate, embedding a 32.96% five-year implied FCF CAGR (the tougher of the two horizon conventions the filed solve computes); this dive's own independently built base case, using its own defended revenue, margin and conversion assumptions, implies roughly 10.67%, a 22.29-point gap under that convention that survives discount-rate and base stress but disappears (7.67 points, inside this file's own 14.62-point horizon_spread) under the ten-year convention.",
+   "why_the_gap_exists": "RECENCY / EXTRAPOLATION, layered on an unquantified attribution. Two consecutive guidance raises in 2026 took the stock from a 52-week low of $230.95 in February to a 52-week high of $365.74 in July (+58.4%), and 23 covering analysts carry an 82% buy-rating consensus with price targets averaging roughly $350-405, all at or above today's $342.08 close. The market appears to be extrapolating the most recent two quarters' growth rate into a multi-year structural story without separating the divesting SmartDose 3.5mL line (~4% of FY2025 revenue, sold to AbbVie, closed 2026-07-01) from the durable remainder, and without a single disclosed figure attributing GLP-1 revenue to this exact link the way West discloses a clean 10%-of-total-company figure for its OTHER, CROWDED placement on this same chain -- a case of the market pricing a diversified components-and-devices supplier as if the device-platform narrative alone were both quantified and durable, when this dive can find neither on disk.",
+   "falsification": "Q3 2026 results, expected around 2026-10-30 (this dive's review_by). If West's FY2026 organic sales growth prints at or below the 10% floor of the raised guidance range, or if the non-SmartDose-3.5 Delivery Devices business is characterized as growing below 'double digits' (watch_triggers[0] and [1]), that is the data point showing the market's extrapolation was right and this dive's caution was wrong. Conversely, a third consecutive guidance raise with the non-SmartDose device business still compounding at 'double digits' or better would argue this dive underweighted the structural case."
+  },
+  "note": "Preserved verbatim from the file as it stood at origin commit 7bad3310 (FINAL WATCH, 2026-09-06 draft, 2026-09-06 red team, 2026-09-08 zone flag). The complete prior file, including its expectations_gap, earnings_quality inputs, events and crowdedness blocks, is in git at that commit."
+ },
+ "prior_red_team": {
   "attacked_at": "2026-09-06T18:30:55Z",
   "fresh_context": true,
   "fresh_context_scope": "Read only data/stocks/WST__glp1-fill-finish.json (the DRAFT dive) and data/market/WST.json, plus CLAUDE.md's run redteam row and postlude 1c, docs/method.md, .claude/agents/stocky.md, and data/stocks/_dive-log.json. The chain narrative (data/chains/glp1-fill-finish.json), the signal card and the screen thesis (data/screens/glp1-fill-finish.json) were not read this pass; every fact used below is either quoted from the dive file's own embedded evidence (including its own citations of company filings and calls) or independently recomputed from data/market/WST.json. No new WebSearch or WebFetch was run this pass, per the fresh-context contract.",
@@ -360,5 +628,87 @@
   "amendments_summary": "4 of 4 challenge dimensions amended the file. CROWDEDNESS_REALITY added an earnings-reaction-magnitude cross-check (Q1 +12.86% vs Q2 +1.74%) narrowing, without resolving, the draft's own named tension between link-level and issuer-level crowding. PRICED_IN_CHECK added a 10-year price-space cross-check ($193.67, 43.4% below spot) clarifying that the draft's 'no measurable gap' finding at that convention is a CAGR-point-versus-horizon_spread result, not a fair-value claim. CAPTURE_REALITY turned the draft's qualitative 'no disclosed GLP-1 percentage' finding into a quantified ceiling (~11.0% of FY2025 revenue ex-SmartDose 3.5mL, ~5.5% for the actual growth-driving sub-slice, both upper bounds) and named an unaddressed customer-concentration gap. ENTRY_BASIS_STRESS is the load-bearing finding of this pass: the drawn would_buy_zone closes the gap table to the file's own BASE case (percentile 65, above-median), not a bear case, and an actual bear-case rebuild (trailing 2.1% revenue growth, flat margin) prices the stock 30-43% below the zone's own low end, meaning the zone does not meet method section 7's 'gap table AND bear case' definition as literally written. None of the four amendments moved the verdict off WATCH or changed the zone's numeric bounds; all four are disclosure and cross-check amendments in the same shape ESLT's red team recorded (strengthening or clarifying an existing conclusion rather than fixing a defect that would flip a label), except ENTRY_BASIS_STRESS, which is escalated as a methodology question for Ron because it applies equally to this analyst's prior would-buy zones (VRT, MYRG), not only to this file.",
   "surviving_bear_case": "West's exposure to GLP-1-linked device-platform demand is real and disclosed at the issuer level, but this dive's own link (autoinjector-and-pen-platforms) has no company-disclosed revenue percentage attached to it, and this red team's own quantification of the dive's cited figures brackets the actual growth-driving sub-slice at an upper bound of roughly 5.5% of total company revenue, with no way to confirm how much of that is GLP-1-specific versus other self-injection indications, or how much of GLP-1 volume growth's dollar value reaches West's device fee rather than the drugmaker. The market's own reverse-DCF ask, a 32.96% five-year FCF CAGR against this dive's defended 10.67% base case, survives discount-rate and FCF-base stress and, this red team confirms, survives in dollar terms even at the gentler 10-year convention (43.4% below spot) despite the CAGR-point gap there sitting inside the file's own horizon_spread noise band. The market's reaction to two comparably-sized 2026 guidance raises collapsed from +12.86% in April to +1.74% in July, evidence the reacceleration story is already substantially absorbed rather than freshly discovered. And the would-buy zone this dive draws to make INVESTABLE testable ($148.13-$162.54) turns out, under this red team's own bear-case rebuild, to price the file's base case rather than a level that has already absorbed the bear case named in this same file, so a buyer waiting for that zone is still buying above-trend growth and margin expansion, not a demonstrated margin of safety. None of this is a books-quality problem (grade B, mechanically clean, mild and each-disclosed flags only) or a crowdedness problem sufficient on its own (the link-level UNDISCOVERED read is contestable but not reversed by anything on disk this pass); it is a valuation-and-attribution finding, which is exactly what keeps this file at WATCH rather than TOO_LATE (guidance has been raised roughly in step with price, an estimate-revision story) or INVESTABLE (the independence test's own falsification window, Q3 2026 results around 2026-10-30, has not yet fired in either direction)."
  },
- "zone_contains_spot": false
+ "prior_red_team_note": "The 2026-09-06 fresh-context red team attacked the WATCH verdict, the 148.13 to 162.54 would-buy zone and the 32.96% market-implied ask at a price of 342.08. It is preserved verbatim under this key because nothing is ever un-said, but it does NOT cover this amendment: the TOO_LATE verdict, the multiple-versus-estimate decomposition, the rebuilt gap table, the grade C and the bear-case re-entry band have not been red-teamed. A fresh-context `run redteam WST glp1-fill-finish` is owed and will write the current red_team block. Superseded for the current TOO_LATE verdict by the red_team block of 2026-11-19.",
+ "clock_basis": "Inherited from the glp1-fill-finish chain, stated COMPOUNDER on disk (data/chains/glp1-fill-finish.json clock field): a multi-year build-out of GLP-1 injectable capacity repricing over 2 to 5 years (method section 2). scenario_ids S1, S2 and S5 are COMPOUNDER-clocked scenarios (S4, the one EVENT scenario on the chain, does not move this link), so no dated occurrence overrides the clock. Re-affirmed 2026-11-19; review_by is 90 days from this refresh.",
+ "entry_zone": null,
+ "reentry": {
+  "to_watch_below": 199.07,
+  "to_watch_basis": "Forward-solving quality.reverse_dcf's own growing-FCF-plus-Gordon formula (base_fcf $468.9M, 9% discount rate, 2.5% terminal growth, 5-year horizon, net cash $261.2M, 72.0M filed shares; replicates the filed 37.21%, 27.29% and 20.34% at EV $28,300.48M) for this file's STRETCH case (11% revenue CAGR, 26% steady-state margin, FY2025 conversion 0.8017, an 18.15% FCF CAGR): $199.07 is the price at which the market's five-year ask equals the most this file can defend. Above it the market asks for more than the stretch; below it the verdict is back to WATCH territory. It is 49.8% below the 396.69 spot, which is itself the finding: no WATCH-style band can be drawn near today's price. RED TEAM 2026-11-19: 199.07 is the stretch-case five-year price at the filed 9% and 2.5%, and is a WATCH threshold, not a purchase level (the bear-clears band remains 92.13 to 104.58). It is convention-dependent: on the filed formula the stretch case is worth $256.8 (five years) to $335.9 (ten) at 8% and 3%, and $317.5 to $414.6 at 7.5% and 3.5%, so a re-entry reference anywhere from $199 to $336 is defensible on a reasonable convention, 49.8% to 15.3% below spot. The file keeps 199.07 as the filed-convention figure because the market column it is graded against is filed at that convention.",
+  "bear_clears_band": {
+   "low": 92.13,
+   "high": 104.58,
+   "as_of": "2026-11-19",
+   "basis": "Method section 7's 2026-09-08 bear-case convention, drawn for reference only because a TOO_LATE carries no would_buy_zone and the gate does not check one: high is where the file's own bear (2.1% revenue CAGR, the FY2022 to FY2025 trailing rate; 19.03% margin held flat, the FY2025 level; 0.8017 conversion; a 2.1% FCF CAGR) closes the filed five-year ask, low is where the ask falls 3 points below the bear. Both sit below 0.3x the 396.69 spot (119.01), which is why the gate would refuse this band on a WATCH and why the verdict is not WATCH with a drawn zone."
+  },
+  "to_investable_note": "Not drawn. INVESTABLE needs a bear-survived entry zone and an earnings grade of A or B; neither exists at any price near spot (grade C today, bear value $104.58)."
+ },
+ "explainer": {
+  "lang": "he",
+  "verdict_line": "\u05d0\u05e0\u05d7\u05e0\u05d5 \u05dc\u05d0 \u05e7\u05d5\u05e0\u05d9\u05dd, \u05d5\u05d4\u05e4\u05e2\u05dd \u05d2\u05dd \u05dc\u05d0 \u05de\u05d7\u05db\u05d9\u05dd \u05e9\u05d4\u05de\u05d7\u05d9\u05e8 \u05d9\u05e8\u05d3 \u05e7\u05e6\u05ea. \u05d4\u05de\u05e0\u05d9\u05d4 \u05e8\u05e6\u05d4 \u05d4\u05e8\u05d1\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05de\u05d4\u05e8 \u05de\u05d4\u05e8\u05d5\u05d5\u05d7\u05d9\u05dd \u05e9\u05dc \u05d4\u05d7\u05d1\u05e8\u05d4, \u05d5\u05dc\u05db\u05df \u05d0\u05e0\u05d7\u05e0\u05d5 \u05d7\u05d5\u05e9\u05d1\u05d9\u05dd \u05e9\u05d4\u05d6\u05de\u05df \u05d4\u05d8\u05d5\u05d1 \u05dc\u05d4\u05d9\u05db\u05e0\u05e1 \u05db\u05d1\u05e8 \u05e2\u05d1\u05e8.",
+  "what_they_do": "\u05d5\u05e1\u05d8 \u05d4\u05d9\u05d0 \u05d7\u05d1\u05e8\u05d4 \u05d0\u05de\u05e8\u05d9\u05e7\u05d0\u05d9\u05ea \u05e9\u05de\u05d9\u05d9\u05e6\u05e8\u05ea \u05d0\u05ea \u05d4\u05d7\u05dc\u05e7\u05d9\u05dd \u05d4\u05e7\u05d8\u05e0\u05d9\u05dd \u05d5\u05d4\u05d7\u05e9\u05d5\u05d1\u05d9\u05dd \u05e9\u05d1\u05ea\u05d5\u05da \u05d1\u05e7\u05d1\u05d5\u05e7\u05d5\u05e0\u05d9 \u05ea\u05e8\u05d5\u05e4\u05d4 \u05d5\u05de\u05d6\u05e8\u05e7\u05d9\u05dd, \u05db\u05de\u05d5 \u05d4\u05e4\u05e7\u05e7\u05d9\u05dd \u05de\u05d2\u05d5\u05de\u05d9, \u05d5\u05d2\u05dd \u05de\u05db\u05e9\u05d9\u05e8\u05d9\u05dd \u05e9\u05e2\u05d5\u05d6\u05e8\u05d9\u05dd \u05dc\u05d0\u05e0\u05e9\u05d9\u05dd \u05dc\u05d4\u05d6\u05e8\u05d9\u05e7 \u05dc\u05e2\u05e6\u05de\u05dd \u05ea\u05e8\u05d5\u05e4\u05d4 \u05d1\u05d1\u05d9\u05ea, \u05dc\u05de\u05e9\u05dc \u05dc\u05d8\u05d9\u05e4\u05d5\u05dc \u05d1\u05e1\u05d5\u05db\u05e8\u05ea \u05d5\u05d1\u05d4\u05e9\u05de\u05e0\u05d4.",
+  "why_now": "\u05d1\u05d7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d4\u05d0\u05d7\u05e8\u05d5\u05e0\u05d9\u05dd \u05d4\u05d7\u05d1\u05e8\u05d4 \u05d3\u05d9\u05d5\u05d5\u05d7\u05d4 \u05e9\u05d5\u05d1 \u05e2\u05dc \u05d3\u05d5\u05d7\u05d5\u05ea \u05d7\u05d6\u05e7\u05d9\u05dd \u05d5\u05d4\u05e2\u05dc\u05ea\u05d4 \u05d0\u05ea \u05d4\u05ea\u05d7\u05d6\u05d9\u05ea \u05e9\u05dc\u05d4 \u05d1\u05e4\u05e2\u05dd \u05d4\u05e9\u05dc\u05d9\u05e9\u05d9\u05ea \u05d4\u05e9\u05e0\u05d4, \u05d5\u05d4\u05de\u05e0\u05d9\u05d4 \u05e2\u05dc\u05ea\u05d4 \u05de\u05d0\u05d5\u05d3. \u05d0\u05d1\u05dc \u05d7\u05dc\u05e7 \u05d2\u05d3\u05d5\u05dc \u05de\u05d4\u05e2\u05dc\u05d9\u05d9\u05d4 \u05d4\u05d2\u05d9\u05e2 \u05de\u05d6\u05d4 \u05e9\u05d4\u05de\u05e9\u05e7\u05d9\u05e2\u05d9\u05dd \u05d4\u05e1\u05db\u05d9\u05de\u05d5 \u05dc\u05e9\u05dc\u05dd \u05d4\u05e8\u05d1\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05e2\u05dc \u05db\u05dc \u05e9\u05e7\u05dc \u05e9\u05dc \u05e8\u05d5\u05d5\u05d7, \u05d5\u05e4\u05d7\u05d5\u05ea \u05de\u05d6\u05d4 \u05e9\u05d4\u05e8\u05d5\u05d5\u05d7\u05d9\u05dd \u05e2\u05e6\u05de\u05dd \u05d2\u05d3\u05dc\u05d5.",
+  "why_market_misses": "\u05d4\u05e9\u05d5\u05e7 \u05dc\u05d0 \u05de\u05e4\u05e1\u05e4\u05e1 \u05db\u05d0\u05df \u05de\u05e9\u05d4\u05d5 \u05e0\u05e1\u05ea\u05e8, \u05db\u05d9 \u05d4\u05e8\u05d1\u05d4 \u05d0\u05e0\u05dc\u05d9\u05e1\u05d8\u05d9\u05dd \u05d5\u05e7\u05e8\u05e0\u05d5\u05ea \u05d2\u05d3\u05d5\u05dc\u05d5\u05ea \u05db\u05d1\u05e8 \u05de\u05d7\u05d6\u05d9\u05e7\u05d9\u05dd \u05d1\u05de\u05e0\u05d9\u05d4. \u05d4\u05de\u05d7\u05d9\u05e8 \u05d3\u05d5\u05e8\u05e9 \u05e9\u05d4\u05db\u05e1\u05e3 \u05e9\u05e0\u05db\u05e0\u05e1 \u05dc\u05e7\u05d5\u05e4\u05d4 \u05d9\u05d2\u05d3\u05dc \u05d4\u05e8\u05d1\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05de\u05d4\u05e8 \u05de\u05de\u05d4 \u05e9\u05d0\u05e0\u05d7\u05e0\u05d5 \u05de\u05e6\u05dc\u05d9\u05d7\u05d9\u05dd \u05dc\u05d4\u05e6\u05d3\u05d9\u05e7, \u05d5\u05d4\u05d2\u05d9\u05d3\u05d5\u05dc \u05d4\u05e2\u05d9\u05e7\u05e8\u05d9 \u05d1\u05d0 \u05de\u05d7\u05dc\u05e7 \u05d0\u05d7\u05e8 \u05e9\u05dc \u05d4\u05d7\u05d1\u05e8\u05d4, \u05dc\u05d0 \u05de\u05d4\u05de\u05db\u05e9\u05d9\u05e8\u05d9\u05dd \u05dc\u05d4\u05d6\u05e8\u05e7\u05d4 \u05e9\u05d1\u05d3\u05e7\u05e0\u05d5. \u05d5\u05e2\u05d5\u05d3 \u05d3\u05d1\u05e8: \u05d4\u05d7\u05d1\u05e8\u05d4 \u05d4\u05e8\u05d5\u05d5\u05d9\u05d7\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05e2\u05dc \u05d4\u05e0\u05d9\u05d9\u05e8, \u05d0\u05d1\u05dc \u05d4\u05de\u05d6\u05d5\u05de\u05df \u05d1\u05e7\u05d5\u05e4\u05d4 \u05d2\u05d3\u05dc \u05e4\u05d7\u05d5\u05ea, \u05d5\u05d7\u05dc\u05e7 \u05de\u05d4\u05dc\u05e7\u05d5\u05d7\u05d5\u05ea \u05de\u05e9\u05dc\u05de\u05d9\u05dd \u05dc\u05d0\u05d8 \u05d9\u05d5\u05ea\u05e8.",
+  "what_could_break": "\u05d0\u05dd \u05d4\u05d2\u05d9\u05d3\u05d5\u05dc \u05d9\u05d0\u05d8, \u05d0\u05dd \u05dc\u05e7\u05d5\u05d7\u05d5\u05ea \u05d9\u05de\u05e9\u05d9\u05db\u05d5 \u05dc\u05e9\u05dc\u05dd \u05d1\u05d0\u05d9\u05d7\u05d5\u05e8, \u05d0\u05d5 \u05d0\u05dd \u05ea\u05e8\u05d5\u05e4\u05d5\u05ea \u05d1\u05d2\u05dc\u05d5\u05dc\u05d4 \u05d9\u05d3\u05d7\u05e7\u05d5 \u05d0\u05ea \u05d4\u05d4\u05d6\u05e8\u05e7\u05d5\u05ea, \u05d4\u05de\u05d7\u05d9\u05e8 \u05d9\u05db\u05d5\u05dc \u05dc\u05e8\u05d3\u05ea \u05d4\u05e8\u05d1\u05d4. \u05d2\u05dd \u05de\u05e0\u05db\u05dc \u05d7\u05d3\u05e9 \u05d5\u05de\u05e0\u05d4\u05dc \u05db\u05e1\u05e4\u05d9\u05dd \u05d7\u05d3\u05e9 \u05d1\u05ea\u05d5\u05da \u05d6\u05de\u05df \u05e7\u05e6\u05e8 \u05d4\u05dd \u05e1\u05d9\u05de\u05df \u05e9\u05db\u05d3\u05d0\u05d9 \u05dc\u05e9\u05d9\u05dd \u05d0\u05dc\u05d9\u05d5 \u05dc\u05d1.",
+  "what_would_change_our_mind": "\u05d0\u05dd \u05d4\u05de\u05d7\u05d9\u05e8 \u05d9\u05e8\u05d3 \u05d4\u05e8\u05d1\u05d4, \u05d0\u05d5 \u05d0\u05dd \u05d1\u05d3\u05d5\u05d7 \u05d4\u05e9\u05e0\u05ea\u05d9 \u05d4\u05d1\u05d0 \u05d9\u05ea\u05d1\u05e8\u05e8 \u05e9\u05d4\u05de\u05d6\u05d5\u05de\u05df \u05d1\u05e7\u05d5\u05e4\u05d4 \u05d2\u05d3\u05dc \u05d1\u05d0\u05de\u05ea \u05d1\u05e7\u05e6\u05d1 \u05e9\u05dc \u05d4\u05e8\u05d5\u05d5\u05d7\u05d9\u05dd \u05d5\u05d4\u05dc\u05e7\u05d5\u05d7\u05d5\u05ea \u05d7\u05d6\u05e8\u05d5 \u05dc\u05e9\u05dc\u05dd \u05d1\u05d6\u05de\u05df, \u05e0\u05d1\u05d3\u05d5\u05e7 \u05d0\u05ea \u05d4\u05de\u05e0\u05d9\u05d4 \u05de\u05d7\u05d3\u05e9.",
+  "as_of": "2026-11-19",
+  "by": "stocky"
+ },
+ "red_team": {
+  "attacked_at": "2026-11-19T23:50:00Z",
+  "fresh_context": true,
+  "fresh_context_scope": "Read only data/stocks/WST__glp1-fill-finish.json (the DRAFT refresh) and data/market/WST.json, plus CLAUDE.md, docs/method.md section 7, .claude/agents/stocky.md and tools/check_analyst.py for the contract and gate. The dive log was read for its structure only and prior_red_team for its schema only; neither was leaned on. The chain narrative, the signal card, the screen thesis and the ledger rationale were not read. No WebSearch or WebFetch was run: every number is either quoted from the dive's own embedded filing evidence or recomputed from data/market/WST.json (series.rows, week52, fundamentals, quality, pcs, insider) with the filed reverse-DCF formula.",
+  "challenges": [
+   {
+    "dimension": "CROWDEDNESS_REALITY",
+    "question": "TOO_LATE needs the issuer-level price to be a crowded one. Is that read true, or an artifact of a feed field (institutional ownership above 100%) and a listing-level score?",
+    "finding": "Recomputed from series.rows: earnings reactions +12.86% (2026-04-23), +1.74% (2026-07-28) and +3.23% (2026-10-29, after a 19.8% run from 336.94 to 403.64) all reproduce. The 15-analyst count and 3.04% short interest are on disk. held_pct_institutions 1.0245 is above 100%, a feed double count: it says heavily institutional and cannot rank the name. Axis A DARK 73.5 is the listing artifact the file already names. The 5.1% retreat off 417.80 over three sessions is not a crowd exit. The crowded read stands on the reaction series and the analyst count, not on the 102%.",
+    "outcome": "AMENDED",
+    "amendment": "crowdedness.basis appended with the correction of the weight of the 102% figure and the evidence the read actually rests on. The conclusion is unchanged; this is a minor amendment."
+   },
+   {
+    "dimension": "PRICED_IN_CHECK",
+    "question": "Is 'multiple expansion is 70.2% of the move, and the price is above the stretch case at every horizon' true, or did the decomposition pick a convention that produces the verdict?",
+    "finding": "Three findings. (1) Calendar roll: the 28.8x and 42.1x both use the FY2026 guide, but FY2026 was eleven months ahead in February and is six weeks from complete now. On a next-twelve-months basis, with FY2027 EPS (not on disk) as an assumption, the share since February is 70.2%, 54.6%, 47.3% and 40.2% at 0%, 10%, 15% and 20% FY2027 growth, and zero only at about 52%; since the last dive 64.7%, 52.2%, 46.6%, 41.4%. The multiple still expanded in every case (28.8x to 35.8x to 42.1x), so the route holds as a large share and not as 'most'. (2) Convention: the filed formula at 8% and 3% values the base at $210.3 and $247.1 (five and ten years) and the stretch at $256.8 and $335.9; at 7.5% and 3.5% the stretch is $317.5 and $414.6, above $396.69. 'Above the stretch at every horizon' holds at the filed 9% and 2.5% only; the base is below spot in every convention tested (best $314.1, 20.8% below). (3) The 'Not WATCH' elimination in the summary is wrong in method: a grade C cap permits a WATCH with a null zone and a named cap, so WATCH was legal and TOO_LATE has to stand on the definition. The horizon test: the five-year gap is outside the 16.87-point spread, the seven- and ten-year gaps (15.65, 9.80) are inside it, and the dollar test does not go quiet at ten years ($192.16 base against $396.69), the precedent that overturned VRT does not apply.",
+    "outcome": "AMENDED",
+    "amendment": "bear[0], priced_in_summary, what_is_priced_in[0] and expectations_gap net_gap_direction note amended: the 70.2% and 64.7% shares restated as a 40% to 70% and 41% to 65% range with the grid, the stretch-case claim scoped to the filed convention, the base-below-price result stated as the thing the verdict rests on, the WATCH-elimination withdrawn."
+   },
+   {
+    "dimension": "CAPTURE_REALITY",
+    "question": "When the chain grows, does this name keep the money, and can the growth the price needs come from the GLP-1 thesis this link is chartered on?",
+    "finding": "The filed ask is FY2030 FCF of about $2.28B (468.9 x 1.3721^5). At conversion 0.8017 and a 30% margin that is $9.48B of revenue, at 24% it is $11.85B. GLP-1 is 21% of Q3 sales (12% elastomers plus 9% West Vantage, INFERRED from the deck), about $735M on a $3,498M annualized base; no figure attributes any of it to this dive's device link, which printed flat reported ($99.1M against $99.1M) in Q3. A fivefold GLP-1 book ($3.67B) would still leave the other $2.76B to reach $5.81B to $8.18B, 16.0% to 24.2% a year for five years. The price therefore asks for the whole company to compound, not for the thesis link, and the element that does grow (HVP Components, +20.3% organic, 53% of sales) is the other, CROWDED placement. Whether GLP-1 volume's money reaches West or its drugmaker customers remains unaddressed, and the customer-concentration note is not on disk (data_gaps).",
+    "outcome": "AMENDED",
+    "amendment": "bear[2] appended with the capture-ceiling arithmetic (inputs: dive's own deck-derived 21% and the filed ask). The unresolved fee-versus-drugmaker question stays in data_gaps."
+   },
+   {
+    "dimension": "ENTRY_BASIS_STRESS",
+    "question": "A TOO_LATE draws no entry zone. Does the re-entry reference survive stress, and is the falsifier reachable so that the verdict can be wrong in public?",
+    "finding": "The re-entry price of $199.07 is the stretch-case five-year price at the filed convention: a WATCH threshold, not a purchase level (the bear-clears band $92.13 to $104.58 is recorded and sits below the gate's 0.3x band). It is convention-dependent: $256.8 to $335.9 at 8% and 3%, $317.5 to $414.6 at 7.5% and 3.5%, so a reasonable range is $199 to $336 (49.8% to 15.3% below spot). The reverse-DCF replication holds to three decimals (EV $28,300.48M reproduces 37.21%, 27.29%, 20.34%). The falsifier, FY2026 FCF at or above $600M, needs a Q4 of $321.6M against a derived $175.0M a year earlier (1.84 times), so it sits near the market's own path; a print between $500M and $600M decides nothing. The 90-day shadow row grades price against SPY while the trigger grades cash, and a price rally on three guide raises could precede a cash print that confirms the file.",
+    "outcome": "AMENDED",
+    "amendment": "reentry.to_watch_basis appended with the convention band and the statement that 199.07 is a filed-convention figure; watch_triggers[0].note appended with the reachability arithmetic, the undecided $500M to $600M zone and its tie-break (FY2027 guide plus year-end DSO)."
+   },
+   {
+    "dimension": "EARNINGS_QUALITY_STRESS",
+    "question": "Is grade C earned, or is the DSO drift seasonality, and does the grade bind the verdict?",
+    "finding": "Recomputed: DSO 65.11, 74.48, 78.07 days on quarterly revenue across 2025-12-31, 2026-06-30, 2026-09-30; fiscal year-end DSO FY2022 to FY2025 on annual revenue 64.2, 63.4, 69.7, 68.2 (this file carries the last three), so 78.07 sits above every year-end value on the annualized basis. Q3 receivables rose 5.1% ($712.0M to $748.2M) on flat sequential revenue ($872.3M to $874.5M), the nine-month operating cash flow fell 19.9% ($503.7M to $403.4M) and EV over FY2025 FCF is 60.4x. Seasonality cannot be excluded because Q3 2025 receivables are not on disk, and the file says so (data_gaps). Beneish and Piotroski are computed on FY2025 statements and are not evidence against a 2026 drift. Grade C holds. It does not bind TOO_LATE: a grade B would leave the verdict where it is, because the price is above the base case under every convention tested.",
+    "outcome": "CONFIRMED",
+    "amendment": null
+   }
+  ],
+  "pre_mortem": {
+   "premise": "It is 2027-11-19, twelve months after this dive, and TOO_LATE was wrong: from $396.69 the stock outperformed SPY over the window and the funnel's 'no' was a missed continuation.",
+   "reasons": [
+    "Cash caught up. The receivables build was timing (large customers paying later in the quarter or on longer terms), it unwound, FY2026 free cash flow printed at or above $600M or at least $540M with year-end DSO back under 70 days, capex held at $215M to $220M and the FY2027 guide came at 10% organic growth and a 25% margin, so the base the market compounds from grew and the nine-month cash shortfall was an accounting-calendar effect (watch_triggers[0], [1], [3]).",
+    "The multiple expansion was mostly a calendar artifact and the convention was wrong. On a next-twelve-months basis the share of the move that is multiple is 40% to 55% at 10% to 20% FY2027 EPS growth, a net-cash S&P 500 compounder with three guide raises and a falling share count (72.0M to 69.8M) held 35x to 40x, and at a discount rate near 7.5% the file's own stretch case ($414.6 over ten years) was the right case, so the file's base (8.0% revenue, 24% margin, both raised in this refresh and both SPECULATIVE) was too low.",
+    "A thing the file does not model: GLP-1 injectable volume or West's content per device grew far beyond the fivefold the capture arithmetic allows for, or the new CEO (effective 2026-08-31) deployed the balance sheet (net cash $261.2M after $685.3M of buybacks in nine months) into accretive buybacks or M&A that lifted per-share compounding above any FCF CAGR the file built, or a takeover premium arrived for a $28.6B name."
+   ],
+   "why_the_market_could_have_been_right": "Reason one is the most concrete and is exactly the file's own falsifier: the cash statement is the only leg of the case against the stock that shows a deterioration in the numbers, the guide has been raised three times, and the independence test's market-error category (recency and extrapolation) is also what a correct market call looks like before the cash arrives. Reason two is the second most concrete, because the verdict leans on the file's own base case being a better estimate than its stretch case and the convention stress shows the stretch case clears price at ten years under a lower discount rate. Both are answerable and tied to dated triggers, so the pre-mortem is answered and does not force a downgrade.",
+   "forces_downgrade": false,
+   "downgrade_note": "Not forced. Three reasons are articulated, the first two tied to watch_triggers and expectations_gap rows. The residual risk is stated in the surviving bear case and in the shadow row's caveat, not hidden."
+  },
+  "verdict_survived": true,
+  "verdict": "TOO_LATE",
+  "verdict_survived_basis": "TOO_LATE rests on two things the attack tested and kept: the multiple expanded in every reading of the decomposition (a 40% to 70% share of the move since February, 41% to 65% since the last dive, depending on FY2027 EPS growth of 0% to 20%), and the file's base case is below $396.69 under every discount-rate and terminal-growth convention tested (best $314.1, 20.8% below spot). It does not rest on the stretch case being below price (false at ten years under 7.5% and 3.5%) or on the WATCH elimination (withdrawn). Not downgraded to WATCH: the definition is met and the cash falsifier is dated.",
+  "amendments_summary": "4 of 5 attacks amended the file, 1 confirmed, pre-mortem answered with no downgrade. CROWDEDNESS_REALITY (minor): the 102% institutional figure is a feed double count and its weight was corrected; the conclusion is unchanged. PRICED_IN_CHECK (substantive): the 70.2% and 64.7% multiple-expansion shares became a 40% to 70% and 41% to 65% range after the calendar roll, the stretch-case claim was scoped to the filed convention, the base-below-price result was named as the support, and the 'Not WATCH' elimination was withdrawn. CAPTURE_REALITY (substantive): the filed ask was converted into revenue and set against a GLP-1 book of about $735M annualized, so a fivefold GLP-1 book still needs 16.0% to 24.2% a year from the rest. ENTRY_BASIS_STRESS (substantive): the re-entry reference became a convention band ($199 to $336) and the falsifier's reachability and undecided middle zone were written down. EARNINGS_QUALITY_STRESS confirmed grade C and showed it does not bind the verdict. The shadow row SHD-20261119-01 note was updated to say red-teamed and amended; its spot, date and review_at are unchanged.",
+  "surviving_bear_case": "The price of $396.69 asks for a 37.21% five-year free cash flow CAGR (20.34% over ten) from a base that has not grown: nine-month operating cash flow is down 19.9% while net income is up 40.2%, receivables days rose from 65 to 78 across three balance sheets, and multiple expansion is still 40% to 55% of the move since February once the calendar roll is allowed for. The file's base case is worth $164 to $192 on the filed convention and at most $314 on the most generous convention tested, always below spot; only its stretch case clears spot, and only over ten years at a discount rate of 7.5% or less. The ask cannot be carried by GLP-1 alone (about 21% of sales, and this dive's own link printed flat reported in Q3): a fivefold GLP-1 book still leaves 16% to 24% a year to come from the rest of the company. What would show the bear wrong is cash, not price: FY2026 free cash flow at or above $600M with year-end receivables days under 70 and a FY2027 guide of at least 10% organic growth at a 25% margin."
+ }
 }
