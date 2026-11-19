@@ -24,7 +24,10 @@ Checks:
      a real answer and has to be written down to be one); `COMPLETE` carries >= 1 item.
   4. EXCERPT VERBATIM: an `edgar_doc` or `web_doc` item's `source_excerpt` appears, verbatim
      (whitespace/case/punctuation folded), in the stored document its `source_ref` names --
-     `data/edgar/docs/<T>.json` for `edgar_doc`, `data/web/<id>.json` for `web_doc`
+     `data/edgar/docs/<T>.json` for `edgar_doc` (resolved through `tools/evidence_docs.py`:
+     the current filing or an archived one, so a newer filing does not orphan an excerpt;
+     `data/edgar/docs/_archive/<T>/<accession>.json` pins one filing), `data/web/<id>.json`
+     for `web_doc`
      (`tools/evidence_store.py`: a missing document, or a stored page that is not HTTP 200,
      fails).
   5. NUMERIC CROSS-CHECK: every number the item's `claim` asserts, and the item's own
@@ -50,6 +53,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import evidence_docs  # noqa: E402
 import evidence_store  # noqa: E402
 from impact_score import audit_excerpt  # noqa: E402
 
@@ -65,6 +69,9 @@ TICKER_RE = re.compile(r"^[A-Z0-9.\-]{1,10}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 REQUIRED_TOP = ("issuer_id", "ticker", "as_of", "generated_by", "status", "items",
                 "searched", "notes", "changelog")
+_EDGAR_CUR_REF_RE = re.compile(r"^data/edgar/docs/([A-Za-z0-9_\-]+)\.json$")
+_EDGAR_ARC_REF_RE = re.compile(
+    r"^data/edgar/docs/_archive/([A-Za-z0-9_\-]+)/(\d{10}-\d{2}-\d{6})(?:~[0-9a-f]{12})?\.json$")
 _XBRL_REF_RE = re.compile(r"^(data/market/[A-Za-z0-9._\-/]+\.json)#fundamentals\.([A-Za-z0-9_]+)$")
 
 
@@ -212,18 +219,29 @@ def _doc_failures(item: dict, excerpt: str, data: Path) -> list[str]:
             return [f"source_ref {item.get('source_ref')!r} does not name the stored "
                     f"document for source_url ({expected_ref!r})"]
         return []
-    # edgar_doc
+    # edgar_doc. Resolved through tools/evidence_docs.py (2026-11-19), so a newer filing
+    # replacing data/edgar/docs/<T>.json no longer orphans an excerpt from the old one:
+    #   source_ref data/edgar/docs/<T>.json                    -> the current document, then
+    #       every archived filing for <T>, newest first (the ref names a ticker, not a filing)
+    #   source_ref data/edgar/docs/_archive/<T>/<accession>.json -> exactly that filing
+    # Either way a filing stored nowhere fails closed, as before.
     ref = item.get("source_ref")
-    if not isinstance(ref, str) or not ref.startswith("data/edgar/docs/") \
-            or not ref.endswith(".json"):
-        return [f"source_ref {ref!r} must be data/edgar/docs/<T>.json for an edgar_doc item"]
-    doc = read_json(data.parent / ref)
-    if not isinstance(doc, dict) or not isinstance(doc.get("text"), str):
+    m_cur = _EDGAR_CUR_REF_RE.match(ref) if isinstance(ref, str) else None
+    m_arc = _EDGAR_ARC_REF_RE.match(ref) if isinstance(ref, str) else None
+    if not (m_cur or m_arc):
+        return [f"source_ref {ref!r} must be data/edgar/docs/<T>.json (or "
+                f"data/edgar/docs/_archive/<T>/<accession>.json) for an edgar_doc item"]
+    ticker = (m_cur or m_arc).group(1)
+    accession = m_arc.group(2) if m_arc else None
+    res = evidence_docs.find_quote(data, ticker, excerpt, accession=accession)
+    if res["state"] == "MATCH":
+        return []
+    if res["state"] in ("NO_DOC", "NOT_STORED"):
         return [f"cites a filing with no document on disk at {ref} -- a quote that cannot "
-                f"be verified is not evidence (method section 1)"]
-    if not evidence_store.excerpt_in_doc(excerpt, doc["text"]):
-        return [f"source_excerpt does not appear verbatim in {ref}"]
-    return []
+                f"be verified is not evidence (method section 1); "
+                f"{evidence_docs.describe(res, ticker)}"]
+    return [f"source_excerpt does not appear verbatim in {ref}: "
+            f"{evidence_docs.describe(res, ticker)}"]
 
 
 def _item_failures(item, root: Path, data: Path) -> list[str]:

@@ -23,7 +23,9 @@ Checks, each reported with the denominator it examined:
      punctuation folding, exactly the comparison method section 1 specifies. Fails
      CLOSED: a nugget whose document is missing is a failure, not a skip, because
      "unverifiable" and "verified" must never land in the same bucket.
-  2. the nugget's accession matches the document it was verified against
+  2. the nugget's accession names a stored filing, and the quote is verified against THAT
+     filing: the current document or its archived copy (tools/evidence_docs.py,
+     2026-11-19), so a newer filing arriving no longer orphans a true quote
   3. PENDING_DATA rows have a request row backing them (a row that pends with nothing
      queued pends forever, and reads on the page as work in progress)
   4. cross-file CIK agreement for every row carrying one, int-normalized
@@ -46,6 +48,7 @@ from pathlib import Path
 
 from check_map import mapping_fingerprint, placement_audit_for
 from market_paths import safe_name  # one filename rule, tested against fetch.py
+import evidence_docs  # the cited filing, current or archived (2026-11-19)
 
 failures: list[str] = []
 lines: list[str] = []
@@ -130,7 +133,7 @@ def quote_in_text(quote: str, text: str) -> bool:
 
 def check_quotes(data: Path, screens: list) -> None:
     """Check 1 + 2. The core of this file."""
-    checked = verified = 0
+    checked = verified = archived = 0
     for path, s in screens:
         for bucket, rows in (s.get("buckets") or {}).items():
             for row in rows or []:
@@ -142,29 +145,33 @@ def check_quotes(data: Path, screens: list) -> None:
                     if not isinstance(quote, str) or not quote.strip():
                         fail(f"{where}: earnings nugget carries no quote text")
                         continue
-                    doc_path = data / "edgar" / "docs" / f"{safe_name(ticker)}.json"
-                    doc = read_json(doc_path)
-                    if not isinstance(doc, dict) or not isinstance(doc.get("text"), str):
+                    # The filing the nugget cites, current or archived
+                    # (tools/evidence_docs.py). A nugget naming an accession is checked
+                    # against THAT filing, so a newer filing replacing the current document
+                    # no longer orphans it; a cited filing stored nowhere fails closed, which
+                    # subsumes the old "accession does not match the document on disk" check.
+                    res = evidence_docs.find_quote(data, ticker, quote,
+                                                   accession=nug.get("accession"),
+                                                   matcher=quote_in_text)
+                    if res["state"] == "MATCH":
+                        verified += 1
+                        if res["where"] == "archive":
+                            archived += 1
+                        continue
+                    if res["state"] == "NO_DOC":
                         # FAIL CLOSED. method section 1: "fail closed if no document".
                         fail(f"{where}: quoted a filing with no document on disk "
-                             f"({doc_path.relative_to(data.parent)}) — a quote that cannot "
-                             f"be verified is not evidence, so this is a failure, not a skip")
-                        continue
-                    if quote_in_text(quote, doc["text"]):
-                        verified += 1
+                             f"(data/edgar/docs/{safe_name(ticker)}.json or its archive) — a "
+                             f"quote that cannot be verified is not evidence, so this is a "
+                             f"failure, not a skip")
+                    elif res["state"] == "NOT_STORED":
+                        fail(f"{where}: {evidence_docs.describe(res, ticker)}")
                     else:
-                        fail(f"{where}: quote does NOT appear in {doc.get('form')} "
-                             f"{doc.get('accession')} on disk. Quoted: "
+                        fail(f"{where}: {evidence_docs.describe(res, ticker)}. Quoted: "
                              f"{quote.strip()[:90]!r}")
-                        continue
-                    acc = nug.get("accession")
-                    if acc and doc.get("accession") and str(acc) != str(doc["accession"]):
-                        fail(f"{where}: cites accession {acc} but was verified against "
-                             f"{doc['accession']} — the document on disk is a different "
-                             f"filing; re-request the cited one")
     if checked:
         report(f"quotes: {verified}/{checked} earnings nugget(s) verified verbatim "
-               f"against data/edgar/docs/")
+               f"against data/edgar/docs/ ({archived} against an archived filing)")
     else:
         report("quotes: 0 earnings nuggets on disk (nothing to verify; the verifier is "
                "armed for the first one written)")

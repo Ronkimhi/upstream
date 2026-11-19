@@ -48,6 +48,7 @@ Run: python3 tools/check_analyst.py [--date YYYY-MM-DD] [--root PATH]
 Exit 0 clean, 1 on any failure.
 """
 import datetime
+import functools
 import hashlib
 import importlib.util
 import json
@@ -57,6 +58,7 @@ from pathlib import Path
 
 import check_map
 import check_profile
+import evidence_docs
 import market_paths
 from check_chain import explainer_failures
 
@@ -682,6 +684,26 @@ def collect_quotes(obj) -> list:
     return found
 
 
+def collect_quote_items(obj) -> list:
+    """Like collect_quotes, but each quote with the filing it cites: (quote, accession,
+    url) taken from the same object as the `quote` key (None where absent)."""
+    found: list = []
+    if isinstance(obj, dict):
+        q = obj.get("quote")
+        if isinstance(q, str) and q.strip():
+            acc = obj.get("accession")
+            url = obj.get("url")
+            found.append((q, acc if isinstance(acc, str) else None,
+                          url if isinstance(url, str) else None))
+        for k, v in obj.items():
+            if k != "quote":
+                found.extend(collect_quote_items(v))
+    elif isinstance(obj, list):
+        for x in obj:
+            found.extend(collect_quote_items(x))
+    return found
+
+
 def check_dive_quotes(data: Path, n: str, ticker, d) -> None:
     """VERBATIM QUOTES IN THE DIVE (2026-08-29, raised by the first real dive).
 
@@ -694,21 +716,48 @@ def check_dive_quotes(data: Path, n: str, ticker, d) -> None:
     filing with no document on disk is a failure, not a skip. A dive that quotes nothing
     is not asked for a document, because there is nothing to check against it.
     """
-    quotes = collect_quotes(d)
-    if not quotes:
+    items = collect_quote_items(d)
+    if not items:
         return
-    doc = read_json(data / "edgar" / "docs" / f"{str(ticker).replace('.', '-')}.json")
-    if not isinstance(doc, dict) or not isinstance(doc.get("text"), str):
-        fail(f"{n}: quotes {len(quotes)} filing passage(s) but there is no document at "
-             f"data/edgar/docs/{ticker}.json — fail closed (method section 1)")
+    # Each quote is resolved to the filing it cites (tools/evidence_docs.py, 2026-11-19):
+    # its sibling `accession` (or the accession in its EDGAR `url`) picks that exact filing,
+    # current or archived, so a newer filing replacing data/edgar/docs/<T>.json no longer
+    # orphans a true quote. A quote naming no filing is checked against the current
+    # document, then the archived ones. A cited filing stored nowhere fails closed.
+    store = evidence_docs.stored_filings(data, ticker)
+    if not store["docs"]:
+        fail(f"{n}: quotes {len(items)} filing passage(s) but there is no document at "
+             f"data/edgar/docs/{market_paths.safe_name(ticker)}.json or its archive "
+             f"— fail closed (method section 1)")
         return
-    body = _normalize(doc["text"])
-    missed = [q for q in quotes if _normalize(q) not in body]
-    for q in missed:
-        fail(f"{n}: quoted passage does NOT appear in {doc.get('form')} "
-             f"{doc.get('accession')} on disk: {q.strip()[:90]!r}")
-    report(f"{n}: {len(quotes) - len(missed)}/{len(quotes)} quoted passage(s) "
-           f"verified verbatim against data/edgar/docs/{ticker}.json")
+    missed = archived = 0
+    for q, acc, url in items:
+        res = evidence_docs.find_quote(data, ticker, q, accession=acc, url=url,
+                                       matcher=_verbatim)
+        if res["state"] == "MATCH":
+            archived += res["where"] == "archive"
+            continue
+        missed += 1
+        if res["state"] == "MISMATCH":
+            fail(f"{n}: quoted passage does NOT appear in {res['doc'].get('form')} "
+                 f"{res['doc'].get('accession')} on disk ({res['path']}): {q.strip()[:90]!r}")
+        else:
+            fail(f"{n}: quoted passage {q.strip()[:60]!r} cannot be verified: "
+                 f"{evidence_docs.describe(res, ticker)}")
+    report(f"{n}: {len(items) - missed}/{len(items)} quoted passage(s) "
+           f"verified verbatim against data/edgar/docs/{market_paths.safe_name(ticker)}.json"
+           f" or its archive ({archived} archived)")
+
+
+@functools.lru_cache(maxsize=64)
+def _normalized_text(text: str) -> str:
+    return _normalize(text)
+
+
+def _verbatim(quote: str, text: str) -> bool:
+    """The dive gate's comparison, unchanged since 2026-08-29: the normalized quote is a
+    substring of the normalized filing text."""
+    return _normalize(quote) in _normalized_text(text)
 
 
 def check_price_source_note(n: str, ticker, pstatus, d) -> None:

@@ -1568,9 +1568,64 @@ def do_edgar_doc(ticker, lookback_days=200):
         raise RuntimeError("document too short — stub page, fail closed")
     out = {"ticker": ticker, "cik": cik, "fetched_at": NOW.isoformat(),
            "form": forms[cand], "filing_date": dates[cand], "accession": accs[cand],
-           "url": url, "chars": len(text), "text": text}
-    jdump(DATA / "edgar" / "docs" / f"{safe_name(ticker)}.json", out)
-    return [f"data/edgar/docs/{safe_name(ticker)}.json"]
+           "url": url, "chars": len(text),
+           "text_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(), "text": text}
+    path = DATA / "edgar" / "docs" / f"{safe_name(ticker)}.json"
+    archived = archive_outgoing_doc(ticker, path, accs[cand], text)
+    jdump(path, out)
+    return [f"data/edgar/docs/{safe_name(ticker)}.json"] + archived
+
+
+EDGAR_ACCESSION_RE = re.compile(r"^\d{10}-\d{2}-\d{6}$")
+
+
+def archive_outgoing_doc(ticker, path, new_accession, new_text):
+    """Keep the filing we are about to overwrite, byte-identical, append-only.
+
+    `data/edgar/docs/<T>.json` holds one filing per ticker. Before 2026-11-19 a new
+    edgar_doc request replaced it wholesale, and every pipeline item, screen nugget and
+    dive quote citing the old filing failed its gate (three times that day: ACM, CAT,
+    GD/HUBB/NVT), though each quote was true of the filing it cites. The outgoing file is
+    copied to `data/edgar/docs/_archive/<T>/<accession>.json` and the gates resolve a
+    cited filing there through `tools/evidence_docs.py`.
+
+    Archives only when the outgoing document differs: a different accession, or the same
+    accession with different text (9 of 28 same-accession refetches before this changed
+    the text, e.g. the EX-99 upgrade picking a longer exhibit). A second distinct copy of
+    one accession goes to `<accession>~<sha12>.json`. An existing archive file is never
+    overwritten and nothing here ever deletes. Runs only after the new document passed
+    every fail-closed check above, so a failed fetch archives and replaces nothing.
+    Returns the repo-relative paths it wrote.
+    """
+    path = Path(path)
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError:
+        return []
+    try:
+        old = json.loads(raw)
+    except ValueError:
+        print(f"  archive: outgoing {path.name} is not JSON; not archived")
+        return []
+    if not isinstance(old, dict):
+        return []
+    acc = str(old.get("accession") or "")
+    if not EDGAR_ACCESSION_RE.match(acc):
+        print(f"  archive: outgoing {path.name} has no EDGAR accession ({acc!r}); not archived")
+        return []
+    if acc == new_accession and old.get("text") == new_text:
+        return []
+    adir = DATA / "edgar" / "docs" / "_archive" / safe_name(ticker)
+    target = adir / f"{acc}.json"
+    if target.exists():
+        if target.read_bytes() == raw:
+            return []
+        target = adir / f"{acc}~{hashlib.sha256(raw).hexdigest()[:12]}.json"
+        if target.exists():
+            return []
+    adir.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(raw)
+    return [f"data/edgar/docs/_archive/{safe_name(ticker)}/{target.name}"]
 
 
 # ---------------------------------------------------------------- cron duties
