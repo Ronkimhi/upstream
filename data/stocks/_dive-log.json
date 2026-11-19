@@ -19,12 +19,12 @@
     },
     "entry_zones": {
       "question": "Did price ever reach the zones I drew (entry zones on INVESTABLE, would-buy zones on WATCH since 2026-09-03), and what happened after?",
-      "denominator": 13,
+      "denominator": 14,
       "reached": 1,
       "never_reached": 0,
       "filled_same_week": 0,
       "note": "A zone price never reached is a miss with better manners. A zone that filled instantly was not a zone. ESLT/hormuz-maritime (2026-09-04) is the first dive in this log to draw its own would_buy_zone at DRAFT time rather than at a later red-team backfill; WST/glp1-fill-finish and CMI/minor-nsr-permits (both 2026-09-06) are the second and third, both still DRAFT. Every zone drawn since the 2026-09-03 rule sits well below spot; none of these three has yet been tested by a red team's entry-basis stress attack before landing here. The WST red team of 2026-09-06 found the zone-drawing convention behind ALL SIX zones in this channel (VRT, HUBB, MYRG, ESLT, WST, CMI) may not do what method section 7 says a WATCH would-buy zone must do: close the gap table AND survive the bear case. WST's own zone closes to the file's percentile-65 base case, not a bear case, and an actual bear-case rebuild prices 30-43% below the zone's own low end. VRT's, MYRG's and CMI's zones are built the same way (their own 'mine' rows, not a separately-built bear case) and have not been re-checked against this finding. Escalated to Ron; not re-derived here. CMI's own red team (2026-09-06, landed on rebase moments after WST's) independently recomputed both zone bounds ($184.06-$232.69) from the filed reverse-DCF's own bisection formula and reproduced them to within 1% (rounding), and confirmed the excluded, more-bearish 6%/12% build was dropped on a principled floor breach rather than cherry-picked away. It then inherited, rather than independently caught, the WST finding directly above: CMI's zone is built the same way as all five others (the dive's own 'mine' base-case row, not a separately built bear case), and this run does not re-derive it either. Of the three zones this note previously called untested (ESLT, WST, CMI), ESLT was already tested as of 2026-09-04 (a stale claim in this note at the time it was written, corrected rather than silently fixed), and WST and CMI are now both tested as of 2026-09-06; every zone in this channel has now had at least one red-team pass, and the base-case-not-bear-case construction question is open across all six, escalated to Ron once by WST's run and reaffirmed rather than re-escalated by CMI's. STE/glp1-fill-finish (2026-09-06) added in the same rebase-reconciliation pattern as CMI/WST: at 5.4%-11.8% below spot, the shallowest zone in this channel so far, an honest read of a genuinely thin expectations gap rather than a generous one. Not yet stress-tested by a red team. ACM/data-center-moratoria (2026-09-06) is the log's first INVESTABLE entry_zone and its first zone to read reached=true at draw, expected for this verdict type since INVESTABLE means buy now rather than wait; see the zone's own reached_note for why this is not the WATCH 'filled instantly' failure mode. UPDATE (2026-09-06, ONT red team, folded in on rebase): ONT's own would_buy_zone ($5.53-$6.73, drawn the same day as CMI's and WST's) carries the identical base-case-with-a-haircut defect, now independently confirmed by fresh-context attack rather than inherited by inference: paired with the same rebased base the file used, a genuine bear-case rebuild clears at NO price inside the method's own 0.3x-last-close floor, and only clears ($11.81-$14.01) when paired with the filed base and a 12% discount rate instead. Left unredrawn, same convention as WST and CMI. STE/glp1-fill-finish's own same-day red team (2026-09-06, folded in on a further rebase alongside ACM's, ONT's, CAT's and J's) stress-tested its would_buy_zone and found the filed high bound ($212.29, 5.4% below spot) rested on an internal arithmetic contradiction (an 11.00% target the dive's own text incorrectly called 'below' its 10.00% central estimate); corrected to $203.27, so the zone now reads $197.84-$203.27, 9.4%-11.8% below spot, not 5.4%-11.8%. Of the twelve zones/entries now in this channel, nine WATCH_WOULD_BUY zones (VRT, HUBB, MYRG, ESLT, WST, CMI, ONT, J, STE) share the open base-case-vs-bear-case question (STE's own bear-case stress at 7.52% FCF-CAGR-equivalent prices at $182.21, 18.8% below spot, below even its corrected low bound), and ACM's INVESTABLE entry_zone is a different verdict type not subject to this specific question. CAT/minor-nsr-permits' own red team (2026-09-06, folded in on rebase alongside ACM's and ONT's) added a tenth zone ($324.65-$509.94) and confirmed it a real, internally-consistent level (0.01% reproduction of the filed enterprise value) rather than a formality, but did not re-check it against the base-case-not-bear-case construction question this channel's other WATCH zones have escalated to Ron; that question stays open, unresolved by CAT's landing. J/data-center-moratoria (2026-09-06, landed on a third rebase alongside CAT's own same-day zone) is the eleventh zone/entry in this channel. Its red team confirmed the same base-case-not-bear-case construction WST first found, unresolved, escalated to Ron. NVT/ai-infrastructure (2026-09-15, DRAFT, not yet red-teamed) adds an eleventh would_buy_zone ($51.01-$58.41, 64.03%-68.59% below the $162.38 spot it was drawn against, the deepest zone-to-spot gap in this log): the deepest gap not because the expectations gap is unusually wide in percentage-point terms (23.93pp against a 20.10pp horizon_spread, a thin 3.83pp survival margin similar to HUBB's) but because the reverse-DCF's terminal-value mechanics are extremely sensitive at this name's narrow 6.5-point discount-minus-terminal-growth spread, so even a bear case anchored above nVent's own trailing multi-year growth history prices far below spot. Denominator bumped 10 -> 11 (the log's own number stays behind the live corpus per this note's standing caveat; check_analyst.py's count is authoritative). UPDATE (2026-11-19, ACM refresh): the log's only INVESTABLE entry zone has its first outcome (see zones[ACM].outcome_2026_11_19): floor broken by 4.9%, then +20.62% since draw; the refreshed WATCH adds a thirteenth zone ($46.00-$54.40, 32%-43% below spot, bear-case convention, reached=false). A zone this deep is either the bar sitting high or the bear being harsher than any single axis; the file says which it believes (would_buy_stress).",
-      "recomputed_from": "data/stocks/*.json on 2026-09-06 by tools/check_analyst.would_buy_reached over data/market series rows: 8 WATCH dives, 6 would-buy zones drawn (VRT, HUBB, MYRG, ESLT, WST, CMI), 2 capped (ANDR.VI grade NULL, 688425.SS grade C), 0 reached, 0 INVESTABLE entry zones. never_reached is 0 because these zones have had no time to be missed; each grades at its own dive's review_by. WST's red team (2026-09-06) confirms the zone bounds reproduce exactly and adds the bear-case-stress finding above; the zone count and denominator are unchanged by this run (WST's zone was already counted at DRAFT time). STE/glp1-fill-finish folded in by this rebase reconciliation; the corpus-wide check_analyst.py denominator is the authoritative one when this narrative text lags a concurrent landing. ACM's INVESTABLE entry_zone appended by the 2026-09-06 red team (reached=true at draw); grades on whether price stays inside it or falls below $61.00 before 2026-12-04. ONT's would_buy_zone ($5.53-$6.73, drawn 2026-09-06) added to the zones list and denominator (8 -> 9) by this rebase-fold-in; ONT's own red team (2026-09-06) independently confirmed the same base-case-with-a-haircut defect first flagged by WST's red team, with a stronger version of the finding (the rebased-base convention admits no bear-case-survived price at all inside the permitted band for ONT). CAT's own red team (2026-09-06) adds a tenth would-buy zone and confirms its bounds reproduce exactly against the filed reverse-DCF solve; denominator and zones bumped by one each. Folded in on rebase alongside ACM's and ONT's landings; this remains an append-only update, not a full corpus recompute. STE's 2026-09-06 red team corrects its would_buy_zone.high from 212.29 to 203.27, folded in on a further rebase alongside ACM's, ONT's, CAT's and J's same-day landings; the corpus-wide denominator (11 zones/entries pre-STE, 12 with STE folded in, unchanged in count since STE's zone was already counted at DRAFT time) reflects that.",
+      "recomputed_from": "data/stocks/*.json on 2026-09-06 by tools/check_analyst.would_buy_reached over data/market series rows: 8 WATCH dives, 6 would-buy zones drawn (VRT, HUBB, MYRG, ESLT, WST, CMI), 2 capped (ANDR.VI grade NULL, 688425.SS grade C), 0 reached, 0 INVESTABLE entry zones. never_reached is 0 because these zones have had no time to be missed; each grades at its own dive's review_by. WST's red team (2026-09-06) confirms the zone bounds reproduce exactly and adds the bear-case-stress finding above; the zone count and denominator are unchanged by this run (WST's zone was already counted at DRAFT time). STE/glp1-fill-finish folded in by this rebase reconciliation; the corpus-wide check_analyst.py denominator is the authoritative one when this narrative text lags a concurrent landing. ACM's INVESTABLE entry_zone appended by the 2026-09-06 red team (reached=true at draw); grades on whether price stays inside it or falls below $61.00 before 2026-12-04. ONT's would_buy_zone ($5.53-$6.73, drawn 2026-09-06) added to the zones list and denominator (8 -> 9) by this rebase-fold-in; ONT's own red team (2026-09-06) independently confirmed the same base-case-with-a-haircut defect first flagged by WST's red team, with a stronger version of the finding (the rebased-base convention admits no bear-case-survived price at all inside the permitted band for ONT). CAT's own red team (2026-09-06) adds a tenth would-buy zone and confirms its bounds reproduce exactly against the filed reverse-DCF solve; denominator and zones bumped by one each. Folded in on rebase alongside ACM's and ONT's landings; this remains an append-only update, not a full corpus recompute. STE's 2026-09-06 red team corrects its would_buy_zone.high from 212.29 to 203.27, folded in on a further rebase alongside ACM's, ONT's, CAT's and J's same-day landings; the corpus-wide denominator (11 zones/entries pre-STE, 12 with STE folded in, unchanged in count since STE's zone was already counted at DRAFT time) reflects that. 2026-11-19: CAT refreshed (WATCH held): the 2026-09-06 zone (324.65 to 509.94) graded not reached (closest close 553.64, 8.57% above) and a bear-anchored zone (188.21 to 208.78) appended, denominator +1. Not a full corpus recompute; tools/check_analyst.py prints the authoritative count.",
       "capped": 3,
       "zones": [
         {
@@ -164,7 +164,15 @@
           "high_vs_spot_pct": -37.35,
           "low_vs_spot_pct": -60.11,
           "reached": false,
-          "basis": "Forward-solves quality.reverse_dcf's own bisection formula (base_fcf $8,918.0M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon; independently reproduced by this red team to a 0.01% enterprise-value match against the filed solve) for this dive's own conservative (7% revenue CAGR/17% margin, 7.64% FCF-equivalent CAGR) and stretch (12%/21%, 17.54%) builds instead of the market's 28.57% ask. Confirmed by this red team's ENTRY_BASIS_STRESS attack as a real, internally-consistent level rather than a formality, and deliberately drawn on the 5-year convention rather than the friendlier 10-year one, which would draw $394.12-$887.90 instead (would_buy_stress)."
+          "basis": "Forward-solves quality.reverse_dcf's own bisection formula (base_fcf $8,918.0M, 9% discount rate, 2.5% terminal growth, 5-year explicit horizon; independently reproduced by this red team to a 0.01% enterprise-value match against the filed solve) for this dive's own conservative (7% revenue CAGR/17% margin, 7.64% FCF-equivalent CAGR) and stretch (12%/21%, 17.54%) builds instead of the market's 28.57% ask. Confirmed by this red team's ENTRY_BASIS_STRESS attack as a real, internally-consistent level rather than a formality, and deliberately drawn on the 5-year convention rather than the friendlier 10-year one, which would draw $394.12-$887.90 instead (would_buy_stress).",
+          "outcome_2026_11_19": {
+            "as_of": "2026-11-19",
+            "spot": 558.77,
+            "reached": false,
+            "path": "Drawn 2026-09-06 at spot 813.94 (high 37.35% below). The price fell 31.35% to 558.77; the lowest close since the draw is 553.64 on 2026-11-05, 8.57% above the zone high of 509.94. Not reached.",
+            "grade": "A miss by 8.57%, with the draw-time reading that the zone sat high (base-anchored) confirmed in direction: price travelled most of the way to it. The zone was base-anchored under the pre-2026-09-08 convention and is superseded by the bear-anchored zone below, not corrected.",
+            "verdict_effect": "WATCH held on 2026-11-19; the zone is re-drawn lower under the bear-clears convention because that convention changed, not because the view worsened."
+          }
         },
         {
           "file": "data/stocks/NVT__ai-infrastructure.json",
@@ -196,6 +204,19 @@
             "reachability": "0 of 553 closes in data/market/ACM.json (2023-11-20 to 2026-11-19) at or below $54.40; 18 at or below $60; minimum $58.02 on 2026-10-19; $54.40 is 8.7x FY2027 adjusted EPS midpoint against 9.3x at the series low",
             "reading": "Counted as a would-buy zone that may be the INVESTABLE bar sitting high, graded at review_by 2027-02-17; the joint three-axis bear is the reason (single-axis bears price $67.35 to $81.27)."
           }
+        },
+        {
+          "file": "data/stocks/CAT__minor-nsr-permits.json",
+          "ticker": "CAT",
+          "origin": "WATCH_WOULD_BUY",
+          "low": 188.21,
+          "high": 208.78,
+          "as_of": "2026-11-19",
+          "spot_at_draw": 558.77,
+          "high_vs_spot_pct": -62.64,
+          "low_vs_spot_pct": -66.32,
+          "reached": false,
+          "basis": "Bear-case clears under the 2026-09-08 convention: high is the price at which the file's bear rebuild (3.06% revenue CAGR, 13.40% margin = 25th percentile of FY2018 to FY2025, FY2025 conversion; minus 1.14% FCF CAGR) closes the filed 19.57% ask on the 5-year formula; low is where the ask reaches minus 3% a year. 0 of 552 closes in data/market/CAT.json (2023-11-20 to 2026-11-18, minimum $247.50) at or below $208.78. Ladder: 15.15% margin bear $238.20, 16.50% margin bear $260.78, discount rate 8% $254.74 and 10% $175.04 on the 25th-percentile bear. Counted as a zone that may be the INVESTABLE bar sitting high, graded at review_by 2027-02-17. Not yet red-teamed."
         }
       ],
       "caps": [
@@ -254,7 +275,7 @@
     },
     "implied_growth": {
       "question": "The market-implied CAGR I recorded at dive time, against what was actually delivered by review_by.",
-      "denominator": 13,
+      "denominator": 14,
       "resolved": 0,
       "market_too_high": 0,
       "market_too_low": 0,
@@ -497,9 +518,35 @@
           "resolves_against": "Q1 FY2027 release (expected early-to-mid February 2027): organic NSR growth versus the 4% guided floor, Construction Management cash use versus the guided $500 million, restructuring versus the guided $20-30 million. The five-year CAGR cannot resolve before 2031.",
           "red_team_error_bar_normalized_base_pp": 1.5,
           "red_team_note": "2026-11-19 red team: base $750M to $850M implies 3.33% to 0.45% on the normalized convention, so its honest error bar is about 1.5 points, not the 0.29-point horizon_spread; the dive's 3.17% base case is inside it. Independent replication reproduced 21.56% and 1.83% exactly."
+        },
+        {
+          "ticker": "CAT",
+          "chain_id": "minor-nsr-permits",
+          "dive_date": "2026-11-19",
+          "market_implied_fcf_cagr": 0.1957,
+          "market_implied_fcf_cagr_7y_horizon": 0.1502,
+          "market_implied_fcf_cagr_10y_horizon": 0.1174,
+          "horizon_spread": 0.0783,
+          "source": "data/market/CAT.json quality.reverse_dcf (state SOLVED, price_used $558.77 as of 2026-11-18); replicated in session, reproduces 0.1957 / 0.1502 / 0.1174",
+          "my_revenue_cagr_5y": 0.09,
+          "my_fcf_cagr": 0.1212,
+          "my_fcf_cagr_bear": -0.0114,
+          "my_fcf_cagr_bull": 0.1754,
+          "my_fcf_cagr_note": "Base 9% revenue CAGR x 19% margin x FY2025 conversion 0.7997: 12.12%, unchanged from 2026-09-06. Five-year gap 7.45pp (market above base) inside the 7.83pp spread; ten-year difference minus 0.38pp. Bear 3.06% x 13.40% gives minus 1.14%.",
+          "base_fcf": 8918000000.0,
+          "base_fcf_caveat": "FY2025 FCF is the LOWEST of FY2023 to FY2025 ($11,288M, $10,047M, $8,918M): a trough base, the ACM defect class and the opposite of MYRG/ESLT. Varied here: FY2024 base gives 16.52% (5y) and 10.16% (10y), FY2023 base 13.59% and 8.63%; discount rate 8% gives 15.11% (5y), 10% gives 23.63%. The error bar is several points, larger than the differences the gap table resolves.",
+          "prior_record": {
+            "dive_date": "2026-09-06",
+            "market_implied_fcf_cagr": 0.2857,
+            "horizon_spread": 0.1234,
+            "price_used": 800.25,
+            "note": "same dive, re-solved at the 31% lower price; the 2026-09-06 record stays open and resolves against FY2026 as filed"
+          },
+          "resolve_by": "2027-02-17",
+          "resolves_against": "FY2026 free cash flow from the FY2026 10-K or Q4 release against the $8,918M base (watch_triggers[2]: $10.7B), Power Generation growth against 30% and operating margin excluding IEEPA recoveries against 18%. The five-year CAGR cannot resolve before 2031."
         }
       ],
-      "recomputed_from": "data/stocks/*.json and data/market/*.json quality.reverse_dcf: 8 open record(s), 0 resolved. Rebuilt during a concurrent-session merge (WST and CMI both landed 2026-09-06): WST's own record was already present from its session; CMI's is appended here. CMI's base-year premium (1.477x) is the mildest of the base-outlier cases in this channel and is fully attributable to a named, dated litigation-settlement cash-payment timing effect. No record has reached its resolve_by yet. ACM's record appended by the 2026-09-06 red team, which corrected the market_implied_fcf_cagr and horizon_spread from the DRAFT's stale-snapshot figures (0.024/0.0004) to the refreshed file's own values (0.0166/0.0035). NVT's record appended 2026-09-15 (DRAFT, not yet red-teamed): the widest 5y-market-implied figure in this channel (43.19%) against the smallest base-FCF premium (0.79x the four-year average, i.e. the base year is BELOW trend, not above it), which argues the wide gap here is a growth-assumption finding rather than a base-year artifact the way MYRG's and 688425.SS's were. 2026-11-19: ACM first leg graded (FY2026 FCF and design growth) and a second ACM record appended for the refreshed dive; 0 resolved still, the five-year CAGR cannot resolve before 2031."
+      "recomputed_from": "data/stocks/*.json and data/market/*.json quality.reverse_dcf: 8 open record(s), 0 resolved. Rebuilt during a concurrent-session merge (WST and CMI both landed 2026-09-06): WST's own record was already present from its session; CMI's is appended here. CMI's base-year premium (1.477x) is the mildest of the base-outlier cases in this channel and is fully attributable to a named, dated litigation-settlement cash-payment timing effect. No record has reached its resolve_by yet. ACM's record appended by the 2026-09-06 red team, which corrected the market_implied_fcf_cagr and horizon_spread from the DRAFT's stale-snapshot figures (0.024/0.0004) to the refreshed file's own values (0.0166/0.0035). NVT's record appended 2026-09-15 (DRAFT, not yet red-teamed): the widest 5y-market-implied figure in this channel (43.19%) against the smallest base-FCF premium (0.79x the four-year average, i.e. the base year is BELOW trend, not above it), which argues the wide gap here is a growth-assumption finding rather than a base-year artifact the way MYRG's and 688425.SS's were. 2026-11-19: ACM first leg graded (FY2026 FCF and design growth) and a second ACM record appended for the refreshed dive; 0 resolved still, the five-year CAGR cannot resolve before 2031. 2026-11-19: CAT's second record appended (refresh at 558.77: implied 19.57%, spread 7.83); 0 resolved still. A trough-base record, like ACM's: the base-year defect now runs in both directions in this channel."
     }
   },
   "repairs": [
@@ -852,6 +899,13 @@
       "kind": "AMEND",
       "model": "claude-sonnet-5-5",
       "change": "ACM/data-center-moratoria red team run (fresh context) over the WATCH amendment: status FINAL, WATCH survives. red_team_amendments by_dimension PRICED_IN_CHECK +1, CAPTURE_REALITY +1, EARNINGS_QUALITY_STRESS +1 (dive denominator unchanged at 13, ACM attacked a second time); entry_zones ACM WATCH_WOULD_BUY zone gains measured reachability (0 of 553 closes at or below $54.40); implied_growth ACM 2026-11-19 record gains the 1.5-point error bar. shadow_book unchanged."
+    },
+    {
+      "ts": "2026-11-19T23:58:00Z",
+      "by": "stocky",
+      "kind": "AMEND",
+      "model": "claude-sonnet-5-5",
+      "change": "CAT/minor-nsr-permits refreshed on Ron's command: WATCH held (reason changed), DRAFT, review_by 2027-02-17, would_buy_zone re-anchored to the bear case ($188.21 to $208.78). Dive file amended in place with prior_verdict_snapshot and prior_red_team preserved; red team owed. Calibration updated: entry_zones (2026-09-06 CAT zone graded not reached, new bear-anchored zone appended, denominator +1), implied_growth (second CAT record, trough-base caveat, denominator +1). red_team_amendments and shadow_book unchanged (no red team run this call, no TOO_LATE written). Standing finding: a gap that closes by price decline does not make a WATCH an INVESTABLE; CAT's five-year gap closed because the price fell 31.35%, and spot remained 167.6% above the bear value."
     }
   ],
   "dives": [
@@ -1187,23 +1241,31 @@
       "verdict": "WATCH",
       "clock": "COMPOUNDER",
       "earnings_grade": "B",
-      "status": "FINAL",
-      "dive_date": "2026-09-06",
-      "review_by": "2026-11-04",
-      "price_ref": 813.94,
+      "status": "DRAFT",
+      "dive_date": "2026-11-19",
+      "review_by": "2027-02-17",
+      "price_ref": 558.77,
       "price_status": "AGREED",
       "shadow_ref": null,
-      "one_line": "Red-teamed and held at WATCH, not TOO_LATE: trailing multiple genuinely expanded (94.68% price gain against a 15.44% trailing-EPS decline, both reproduced exactly against data/market/CAT.json), but the market's own 10-year reverse-DCF convention closes the gap to 4.11pp, inside the file's 12.34pp horizon_spread, per method's own precedent against calling TOO_LATE off the 5-year convention alone. The link this dive is chartered on (aftertreatment content) has no disclosed revenue attribution and cannot be isolated from the much larger, unrelated data-center-power re-rate that actually moved the stock, which is why WATCH caps below INVESTABLE too.",
+      "one_line": "WATCH held, and the reason changed: the price fell 31.35% to 558.77 (2.31% above the 52-week low) with Q3 EPS +46.1%, the market's 5-year ask dropped from 28.57% to 19.57% (10-year 11.74%, spread 7.83) against an unchanged 12.12% base, so the 7.45-point 5-year gap sits inside the spread and no gap remains at either horizon. The bear case is worth $208.78, spot 167.6% above it. Not TOO_LATE (multiple contracted 42.64x to 29.27x); not INVESTABLE (no margin over the bear; the gap would open near $277.51). Grade B held.",
       "prior_verdict": "WATCH",
       "red_team_amended": true,
       "would_buy_zone": {
-        "low": 324.65,
-        "high": 509.94
+        "low": 188.21,
+        "high": 208.78,
+        "as_of": "2026-11-19"
       },
-      "would_buy_basis": "Forward-solved on the tougher 5-year reverse-DCF convention for this dive's own conservative (7%/17%) and stretch (12%/21%) FCF-equivalent growth builds; cross-checked by this red team against the filed enterprise value (0.01% reproduction error) and against the 10-year convention (which would draw $394.12-$887.90 instead, deliberately excluded).",
+      "would_buy_basis": "Bear-case clears under the 2026-09-08 convention on the 5-year reverse-DCF formula: high is where the file's own bear rebuild (3.06% revenue CAGR, 13.40% margin, FY2025 conversion, minus 1.14% FCF CAGR) closes the filed 19.57% ask; low is where the ask reaches minus 3% a year.",
       "issuer_id": "CATERPILLAR",
       "listing_id": "NYSE-CAT",
-      "screen_ref": "data/screens/minor-nsr-permits.json"
+      "screen_ref": "data/screens/minor-nsr-permits.json",
+      "refreshed_at": "2026-11-19",
+      "prior_would_buy_zone": {
+        "low": 324.65,
+        "high": 509.94,
+        "as_of": "2026-09-06"
+      },
+      "red_team_date": "none for this amendment; the 2026-09-06 run is preserved as prior_red_team and the fresh-context red team is still owed"
     },
     {
       "file": "data/stocks/J__data-center-moratoria.json",
