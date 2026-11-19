@@ -906,16 +906,54 @@ def _head_json(root: Path, path: Path):
         return None
 
 
+def _is_amend_entry(entry) -> bool:
+    if not isinstance(entry, dict):
+        return False
+    return any(str(entry.get(key) or "").strip().upper() == "AMEND"
+               for key in ("kind", "action"))
+
+
+def refresh_reverted_dives(root: Path, chain_id, inventory=None) -> list[str]:
+    """O1 dives on `chain_id` that a refresh has reverted to DRAFT, relative to git HEAD.
+
+    `refresh data/stocks/<T>__<chain>.json` amends a FINAL dive and sets it back to DRAFT
+    until a fresh-context red team re-signs it (Ron, 2026-11-19). The evidence that a
+    COMPLETE theme fell to DIVED because of a refresh, and for no other reason, is all of:
+    the dive still resolves to one of the theme's O1 profiles, it was FINAL at HEAD, it is
+    DRAFT on disk, and its changelog carries an AMEND entry that HEAD did not have. Returns
+    the dive file names, empty when there is no such dive.
+    """
+    if not chain_id:
+        return []
+    inventory = inventory or _inventory(root)
+    theme_o1 = [
+        profile for profile in inventory["profiles"]
+        if profile.get("opportunity_tier") == "O1"
+        and (_profile_handoff(profile, inventory) or {}).get("chain_id") == chain_id
+    ]
+    out = []
+    for stock_path, stock in _objects(root / "data" / "stocks"):
+        if stock.get("fixture") or stock.get("chain_id") != chain_id \
+                or stock.get("status") != "DRAFT":
+            continue
+        if not any(_stock_matches(profile, stock, inventory, require_final=False)
+                   for profile in theme_o1):
+            continue
+        prior = _head_json(root, stock_path)
+        if not isinstance(prior, dict) or prior.get("status") != "FINAL":
+            continue
+        prior_log = prior.get("changelog") if isinstance(prior.get("changelog"), list) else []
+        current_log = stock.get("changelog") if isinstance(stock.get("changelog"), list) else []
+        if any(_is_amend_entry(entry) for entry in current_log if entry not in prior_log):
+            out.append(stock_path.name)
+    return out
+
+
 def preservation_failures(root: Path, path: Path, current: dict) -> list[str]:
     prior = _head_json(root, path)
     if not isinstance(prior, dict):
         return []
     failures = []
-    old_status = CAMPAIGN_STATUS_ORDER.get(prior.get("status"), -1)
-    new_status = CAMPAIGN_STATUS_ORDER.get(current.get("status"), -1)
-    if new_status < old_status:
-        failures.append(f"campaign status regressed {prior.get('status')} -> "
-                        f"{current.get('status')}")
     old_themes = {t.get("theme_id"): t for t in prior.get("themes") or []
                   if isinstance(t, dict)}
     new_themes = {t.get("theme_id"): t for t in current.get("themes") or []
@@ -928,7 +966,12 @@ def preservation_failures(root: Path, path: Path, current: dict) -> list[str]:
     current_o1 = {row.get("theme_id"): row.get("o1", 0)
                   for row in (current.get("completion") or {}).get("per_theme") or []
                   if isinstance(row, dict)}
-    for theme_id in set(old_themes) & set(new_themes):
+    current_computed = {row.get("theme_id"): row.get("stage_computed")
+                        for row in (current.get("completion") or {}).get("per_theme") or []
+                        if isinstance(row, dict)}
+    inventory = None
+    refresh_reopened = []
+    for theme_id in sorted(set(old_themes) & set(new_themes), key=str):
         before = STAGE_ORDER.get(old_themes[theme_id].get("stage"), -1)
         after = STAGE_ORDER.get(new_themes[theme_id].get("stage"), -1)
         if after < before:
@@ -944,9 +987,33 @@ def preservation_failures(root: Path, path: Path, current: dict) -> list[str]:
                         and current_o1.get(theme_id, 0) > prior_o1.get(theme_id, 0))
             if reopened:
                 continue
+            # The second explained reopen (Ron, 2026-11-19): a refresh reverted one of the
+            # theme's O1 dives FINAL -> DRAFT. Every O1 is then no longer FINAL, so the
+            # theme is honestly DIVED until the red team re-signs it, and refusing that
+            # regression meant a refresh could only land fused with its red team (hit five
+            # times that day). Allowed only COMPLETE -> DIVED, only when the evidence-backed
+            # stage is DIVED, and only with a refresh-reverted dive behind it.
+            if old_themes[theme_id].get("stage") == "COMPLETE" \
+                    and new_themes[theme_id].get("stage") == "DIVED" \
+                    and current_computed.get(theme_id) == "DIVED":
+                inventory = inventory or _inventory(root)
+                if refresh_reverted_dives(
+                        root, new_themes[theme_id].get("chain_id"), inventory):
+                    refresh_reopened.append(theme_id)
+                    continue
             failures.append(f"theme {theme_id} stage regressed "
                             f"{old_themes[theme_id].get('stage')} -> "
                             f"{new_themes[theme_id].get('stage')}")
+    old_status = CAMPAIGN_STATUS_ORDER.get(prior.get("status"), -1)
+    new_status = CAMPAIGN_STATUS_ORDER.get(current.get("status"), -1)
+    if new_status < old_status:
+        # A COMPLETE campaign means every theme COMPLETE; a refresh-reopened theme makes
+        # that false, so COMPLETE -> ACTIVE is the honest status in that case and only then.
+        refresh_status = (prior.get("status") == "COMPLETE"
+                          and current.get("status") == "ACTIVE" and refresh_reopened)
+        if not refresh_status:
+            failures.append(f"campaign status regressed {prior.get('status')} -> "
+                            f"{current.get('status')}")
     frozen_statuses = {"SELECTED", "ACTIVE", "COMPLETE"}
     if prior.get("status") in frozen_statuses and current.get("status") in frozen_statuses:
         if prior.get("selection_basis") != current.get("selection_basis"):

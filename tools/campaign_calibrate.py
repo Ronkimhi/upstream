@@ -2,7 +2,11 @@
 """Recompute campaign completion and advance evidence-backed stages. Stdlib only.
 
 Campaign selection, alternates, exclusions, targets, blockers and judgment fields are
-preserved. Theme stages may advance to their computed depth but never regress.
+preserved. Theme stages may advance to their computed depth. They regress in exactly one
+case: a COMPLETE theme whose O1 dive a refresh reverted FINAL -> DRAFT (relative to git HEAD,
+with a new AMEND changelog entry) is lowered to its evidence-backed DIVED, and a COMPLETE
+campaign carrying such a theme becomes ACTIVE (Ron, 2026-11-19). The red team re-signing the
+dive advances the theme back to COMPLETE on the next calibration.
 
 Run: python3 tools/campaign_calibrate.py [--root PATH] [--dry-run]
 """
@@ -11,7 +15,12 @@ import datetime
 import json
 from pathlib import Path
 
-from check_campaign import STAGE_ORDER, compute_campaign_completion
+from check_campaign import (
+    STAGE_ORDER,
+    _inventory,
+    compute_campaign_completion,
+    refresh_reverted_dives,
+)
 from check_map import read_json
 
 
@@ -32,6 +41,8 @@ def calibrate_campaign(root: Path, campaign: dict) -> dict:
     computed_stages = {row.get("theme_id"): row.get("stage_computed")
                        for row in completion.get("per_theme") or []}
     advanced = []
+    reopened = []
+    inventory = None
     for theme in out.get("themes") or []:
         if not isinstance(theme, dict):
             continue
@@ -40,10 +51,23 @@ def calibrate_campaign(root: Path, campaign: dict) -> dict:
         if actual in STAGE_ORDER and STAGE_ORDER.get(before, -1) < STAGE_ORDER[actual]:
             theme["stage"] = actual
             advanced.append(f"{theme.get('theme_id')}:{before}->{actual}")
+        elif before == "COMPLETE" and actual == "DIVED":
+            # The one permitted regression, mirrored exactly by
+            # check_campaign.preservation_failures: a refresh reverted an O1 dive to DRAFT.
+            inventory = inventory or _inventory(root)
+            dives = refresh_reverted_dives(root, theme.get("chain_id"), inventory)
+            if dives:
+                theme["stage"] = actual
+                reopened.append(f"{theme.get('theme_id')}:{before}->{actual} "
+                                f"(refresh reverted {', '.join(dives)} to DRAFT)")
+    if reopened and out.get("status") == "COMPLETE":
+        out["status"] = "ACTIVE"
+        reopened.append("campaign status:COMPLETE->ACTIVE")
     # Recompute after the stage update so stage_computed rows and manifest remain one
     # coherent snapshot.
     out["completion"] = compute_campaign_completion(root, out)
     out["_stage_advances"] = advanced
+    out["_stage_reopens"] = reopened
     return out
 
 
@@ -63,12 +87,14 @@ def main() -> int:
     for path, campaign in campaigns:
         amended = calibrate_campaign(root, campaign)
         advances = amended.pop("_stage_advances")
+        reopens = amended.pop("_stage_reopens")
         completion = amended["completion"]
         print(f"campaign_calibrate: {path.name}: "
               f"{completion['themes_complete']}/{completion['themes_selected']} themes, "
               f"{completion['completed_profiles']} completed profiles, "
               f"{completion['o1_final']}/{completion['opportunity_tiers']['O1']} O1 FINAL")
         print(f"  stages advanced: {', '.join(advances) if advances else 'none'}")
+        print(f"  stages reopened by refresh: {'; '.join(reopens) if reopens else 'none'}")
         if args.dry_run:
             continue
         prior = (campaign.get("completion") or {}).get("completed_profiles")
@@ -77,7 +103,8 @@ def main() -> int:
             "ts": now,
             "by": "campaign_calibrate",
             "kind": "AMEND",
-            "change": "recomputed campaign completion and advanced proven stages",
+            "change": "recomputed campaign completion and advanced proven stages"
+                      + (f"; reopened by refresh: {'; '.join(reopens)}" if reopens else ""),
             "prior_completed_profiles": prior,
         })
         path.write_text(json.dumps(amended, indent=1, ensure_ascii=False) + "\n")
