@@ -434,6 +434,81 @@ def shadow_summary(book: dict, results: dict) -> dict:
     return {"by_origin": by_origin, "by_link": links, "rows_total": len(rows)}
 
 
+SCORECARD_HORIZONS = ("h30", "h90", "h180", "h365", "to_date")
+
+
+def project_scorecard(data_dir=DATA) -> dict:
+    """The label scorecard's aggregates for the page, never its `calls` array.
+
+    data/scorecard/scorecard.json (tools/scorecard.py, written by the fetch workflow) is
+    about 578 KB because it carries per-ticker rows and facet splits beside the figures a
+    reader wants; the page needs only the call-level medians and hit rates, the maturity
+    counts and the denominators. Every number is copied, never recomputed: a median
+    derived here would be a second implementation of the rule the grader already holds.
+    The only sums are denominators (calls graded, calls left ungraded, tickers excluded
+    by reason), which are counts of what the grader already counted. A missing or
+    unreadable file returns {"present": False} so the page says "no scorecard yet"
+    instead of drawing zeros.
+    """
+    path = Path(data_dir) / "scorecard" / "scorecard.json"
+    if not path.exists():
+        return {"present": False}
+    try:
+        sc = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {"present": False, "unreadable": True}
+    if not isinstance(sc, dict) or not isinstance(sc.get("origins"), dict):
+        return {"present": False, "unreadable": True}
+
+    def bench(block):
+        block = block if isinstance(block, dict) else {}
+        return {"n": block.get("n"), "median_pct": block.get("median_pct"),
+                "hit_rate_pct": block.get("hit_rate_pct")}
+
+    def horizon(h):
+        h = h if isinstance(h, dict) else {}
+        cl = h.get("call_level") if isinstance(h.get("call_level"), dict) else {}
+        return {"status": h.get("status"), "n_calls": h.get("n_calls"),
+                "n_matured": h.get("n_matured"), "n_graded_calls": h.get("n_graded_calls"),
+                "excluded_by_reason": h.get("excluded_by_reason") or {},
+                "vs_spy": bench(cl.get("vs_spy")), "vs_universe": bench(cl.get("vs_universe"))}
+
+    origins = {}
+    for oname, o in sc["origins"].items():
+        if not isinstance(o, dict):
+            continue
+        labels = {}
+        graded = {h: 0 for h in SCORECARD_HORIZONS}
+        ungraded_calls = 0
+        excluded = {}
+        for lname, lv in (o.get("labels") or {}).items():
+            slim = {h: horizon((lv or {}).get(h)) for h in SCORECARD_HORIZONS}
+            labels[lname] = slim
+            for h in SCORECARD_HORIZONS:
+                graded[h] += slim[h]["n_graded_calls"] or 0
+            td = slim["to_date"]
+            ungraded_calls += (td["n_calls"] or 0) - (td["n_graded_calls"] or 0)
+            for reason, n in td["excluded_by_reason"].items():
+                excluded[reason] = excluded.get(reason, 0) + (n or 0)
+        spearman = None
+        if isinstance(o.get("spearman"), dict):
+            spearman = {}
+            for h in SCORECARD_HORIZONS:
+                sp = o["spearman"].get(h) or {}
+                spearman[h] = {"status": sp.get("status"),
+                               "vs_spy": sp.get("vs_spy") or {}, "vs_universe": sp.get("vs_universe") or {}}
+        origins[oname] = {
+            "examined": o.get("examined"), "unlabeled": o.get("unlabeled"),
+            "calls": o.get("calls"), "provenance": o.get("provenance") or {},
+            "untied": o.get("untied") or {},
+            "graded_by_horizon": graded, "ungraded_calls": ungraded_calls,
+            "excluded_tickers_by_reason": excluded,
+            "labels": labels, "spearman": spearman}
+    return {"present": True, "run_date": sc.get("run_date"), "graded_through": sc.get("graded_through"),
+            "tickers_priced": (sc.get("universe") or {}).get("tickers_priced"),
+            "scenarios": sc.get("scenarios") or {}, "origins": origins}
+
+
 def build_campaign_ix(data_dir=DATA, chains=None, screens=None, stocks=None,
                       requests=None) -> dict:
     """Build the campaign dashboard's bounded, deterministic projection.
@@ -2476,6 +2551,7 @@ def build_payload(data_dir=DATA, root=ROOT):
                 json.loads((DATA / "shadow" / "book.json").read_text()) if (DATA / "shadow" / "book.json").exists() else {"rows": []},
                 json.loads((DATA / "shadow" / "results.json").read_text()) if (DATA / "shadow" / "results.json").exists() else {}),
         },
+        "scorecard": project_scorecard(DATA),
         "trades": trades,
         "requests": project_requests(requests),
         "health": {

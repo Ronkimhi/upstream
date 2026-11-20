@@ -703,7 +703,7 @@
       na("#/themes", "יומן", "themes") +
       na("#/agents", "סוכנים", "agents") +
       na("#/book", "עסקאות", "book") +
-      na("#/shadow", "צל", "shadow") +
+      na("#/shadow", "ציונים וצל", "shadow") +
       na("#/guide", "מדריך", "guide") +
       "</nav>" +
       '<span class="spacer"></span>' +
@@ -2930,6 +2930,121 @@
         '<div class="emptystate">עדיין לא נרשמו עסקאות.<div style="margin-top:12px">' + cmdline('log trade VRT bought 112 "starter position"') + "</div></div>") +
       footer() + "</main>";
   }
+  /* ---------------- label scorecard (Ron, 2026-11-19: "Yes, add it") ----------------
+     Every label the machine issues is frozen when first seen (tools/scorecard.py, run by
+     the fetch workflow) and graded against later returns. app/build.py project_scorecard
+     ships only the aggregates: medians, hit rates, maturity counts and denominators are
+     COPIED from that grader, never recomputed here. A null stays a word ("not graded
+     yet"), never a 0 and never blank, and a zero that is real prints as 0. */
+  var SC_HORIZONS = [["h30", 30], ["h90", 90], ["h180", 180], ["h365", 365]];
+  var SC_LOW_IS_RIGHT = { CROWDED: 1, OVER_CROWDED: 1, TOO_LATE: 1 };
+  var SC_ORIGINS = [
+    { k: "HEAT", t: "חום: כמה צפופה כל חוליה", order: ["UNDISCOVERED", "EMERGING", "QUIET", "CROWDED", "OVER_CROWDED"] },
+    { k: "TIER", t: "דרגות: כמה כל חברה מבטיחה", order: ["O1", "O2", "O3"] },
+    { k: "DIVE", t: "הכרעות אחרי צלילה", order: ["WATCH", "TOO_LATE", "INVESTABLE"] },
+    { k: "IMPACT", t: "השפעה: כמה כסף האירוע מזיז", order: ["PRIME", "REACHABLE", "LEAKY", "COMPETED", "THIN"] }
+  ];
+  var SC_REASON = { "NO_SERIES": "אין סדרת מחירים", "START_GAP>5d": "המחיר הראשון רחוק מתאריך הקריאה" };
+  var SC_UNTIED = { "OCCURRENCE_NOT_A_SIGNAL": "אירועים שלא קשורים לאות, בלי מניות לדירוג" };
+  var SC_SCORES = [["impact", "השפעה"], ["crowdedness", "צפיפות"], ["capture", "לכידת ערך"], ["composite", "משולב"]];
+  function scB(v) { return "<bdi class='num'>" + esc(v) + "</bdi>"; }
+  function scPct(v, digits) {
+    if (v == null) return "<span class='muted'>עוד לא נבדק</span>";
+    return "<bdi class='num'>" + (v > 0 ? "+" : "") + v.toFixed(digits) + "%</bdi>";
+  }
+  function scCell(c, interim) {
+    var cls = interim ? " class='sc-interim'" : "";
+    if (!c) return "<td" + cls + "><span class='muted'>אין נתון</span></td>";
+    if (c.status === "NOT_MATURED") {
+      return "<td" + cls + "><span class='muted'>עוד לא הבשיל</span><div class='small muted'>הבשילו " +
+        scB(num(c.n_matured, "?")) + " מתוך " + scB(num(c.n_calls, "?")) + "</div></td>";
+    }
+    var sp = c.vs_spy || {}, un = c.vs_universe || {};
+    if (c.status !== "GRADED" && c.status !== "INTERIM") {
+      return "<td" + cls + "><span class='muted'>עוד לא נבדק</span></td>";
+    }
+    if (!c.n_graded_calls) {
+      return "<td" + cls + "><span class='muted'>עוד לא נבדק</span><div class='small muted'>אין קריאה עם מחירים לדירוג מתוך " +
+        scB(num(c.n_calls, "?")) + "</div></td>";
+    }
+    return "<td" + cls + "><div>מול SPY " + scPct(sp.median_pct, 2) + "</div>" +
+      "<div>מול המפה " + scPct(un.median_pct, 2) + "</div>" +
+      "<div class='small muted'>פגיעה מול SPY " + (sp.hit_rate_pct == null ? "עוד לא נבדק" : scB(sp.hit_rate_pct.toFixed(1) + "%")) +
+      " · נבדקו " + scB(c.n_graded_calls) + " מתוך " + scB(num(c.n_calls, "?")) + "</div></td>";
+  }
+  function scOriginLine(o) {
+    var parts = [scB(num(o.calls, "?")) + " קריאות שמורות"];
+    var g = o.graded_by_horizon || {}, done = [];
+    SC_HORIZONS.forEach(function (h) { if (g[h[0]]) done.push("ב-" + scB(h[1]) + " יום " + scB(g[h[0]])); });
+    parts.push("נבדקו סופית: " + (done.length ? done.join(", ") : "עדיין אף אחת, אף אופק לא הבשיל"));
+    parts.push("זמני עד היום: " + scB(num(g.to_date, "0")));
+    var ex = o.excluded_tickers_by_reason || {};
+    var exTxt = Object.keys(ex).map(function (r) { return esc(SC_REASON.hasOwnProperty(r) ? SC_REASON[r] : r) + " " + scB(ex[r]); }).join(", ");
+    parts.push("לא נבדקו: " + scB(num(o.ungraded_calls, "0")) + " קריאות" + (exTxt ? " (טיקרים שהוחרגו: " + exTxt + ")" : ""));
+    if (o.unlabeled) parts.push("בלי תווית: " + scB(o.unlabeled));
+    var ut = o.untied || {};
+    Object.keys(ut).forEach(function (r) { parts.push(esc(SC_UNTIED.hasOwnProperty(r) ? SC_UNTIED[r] : r) + ": " + scB(ut[r])); });
+    var pv = o.provenance || {};
+    if (pv.OBSERVED != null) parts.push("נצפו בזמן אמת: " + scB(pv.OBSERVED) + " מתוך " + scB(num(o.calls, "?")) + ", השאר שוחזרו מתאריך התווית בקבצים");
+    return parts.join(" · ");
+  }
+  function scSpearman(o) {
+    var sp = o.spearman;
+    if (!sp) return "";
+    function one(hz) {
+      var blk = (sp[hz] || {}).vs_spy || {};
+      return SC_SCORES.map(function (x) {
+        var r = blk[x[0]] || {};
+        return x[1] + " " + (r.rho == null ? "<span class='muted'>עוד לא נבדק</span>" : scB((r.rho > 0 ? "+" : "") + r.rho.toFixed(3)));
+      }).join(" · ");
+    }
+    var out = [];
+    SC_HORIZONS.forEach(function (h) {
+      var blk = sp[h[0]] || {};
+      if (blk.status === "GRADED") {
+        var n = ((blk.vs_spy || {}).impact || {}).n;
+        out.push(scB(h[1]) + " יום (" + scB(num(n, "?")) + " חוליות): " + one(h[0]));
+      }
+    });
+    if (!out.length) out.push("אף אופק עוד לא הבשיל");
+    var td = sp.to_date || {};
+    var tdN = ((td.vs_spy || {}).impact || {}).n;
+    out.push("<span class='sc-tag'>זמני</span> עד היום (" + scB(num(tdN, "?")) + " חוליות): " + one("to_date"));
+    return "<div class='sc-line'><b>קשר בין כל ציון חום לתשואה מול SPY</b> (מספר בין מינוס 1 ל-1: קרוב ל-0 אומר שאין קשר, קרוב ל-1 אומר שציון גבוה הלך עם עלייה חזקה יותר): " +
+      out.join(" · ") + "</div>";
+  }
+  function scorecardPanel() {
+    var sc = D.scorecard || {};
+    if (!sc.present) {
+      return seclabel("כרטיס ציונים") + "<div class='emptystate'>עדיין אין כרטיס ציונים. הוא נכתב אחרי כל משיכת נתונים אוטומטית.</div>";
+    }
+    var head = "<div class='card sc-head'><p class='sc-what'>כל תווית שהמכונה נותנת נשמרת ביום שנראתה לראשונה, ואחר כך נמדדת מול השוק. " +
+      "תווית שווה אמון רק אחרי ששורת ה-90 יום שלה מנצחת את השוק.</p>" +
+      "<div class='small muted'>הורץ ב-" + scB(num(sc.run_date, "?")) + " · מחירים עד " + scB(num(sc.graded_through, "?")) +
+      " · המחירים הם סגירה גולמית, בלי דיבידנדים. SPY הוא מדד S&amp;P 500; \"המפה\" היא קניית כל " + scB(num(sc.tickers_priced, "?")) +
+      " המניות שעל המפה. מספרים בטבלה הם חציון התשואה העודפת על אותו מדד.</div></div>";
+    var tables = SC_ORIGINS.map(function (spec) {
+      var o = (sc.origins || {})[spec.k];
+      if (!o) return "";
+      var names = Object.keys(o.labels || {});
+      var ordered = spec.order.filter(function (l) { return names.indexOf(l) >= 0; })
+        .concat(names.filter(function (l) { return spec.order.indexOf(l) < 0; }).sort());
+      var rows = ordered.map(function (l) {
+        var lv = o.labels[l];
+        return "<tr><td>" + chip(l) + (SC_LOW_IS_RIGHT[l] ? "<div class='small muted'>בתווית הזו אחוז פגיעה נמוך הוא סימן טוב</div>" : "") + "</td>" +
+          SC_HORIZONS.map(function (h) { return scCell(lv[h[0]], false); }).join("") + scCell(lv.to_date, true) + "</tr>";
+      }).join("");
+      return seclabel(spec.t) + "<div class='tablewrap'><table class='sc-table'><thead><tr><th>תווית</th>" +
+        SC_HORIZONS.map(function (h) { return "<th>" + scB(h[1]) + " יום</th>"; }).join("") +
+        "<th>עד היום <span class='sc-tag'>זמני</span></th></tr></thead><tbody>" + rows + "</tbody></table></div>" +
+        "<div class='sc-line'>" + scOriginLine(o) + "</div>" + (spec.k === "HEAT" ? scSpearman(o) : "");
+    }).join("");
+    var scn = sc.scenarios || {};
+    var scnLine = "<div class='sc-line'><b>תרחישים:</b> " + scB(num(scn.with_probability, "?")) + " עם הסתברות, " +
+      scB(num(scn.resolved, "?")) + " נפתרו, ולכן " + scB(num(scn.unscorable, "?")) +
+      " עוד אי אפשר לדרג. המכונה לא ממציאה תוצאה לתרחיש שעוד לא נפתר.</div>";
+    return seclabel("כרטיס ציונים: האם התוויות של המכונה עובדות") + head + tables + scnLine;
+  }
   function shadowView() {
     var rows = ((D.shadow || {}).book || {}).rows || [];
     var res = (D.shadow || {}).results || {};
@@ -2962,7 +3077,8 @@
         (r.link_id ? " <span class='muted'>" + esc(r.chain_id) + " · " + esc(r.link_id) + "</span>" : "") + "</td><td class='num'>" + fmtMoney((r.spot || {}).value) + "</td><td class='num'>" + esc(r.review_at) + "</td>" +
         "<td>" + (x ? "<span class='num'>" + esc(x.delta_pct) + "% מול SPY</span> " + chip(x.call, x.call) : chip("מחכה ל 90 יום")) + "</td></tr>";
     }).join("");
-    return topbar("shadow") + "<main><div class='pagehead'><h1>ספר הצל</h1><p class='sub'>כל הכרעת " + he("TOO_LATE") + ", כל אות שנדחה, ומאז 2026-09-13 גם כל קריאת חוליה " + he("OVER_CROWDED") + ", מתומחרים מחדש אחרי 90 יום מול SPY. כאן נבדק ה\"לא\" של המכונה, שיעור הצלחה אחד לכל סוג של לא.</p></div>" +
+    return topbar("shadow") + "<main><div class='pagehead'><h1>ציונים וספר הצל</h1><p class='sub'>למעלה: כל תווית שהמכונה נתנה, מול מה שקרה אחר כך בשוק. למטה: ספר הצל, הבדיקה של ה\"לא\" שלה.</p></div>" +
+      scorecardPanel() + seclabel("ספר הצל") + "<p class='sub'>כל הכרעת " + he("TOO_LATE") + ", כל אות שנדחה, ומאז 2026-09-13 גם כל קריאת חוליה " + he("OVER_CROWDED") + ", מתומחרים מחדש אחרי 90 יום מול SPY. כאן נבדק ה\"לא\" של המכונה, שיעור הצלחה אחד לכל סוג של לא.</p>" +
       (cards ? '<div class="statgrid">' + cards + "</div>" : "") +
       (linkRows ? seclabel("חוליות שהמכונה נמנעה מהן") + '<div class="tablewrap"><table><thead><tr><th>שרשרת · חוליה</th><th>תאריך חום</th><th>נוקדו</th><th>שמות, חציון</th><th>הקרן</th></tr></thead><tbody>' + linkRows + "</tbody></table></div>" : "") +
       (rows.length ? seclabel("כל השורות") + '<div class="tablewrap"><table><thead><tr><th>תאריך ההכרעה</th><th>טיקר</th><th>מקור</th><th>מחיר ספוט</th><th>תמחור מחדש ב</th><th>תוצאה</th></tr></thead><tbody>' + body + "</tbody></table></div>" :
